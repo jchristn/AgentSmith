@@ -125,6 +125,7 @@ namespace Hugo.Server.Modules
             context.Register(bindingResolver);
             InstructionCompiler compiler = new InstructionCompiler(context.Database, bindingResolver, templates);
             compiler.MaxKnowledgeCharsPerResource = settings.Instructions.MaxKnowledgeCharsPerResource;
+            compiler.CompactBindingThreshold = settings.Instructions.CompactBindingThreshold;
             compiler.MaxCacheEntries = settings.Instructions.CacheEntries;
             compiler.Warn = message => context.Logging.Warn("[Instructions] " + message);
             context.Register(compiler);

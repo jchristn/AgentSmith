@@ -1,0 +1,1 @@
+Elasticsearch or OpenSearch. Only the allowed index patterns can be queried; check es_indices and es_mappings first. Always set a size in es_search, prefer es_count and aggregations for totals, and bound queries by time.

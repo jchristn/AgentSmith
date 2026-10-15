@@ -1,0 +1,1 @@
+Prometheus. Use prom_query for current values and prom_query_range with an explicit range and step for trends; prefer rate() and aggregations over raw series. prom_alerts and prom_targets show firing alerts and scrape health.

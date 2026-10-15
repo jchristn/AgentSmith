@@ -1,0 +1,1 @@
+HTTP API. Call only paths inside the allowed prefixes with http_request; the resource's authentication is applied automatically, so never put credentials in requests. GET is Read, POST, PUT, and PATCH are Write, DELETE is Destructive. Use http_health_check for availability and TLS questions.
