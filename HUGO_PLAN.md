@@ -86,7 +86,7 @@ These rules keep the plan honest:
 | 1 | Core foundation: settings, data layer, identity, RBAC, sessions, audit, history, telemetry base | M1 | In progress | 38 / 44 |
 | 2 | Secrets vault | M1 | In progress | 11 / 12 |
 | 3 | Connector framework and tool invocation pipeline | M1 | In progress | 4 / 26 |
-| 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | In progress | 32 / 37 |
+| 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | In progress | 33 / 37 |
 | 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | In progress | 0 / 21 |
 | 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | In progress | 10 / 24 |
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Not started | 0 / 22 |
@@ -95,7 +95,7 @@ These rules keep the plan honest:
 | 10 | Docker, testbed, and observability stack | M1 | In progress | 6 / 24 |
 | 11 | Documentation and Postman | M1 | Not started | 0 / 18 |
 | 12 | MVP verification (milestone M1) | M1 | Not started | 0 / 14 |
-| 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | In progress | 24 / 38 |
+| 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | In progress | 25 / 38 |
 | 14 | Knowledge, runbooks, and operator conveniences | M2 | Not started | 0 / 12 |
 | 15 | Benchmarking | M3 | Not started | 0 / 16 |
 | 16 | Hardening, simulated user testing, and 1.0 release | M4 | Not started | 0 / 18 |
@@ -1842,7 +1842,7 @@ SolarWinds Observability
 
 Wrap-up
 - [ ] P4.28 Health sweep background job: periodic `TestConnectionAsync` per active resource (configurable, off by default for expensive connectors), `hugo_resource_health` gauge.
-- [ ] P4.29 `docs/CONNECTORS.md` sections for every wave 1 connector (settings, slots, tools, effects, least-privilege setup guidance for the upstream credential).
+- [x] P4.29 `docs/CONNECTORS.md` sections for every wave 1 connector (settings, slots, tools, effects, least-privilege setup guidance for the upstream credential).  | claude 2026-10-14 docs/CONNECTORS.md (18 connector types, generated from descriptors), docs/MCP_CONNECTOR_TOOLS.md (111 tools with schemas and examples)
 Database intelligence (D-038)
 - [x] P4.31 Port Tablix `SchemaProjection` and `DatabaseIntelligenceBuilder` into `Hugo.Connectors.Sql/Intelligence` (attribution in `VENDORED.md`); full crawl cache with refresh.  | claude 2026-10-14 Intelligence/ port of DatabaseIntelligenceBuilder and SchemaProjection (Tablix 450bc76, VENDORED.md); one shared crawl cache, refresh:true recrawls
 - [x] P4.32 Paged compact indexes for `sql_list_tables` (search, schema filter, cursor) and a new `sql_list_relationships` (declared plus inferred candidates with confidence and evidence).  | claude 2026-10-14 sql_list_tables paged index (search, schema, cursor, pageSize); sql_list_relationships with declared plus inferred candidates, confidence and evidence
@@ -2134,7 +2134,7 @@ Wrap-up
 - [ ] P13.33 `docs/CONNECTORS.md`, `MCP_API.md`, and Postman updated for wave 2.
 - [ ] P13.34 Factory demo profile extended with wave 2 resources.
 - [ ] P13.35 Tool retrieval verified on a profile with more than 100 tools (latency and selection quality noted).
-- [~] P13.36 Least-privilege guides: IAM policy examples (read-only and operator), Kubernetes RBAC manifests, a Redis ACL example.  | claude 2026-10-14 AWS IAM and Kubernetes RBAC guides done (docs/connectors); Redis ACL example pending
+- [x] P13.36 Least-privilege guides: IAM policy examples (read-only and operator), Kubernetes RBAC manifests, a Redis ACL example.  | claude 2026-10-14 AWS IAM, Kubernetes RBAC, and Redis ACL guides in docs/connectors
 - [ ] P13.37 Grafana Tools and Connectors dashboard updated for wave 2 labels.
 - [ ] P13.38 M2 connector sign-off by the user.
 
