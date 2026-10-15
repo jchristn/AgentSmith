@@ -9,7 +9,7 @@ forked from the Garrison dashboard (plan decision D-032) and kept to the require
 
 ```bash
 npm ci
-npm run dev            # http://127.0.0.1:3000, proxies /v1.0, /mcp, /openapi.json to HUGO_API_URL (default http://127.0.0.1:8800)
+npm run dev            # development only: http://127.0.0.1:3000, proxies /v1.0, /mcp, /openapi.json to HUGO_API_URL (default http://127.0.0.1:8800)
 npm run lint
 npm test               # Vitest unit and component suites
 npm run i18n:check     # missing, orphaned, and hard-coded strings; locale parity; placeholders; no dashes

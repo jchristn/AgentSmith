@@ -20,7 +20,7 @@ namespace Hugo.Connectors.Kubernetes.Tools
   ""type"": ""object"",
   ""properties"": {
     ""kind"": { ""type"": ""string"", ""maxLength"": 253, ""description"": ""Kind with a scale subresource: Deployment (default), StatefulSet, ReplicaSet, or a custom resource that supports scale."" },
-    ""name"": { ""type"": ""string"", ""minLength"": 1, ""maxLength"": 253, ""description"": ""Name of the Deployment, StatefulSet, or DaemonSet."" },
+    ""name"": { ""type"": ""string"", ""minLength"": 1, ""maxLength"": 253, ""description"": ""Name of the object to scale (a Deployment, StatefulSet, ReplicaSet, or custom resource with a scale subresource). DaemonSets run one pod per node and cannot be scaled."" },
     ""namespace"": { ""type"": ""string"", ""maxLength"": 63, ""description"": ""Namespace. Defaults to the resource's default namespace."" },
     ""apiVersion"": { ""type"": ""string"", ""maxLength"": 253, ""description"": ""Optional apiVersion when a kind name exists in several API groups."" },
     ""replicas"": { ""type"": ""integer"", ""minimum"": 0, ""maximum"": 1000, ""description"": ""Desired replica count. 0 stops the workload and is Destructive."" }

@@ -67,7 +67,9 @@ namespace Hugo.Connectors.Ssh.Classification
         public static IReadOnlySet<string> WrapperCommands { get; } = new HashSet<string>(StringComparer.Ordinal)
         {
             "sudo", "doas", "su", "env", "nice", "nohup", "setsid", "chronic", "unbuffer", "builtin", "exec", "command",
-            "time", "timeout", "stdbuf", "ionice", "xargs", "watch", "busybox", "eval"
+            "time", "timeout", "stdbuf", "ionice", "xargs", "watch", "busybox", "eval", "chroot", "flock", "taskset",
+            "numactl", "chrt", "prlimit", "runuser", "pkexec", "strace", "ltrace", "nsenter", "unshare", "setpriv",
+            "systemd-run"
         };
 
         /// <summary>

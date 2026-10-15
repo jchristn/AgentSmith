@@ -4,7 +4,6 @@ namespace Hugo.Server.Routes
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
-    using Hugo.Core.Enums;
 
     /// <summary>
     /// Single source of truth mapping every route and MCP tool to the permission it requires. Populated as routes
@@ -15,7 +14,7 @@ namespace Hugo.Server.Routes
         #region Private-Members
 
         private readonly ConcurrentDictionary<string, OperationScope> _Scopes = new ConcurrentDictionary<string, OperationScope>(StringComparer.OrdinalIgnoreCase);
-        private readonly ConcurrentDictionary<string, OperationScope> _ProtocolMethods = new ConcurrentDictionary<string, OperationScope>(StringComparer.Ordinal);
+        private readonly ConcurrentDictionary<string, OperationScope> _Protocol = new ConcurrentDictionary<string, OperationScope>(StringComparer.Ordinal);
 
         #endregion
 
@@ -58,50 +57,44 @@ namespace Hugo.Server.Routes
         }
 
         /// <summary>
-        /// Map a protocol method that shares one HTTP route (for example the A2A JSON-RPC methods) to the resource type and
-        /// operation it requires. Protocol methods are kept apart from <see cref="All"/>, which lists HTTP routes only.
+        /// Record the scope of a protocol operation that is not an HTTP route (an MCP tool, an A2A method). Method names
+        /// the protocol (for example MCP) and Path the operation (for example the tool name). Protocol operations are
+        /// kept apart from routes, so <see cref="All"/> stays the HTTP route inventory.
         /// </summary>
-        /// <param name="protocol">Protocol, for example A2A.</param>
-        /// <param name="method">Method name, for example SendMessage.</param>
-        /// <param name="resourceType">Resource type.</param>
-        /// <param name="operation">Operation.</param>
-        /// <param name="summary">Summary.</param>
-        /// <exception cref="ArgumentNullException">Thrown when protocol or method is null or empty.</exception>
-        /// <exception cref="InvalidOperationException">Thrown when the method is mapped twice.</exception>
-        public void AddProtocolMethod(string protocol, string method, ResourceTypeEnum resourceType, OperationTypeEnum operation, string summary)
+        /// <param name="scope">Scope.</param>
+        /// <exception cref="ArgumentNullException">Thrown when scope is null.</exception>
+        /// <exception cref="InvalidOperationException">Thrown when the same protocol and operation are registered twice.</exception>
+        public void AddProtocolOperation(OperationScope scope)
         {
-            if (String.IsNullOrEmpty(protocol)) throw new ArgumentNullException(nameof(protocol));
-            if (String.IsNullOrEmpty(method)) throw new ArgumentNullException(nameof(method));
-            OperationScope scope = new OperationScope();
-            scope.Method = protocol;
-            scope.Path = method;
-            scope.ResourceType = resourceType;
-            scope.Operation = operation;
-            scope.Authorization = RouteAuthorizationEnum.Scoped;
-            scope.Tag = protocol;
-            scope.Summary = summary ?? String.Empty;
-            if (!_ProtocolMethods.TryAdd(protocol + " " + method, scope)) throw new InvalidOperationException("Protocol method mapped twice: " + protocol + " " + method);
+            if (scope == null) throw new ArgumentNullException(nameof(scope));
+            if (!_Protocol.TryAdd(scope.Method + " " + scope.Path, scope))
+            {
+                throw new InvalidOperationException("Protocol operation registered twice: " + scope.Method + " " + scope.Path);
+            }
         }
 
         /// <summary>
-        /// Find a protocol method's scope. A method without one fails closed.
+        /// Find the scope of a protocol operation.
         /// </summary>
-        /// <param name="protocol">Protocol.</param>
-        /// <param name="method">Method.</param>
-        /// <returns>Scope, or null when unmapped.</returns>
-        public OperationScope? FindProtocolMethod(string protocol, string method)
+        /// <param name="protocol">Protocol (for example MCP).</param>
+        /// <param name="operation">Operation (for example a tool name).</param>
+        /// <returns>Scope or null.</returns>
+        public OperationScope? FindProtocolOperation(string protocol, string operation)
         {
-            _ProtocolMethods.TryGetValue(protocol + " " + method, out OperationScope? scope);
+            _Protocol.TryGetValue(protocol + " " + operation, out OperationScope? scope);
             return scope;
         }
 
         /// <summary>
-        /// Every mapped protocol method, ordered by protocol and method.
+        /// Protocol operation scopes, optionally of one protocol, ordered by protocol then operation.
         /// </summary>
-        /// <returns>Scopes (Method holds the protocol, Path the method name).</returns>
-        public List<OperationScope> ProtocolMethods()
+        /// <param name="protocol">Protocol to filter by, or null for all.</param>
+        /// <returns>Scopes.</returns>
+        public List<OperationScope> ProtocolOperations(string? protocol = null)
         {
-            return _ProtocolMethods.Values.OrderBy(s => s.Method, StringComparer.Ordinal).ThenBy(s => s.Path, StringComparer.Ordinal).ToList();
+            return _Protocol.Values
+                .Where(s => protocol == null || String.Equals(s.Method, protocol, StringComparison.OrdinalIgnoreCase))
+                .OrderBy(s => s.Method, StringComparer.Ordinal).ThenBy(s => s.Path, StringComparer.Ordinal).ToList();
         }
 
         #endregion

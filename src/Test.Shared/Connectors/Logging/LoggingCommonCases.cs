@@ -104,6 +104,35 @@ namespace Test.Shared.Connectors.Logging
                 return Task.CompletedTask;
             }));
 
+            cases.Add(new TestCaseDescriptor(suite, "shared-text-accuracy", "Shared tool text is true for both providers and names no single-provider tool", ct =>
+            {
+                List<string> shared = new List<string>
+                {
+                    LogsToolSchemas.SearchInputSchema, LogsToolSchemas.TailInputSchema,
+                    LogsToolSchemas.Search().Description, LogsToolSchemas.Tail().Description,
+                    LogsToolSchemas.Search().OutputDescription, LogsToolSchemas.Tail().OutputDescription
+                };
+                foreach (string text in shared)
+                {
+                    foreach (string tool in new[] { "logs_list_systems", "logs_list_groups", "logs_list_saved_searches", "logs_volume", "swo_list_entities", "swo_get_entity", "swo_query_metric" })
+                        LoggingTestHelper.Assert(!text.Contains(tool, StringComparison.Ordinal), "shared text names the single-provider tool " + tool);
+                }
+                string search = LogsToolSchemas.Search().Description;
+                LoggingTestHelper.Assert(!search.Contains("oldest first, plus a nextCursor for older events", StringComparison.Ordinal), "search no longer claims one order for both providers");
+                LoggingTestHelper.Assert(search.Contains("Papertrail", StringComparison.Ordinal) && search.Contains("SolarWinds Observability", StringComparison.Ordinal), "search explains the order of each provider");
+                using (JsonDocument doc = JsonDocument.Parse(JsonSerializer.Serialize(new LogVolumePayload())))
+                {
+                    string output = LogsToolSchemas.Volume().OutputDescription;
+                    foreach (string field in new[] { "scanned", "total", "pages", "complete", "scannedFrom", "bucketSeconds" })
+                    {
+                        bool inPayload = doc.RootElement.TryGetProperty(field, out JsonElement _);
+                        bool listed = System.Text.RegularExpressions.Regex.IsMatch(output, @"[{ ,]" + field + @"[,}\[]");
+                        LoggingTestHelper.Assert(inPayload == listed, "logs_volume output field " + field + (inPayload ? " is missing from" : " is listed in") + " the output description");
+                    }
+                }
+                return Task.CompletedTask;
+            }));
+
             cases.Add(new TestCaseDescriptor(suite, "time-parse", "Relative and ISO-8601 times parse; garbage is invalid_argument", ct =>
             {
                 DateTime now = new DateTime(2026, 10, 14, 12, 0, 0, DateTimeKind.Utc);

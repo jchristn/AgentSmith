@@ -68,6 +68,8 @@ namespace Test.Shared.Connectors.Docker
             Add(cases, "tail-buffer", "Tail buffer keeps the end and counts the total", TailBuffer);
             Add(cases, "execute-invalid-reference", "A malformed container reference is refused before connecting", ExecuteInvalidReference);
             Add(cases, "execute-readonly-offline", "A ReadOnly binding refuses changes without contacting the daemon", ExecuteReadOnlyOffline);
+            Add(cases, "events-window-refused", "docker_events refuses a window over maxEventsWindowSeconds instead of clipping it", EventsWindowRefused);
+            Add(cases, "endpoint-help-schemes", "The endpoint help names every accepted scheme", EndpointHelpSchemes);
             Add(cases, "connection-failures", "Refused and unsupported endpoints map to errors", ConnectionFailures);
             Add(cases, "execute-cancelled", "A cancelled token throws OperationCanceledException", ExecuteCancelled);
             return cases;
@@ -464,6 +466,26 @@ namespace Test.Shared.Connectors.Docker
                 ToolResult exec = await Tool("docker_exec").ExecuteAsync(r.Invocation(), new ToolArguments("{\"container\":\"web\",\"command\":[]}"), token).ConfigureAwait(false);
                 SshAssert.Error(exec, "invalid_argument", "empty command");
             }
+        }
+
+        private static async Task EventsWindowRefused(CancellationToken token)
+        {
+            using (DockerTestResource r = new DockerTestResource("events", new Dictionary<string, string> { { "endpoint", "tcp://127.0.0.1:1" }, { "maxEventsWindowSeconds", "3600" } }, null))
+            {
+                ToolResult tooLong = await Tool("docker_events").ExecuteAsync(r.Invocation(), new ToolArguments("{\"since\":\"2h\"}"), token).ConfigureAwait(false);
+                SshAssert.Error(tooLong, "invalid_argument", "two hours over a one hour limit");
+                SshAssert.Contains(tooLong.Text, "maxEventsWindowSeconds", "the error names the setting");
+                ToolResult explicitWindow = await Tool("docker_events").ExecuteAsync(r.Invocation(), new ToolArguments("{\"since\":\"2026-10-01T00:00:00Z\",\"until\":\"2026-10-01T02:00:00Z\"}"), token).ConfigureAwait(false);
+                SshAssert.Error(explicitWindow, "invalid_argument", "an explicit two hour window");
+            }
+        }
+
+        private static Task EndpointHelpSchemes(CancellationToken token)
+        {
+            SettingDescriptor endpoint = _Connector.Descriptor.SettingsSchema.Find("endpoint")!;
+            foreach (string scheme in new[] { "unix://", "tcp://", "npipe://", "http://", "https://" })
+                SshAssert.Contains(endpoint.Help, scheme, "endpoint help names " + scheme);
+            return Task.CompletedTask;
         }
 
         private static async Task ExecuteReadOnlyOffline(CancellationToken token)

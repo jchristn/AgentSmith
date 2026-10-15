@@ -42,7 +42,7 @@ namespace Hugo.Connectors.Redis.Tools
             Name = "redis_delete",
             Title = "Delete Redis keys",
             Description = "Delete up to 100 keys by exact name (UNLINK). Glob patterns are not expanded: find keys with redis_scan first and list them explicitly. "
-                + "Destructive: it requires approval, and deleted data cannot be recovered.",
+                + "Destructive, and it always requires a human approval, whatever the binding's access mode; deleted data cannot be recovered.",
             InputSchemaJson = Schema,
             BaseEffect = EffectEnum.Destructive,
             OutputDescription = "Count deleted and keys that did not exist, plus structured rows."
@@ -61,7 +61,9 @@ namespace Hugo.Connectors.Redis.Tools
             List<string> keys = arguments.GetStringList("keys");
             string shown = String.Join(", ", keys.Take(5).Select(Quote));
             if (keys.Count > 5) shown += " and " + (keys.Count - 5) + " more";
-            return new EffectClassification(EffectEnum.Destructive, "redis_delete removes keys", "Delete " + keys.Count + " Redis key(s) " + shown + " on " + Target(context));
+            EffectClassification c = new EffectClassification(EffectEnum.Destructive, "redis_delete removes keys; deletes always require approval", "Delete " + keys.Count + " Redis key(s) " + shown + " on " + Target(context));
+            c.AlwaysRequireApproval = true;
+            return c;
         }
 
         #endregion

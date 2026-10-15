@@ -279,8 +279,13 @@ namespace Test.Shared.Connectors.Observability
             ToolResult star = await Run(new ElasticsearchConnector(), Es(), "es_search", "{\"index\":\"hugo-*\"}", token).ConfigureAwait(false);
             ObsTestHelper.Error(star, "permission_denied", "wider pattern");
             ToolResult alias = await Run(new ElasticsearchConnector(), Es(), "es_search", "{\"index\":\"hugo-alias\"}", token).ConfigureAwait(false);
-            ObsTestHelper.Ok(alias, "alias");
-            ObsTestHelper.Assert(ObsTestHelper.ArrayLength(alias, "hits") == 0 && ObsTestHelper.Long(alias, "filtered") == 3 && !alias.Text.Contains("classified", StringComparison.Ordinal), alias.Text);
+            ObsTestHelper.Error(alias, "permission_denied", "an allowed alias name that reaches only hugo-secret");
+            ObsTestHelper.Assert(!alias.Text.Contains("classified", StringComparison.Ordinal), alias.Text);
+            ToolResult aliasCount = await Run(new ElasticsearchConnector(), Es(), "es_count", "{\"index\":\"hugo-alias\"}", token).ConfigureAwait(false);
+            ObsTestHelper.Error(aliasCount, "permission_denied", "count through the alias");
+            ToolResult mixed = await Run(new ElasticsearchConnector(), Es(), "es_count", "{\"index\":\"hugo-alias,hugo-logs-*\"}", token).ConfigureAwait(false);
+            ObsTestHelper.Ok(mixed, "alias plus allowed pattern");
+            ObsTestHelper.Assert(ObsTestHelper.Long(mixed, "count") == 50 && mixed.Text.Contains("left out of the count", StringComparison.Ordinal), "only the allowed index is counted: " + mixed.Text);
         }
 
         private static async Task EsErrors(CancellationToken token)

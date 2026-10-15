@@ -175,13 +175,13 @@ namespace Hugo.Connectors.Aws.Tools
                 "{\"type\":\"object\",\"properties\":{"
                 + "\"logGroupNames\":{\"type\":\"array\",\"items\":{\"type\":\"string\"},\"minItems\":1,\"maxItems\":50,\"description\":\"Log groups to query.\"},"
                 + "\"query\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":10000,\"description\":\"Logs Insights query text.\"},"
-                + "\"lookbackMinutes\":{\"type\":\"integer\",\"minimum\":1},"
+                + "\"lookbackMinutes\":{\"type\":\"integer\",\"minimum\":1,\"description\":\"Window length in minutes ending at endTime (default now), used when startTime is not set. Defaults to the resource's defaultLookbackMinutes; the whole window may not exceed maxTimeRangeHours.\"},"
                 + "\"startTime\":{\"type\":\"string\",\"description\":\"ISO 8601 start (UTC when no offset).\"},"
                 + "\"endTime\":{\"type\":\"string\",\"description\":\"ISO 8601 end. Default now.\"},"
                 + "\"limit\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":10000,\"description\":\"Most rows the query returns.\"},"
                 + "\"timeoutSeconds\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":300,\"description\":\"How long to wait; capped by the resource's logsQueryTimeoutSeconds.\"},"
-                + "\"queryId\":{\"type\":\"string\",\"description\":\"Resume waiting for a query started earlier instead of starting a new one.\"}"
-                + "},\"additionalProperties\":false}";
+                + "\"queryId\":{\"type\":\"string\",\"description\":\"Resume waiting for a query started earlier instead of starting a new one. Send the same logGroupNames and query along with it; they are not run again.\"}"
+                + "},\"required\":[\"logGroupNames\",\"query\"],\"additionalProperties\":false}";
             d.BaseEffect = EffectEnum.Read;
             d.OutputDescription = "Query status, statistics, and result rows.";
             return d;

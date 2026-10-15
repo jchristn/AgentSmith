@@ -37,6 +37,7 @@ namespace Test.Shared.Connectors.Http
             cases.Add(Case(suiteId, "settings-schema", "Settings schema lists every documented key with defaults and ranges", SettingsSchema));
             cases.Add(Case(suiteId, "tools", "Tool names, base effects, and per-call flags", ToolsShape));
             cases.Add(Case(suiteId, "tool-schemas", "Tool schemas parse, describe every property, and pass the registry", ToolSchemas));
+            cases.Add(Case(suiteId, "same-origin", "Origins compare scheme, host, and port, and the followRedirects help matches", SameOriginRules));
             cases.Add(Case(suiteId, "family-schemas", "Same-named tools in the http family share one input schema", FamilySchemas));
             cases.Add(Case(suiteId, "validate-ok", "Minimal and fully specified resources validate", ValidateOk));
             cases.Add(Case(suiteId, "validate-errors", "Bad base URL, headers, methods, prefixes, overrides, and ranges are reported per field", ValidateErrors));
@@ -107,6 +108,17 @@ namespace Test.Shared.Connectors.Http
             ToolDescriptor health = HttpTestHelper.Tool(_Connector, "http_health_check").Descriptor;
             HttpTestHelper.Assert(!health.ClassifiedPerCall && health.BaseEffect == EffectEnum.Read, "health Read");
             HttpTestHelper.Assert(_Connector.Tools.All(t => t.Descriptor.Description.Length > 80 && !String.IsNullOrEmpty(t.Descriptor.Title) && !String.IsNullOrEmpty(t.Descriptor.OutputDescription)), "descriptions");
+            return Task.CompletedTask;
+        }
+
+        private static Task SameOriginRules(CancellationToken token)
+        {
+            HttpTestHelper.Assert(HttpSender.SameOrigin(new Uri("https://api.example.com/v1"), new Uri("https://API.example.com:443/v2")), "default port and host case are the same origin");
+            HttpTestHelper.Assert(!HttpSender.SameOrigin(new Uri("https://api.example.com/v1"), new Uri("https://api.example.com:8443/v1")), "another port is another origin");
+            HttpTestHelper.Assert(!HttpSender.SameOrigin(new Uri("http://api.example.com/v1"), new Uri("https://api.example.com/v1")), "another scheme is another origin");
+            HttpTestHelper.Assert(!HttpSender.SameOrigin(new Uri("http://127.0.0.1:8080/"), new Uri("http://127.0.0.1:8081/")), "loopback ports differ");
+            string help = new HttpConnector().Descriptor.SettingsSchema.Find(HttpSettingKeys.FollowRedirects)!.Help ?? String.Empty;
+            HttpTestHelper.Assert(help.Contains("any port", StringComparison.Ordinal) && help.Contains("same scheme, host, and port", StringComparison.Ordinal), "help says redirects follow the host and credentials follow the origin: " + help);
             return Task.CompletedTask;
         }
 

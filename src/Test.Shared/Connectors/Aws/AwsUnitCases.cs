@@ -139,9 +139,28 @@ namespace Test.Shared.Connectors.Aws
                     if (root.TryGetProperty("required", out JsonElement required))
                         foreach (JsonElement r in required.EnumerateArray())
                             AwsAssert.True(props.TryGetProperty(r.GetString()!, out JsonElement _), tool.Descriptor.Name + " required property " + r.GetString() + " is declared");
+                    AssertDescribed(tool.Descriptor.Name, props);
                 }
             }
+
+            using (JsonDocument insights = JsonDocument.Parse(AwsTestSupport.Tool("aws_logs_insights_query").Descriptor.InputSchemaJson))
+            {
+                List<string> required = insights.RootElement.GetProperty("required").EnumerateArray().Select(e => e.GetString() ?? String.Empty).ToList();
+                AwsAssert.True(required.Contains("logGroupNames") && required.Contains("query"), "aws_logs_insights_query requires logGroupNames and query");
+            }
             return Task.CompletedTask;
+        }
+
+        private static void AssertDescribed(string tool, JsonElement properties)
+        {
+            foreach (JsonProperty p in properties.EnumerateObject())
+            {
+                bool described = p.Value.TryGetProperty("description", out JsonElement d) && !String.IsNullOrWhiteSpace(d.GetString());
+                AwsAssert.True(described, tool + " parameter " + p.Name + " has a description");
+                if (p.Value.TryGetProperty("properties", out JsonElement nested)) AssertDescribed(tool, nested);
+                if (p.Value.TryGetProperty("items", out JsonElement items) && items.ValueKind == JsonValueKind.Object && items.TryGetProperty("properties", out JsonElement itemProps))
+                    AssertDescribed(tool, itemProps);
+            }
         }
 
         private static Task BaseEffects(CancellationToken token)

@@ -1,8 +1,10 @@
 namespace Hugo.Connectors.Logging
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Hugo.Connectors.Abstractions;
@@ -93,6 +95,24 @@ namespace Hugo.Connectors.Logging
         /// <param name="token">Cancellation token including the timeout.</param>
         /// <returns>Result.</returns>
         protected abstract Task<ToolResult> ExecuteCoreAsync(ConnectorInvocationContext context, ToolArguments arguments, CancellationToken token);
+
+        /// <summary>
+        /// Reject arguments that a cursor call must not carry. A cursor holds the original window, query, and filters,
+        /// so a new value next to it would be silently ignored; it is refused instead.
+        /// </summary>
+        /// <param name="arguments">Arguments.</param>
+        /// <param name="names">Argument names that conflict with a cursor.</param>
+        /// <exception cref="ArgumentNullException">Thrown when arguments or names is null.</exception>
+        /// <exception cref="ConnectorException">Thrown with code <c>invalid_argument</c> when any of the names is present.</exception>
+        protected static void RejectWithCursor(ToolArguments arguments, params string[] names)
+        {
+            ArgumentNullException.ThrowIfNull(arguments);
+            ArgumentNullException.ThrowIfNull(names);
+            List<string> present = names.Where(n => arguments.Has(n)).ToList();
+            if (present.Count == 0) return;
+            throw new ConnectorException("invalid_argument", "A cursor continues the original call with its own window, query, and filters, so "
+                + String.Join(", ", present) + (present.Count == 1 ? " is" : " are") + " not allowed with it. Send the cursor alone (limit may change), or start a new call without a cursor.");
+        }
 
         /// <summary>
         /// Effective event limit: the requested value, or the default, capped by the resource maximum and the call's

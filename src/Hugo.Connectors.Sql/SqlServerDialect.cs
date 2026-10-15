@@ -125,6 +125,9 @@ namespace Hugo.Connectors.Sql
                 switch (NormalizeSslMode(options.SslMode))
                 {
                     case "Disable":
+                        builder.Encrypt = SqlConnectionEncryptOption.Parse("false");
+                        builder.TrustServerCertificate = false;
+                        break;
                     case "Prefer":
                         builder.Encrypt = SqlConnectionEncryptOption.Optional;
                         break;

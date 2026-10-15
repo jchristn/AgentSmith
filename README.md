@@ -1,4 +1,4 @@
-<p align="center"><img src="https://raw.githubusercontent.com/jchristn/AgentSmith/main/assets/logo.png" alt="Hugo" width="160" /></p>
+<p align="center"><img src="assets/logo.png" alt="Hugo" width="160" /></p>
 
 # Hugo
 
@@ -8,33 +8,41 @@ The default profile is named Hugo. It calls itself Agent Smith, and it calls you
 
 > Hugo is under active development (`0.1.0-alpha`). The build plan and progress tracker is [`HUGO_PLAN.md`](HUGO_PLAN.md).
 
-## Run it locally
+## Deploy with Docker
+
+Docker is how Hugo is deployed. Kubernetes and minikube assets are planned in `k8s/` and `minikube/` (Phase 17 of the plan); until they land, Docker Compose is the only supported deployment.
 
 ```bash
-dotnet build src/Hugo.sln
-dotnet run --project src/Hugo.Server -f net10.0
-curl http://127.0.0.1:8800/v1.0/api/health
+git clone https://github.com/jchristn/AgentSmith.git
+cd AgentSmith/docker
+./start.sh            # Windows: start.bat
 ```
 
-The server reads `hugo.json` (the copy next to the executable when the working directory has none) and applies `HUGO_*` environment overrides. It listens on `127.0.0.1:8800` and keeps a SQLite database in `data/hugo.db`.
+`start.sh` creates `docker/.env` on first run, generates the master key and the session signing key, and starts the stack. Back up `docker/.env`: losing `HUGO_MASTER_KEY` makes every stored secret unreadable. The stack is Hugo, its dashboard, and an observability stack (Prometheus, Tempo, Loki, Alloy, Grafana). It runs on SQLite by default; set `HUGO_DB_TYPE=Postgresql` in `docker/.env` and start with `docker compose --profile postgres up -d` to use PostgreSQL instead.
 
-First boot creates the `default` tenant, a system administrator `admin@hugo.local`, and a tenant administrator `anderson@hugo.local` (Thomas Anderson). Both start with the password `password` and must change it before using anything else:
+| Service | URL |
+|---|---|
+| Dashboard | http://127.0.0.1:8801 |
+| REST, MCP (`/mcp`), and A2A (`/v1.0/a2a`) | http://127.0.0.1:8800 |
+| Grafana (admin / admin, change it) | http://127.0.0.1:3000 |
+| Prometheus | http://127.0.0.1:9090 |
+
+Log in to the dashboard as `anderson@hugo.local` with the password `password` (tenant `default`). Hugo makes you choose a new password before anything else. A system administrator, `admin@hugo.local`, is seeded the same way.
+
+Keeping it current and starting over:
 
 ```bash
-curl -X POST http://127.0.0.1:8800/v1.0/token -H "x-email: anderson@hugo.local" -H "x-password: password"
-curl -X POST http://127.0.0.1:8800/v1.0/api/users/me/password -H "Authorization: Bearer <token>" \
-  -d '{"currentPassword":"password","newPassword":"<new password>"}'
+./update.sh               # pull new images and recreate the stack; data is kept
+./factory/reset.sh        # delete everything, including stored secrets, and start fresh
 ```
 
-Secrets are encrypted with a master key from `HUGO_MASTER_KEY` (base64, 32 bytes or more; for example `openssl rand -base64 32`). Without it, a development key file is generated in `data/master.key` and the server logs a loud warning. Never run production that way.
+Every host port binds to `127.0.0.1` and can be changed in `docker/.env`. See [`docs/DOCKER.md`](docs/DOCKER.md) for networking to your own systems (`host.docker.internal`, the Docker socket for the Docker connector), PostgreSQL, and upgrades.
 
-## Test
+MCP clients such as Claude Code connect to `http://127.0.0.1:8800/mcp` (or `/mcp/<profile>`) with an access key or a bearer token; see [`docs/MCP_CLIENTS.md`](docs/MCP_CLIENTS.md) for HTTP and stdio configuration.
 
-```bash
-dotnet run --project src/Test.Automated -f net10.0
-HUGO_TEST_POSTGRES="Host=127.0.0.1;Port=55432;Database=hugo_test;Username=postgres;Password=postgres" \
-  dotnet run --project src/Test.Automated -f net10.0 -- --providers postgresql
-```
+## Developing Hugo
+
+Building, testing, and the connector testbed are covered in [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md). Those instructions are for working on Hugo's source; they are not a way to deploy it.
 
 ## License
 

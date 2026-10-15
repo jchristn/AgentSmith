@@ -65,7 +65,7 @@ namespace Hugo.Connectors.Ssh.Tools
             Title = "Read a file",
             Description = "Read a file on the SSH host over SFTP, either a byte range (offset, length) or a line range (startLine, lineCount). "
                 + "Use it for configuration files and other text; use ssh_tail_file for the end of logs. Output is bounded: the header states the file size and the range returned, "
-                + "and tells you the offset to continue from. Binary content is returned as base64.",
+                + "and tells you the offset to continue from. Binary content (NUL bytes or invalid UTF-8) is returned as base64 in byte mode; line mode refuses it with invalid_argument.",
             InputSchemaJson = _Schema,
             BaseEffect = EffectEnum.Read,
             OutputDescription = "A '#' header with the path, size, and range, followed by the content."
@@ -108,7 +108,8 @@ namespace Hugo.Connectors.Ssh.Tools
                 int lineCount = arguments.GetInt("lineCount", context.Limits.MaxLines, 1, context.Limits.MaxLines);
                 int want = (int)Math.Min(size, options.MaxFileReadBytes);
                 byte[] data = await ReadRangeAsync(context, sftp, path, display, 0, want, token).ConfigureAwait(false);
-                if (data.Contains((byte)0)) return ToolResult.Error("invalid_argument", "'" + display + "' looks binary. Use byte mode (offset and length) to read it as base64.");
+                if (SshBinaryDetector.LooksBinary(data))
+                    return ToolResult.Error("invalid_argument", "'" + display + "' looks binary (it contains NUL bytes or is not valid UTF-8), and line mode reads text only. Call ssh_read_file again with offset and length instead of startLine and lineCount to get the bytes as base64.");
 
                 string text = Encoding.UTF8.GetString(data);
                 List<string> lines = SplitLines(text);
@@ -151,7 +152,7 @@ namespace Hugo.Connectors.Ssh.Tools
             if (end < size) head.Append("; more data follows, continue with offset=").Append(end.ToString(CultureInfo.InvariantCulture));
 
             string content;
-            if (chunk.Contains((byte)0))
+            if (SshBinaryDetector.LooksBinary(chunk))
             {
                 int b64 = Math.Min(chunk.Length, budget * 3 / 4);
                 head.Append("; binary content shown as base64");

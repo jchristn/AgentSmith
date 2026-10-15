@@ -52,7 +52,7 @@ namespace Test.Shared.Connectors.Kubernetes
                 Case("W", "custom resource of an unknown kind", widget, open),
                 Case("D", "custom destructive kinds include ConfigMap", configMap, customKinds),
                 Case("D", "custom destructive kinds include a custom resource", widget, customKinds),
-                Case("W", "custom destructive kinds drop Role", role, customKinds),
+                Case("D", "custom destructive kinds keep the built-in Role", role, customKinds),
                 Case("D", "explicit null removes a field", "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web\nspec:\n  replicas: null\n", open),
                 Case("D", "empty value is null", "apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: settings\ndata:\n  a:\n", open),
                 Case("W", "quoted null is a string", "apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: settings\ndata:\n  a: \"null\"\n", open),

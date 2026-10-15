@@ -120,8 +120,8 @@ namespace Hugo.Connectors.Aws.Tools
                 "{\"type\":\"object\",\"properties\":{"
                 + "\"cluster\":{\"type\":\"string\",\"description\":\"Cluster name or ARN. Default 'default'.\"},"
                 + "\"service\":{\"type\":\"string\",\"minLength\":1,\"description\":\"Service name or ARN.\"},"
-                + "\"desiredCount\":{\"type\":\"integer\",\"minimum\":0,\"maximum\":100000},"
-                + "\"forceNewDeployment\":{\"type\":\"boolean\"}"
+                + "\"desiredCount\":{\"type\":\"integer\",\"minimum\":0,\"maximum\":100000,\"description\":\"New desired task count, 0 to 100000. 0 stops every task of the service and is Destructive. Omit to keep the current count; set this, forceNewDeployment, or both.\"},"
+                + "\"forceNewDeployment\":{\"type\":\"boolean\",\"description\":\"Start a new deployment that replaces every running task, for example to pick up a new image pushed under the same tag. Default false.\"}"
                 + "},\"required\":[\"service\"],\"additionalProperties\":false}";
             d.BaseEffect = EffectEnum.Write;
             d.ClassifiedPerCall = true;

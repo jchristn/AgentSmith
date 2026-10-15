@@ -148,11 +148,11 @@ namespace Hugo.Connectors.Aws.Tools
                 + "line per event, oldest first, capped by the event limit. Use aws_logs_insights_query for aggregation.";
             d.InputSchemaJson =
                 "{\"type\":\"object\",\"properties\":{"
-                + "\"logGroupName\":{\"type\":\"string\",\"minLength\":1},"
-                + "\"logStreamNames\":{\"type\":\"array\",\"items\":{\"type\":\"string\"},\"maxItems\":100},"
-                + "\"logStreamNamePrefix\":{\"type\":\"string\"},"
+                + "\"logGroupName\":{\"type\":\"string\",\"minLength\":1,\"description\":\"Log group to read, for example /aws/lambda/checkout.\"},"
+                + "\"logStreamNames\":{\"type\":\"array\",\"items\":{\"type\":\"string\"},\"maxItems\":100,\"description\":\"Only these log streams (up to 100). Do not combine with logStreamNamePrefix.\"},"
+                + "\"logStreamNamePrefix\":{\"type\":\"string\",\"description\":\"Only log streams whose names start with this prefix. Do not combine with logStreamNames.\"},"
                 + "\"filterPattern\":{\"type\":\"string\",\"description\":\"CloudWatch Logs filter pattern.\"},"
-                + "\"lookbackMinutes\":{\"type\":\"integer\",\"minimum\":1},"
+                + "\"lookbackMinutes\":{\"type\":\"integer\",\"minimum\":1,\"description\":\"Window length in minutes ending at endTime (default now), used when startTime is not set. Defaults to the resource's defaultLookbackMinutes; the whole window may not exceed maxTimeRangeHours.\"},"
                 + "\"startTime\":{\"type\":\"string\",\"description\":\"ISO 8601 start (UTC when no offset).\"},"
                 + "\"endTime\":{\"type\":\"string\",\"description\":\"ISO 8601 end. Default now.\"},"
                 + "\"limit\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":10000,\"description\":\"Most events returned; capped by the resource's logsMaxEvents.\"},"

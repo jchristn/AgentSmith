@@ -41,6 +41,7 @@ Hugo records metrics through the `Hugo` meter and spans through the `Hugo` activ
 | `hugo_model_time_to_first_token_seconds` | histogram | `provider` | Models | Time from a streaming model request to its first token |
 | `hugo_model_tokens_total` | counter | `provider`, `direction` | Models | Model tokens by provider and direction (input, output) |
 | `hugo_a2a_requests_total` | counter | `method`, `outcome` | Protocols | A2A JSON-RPC requests by canonical method (SendMessage, SendStreamingMessage, GetTask, ListTasks, CancelTask, SubscribeToTask, GetExtendedAgentCard, unknown) and outcome (ok, error) |
+| `hugo_mcp_requests_total` | counter | `method`, `outcome` | Protocols | MCP requests on /mcp by JSON-RPC method (initialize, tools/list, tools/call, ...; other for anything else) and outcome (ok, tool_error, error, stream, unauthenticated, forbidden, not_found, bad_request) |
 | `hugo_sse_events_total` | counter | `stream` | Protocols | Server-sent events written |
 | `hugo_sse_streams_active` | gauge | `stream` | Protocols | Server-sent event streams open on this server (events, chat, A2A) |
 | `hugo_audit_events_total` | counter | `type` | Security | Audit records written, by event type |

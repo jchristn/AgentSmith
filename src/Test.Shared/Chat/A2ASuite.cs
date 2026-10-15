@@ -177,7 +177,7 @@ namespace Test.Shared.Chat
                     Assert.True(garbage.Body.Contains("-32700", StringComparison.Ordinal), "parse error");
                     TestResponse empty = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Post, "/v1.0/a2a/" + rig.TenantId + "/Hugo", "{\"jsonrpc\":\"2.0\",\"id\":9,\"method\":\"SendMessage\",\"params\":{\"message\":{\"role\":\"ROLE_USER\",\"messageId\":\"m\",\"parts\":[]}}}", token).ConfigureAwait(false);
                     Assert.True(empty.Body.Contains("-32602", StringComparison.Ordinal), "a message without parts is invalid: " + empty.Body);
-                    Assert.True(rig.Context.Scopes.FindProtocolMethod("A2A", "SendMessage")?.Operation == OperationTypeEnum.Execute && rig.Context.Scopes.ProtocolMethods().Count == 7, "every A2A method is in the operation scope map");
+                    Assert.True(rig.Context.Scopes.FindProtocolOperation("A2A", "SendMessage")?.Operation == OperationTypeEnum.Execute && rig.Context.Scopes.ProtocolOperations("A2A").Count == 7, "every A2A method is in the operation scope map");
                 }
             }
         }

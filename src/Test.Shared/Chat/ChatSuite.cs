@@ -334,8 +334,8 @@ namespace Test.Shared.Chat
 
                     stub.Script.Then(StubLlmResponse.ToolCall("echo_read", "{\"resource\":\"echo-a\",\"text\":\"disk\"}"), StubLlmResponse.Message("Disk is fine, Mr. Anderson."));
                     AgentDelegationResult rest = await HttpTestHelpers.SendAsync<AgentDelegationResult>(rig.Anderson, HttpMethod.Post, "/v1.0/api/agent-profiles/" + rig.Hugo.Id + "/ask", new { message = "Check the disk." }, 200, token).ConfigureAwait(false);
-                    Assert.True(rest.Status == AgentDelegationStatusEnum.Completed && rest.FinalText == "Disk is fine, Mr. Anderson.", "REST ask: " + rest.Status + " " + rest.ErrorMessage);
-                    Assert.True(rest.ToolTrace.Count == 1 && rest.ToolTrace[0].ToolName == "echo_read" && rest.ToolTrace[0].Resource == "echo-a" && rest.ToolTrace[0].Decision == "Allowed", "compact tool trace");
+                    Assert.True(rest.Status == AgentDelegationStatusEnum.Completed && rest.FinalText == "Disk is fine, Mr. Anderson.", "REST ask: " + rest.Status + " " + rest.FinalText);
+                    Assert.True(rest.ToolTrace.Count == 1 && rest.ToolTrace[0].StartsWith("echo_read on echo-a: Allowed", StringComparison.Ordinal), "compact tool trace: " + String.Join(" | ", rest.ToolTrace));
                     Conversation restConversation = await HttpTestHelpers.SendAsync<Conversation>(rig.Anderson, HttpMethod.Get, "/v1.0/api/conversations/" + rest.ConversationId, null, 200, token).ConfigureAwait(false);
                     Assert.Equal(ConversationSourceEnum.Rest, restConversation.Source, "REST asks map onto a conversation");
                     TestResponse byName = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Post, "/v1.0/api/agent-profiles/missing_profile/ask", new { message = "x" }, token).ConfigureAwait(false);
@@ -346,7 +346,7 @@ namespace Test.Shared.Chat
                     AgentDelegationResult pending = await rig.Context.AgentDelegation!.AskAsync(anderson, rig.TenantId, "Hugo", "Restart echo.", null, token).ConfigureAwait(false);
                     Assert.Equal(AgentDelegationStatusEnum.ApprovalPending, pending.Status, "the write waits for approval: " + pending.FinalText);
                     Assert.True(pending.ApprovalId != null && pending.ApprovalId.StartsWith("apr_", StringComparison.Ordinal) && pending.FinalText.Contains(pending.ApprovalId, StringComparison.Ordinal), "the pending approval is named");
-                    Conversation mcpConversation = (await rig.Context.Database.Conversations.ReadAsync(rig.TenantId, pending.ConversationId, token).ConfigureAwait(false))!;
+                    Conversation mcpConversation = (await rig.Context.Database.Conversations.ReadAsync(rig.TenantId, pending.ConversationId!, token).ConfigureAwait(false))!;
                     Assert.Equal(ConversationSourceEnum.Mcp, mcpConversation.Source, "ask_agent_smith maps onto a conversation");
 
                     await rig.DecideAsync(pending.ApprovalId!, "approve", token).ConfigureAwait(false);
@@ -356,7 +356,7 @@ namespace Test.Shared.Chat
                     Assert.Equal(pending.ConversationId, followUp.ConversationId, "same conversation");
                     string lastRequest = stub.ChatRequests.Last(r => !r.Body.Contains("Write a short title", StringComparison.Ordinal)).Body;
                     Assert.True(lastRequest.Contains("[approval " + pending.ApprovalId + "]", StringComparison.Ordinal) && lastRequest.Contains("approved", StringComparison.Ordinal), "the next turn learns the approval outcome");
-                    List<ConversationMessage> notes = (await rig.Context.Database.Messages.ListAsync(rig.TenantId, pending.ConversationId, true, token).ConfigureAwait(false)).Where(m => m.Role == AgentMessageRoleEnum.System).ToList();
+                    List<ConversationMessage> notes = (await rig.Context.Database.Messages.ListAsync(rig.TenantId, pending.ConversationId!, true, token).ConfigureAwait(false)).Where(m => m.Role == AgentMessageRoleEnum.System).ToList();
                     Assert.Equal(1, notes.Count, "one follow-up note");
                 }
             }

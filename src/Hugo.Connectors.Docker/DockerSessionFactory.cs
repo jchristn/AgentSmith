@@ -45,7 +45,7 @@ namespace Hugo.Connectors.Docker
                 case "ssh":
                     throw new ConnectorException(ConnectorErrorCodes.NotSupported, "ssh:// endpoints are not supported yet. Expose the daemon on TCP with TLS, or run Hugo where it can reach the socket.");
                 default:
-                    throw new ConnectorException(ConnectorErrorCodes.InvalidSetting, "Unsupported endpoint scheme '" + uri.Scheme + "'. Use unix://, tcp://, or npipe://.");
+                    throw new ConnectorException(ConnectorErrorCodes.InvalidSetting, "Unsupported endpoint scheme '" + uri.Scheme + "'. Use unix://, tcp://, http://, https://, or npipe://.");
             }
         }
 

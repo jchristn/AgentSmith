@@ -118,13 +118,7 @@ namespace Hugo.Server.Services
             if (result == null) throw new ArgumentNullException(nameof(result));
             AgentDelegationResult delegation = new AgentDelegationResult();
             delegation.ConversationId = result.ConversationId;
-            delegation.TurnId = result.TurnId;
-            delegation.ProfileId = profileId ?? String.Empty;
             delegation.FinalText = result.FinalText;
-            delegation.FinishReason = AgentTurnHost.ReasonLabel(result.FinishReason);
-            delegation.InputTokens = result.TokensIn;
-            delegation.OutputTokens = result.TokensOut;
-            delegation.DurationMs = result.DurationMs;
             delegation.ApprovalId = result.PendingApprovalId;
             switch (result.FinishReason)
             {
@@ -133,30 +127,32 @@ namespace Hugo.Server.Services
                     break;
                 case AgentFinishReasonEnum.Error:
                     delegation.Status = AgentDelegationStatusEnum.Failed;
-                    delegation.ErrorCode = result.ErrorCode ?? "error";
-                    delegation.ErrorMessage = result.ErrorMessage;
+                    delegation.FinalText = "The turn failed (" + (result.ErrorCode ?? "error") + "): " + (result.ErrorMessage ?? "unknown error");
                     break;
                 case AgentFinishReasonEnum.Cancelled:
                     delegation.Status = AgentDelegationStatusEnum.Failed;
-                    delegation.ErrorCode = "cancelled";
-                    delegation.ErrorMessage = "The turn was cancelled.";
+                    delegation.FinalText = "The turn was cancelled.";
                     break;
                 default:
                     delegation.Status = AgentDelegationStatusEnum.Completed;
                     break;
             }
-            delegation.ToolTrace = result.ToolCalls.Select(c => new AgentDelegationToolStep
-            {
-                ToolName = c.ToolName,
-                Resource = c.Resource,
-                Effect = c.Effect.ToString(),
-                Decision = c.Decision.ToString(),
-                IsError = c.IsError,
-                ErrorCode = c.ErrorCode,
-                ApprovalId = c.ApprovalId,
-                DurationMs = c.DurationMs
-            }).ToList();
+            delegation.ToolTrace = result.ToolCalls.Select(Trace).ToList();
             return delegation;
+        }
+
+        /// <summary>
+        /// One compact trace line for a tool call, for example "echo_read on echo-a: Allowed, Read, ok, 12 ms".
+        /// </summary>
+        /// <param name="call">Tool call record.</param>
+        /// <returns>Trace line.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when call is null.</exception>
+        public static string Trace(AgentToolCallRecord call)
+        {
+            if (call == null) throw new ArgumentNullException(nameof(call));
+            return call.ToolName + (String.IsNullOrEmpty(call.Resource) ? String.Empty : " on " + call.Resource) + ": " + call.Decision + ", " + call.Effect
+                + ", " + (call.IsError ? "error " + (call.ErrorCode ?? "unknown") : "ok") + ", " + call.DurationMs + " ms"
+                + (String.IsNullOrEmpty(call.ApprovalId) ? String.Empty : ", approval " + call.ApprovalId);
         }
 
         #endregion

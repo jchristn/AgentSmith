@@ -13,7 +13,8 @@ namespace Hugo.Connectors.Redis.Classification
 
         /// <summary>
         /// Commands (upper case, optionally with a subcommand such as <c>CONFIG GET</c>) that are rejected outright.
-        /// Default contains <c>KEYS</c>, which blocks the server while it walks every key.
+        /// Default contains <c>KEYS</c>, which blocks the server while it walks every key. <see cref="From"/> builds the
+        /// effective set: the resource's <c>deniedCommands</c> plus <c>KEYS</c> unless <c>allowKeysCommand</c> is on.
         /// </summary>
         public HashSet<string> Denied { get; set; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "KEYS" };
 
@@ -38,6 +39,7 @@ namespace Hugo.Connectors.Redis.Classification
             ArgumentNullException.ThrowIfNull(options);
             RedisClassifierOptions o = new RedisClassifierOptions();
             o.Denied = new HashSet<string>(options.DeniedCommands.Select(Normalize).Where(s => s.Length > 0), StringComparer.OrdinalIgnoreCase);
+            if (!options.AllowKeysCommand) o.Denied.Add("KEYS");
             o.ExtraReadOnly = new HashSet<string>(options.ReadOnlyCommands.Select(Normalize).Where(s => s.Length > 0), StringComparer.OrdinalIgnoreCase);
             return o;
         }

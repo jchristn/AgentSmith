@@ -20,6 +20,8 @@
     <ProjectReference Include="..\Hugo.Connectors.Docker\Hugo.Connectors.Docker.csproj" />
     <!-- Built first so the plugin loader suite can copy its output into a plugin directory; never referenced. -->
     <ProjectReference Include="..\Test.Plugin\Test.Plugin.csproj" ReferenceOutputAssembly="false" Private="false" />
+    <ProjectReference Include="..\Hugo.Connectors.Agents\Hugo.Connectors.Agents.csproj" />
+    <ProjectReference Include="..\Hugo.Cli\Hugo.Cli.csproj" />
   </ItemGroup>
 
   <ItemGroup>

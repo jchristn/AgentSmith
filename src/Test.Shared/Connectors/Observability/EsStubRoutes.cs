@@ -1,13 +1,17 @@
 namespace Test.Shared.Connectors.Observability
 {
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
+    using System.Linq;
     using System.Text;
     using System.Text.RegularExpressions;
 
     /// <summary>
-    /// Recorded Elasticsearch and OpenSearch REST response shapes for <see cref="ObservabilityStub"/>. Searches on the
-    /// alias <c>logs-alias</c> return hits from <c>secret-index</c>, to exercise hit filtering.
+    /// Recorded Elasticsearch and OpenSearch REST response shapes for <see cref="ObservabilityStub"/>. The alias
+    /// <c>logs-alias</c> points to <c>logs-2026.10</c> and <c>secret-index</c>, and <c>secret-alias</c> only to
+    /// <c>secret-index</c>; a search sent straight to <c>logs-alias</c> returns hits from <c>secret-index</c>, to
+    /// exercise hit filtering.
     /// </summary>
     public class EsStubRoutes
     {
@@ -22,6 +26,12 @@ namespace Test.Shared.Connectors.Observability
         /// Total matches reported by searches. Default 50.
         /// </summary>
         public int Total { get; set; } = 50;
+
+        /// <summary>
+        /// Whether <c>_resolve/index</c> expands wildcards to aliases too, as Elasticsearch does. Default false, so the
+        /// other cases see <c>logs-*</c> resolve to the two log indexes only.
+        /// </summary>
+        public bool WildcardMatchesAliases { get; set; } = false;
 
         #endregion
 
@@ -54,6 +64,9 @@ namespace Test.Shared.Connectors.Observability
                     + "{\"health\":\"yellow\",\"status\":\"open\",\"index\":\"logs-2026.10\",\"docs.count\":\"50\",\"store.size\":\"10261\",\"pri\":\"1\",\"rep\":\"1\"},"
                     + "{\"health\":\"green\",\"status\":\"open\",\"index\":\"logs-2026.09\",\"docs.count\":\"7\",\"store.size\":\"5000\",\"pri\":\"1\",\"rep\":\"0\"}]");
 
+            if (path.StartsWith("/_resolve/index/", StringComparison.Ordinal))
+                return Resolve(path.Substring("/_resolve/index/".Length));
+
             string[] parts = path.TrimStart('/').Split('/');
             if (parts.Length != 2) return StubReply.Status(404, "{\"error\":{\"type\":\"no_handler\",\"reason\":\"no handler\"},\"status\":404}");
             string index = parts[0];
@@ -81,6 +94,43 @@ namespace Test.Shared.Connectors.Observability
         #endregion
 
         #region Private-Methods
+
+        private StubReply Resolve(string expression)
+        {
+            string[] catalog = new[] { "logs-2026.09", "logs-2026.10", "secret-index" };
+            Dictionary<string, string[]> aliases = new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                { "logs-alias", new[] { "logs-2026.10", "secret-index" } },
+                { "secret-alias", new[] { "secret-index" } }
+            };
+            SortedSet<string> indices = new SortedSet<string>(StringComparer.Ordinal);
+            SortedSet<string> matchedAliases = new SortedSet<string>(StringComparer.Ordinal);
+            foreach (string part in expression.Split(','))
+            {
+                if (part.Contains("missing", StringComparison.Ordinal))
+                    return StubReply.Status(404, "{\"error\":{\"root_cause\":[{\"type\":\"index_not_found_exception\",\"reason\":\"no such index [" + part + "]\"}],\"type\":\"index_not_found_exception\",\"reason\":\"no such index [" + part + "]\"},\"status\":404}");
+                if (part.Contains('*', StringComparison.Ordinal))
+                {
+                    foreach (string name in catalog.Where(n => Hugo.Connectors.Observability.EsIndexGuard.GlobMatch(n, part))) indices.Add(name);
+                    if (WildcardMatchesAliases)
+                        foreach (string name in aliases.Keys.Where(n => Hugo.Connectors.Observability.EsIndexGuard.GlobMatch(n, part))) matchedAliases.Add(name);
+                }
+                else if (aliases.ContainsKey(part))
+                {
+                    matchedAliases.Add(part);
+                }
+                else
+                {
+                    indices.Add(part);
+                }
+            }
+            StringBuilder sb = new StringBuilder("{\"indices\":[");
+            sb.Append(String.Join(",", indices.Select(i => "{\"name\":\"" + i + "\",\"attributes\":[\"open\"]}")));
+            sb.Append("],\"aliases\":[");
+            sb.Append(String.Join(",", matchedAliases.Select(a => "{\"name\":\"" + a + "\",\"indices\":[" + String.Join(",", aliases[a].Select(i => "\"" + i + "\"")) + "]}")));
+            sb.Append("],\"data_streams\":[]}");
+            return StubReply.Json(sb.ToString());
+        }
 
         private StubReply Search(string index, string body)
         {

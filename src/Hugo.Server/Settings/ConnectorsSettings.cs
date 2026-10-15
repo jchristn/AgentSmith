@@ -15,6 +15,12 @@ namespace Hugo.Server.Settings
         public bool EnablePlugins { get; set; } = false;
 
         /// <summary>
+        /// Whether resources of type mcp may launch local MCP servers over stdio inside the Hugo process environment.
+        /// Each resource must also opt in with its allowStdio setting. Default false (restart required).
+        /// </summary>
+        public bool McpAllowStdio { get; set; } = false;
+
+        /// <summary>
         /// Plugin directory. Default plugins.
         /// </summary>
         public string PluginDirectory { get; set; } = "plugins";

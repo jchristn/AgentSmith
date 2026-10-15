@@ -71,7 +71,7 @@ namespace Hugo.Server.Modules
             EventHub? events = context.TryGet<EventHub>();
 
             _Registry = new ConnectorRegistry();
-            ConnectorRegistrations.RegisterBuiltIns(_Registry);
+            ConnectorRegistrations.RegisterBuiltIns(_Registry, settings.Connectors.McpAllowStdio);
             foreach (Hugo.Connectors.Abstractions.IConnector connector in AdditionalConnectors) _Registry.Register(connector);
             context.Register(_Registry);
 

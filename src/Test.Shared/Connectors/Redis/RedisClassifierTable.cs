@@ -19,14 +19,14 @@ namespace Test.Shared.Connectors.Redis
             "R|GET user:1", "R|get user:1", "R|MGET a b c", "R|GETRANGE k 0 10", "R|SUBSTR k 0 10", "R|STRLEN k", "R|LCS a b",
             "W|SET k v", "W|set k v EX 10", "W|SET k v NX", "W|SET k v GET", "W|SETNX k v", "W|SETEX k 10 v", "W|PSETEX k 100 v",
             "W|MSET a 1 b 2", "W|MSETNX a 1 b 2", "W|APPEND k v", "W|INCR c", "W|INCRBY c 5", "W|INCRBYFLOAT c 1.5", "W|DECR c",
-            "W|DECRBY c 2", "W|SETRANGE k 0 x", "W|GETSET k v", "W|GETEX k EX 10", "D|GETDEL k",
+            "W|DECRBY c 2", "W|SETRANGE k 0 x", "W|GETSET k v", "W|GETEX k EX 10", "A|GETDEL k",
             // Generic keys
             "R|EXISTS a b", "R|TYPE k", "R|TTL k", "R|PTTL k", "R|EXPIRETIME k", "R|PEXPIRETIME k", "R|SCAN 0 MATCH user:* COUNT 100",
             "R|SCAN 0 TYPE hash", "R|DBSIZE", "R|RANDOMKEY", "R|DUMP k", "R|TOUCH a b", "R|SORT_RO list", "R|SORT list LIMIT 0 10",
             "W|SORT list STORE dest", "W|sort list by w_* store dest", "W|EXPIRE k 60", "W|PEXPIRE k 600", "W|EXPIREAT k 1700000000",
             "W|PEXPIREAT k 1700000000000", "W|PERSIST k", "W|COPY a b", "D|COPY a b REPLACE", "W|RENAMENX a b", "D|RENAME a b",
-            "W|MOVE k 1", "W|RESTORE k 0 payload", "D|RESTORE k 0 payload REPLACE", "W|RESTORE-ASKING k 0 payload", "D|DEL k",
-            "D|DEL a b c", "D|UNLINK k", "D|MIGRATE host 6379 k 0 5000", "X|KEYS *", "X|keys user:*", "X|WAIT 1 0", "X|WAITAOF 1 0 0",
+            "W|MOVE k 1", "W|RESTORE k 0 payload", "D|RESTORE k 0 payload REPLACE", "W|RESTORE-ASKING k 0 payload", "A|DEL k",
+            "A|DEL a b c", "A|UNLINK k", "D|MIGRATE host 6379 k 0 5000", "X|KEYS *", "X|keys user:*", "X|WAIT 1 0", "X|WAITAOF 1 0 0",
             // Object and memory
             "R|OBJECT ENCODING k", "R|OBJECT FREQ k", "R|OBJECT IDLETIME k", "R|OBJECT REFCOUNT k", "R|OBJECT HELP", "D|OBJECT SETFREQ k",
             "R|MEMORY USAGE k", "R|MEMORY USAGE k SAMPLES 5", "R|MEMORY STATS", "R|MEMORY DOCTOR", "R|MEMORY MALLOC-STATS", "W|MEMORY PURGE",
@@ -101,7 +101,7 @@ namespace Test.Shared.Connectors.Redis
             // Unknown, modules, and resource options
             "D|JSON.GET doc", "D|FT.SEARCH idx hello", "D|NOSUCHCOMMAND", "D|TS.ADD k * 1", "X|", "X|   ",
             "R|JSON.GET doc|ro=JSON.GET", "R|FT.SEARCH idx hello|ro=FT.SEARCH;ro=JSON.GET", "D|JSON.SET doc $ 1|ro=JSON.GET",
-            "D|DEL k|ro=DEL", "R|KEYS *|deny=FLUSHALL", "X|CONFIG SET maxmemory 1|deny=CONFIG SET", "R|CONFIG GET maxmemory|deny=CONFIG SET",
+            "A|DEL k|ro=DEL", "X|KEYS *|deny=FLUSHALL", "R|KEYS *|allowkeys", "R|KEYS *|allowkeys;deny=FLUSHALL", "X|KEYS *|allowkeys;deny=KEYS", "X|CONFIG SET maxmemory 1|deny=CONFIG SET", "R|CONFIG GET maxmemory|deny=CONFIG SET",
             "X|HGETALL h|deny=HGETALL", "X|DEBUG SLEEP 0|deny=DEBUG"
         };
 
@@ -122,11 +122,11 @@ namespace Test.Shared.Connectors.Redis
                 RedisClassifierCase c = new RedisClassifierCase { Expected = parts[0], Command = parts.Length > 1 ? parts[1] : String.Empty };
                 if (parts.Length > 2)
                 {
-                    c.Denied.Clear();
                     foreach (string opt in parts[2].Split(';', StringSplitOptions.RemoveEmptyEntries))
                     {
                         if (opt.StartsWith("ro=", StringComparison.Ordinal)) c.ReadOnly.Add(opt.Substring(3));
                         else if (opt.StartsWith("deny=", StringComparison.Ordinal)) c.Denied.Add(opt.Substring(5));
+                        else if (opt == "allowkeys") c.Denied.Remove("KEYS");
                     }
                 }
                 cases.Add(c);

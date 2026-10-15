@@ -44,9 +44,14 @@ namespace Hugo.Connectors.Storage
         public string? ContinuationToken { get; set; } = null;
 
         /// <summary>
-        /// Objects examined by this call.
+        /// Objects examined by this call after the continuation point (returned entries plus keys folded into folders).
         /// </summary>
         public long Scanned { get; set; } = 0;
+
+        /// <summary>
+        /// Keys this call re-walked and skipped because earlier pages already covered them. Zero on the first page.
+        /// </summary>
+        public long Skipped { get; set; } = 0;
 
         /// <summary>
         /// Whether the scan stopped at maxScanObjects before the page filled; continue with the token.

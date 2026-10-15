@@ -261,16 +261,20 @@ namespace Hugo.Connectors.Ssh.Classification
                     return ClassifySudo(name, words, index + 1, options, depth);
                 case "sudoedit":
                     if (!options.AllowSudo) return SshVerdict.Reject("sudo is not allowed on this resource (allowSudo is false)");
+                    if (!LeadingOptions(words, index + 1, Array.Empty<string>()).Any(a => a == "--non-interactive" || IsShortCluster(a, 'n')))
+                        return SshVerdict.Reject("sudoedit must be called with -n: there is no terminal to type a password into");
                     return SshVerdict.Write("sudoedit edits files as root");
                 case "su":
                     return ClassifySu(words, index + 1, options, depth);
                 case "env":
                     {
-                        if (args.Any(a => a == "-S" || a.StartsWith("--split-string", StringComparison.Ordinal))) return SshVerdict.Destructive("env -S is not supported");
-                        int j = SkipOptions(words, index + 1, new[] { "-u", "--unset", "-C", "--chdir" });
+                        string[] valueOptions = new[] { "-u", "--unset", "-C", "--chdir" };
+                        List<string> leading = LeadingOptions(words, index + 1, valueOptions);
+                        if (leading.Any(a => a == "-S" || a.StartsWith("--split-string", StringComparison.Ordinal) || IsShortCluster(a, 'S'))) return SshVerdict.Destructive("env -S is not supported");
+                        int j = SkipOptions(words, index + 1, valueOptions);
                         while (j < words.Count && _AssignmentRegex.IsMatch(words[j])) j++;
                         if (j >= words.Count) return SshVerdict.Read("env prints the environment");
-                        return ClassifyWords(words, j, options, depth + 1);
+                        return ClassifyWords(words, j, options, depth + 1).WithPrefix("env: ");
                     }
                 case "nice":
                 case "nohup":
@@ -282,20 +286,17 @@ namespace Hugo.Connectors.Ssh.Classification
                     {
                         int j = SkipOptions(words, index + 1, new[] { "-n", "--adjustment", "-a" });
                         if (j >= words.Count) return SshVerdict.Read(name + " without a command");
-                        return ClassifyWords(words, j, options, depth + 1);
+                        return ClassifyWords(words, j, options, depth + 1).WithPrefix(name + ": ");
                     }
                 case "command":
-                    {
-                        if (args.Any(a => a == "-v" || a == "-V")) return SshVerdict.Read("command -v looks up a command");
-                        int j = SkipOptions(words, index + 1, Array.Empty<string>());
-                        if (j >= words.Count) return SshVerdict.Read("command without a command");
-                        return ClassifyWords(words, j, options, depth + 1);
-                    }
+                    return ClassifyCommandBuiltin(words, index + 1, options, depth);
                 case "time":
                     {
-                        bool output = args.Any(a => a == "-o" || a.StartsWith("--output", StringComparison.Ordinal));
-                        int j = SkipOptions(words, index + 1, new[] { "-f", "--format", "-o", "--output" });
-                        SshVerdict inner = j >= words.Count ? SshVerdict.Read("time without a command") : ClassifyWords(words, j, options, depth + 1);
+                        string[] valueOptions = new[] { "-f", "--format", "-o", "--output" };
+                        List<string> leading = LeadingOptions(words, index + 1, valueOptions);
+                        bool output = leading.Any(a => a == "-o" || a.StartsWith("--output", StringComparison.Ordinal));
+                        int j = SkipOptions(words, index + 1, valueOptions);
+                        SshVerdict inner = j >= words.Count ? SshVerdict.Read("time without a command") : ClassifyWords(words, j, options, depth + 1).WithPrefix("time: ");
                         return output ? SshVerdict.Max(inner, SshVerdict.Write("time -o writes a file")) : inner;
                     }
                 case "timeout":
@@ -303,21 +304,23 @@ namespace Hugo.Connectors.Ssh.Classification
                         int j = SkipOptions(words, index + 1, new[] { "-s", "--signal", "-k", "--kill-after" });
                         j++;
                         if (j >= words.Count) return SshVerdict.Read("timeout without a command");
-                        return ClassifyWords(words, j, options, depth + 1);
+                        return ClassifyWords(words, j, options, depth + 1).WithPrefix("timeout: ");
                     }
                 case "stdbuf":
                     {
                         int j = SkipOptions(words, index + 1, new[] { "-i", "-o", "-e", "--input", "--output", "--error" });
                         if (j >= words.Count) return SshVerdict.Read("stdbuf without a command");
-                        return ClassifyWords(words, j, options, depth + 1);
+                        return ClassifyWords(words, j, options, depth + 1).WithPrefix("stdbuf: ");
                     }
                 case "ionice":
                     {
-                        if (args.Any(a => a == "-p" || a == "-P" || a == "-u" || a.StartsWith("--pid", StringComparison.Ordinal) || a.StartsWith("--pgid", StringComparison.Ordinal) || a.StartsWith("--uid", StringComparison.Ordinal)))
+                        string[] valueOptions = new[] { "-c", "--class", "-n", "--classdata" };
+                        List<string> leading = LeadingOptions(words, index + 1, valueOptions);
+                        if (leading.Any(a => a == "-p" || a == "-P" || a == "-u" || a.StartsWith("--pid", StringComparison.Ordinal) || a.StartsWith("--pgid", StringComparison.Ordinal) || a.StartsWith("--uid", StringComparison.Ordinal)))
                             return SshVerdict.Write("ionice changes the priority of running processes");
-                        int j = SkipOptions(words, index + 1, new[] { "-c", "--class", "-n", "--classdata" });
+                        int j = SkipOptions(words, index + 1, valueOptions);
                         if (j >= words.Count) return SshVerdict.Read("ionice without a command");
-                        return ClassifyWords(words, j, options, depth + 1);
+                        return ClassifyWords(words, j, options, depth + 1).WithPrefix("ionice: ");
                     }
                 case "xargs":
                     {
@@ -327,11 +330,96 @@ namespace Hugo.Connectors.Ssh.Classification
                     }
                 case "watch":
                     {
-                        bool exec = args.Any(a => a == "-x" || a == "--exec");
+                        List<string> leading = LeadingOptions(words, index + 1, new[] { "-n", "--interval" });
+                        bool exec = leading.Any(a => a == "-x" || a == "--exec" || IsShortCluster(a, 'x'));
                         int j = SkipOptions(words, index + 1, new[] { "-n", "--interval" });
                         if (j >= words.Count) return SshVerdict.Read("watch without a command");
                         if (exec) return ClassifyWords(words, j, options, depth + 1).WithPrefix("watch: ");
                         return ClassifyText(String.Join(" ", words.Skip(j)), options, depth + 1).WithPrefix("watch: ");
+                    }
+                case "chroot":
+                    {
+                        int j = SkipOptions(words, index + 1, new[] { "--userspec", "--groups" });
+                        if (j >= words.Count) return SshVerdict.Write("chroot without a new root");
+                        j++;
+                        if (j >= words.Count) return SshVerdict.Destructive("chroot without a command opens an interactive shell");
+                        return ClassifyWords(words, j, options, depth + 1).WithPrefix("chroot: ");
+                    }
+                case "flock":
+                    return ClassifyFlock(words, index + 1, options, depth);
+                case "taskset":
+                    {
+                        List<string> leading = LeadingOptions(words, index + 1, Array.Empty<string>());
+                        if (leading.Any(a => a == "-p" || a == "--pid" || IsShortCluster(a, 'p'))) return SshVerdict.Write("taskset -p changes the CPU affinity of a running process");
+                        int j = SkipOptions(words, index + 1, Array.Empty<string>());
+                        j++;
+                        if (j >= words.Count) return SshVerdict.Write("taskset without a command");
+                        return ClassifyWords(words, j, options, depth + 1).WithPrefix("taskset: ");
+                    }
+                case "numactl":
+                    {
+                        int j = SkipOptions(words, index + 1, new[] { "-i", "--interleave", "-N", "--cpunodebind", "-m", "--membind", "-p", "--preferred", "-C", "--physcpubind", "-P", "--preferred-many", "-w", "--weighted-interleave" });
+                        if (j >= words.Count) return SshVerdict.Read("numactl without a command shows the NUMA policy");
+                        return ClassifyWords(words, j, options, depth + 1).WithPrefix("numactl: ");
+                    }
+                case "chrt":
+                    {
+                        string[] valueOptions = new[] { "-T", "--sched-runtime", "-P", "--sched-period", "-D", "--sched-deadline" };
+                        List<string> leading = LeadingOptions(words, index + 1, valueOptions);
+                        if (leading.Any(a => a == "-p" || a == "--pid" || IsShortCluster(a, 'p'))) return SshVerdict.Write("chrt -p changes the scheduling policy of a running process");
+                        int j = SkipOptions(words, index + 1, valueOptions);
+                        j++;
+                        if (j >= words.Count)
+                            return leading.Any(a => a == "-m" || a == "--max") ? SshVerdict.Read("chrt -m shows priority limits") : SshVerdict.Write("chrt without a command");
+                        return ClassifyWords(words, j, options, depth + 1).WithPrefix("chrt: ");
+                    }
+                case "prlimit":
+                    {
+                        int j = SkipOptions(words, index + 1, new[] { "-p", "--pid", "-o", "--output" });
+                        if (j >= words.Count) return SshVerdict.Write("prlimit without a command shows or changes the limits of a running process");
+                        return ClassifyWords(words, j, options, depth + 1).WithPrefix("prlimit: ");
+                    }
+                case "runuser":
+                    return ClassifyRunuser(words, index + 1, options, depth);
+                case "pkexec":
+                    {
+                        if (!options.AllowSudo) return SshVerdict.Reject("pkexec is not allowed on this resource (allowSudo is false)");
+                        int j = SkipOptions(words, index + 1, new[] { "--user" });
+                        if (j >= words.Count) return SshVerdict.Destructive("pkexec without a command opens an interactive root shell");
+                        return ClassifyWords(words, j, options, depth + 1).WithPrefix("pkexec: ");
+                    }
+                case "strace":
+                case "ltrace":
+                    {
+                        string[] valueOptions = new[] { "-a", "-b", "-e", "-I", "-o", "-O", "-p", "-P", "-s", "-S", "-u", "-U", "-X", "-E", "-n", "-l", "-L", "-x" };
+                        List<string> leading = LeadingOptions(words, index + 1, valueOptions);
+                        SshVerdict? extra = null;
+                        if (leading.Any(a => a == "-o" || a.StartsWith("--output", StringComparison.Ordinal))) extra = SshVerdict.Write(name + " -o writes a file");
+                        if (leading.Any(a => a == "-p" || a.StartsWith("--attach", StringComparison.Ordinal))) extra = SshVerdict.Max(extra, SshVerdict.Write(name + " -p attaches to a running process"));
+                        int j = SkipOptions(words, index + 1, valueOptions);
+                        if (j >= words.Count) return extra ?? SshVerdict.Write(name + " without a command");
+                        return SshVerdict.Max(ClassifyWords(words, j, options, depth + 1).WithPrefix(name + ": "), extra);
+                    }
+                case "nsenter":
+                case "unshare":
+                    {
+                        int j = SkipOptions(words, index + 1, new[] { "-t", "--target", "-S", "--setuid", "-G", "--setgid", "-R", "--root", "-w", "--wd" });
+                        if (j >= words.Count) return SshVerdict.Destructive(name + " without a command opens an interactive shell");
+                        return SshVerdict.Max(ClassifyWords(words, j, options, depth + 1).WithPrefix(name + ": "), SshVerdict.Write(name + " enters or creates namespaces"));
+                    }
+                case "setpriv":
+                    {
+                        List<string> leading = LeadingOptions(words, index + 1, Array.Empty<string>());
+                        int j = SkipOptions(words, index + 1, new[] { "--reuid", "--regid", "--ruid", "--euid", "--rgid", "--egid", "--groups", "--inh-caps", "--ambient-caps", "--bounding-set", "--securebits", "--pdeathsig", "--selinux-label", "--apparmor-profile", "--landlock-access", "--landlock-rule" });
+                        if (j >= words.Count)
+                            return leading.Any(a => a == "-d" || a == "--dump") ? SshVerdict.Read("setpriv -d shows privileges") : SshVerdict.Write("setpriv without a command");
+                        return ClassifyWords(words, j, options, depth + 1).WithPrefix("setpriv: ");
+                    }
+                case "systemd-run":
+                    {
+                        int j = SkipOptions(words, index + 1, new[] { "-u", "--unit", "-p", "--property", "--description", "--slice", "-E", "--setenv", "--uid", "--gid", "--working-directory", "-M", "--machine", "-H", "--host", "--nice", "--service-type", "--on-active", "--on-boot", "--on-startup", "--on-unit-active", "--on-unit-inactive", "--on-calendar", "--timer-property", "--path-property", "--socket-property" });
+                        if (j >= words.Count) return SshVerdict.Write("systemd-run without a command");
+                        return SshVerdict.Max(ClassifyWords(words, j, options, depth + 1).WithPrefix("systemd-run: "), SshVerdict.Write("systemd-run starts a transient unit"));
                     }
                 case "busybox":
                     if (index + 1 >= words.Count) return SshVerdict.Read("busybox lists applets");
@@ -351,11 +439,13 @@ namespace Hugo.Connectors.Ssh.Classification
         {
             if (!options.AllowSudo) return SshVerdict.Reject(name + " is not allowed on this resource (allowSudo is false)");
 
+            bool nonInteractive = false;
             bool loginShell = false;
             bool listOnly = false;
             bool edit = false;
             int j = start;
-            string[] valueOptions = new[] { "-u", "-g", "-C", "-p", "-h", "-r", "-t", "-D", "-R", "-U", "-T", "--user", "--group", "--close-from", "--prompt", "--host", "--role", "--type", "--chdir", "--chroot", "--other-user", "--command-timeout" };
+            string[] valueOptions = new[] { "-u", "-g", "-C", "-p", "-h", "-r", "-t", "-D", "-R", "-U", "-T", "-a", "--user", "--group", "--close-from", "--prompt", "--host", "--role", "--type", "--chdir", "--chroot", "--other-user", "--command-timeout" };
+            string valueLetters = "ugCphrtDRUTa";
             while (j < words.Count)
             {
                 string w = words[j];
@@ -365,11 +455,34 @@ namespace Hugo.Connectors.Ssh.Classification
                     break;
                 }
                 if (!w.StartsWith('-') || w == "-") break;
-                if (w == "-i" || w == "-s" || w == "--login" || w == "--shell") loginShell = true;
-                if (w == "-l" || w == "--list" || w == "-v" || w == "--validate" || w == "-k" || w == "-K" || w == "-V" || w == "--version" || w == "--reset-timestamp" || w == "--remove-timestamp") listOnly = true;
-                if (w == "-e" || w == "--edit") edit = true;
-                j += valueOptions.Contains(w) ? 2 : 1;
+                if (w.StartsWith("--", StringComparison.Ordinal))
+                {
+                    if (w == "--non-interactive") nonInteractive = true;
+                    if (w == "--login" || w == "--shell") loginShell = true;
+                    if (w == "--list" || w == "--validate" || w == "--version" || w == "--reset-timestamp" || w == "--remove-timestamp") listOnly = true;
+                    if (w == "--edit") edit = true;
+                    j += valueOptions.Contains(w) ? 2 : 1;
+                    continue;
+                }
+
+                bool consumesNext = false;
+                for (int k = 1; k < w.Length; k++)
+                {
+                    char ch = w[k];
+                    if (valueLetters.IndexOf(ch) >= 0)
+                    {
+                        consumesNext = k == w.Length - 1;
+                        break;
+                    }
+                    if (ch == 'n') nonInteractive = true;
+                    if (ch == 'i' || ch == 's') loginShell = true;
+                    if (ch == 'l' || ch == 'v' || ch == 'k' || ch == 'K' || ch == 'V' || ch == 'L') listOnly = true;
+                    if (ch == 'e') edit = true;
+                }
+                j += consumesNext ? 2 : 1;
             }
+
+            if (!nonInteractive) return SshVerdict.Reject(name + " must be called with -n: there is no terminal to type a password into");
             if (edit) return SshVerdict.Write(name + " -e edits files as root");
             if (j >= words.Count)
             {
@@ -378,6 +491,77 @@ namespace Hugo.Connectors.Ssh.Classification
                 return SshVerdict.Destructive(name + " without a command");
             }
             return ClassifyWords(words, j, options, depth + 1).WithPrefix(name + ": ");
+        }
+
+        private static SshVerdict ClassifyCommandBuiltin(List<string> words, int start, SshClassifierOptions options, int depth)
+        {
+            bool lookup = false;
+            int j = start;
+            while (j < words.Count)
+            {
+                string w = words[j];
+                if (w == "--")
+                {
+                    j++;
+                    break;
+                }
+                if (!w.StartsWith('-') || w == "-") break;
+                if (IsShortCluster(w, 'v') || IsShortCluster(w, 'V')) lookup = true;
+                j++;
+            }
+
+            if (lookup) return SshVerdict.Read("command -v looks up a command name without running it");
+            if (j >= words.Count) return SshVerdict.Read("command without a command");
+            return ClassifyWords(words, j, options, depth + 1).WithPrefix("command: ");
+        }
+
+        private static SshVerdict ClassifyFlock(List<string> words, int start, SshClassifierOptions options, int depth)
+        {
+            for (int k = start; k < words.Count; k++)
+            {
+                string w = words[k];
+                if (w == "--") break;
+                if (w == "-c" || w == "--command")
+                {
+                    if (k + 1 >= words.Count) return SshVerdict.Destructive("flock -c without a command");
+                    return ClassifyText(words[k + 1], options, depth + 1).WithPrefix("flock -c: ");
+                }
+                if (w.StartsWith("--command=", StringComparison.Ordinal))
+                    return ClassifyText(w.Substring("--command=".Length), options, depth + 1).WithPrefix("flock -c: ");
+            }
+
+            string[] valueOptions = new[] { "-w", "--wait", "--timeout", "-E", "--conflict-exit-code" };
+            int j = SkipOptions(words, start, valueOptions);
+            if (j >= words.Count) return SshVerdict.Write("flock without a lock file");
+            j++;
+            j = SkipOptions(words, j, valueOptions);
+            if (j >= words.Count) return SshVerdict.Write("flock locks a file descriptor");
+            return ClassifyWords(words, j, options, depth + 1).WithPrefix("flock: ");
+        }
+
+        private static SshVerdict ClassifyRunuser(List<string> words, int start, SshClassifierOptions options, int depth)
+        {
+            for (int k = start; k < words.Count; k++)
+            {
+                string w = words[k];
+                if (w == "--") break;
+                if (w == "-c" || w == "--command")
+                {
+                    if (k + 1 >= words.Count) return SshVerdict.Destructive("runuser -c without a command");
+                    return ClassifyText(words[k + 1], options, depth + 1).WithPrefix("runuser: ");
+                }
+                if (w.StartsWith("--command=", StringComparison.Ordinal))
+                    return ClassifyText(w.Substring("--command=".Length), options, depth + 1).WithPrefix("runuser: ");
+            }
+
+            List<string> leading = LeadingOptions(words, start, new[] { "-u", "--user", "-g", "--group", "-G", "--supp-group", "-s", "--shell", "-w", "--whitelist-environment" });
+            if (leading.Any(a => a == "-u" || a == "--user" || a.StartsWith("--user=", StringComparison.Ordinal)))
+            {
+                int j = SkipOptions(words, start, new[] { "-u", "--user", "-g", "--group", "-G", "--supp-group", "-s", "--shell", "-w", "--whitelist-environment" });
+                if (j >= words.Count) return SshVerdict.Destructive("runuser -u without a command opens an interactive shell");
+                return ClassifyWords(words, j, options, depth + 1).WithPrefix("runuser: ");
+            }
+            return SshVerdict.Destructive("runuser without -c or -u opens an interactive shell");
         }
 
         private static SshVerdict ClassifySu(List<string> words, int start, SshClassifierOptions options, int depth)
@@ -1152,6 +1336,20 @@ namespace Hugo.Connectors.Ssh.Classification
                 i += valueOptions.Contains(w) ? 2 : 1;
             }
             return i;
+        }
+
+        private static List<string> LeadingOptions(List<string> words, int start, string[] valueOptions)
+        {
+            List<string> result = new List<string>();
+            int i = start;
+            while (i < words.Count)
+            {
+                string w = words[i];
+                if (w == "--" || !w.StartsWith('-') || w == "-") break;
+                result.Add(w);
+                i += valueOptions.Contains(w) ? 2 : 1;
+            }
+            return result;
         }
 
         private static List<string> Positionals(List<string> args)

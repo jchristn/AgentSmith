@@ -118,6 +118,13 @@ namespace Test.Shared.Connectors.Sql
                 SqlTestSupport.Check(my.Contains("Port=6543", StringComparison.Ordinal) && my.Contains("SSL Mode=Required", StringComparison.OrdinalIgnoreCase), "mysql options: " + Redact(my));
                 string ms = new SqlServerDialect().BuildConnectionString(o, false);
                 SqlTestSupport.Check(ms.Contains("db.internal,6543", StringComparison.Ordinal) && ms.Contains("Application Name=hugo", StringComparison.Ordinal) && ms.Contains("Encrypt=True", StringComparison.Ordinal), "sql server options: " + Redact(ms));
+                SqlResourceOptions disabled = SqlResourceOptions.FromResource(SqlTestSupport.Resource("sqlserver",
+                    new Dictionary<string, string> { { "host", "db.internal" }, { "sslMode", "Disable" }, { "trustServerCertificate", "true" } },
+                    Secret("password", "password", "pw")));
+                Microsoft.Data.SqlClient.SqlConnectionStringBuilder msDisabled = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(new SqlServerDialect().BuildConnectionString(disabled, false));
+                SqlTestSupport.Check(msDisabled.Encrypt.ToString() == "False" && !msDisabled.TrustServerCertificate, "sql server Disable is Encrypt=false: " + msDisabled.Encrypt);
+                SqlTestSupport.Check(SqlSettingsCatalog.BuildSecretSlots(SqlEngineEnum.SqlServer).First(s => s.Name == "connectionString").Help.Contains("no session-level read-only mode", StringComparison.Ordinal), "sql server connectionString help does not claim read-only enforcement");
+                SqlTestSupport.Check(SqlSettingsCatalog.BuildSecretSlots(SqlEngineEnum.Postgresql).First(s => s.Name == "connectionString").Help.Contains("read-only transaction", StringComparison.Ordinal), "postgresql connectionString help names the read-only transaction");
 
                 SqlResourceOptions viaSecret = SqlResourceOptions.FromResource(SqlTestSupport.Resource("postgresql",
                     new Dictionary<string, string> { { "host", "ignored-host" } },

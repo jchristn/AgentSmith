@@ -121,8 +121,8 @@ namespace Hugo.Connectors.Aws.Tools
                 + "\"cluster\":{\"type\":\"string\",\"description\":\"Cluster name or ARN. Default 'default'.\"},"
                 + "\"services\":{\"type\":\"array\",\"items\":{\"type\":\"string\"},\"maxItems\":10,\"description\":\"Service names or ARNs. Empty lists the cluster's services.\"},"
                 + "\"eventsPerService\":{\"type\":\"integer\",\"minimum\":0,\"maximum\":50,\"description\":\"Recent events per service. Default 5.\"},"
-                + "\"maxResults\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":10},"
-                + "\"nextToken\":{\"type\":\"string\"}"
+                + "\"maxResults\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":10,\"description\":\"Only when services is empty: services listed per page, 1 to 10. Defaults to the resource's maxResults and is capped by the call's row limit.\"},"
+                + "\"nextToken\":{\"type\":\"string\",\"description\":\"Only when services is empty: the nextToken from the previous page, to list the next services in the cluster.\"}"
                 + "},\"additionalProperties\":false}";
             d.BaseEffect = EffectEnum.Read;
             d.OutputDescription = "A table of services, recent events, and a nextToken when listing more services.";

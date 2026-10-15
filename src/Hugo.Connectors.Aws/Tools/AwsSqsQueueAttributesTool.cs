@@ -161,11 +161,11 @@ namespace Hugo.Connectors.Aws.Tools
                 + "redrive (dead-letter) policy; or, with queueNamePrefix or nothing, a backlog summary of matching queues.";
             d.InputSchemaJson =
                 "{\"type\":\"object\",\"properties\":{"
-                + "\"queueName\":{\"type\":\"string\"},"
-                + "\"queueUrl\":{\"type\":\"string\"},"
-                + "\"queueNamePrefix\":{\"type\":\"string\"},"
-                + "\"maxResults\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":1000},"
-                + "\"nextToken\":{\"type\":\"string\"}"
+                + "\"queueName\":{\"type\":\"string\",\"description\":\"Name of one queue to describe in full. It is resolved to the queue URL first; ignored when queueUrl is set.\"},"
+                + "\"queueUrl\":{\"type\":\"string\",\"description\":\"URL of one queue to describe in full, for example https://sqs.us-east-1.amazonaws.com/123456789012/orders.\"},"
+                + "\"queueNamePrefix\":{\"type\":\"string\",\"description\":\"When listing (no queueUrl or queueName): only queues whose names start with this prefix.\"},"
+                + "\"maxResults\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":1000,\"description\":\"When listing: queues per page, at most 20 (the listing summarizes each queue). Defaults to the resource's maxResults and is capped by the call's row limit.\"},"
+                + "\"nextToken\":{\"type\":\"string\",\"description\":\"When listing: the nextToken from the previous page. Send the same queueNamePrefix again.\"}"
                 + "},\"additionalProperties\":false}";
             d.BaseEffect = EffectEnum.Read;
             d.OutputDescription = "Attribute table for one queue, or a backlog summary table.";

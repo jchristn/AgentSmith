@@ -1,24 +1,23 @@
 namespace Hugo.Server.Services
 {
     /// <summary>
-    /// Outcome of a delegated ask (<see cref="IAgentDelegationService"/>).
+    /// Outcome of a task delegated to Hugo's own agent loop (ask_agent_smith, plan section 13.5).
     /// </summary>
     public enum AgentDelegationStatusEnum
     {
         /// <summary>
-        /// The loop answered (including answers forced at the iteration or tool call limit).
+        /// The turn finished with a final answer.
         /// </summary>
-        Completed = 0,
+        Completed,
 
         /// <summary>
-        /// A tool call waits for a human approval; <see cref="AgentDelegationResult.ApprovalId"/> names it. Ask again in
-        /// the same conversation once it is decided (MCP callers use <c>hugo_await_approval</c> first).
+        /// The turn waits for a human to decide an approval; continue the conversation once it is decided.
         /// </summary>
-        ApprovalPending = 1,
+        ApprovalPending,
 
         /// <summary>
-        /// The turn failed or was cancelled; see the error fields.
+        /// The turn failed.
         /// </summary>
-        Failed = 2
+        Failed
     }
 }

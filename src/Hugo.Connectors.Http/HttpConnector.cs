@@ -278,7 +278,7 @@ namespace Hugo.Connectors.Http
             {
                 DefaultValue = "true",
                 Group = "Connection",
-                Help = "Follow redirects that stay on the same host, never downgrade https to http, and stay inside the allowed path prefixes. Authentication is never sent to a different origin. Default true."
+                Help = "Follow redirects to the same host name (any port), never from https to http, and only inside the base path and the allowed path prefixes. Credentials go only to the resource's own origin (same scheme, host, and port): a hop to another port, or from http to https, is followed without them. Default true."
             });
             schema.Add(new SettingDescriptor(HttpSettingKeys.MaxRedirects, SettingValueKindEnum.Integer, "Maximum redirects")
             {

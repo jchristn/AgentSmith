@@ -38,7 +38,7 @@ namespace Test.Shared.Connectors.Observability
             Add(cases, "search-arguments", "Unknown arguments and wrongly typed JSON arguments are rejected before any request", SearchArguments);
             Add(cases, "search-passthrough", "query, sort, _source, aggs, search_after, and track_total_hits pass through", SearchPassthrough);
             Add(cases, "search-allow-list", "Indexes outside the allow list are refused before any request", SearchAllowList);
-            Add(cases, "search-alias-filter", "Hits from disallowed indexes behind an alias are removed and reported", SearchAliasFilter);
+            Add(cases, "search-alias-filter", "Aliases and wildcards that reach disallowed indexes are narrowed to the allowed ones for hits, totals, aggregations, and counts", SearchAliasFilter);
             Add(cases, "search-errors", "Query parse errors and missing indexes map to invalid_argument and not_found", SearchErrors);
             Add(cases, "search-output-limits", "Long sources are shortened and output limits truncate", SearchOutputLimits);
             Add(cases, "count", "es_count sends the query and reports the count", Count);
@@ -189,11 +189,29 @@ namespace Test.Shared.Connectors.Observability
         {
             using (ObservabilityStub stub = Stub())
             {
-                ToolResult r = await Run(stub, "es_search", "{\"index\":\"logs-alias\",\"size\":4}", token).ConfigureAwait(false);
+                ToolResult r = await Run(stub, "es_search", "{\"index\":\"logs-alias\",\"size\":4,\"aggs\":{\"by_level\":{\"terms\":{\"field\":\"level\"}}}}", token).ConfigureAwait(false);
                 ObsTestHelper.Ok(r, "alias");
-                ObsTestHelper.Assert(ObsTestHelper.ArrayLength(r, "hits") == 0 && ObsTestHelper.Long(r, "filtered") == 4, "hits removed");
-                ObsTestHelper.Assert(r.Truncated && r.Text.Contains("4 hit(s) from indexes outside the allowed patterns were removed", StringComparison.Ordinal), "reported");
+                ObsTestHelper.Assert(stub.Last("/logs-2026.10/_search") != null && stub.Last("/logs-alias/_search") == null, "the search went to the allowed concrete index only");
+                ObsTestHelper.Assert(ObsTestHelper.ArrayLength(r, "hits") == 4 && ObsTestHelper.Long(r, "filtered") == 0, "hits come from the allowed index");
+                ObsTestHelper.Assert(r.Truncated && r.Text.Contains("1 index(es) outside the allowed patterns", StringComparison.Ordinal), "the narrowing is reported: " + r.Text);
                 ObsTestHelper.Assert(!r.Text.Contains("secret-index", StringComparison.Ordinal), "no secret index content");
+
+                ToolResult count = await Run(stub, "es_count", "{\"index\":\"logs-alias\"}", token).ConfigureAwait(false);
+                ObsTestHelper.Ok(count, "alias count");
+                ObsTestHelper.Assert(stub.Last("/logs-2026.10/_count") != null && stub.Last("/logs-alias/_count") == null && count.Text.Contains("left out of the count", StringComparison.Ordinal), "count is narrowed too");
+
+                ToolResult only = await Run(stub, "es_search", "{\"index\":\"logs-only-secret\"}", token, new Dictionary<string, string> { { "allowedIndexPatterns", "logs-*\nsecret-alias" } }).ConfigureAwait(false);
+                ObsTestHelper.Ok(only, "an index that resolves to itself");
+                ToolResult secretAlias = await Run(stub, "es_search", "{\"index\":\"secret-alias\"}", token, new Dictionary<string, string> { { "allowedIndexPatterns", "logs-*\nsecret-alias" } }).ConfigureAwait(false);
+                ObsTestHelper.Error(secretAlias, "permission_denied", "an allowed alias name that reaches only disallowed indexes");
+                ObsTestHelper.Assert(stub.Last("/secret-alias/_search") == null, "nothing searched");
+            }
+
+            using (ObservabilityStub stub = Stub(new EsStubRoutes { WildcardMatchesAliases = true }))
+            {
+                ToolResult r = await Run(stub, "es_count", "{\"index\":\"logs-*\"}", token).ConfigureAwait(false);
+                ObsTestHelper.Ok(r, "wildcard count");
+                ObsTestHelper.Assert(stub.Last("/logs-2026.09,logs-2026.10/_count") != null && stub.Last("/logs-*/_count") == null, "a wildcard that also matches the alias is narrowed to the allowed indexes");
             }
         }
 

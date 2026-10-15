@@ -134,7 +134,8 @@ namespace Hugo.Server
                 new IdentityModule(),
                 new ConfigurationModule(),
                 new IntegrationModule(),
-                new AgentModule()
+                new AgentModule(),
+                new Hugo.Server.Protocols.McpModule()
             };
 
             WebserverSettings settings = new WebserverSettings();
@@ -396,8 +397,8 @@ namespace Hugo.Server
         {
             context.Response.Headers["Access-Control-Allow-Origin"] = _CorsOrigin;
             context.Response.Headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD";
-            context.Response.Headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, Accept, Accept-Language, x-api-key, x-token, x-tenant-id, x-tenant-guid, x-email, x-password, x-access-key, x-secret-key, x-date, x-nonce, x-signature, x-request-id, x-hugo-profile, x-hugo-conversation, traceparent, tracestate";
-            context.Response.Headers["Access-Control-Expose-Headers"] = "x-request-id, Retry-After";
+            context.Response.Headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, Accept, Accept-Language, x-api-key, x-token, x-tenant-id, x-tenant-guid, x-email, x-password, x-access-key, x-secret-key, x-date, x-nonce, x-signature, x-request-id, x-hugo-profile, x-hugo-conversation, traceparent, tracestate, Mcp-Session-Id, MCP-Protocol-Version, Mcp-Method, Mcp-Name, Last-Event-ID";
+            context.Response.Headers["Access-Control-Expose-Headers"] = "x-request-id, Retry-After, Mcp-Session-Id, MCP-Protocol-Version, WWW-Authenticate";
         }
 
         private static async Task DefaultRouteAsync(HttpContextBase context)

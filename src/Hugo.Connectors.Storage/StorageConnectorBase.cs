@@ -234,7 +234,7 @@ namespace Hugo.Connectors.Storage
             });
             schema.Add(new SettingDescriptor(StorageSettingKeys.MaxScanObjects, SettingValueKindEnum.Integer, "Maximum objects scanned")
             {
-                Help = "Most objects storage_stats and folder-style storage_list examine in one call before reporting a truncated result. Default 100000, minimum 100, maximum 10000000.",
+                Help = "Most objects storage_stats examines in one call, and storage_list examines per page past its continuation point, before reporting a truncated result. A storage_list page may also re-walk up to ten times this many keys that earlier pages returned. Default 100000, minimum 100, maximum 10000000.",
                 DefaultValue = StorageOptions.DefaultScanObjects.ToString(CultureInfo.InvariantCulture),
                 Minimum = StorageOptions.MinimumScanObjects,
                 Maximum = StorageOptions.MaximumScanObjects,

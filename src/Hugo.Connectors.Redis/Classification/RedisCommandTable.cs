@@ -22,13 +22,13 @@ namespace Hugo.Connectors.Redis.Classification
         private static readonly string[] _Plain = new string[]
         {
             // Strings
-            "APPEND:W", "DECR:W", "DECRBY:W", "GET:R", "GETDEL:D", "GETEX:W", "GETRANGE:R", "GETSET:W", "INCR:W", "INCRBY:W",
+            "APPEND:W", "DECR:W", "DECRBY:W", "GET:R", "GETDEL:A", "GETEX:W", "GETRANGE:R", "GETSET:W", "INCR:W", "INCRBY:W",
             "INCRBYFLOAT:W", "LCS:R", "MGET:R", "MSET:W", "MSETNX:W", "PSETEX:W", "SET:W", "SETEX:W", "SETNX:W", "SETRANGE:W",
             "STRLEN:R", "SUBSTR:R",
             // Generic keys
-            "COPY:W", "DEL:D", "DUMP:R", "EXISTS:R", "EXPIRE:W", "EXPIREAT:W", "EXPIRETIME:R", "KEYS:R", "MIGRATE:D", "MOVE:W",
+            "COPY:W", "DEL:A", "DUMP:R", "EXISTS:R", "EXPIRE:W", "EXPIREAT:W", "EXPIRETIME:R", "KEYS:R", "MIGRATE:D", "MOVE:W",
             "PERSIST:W", "PEXPIRE:W", "PEXPIREAT:W", "PEXPIRETIME:R", "PTTL:R", "RANDOMKEY:R", "RENAME:D", "RENAMENX:W",
-            "RESTORE:W", "RESTORE-ASKING:W", "SCAN:R", "SORT:R", "SORT_RO:R", "TOUCH:R", "TTL:R", "TYPE:R", "UNLINK:D", "WAIT:B",
+            "RESTORE:W", "RESTORE-ASKING:W", "SCAN:R", "SORT:R", "SORT_RO:R", "TOUCH:R", "TTL:R", "TYPE:R", "UNLINK:A", "WAIT:B",
             "WAITAOF:B",
             // Hashes
             "HDEL:D", "HEXISTS:R", "HGET:R", "HGETALL:R", "HINCRBY:W", "HINCRBYFLOAT:W", "HKEYS:R", "HLEN:R", "HMGET:R",

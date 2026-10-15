@@ -97,13 +97,14 @@ namespace Hugo.Server.Routes
             routes.Authenticated(HttpMethod.POST, "/v1.0/a2a/{tenantId}/{profileName}", JsonRpcAsync, "A2A JSON-RPC: SendMessage, SendStreamingMessage (SSE), GetTask, ListTasks, CancelTask, SubscribeToTask (SSE), GetExtendedAgentCard, and the legacy message/send, message/stream, tasks/get, tasks/list, tasks/cancel, tasks/resubscribe", "A2A", null, null, ResourceTypeEnum.AgentProfile, OperationTypeEnum.Execute);
 
             OperationScopeMap scopes = routes.Scopes;
-            scopes.AddProtocolMethod(Protocol, A2AProtocol.SendMessage, ResourceTypeEnum.AgentProfile, OperationTypeEnum.Execute, "Send a message; the task runs Hugo's own loop");
-            scopes.AddProtocolMethod(Protocol, A2AProtocol.SendStreamingMessage, ResourceTypeEnum.AgentProfile, OperationTypeEnum.Execute, "Send a message and stream the task");
-            scopes.AddProtocolMethod(Protocol, A2AProtocol.GetTask, ResourceTypeEnum.Conversation, OperationTypeEnum.Read, "Read a task (owner or tenant administrator)");
-            scopes.AddProtocolMethod(Protocol, A2AProtocol.ListTasks, ResourceTypeEnum.Conversation, OperationTypeEnum.Read, "List the caller's tasks (tenant administrators see all)");
-            scopes.AddProtocolMethod(Protocol, A2AProtocol.CancelTask, ResourceTypeEnum.Conversation, OperationTypeEnum.Update, "Cancel a task (owner or tenant administrator)");
-            scopes.AddProtocolMethod(Protocol, A2AProtocol.SubscribeToTask, ResourceTypeEnum.Conversation, OperationTypeEnum.Read, "Stream a task's updates");
-            scopes.AddProtocolMethod(Protocol, A2AProtocol.GetExtendedAgentCard, ResourceTypeEnum.AgentProfile, OperationTypeEnum.Read, "The agent card, for an authenticated caller");
+            Action<string, ResourceTypeEnum, OperationTypeEnum, string> map = (method, resourceType, operation, summary) => scopes.AddProtocolOperation(new OperationScope { Method = Protocol, Path = method, ResourceType = resourceType, Operation = operation, Authorization = RouteAuthorizationEnum.Scoped, Tag = Protocol, Summary = summary });
+            map(A2AProtocol.SendMessage, ResourceTypeEnum.AgentProfile, OperationTypeEnum.Execute, "Send a message; the task runs Hugo's own loop");
+            map(A2AProtocol.SendStreamingMessage, ResourceTypeEnum.AgentProfile, OperationTypeEnum.Execute, "Send a message and stream the task");
+            map(A2AProtocol.GetTask, ResourceTypeEnum.Conversation, OperationTypeEnum.Read, "Read a task (owner or tenant administrator)");
+            map(A2AProtocol.ListTasks, ResourceTypeEnum.Conversation, OperationTypeEnum.Read, "List the caller's tasks (tenant administrators see all)");
+            map(A2AProtocol.CancelTask, ResourceTypeEnum.Conversation, OperationTypeEnum.Update, "Cancel a task (owner or tenant administrator)");
+            map(A2AProtocol.SubscribeToTask, ResourceTypeEnum.Conversation, OperationTypeEnum.Read, "Stream a task's updates");
+            map(A2AProtocol.GetExtendedAgentCard, ResourceTypeEnum.AgentProfile, OperationTypeEnum.Read, "The agent card, for an authenticated caller");
         }
 
         /// <summary>
@@ -220,7 +221,7 @@ namespace Hugo.Server.Routes
                     await SendErrorAsync(http, id, JsonRpcError.MethodNotFound(), 200).ConfigureAwait(false);
                     return;
                 }
-                OperationScope? scope = _Server.Scopes.FindProtocolMethod(Protocol, method);
+                OperationScope? scope = _Server.Scopes.FindProtocolOperation(Protocol, method);
                 if (scope == null || !scope.ResourceType.HasValue || !scope.Operation.HasValue)
                 {
                     if (!ctx.IsAdmin) throw new A2AAccessException(-32007, "Method " + method + " has no authorization mapping and is restricted to system administrators.", "RouteNotMapped");
