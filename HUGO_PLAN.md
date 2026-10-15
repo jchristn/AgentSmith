@@ -92,7 +92,7 @@ These rules keep the plan honest:
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Not started | 0 / 22 |
 | 8 | Dashboard | M1 | Not started | 0 / 53 |
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | Not started | 0 / 15 |
-| 10 | Docker, testbed, and observability stack | M1 | In progress | 1 / 24 |
+| 10 | Docker, testbed, and observability stack | M1 | In progress | 6 / 24 |
 | 11 | Documentation and Postman | M1 | Not started | 0 / 18 |
 | 12 | MVP verification (milestone M1) | M1 | Not started | 0 / 14 |
 | 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | Not started | 0 / 38 |
@@ -2009,18 +2009,18 @@ Quality
 
 ### Phase 10: Docker, testbed, and observability stack (M1)
 
-- [ ] P10.1 `Hugo.Server` Dockerfile (multi-stage, `mcr.microsoft.com/dotnet/aspnet` runtime, `curl` installed, non-root user, `/app/data` and `/app/config` volumes).
+- [x] P10.1 `Hugo.Server` Dockerfile (multi-stage, `mcr.microsoft.com/dotnet/aspnet` runtime, `curl` installed, non-root user, `/app/data` and `/app/config` volumes).  | claude 2026-10-14 src/Hugo.Server/Dockerfile: sdk 10.0 build, runtime 10.0, curl, non-root uid 10001, /app/data, /app/config, /app/plugins
 - [ ] P10.2 Dashboard Dockerfile and `nginx.conf` (P8.52 output) wired into compose.
-- [~] P10.3 `docker/compose.yaml` with the section 17.1 services, pinned images, healthchecks, `depends_on` conditions, volumes, and the `postgres` profile.  | claude 2026-10-14 docker/compose.yaml: server, dashboard, Prometheus, Tempo, Loki, Alloy, Grafana (default on), postgres profile; pinned images; healthchecks; depends_on healthy. Verification waits on the server image (P10.1) and docker/hugo/hugo.json (P10.4)
-- [ ] P10.4 `docker/hugo/hugo.json` default settings (SQLite) and a `hugo.postgres.json` variant.
+- [x] P10.3 `docker/compose.yaml` with the section 17.1 services, pinned images, healthchecks, `depends_on` conditions, volumes, and the `postgres` profile.  | claude 2026-10-14 compose up verified 2026-10-14: server, Prometheus, Tempo, Loki, Alloy, Grafana all healthy; Prometheus scrapes hugo-server (191 hugo_ series); token issued for anderson@hugo.local. Dashboard service joins when its branch merges
+- [x] P10.4 `docker/hugo/hugo.json` default settings (SQLite) and a `hugo.postgres.json` variant.  | claude 2026-10-14 docker/hugo/hugo.json mounted as /app/config (0.0.0.0, /app/data paths, OTLP to Alloy); PostgreSQL via HUGO_DB_TYPE and the postgres profile
 - [~] P10.5 `.env.example`, plus `docker/start.sh`/`.bat` generating missing keys into `.env`.  | claude 2026-10-14 docker/.env.example and start.sh/.bat generating HUGO_MASTER_KEY and HUGO_AUTH_SIGNING_KEY; compose falls back to labeled development keys
 - [x] P10.6 `docker/update.bat` and `update.sh` per REPOSITORY_REQUIREMENTS.md.  | claude 2026-10-14 docker/update.sh and update.bat: pull, down, up -d, ps -a (non-destructive)
 - [~] P10.7 `docker/factory/compose.yaml`, seeded data, `reset.bat` and `reset.sh`.  | claude 2026-10-14 factory/reset.sh and reset.bat (typed RESET confirmation, down -v, up); factory seed and factory compose come with P10.8
 - [ ] P10.8 Factory demo content: demo resources pointing at the testbed, a profile with eight bindings (the joel scenario), and a demo credential.
-- [~] P10.9 Prometheus config scraping `hugo-server:8800/metrics` on the internal network.  | claude 2026-10-14 docker/observability/prometheus.yaml scrapes hugo-server:8800; verified when compose lands (P10.3)
+- [x] P10.9 Prometheus config scraping `hugo-server:8800/metrics` on the internal network.  | claude 2026-10-14 Prometheus target hugo-server up
 - [~] P10.10 Tempo config (OTLP gRPC and HTTP), pinned to 2.6.1.  | claude 2026-10-14 docker/observability/tempo.yaml from Garrison; Alloy OTLP receiver forwards to Tempo
 - [~] P10.11 Loki config and Radiant log export.  | claude 2026-10-14 docker/observability/loki.yaml and Alloy container log shipping
-- [~] P10.12 Grafana provisioning (datasources with UIDs `prometheus`, `tempo`, `loki`; dashboards provider folder `Hugo`).  | claude 2026-10-14 Grafana datasources (UIDs prometheus, tempo, loki) and Hugo dashboards provider
+- [x] P10.12 Grafana provisioning (datasources with UIDs `prometheus`, `tempo`, `loki`; dashboards provider folder `Hugo`).  | claude 2026-10-14 Grafana healthy with provisioned datasources; Hugo dashboards land with P10.13 onward
 - [ ] P10.13 Grafana dashboard: Overview.
 - [ ] P10.14 Grafana dashboard: HTTP.
 - [ ] P10.15 Grafana dashboard: Agent and Chat.
