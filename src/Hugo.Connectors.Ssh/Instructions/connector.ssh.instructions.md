@@ -34,7 +34,7 @@ Every command is classified before it runs, and the most severe part of a pipeli
 - **Read:** commands that only observe, such as `cat`, `ls`, `grep`, `head`, `tail`, `ps`, `df`, `du`, `free`, `uptime`, `ss`, `netstat`, `journalctl`, `systemctl status`, `docker ps`, `docker logs`, `kubectl get`, `git status`.
 - **Write:** commands not on the read-only list, appending redirections (`>>`), `cp`, `mv`, `mkdir`, `chmod`, package installs, `systemctl start` or `reload`.
 - **Destructive:** `rm`, `kill`, `pkill`, `dd`, `mkfs`, `shutdown`, `reboot`, `truncate`, `systemctl stop`, `restart`, or `disable`, `docker rm`, `kubectl delete`, `sed -i`, `find -delete`, package removal, and any redirection that overwrites a file (`>`).
-- **Rejected:** commands matching the resource's denied patterns, and `sudo`, `doas`, or `su` when the resource does not allow sudo.
+- **Rejected:** commands matching the resource's denied patterns, `sudo`, `doas`, or `su` when the resource does not allow sudo, and `sudo` or `doas` without `-n` when it does.
 - Commands the classifier cannot parse (here-documents, function definitions, `case` statements, `curl ... | sh`) are treated as Destructive.
 
 Redirecting to `/dev/null` is harmless. Keep commands simple and explicit so they classify correctly.
@@ -44,7 +44,7 @@ Redirecting to `/dev/null` is harmless. Keep commands simple and explicit so the
 - Commands run non-interactively with no terminal and a timeout (default 60 seconds). Never start editors (`vi`, `nano`), pagers, `top` without `-b -n 1`, `watch`, `tail -f`, or anything that waits for input. They hang until the timeout.
 - Bound your output: `journalctl -u nginx -n 200 --no-pager`, `tail -n 200`, `grep -m 50`, `head -n 100`, `ls | head`. Output beyond the limit is cut, keeping the end, and the result says so.
 - Use `--no-pager` with `systemctl` and `journalctl`.
-- If sudo is allowed on the resource, use `sudo -n` so the command fails instead of waiting for a password.
+- If sudo is allowed on the resource, always use `sudo -n`. A sudo or doas call without `-n` is rejected, because there is no terminal to type a password into.
 - A non-zero exit code is a normal result, not a tool failure. Read stderr before retrying.
 - Quote paths that contain spaces or special characters.
 

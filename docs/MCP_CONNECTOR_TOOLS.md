@@ -229,7 +229,7 @@ Mem:            7.6Gi       3.1Gi       1.2Gi        41Mi       3.6Gi       4.5G
 
 Run a shell command on the SSH host and return its exit code, standard output, and standard error (each bounded, keeping the end). Use it when no purpose-built ssh_ tool fits. Commands run non-interactively with a timeout: never start editors, pagers, or long-running foreground processes, and bound output with tail -n, head, or grep -m. Each command is classified: read-only commands are Read, unknown commands are Write, and destructive ones (rm, kill, systemctl stop/restart, overwriting redirections, package removal) are Destructive and may require approval. A non-zero exit code is a normal result, not a tool error.
 
-**Effect rule.** Each simple command in the line is classified and the most severe wins. Read-only commands (`cat`, `ls`, `grep`, `ps`, `df`, `journalctl`, `systemctl status`, and many more) are Read; unknown commands are Write; `rm`, `kill`, `dd`, `shutdown`, `systemctl stop|restart|disable`, overwriting redirections (`>`), `sed -i`, piping into a shell, here-documents, and anything that cannot be parsed are Destructive. A match on `deniedCommandPatterns`, or any use of `sudo`, `su`, or `doas` while `allowSudo` is off, rejects the call outright.
+**Effect rule.** Each simple command in the line is classified and the most severe wins. Read-only commands (`cat`, `ls`, `grep`, `ps`, `df`, `journalctl`, `systemctl status`, and many more) are Read; unknown commands are Write; `rm`, `kill`, `dd`, `shutdown`, `systemctl stop|restart|disable`, overwriting redirections (`>`), `sed -i`, piping into a shell, here-documents, and anything that cannot be parsed are Destructive. Wrappers that run another command (`command`, `builtin`, `exec`, `env`, `nice`, `nohup`, `timeout`, `xargs`, `chroot`, `flock`, `taskset`, `strace`, `systemd-run`, and similar) are unwrapped and classified by the command they run; `command -v` and `command -V` are Read only because they run nothing. A match on `deniedCommandPatterns`, or any use of `sudo`, `su`, `doas`, `sudoedit`, or `pkexec` while `allowSudo` is off, rejects the call outright. With `allowSudo` on, `sudo`, `doas`, and `sudoedit` without `-n` are rejected too.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -337,7 +337,7 @@ state after reload: active (running)
 
 *Read a file.* Base effect **Read**. Connectors: `ssh`.
 
-Read a file on the SSH host over SFTP, either a byte range (offset, length) or a line range (startLine, lineCount). Use it for configuration files and other text; use ssh_tail_file for the end of logs. Output is bounded: the header states the file size and the range returned, and tells you the offset to continue from. Binary content is returned as base64.
+Read a file on the SSH host over SFTP, either a byte range (offset, length) or a line range (startLine, lineCount). Use it for configuration files and other text; use ssh_tail_file for the end of logs. Output is bounded: the header states the file size and the range returned, and tells you the offset to continue from. Binary content (NUL bytes or invalid UTF-8) is returned as base64 in byte mode; line mode refuses it with invalid_argument.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|

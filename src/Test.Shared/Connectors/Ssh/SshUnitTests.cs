@@ -64,6 +64,7 @@ namespace Test.Shared.Connectors.Ssh
             Add(cases, "shell-quote", "Shell quoting and command building", ShellQuote);
             Add(cases, "parser-segments", "Parser splits lists, pipelines, substitutions, and redirections", ParserSegments);
             Add(cases, "tail-buffer", "Tail buffer keeps the end and counts the total", TailBuffer);
+            Add(cases, "binary-detector", "Binary detection flags NUL bytes and invalid UTF-8 but tolerates cut multi-byte characters", BinaryDetector);
             Add(cases, "bound-tail-dropped", "Bounding reports the true total when capture dropped bytes", BoundTailDropped);
             Add(cases, "result-formatter", "Formatter reports exit code, stdout, and stderr separately with structured JSON", ResultFormatter);
             Add(cases, "classify-exec", "ssh_exec classifies per call with an approval summary", ClassifyExec);
@@ -378,6 +379,22 @@ namespace Test.Shared.Connectors.Ssh
             SshTailBuffer c = new SshTailBuffer(16);
             c.Write(data, 0, 5);
             SshAssert.True(c.ToString() == "01234" && !c.Dropped, "small");
+            return Task.CompletedTask;
+        }
+
+        private static Task BinaryDetector(CancellationToken token)
+        {
+            SshAssert.True(!SshBinaryDetector.LooksBinary(Encoding.UTF8.GetBytes("plain text\nline two\n")), "ascii is text");
+            SshAssert.True(!SshBinaryDetector.LooksBinary(Array.Empty<byte>()), "empty is text");
+            SshAssert.True(SshBinaryDetector.LooksBinary(new byte[] { 0x61, 0x00, 0x62 }), "NUL is binary");
+            SshAssert.True(SshBinaryDetector.LooksBinary(new byte[] { 0x61, 0xFF, 0xFE, 0x62, 0x63 }), "invalid UTF-8 without NUL is binary");
+            byte[] euro = Encoding.UTF8.GetBytes("price: \u20ac");
+            SshAssert.True(!SshBinaryDetector.LooksBinary(euro), "multi-byte text is text");
+            byte[] cutEnd = new byte[euro.Length - 1];
+            Array.Copy(euro, cutEnd, cutEnd.Length);
+            SshAssert.True(!SshBinaryDetector.LooksBinary(cutEnd), "a character cut at the end is text");
+            byte[] cutStart = new byte[] { 0x82, 0xAC, 0x61 };
+            SshAssert.True(!SshBinaryDetector.LooksBinary(cutStart), "a character cut at the start is text");
             return Task.CompletedTask;
         }
 
