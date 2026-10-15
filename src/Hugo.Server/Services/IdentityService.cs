@@ -21,6 +21,21 @@ namespace Hugo.Server.Services
     /// </summary>
     public class IdentityService
     {
+        #region Public-Members
+
+        /// <summary>
+        /// Called after a tenant is created (for example to provision its default agent profile). Null does nothing.
+        /// </summary>
+        public Func<Tenant, CancellationToken, Task>? TenantProvisioned { get; set; } = null;
+
+        /// <summary>
+        /// Checks that a profile identifier exists in a tenant before a credential is bound to it; returns false when it
+        /// does not. Null skips the check.
+        /// </summary>
+        public Func<string, string, CancellationToken, Task<bool>>? ProfileExists { get; set; } = null;
+
+        #endregion
+
         #region Private-Members
 
         private readonly DatabaseDriverBase _Database;
@@ -77,6 +92,12 @@ namespace Hugo.Server.Services
             tenant.DefaultAgentProfileId = request.DefaultAgentProfileId;
             await _Database.Tenants.CreateAsync(tenant, token).ConfigureAwait(false);
             await _Audit.WriteAsync(ctx, AuditEventTypeEnum.ConfigurationChanged, "Tenant", tenant.Id, "Tenant created.", tenant.Id, token).ConfigureAwait(false);
+            Func<Tenant, CancellationToken, Task>? provisioned = TenantProvisioned;
+            if (provisioned != null)
+            {
+                await provisioned(tenant, token).ConfigureAwait(false);
+                tenant = await _Database.Tenants.ReadAsync(tenant.Id, token).ConfigureAwait(false) ?? tenant;
+            }
             return tenant;
         }
 
@@ -344,6 +365,7 @@ namespace Hugo.Server.Services
             credential.AuthMode = request.AuthMode ?? CredentialAuthModeEnum.Hybrid;
             credential.ExpiresUtc = request.ExpiresUtc;
             credential.Active = request.Active ?? true;
+            await ApplyProfileBindingAsync(credential, tenantId, request, token).ConfigureAwait(false);
             await _Database.Credentials.CreateAsync(credential, token).ConfigureAwait(false);
 
             if (builtIn != null || custom != null)
@@ -388,10 +410,47 @@ namespace Hugo.Server.Services
                 if (credential.IsProtected && !request.Active.Value) throw new ConflictException("Protected", "Protected credentials cannot be deactivated.");
                 credential.Active = request.Active.Value;
             }
+            await ApplyProfileBindingAsync(credential, tenantId, request, token).ConfigureAwait(false);
             await _Database.Credentials.UpdateAsync(credential, token).ConfigureAwait(false);
             _Authorization.Invalidate();
-            await _Audit.WriteAsync(ctx, AuditEventTypeEnum.ConfigurationChanged, "Credential", credential.Id, "Credential updated.", tenantId, token).ConfigureAwait(false);
+            await _Audit.WriteAsync(ctx, AuditEventTypeEnum.ConfigurationChanged, "Credential", credential.Id, "Credential updated" + (String.IsNullOrEmpty(credential.AgentProfileId) ? "." : " (agent profile " + credential.AgentProfileId + (credential.LockToProfile ? ", locked" : String.Empty) + ")."), tenantId, token).ConfigureAwait(false);
             return credential;
+        }
+
+        /// <summary>
+        /// Apply a request's agent profile binding to a credential (P5.18, D-018): an empty profile identifier clears the
+        /// binding and the lock; a lock without a bound profile is refused.
+        /// </summary>
+        /// <param name="credential">Credential.</param>
+        /// <param name="tenantId">Tenant identifier.</param>
+        /// <param name="request">Request.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Task.</returns>
+        /// <exception cref="ValidationException">Thrown when the profile does not exist or a lock has no profile.</exception>
+        public async Task ApplyProfileBindingAsync(Credential credential, string tenantId, CredentialRequest request, CancellationToken token = default)
+        {
+            if (credential == null) throw new ArgumentNullException(nameof(credential));
+            if (request == null) return;
+            if (request.AgentProfileId != null)
+            {
+                string id = request.AgentProfileId.Trim();
+                if (id.Length == 0)
+                {
+                    credential.AgentProfileId = null;
+                    credential.LockToProfile = false;
+                }
+                else
+                {
+                    Func<string, string, CancellationToken, Task<bool>>? exists = ProfileExists;
+                    if (exists != null && !await exists(tenantId, id, token).ConfigureAwait(false)) throw Invalid("agentProfileId", "Agent profile " + id + " does not exist in this tenant.");
+                    credential.AgentProfileId = id;
+                }
+            }
+            if (request.LockToProfile.HasValue)
+            {
+                if (request.LockToProfile.Value && String.IsNullOrEmpty(credential.AgentProfileId)) throw Invalid("lockToProfile", "A credential can be locked only to a bound agent profile; set agentProfileId too.");
+                credential.LockToProfile = request.LockToProfile.Value;
+            }
         }
 
         /// <summary>

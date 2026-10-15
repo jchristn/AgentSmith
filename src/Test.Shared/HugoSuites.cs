@@ -43,6 +43,12 @@ namespace Test.Shared
                 suites.AddRange(ObservabilitySuites.Build());
                 suites.AddRange(KubernetesSuites.Build());
                 suites.AddRange(DockerSuites.Build());
+                suites.AddRange(Test.Shared.Integration.PipelineSuite.Build());
+                suites.AddRange(Test.Shared.Integration.ConfigurationIntegrationSuite.Build());
+                suites.AddRange(Test.Shared.Integration.ModelAgentSuite.Build());
+                suites.AddRange(Test.Shared.Integration.IntegrationUnitSuite.Build());
+                suites.AddRange(Test.Shared.Integration.IntegrationDataSuite.Build());
+                suites.AddRange(Test.Shared.Integration.SnapshotPluginSuite.Build());
                 return suites;
             }
         }

@@ -120,6 +120,51 @@ namespace Hugo.Core.Database
         /// </summary>
         public IMasterKeyVersionMethods MasterKeys { get; protected set; } = null!;
 
+        /// <summary>
+        /// Resources.
+        /// </summary>
+        public IResourceMethods Resources { get; protected set; } = null!;
+
+        /// <summary>
+        /// Agent profiles.
+        /// </summary>
+        public IAgentProfileMethods AgentProfiles { get; protected set; } = null!;
+
+        /// <summary>
+        /// Bindings.
+        /// </summary>
+        public IBindingMethods Bindings { get; protected set; } = null!;
+
+        /// <summary>
+        /// Tool invocations.
+        /// </summary>
+        public IToolInvocationMethods ToolInvocations { get; protected set; } = null!;
+
+        /// <summary>
+        /// Approvals.
+        /// </summary>
+        public IApprovalMethods Approvals { get; protected set; } = null!;
+
+        /// <summary>
+        /// Resource knowledge.
+        /// </summary>
+        public IResourceKnowledgeMethods ResourceKnowledge { get; protected set; } = null!;
+
+        /// <summary>
+        /// Model endpoints.
+        /// </summary>
+        public IModelEndpointMethods ModelEndpoints { get; protected set; } = null!;
+
+        /// <summary>
+        /// Connector plugin records.
+        /// </summary>
+        public IPluginMethods Plugins { get; protected set; } = null!;
+
+        /// <summary>
+        /// Connector schema cache.
+        /// </summary>
+        public IConnectorSchemaCacheMethods SchemaCache { get; protected set; } = null!;
+
         #endregion
 
         #region Private-Members

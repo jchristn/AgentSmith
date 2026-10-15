@@ -86,10 +86,11 @@ namespace Hugo.Server
         /// <param name="logging">Logging.</param>
         /// <param name="token">Cancellation token.</param>
         /// <param name="keyOptions">Master key options; null reads them from the environment and settings.</param>
+        /// <param name="additionalConnectors">Connectors registered next to the built-ins (tests and embedding hosts), or null.</param>
         /// <returns>Started server.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is null.</exception>
         /// <exception cref="MasterKeyException">Thrown when the master key is missing or does not match the stored canary.</exception>
-        public static async Task<HugoServer> StartAsync(HugoSettings settings, LoggingModule logging, CancellationToken token = default, MasterKeyOptions? keyOptions = null)
+        public static async Task<HugoServer> StartAsync(HugoSettings settings, LoggingModule logging, CancellationToken token = default, MasterKeyOptions? keyOptions = null, System.Collections.Generic.IEnumerable<Hugo.Connectors.Abstractions.IConnector>? additionalConnectors = null)
         {
             if (settings == null) throw new ArgumentNullException(nameof(settings));
             if (logging == null) throw new ArgumentNullException(nameof(logging));
@@ -128,6 +129,10 @@ namespace Hugo.Server
                 context.MasterKeySource = key.Source;
 
                 HugoServer server = new HugoServer(context);
+                if (additionalConnectors != null)
+                {
+                    foreach (Hugo.Server.Modules.IntegrationModule module in System.Linq.Enumerable.OfType<Hugo.Server.Modules.IntegrationModule>(server.Modules)) module.AdditionalConnectors.AddRange(additionalConnectors);
+                }
                 await server.StartAsync(token).ConfigureAwait(false);
                 return server;
             }

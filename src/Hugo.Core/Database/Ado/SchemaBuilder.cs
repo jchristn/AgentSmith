@@ -72,6 +72,22 @@ namespace Hugo.Core.Database.Ado
             v2.BuildVersion2();
             migrations.Add(new SchemaMigration(2, "Secrets vault: secrets, encrypted secret values, and master key versions", v2._Statements, v2._Columns));
 
+            SchemaBuilder v3 = new SchemaBuilder(catalog, dialect);
+            v3.BuildVersion3();
+            migrations.Add(new SchemaMigration(3, "Resources: resources, settings, secret slot bindings, schema cache, and resource knowledge with versions", v3._Statements, v3._Columns));
+
+            SchemaBuilder v4 = new SchemaBuilder(catalog, dialect);
+            v4.BuildVersion4();
+            migrations.Add(new SchemaMigration(4, "Tool invocations, approvals, and connector plugins", v4._Statements, v4._Columns));
+
+            SchemaBuilder v5 = new SchemaBuilder(catalog, dialect);
+            v5.BuildVersion5();
+            migrations.Add(new SchemaMigration(5, "Agent profiles, bindings, binding tool rules, binding deny patterns, and prompt template layer hashes", v5._Statements, v5._Columns));
+
+            SchemaBuilder v6 = new SchemaBuilder(catalog, dialect);
+            v6.BuildVersion6();
+            migrations.Add(new SchemaMigration(6, "Model endpoints", v6._Statements, v6._Columns));
+
             return migrations;
         }
 
@@ -488,6 +504,310 @@ namespace Hugo.Core.Database.Ado
                 Timestamp("created_utc", true),
                 Timestamp("last_update_utc", true));
             Index("master_key_versions", "version", true, "key_version");
+        }
+
+        private void BuildVersion3()
+        {
+            SqlDialect d = _Dialect;
+
+            // resources: searchable fields are columns; settings and secret slots are child tables (D-016)
+            Table("resources",
+                Id(),
+                Ref("tenant_id", true),
+                Ref("owner_user_id", false),
+                "visibility VARCHAR(32) NOT NULL",
+                "name VARCHAR(64) NOT NULL",
+                "connector_type VARCHAR(64) NOT NULL",
+                "display_name VARCHAR(256)",
+                Text("description", false),
+                "endpoint VARCHAR(512)",
+                "environment VARCHAR(64)",
+                Text("notes", false),
+                "default_access_mode_ceiling VARCHAR(32)",
+                Timestamp("last_test_utc", false),
+                "last_test_result " + d.TypeBool,
+                Text("last_test_message", false),
+                Bool("active"),
+                Timestamp("created_utc", true),
+                Timestamp("last_update_utc", true));
+            Index("resources", "tenant", false, "tenant_id");
+            Index("resources", "name", true, "tenant_id", "name");
+            Index("resources", "connector", false, "tenant_id", "connector_type");
+
+            Table("resource_settings",
+                Id(),
+                Ref("resource_id", true),
+                Ref("tenant_id", true),
+                "setting_key VARCHAR(128) NOT NULL",
+                "value_kind VARCHAR(32) NOT NULL",
+                Text("string_value", false),
+                "integer_value " + d.TypeBigInt,
+                "boolean_value " + d.TypeBool);
+            Index("resource_settings", "parent", true, "resource_id", "setting_key");
+            Index("resource_settings", "tenant", false, "tenant_id");
+
+            Table("resource_secret_bindings",
+                Id(),
+                Ref("resource_id", true),
+                Ref("tenant_id", true),
+                "slot_name VARCHAR(128) NOT NULL",
+                Ref("secret_id", true),
+                "secret_field_name VARCHAR(128)");
+            Index("resource_secret_bindings", "parent", true, "resource_id", "slot_name");
+            Index("resource_secret_bindings", "secret", false, "tenant_id", "secret_id");
+
+            // connector_schema_cache: rebuildable connector caches (for example a SQL schema crawl)
+            Table("connector_schema_cache",
+                Id(),
+                Ref("tenant_id", true),
+                Ref("resource_id", true),
+                "cache_kind VARCHAR(64) NOT NULL",
+                Text("content", true),
+                Timestamp("expires_utc", true),
+                Timestamp("created_utc", true),
+                Timestamp("last_update_utc", true));
+            Index("connector_schema_cache", "resourcekind", true, "resource_id", "cache_kind");
+            Index("connector_schema_cache", "tenant", false, "tenant_id");
+
+            // resource_knowledge: durable, scrubbed knowledge per resource (D-038), with history
+            Table("resource_knowledge",
+                Id(),
+                Ref("tenant_id", true),
+                Ref("resource_id", true),
+                "scope VARCHAR(128) NOT NULL",
+                "knowledge_key VARCHAR(512) NOT NULL",
+                Text("content", true),
+                "source VARCHAR(32) NOT NULL",
+                "updated_by VARCHAR(256)",
+                "version " + d.TypeInt + " NOT NULL",
+                Timestamp("created_utc", true),
+                Timestamp("last_update_utc", true));
+            Index("resource_knowledge", "entry", true, "resource_id", "scope", "knowledge_key");
+            Index("resource_knowledge", "tenant", false, "tenant_id");
+
+            Table("resource_knowledge_versions",
+                Id(),
+                Ref("tenant_id", true),
+                Ref("knowledge_id", true),
+                Ref("resource_id", true),
+                "scope VARCHAR(128) NOT NULL",
+                "knowledge_key VARCHAR(512) NOT NULL",
+                "version " + d.TypeInt + " NOT NULL",
+                Text("content", true),
+                "source VARCHAR(32) NOT NULL",
+                "updated_by VARCHAR(256)",
+                Bool("deleted"),
+                Timestamp("created_utc", true));
+            Index("resource_knowledge_versions", "entry", false, "resource_id", "scope", "knowledge_key", "version");
+            Index("resource_knowledge_versions", "tenant", false, "tenant_id");
+        }
+
+        private void BuildVersion4()
+        {
+            SqlDialect d = _Dialect;
+
+            // tool_invocations: one row per call through the pipeline; arguments_redacted is unmanaged JSON (section 7.6)
+            Table("tool_invocations",
+                Id(),
+                Ref("tenant_id", true),
+                Ref("conversation_id", false),
+                Ref("message_id", false),
+                "surface VARCHAR(32) NOT NULL",
+                "principal_type VARCHAR(32) NOT NULL",
+                Ref("principal_id", false),
+                "principal_name VARCHAR(256)",
+                Ref("agent_profile_id", false),
+                Ref("binding_id", false),
+                "binding_alias VARCHAR(128)",
+                Ref("resource_id", false),
+                "connector_type VARCHAR(64)",
+                "tool_name VARCHAR(128) NOT NULL",
+                Text("arguments_redacted", false),
+                Bool("redaction_applied"),
+                "effect VARCHAR(32)",
+                Text("effect_reason", false),
+                "access_mode VARCHAR(32)",
+                "decision VARCHAR(32) NOT NULL",
+                "decision_code VARCHAR(64)",
+                Text("decision_reason", false),
+                Ref("approval_id", false),
+                "status VARCHAR(32) NOT NULL",
+                "error_code VARCHAR(64)",
+                Text("error_message", false),
+                "output_bytes " + d.TypeBigInt + " NOT NULL",
+                Bool("output_truncated"),
+                Text("output_preview", false),
+                "duration_ms " + d.TypeBigInt + " NOT NULL",
+                "trace_id VARCHAR(64)",
+                "correlation_id VARCHAR(64)",
+                Timestamp("created_utc", true),
+                Timestamp("last_update_utc", true));
+            Index("tool_invocations", "tenantcreated", false, "tenant_id", "created_utc");
+            Index("tool_invocations", "profile", false, "tenant_id", "agent_profile_id");
+            Index("tool_invocations", "resource", false, "tenant_id", "resource_id");
+            Index("tool_invocations", "approval", false, "approval_id");
+
+            // approvals: database-backed so a decision survives restarts (D-027)
+            Table("approvals",
+                Id(),
+                Ref("tenant_id", true),
+                Ref("tool_invocation_id", true),
+                Ref("agent_profile_id", false),
+                Ref("binding_id", false),
+                "binding_alias VARCHAR(128)",
+                Ref("resource_id", false),
+                "tool_name VARCHAR(128) NOT NULL",
+                "surface VARCHAR(32) NOT NULL",
+                "requested_by_principal_type VARCHAR(32) NOT NULL",
+                Ref("requested_by_principal_id", false),
+                "requested_by_name VARCHAR(256)",
+                Text("summary", true),
+                "effect VARCHAR(32) NOT NULL",
+                Text("effect_reason", false),
+                Text("arguments_redacted", false),
+                "status VARCHAR(32) NOT NULL",
+                Ref("decided_by_user_id", false),
+                "decided_by_name VARCHAR(256)",
+                Text("decision_note", false),
+                Timestamp("decided_utc", false),
+                Timestamp("expires_utc", true),
+                Timestamp("created_utc", true),
+                Timestamp("last_update_utc", true));
+            Index("approvals", "tenantstatus", false, "tenant_id", "status");
+            Index("approvals", "expires", false, "status", "expires_utc");
+            Index("approvals", "invocation", false, "tool_invocation_id");
+
+            // plugins: global; system administrators manage plugins
+            Table("plugins",
+                Id(),
+                "name VARCHAR(128) NOT NULL",
+                "version VARCHAR(64)",
+                Text("assembly_path", true),
+                "sha256 VARCHAR(128)",
+                Bool("enabled"),
+                Bool("loaded"),
+                Text("load_error", false),
+                Timestamp("created_utc", true),
+                Timestamp("last_update_utc", true));
+            Index("plugins", "name", true, "name");
+            Table("plugin_connector_types",
+                Id(),
+                Ref("plugin_id", true),
+                "connector_type VARCHAR(64) NOT NULL");
+            Index("plugin_connector_types", "parent", false, "plugin_id");
+        }
+
+        private void BuildVersion5()
+        {
+            SqlDialect d = _Dialect;
+
+            Table("agent_profiles",
+                Id(),
+                Ref("tenant_id", true),
+                Ref("owner_user_id", false),
+                "visibility VARCHAR(32) NOT NULL",
+                "name VARCHAR(64) NOT NULL",
+                "display_name VARCHAR(256)",
+                "persona_name VARCHAR(128) NOT NULL",
+                "user_address VARCHAR(128) NOT NULL",
+                Text("description", false),
+                "persona_template_key VARCHAR(128) NOT NULL",
+                Ref("inference_endpoint_id", false),
+                Ref("fallback_inference_endpoint_id", false),
+                Ref("embedding_endpoint_id", false),
+                "max_iterations " + d.TypeInt + " NOT NULL",
+                "max_tool_calls_per_turn " + d.TypeInt + " NOT NULL",
+                "tool_timeout_seconds " + d.TypeInt + " NOT NULL",
+                "temperature " + d.TypeDouble,
+                Bool("expose_a2a"),
+                Bool("expose_mcp"),
+                Bool("expose_openai"),
+                Bool("expose_management_tools"),
+                Text("instructions_append", false),
+                Bool("is_default"),
+                Bool("active"),
+                Timestamp("created_utc", true),
+                Timestamp("last_update_utc", true));
+            Index("agent_profiles", "tenant", false, "tenant_id");
+            Index("agent_profiles", "name", true, "tenant_id", "name");
+
+            Table("bindings",
+                Id(),
+                Ref("tenant_id", true),
+                Ref("agent_profile_id", true),
+                Ref("resource_id", true),
+                "alias VARCHAR(128) NOT NULL",
+                "access_mode VARCHAR(32) NOT NULL",
+                Bool("require_approval_for_destructive"),
+                "instruction_mode VARCHAR(32) NOT NULL",
+                Text("instruction_text", false),
+                "max_output_bytes " + d.TypeInt,
+                "max_rows " + d.TypeInt,
+                Bool("enabled"),
+                Bool("allow_knowledge_updates"),
+                Timestamp("created_utc", true),
+                Timestamp("last_update_utc", true));
+            Index("bindings", "alias", true, "agent_profile_id", "alias");
+            Index("bindings", "tenant", false, "tenant_id");
+            Index("bindings", "resource", false, "tenant_id", "resource_id");
+
+            Table("binding_tool_rules",
+                Id(),
+                Ref("binding_id", true),
+                Ref("tenant_id", true),
+                "tool_name VARCHAR(128) NOT NULL",
+                "rule VARCHAR(32) NOT NULL");
+            Index("binding_tool_rules", "parent", true, "binding_id", "tool_name");
+            Index("binding_tool_rules", "tenant", false, "tenant_id");
+
+            Table("binding_deny_patterns",
+                Id(),
+                Ref("binding_id", true),
+                Ref("tenant_id", true),
+                "ordinal " + d.TypeInt + " NOT NULL",
+                Text("pattern", true));
+            Index("binding_deny_patterns", "parent", false, "binding_id");
+            Index("binding_deny_patterns", "tenant", false, "tenant_id");
+
+            // Prompt template layers (D-015, D-039): the hash of the content of the layer below at the time this row was
+            // last synchronized, so "the default changed since you customized this" can be detected.
+            _Columns.Add(new SchemaColumnAddition("prompt_templates", "base_hash", "VARCHAR(128)"));
+        }
+
+        private void BuildVersion6()
+        {
+            SqlDialect d = _Dialect;
+
+            Table("model_endpoints",
+                Id(),
+                Ref("tenant_id", true),
+                "name VARCHAR(128) NOT NULL",
+                "kind VARCHAR(32) NOT NULL",
+                "provider VARCHAR(32) NOT NULL",
+                "base_url VARCHAR(1024)",
+                "model VARCHAR(256) NOT NULL",
+                Ref("api_key_secret_id", false),
+                "api_key_secret_field VARCHAR(128)",
+                "region VARCHAR(64)",
+                "deployment_name VARCHAR(256)",
+                "api_version VARCHAR(64)",
+                "context_window_tokens " + d.TypeInt + " NOT NULL",
+                "max_output_tokens " + d.TypeInt + " NOT NULL",
+                Bool("supports_tools"),
+                Bool("supports_streaming"),
+                "embedding_dimensions " + d.TypeInt,
+                "max_concurrency " + d.TypeInt + " NOT NULL",
+                "timeout_seconds " + d.TypeInt + " NOT NULL",
+                "max_retries " + d.TypeInt + " NOT NULL",
+                "health_status VARCHAR(32) NOT NULL",
+                Timestamp("last_health_utc", false),
+                Text("last_health_message", false),
+                Bool("active"),
+                Timestamp("created_utc", true),
+                Timestamp("last_update_utc", true));
+            Index("model_endpoints", "tenant", false, "tenant_id");
+            Index("model_endpoints", "name", true, "tenant_id", "name");
+            Index("model_endpoints", "secret", false, "tenant_id", "api_key_secret_id");
         }
 
         #endregion

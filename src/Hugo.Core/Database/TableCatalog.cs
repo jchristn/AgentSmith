@@ -23,6 +23,17 @@ namespace Hugo.Core.Database
         }
 
         /// <summary>
+        /// Tables without a tenant_id column (global tables). A tenant cascade skips them.
+        /// </summary>
+        public static IReadOnlyCollection<string> GlobalTables
+        {
+            get
+            {
+                return _GlobalTables;
+            }
+        }
+
+        /// <summary>
         /// Optional schema.
         /// </summary>
         public string? Schema { get; }
@@ -61,6 +72,26 @@ namespace Hugo.Core.Database
             "secrets",
             "secret_values",
             "master_key_versions",
+            "resources",
+            "resource_settings",
+            "resource_secret_bindings",
+            "connector_schema_cache",
+            "resource_knowledge",
+            "resource_knowledge_versions",
+            "tool_invocations",
+            "approvals",
+            "plugins",
+            "plugin_connector_types",
+            "agent_profiles",
+            "bindings",
+            "binding_tool_rules",
+            "binding_deny_patterns",
+            "model_endpoints",
+        };
+
+        private static readonly HashSet<string> _GlobalTables = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "tenants", "cluster_settings", "request_nonces", "rate_limit_buckets", "master_key_versions", "plugins", "plugin_connector_types"
         };
 
         private readonly SqlDialect _Dialect;

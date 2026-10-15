@@ -148,7 +148,7 @@ namespace Hugo.Server.Routes
             Func<HttpContextBase, Task> authorized = async context =>
             {
                 RequestContext ctx = RouteHelpers.Context(context);
-                string? tenantId = RouteHelpers.Param(context, "tenantId");
+                string? tenantId = RouteHelpers.TargetTenant(context);
                 string? resourceId = RouteHelpers.Param(context, resourceParameter);
                 AuthorizationDecision decision = await _Authorization.AuthorizeAsync(ctx, tenantId, resourceType, operation, resourceId, context.Token).ConfigureAwait(false);
                 if (!decision.Permitted)
@@ -295,7 +295,7 @@ namespace Hugo.Server.Routes
                     await guarded(context).ConfigureAwait(false);
                 };
             }
-            if (path.Contains("/tenants/{tenantId}", StringComparison.Ordinal))
+            if (path.Contains("/tenants/{tenantId}", StringComparison.Ordinal) || path.StartsWith("/v1.0/api/", StringComparison.Ordinal))
             {
                 Func<HttpContextBase, Task> scoped = inner;
                 inner = async context =>
@@ -347,7 +347,7 @@ namespace Hugo.Server.Routes
             // Only system administrators can address a tenant other than their own; everyone else already gets the
             // authorization layer's 404 for another tenant, which must not reveal whether that tenant exists.
             RequestContext ctx = RouteHelpers.Context(context);
-            string? tenantId = RouteHelpers.Param(context, "tenantId");
+            string? tenantId = RouteHelpers.TargetTenant(context);
             if (!ctx.IsAdmin || String.IsNullOrEmpty(tenantId)) return false;
             if (await _Database.Tenants.ExistsAsync(tenantId, context.Token).ConfigureAwait(false)) return false;
             await RouteHelpers.ErrorAsync(context, 404, "TenantNotFound", "Tenant " + tenantId + " not found.").ConfigureAwait(false);
@@ -398,6 +398,10 @@ namespace Hugo.Server.Routes
             catch (ConflictException e)
             {
                 await RouteHelpers.ErrorAsync(context, 409, e.Code, e.Message).ConfigureAwait(false);
+            }
+            catch (ForbiddenException e)
+            {
+                await RouteHelpers.ErrorAsync(context, 403, e.Code, e.Message).ConfigureAwait(false);
             }
             catch (ArgumentException e)
             {

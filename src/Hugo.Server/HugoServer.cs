@@ -132,7 +132,8 @@ namespace Hugo.Server
             _Modules = modules ?? new List<IServerModule>
             {
                 new IdentityModule(),
-                new ConfigurationModule()
+                new ConfigurationModule(),
+                new IntegrationModule()
             };
 
             WebserverSettings settings = new WebserverSettings();

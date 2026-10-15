@@ -38,5 +38,15 @@ namespace Hugo.Core.Requests
         /// Optional built-in or custom role to grant at tenant scope on create.
         /// </summary>
         public string? RoleName { get; set; } = null;
+
+        /// <summary>
+        /// Agent profile the credential acts as (D-018). An empty string clears it on update.
+        /// </summary>
+        public string? AgentProfileId { get; set; } = null;
+
+        /// <summary>
+        /// Whether the credential may act only as its bound profile.
+        /// </summary>
+        public bool? LockToProfile { get; set; } = null;
     }
 }

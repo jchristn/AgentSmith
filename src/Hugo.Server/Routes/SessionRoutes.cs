@@ -16,6 +16,7 @@ namespace Hugo.Server.Routes
         #region Private-Members
 
         private static readonly string _Base = "/v1.0/api/tenants/{tenantId}/sessions";
+        private static readonly string _FlatBase = "/v1.0/api/sessions";
         private readonly ServerContext _Context;
 
         #endregion
@@ -44,14 +45,20 @@ namespace Hugo.Server.Routes
         public void Register(RouteRegistrar routes)
         {
             if (routes == null) throw new ArgumentNullException(nameof(routes));
-            routes.Scoped(HttpMethod.GET, _Base, ResourceTypeEnum.Session, OperationTypeEnum.Read, ListAsync, "List authentication sessions in the tenant", "Sessions", null, typeof(EnumerationResult<AuthSession>));
-            routes.Scoped(HttpMethod.GET, _Base + "/{id}", ResourceTypeEnum.Session, OperationTypeEnum.Read, ReadAsync, "Read an authentication session", "Sessions", null, typeof(AuthSession));
-            routes.Scoped(HttpMethod.DELETE, _Base + "/{id}", ResourceTypeEnum.Session, OperationTypeEnum.Delete, RevokeAsync, "Revoke an authentication session", "Sessions");
+            RegisterAt(routes, _Base);
+            RegisterAt(routes, _FlatBase);
         }
 
         #endregion
 
         #region Private-Methods
+
+        private void RegisterAt(RouteRegistrar routes, string basePath)
+        {
+            routes.Scoped(HttpMethod.GET, basePath, ResourceTypeEnum.Session, OperationTypeEnum.Read, ListAsync, "List authentication sessions in the tenant", "Sessions", null, typeof(EnumerationResult<AuthSession>));
+            routes.Scoped(HttpMethod.GET, basePath + "/{id}", ResourceTypeEnum.Session, OperationTypeEnum.Read, ReadAsync, "Read an authentication session", "Sessions", null, typeof(AuthSession));
+            routes.Scoped(HttpMethod.DELETE, basePath + "/{id}", ResourceTypeEnum.Session, OperationTypeEnum.Delete, RevokeAsync, "Revoke an authentication session", "Sessions");
+        }
 
         private async Task ListAsync(HttpContextBase http)
         {

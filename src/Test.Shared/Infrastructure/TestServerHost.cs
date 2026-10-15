@@ -105,8 +105,9 @@ namespace Test.Shared.Infrastructure
         /// <param name="configure">Optional settings changes.</param>
         /// <param name="token">Cancellation token.</param>
         /// <param name="keyOptions">Master key options; null uses a new random key.</param>
+        /// <param name="connectors">Connectors registered next to the built-ins; null registers the test echo connector.</param>
         /// <returns>Host.</returns>
-        public static async Task<TestServerHost> StartAsync(DatabaseTypeEnum provider = DatabaseTypeEnum.Sqlite, Action<HugoSettings>? configure = null, CancellationToken token = default, MasterKeyOptions? keyOptions = null)
+        public static async Task<TestServerHost> StartAsync(DatabaseTypeEnum provider = DatabaseTypeEnum.Sqlite, Action<HugoSettings>? configure = null, CancellationToken token = default, MasterKeyOptions? keyOptions = null, System.Collections.Generic.IEnumerable<Hugo.Connectors.Abstractions.IConnector>? connectors = null)
         {
             HugoSettings settings = new HugoSettings();
             settings.NodeId = "test-server";
@@ -126,7 +127,7 @@ namespace Test.Shared.Infrastructure
 
             MasterKeyOptions options = keyOptions ?? NewKeyOptions();
             LoggingModule logging = Bootstrapper.BuildLogging(settings.Logging);
-            HugoServer server = await Bootstrapper.StartAsync(settings, logging, token, options).ConfigureAwait(false);
+            HugoServer server = await Bootstrapper.StartAsync(settings, logging, token, options, connectors ?? new System.Collections.Generic.List<Hugo.Connectors.Abstractions.IConnector> { new Test.Shared.Connectors.Echo.EchoConnector() }).ConfigureAwait(false);
             return new TestServerHost(server, settings, options);
         }
 

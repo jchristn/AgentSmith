@@ -20,6 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Seed\Prompts\*.md" LogicalName="Hugo.Core.Seed.Prompts.%(Filename)%(Extension)" WithCulture="false" />
+  </ItemGroup>
+
+  <ItemGroup>
     <InternalsVisibleTo Include="Test.Shared" />
   </ItemGroup>
 

@@ -196,6 +196,21 @@ namespace Hugo.Server.Settings
         }
 
         /// <summary>
+        /// Instruction compilation.
+        /// </summary>
+        public InstructionsSettings Instructions
+        {
+            get
+            {
+                return _Instructions;
+            }
+            set
+            {
+                _Instructions = value ?? new InstructionsSettings();
+            }
+        }
+
+        /// <summary>
         /// MCP surface.
         /// </summary>
         public McpSettings Mcp
@@ -288,6 +303,7 @@ namespace Hugo.Server.Settings
         private ConnectorsSettings _Connectors = new ConnectorsSettings();
         private ModelsSettings _Models = new ModelsSettings();
         private McpSettings _Mcp = new McpSettings();
+        private InstructionsSettings _Instructions = new InstructionsSettings();
         private A2ASettings _A2A = new A2ASettings();
         private OpenAISettings _OpenAI = new OpenAISettings();
 
