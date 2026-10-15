@@ -151,7 +151,13 @@
     "LockdownActive": "Penyewa berada dalam sekatan penuh, jadi hanya panggilan baca dibenarkan.",
     "ConnectorNotFound": "Pelayan ini tidak mempunyai penyambung jenis tersebut. Pemalam mungkin gagal dimuatkan.",
     "ProfileNotExposed": "Profil ini tidak didedahkan pada permukaan tersebut.",
-    "NoInferenceEndpoint": "Profil ini tidak mempunyai model inferens, jadi Hugo tidak dapat menjalankan gelung ejennya sendiri untuknya."
+    "NoInferenceEndpoint": "Profil ini tidak mempunyai model inferens, jadi Hugo tidak dapat menjalankan gelung ejennya sendiri untuknya.",
+    "NotPending": "Kelulusan ini sudah diputuskan atau telah tamat tempoh.",
+    "SelfApprovalNotAllowed": "Anda tidak boleh meluluskan panggilan anda sendiri dalam penyewa ini. Minta pelulus lain.",
+    "PasswordChangeRequired": "Tukar kata laluan anda sebelum meneruskan.",
+    "SystemAdminRequired": "Hanya pentadbir sistem boleh melakukan ini.",
+    "SettingsInvalid": "Tetapan sumber tidak sah.",
+    "Duplicate": "Rekod dengan nama itu sudah wujud."
   },
   "enums": {
     "principalType": {
@@ -246,7 +252,15 @@
       "ServerRestarted": "Pelayan dimulakan semula",
       "PluginLoaded": "Pemalam dimuatkan",
       "HostKeyPinned": "Kunci hos SSH dipin",
-      "HostKeyMismatch": "Kunci hos SSH tidak sepadan"
+      "HostKeyMismatch": "Kunci hos SSH tidak sepadan",
+      "SessionReauthenticated": "Sesi disahkan semula",
+      "PermissionChanged": "Kebenaran ditukar",
+      "ConfigurationChanged": "Konfigurasi ditukar",
+      "PasswordChanged": "Kata laluan ditukar",
+      "RestartRequested": "Mula semula diminta",
+      "KnowledgeChanged": "Pengetahuan ditukar",
+      "ModelEndpointChanged": "Titik akhir model ditukar",
+      "SettingLearned": "Tetapan dipelajari"
     },
     "secretKind": {
       "Password": "Kata laluan",
@@ -303,13 +317,17 @@
       "ApprovalRequired": "Kelulusan diperlukan",
       "Approved": "Diluluskan",
       "Rejected": "Ditolak",
-      "Expired": "Tamat tempoh"
+      "Expired": "Tamat tempoh",
+      "Cancelled": "Dibatalkan"
     },
     "toolStatus": {
       "Succeeded": "Berjaya",
       "Failed": "Gagal",
       "TimedOut": "Tamat masa",
-      "Cancelled": "Dibatalkan"
+      "Cancelled": "Dibatalkan",
+      "Pending": "Menunggu",
+      "Running": "Sedang berjalan",
+      "NotExecuted": "Tidak dijalankan"
     },
     "surface": {
       "Chat": "Sembang",
@@ -369,7 +387,19 @@
       "AccessKey": "Kunci akses",
       "SessionToken": "Token sesi",
       "SignedRequest": "Permintaan bertandatangan",
-      "ApiKey": "Kunci API pentadbir"
+      "ApiKey": "Kunci API pentadbir",
+      "BearerToken": "Token pembawa",
+      "XToken": "Pengepala token",
+      "PasswordHeaders": "Log masuk kata laluan",
+      "AccessKeySecret": "Kunci akses",
+      "AccessKeySignature": "Permintaan bertandatangan",
+      "AdminApiKey": "Kunci API pentadbir"
+    },
+    "knowledgeSource": {
+      "Operator": "Pengendali",
+      "Generated": "Dijana",
+      "Agent": "Ejen",
+      "Derived": "Diterbitkan"
     }
   },
   "login": {
@@ -706,6 +736,39 @@
         "running": "Sedang berjalan",
         "awaitingApproval": "Menunggu kelulusan"
       }
+    },
+    "layeredEditor": {
+      "title": "Arahan lalai",
+      "purpose": "Sunting templat pada lapisan Penyewa dan Global, dengan versi, tetapan semula dan templat terbina dalam sebagai rujukan.",
+      "saved": "Lapisan {{layer}} disimpan sebagai versi baharu.",
+      "resetDone": "Lapisan {{layer}} ditetapkan semula kepada lalainya.",
+      "customized": "disesuaikan",
+      "inEffect": "Berkuat kuasa:",
+      "outdated": {
+        "Tenant": "Lalai global telah berubah sejak gantian penyewa ini disimpan.",
+        "Global": "Templat terbina dalam telah dikemas kini sejak lapisan Global disesuaikan."
+      },
+      "showChange": "Tunjukkan perubahan",
+      "adopt": "Terima pakai lalai baharu",
+      "layers": "Lapisan templat",
+      "builtInBody": "Templat terbina dalam disertakan dengan Hugo dan tidak boleh disunting. Lapisan Global dan Penyewa menggantikannya.",
+      "noBuiltIn": "Kunci ini tiada teks terbina dalam.",
+      "layerVersion": "Versi {{version}}",
+      "notCustomized": {
+        "Tenant": "Penyewa ini menggunakan lalai. Menyimpan akan mencipta gantian penyewa.",
+        "Global": "Lapisan Global belum ditetapkan. Menyimpan akan menciptanya daripada teks ini."
+      },
+      "globalReadOnly": "Hanya pentadbir sistem boleh menukar lapisan Global. Sunting lapisan Penyewa untuk menukar penyewa ini.",
+      "diffBelow": "Bandingkan dengan {{layer}}",
+      "save": "Simpan lapisan {{layer}}",
+      "restoreNote": "Dipulihkan daripada versi {{version}}.",
+      "load": "Muat",
+      "resetTitle": "Tetapkan semula lapisan {{layer}}?",
+      "resetBody": {
+        "Tenant": "Gantian penyewa dimatikan dan lalai global digunakan semula. Sejarahnya disimpan.",
+        "Global": "Lapisan Global kembali kepada teks terbina dalam dan menerima pakai sebarang kemas kini. Sejarahnya disimpan."
+      },
+      "noDifferences": "Tiada perbezaan."
     }
   },
   "resources": {
@@ -937,12 +1000,27 @@
         "description": "Penerangan",
         "isBuiltIn": "Asal",
         "id": "ID",
-        "lastUpdateUtc": "Dikemas kini"
+        "lastUpdateUtc": "Dikemas kini",
+        "key": "Kunci",
+        "source": "Sumber",
+        "activeLayer": "Berkuat kuasa",
+        "tenantLayer": "Lapisan penyewa",
+        "globalLayer": "Lapisan global"
       },
       "fields": {
         "name": "Nama",
         "kind": "Jenis",
         "description": "Penerangan"
+      },
+      "defaultUpdated": "Lalai dikemas kini",
+      "filters": {
+        "customized": "Disesuaikan",
+        "customizedValues": {
+          "Tenant": "Gantian penyewa",
+          "Global": "Global disesuaikan",
+          "Outdated": "Lalai dikemas kini sejak itu",
+          "None": "Tidak disesuaikan"
+        }
       }
     },
     "audit": {
@@ -1023,8 +1101,11 @@
       "actions": {
         "decide": "Luluskan atau tolak",
         "invocation": "Lihat panggilan alat",
-        "bulkReject": "Tolak yang dipilih"
-      }
+        "bulkReject": "Tolak yang dipilih",
+        "cancel": "Batalkan permintaan"
+      },
+      "cancelled": "Kelulusan dibatalkan.",
+      "selfApproval": "Penyewa ini memerlukan orang lain untuk meluluskan panggilan anda sendiri."
     },
     "resources": {
       "deleteReferenced_one": "{{name}} terikat pada {{count}} profil atau titik akhir. Alih keluar pengikatan tersebut terlebih dahulu; pelayan menolak pemadaman selagi ia dirujuk.",
@@ -1115,7 +1196,8 @@
         "expiresUtc": "Tamat tempoh",
         "lastRevealedUtc": "Terakhir didedahkan",
         "id": "ID",
-        "createdUtc": "Dicipta"
+        "createdUtc": "Dicipta",
+        "fields": "Medan"
       },
       "fields": {
         "name": "Nama",
@@ -1230,6 +1312,12 @@
         "validateTitle": "Pengesahan: {{name}}",
         "listModels": "Senaraikan model penyedia",
         "listModelsTitle": "Model yang ditawarkan oleh {{name}}"
+      },
+      "noProviderModels": "Penyedia tidak menyenaraikan sebarang model.",
+      "history": {
+        "title": "Sejarah pengesahan (sesi ini)",
+        "note": "Pelayan hanya menyimpan semakan kesihatan terakhir. Pengesahan yang anda jalankan dalam sesi pelayar ini disenaraikan di sini.",
+        "empty": "Belum ada pengesahan dalam sesi ini. Gunakan Sahkan untuk menjalankannya."
       }
     },
     "knowledge": {
@@ -1482,19 +1570,6 @@
       "showRendered": "Tunjukkan berformat"
     },
     "templateEditor": {
-      "cloneToEdit": "Klon untuk mengedit",
-      "builtInReadOnly": "Templat terbina dalam adalah baca sahaja, jadi setiap medan di sini dikunci. Klonkannya untuk mendapatkan salinan yang boleh diedit.",
-      "renameHint": "Anda boleh menamakan semula templat ini. Templat yang menyertakannya mengikut nama mesti dikemas kini secara manual.",
-      "cloneDialog": {
-        "taken": "Templat bernama {{name}} sudah wujud. Pilih nama lain.",
-        "reserved": "Nama yang bermula dengan builtin/ dikhaskan untuk templat terbina dalam.",
-        "hint": "Anda boleh menamakan semula salinan kemudian pada halamannya.",
-        "name": "Nama salinan",
-        "body": "Salinan bermula dengan kandungan semasa sebagai versi 1 dan boleh diedit, dinamakan semula dan dipadam.",
-        "title": "Klon {{name}}"
-      },
-      "newTitle": "Templat gesaan baharu",
-      "subtitle": "Tulis templat, pratonton dengan konteks sampel, dan simpan.",
       "changeNote": "Nota perubahan",
       "versions_one": "Versi ({{count}})",
       "versions_other": "Versi ({{count}})",
@@ -1503,22 +1578,10 @@
       "note": "Nota",
       "author": "Pengarang",
       "diff": "Perbezaan",
-      "restore": "Pulihkan",
       "diffTitle": "Versi {{version}} berbanding editor",
       "current": "Editor",
       "reset": "Tetapkan semula kepada lalai",
-      "savedVersion": "Versi baharu disimpan.",
-      "restored": "Versi {{version}} dipulihkan.",
-      "resetDone": "Ditetapkan semula kepada kandungan asal.",
-      "confirm": {
-        "restoreTitle": "Pulihkan versi",
-        "restoreMessage": "Pulihkan versi {{version}}? Kandungan semasa disimpan dalam sejarah.",
-        "resetTitle": "Tetapkan semula templat",
-        "resetMessage": "Tetapkan semula \"{{name}}\" kepada kandungan asal?",
-        "deleteTitle": "Padam templat",
-        "deleteMessage": "Padam \"{{name}}\"? Profil dan penyambung yang menggunakannya akan kembali kepada lalai terbina dalam."
-      },
-      "saved": "Teks disimpan"
+      "layeredSubtitle": "Sunting templat ini pada lapisan Penyewa dan Global. Setiap simpanan ialah versi, dan Tetapkan Semula turun satu lapisan."
     },
     "requests": {
       "grafana": "Papan pemuka HTTP dalam Grafana",
@@ -1775,6 +1838,16 @@
         "calls": "Panggilan",
         "failures": "Kegagalan",
         "p95": "Tempoh p95"
+      },
+      "derived": {
+        "title": "Daripada panggilan alat dan kelulusan",
+        "body": "Sehingga laluan analitik tersedia, angka ini datang daripada ringkasan panggilan alat dan senarai kelulusan untuk julat yang dipilih.",
+        "none": "Tiada apa-apa dalam julat ini.",
+        "byEffect": "Panggilan alat mengikut kesan",
+        "byDecision": "Panggilan alat mengikut keputusan",
+        "byStatus": "Panggilan alat mengikut status",
+        "byTool": "Alat paling banyak digunakan",
+        "approvalsByStatus": "Kelulusan mengikut status"
       }
     },
     "chat": {
@@ -1845,7 +1918,9 @@
           "instructionText": "Teks arahan",
           "maxOutputBytes": "Bait output maksimum",
           "maxRows": "Baris maksimum",
-          "enabled": "Didayakan"
+          "enabled": "Didayakan",
+          "denyPatterns": "Corak tolak",
+          "allowKnowledgeUpdates": "Benarkan kemas kini pengetahuan"
         }
       },
       "toolRules": {
@@ -1861,7 +1936,13 @@
         "body": "Arahan yang diterima pemanggil: persona, peraturan keselamatan, dan bahagian setiap sumber terikat, mengikut urutan.",
         "purpose": "Arahan yang dikompil menunjukkan dengan tepat apa yang diberitahu kepada Agent Smith bagi setiap permukaan, bersama templat asal setiap bahagian.",
         "surface": "Permukaan",
-        "sourceMap": "Asal setiap bahagian"
+        "sourceMap": "Asal setiap bahagian",
+        "tokens_one": "Kira-kira {{value}} token",
+        "tokens_other": "Kira-kira {{value}} token",
+        "bindings_one": "{{count}} sumber",
+        "bindings_other": "{{count}} sumber",
+        "chunkTip": "Daripada {{key}} ({{layer}}, versi {{version}})",
+        "forBinding": "untuk {{alias}}"
       },
       "tools": {
         "body": "Alat tepat seperti yang dilihat oleh pemanggil profil ini, selepas mod akses dan peraturan alat digunakan.",
@@ -1870,7 +1951,13 @@
         "name": "Alat",
         "effect": "Kesan",
         "description": "Penerangan",
-        "perCall": "(dikelaskan bagi setiap panggilan)"
+        "perCall": "(dikelaskan bagi setiap panggilan)",
+        "hasModel": "Titik akhir inferens ditetapkan",
+        "noModel": "Tiada titik akhir inferens",
+        "resourceCount_one": "{{count}} sumber diikat",
+        "resourceCount_other": "{{count}} sumber diikat",
+        "resources": "Sumber",
+        "meta": "Alat Hugo"
       },
       "connect": {
         "claudeCode": "Claude Code (MCP melalui HTTP)",
@@ -1910,7 +1997,13 @@
         "classification": "Pengelasan",
         "result": "Hasil",
         "notBound": "Profil ini tidak mengikat sumber tersebut, jadi alatnya tidak dapat mencapainya.",
-        "pendingApproval": "Panggilan sedang menunggu kelulusan {{id}}. Putuskannya pada halaman Kelulusan."
+        "pendingApproval": "Panggilan sedang menunggu kelulusan {{id}}. Putuskannya pada halaman Kelulusan.",
+        "effectReason": "Pengelas: {{reason}}",
+        "openApprovals": "Buka Kelulusan",
+        "noOutput": "Alat tidak memulangkan output.",
+        "recorded": "Direkodkan sebagai panggilan alat.",
+        "openInvocations": "Buka Panggilan Alat",
+        "asAlias": "Panggilan dihantar ke alias {{alias}}:"
       }
     },
     "secrets": {
@@ -1971,8 +2064,8 @@
       "noTools": "Penyambung ini tidak menawarkan sebarang alat.",
       "instructionsBody": "Setiap sumber jenis ini menambah arahan ini untuk ejen. Editnya bagi setiap penyewa atau secara global di bawah kunci templat {{key}}.",
       "editInstructions": "Edit dalam Templat Gesaan",
-      "builtInInstructions": "Arahan lalai terbina dalam",
-      "noInstructions": "Penyambung ini tidak disertakan dengan arahan lalai."
+      "updatesKnowledge": "Menulis pengetahuan",
+      "requiresModel": "Memerlukan model"
     },
     "mcpExplorer": {
       "title": "Penjelajah MCP",
@@ -2015,6 +2108,102 @@
       "tasks_one": "{{count}} tugas",
       "tasks_other": "{{count}} tugas",
       "noTasks": "Belum ada tugas untuk profil ini."
+    },
+    "resourceDetail": {
+      "title": "Sumber",
+      "noSettings": "Tiada tetapan disimpan.",
+      "noSecrets": "Tiada slot rahsia diisi.",
+      "boundBy": "Diikat kepada profil",
+      "notBound": "Belum ada profil yang mengikat sumber ini. Lampirkannya pada tab Pengikatan sesebuah profil.",
+      "tabs": {
+        "overview": "Gambaran keseluruhan",
+        "tools": "Cuba alat",
+        "knowledge": "Pengetahuan"
+      }
+    },
+    "knowledge": {
+      "title": "Pengetahuan",
+      "purpose": "Nota kekal tentang sumber ini yang dibaca ejen sebelum bertindak: konteks pangkalan data dan jadual, nota hos dan lain-lain.",
+      "body": "Nota yang dibaca ejen tentang sumber ini. Setiap simpanan ialah versi; lencana sumber menunjukkan penulisnya.",
+      "sqlBody": "Apa yang ejen tahu tentang pangkalan data ini: konteks pangkalan data dan jadual (ditulis pengendali, dijana atau oleh ejen), kecerdasan imbasan dan hubungan jadual.",
+      "views": {
+        "context": "Konteks",
+        "intelligence": "Kecerdasan",
+        "relationships": "Hubungan"
+      },
+      "entries": "Entri",
+      "noEntries": "Belum ada pengetahuan disimpan.",
+      "databaseContext": "Konteks pangkalan data",
+      "missing": "tiada konteks",
+      "noContext": "Belum ada konteks",
+      "loadTables": "Senaraikan jadual tanpa konteks",
+      "add": "Tambah entri",
+      "scope": "Skop",
+      "key": "Kunci",
+      "content": "Konteks (Markdown)",
+      "preview": "Pratonton",
+      "edit": "Sunting",
+      "empty": "Belum ada apa-apa ditulis.",
+      "updatedBy": "oleh {{name}}",
+      "history": "Sejarah versi",
+      "hideHistory": "Sembunyi sejarah",
+      "saved": "Pengetahuan disimpan.",
+      "source": "Sumber",
+      "deleted": "dipadam",
+      "deleteTitle": "Padam entri pengetahuan",
+      "deleteBody": "Padam konteks untuk {{name}}? Ejen tidak akan melihatnya lagi. Sejarah versi disimpan.",
+      "emptyTitle": "Belum ada apa untuk disunting",
+      "emptyBody": "Tambah entri, atau jana konteks untuk sumber SQL.",
+      "quality": "Kualiti konteks",
+      "tablesWithContext": "Jadual dengan konteks",
+      "relationshipCounts": "Hubungan",
+      "declaredInferred": "{{declared}} diisytiharkan, {{inferred}} disimpulkan",
+      "crawled": "Diimbas {{time}}",
+      "gaps": "Jurang konteks",
+      "entities": "Entiti",
+      "columns": {
+        "table": "Jadual",
+        "role": "Peranan",
+        "rows": "Baris",
+        "keyColumns": "Lajur utama",
+        "context": "Konteks",
+        "from": "Dari",
+        "to": "Ke",
+        "kind": "Jenis",
+        "confidence": "Keyakinan",
+        "evidence": "Bukti"
+      },
+      "metrics": "Metrik berkemungkinan",
+      "commonFilters": "Penapis biasa",
+      "freshness": "Lajur kesegaran",
+      "tenantColumns": "Lajur penyewa",
+      "softDelete": "Lajur padam lembut",
+      "ambiguities": "Kekaburan untuk dijelaskan",
+      "questions": "Soalan permulaan",
+      "viaTool": "Dibaca dengan {{tool}} pada sumber ini.",
+      "refresh": "Imbas semula",
+      "declared": "Diisytiharkan",
+      "inferred": "Disimpulkan",
+      "graphLabel": "Graf hubungan: {{tables}} jadual, {{edges}} hubungan",
+      "noRelationshipsTitle": "Tiada hubungan ditemui",
+      "noRelationshipsBody": "Imbasan tidak menemui kunci asing yang diisytiharkan atau cantuman berkemungkinan dalam skema ini.",
+      "generateOpen": "Jana konteks",
+      "generateTitle": "Jana konteks untuk {{name}}",
+      "generateBody": "Model membaca skema (dan, jika dibenarkan, beberapa baris sampel terlindung) lalu menulis konteks ringkas. Entri pengendali dikekalkan melainkan anda memilih untuk menggantikannya.",
+      "generateNoBinding": "Tiada profil mengikat sumber ini. Ikat dahulu kepada profil yang mempunyai titik akhir inferens.",
+      "generateNoModel": "Profil ini tiada titik akhir inferens. Tetapkan pada tab Umum profil.",
+      "noModel": "tiada model",
+      "generateScope": "Apa untuk dijana",
+      "generateScopes": {
+        "all": "Pangkalan data dan jadual",
+        "database": "Pangkalan data sahaja",
+        "tables": "Jadual sahaja"
+      },
+      "overwrite": "Gantikan entri pengendali dan ejen",
+      "generateInstructions": "Panduan tambahan untuk model",
+      "generate": "Jana",
+      "generating": "Sedang menjana...",
+      "generateProgress": "Menjana konteks... {{elapsed}} berlalu. Model sedang membaca skema dan menulis nota."
     }
   },
   "tips": {
@@ -2139,7 +2328,9 @@
       "toolName": "Tunjukkan hanya panggilan kepada alat ini, contohnya sql_query. Senarai dikemas kini apabila anda berhenti menaip.",
       "principalId": "Tunjukkan hanya rekod satu prinsipal. Tampal ID; senarai dikemas kini apabila anda berhenti menaip.",
       "principalType": "Tunjukkan hanya sesi pentadbir, pengguna atau kelayakan.",
-      "visibility": "Tunjukkan hanya rekod peribadi atau seluruh penyewa."
+      "visibility": "Tunjukkan hanya rekod peribadi atau seluruh penyewa.",
+      "activeLayer": "Tunjukkan hanya templat yang teksnya datang daripada lapisan ini.",
+      "customized": "Tunjukkan templat mengikut lapisan yang disesuaikan, atau yang lalainya berubah sejak itu."
     },
     "form": {
       "option": "Sertakan {{option}} dalam {{field}}. Pilihan yang ditanda disimpan; yang tidak ditanda ditinggalkan.",
@@ -2263,13 +2454,17 @@
         "ApprovalRequired": "Kelulusan diperlukan: panggilan menunggu seseorang.",
         "Approved": "Diluluskan: seseorang membenarkan panggilan.",
         "Rejected": "Ditolak: seseorang menolak panggilan.",
-        "Expired": "Luput: tiada sesiapa membuat keputusan tepat pada masanya."
+        "Expired": "Luput: tiada sesiapa membuat keputusan tepat pada masanya.",
+        "Cancelled": "Dibatalkan: kelulusan yang menunggu ditarik balik atau dibatalkan oleh sekatan."
       },
       "toolStatus": {
         "Succeeded": "Berjaya: alat dijalankan dan mengembalikan hasil.",
         "Failed": "Gagal: alat atau sistem sasaran mengembalikan ralat.",
         "TimedOut": "Tamat masa: alat tidak selesai dalam had masanya.",
-        "Cancelled": "Dibatalkan: giliran dihentikan semasa alat sedang berjalan."
+        "Cancelled": "Dibatalkan: giliran dihentikan semasa alat sedang berjalan.",
+        "Pending": "Menunggu: menunggu kelulusan sebelum dijalankan.",
+        "Running": "Sedang berjalan: alat sedang dijalankan.",
+        "NotExecuted": "Tidak dijalankan: panggilan ditolak atau hanya dikelaskan (larian kering)."
       },
       "healthStatus": {
         "Healthy": "Sihat: semakan terakhir mencapai sistem dan ia menjawab secara normal.",
@@ -2320,7 +2515,21 @@
         "AuthorizationDenied": "Prinsipal cuba melakukan sesuatu yang tidak dibenarkan oleh kebenarannya.",
         "SecretRevealed": "Seseorang mendedahkan teks biasa rahsia, bersama sebab.",
         "LockdownChanged": "Pentadbir penyewa menghidupkan atau mematikan sekatan penuh.",
-        "HostKeyMismatch": "Hos SSH memberikan kunci yang berbeza daripada kunci yang dipin; sambungan ditolak."
+        "HostKeyMismatch": "Hos SSH memberikan kunci yang berbeza daripada kunci yang dipin; sambungan ditolak.",
+        "SessionReauthenticated": "Pengguna memasukkan semula kata laluan pada sesi (perlu sebelum mendedahkan rahsia).",
+        "PermissionChanged": "Kebenaran dicipta, ditukar atau dipadam.",
+        "ConfigurationChanged": "Rekod konfigurasi berubah (contohnya templat atau tetapan profil).",
+        "PasswordChanged": "Pengguna menukar kata laluan, atau pentadbir menetapkannya semula.",
+        "RestartRequested": "Seseorang meminta pelayan dimulakan semula.",
+        "KnowledgeChanged": "Pengetahuan sumber ditulis atau dipadam oleh pengendali, ejen atau model.",
+        "ModelEndpointChanged": "Titik akhir model dicipta, ditukar atau dipadam.",
+        "SettingLearned": "Penyambung merekod tetapan pada penggunaan pertama, contohnya kunci hos SSH."
+      },
+      "knowledgeSource": {
+        "Operator": "Ditulis atau disunting oleh seseorang dalam papan pemuka atau API.",
+        "Generated": "Didraf oleh model dengan sql_generate_context. Semak sebelum bergantung padanya.",
+        "Agent": "Direkodkan oleh ejen semasa bekerja (sql_update_context). Belum disahkan.",
+        "Derived": "Dikira oleh Hugo daripada imbasan, bukan ditulis oleh orang atau model."
       }
     },
     "resources": {
@@ -2413,7 +2622,14 @@
         "name": "Nama templat, unik dalam penyewa. Sertaan merujuk templat melalui nama.",
         "kind": "Kegunaan templat: gesaan sistem, pembalut tugas, serpihan, penerangan alat atau fail konfigurasi.",
         "currentVersion": "Versi terbaharu yang disimpan. Setiap simpanan mengekalkan teks sebelumnya sebagai versi yang boleh anda pulihkan.",
-        "description": "Apa yang dilakukan oleh templat dan di mana ia digunakan."
+        "description": "Apa yang dilakukan oleh templat dan di mana ia digunakan.",
+        "key": "Kunci templat. Penyambung menggunakan connector.<type>.instructions; persona menggunakan persona.<name>.",
+        "source": "Asal templat terbina dalam: hugo untuk templat teras, atau jenis penyambung.",
+        "activeLayer": "Lapisan yang teksnya digunakan sekarang: Penyewa, kemudian Global, kemudian Terbina dalam.",
+        "tenantLayer": "Gantian penyewa ini, dengan versinya.",
+        "globalLayer": "Lalai global untuk semua penyewa, dengan versinya.",
+        "lastUpdateUtc": "Bila lapisan Penyewa atau Global terakhir disimpan.",
+        "defaultUpdated": "Lalai di bawah lapisan ini berubah selepas ia disesuaikan. Buka templat untuk membanding dan menerima pakai."
       },
       "audit": {
         "createdUtc": "Bila peristiwa berlaku, dalam zon waktu setempat anda.",
@@ -2449,7 +2665,8 @@
         "fromUtc": "Tunjukkan kelulusan yang diminta pada atau selepas masa ini.",
         "actions": {
           "decide": "Buka kad kelulusan untuk meluluskan atau menolak panggilan ini dengan nota.",
-          "invocation": "Buka rekod seruan alat di sebalik kelulusan ini."
+          "invocation": "Buka rekod seruan alat di sebalik kelulusan ini.",
+          "cancel": "Tarik balik panggilan yang menunggu ini supaya ia tidak dijalankan. Peminta atau pelulus boleh membatalkannya."
         }
       },
       "bindings": {
@@ -2461,7 +2678,9 @@
         "instructionText": "Arahan tambahan atau gantian untuk sumber ini dalam profil ini, contohnya skema mana yang penting.",
         "maxOutputBytes": "Had output alat daripada sumber ini, lebih ketat daripada lalai penyambung. Biarkan kosong untuk lalai.",
         "maxRows": "Had baris yang dikembalikan oleh pertanyaan pada sumber ini. Biarkan kosong untuk lalai penyambung.",
-        "enabled": "Pengikatan yang dinyahdayakan dikekalkan tetapi disembunyikan daripada ejen, seolah-olah sumber tidak diikat."
+        "enabled": "Pengikatan yang dinyahdayakan dikekalkan tetapi disembunyikan daripada ejen, seolah-olah sumber tidak diikat.",
+        "denyPatterns": "Ungkapan nalar dipadankan dengan arahan atau pernyataan alat yang dikelaskan setiap panggilan. Padanan menolak panggilan.",
+        "allowKnowledgeUpdates": "Apabila dimatikan, alat yang menyimpan pengetahuan tentang sumber ini (seperti konteks jadual) memulangkan draf dan tidak menyimpan."
       },
       "models": {
         "apiKeySecretId": "Rahsia yang menyimpan kunci API atau kelayakan pembekal ini. Disimpan secara tersulit; tidak pernah ditunjukkan kepada model.",
@@ -2535,7 +2754,8 @@
           "replaceValues": "Gantikan sebahagian atau semua nilai; medan yang anda biarkan kosong mengekalkan nilai yang tersimpan.",
           "reveal": "Tunjukkan nilai teks biasa selepas menyatakan sebab dan memasukkan semula kata laluan anda. Diaudit.",
           "referrers": "Senaraikan sumber dan titik akhir model yang menggunakan rahsia ini."
-        }
+        },
+        "fields": "Medan nilai yang disimpan oleh rahsia ini (bukan nilainya)."
       },
       "toolInvocations": {
         "trace": "Buka jejak teragih panggilan ini dalam Grafana Tempo dalam tab baharu.",
@@ -2685,13 +2905,6 @@
         "serviceGeneric": "Buka perkhidmatan terbungkus ini dalam tab baharu."
       },
       "templateEditor": {
-        "cloneName": "Nama untuk salinan. Huruf kecil, digit, tanda sempang dan garis condong sesuai digunakan; awalan builtin/ adalah terpelihara.",
-        "cloneConfirm": "Cipta salinan dengan nama ini dan bukanya dalam editor.",
-        "clone": "Buat salinan templat ini yang boleh diedit. Anda memilih nama salinan sebelum ia dicipta.",
-        "reset": "Pulihkan templat terbina dalam ini kepada kandungan asal yang disertakan dengan Hugo.",
-        "delete": "Padam templat ini dan versinya. Apa-apa yang menyertakannya akan kembali kepada lalai terbina dalam.",
-        "create": "Cipta templat dan versi pertamanya.",
-        "save": "Simpan kandungan sebagai versi baharu. Perbualan dan sesi MCP baharu akan menggunakannya.",
         "changeNote": "Nota pendek yang disimpan bersama versi, menerangkan apa yang berubah dan mengapa.",
         "columns": {
           "version": "Nombor versi. Lebih tinggi bermakna lebih baharu.",
@@ -2700,7 +2913,7 @@
           "saved": "Bila versi disimpan."
         },
         "diff": "Bandingkan versi ini dengan kandungan dalam editor sekarang.",
-        "restore": "Jadikan versi ini semasa semula. Kandungan semasa kekal dalam sejarah."
+        "back": "Kembali ke semua templat."
       },
       "serverInfo": {
         "rest": "Alamat asas untuk panggilan API REST dan SDK.",
@@ -2824,7 +3037,9 @@
           "default": "Nilai yang digunakan apabila sumber membiarkan tetapan kosong.",
           "range": "Nilai yang dibenarkan atau minimum dan maksimum untuk nombor.",
           "group": "Bahagian borang sumber tempat tetapan dipaparkan."
-        }
+        },
+        "updatesKnowledge": "Alat ini menyimpan pengetahuan kekal tentang sumber (contohnya konteks pangkalan data). Pengikatan boleh menolaknya.",
+        "requiresModel": "Alat ini memanggil titik akhir inferens profil pemanggil, jadi profil memerlukannya."
       },
       "mcpExplorer": {
         "profile": "Sambung ke /mcp/{profile}, atau biarkan pelayan menentukan profil anda daripada kelayakan atau lalai.",
@@ -2862,12 +3077,16 @@
         },
         "instructions": {
           "surface": "Arahan sedikit berbeza bagi setiap permukaan (sembang, MCP, A2A, OpenAI, REST). Pilih satu untuk pratonton.",
-          "section": "Satu bahagian arahan yang dikompil dan lapisan templat asalnya."
+          "section": "Satu bahagian arahan yang dikompil dan lapisan templat asalnya.",
+          "copy": "Salin arahan yang dikompil."
         },
         "tools": {
           "name": "Nama alat yang digunakan oleh pemanggil, biasanya family_operation seperti sql_query.",
           "effect": "Kesan asas: Baca, Tulis atau Memusnahkan. Sesetengah alat dikelaskan bagi setiap panggilan.",
-          "description": "Apa yang dilakukan oleh alat, seperti yang dilihat oleh model pemanggil."
+          "description": "Apa yang dilakukan oleh alat, seperti yang dilihat oleh model pemanggil.",
+          "hasModel": "Alat yang memerlukan model (seperti menjana konteks pangkalan data) hanya berfungsi apabila profil mempunyai titik akhir inferens.",
+          "resources": "Alias terikat yang diterima alat dalam argumen resource, dengan mod akses dan peraturan setiap pengikatan.",
+          "meta": "Alat terbina dalam Hugo (contohnya arahan atau kelulusan), bukan alat penyambung."
         },
         "connect": {
           "copyCard": "Salin URL kad ejen untuk ejen A2A lain menemui profil ini.",
@@ -2884,7 +3103,9 @@
           "tool": "Alat yang didedahkan oleh profil untuk sumber ini.",
           "arguments": "Argumen alat sebagai JSON. Argumen resource menamakan alias pengikatan.",
           "dryRun": "Kelaskan panggilan (kesan, keputusan, mod akses) tanpa menjalankannya.",
-          "execute": "Jalankan panggilan melalui saluran penuh. Panggilan berisiko menunggu kelulusan seperti yang lain."
+          "execute": "Jalankan panggilan melalui saluran penuh. Panggilan berisiko menunggu kelulusan seperti yang lain.",
+          "openApprovals": "Putuskan panggilan ini dalam peti Kelulusan.",
+          "openInvocations": "Lihat panggilan ini dengan argumen terlindung dan outputnya dalam Panggilan Alat."
         }
       },
       "secrets": {
@@ -2931,6 +3152,56 @@
           "Environment": "Ditetapkan oleh pemboleh ubah persekitaran, yang mengatasi sebarang nilai yang disimpan di sini.",
           "Database": "Disimpan dalam pangkalan data."
         }
+      },
+      "resourceDetail": {
+        "back": "Kembali ke semua sumber.",
+        "connector": "Buka rujukan tetapan, alat dan arahan lalai penyambung ini.",
+        "tabs": {
+          "overview": "Sambungan, tetapan, slot rahsia, ujian terakhir dan profil yang mengikat sumber ini.",
+          "tools": "Larian kering alat sebagai profil, kemudian jalankannya melalui saluran yang sama seperti chat dan MCP.",
+          "knowledge": "Konteks kekal yang dibaca ejen tentang sumber ini: nota pangkalan data dan jadual, kecerdasan dan hubungan."
+        }
+      },
+      "knowledge": {
+        "views": {
+          "context": "Konteks pangkalan data dan jadual, dengan sumber dan sejarah versi.",
+          "intelligence": "Entiti, metrik berkemungkinan, penapis biasa, lajur kesegaran, kekaburan dan kualiti konteks (sql_get_intelligence).",
+          "relationships": "Kunci asing yang diisytiharkan dan calon cantuman yang disimpulkan dengan keyakinan (sql_list_relationships)."
+        },
+        "loadTables": "Jalankan sql_get_context pada sumber untuk menyenaraikan semua jadual, termasuk yang tiada konteks.",
+        "add": "Tulis konteks untuk jadual atau skop lain yang belum ada.",
+        "select": "Buka entri ini dalam penyunting.",
+        "scope": "Jenis nota: database, table atau skop khusus penyambung seperti notes.",
+        "key": "Untuk konteks jadual, jadual dengan skema, contohnya main.orders. Biarkan kosong untuk entri akar skop.",
+        "create": "Buka penyunting untuk entri baharu ini. Tiada apa disimpan sehingga anda tekan Simpan.",
+        "content": "Markdown ringkas yang dibaca ejen: maksud data, definisi perniagaan, kaveat dan laluan cantuman yang disahkan.",
+        "preview": "Tukar antara sumber Markdown dan pratontonnya.",
+        "history": "Setiap versi tersimpan entri ini, dengan sumber dan pengarang. Banding dengan penyunting atau muatkan.",
+        "delete": "Padam entri ini. Versinya kekal dalam sejarah.",
+        "save": "Simpan sebagai suntingan pengendali. Ia menjadi versi baharu dengan sumber Pengendali.",
+        "source": "Siapa yang menulis versi ini: pengendali, model (dijana), ejen atau Hugo (diterbitkan).",
+        "quality": "Skor daripada imbasan: konteks pangkalan data, liputan jadual dan kekaburan yang belum diselesaikan.",
+        "columns": {
+          "table": "Jadual, dengan skema jika bukan dalam skema lalai.",
+          "role": "Cara imbasan membaca jadual: entiti teras, entiti, jadual pautan, log dan sebagainya.",
+          "rows": "Anggaran bilangan baris (tepat pada SQLite).",
+          "keyColumns": "Lajur yang dianggap penting oleh imbasan: kunci, metrik, penapis dan cap masa.",
+          "context": "Sama ada konteks kekal disimpan untuk jadual.",
+          "from": "Lajur yang merujuk.",
+          "to": "Lajur yang dirujuk, biasanya kunci primer.",
+          "kind": "Diisytiharkan oleh kekangan kunci asing, atau disimpulkan daripada nama dan jenis.",
+          "confidence": "Tahap keyakinan imbasan: yang diisytiharkan 100 peratus; yang disimpulkan perlu disahkan.",
+          "evidence": "Mengapa imbasan mencadangkan hubungan ini."
+        },
+        "refresh": "Imbas pangkalan data sekali lagi dan bukan guna cache (selepas perubahan skema).",
+        "declared": "Kekangan kunci asing dalam pangkalan data.",
+        "inferred": "Calon cantuman daripada nama dan jenis. Sahkan, kemudian rekod dalam konteks jadual.",
+        "generateOpen": "Minta model mendraf konteks pangkalan data dan jadual dengan sql_generate_context, sebagai profil yang mengikat sumber ini.",
+        "generateProfile": "Profil dan pengikatan untuk dijalankan. Titik akhir inferensnya menulis dan pengikatannya mesti membenarkan kemas kini pengetahuan.",
+        "generateScope": "Ringkasan pangkalan data, nota jadual atau kedua-duanya.",
+        "overwrite": "Mati secara lalai: entri pengendali atau ejen dikekalkan dan hanya yang tiada atau dijana ditulis.",
+        "generateInstructions": "Pilihan. Contohnya istilah perniagaan untuk ditakrifkan atau jadual untuk diberi tumpuan.",
+        "generate": "Jalankan sql_generate_context sekarang. Ia boleh mengambil beberapa minit untuk skema besar."
       }
     },
     "export": {
@@ -3074,12 +3345,32 @@
       "saveResource": "Cipta sumber dengan tetapan ini dan rahsianya, kemudian teruskan untuk mengikatnya.",
       "bind": "Ikat sumber baharu pada profil Hugo lalai dengan mod akses yang dipilih.",
       "finish": "Tutup wizard untuk penyewa ini dan buka Sembang untuk bercakap dengan Agent Smith."
+    },
+    "layeredEditor": {
+      "layers": {
+        "Tenant": "Gantian penyewa ini. Hanya untuk penyewa ini.",
+        "Global": "Lalai boleh sunting untuk semua penyewa. Pentadbir sistem sahaja.",
+        "BuiltIn": "Teks yang disertakan dengan Hugo. Baca sahaja."
+      },
+      "source": "Asal templat terbina dalam: hugo untuk templat teras, atau jenis penyambung.",
+      "showChange": "Lihat perubahan pada lalai sejak lapisan ini disesuaikan.",
+      "adopt": "Tetapkan semula lapisan ini supaya mengambil lalai baharu. Teks lama kekal dalam sejarah versi.",
+      "diffBelow": "Perbezaan baris demi baris lapisan ini dengan lapisan yang digantinya, dikira oleh pelayan.",
+      "reset": {
+        "Tenant": "Matikan gantian penyewa ini supaya lalai global digunakan.",
+        "Global": "Kembalikan lapisan Global kepada teks terbina dalam."
+      },
+      "save": {
+        "Tenant": "Simpan teks sebagai versi baharu gantian penyewa ini.",
+        "Global": "Simpan teks sebagai versi baharu lalai global untuk semua penyewa."
+      },
+      "load": "Letakkan teks versi ini dalam penyunting. Simpan untuk menjadikannya semasa."
     }
   },
   "explainers": {
     "promptTemplates": {
       "title": "Templat gesaan dan lapisannya",
-      "p1": "Setiap arahan yang diberikan oleh Hugo kepada ejen ialah templat: persona Agent Smith, peraturan keselamatan dan arahan setiap penyambung. Templat menggunakan pemboleh ubah seperti {{persona.name}} dan {{resource.alias}}, dan setiap simpanan mencipta versi baharu.",
+      "p1": "Setiap arahan yang Hugo berikan kepada ejen ialah templat: persona Agent Smith, peraturan keselamatan dan arahan setiap penyambung. Templat menggunakan pemboleh ubah seperti profile.personaName dan this.alias dalam kurungan kerinting berganda, dan setiap simpanan mencipta versi.",
       "p2": "Templat berlapis: teks terbina dalam disertakan dengan Hugo, lalai global boleh menindihnya untuk setiap penyewa, dan penyewa boleh menindih lalai tersebut. Tetapkan Semula kepada Lalai mengalih keluar tindihan dan kembali satu lapisan."
     },
     "tenants": {

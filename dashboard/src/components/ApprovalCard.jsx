@@ -8,6 +8,29 @@ import { ShieldCheckIcon } from './Icons';
 import { approvalStatusTone } from '../utils/constants';
 import { formatDateTime } from '../i18n/formatters';
 
+const PRIMARY_ARGUMENTS = ['command', 'sql', 'statement', 'query', 'script', 'expression'];
+
+/**
+ * The exact action an approval would run: the stream's `command`, else the primary argument of the redacted
+ * arguments (command, sql, statement, query, script, expression; D-042), else the redacted arguments as JSON.
+ */
+export function approvalCommand(approval) {
+  if (approval?.command) return approval.command;
+  const raw = approval?.argumentsRedacted ?? approval?.arguments;
+  if (!raw) return null;
+  let args = raw;
+  if (typeof raw === 'string') {
+    try {
+      args = JSON.parse(raw);
+    } catch {
+      return raw;
+    }
+  }
+  if (!args || typeof args !== 'object') return String(args);
+  const key = PRIMARY_ARGUMENTS.find((k) => typeof args[k] === 'string' && args[k]);
+  return key ? args[key] : JSON.stringify(args, null, 2);
+}
+
 /**
  * A gated tool call waiting for a person (plan sections 11.4 and 18.4): the summary, the effect with the
  * classifier's reason, the exact command or statement, and Approve and Reject with an optional note. Once decided it
@@ -19,6 +42,10 @@ export default function ApprovalCard({ approval, onApprove, onReject, busy = fal
   if (!approval) return null;
   const pending = (approval.status || 'Pending') === 'Pending';
   const noteId = `approval-note-${approval.id}`;
+  const alias = approval.resourceAlias || approval.bindingAlias;
+  const command = approvalCommand(approval);
+  const decidedBy = approval.decidedBy || approval.decidedByName;
+  const decisionNote = approval.note || approval.decisionNote;
 
   return (
     <section
@@ -34,9 +61,9 @@ export default function ApprovalCard({ approval, onApprove, onReject, busy = fal
         <EnumBadge group="approvalStatus" value={approval.status || 'Pending'} tone={approvalStatusTone(approval.status || 'Pending')} />
       </header>
       {approval.summary && <MarkdownView text={approval.summary} className="approval-summary" />}
-      {approval.resourceAlias && (
+      {alias && (
         <div className="approval-meta">
-          <span className="text-muted">{t('components.approvalCard.resource')}</span> <code>{approval.resourceAlias}</code>
+          <span className="text-muted">{t('components.approvalCard.resource')}</span> <code>{alias}</code>
           {approval.toolName && (
             <>
               {' '}
@@ -46,7 +73,7 @@ export default function ApprovalCard({ approval, onApprove, onReject, busy = fal
         </div>
       )}
       {approval.effectReason && <div className="field-hint">{t('components.approvalCard.reason', { reason: approval.effectReason })}</div>}
-      {approval.command && <CodeBlock value={approval.command} />}
+      {command && <CodeBlock value={command} />}
       {approval.expiresUtc && pending && (
         <div className="field-hint">{t('components.approvalCard.expires', { time: formatDateTime(approval.expiresUtc, i18n.language) })}</div>
       )}
@@ -89,8 +116,8 @@ export default function ApprovalCard({ approval, onApprove, onReject, busy = fal
         !pending && (
           <div className="field-hint" data-testid="approval-outcome">
             {t('components.approvalCard.decided', { status: t(`enums.approvalStatus.${approval.status}`, { defaultValue: approval.status }) })}
-            {approval.decidedBy ? ` ${t('components.approvalCard.by', { name: approval.decidedBy })}` : ''}
-            {approval.note ? ` ${t('components.approvalCard.withNote', { note: approval.note })}` : ''}
+            {decidedBy ? ` ${t('components.approvalCard.by', { name: decidedBy })}` : ''}
+            {decisionNote ? ` ${t('components.approvalCard.withNote', { note: decisionNote })}` : ''}
           </div>
         )
       )}

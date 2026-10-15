@@ -200,7 +200,9 @@ describe('environment and errors', () => {
     expect(isLocalServer('https://hugo.example.com')).toBe(false);
   });
   it('treats 404, 405, and 501 as a missing capability, but not a record miss', () => {
-    expect(isMissingEndpoint({ status: 404, code: 'NotFound' })).toBe(true);
+    expect(isMissingEndpoint({ status: 404, code: 'RouteNotFound' })).toBe(true);
+    expect(isMissingEndpoint({ status: 404, code: 'Http404' })).toBe(true);
+    expect(isMissingEndpoint({ status: 404, code: 'NotFound' })).toBe(false);
     expect(isMissingEndpoint({ status: 405 })).toBe(true);
     expect(isMissingEndpoint({ status: 404, code: 'RecordNotFound' })).toBe(false);
     expect(isMissingEndpoint({ status: 500 })).toBe(false);

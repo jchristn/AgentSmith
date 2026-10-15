@@ -57,8 +57,12 @@ export default function Dashboard() {
 
   // Pending approvals for the sidebar and topbar badges: re-read on approval events, on polling ticks, and every
   // 30 seconds. A 403 or 404 (no Approval Read permission, or a server without approvals yet) hides the badge.
+  // Until a forced password change is done, the server answers every other route with 403 PasswordChangeRequired, so
+  // nothing that would remember a 403 runs before then.
+  const ready = !!apiClient && !mustChangePassword;
+
   const refreshApprovals = useCallback(() => {
-    if (!apiClient || !approvalsReadable.current) return;
+    if (!ready || !approvalsReadable.current) return;
     apiClient
       .countPendingApprovals()
       .then((count) => setPendingApprovals(count))
@@ -66,7 +70,16 @@ export default function Dashboard() {
         if (e?.status === 403 || e?.status === 404 || e?.status === 405) approvalsReadable.current = false;
         setPendingApprovals(null);
       });
-  }, [apiClient]);
+  }, [apiClient, ready]);
+
+  // The tenant's lockdown state, so the banner and the topbar control are right after sign-in and tenant switches.
+  useEffect(() => {
+    if (!ready) return;
+    apiClient
+      .getLockdown()
+      .then((s) => setLockdown(!!s?.lockdown))
+      .catch(() => {});
+  }, [apiClient, ready, tenantId, setLockdown]);
 
   useEffect(() => {
     approvalsReadable.current = true;
@@ -99,7 +112,7 @@ export default function Dashboard() {
   }, [apiClient]);
 
   useEffect(() => {
-    if (!stream) return undefined;
+    if (!stream || !ready) return undefined;
     streamRef.current = stream;
     stream.start();
     const offs = [
@@ -112,7 +125,7 @@ export default function Dashboard() {
       offs.forEach((off) => off());
       stream.stop();
     };
-  }, [stream, refreshApprovals, setLockdown]);
+  }, [stream, ready, refreshApprovals, setLockdown]);
 
   const events = useMemo(() => ({ mode, on: stream ? stream.on : () => () => {} }), [mode, stream]);
   const approvals = useMemo(
@@ -139,20 +152,21 @@ export default function Dashboard() {
   // Offer the setup wizard automatically for a fresh tenant: no model endpoints and no resources yet. A server that
   // does not expose those routes yet does not trigger it.
   useEffect(() => {
-    if (!apiClient || !tenantId) return;
+    if (!ready || !tenantId) return;
     if (localStorage.getItem(`${STORAGE_KEYS.setupDismissed}:${tenantId}`) === 'true') return;
     Promise.all([apiClient.listModelEndpoints({ pageNumber: 1, pageSize: 1 }), apiClient.listResources({ pageNumber: 1, pageSize: 1 })])
       .then(([models, resources]) => {
         if ((models.totalCount ?? 0) === 0 && (resources.totalCount ?? 0) === 0) setWizardOpen(true);
       })
       .catch(() => {});
-  }, [apiClient, tenantId, setWizardOpen]);
+  }, [apiClient, ready, tenantId, setWizardOpen]);
 
   if (route.kind === 'redirect') return <LegacyRedirect to={route.to} tab={route.tab} />;
 
   const permitted = route.kind === 'hub' || allowed(route.page.requires, principal);
   let content;
-  if (!permitted) content = <EmptyState title={t('common.states.forbiddenTitle')} body={t('common.states.forbiddenBody')} />;
+  if (mustChangePassword) content = null;
+  else if (!permitted) content = <EmptyState title={t('common.states.forbiddenTitle')} body={t('common.states.forbiddenBody')} />;
   else if (route.kind === 'hub') content = <HubView key={`${route.hub.key}-${tenantId}`} hubKey={route.hub.key} apiClient={apiClient} />;
   else {
     const View = route.View;

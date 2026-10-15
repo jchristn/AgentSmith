@@ -856,6 +856,9 @@ button:disabled {
 .copy-btn {
   width: 24px;
   height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  flex: 0 0 auto;
   padding: 0;
   color: var(--color-text-muted);
   background: transparent;

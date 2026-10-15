@@ -25,7 +25,7 @@ const COLLECTIONS = {
   permissions: '/v1.0/api/tenants/default/permissions',
   userAssignments: '/v1.0/api/tenants/default/user-role-assignments',
   credentialAssignments: '/v1.0/api/tenants/default/credential-scope-assignments',
-  promptTemplates: '/v1.0/api/tenants/default/prompt-templates',
+  promptTemplates: '/v1.0/api/prompt-templates',
   audit: '/v1.0/api/tenants/default/audit',
   profiles: '/v1.0/api/agent-profiles',
   approvals: '/v1.0/api/approvals',
@@ -41,7 +41,7 @@ const COLLECTIONS = {
 
 function rows(id) {
   const body = respond('GET', new URL(`http://127.0.0.1${COLLECTIONS[id]}?maxResults=25&skip=0&pageSize=25&pageNumber=1`));
-  return body?.items || body?.objects || [];
+  return Array.isArray(body) ? body : body?.items || body?.objects || [];
 }
 
 /** Values whose label is the value itself in every locale (A2A, MCP): showing them bare is not a bug. */
@@ -50,7 +50,9 @@ function invariant(group, value) {
 }
 
 const RAW = new Map();
-for (const [group, values] of Object.entries(ENUMS)) for (const v of values) if (!invariant(group, v)) RAW.set(v, group);
+// Built-in role names are data shown as is; Operator is also a knowledge source value.
+const DATA_WORDS = new Set(['Operator']);
+for (const [group, values] of Object.entries(ENUMS)) for (const v of values) if (!invariant(group, v) && !DATA_WORDS.has(v)) RAW.set(v, group);
 
 function fragments(markup) {
   const text = markup

@@ -18,7 +18,9 @@ import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { pathFor } from '../config/navConfig';
-import { profilesConfig } from './hugoConfigs';
+import { profilesConfig, profileToForm } from './hugoConfigs';
+import CompiledInstructionsView from '../components/CompiledInstructionsView';
+import { ToolFlags } from './ConnectorDetailView';
 import { accessModeTone } from '../utils/constants';
 import { enumOptions } from '../utils/enums';
 import { errorMessage, isMissingEndpoint } from '../utils/errors';
@@ -38,7 +40,9 @@ export function blankBinding() {
     instructionText: '',
     maxOutputBytes: null,
     maxRows: null,
-    enabled: true
+    enabled: true,
+    allowKnowledgeUpdates: true,
+    denyPatterns: []
   };
 }
 
@@ -64,6 +68,8 @@ function bindingFields(t, resources) {
     f('instructionText', 'textarea', { rows: 4, showIf: (d) => d.instructionMode !== 'Inherit' }),
     f('maxOutputBytes', 'number', { min: 1 }),
     f('maxRows', 'number', { min: 1 }),
+    f('denyPatterns', 'stringList'),
+    f('allowKnowledgeUpdates', 'checkbox'),
     f('enabled', 'checkbox')
   ];
 }
@@ -216,6 +222,7 @@ export default function ProfileDetailView({ recordId }) {
   const [instructionsError, setInstructionsError] = useState(null);
   const [surface, setSurface] = useState('Chat');
   const [tools, setTools] = useState(null);
+  const [catalog, setCatalog] = useState(null);
   const [toolsError, setToolsError] = useState(null);
   const [card, setCard] = useState(null);
   const [jsonOpen, setJsonOpen] = useState(false);
@@ -225,7 +232,7 @@ export default function ProfileDetailView({ recordId }) {
       .getProfile(recordId)
       .then((p) => {
         setProfile(p);
-        setForm({ ...profilesConfig.blank(), ...p });
+        setForm({ ...profilesConfig.blank(), ...profileToForm(p) });
         setError(null);
       })
       .catch(setError);
@@ -263,7 +270,7 @@ export default function ProfileDetailView({ recordId }) {
     apiClient
       .getCompiledInstructions(recordId, { surface })
       .then((r) => {
-        setInstructions(typeof r === 'string' ? { text: r, sections: [] } : r);
+        setInstructions(typeof r === 'string' ? { text: r, segments: [] } : r);
         setInstructionsError(null);
       })
       .catch(setInstructionsError);
@@ -274,7 +281,8 @@ export default function ProfileDetailView({ recordId }) {
     apiClient
       .getProfileTools(recordId)
       .then((r) => {
-        setTools(Array.isArray(r) ? r : r?.items || r?.tools || []);
+        setTools(Array.isArray(r) ? r : [...(r?.tools || r?.items || []), ...(r?.metaTools || [])]);
+        setCatalog(Array.isArray(r) ? null : r);
         setToolsError(null);
       })
       .catch((e) => {
@@ -325,7 +333,9 @@ export default function ProfileDetailView({ recordId }) {
         instructionText: b.instructionMode === 'Inherit' ? null : b.instructionText,
         maxOutputBytes: b.maxOutputBytes ?? null,
         maxRows: b.maxRows ?? null,
-        enabled: !!b.enabled
+        enabled: !!b.enabled,
+        allowKnowledgeUpdates: b.allowKnowledgeUpdates !== false,
+        denyPatterns: (b.denyPatterns || []).map((x) => String(x).trim()).filter(Boolean)
       };
       if (b.id) await apiClient.updateBinding(recordId, b.id, body);
       else await apiClient.createBinding(recordId, body);
@@ -530,27 +540,7 @@ export default function ProfileDetailView({ recordId }) {
           ) : !instructions ? (
             <LoadingState />
           ) : (
-            <div className="instructions-layout">
-              <CodeBlock value={instructions.text || instructions.instructions || ''} />
-              {(instructions.sections || []).length > 0 && (
-                <aside className="source-map" aria-label={t('views.profile.instructions.sourceMap')}>
-                  <h3 className="section-title">{t('views.profile.instructions.sourceMap')}</h3>
-                  <ol className="plain-list">
-                    {instructions.sections.map((s, i) => (
-                      <li key={i} {...tip(t('tips.views.profile.instructions.section'))}>
-                        <strong>{s.title || s.key}</strong>{' '}
-                        <span className="text-muted">{t(`enums.promptLayer.${s.layer}`, { defaultValue: s.layer || '' })}</span>
-                        {s.templateKey && (
-                          <div>
-                            <code>{s.templateKey}</code>
-                          </div>
-                        )}
-                      </li>
-                    ))}
-                  </ol>
-                </aside>
-              )}
-            </div>
+            <CompiledInstructionsView compiled={instructions} />
           )}
         </div>
       )}
@@ -558,6 +548,14 @@ export default function ProfileDetailView({ recordId }) {
       {tab === 'tools' && (
         <div className="panel" data-testid="profile-tools">
           <p className="text-muted">{t('views.profile.tools.body')}</p>
+          {catalog && (
+            <div className="inline-meta" data-testid="profile-tools-meta">
+              <Badge tone={catalog.hasModel ? 'success' : 'warning'} tip={t('tips.views.profile.tools.hasModel')}>
+                {catalog.hasModel ? t('views.profile.tools.hasModel') : t('views.profile.tools.noModel')}
+              </Badge>
+              <span className="text-muted">{t('views.profile.tools.resourceCount', { count: catalog.resourceCount ?? 0 })}</span>
+            </div>
+          )}
           {isMissingEndpoint(toolsError) ? (
             <UnavailableState
               feature={t('views.profile.tabs.tools')}
@@ -581,6 +579,9 @@ export default function ProfileDetailView({ recordId }) {
                     <th scope="col" {...tip(t('tips.views.profile.tools.effect'))}>
                       {t('views.profile.tools.effect')}
                     </th>
+                    <th scope="col" {...tip(t('tips.views.profile.tools.resources'))}>
+                      {t('views.profile.tools.resources')}
+                    </th>
                     <th scope="col" {...tip(t('tips.views.profile.tools.description'))}>
                       {t('views.profile.tools.description')}
                     </th>
@@ -591,10 +592,27 @@ export default function ProfileDetailView({ recordId }) {
                     <tr key={tool.name}>
                       <td>
                         <code>{tool.name}</code>
+                        {tool.isMetaTool && (
+                          <>
+                            {' '}
+                            <Badge tip={t('tips.views.profile.tools.meta')}>{t('views.profile.tools.meta')}</Badge>
+                          </>
+                        )}
                       </td>
                       <td>
-                        <EffectBadge effect={tool.baseEffect || tool.effect} />
+                        <EffectBadge effect={tool.knownEffect || tool.baseEffect || tool.effect} />
                         {tool.classifiedPerCall && <span className="text-muted"> {t('views.profile.tools.perCall')}</span>}
+                        <ToolFlags tool={tool} />
+                      </td>
+                      <td>
+                        {(tool.resources || []).length === 0
+                          ? '-'
+                          : tool.resources.map((r) => (
+                              <span key={r.alias} className="inline-meta">
+                                <code>{r.alias}</code> <EnumBadge group="accessMode" value={r.accessMode} tone={accessModeTone(r.accessMode)} />
+                                {r.rule && <EnumBadge group="toolRule" value={r.rule} />}
+                              </span>
+                            ))}
                       </td>
                       <td className="cell-wrap">{tool.description || '-'}</td>
                     </tr>
@@ -626,7 +644,9 @@ export default function ProfileDetailView({ recordId }) {
           />
           <section className="panel snippet">
             <h3 className="section-title">{t('views.profile.connect.a2a')}</h3>
-            <p className="field-hint">{profile.exposeA2a === false ? t('views.profile.connect.a2aOff') : t('views.profile.connect.a2aBody')}</p>
+            <p className="field-hint">
+              {(profile.exposeA2A ?? profile.exposeA2a) === false ? t('views.profile.connect.a2aOff') : t('views.profile.connect.a2aBody')}
+            </p>
             <div className="secret-row">
               <code>{a2aCardUrl({ serverUrl, tenantId, profile: profile.name })}</code>
               <CopyButton value={a2aCardUrl({ serverUrl, tenantId, profile: profile.name })} tipText={t('tips.views.profile.connect.copyCard')} />
@@ -636,7 +656,9 @@ export default function ProfileDetailView({ recordId }) {
           <section className="panel snippet">
             <h3 className="section-title">{t('views.profile.connect.openai')}</h3>
             <p className="field-hint">
-              {profile.exposeOpenai === false ? t('views.profile.connect.openaiOff') : t('views.profile.connect.openaiBody', { model: profile.name })}
+              {(profile.exposeOpenAI ?? profile.exposeOpenai) === false
+                ? t('views.profile.connect.openaiOff')
+                : t('views.profile.connect.openaiBody', { model: profile.name })}
             </p>
             <div className="secret-row">
               <code>{openAiBaseUrl({ serverUrl })}</code>

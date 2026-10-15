@@ -8,46 +8,53 @@ import useDebounce from '../hooks/useDebounce';
 import { extractVariables, renderTemplateLocal, insertAtCursor } from '../utils/templates';
 import { errorMessage } from '../utils/errors';
 
-/** Variables Hugo's instruction templates can use (plan section 10.3), offered in the palette. */
+/**
+ * Variables Hugo's instruction templates can use (plan section 10.3 and the server's TemplateSampleContext), offered
+ * in the palette. `this.*` is the current binding inside {{#each bindings}} and in section.resource.
+ */
 export const HUGO_TEMPLATE_VARIABLES = [
-  'persona.name',
-  'persona.userAddress',
   'profile.name',
   'profile.displayName',
+  'profile.personaName',
+  'profile.userAddress',
+  'profile.description',
+  'user.firstName',
+  'user.lastName',
+  'user.email',
   'tenant.name',
-  'caller.displayName',
-  'caller.principalType',
   'surface',
-  'resource.alias',
-  'resource.name',
-  'resource.connectorType',
-  'resource.environment',
-  'resource.accessMode',
-  'resource.endpoint',
-  'resource.notes',
-  'binding.accessMode',
-  'binding.requireApprovalForDestructive',
-  'now'
+  'now.utc',
+  'limits.maxIterations',
+  'limits.maxToolCallsPerTurn',
+  'this.alias',
+  'this.connectorDisplayName',
+  'this.environment',
+  'this.accessMode',
+  'this.endpoint',
+  'this.notes',
+  'this.instructions'
 ];
 
-/** Sample context for previews: Agent Smith addressing Mr. Anderson, with one bound PostgreSQL resource. */
+/**
+ * Sample context for previews: Agent Smith addressing Mr. Anderson, with one bound PostgreSQL resource. The server
+ * merges this over its own sample (TemplateSampleContext), so editing it changes the preview.
+ */
 export const SAMPLE_TEMPLATE_CONTEXT = {
-  persona: { name: 'Agent Smith', userAddress: 'Mr. Anderson' },
-  profile: { name: 'Hugo', displayName: 'Hugo' },
+  profile: { name: 'Hugo', displayName: 'Hugo', personaName: 'Agent Smith', userAddress: 'Mr. Anderson', description: 'Default operations agent.' },
+  user: { firstName: 'Thomas', lastName: 'Anderson', email: 'anderson@hugo.local' },
   tenant: { name: 'Default' },
-  caller: { displayName: 'anderson@hugo.local', principalType: 'User' },
   surface: 'Chat',
-  resource: {
+  limits: { maxIterations: 12, maxToolCallsPerTurn: 24 },
+  this: {
     alias: 'prod-db',
-    name: 'prod-db',
-    connectorType: 'postgresql',
+    connectorDisplayName: 'PostgreSQL',
     environment: 'prod',
     accessMode: 'ReadOnly',
     endpoint: 'db.example.com:5432',
-    notes: 'Primary database for checkout.'
+    notes: 'Primary database for checkout.',
+    instructions: 'Use sql_query for read-only queries.'
   },
-  binding: { accessMode: 'ReadOnly', requireApprovalForDestructive: true },
-  now: '2026-10-14T12:00:00Z'
+  now: { utc: '2026-10-14T12:00:00Z' }
 };
 
 /**
@@ -109,7 +116,8 @@ export default function PromptEditor({
         if (!active) return;
         setPreview({ rendered: r?.rendered ?? r?.text ?? (typeof r === 'string' ? r : ''), missingVariables: r?.missingVariables || [] });
         setUsedServer(true);
-        setPreviewError(null);
+        // The server answers 200 with success false and the parse or render errors when the template is invalid.
+        setPreviewError(r && r.success === false && (r.errors || []).length ? r.errors.join(' ') : null);
       })
       .catch((e) => {
         // A server without the render route still gets a preview from the local renderer.

@@ -151,7 +151,8 @@ test('detail routes highlight their hub', async ({ page }) => {
     ['/dashboard/chat/cnv_0001', 'chat'],
     ['/dashboard/profiles/prf_0001', 'profiles'],
     ['/dashboard/connectors/ssh', 'connectors'],
-    ['/dashboard/prompts/pt_0003', 'prompts'],
+    ['/dashboard/prompts/connector.ssh.instructions', 'prompts'],
+    ['/dashboard/resources/res_0002', 'resources'],
     ['/dashboard/assignments', 'rbac']
   ]) {
     await page.goto(path);

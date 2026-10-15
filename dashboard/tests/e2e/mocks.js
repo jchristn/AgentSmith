@@ -1,9 +1,10 @@
 // Deterministic Hugo API mocks so the Playwright suite runs without a server.
 //
-// Identity and administration routes follow the Garrison shapes Hugo forks (tenant-scoped paths, enumeration
-// envelopes with objects and totalRecords). Hugo's own routes follow plan section 14.2 and answer page results
-// ({ items, pageNumber, pageSize, totalCount, totalPages }). `installMocks(page, { missing })` answers 404 for the named
-// Hugo capabilities, so tests can check the "server does not expose this yet" states.
+// The shapes match the real server (src/Hugo.Server/Routes and the src/Hugo.Core models). Identity and administration
+// routes are tenant-scoped (Garrison paths); Hugo's own routes are flat (tenant from the session). Both enumerate with
+// Garrison's envelope ({ objects, totalRecords, maxResults, skip }); connectors, bindings, knowledge, and referrers answer
+// bare arrays; request history and audit page with pageNumber and pageSize. `installMocks(page, { missing })` answers 404
+// RouteNotFound for the named capabilities, so tests can check the "server does not expose this yet" states.
 
 const NOW = Date.parse('2026-10-14T12:00:00Z');
 const iso = (offsetMinutes) => new Date(NOW - offsetMinutes * 60000).toISOString();
@@ -37,114 +38,128 @@ export const SSH_CONNECTOR = {
   category: 'Compute',
   iconKey: 'terminal',
   version: '1.0.0',
-  settingsSchema: {
-    settings: [
-      {
-        key: 'host',
-        label: 'Host',
-        help: 'Hostname or IP address.',
-        kind: 'String',
-        required: true,
-        defaultValue: null,
-        minimum: null,
-        maximum: null,
-        allowedValues: [],
-        pattern: null,
-        group: 'Connection',
-        showInSummary: true
-      },
-      {
-        key: 'port',
-        label: 'Port',
-        help: 'SSH port.',
-        kind: 'Integer',
-        required: true,
-        defaultValue: '22',
-        minimum: 1,
-        maximum: 65535,
-        allowedValues: [],
-        pattern: null,
-        group: 'Connection',
-        showInSummary: true
-      },
-      {
-        key: 'username',
-        label: 'Username',
-        help: 'Account to sign in as.',
-        kind: 'String',
-        required: true,
-        defaultValue: null,
-        minimum: null,
-        maximum: null,
-        allowedValues: [],
-        pattern: null,
-        group: 'Authentication',
-        showInSummary: false
-      },
-      {
-        key: 'hostKeyFingerprint',
-        label: 'Host key fingerprint',
-        help: 'Leave empty to trust on first use.',
-        kind: 'String',
-        required: false,
-        defaultValue: null,
-        minimum: null,
-        maximum: null,
-        allowedValues: [],
-        pattern: null,
-        group: 'Authentication',
-        showInSummary: false
-      },
-      {
-        key: 'allowedPaths',
-        label: 'Allowed paths',
-        help: 'Paths file tools may read.',
-        kind: 'StringList',
-        required: false,
-        defaultValue: '/var/log',
-        minimum: null,
-        maximum: null,
-        allowedValues: [],
-        pattern: null,
-        group: 'Limits',
-        showInSummary: false
-      },
-      {
-        key: 'shell',
-        label: 'Shell',
-        help: '',
-        kind: 'Enum',
-        required: false,
-        defaultValue: 'bash',
-        minimum: null,
-        maximum: null,
-        allowedValues: ['bash', 'sh'],
-        pattern: null,
-        group: 'Advanced',
-        showInSummary: false
-      },
-      {
-        key: 'useSudo',
-        label: 'Allow sudo',
-        help: '',
-        kind: 'Boolean',
-        required: false,
-        defaultValue: 'false',
-        minimum: null,
-        maximum: null,
-        allowedValues: [],
-        pattern: null,
-        group: 'Advanced',
-        showInSummary: false
-      }
-    ]
-  },
+  settings: [
+    {
+      key: 'host',
+      label: 'Host',
+      help: 'Hostname or IP address.',
+      kind: 'String',
+      required: true,
+      defaultValue: null,
+      minimum: null,
+      maximum: null,
+      allowedValues: [],
+      pattern: null,
+      group: 'Connection',
+      showInSummary: true
+    },
+    {
+      key: 'port',
+      label: 'Port',
+      help: 'SSH port.',
+      kind: 'Integer',
+      required: true,
+      defaultValue: '22',
+      minimum: 1,
+      maximum: 65535,
+      allowedValues: [],
+      pattern: null,
+      group: 'Connection',
+      showInSummary: true
+    },
+    {
+      key: 'username',
+      label: 'Username',
+      help: 'Account to sign in as.',
+      kind: 'String',
+      required: true,
+      defaultValue: null,
+      minimum: null,
+      maximum: null,
+      allowedValues: [],
+      pattern: null,
+      group: 'Authentication',
+      showInSummary: false
+    },
+    {
+      key: 'hostKeyFingerprint',
+      label: 'Host key fingerprint',
+      help: 'Leave empty to trust on first use.',
+      kind: 'String',
+      required: false,
+      defaultValue: null,
+      minimum: null,
+      maximum: null,
+      allowedValues: [],
+      pattern: null,
+      group: 'Authentication',
+      showInSummary: false
+    },
+    {
+      key: 'allowedPaths',
+      label: 'Allowed paths',
+      help: 'Paths file tools may read.',
+      kind: 'StringList',
+      required: false,
+      defaultValue: '/var/log',
+      minimum: null,
+      maximum: null,
+      allowedValues: [],
+      pattern: null,
+      group: 'Limits',
+      showInSummary: false
+    },
+    {
+      key: 'shell',
+      label: 'Shell',
+      help: '',
+      kind: 'Enum',
+      required: false,
+      defaultValue: 'bash',
+      minimum: null,
+      maximum: null,
+      allowedValues: ['bash', 'sh'],
+      pattern: null,
+      group: 'Advanced',
+      showInSummary: false
+    },
+    {
+      key: 'useSudo',
+      label: 'Allow sudo',
+      help: '',
+      kind: 'Boolean',
+      required: false,
+      defaultValue: 'false',
+      minimum: null,
+      maximum: null,
+      allowedValues: [],
+      pattern: null,
+      group: 'Advanced',
+      showInSummary: false
+    }
+  ],
   secretSlots: [{ name: 'privateKey', label: 'Private key', help: 'SSH private key for the account.', acceptedKinds: ['PrivateKey'], required: true }],
   defaultInstructionsKey: 'connector.ssh.instructions',
-  defaultInstructions: 'You can run commands on {{resource.alias}} ({{resource.endpoint}}). Prefer read-only commands.',
+  plugin: false,
   tools: [
-    { name: 'ssh_exec', title: 'Run a command', description: 'Run a shell command.', baseEffect: 'Read', classifiedPerCall: true },
-    { name: 'ssh_read_file', title: 'Read a file', description: 'Read a file within the allowed paths.', baseEffect: 'Read', classifiedPerCall: false }
+    {
+      name: 'ssh_exec',
+      title: 'Run a command',
+      description: 'Run a shell command.',
+      baseEffect: 'Read',
+      classifiedPerCall: true,
+      updatesKnowledge: false,
+      requiresModel: false
+    },
+    {
+      name: 'ssh_read_file',
+      title: 'Read a file',
+      description: 'Read a file within the allowed paths.',
+      baseEffect: 'Read',
+      classifiedPerCall: false,
+      updatesKnowledge: false,
+      requiresModel: false
+    }
   ]
 };
 
@@ -157,8 +172,16 @@ const CONNECTORS = [
     displayName: 'PostgreSQL',
     description: 'Query a PostgreSQL database.',
     category: 'Database',
+    defaultInstructionsKey: 'connector.postgresql.instructions',
     secretSlots: [{ name: 'password', label: 'Password', acceptedKinds: ['Password', 'ConnectionString'], required: true }],
-    tools: [{ name: 'sql_query', description: 'Run a query.', baseEffect: 'Read', classifiedPerCall: true }]
+    tools: [
+      { name: 'sql_query', description: 'Run a query.', baseEffect: 'Read', classifiedPerCall: true },
+      { name: 'sql_get_context', description: 'Read durable context.', baseEffect: 'Read' },
+      { name: 'sql_get_intelligence', description: 'Domain intelligence.', baseEffect: 'Read' },
+      { name: 'sql_list_relationships', description: 'Declared and inferred relationships.', baseEffect: 'Read' },
+      { name: 'sql_update_context', description: 'Record context.', baseEffect: 'Read', updatesKnowledge: true },
+      { name: 'sql_generate_context', description: 'Generate context with the profile model.', baseEffect: 'Read', updatesKnowledge: true, requiresModel: true }
+    ]
   },
   {
     ...SSH_CONNECTOR,
@@ -232,24 +255,6 @@ const FACTORIES = {
       resourceId: 'prf_0001',
       inheritsToChildren: true
     }),
-  'prompt-templates': (i) =>
-    record('pt', i, {
-      tenantId: TENANT,
-      name: ['persona.agent-smith', 'system.safety', 'connector.ssh.instructions', 'connector.sql.instructions'][(i - 1) % 4],
-      description: 'Prompt template',
-      kind: 'System',
-      content: 'You are {{persona.name}}. Address the user as {{persona.userAddress}}.',
-      currentVersion: i,
-      isBuiltIn: i < 3
-    }),
-  'prompt-template-versions': (v) =>
-    record('tpr', v, {
-      templateId: 'pt_0001',
-      version: v,
-      content: `Version ${v}: You are {{persona.name}}.`,
-      changeNote: `v${v}`,
-      createdBy: 'admin@hugo.local'
-    }),
   audit: (i) => ({
     id: `aud_${pad(i)}`,
     tenantId: TENANT,
@@ -295,11 +300,15 @@ const FACTORIES = {
       visibility: 'Tenant',
       endpoint: ['web-01.example.com:22', 'db.example.com:5432', 's3://acme-assets', 'papertrailapp.com'][(i - 1) % 4],
       notes: 'Checkout runs here.',
-      healthStatus: i === 2 ? 'Unhealthy' : 'Healthy',
+      lastTestResult: i !== 2,
       lastTestUtc: iso(i * 10),
       lastTestMessage: i === 2 ? 'Connection refused' : 'OK',
-      settings: { host: 'web-01.example.com', port: 22, username: 'ops' },
-      secretBindings: [{ slotName: 'privateKey', secretId: 'sec_0002' }]
+      settings: [
+        { key: 'host', valueKind: 'String', value: 'web-01.example.com' },
+        { key: 'port', valueKind: 'Integer', value: '22' },
+        { key: 'username', valueKind: 'String', value: 'ops' }
+      ],
+      secretBindings: [{ slotName: 'privateKey', secretId: 'sec_0002', secretName: 'web-01-ssh-key' }]
     }),
   secrets: (i) =>
     record('sec', i, {
@@ -308,7 +317,7 @@ const FACTORIES = {
       kind: ['Password', 'PrivateKey', 'AccessKeyPair', 'ApiToken'][(i - 1) % 4],
       description: 'Managed by ops',
       fingerprint: ['****wd42', 'SHA256:abc', 'AKIA****', '****tk'][(i - 1) % 4],
-      referrerCount: i % 3,
+      fields: [['password'], ['privateKey'], ['accessKeyId', 'secretAccessKey'], ['token']][(i - 1) % 4],
       lastRotatedUtc: iso(i * 100),
       expiresUtc: i === 3 ? new Date(Date.now() + 3 * 86400000).toISOString() : null
     }),
@@ -322,10 +331,9 @@ const FACTORIES = {
       visibility: 'Tenant',
       isDefault: i === 1,
       inferenceEndpointId: i === 1 ? 'mdl_0001' : null,
-      bindingCount: 4,
       exposeMcp: true,
-      exposeA2a: true,
-      exposeOpenai: i === 1,
+      exposeA2A: true,
+      exposeOpenAI: i === 1,
       maxIterations: 12
     }),
   'model-endpoints': (i) =>
@@ -358,13 +366,14 @@ const FACTORIES = {
       surface: ['Chat', 'Mcp', 'A2A', 'Rest'][(i - 1) % 4],
       agentProfileId: 'prf_0001',
       resourceId: 'res_0001',
-      resourceAlias: 'web-01',
+      bindingAlias: 'web-01',
+      principalName: 'admin@hugo.local',
       toolName: ['ssh_exec', 'sql_query', 'logs_search'][(i - 1) % 3],
       effect: ['Read', 'Write', 'Destructive'][(i - 1) % 3],
       decision: ['Allowed', 'Allowed', 'Approved'][(i - 1) % 3],
       status: i % 5 === 0 ? 'Failed' : 'Succeeded',
       durationMs: 120 + i,
-      argumentsRedacted: { command: 'uptime', password: '[redacted:password]' },
+      argumentsRedacted: JSON.stringify({ command: 'uptime', password: '[redacted:password]' }),
       outputPreview: ' 12:00 up 41 days',
       outputBytes: 2048,
       traceId: '4bf92f3577b34da6a3ce929d0e0e4736',
@@ -378,9 +387,11 @@ const FACTORIES = {
       summary: i === 1 ? 'Run `sudo systemctl restart nginx` on web-01' : `Delete object backups/${i}.tar.gz from assets`,
       effect: i === 1 ? 'Destructive' : 'Write',
       effectReason: 'systemctl restart',
-      command: 'sudo systemctl restart nginx',
-      resourceAlias: 'web-01',
+      argumentsRedacted: JSON.stringify({ command: 'sudo systemctl restart nginx' }),
+      bindingAlias: 'web-01',
+      resourceId: 'res_0001',
       toolName: 'ssh_exec',
+      surface: 'Chat',
       status: i <= 2 ? 'Pending' : 'Approved',
       requestedByName: 'Agent Smith (chat)',
       expiresUtc: new Date(Date.now() + 15 * 60000).toISOString()
@@ -388,11 +399,10 @@ const FACTORIES = {
   sessions: (i) =>
     record('ses', i, {
       tenantId: TENANT,
-      principalType: i === 1 ? 'Administrator' : 'User',
-      principalName: i === 1 ? 'admin@hugo.local' : 'anderson@hugo.local',
-      authScheme: 'Password',
+      principalType: 'User',
+      userId: i === 1 ? 'usr_0001' : 'usr_0002',
+      authScheme: i === 1 ? 'BearerToken' : 'PasswordHeaders',
       sourceIp: '127.0.0.1',
-      issuedUtc: iso(i * 20),
       lastUsedUtc: iso(i),
       expiresUtc: iso(-60),
       userAgent: 'Mozilla/5.0'
@@ -429,16 +439,19 @@ function enumerate(collection, url) {
   return { success: true, maxResults: pageSize, skip, totalRecords: total, endOfResults: skip + objects.length >= total, objects };
 }
 
-/** Hugo page result (pageNumber and pageSize). */
-function pageOf(rows, url) {
-  const pageSize = Number(url.searchParams.get('pageSize') || 25);
-  const pageNumber = Number(url.searchParams.get('pageNumber') || 1);
+/** Garrison enumeration envelope over prepared rows (every list route of the server). */
+function enumerateRows(rows, url) {
+  const maxResults = Number(url.searchParams.get('maxResults') || 25);
+  const skip = Number(url.searchParams.get('skip') || 0);
+  const objects = rows.slice(skip, skip + maxResults);
   return {
-    items: rows.slice((pageNumber - 1) * pageSize, pageNumber * pageSize),
-    pageNumber,
-    pageSize,
-    totalCount: rows.length,
-    totalPages: Math.max(1, Math.ceil(rows.length / pageSize))
+    success: true,
+    maxResults,
+    skip,
+    totalRecords: rows.length,
+    recordsRemaining: Math.max(0, rows.length - skip - objects.length),
+    endOfResults: skip + objects.length >= rows.length,
+    objects
   };
 }
 
@@ -447,8 +460,6 @@ function rows(collection, url) {
   let list = Array.from({ length: total }, (_, i) => FACTORIES[collection](i + 1));
   const status = url.searchParams.get('status');
   if (status && collection === 'approvals') list = list.filter((r) => r.status === status);
-  const health = url.searchParams.get('health');
-  if (health) list = list.filter((r) => r.healthStatus === health);
   return list;
 }
 
@@ -650,52 +661,247 @@ const PERMISSIONS = (principalType, principalId) => ({
 const BINDINGS = [
   {
     id: 'bnd_0001',
+    tenantId: TENANT,
     agentProfileId: 'prf_0001',
     resourceId: 'res_0002',
     resourceName: 'prod-db',
+    connectorType: 'postgresql',
     alias: 'prod-db',
     accessMode: 'ReadOnly',
     requireApprovalForDestructive: true,
     instructionMode: 'Inherit',
-    enabled: true
+    enabled: true,
+    allowKnowledgeUpdates: true,
+    toolRules: [],
+    denyPatterns: []
   },
   {
     id: 'bnd_0002',
+    tenantId: TENANT,
     agentProfileId: 'prf_0001',
     resourceId: 'res_0001',
     resourceName: 'web-01',
+    connectorType: 'ssh',
     alias: 'web-01',
     accessMode: 'ReadWriteWithApproval',
     requireApprovalForDestructive: true,
     instructionMode: 'Append',
     instructionText: 'Never restart payments.',
-    enabled: true
+    enabled: true,
+    allowKnowledgeUpdates: true,
+    toolRules: [{ toolName: 'ssh_exec', rule: 'RequireApproval' }],
+    denyPatterns: ['rm -rf']
   }
 ];
 
+/** Tools as GET /agent-profiles/{id}/tools lists them (src/Hugo.Core/Connectors/CallerTool.cs). */
 const PROFILE_TOOLS = [
-  { name: 'hugo_whoami', description: 'Who am I', baseEffect: 'Read', inputSchema: { type: 'object', properties: {} } },
   {
     name: 'sql_query',
+    family: 'sql',
+    title: 'Run SQL',
     description: 'Run a SQL query.',
     baseEffect: 'Read',
     classifiedPerCall: true,
-    inputSchema: {
+    inputSchemaJson: JSON.stringify({
       type: 'object',
       required: ['resource', 'sql'],
       properties: { resource: { type: 'string', enum: ['prod-db'] }, sql: { type: 'string', description: 'The query.' } }
-    }
+    }),
+    isMetaTool: false,
+    resources: [{ alias: 'prod-db', connectorType: 'postgresql', accessMode: 'ReadOnly' }]
   },
   {
     name: 'ssh_exec',
+    family: 'ssh',
+    title: 'Run a command',
     description: 'Run a command.',
     baseEffect: 'Read',
     classifiedPerCall: true,
-    inputSchema: {
+    inputSchemaJson: JSON.stringify({
       type: 'object',
       required: ['resource', 'command'],
       properties: { resource: { type: 'string', enum: ['web-01'] }, command: { type: 'string' } }
+    }),
+    isMetaTool: false,
+    resources: [{ alias: 'web-01', connectorType: 'ssh', accessMode: 'ReadWriteWithApproval', rule: 'RequireApproval' }]
+  }
+];
+
+const COMPILED_TEXT =
+  '# Agent Smith\nYou are Agent Smith. Address the user as Mr. Anderson.\n\n## prod-db (PostgreSQL, access: ReadOnly)\nUse sql_list_tables first.\n';
+/** Compiled instructions with the compiler's source map (src/Hugo.Core/Instructions/CompiledInstructions.cs). */
+const COMPILED = {
+  profileId: 'prf_0001',
+  profileName: 'Hugo',
+  surface: 'Chat',
+  text: COMPILED_TEXT,
+  tokenEstimate: 42,
+  bindingCount: 1,
+  warnings: [],
+  segments: [
+    { key: 'instructions.root', layer: 'Global', version: 1, start: 0, length: COMPILED_TEXT.length, depth: 0 },
+    { key: 'persona.agent-smith', layer: 'BuiltIn', version: 0, start: 0, length: 70, depth: 1 },
+    { key: 'section.resource', layer: 'Global', version: 1, start: 72, length: COMPILED_TEXT.length - 72, depth: 1 },
+    { key: 'connector.postgresql.instructions', layer: 'Tenant', version: 2, bindingAlias: 'prod-db', start: 115, length: COMPILED_TEXT.length - 115, depth: 2 }
+  ]
+};
+
+/** Prompt template views (src/Hugo.Core/Prompts/PromptTemplateView.cs). */
+const PROMPT_VIEWS = [
+  {
+    key: 'connector.ssh.instructions',
+    description: 'Default instructions for SSH resources.',
+    source: 'ssh',
+    activeLayer: 'Tenant',
+    effectiveContent: '# SSH resources\nPrefer read-only commands. Never restart payments.',
+    builtInContent: '# SSH resources\nPrefer read-only commands.',
+    builtInHash: 'abc123',
+    global: {
+      layer: 'Global',
+      exists: true,
+      templateId: 'tpl_1',
+      content: '# SSH resources\nPrefer read-only commands.',
+      version: 1,
+      customized: false,
+      defaultUpdatedSinceCustomized: false,
+      lastUpdateUtc: iso(600)
+    },
+    tenant: {
+      layer: 'Tenant',
+      exists: true,
+      templateId: 'tpl_2',
+      content: '# SSH resources\nPrefer read-only commands. Never restart payments.',
+      version: 2,
+      customized: true,
+      defaultUpdatedSinceCustomized: true,
+      lastUpdateUtc: iso(60)
     }
+  },
+  {
+    key: 'persona.agent-smith',
+    description: 'Default persona.',
+    source: 'hugo',
+    activeLayer: 'Global',
+    effectiveContent: 'You are {{profile.personaName}}.',
+    builtInContent: 'You are {{profile.personaName}}.',
+    builtInHash: 'def456',
+    global: {
+      layer: 'Global',
+      exists: true,
+      templateId: 'tpl_3',
+      content: 'You are {{profile.personaName}}.',
+      version: 1,
+      customized: false,
+      defaultUpdatedSinceCustomized: false,
+      lastUpdateUtc: iso(900)
+    },
+    tenant: null
+  },
+  {
+    key: 'system.safety',
+    description: 'Safety rules.',
+    source: 'hugo',
+    activeLayer: 'Global',
+    effectiveContent: 'Respect access modes.',
+    builtInContent: 'Respect access modes.',
+    builtInHash: 'ghi789',
+    global: {
+      layer: 'Global',
+      exists: true,
+      templateId: 'tpl_4',
+      content: 'Respect access modes.',
+      version: 1,
+      customized: false,
+      defaultUpdatedSinceCustomized: false,
+      lastUpdateUtc: iso(900)
+    },
+    tenant: null
+  }
+];
+
+/** Resource knowledge entries (src/Hugo.Core/Models/ResourceKnowledge.cs). */
+const KNOWLEDGE = [
+  {
+    id: 'rkn_1',
+    tenantId: TENANT,
+    resourceId: 'res_0002',
+    scope: 'database',
+    key: '',
+    content: 'Shop database. Orders belong to customers.',
+    source: 'Generated',
+    updatedBy: 'Hugo profile',
+    version: 1,
+    createdUtc: iso(100),
+    lastUpdateUtc: iso(100)
+  },
+  {
+    id: 'rkn_2',
+    tenantId: TENANT,
+    resourceId: 'res_0002',
+    scope: 'table',
+    key: 'public.orders',
+    content: 'One row per order.',
+    source: 'Agent',
+    updatedBy: 'Agent Smith',
+    version: 2,
+    createdUtc: iso(90),
+    lastUpdateUtc: iso(30)
+  }
+];
+
+const KNOWLEDGE_VERSIONS = [
+  {
+    id: 'rkv_2',
+    knowledgeId: 'rkn_2',
+    scope: 'table',
+    key: 'public.orders',
+    version: 2,
+    content: 'One row per order.',
+    source: 'Agent',
+    updatedBy: 'Agent Smith',
+    deleted: false,
+    createdUtc: iso(30)
+  },
+  {
+    id: 'rkv_1',
+    knowledgeId: 'rkn_2',
+    scope: 'table',
+    key: 'public.orders',
+    version: 1,
+    content: 'Orders.',
+    source: 'Operator',
+    updatedBy: 'admin@hugo.local',
+    deleted: false,
+    createdUtc: iso(90)
+  }
+];
+
+const RELATIONSHIPS = [
+  {
+    fromSchema: 'public',
+    fromTable: 'orders',
+    fromColumn: 'customer_id',
+    toSchema: 'public',
+    toTable: 'customers',
+    toColumn: 'id',
+    constraintName: 'fk_orders_customer',
+    source: 'declared_fk',
+    confidence: 1,
+    evidence: ['Declared foreign key constraint fk_orders_customer.'],
+    isDeclared: true
+  },
+  {
+    fromSchema: 'public',
+    fromTable: 'order_items',
+    fromColumn: 'order_id',
+    toSchema: 'public',
+    toTable: 'orders',
+    toColumn: 'id',
+    source: 'inferred_name_match',
+    confidence: 0.9,
+    evidence: ['Column order_id is named after table orders.'],
+    isDeclared: false
   }
 ];
 
@@ -756,7 +962,8 @@ export function sse(frames) {
   return frames.map(([name, data]) => `event: ${name}\ndata: ${JSON.stringify(data)}\n\n`).join('');
 }
 
-const MCP_TOOLS = PROFILE_TOOLS;
+/** MCP tools/list entries: the same tools with their input schema as an object (MCP protocol shape). */
+const MCP_TOOLS = PROFILE_TOOLS.map((tool) => ({ name: tool.name, description: tool.description, inputSchema: JSON.parse(tool.inputSchemaJson) }));
 
 /** One JSON-RPC answer from the mock MCP server. */
 function mcpAnswer(message) {
@@ -818,6 +1025,8 @@ export const CAPABILITY_PREFIXES = {
   toolInvocations: '/v1.0/api/tool-invocations',
   approvals: '/v1.0/api/approvals',
   sessions: '/v1.0/api/sessions',
+  prompts: '/v1.0/api/prompt-templates',
+  lockdown: '/v1.0/api/tenant/lockdown',
   knowledge: '/v1.0/api/knowledge',
   analytics: '/v1.0/api/analytics',
   plugins: '/v1.0/api/system/plugins',
@@ -846,11 +1055,11 @@ export function respond(method, url, body) {
     }));
   if (p === '/v1.0/api/settings') return method === 'GET' ? SETTINGS : { saved: true, restartRequired: false };
   if (p === '/v1.0/api/system/restart') return { restarting: true };
-  if (p === '/v1.0/api/tenant/lockdown') return { lockdown: method === 'POST' };
+  if (p === '/v1.0/api/tenant/lockdown') return { tenantId: TENANT, lockdown: method === 'POST', approvalsCancelled: 0 };
   if (p === '/v1.0/api/request-history/summary') return summary();
   if (p === '/v1.0/api/request-history') return legacyPage('request-history', url);
   if (p.startsWith('/v1.0/api/request-history/')) return FACTORIES['request-history'](1);
-  if (/^\/v1\.0\/api\/users\/[^/]+\/password$/.test(p)) return {};
+  if (p === '/v1.0/api/users/me/password') return { ...FACTORIES.users(1), mustChangePassword: false };
 
   // Garrison-forked tenant and tenant-scoped administration routes.
   let m = p.match(/^\/v1\.0\/api\/tenants(?:\/([^/]+))?$/);
@@ -864,23 +1073,41 @@ export function respond(method, url, body) {
       return PERMISSIONS(collection === 'users' ? 'User' : 'Credential', parts[1]);
     if (collection === 'credentials' && parts[2] === 'rotate') return { accessKey: 'access_1xyz', secretKey: 'secret_rotated_value' };
     if (collection === 'credentials' && parts.length === 1 && method === 'POST') return { ...FACTORIES.credentials(9), secretKey: 'secret_new_value' };
-    if (collection === 'prompt-templates' && parts[1] === 'render')
-      return { rendered: 'You are Agent Smith. Address the user as Mr. Anderson.', missingVariables: [] };
-    if (collection === 'prompt-templates' && parts[2] === 'versions') return [1, 2].map(FACTORIES['prompt-template-versions']);
     if (!FACTORIES[collection]) return undefined;
     if (parts.length === 1) return method === 'GET' ? enumerate(collection, url) : FACTORIES[collection](99);
     return FACTORIES[collection](1);
   }
 
-  // Hugo routes (plan section 14.2).
-  if (p === '/v1.0/api/connectors') return pageOf(CONNECTORS, url);
+  // Hugo routes (flat, plan section 14.2; shapes from src/Hugo.Core).
+  if (p === '/v1.0/api/connectors') return CONNECTORS;
   m = p.match(/^\/v1\.0\/api\/connectors\/([^/]+)$/);
   if (m) return CONNECTORS.find((c) => c.type === m[1]) || undefined;
-  if (p === '/v1.0/api/resources/test') return { success: true, message: 'Connected to web-01 as ops in 42 ms.', latencyMs: 42 };
-  if (p === '/v1.0/api/tool-invocations/summary') return { totals: { total: 37, failed: 7 } };
-  if (p === '/v1.0/api/tool-invocations/dry-run')
-    return { effect: 'Read', effectReason: 'uptime is read only', decision: 'Allowed', accessMode: 'ReadWriteWithApproval' };
-  if (p === '/v1.0/api/tool-invocations' && method === 'POST') return { id: 'tin_0100', status: 'Succeeded', outputPreview: ' 12:00 up 41 days' };
+  if (p === '/v1.0/api/resources/test')
+    return { success: true, message: 'Connected to web-01 as ops in 42 ms.', latencyMs: 42, details: {}, validationErrors: [], learnedSettings: {} };
+  if (p === '/v1.0/api/tool-invocations/summary')
+    return {
+      total: 37,
+      byDecision: [
+        { status: 'Allowed', count: 30 },
+        { status: 'Approved', count: 5 },
+        { status: 'Denied', count: 2 }
+      ],
+      byStatus: [
+        { status: 'Succeeded', count: 30 },
+        { status: 'Failed', count: 7 }
+      ],
+      byEffect: [
+        { status: 'Read', count: 30 },
+        { status: 'Write', count: 5 },
+        { status: 'Destructive', count: 2 }
+      ],
+      byTool: [
+        { status: 'ssh_exec', count: 20 },
+        { status: 'sql_query', count: 17 }
+      ]
+    };
+  if (p === '/v1.0/api/tool-invocations/dry-run') return outcome(body, true);
+  if (p === '/v1.0/api/tool-invocations' && method === 'POST') return outcome(body, false);
   if (p.startsWith('/v1.0/api/analytics/')) {
     const buckets = Array.from({ length: 8 }, (_, i) => ({
       timestampUtc: iso(i * 180),
@@ -914,41 +1141,94 @@ export function respond(method, url, body) {
   }
   m = p.match(/^\/v1\.0\/api\/agent-profiles\/([^/]+)\/(bindings|tools|compiled-instructions|card)(?:\/([^/]+))?(?:\/(tool-rules))?$/);
   if (m) {
-    if (m[2] === 'bindings' && !m[3]) return method === 'GET' ? pageOf(BINDINGS, url) : { ...BINDINGS[0], id: 'bnd_0099', ...(body || {}) };
-    if (m[2] === 'bindings' && m[4]) return method === 'GET' ? { rules: [{ toolName: 'ssh_exec', rule: 'RequireApproval' }] } : {};
+    if (m[2] === 'bindings' && !m[3]) return method === 'GET' ? BINDINGS : { ...BINDINGS[0], id: 'bnd_0099', ...(body || {}) };
+    if (m[2] === 'bindings' && m[4]) return method === 'GET' ? [{ toolName: 'ssh_exec', rule: 'RequireApproval' }] : { ...BINDINGS[1], toolRules: body || [] };
     if (m[2] === 'bindings') return BINDINGS[0];
-    if (m[2] === 'tools') return { tools: PROFILE_TOOLS };
+    if (m[2] === 'tools') return { profileId: m[1], profileName: 'Hugo', hasModel: true, resourceCount: 2, tools: PROFILE_TOOLS, metaTools: [] };
     if (m[2] === 'card') return AGENT_CARD;
-    return {
-      text: '# Agent Smith\nYou are Agent Smith. Address the user as Mr. Anderson.\n\n## prod-db (PostgreSQL, access: ReadOnly)\n...',
-      sections: [
-        { title: 'Persona', templateKey: 'persona.agent-smith', layer: 'BuiltIn' },
-        { title: 'prod-db', templateKey: 'connector.sql.instructions', layer: 'Tenant' }
-      ]
-    };
+    return COMPILED;
   }
   m = p.match(/^\/v1\.0\/api\/secrets\/([^/]+)\/(reveal|referrers|values)$/);
   if (m) {
     if (m[2] === 'reveal') return { values: { password: 'swordfish' } };
-    if (m[2] === 'referrers') return { resources: [{ id: 'res_0002', name: 'prod-db' }], modelEndpoints: [] };
-    return {};
+    if (m[2] === 'referrers') return [{ referrerType: 'Resource', referrerId: 'res_0002', referrerName: 'prod-db', detail: 'slot password' }];
+    return FACTORIES.secrets(1);
   }
-  m = p.match(/^\/v1\.0\/api\/resources\/([^/]+)\/(test|referrers|duplicate)$/);
-  if (m)
-    return m[2] === 'test'
-      ? { success: true, message: 'Connected in 42 ms.', latencyMs: 42 }
-      : m[2] === 'referrers'
-        ? { profiles: [{ id: 'prf_0001', name: 'Hugo' }], bindings: [] }
-        : FACTORIES.resources(9);
+  m = p.match(/^\/v1\.0\/api\/resources\/([^/]+)\/(test|referrers|duplicate|invoke)$/);
+  if (m) {
+    if (m[2] === 'test') return { success: true, message: 'Connected in 42 ms.', latencyMs: 42, details: {}, validationErrors: [], learnedSettings: {} };
+    if (m[2] === 'referrers')
+      return [
+        { agentProfileId: 'prf_0001', agentProfileName: 'Hugo', bindingId: 'bnd_0002', alias: 'web-01', accessMode: 'ReadWriteWithApproval', enabled: true }
+      ];
+    if (m[2] === 'invoke') return knowledgeTool(body);
+    return FACTORIES.resources(9);
+  }
+  m = p.match(/^\/v1\.0\/api\/resources\/([^/]+)\/knowledge(?:\/([^/]+))?(?:\/([^/]+))?(\/versions)?$/);
+  if (m) {
+    if (m[4]) return KNOWLEDGE_VERSIONS;
+    if (method === 'PUT')
+      return {
+        ...KNOWLEDGE[0],
+        scope: m[2],
+        key: m[3] === '_root' || !m[3] ? '' : decodeURIComponent(m[3]),
+        content: body?.content,
+        source: 'Operator',
+        version: 2
+      };
+    if (m[3]) return KNOWLEDGE.find((k) => k.scope === m[2]) || KNOWLEDGE[0];
+    return m[2] ? KNOWLEDGE.filter((k) => k.scope === m[2]) : KNOWLEDGE;
+  }
   m = p.match(/^\/v1\.0\/api\/model-endpoints\/([^/]+)\/(validate|models)$/);
-  if (m) return m[2] === 'validate' ? { success: true, latencyMs: 210, message: 'The model answered.' } : { models: ['claude-sonnet', 'claude-haiku'] };
+  if (m)
+    return m[2] === 'validate' ? { success: true, kind: 'Inference', latencyMs: 210, model: 'claude-sonnet', problems: [] } : ['claude-sonnet', 'claude-haiku'];
   m = p.match(/^\/v1\.0\/api\/approvals\/([^/]+)\/(approve|reject|cancel)$/);
   if (m) return { ...FACTORIES.approvals(1), id: m[1], status: m[2] === 'approve' ? 'Approved' : m[2] === 'reject' ? 'Rejected' : 'Cancelled' };
+  m = p.match(/^\/v1\.0\/api\/approvals\/([^/]+)$/);
+  if (m) return { ...FACTORIES.approvals(1), id: m[1], invocation: FACTORIES['tool-invocations'](1) };
   m = p.match(/^\/v1\.0\/api\/conversations\/([^/]+)\/(messages|cancel|export)$/);
   if (m) {
-    if (m[2] === 'messages' && method === 'GET') return pageOf(MESSAGES, url);
+    if (m[2] === 'messages' && method === 'GET') return enumerateRows(MESSAGES, url);
     if (m[2] === 'export') return '# Why is checkout slow?\n';
     return {};
+  }
+  // Prompt templates, layered by key (plan section 10.2).
+  if (p === '/v1.0/api/prompt-templates') return PROMPT_VIEWS;
+  if (p === '/v1.0/api/prompt-templates/render')
+    return { rendered: 'You are Agent Smith. Address the user as Mr. Anderson.', success: true, variables: ['profile.personaName'], includes: [], errors: [] };
+  m = p.match(/^\/v1\.0\/api\/prompt-templates\/([^/]+)(?:\/(reset|versions|builtin|diff))?$/);
+  if (m) {
+    const view = PROMPT_VIEWS.find((v) => v.key === decodeURIComponent(m[1]));
+    if (!view) return undefined;
+    if (m[2] === 'versions')
+      return [2, 1].map((v) => ({
+        id: `tpv_${v}`,
+        templateId: 'tpl_1',
+        version: v,
+        content: `Version ${v} text`,
+        changeNote: `v${v}`,
+        createdBy: 'admin@hugo.local',
+        createdUtc: iso(v * 60)
+      }));
+    if (m[2] === 'builtin') return { key: view.key, content: view.builtInContent, hash: view.builtInHash, source: view.source, description: view.description };
+    if (m[2] === 'diff')
+      return [
+        { op: 'same', text: '# SSH resources' },
+        { op: 'remove', text: 'Prefer read-only commands.' },
+        { op: 'add', text: 'Prefer read-only commands. Never restart payments.' }
+      ];
+    if (m[2] === 'reset') return { ...view, activeLayer: 'Global', tenant: { ...view.tenant, exists: false, customized: false } };
+    if (method === 'PUT') {
+      const layer = url.searchParams.get('layer') || 'Tenant';
+      const state = { layer, exists: true, content: body?.content, version: 3, customized: true, defaultUpdatedSinceCustomized: false, lastUpdateUtc: iso(0) };
+      return {
+        ...view,
+        activeLayer: layer === 'Global' && view.tenant?.exists ? 'Tenant' : layer,
+        effectiveContent: body?.content,
+        [layer === 'Global' ? 'global' : 'tenant']: state
+      };
+    }
+    return view;
   }
   if (p === '/v1.0/api/conversations' && method === 'POST') return { ...FACTORIES.conversations(1), id: 'cnv_0042', title: null, messageCount: 0 };
   if (p === '/v1.0/api/agent-profiles' && method === 'POST') return { ...FACTORIES['agent-profiles'](9), ...(body || {}) };
@@ -957,11 +1237,103 @@ export function respond(method, url, body) {
   );
   if (m) {
     const collection = m[1];
-    if (!m[2]) return method === 'GET' ? pageOf(rows(collection, url), url) : { ...FACTORIES[collection](99), ...(body || {}) };
+    if (!m[2]) return method === 'GET' ? enumerateRows(rows(collection, url), url) : { ...FACTORIES[collection](99), ...(body || {}) };
     const n = Number(String(m[2]).replace(/^\D+_/, '')) || 1;
     return { ...FACTORIES[collection](n), id: m[2] };
   }
   return undefined;
+}
+
+/** A tool invocation outcome for dry run and invoke (src/Hugo.Core/Responses/ToolInvocationOutcome.cs). */
+function outcome(body, dryRun) {
+  const sql = String(body?.arguments?.sql || body?.arguments?.command || '');
+  const write = /^\s*(insert|update|delete|drop|restart)/i.test(sql);
+  const base = {
+    dryRun,
+    toolName: body?.toolName,
+    profileId: body?.profileId,
+    bindingAlias: body?.resource,
+    resourceId: 'res_0001',
+    connectorType: 'ssh',
+    effect: write ? 'Write' : 'Read',
+    effectReason: write ? 'statement type INSERT' : 'uptime is read only',
+    accessMode: 'ReadWriteWithApproval',
+    approvalSummary: `Run on ${body?.resource}`,
+    durationMs: dryRun ? 0 : 12,
+    approvalWaitMs: 0
+  };
+  if (write)
+    return {
+      ...base,
+      invocationId: dryRun ? undefined : 'tin_0101',
+      decision: 'ApprovalRequired',
+      decisionCode: 'approval_required',
+      reason: 'Write calls on this resource require approval.',
+      status: dryRun ? 'NotExecuted' : 'Pending',
+      approvalId: dryRun ? undefined : 'apr_0101',
+      approvalStatus: dryRun ? undefined : 'Pending'
+    };
+  return {
+    ...base,
+    invocationId: dryRun ? undefined : 'tin_0100',
+    decision: 'Allowed',
+    decisionCode: 'allowed',
+    reason: 'Read call.',
+    status: dryRun ? 'NotExecuted' : 'Succeeded',
+    result: dryRun ? undefined : { isError: false, text: ' 12:00 up 41 days', mimeType: 'text/plain', truncated: false, originalBytes: 18, metrics: {} }
+  };
+}
+
+/** Direct resource invocations used by the Knowledge tab (sql_get_context, sql_get_intelligence, sql_list_relationships). */
+function knowledgeTool(body) {
+  const result = (structured) => ({
+    invocationId: 'tin_0200',
+    toolName: body?.toolName,
+    decision: 'Allowed',
+    status: 'Succeeded',
+    result: { isError: false, text: 'ok', structuredJson: JSON.stringify(structured), mimeType: 'text/plain', truncated: false, originalBytes: 2, metrics: {} }
+  });
+  if (body?.toolName === 'sql_get_context')
+    return result({ schema: 'public', tables: [], tablesWithoutContext: ['public.customers', 'public.order_items'], totalRecords: 3 });
+  if (body?.toolName === 'sql_list_relationships') return result({ schema: 'public', items: RELATIONSHIPS });
+  if (body?.toolName === 'sql_get_intelligence')
+    return result({
+      engine: 'postgresql',
+      schema: 'public',
+      crawledUtc: iso(5),
+      domain: {
+        summary: 'Crawled 3 tables with 1 declared and 1 inferred relationship.',
+        entities: [
+          { schemaName: 'public', tableName: 'orders', rowEstimate: 1200, role: 'core entity', keyColumns: ['id', 'customer_id', 'total'], hasContext: true },
+          { schemaName: 'public', tableName: 'customers', rowEstimate: 300, role: 'entity', keyColumns: ['id', 'email'], hasContext: false }
+        ],
+        metricDetails: [{ column: 'public.orders.total', dataType: 'numeric', aggregations: ['SUM', 'AVG'] }],
+        commonFilters: ['public.orders.status'],
+        freshnessColumns: ['public.orders.created_at'],
+        tenantColumns: [],
+        softDeleteColumns: []
+      },
+      relationships: RELATIONSHIPS,
+      ambiguities: [{ term: 'revenue', question: 'Which column defines revenue?', candidates: ['public.orders.total'] }],
+      contextQuality: {
+        score: 48,
+        label: 'Needs context',
+        tablesWithContext: 1,
+        totalTables: 3,
+        declaredRelationships: 1,
+        inferredRelationships: 1,
+        signals: [
+          {
+            key: 'table_context',
+            severity: 'warning',
+            message: 'Only 1 of 3 tables have saved context.',
+            recommendation: 'Build table context for core tables first.'
+          }
+        ]
+      },
+      suggestedQuestions: ['What is the total public.orders.total by month?']
+    });
+  return result({});
 }
 
 /**
@@ -985,7 +1357,7 @@ export async function installMocks(page, { missing = [], events = null, chatFram
       route.fulfill({
         status: 404,
         contentType: 'application/json',
-        body: JSON.stringify({ error: 'NotFound', message: 'Route not found.', requestId: 'req_404' })
+        body: JSON.stringify({ error: 'NotFound', code: 'RouteNotFound', message: 'No route matches the request.', requestId: 'req_404' })
       });
     if (blocked.some((prefix) => url.pathname === prefix || url.pathname.startsWith(`${prefix}/`))) return notFound();
     if (url.pathname === '/v1.0/api/events') {

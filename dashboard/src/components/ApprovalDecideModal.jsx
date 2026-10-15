@@ -26,7 +26,16 @@ export default function ApprovalDecideModal({ approval, onClose, onDecided }) {
       else await apiClient.rejectApproval(approval.id, note);
       addToast({ type: 'success', message: t(approve ? 'resources.approvals.approved' : 'resources.approvals.rejected') });
     } catch (e) {
-      addToast({ type: e?.status === 409 ? 'warning' : 'error', message: e?.status === 409 ? t('resources.approvals.notPending') : errorMessage(t, e) });
+      // 409 is either NotPending (already decided or expired) or SelfApprovalNotAllowed (four eyes required).
+      const notPending = e?.status === 409 && e?.code !== 'SelfApprovalNotAllowed';
+      addToast({
+        type: e?.status === 409 ? 'warning' : 'error',
+        message: notPending
+          ? t('resources.approvals.notPending')
+          : e?.code === 'SelfApprovalNotAllowed'
+            ? t('resources.approvals.selfApproval')
+            : errorMessage(t, e)
+      });
     } finally {
       setBusy(false);
       refresh?.();

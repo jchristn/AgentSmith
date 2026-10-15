@@ -151,7 +151,13 @@
     "LockdownActive": "The tenant is locked down, so only read calls are allowed.",
     "ConnectorNotFound": "This server has no connector of that type. A plugin may have failed to load.",
     "ProfileNotExposed": "This profile is not exposed on that surface.",
-    "NoInferenceEndpoint": "This profile has no inference model, so Hugo cannot run its own agent loop for it."
+    "NoInferenceEndpoint": "This profile has no inference model, so Hugo cannot run its own agent loop for it.",
+    "NotPending": "This approval was already decided or has expired.",
+    "SelfApprovalNotAllowed": "You cannot approve your own call in this tenant. Ask another approver.",
+    "PasswordChangeRequired": "Change your password before continuing.",
+    "SystemAdminRequired": "Only system administrators can do this.",
+    "SettingsInvalid": "The resource settings are invalid.",
+    "Duplicate": "A record with that name already exists."
   },
   "enums": {
     "principalType": {
@@ -246,7 +252,15 @@
       "ServerRestarted": "Server restarted",
       "PluginLoaded": "Plugin loaded",
       "HostKeyPinned": "SSH host key pinned",
-      "HostKeyMismatch": "SSH host key mismatch"
+      "HostKeyMismatch": "SSH host key mismatch",
+      "SessionReauthenticated": "Session reauthenticated",
+      "PermissionChanged": "Permission changed",
+      "ConfigurationChanged": "Configuration changed",
+      "PasswordChanged": "Password changed",
+      "RestartRequested": "Restart requested",
+      "KnowledgeChanged": "Knowledge changed",
+      "ModelEndpointChanged": "Model endpoint changed",
+      "SettingLearned": "Setting learned"
     },
     "secretKind": {
       "Password": "Password",
@@ -303,13 +317,17 @@
       "ApprovalRequired": "Approval required",
       "Approved": "Approved",
       "Rejected": "Rejected",
-      "Expired": "Expired"
+      "Expired": "Expired",
+      "Cancelled": "Cancelled"
     },
     "toolStatus": {
       "Succeeded": "Succeeded",
       "Failed": "Failed",
       "TimedOut": "Timed out",
-      "Cancelled": "Cancelled"
+      "Cancelled": "Cancelled",
+      "Pending": "Pending",
+      "Running": "Running",
+      "NotExecuted": "Not executed"
     },
     "surface": {
       "Chat": "Chat",
@@ -369,7 +387,19 @@
       "AccessKey": "Access key",
       "SessionToken": "Session token",
       "SignedRequest": "Signed request",
-      "ApiKey": "Administrator API key"
+      "ApiKey": "Administrator API key",
+      "BearerToken": "Bearer token",
+      "XToken": "Token header",
+      "PasswordHeaders": "Password sign-in",
+      "AccessKeySecret": "Access key",
+      "AccessKeySignature": "Signed request",
+      "AdminApiKey": "Administrator API key"
+    },
+    "knowledgeSource": {
+      "Operator": "Operator",
+      "Generated": "Generated",
+      "Agent": "Agent",
+      "Derived": "Derived"
     }
   },
   "login": {
@@ -706,6 +736,39 @@
         "running": "Running",
         "awaitingApproval": "Awaiting approval"
       }
+    },
+    "layeredEditor": {
+      "title": "Default instructions",
+      "purpose": "Edit a prompt template at the Tenant and Global layers, with versions, reset, and the shipped Built-in for reference.",
+      "saved": "{{layer}} layer saved as a new version.",
+      "resetDone": "{{layer}} layer reset to its default.",
+      "customized": "customized",
+      "inEffect": "In effect:",
+      "outdated": {
+        "Tenant": "The Global default changed since this tenant's override was saved.",
+        "Global": "The Built-in default was updated since the Global layer was customized."
+      },
+      "showChange": "Show the change",
+      "adopt": "Adopt the new default",
+      "layers": "Template layers",
+      "builtInBody": "The Built-in ships with Hugo and cannot be edited. The Global and Tenant layers override it.",
+      "noBuiltIn": "This key has no Built-in text.",
+      "layerVersion": "Version {{version}}",
+      "notCustomized": {
+        "Tenant": "This tenant uses the default. Saving creates a tenant override.",
+        "Global": "The Global layer is not set. Saving creates it from this text."
+      },
+      "globalReadOnly": "Only system administrators can change the Global layer. Edit the Tenant layer to change this tenant.",
+      "diffBelow": "Compare with {{layer}}",
+      "save": "Save {{layer}} layer",
+      "restoreNote": "Restored from version {{version}}.",
+      "load": "Load",
+      "resetTitle": "Reset the {{layer}} layer?",
+      "resetBody": {
+        "Tenant": "The tenant override is switched off and the Global default applies again. Its history is kept.",
+        "Global": "The Global layer goes back to the shipped Built-in text, adopting any Built-in update. Its history is kept."
+      },
+      "noDifferences": "No differences."
     }
   },
   "resources": {
@@ -938,12 +1001,27 @@
         "description": "Description",
         "isBuiltIn": "Origin",
         "id": "ID",
-        "lastUpdateUtc": "Updated"
+        "lastUpdateUtc": "Updated",
+        "key": "Key",
+        "source": "Source",
+        "activeLayer": "In effect",
+        "tenantLayer": "Tenant layer",
+        "globalLayer": "Global layer"
       },
       "fields": {
         "name": "Name",
         "kind": "Kind",
         "description": "Description"
+      },
+      "defaultUpdated": "Default updated",
+      "filters": {
+        "customized": "Customized",
+        "customizedValues": {
+          "Tenant": "Tenant override",
+          "Global": "Global customized",
+          "Outdated": "Default updated since",
+          "None": "Not customized"
+        }
       }
     },
     "audit": {
@@ -1024,8 +1102,11 @@
       "actions": {
         "decide": "Approve or reject",
         "invocation": "View tool invocation",
-        "bulkReject": "Reject selected"
-      }
+        "bulkReject": "Reject selected",
+        "cancel": "Cancel request"
+      },
+      "cancelled": "Approval cancelled.",
+      "selfApproval": "This tenant requires another person to approve your own calls."
     },
     "resources": {
       "deleteReferenced_one": "{{name}} is bound to {{count}} profile or endpoint. Remove those bindings first; the server refuses the delete while it is referenced.",
@@ -1116,7 +1197,8 @@
         "expiresUtc": "Expires",
         "lastRevealedUtc": "Last revealed",
         "id": "ID",
-        "createdUtc": "Created"
+        "createdUtc": "Created",
+        "fields": "Fields"
       },
       "fields": {
         "name": "Name",
@@ -1231,6 +1313,12 @@
         "validateTitle": "Validation: {{name}}",
         "listModels": "List provider models",
         "listModelsTitle": "Models offered by {{name}}"
+      },
+      "noProviderModels": "The provider listed no models.",
+      "history": {
+        "title": "Validation history (this session)",
+        "note": "The server keeps only the last health check. Validations you run in this browser session are listed here.",
+        "empty": "No validations in this session yet. Use Validate to run one."
       }
     },
     "knowledge": {
@@ -1483,19 +1571,6 @@
       "showRendered": "Show formatted"
     },
     "templateEditor": {
-      "cloneToEdit": "Clone to edit",
-      "builtInReadOnly": "Built-in templates are read-only, so every field here is locked. Clone it to get an editable copy.",
-      "renameHint": "You can rename this template. Templates that include it by name must be updated by hand.",
-      "cloneDialog": {
-        "taken": "A template named {{name}} already exists. Choose another name.",
-        "reserved": "Names starting with builtin/ are reserved for built-in templates.",
-        "hint": "You can rename the copy later on its page.",
-        "name": "Name of the copy",
-        "body": "The copy starts with the current content as version 1 and can be edited, renamed, and deleted.",
-        "title": "Clone {{name}}"
-      },
-      "newTitle": "New prompt template",
-      "subtitle": "Write the template, preview it with a sample context, and save.",
       "changeNote": "Change note",
       "versions_one": "Versions ({{count}})",
       "versions_other": "Versions ({{count}})",
@@ -1504,22 +1579,10 @@
       "note": "Note",
       "author": "Author",
       "diff": "Diff",
-      "restore": "Restore",
       "diffTitle": "Version {{version}} compared to the editor",
       "current": "Editor",
       "reset": "Reset to default",
-      "savedVersion": "Saved a new version.",
-      "restored": "Restored version {{version}}.",
-      "resetDone": "Reset to the shipped content.",
-      "confirm": {
-        "restoreTitle": "Restore version",
-        "restoreMessage": "Restore version {{version}}? The current content is kept in history.",
-        "resetTitle": "Reset template",
-        "resetMessage": "Reset \"{{name}}\" to the shipped content?",
-        "deleteTitle": "Delete template",
-        "deleteMessage": "Delete \"{{name}}\"? Profiles and connectors that use it fall back to the built-in default."
-      },
-      "saved": "Saved text"
+      "layeredSubtitle": "Edit this template at the Tenant and Global layers. Each save is a version, and Reset falls back one layer."
     },
     "requests": {
       "grafana": "HTTP dashboard in Grafana",
@@ -1760,6 +1823,16 @@
         "calls": "Calls",
         "failures": "Failures",
         "p95": "p95 duration"
+      },
+      "derived": {
+        "title": "From tool invocations and approvals",
+        "body": "Until the analytics routes are available, these figures come from the tool invocation summary and the approvals list for the selected range.",
+        "none": "Nothing in this range.",
+        "byEffect": "Tool calls by effect",
+        "byDecision": "Tool calls by decision",
+        "byStatus": "Tool calls by status",
+        "byTool": "Most used tools",
+        "approvalsByStatus": "Approvals by status"
       }
     },
     "chat": {
@@ -1830,7 +1903,9 @@
           "instructionText": "Instruction text",
           "maxOutputBytes": "Maximum output bytes",
           "maxRows": "Maximum rows",
-          "enabled": "Enabled"
+          "enabled": "Enabled",
+          "denyPatterns": "Deny patterns",
+          "allowKnowledgeUpdates": "Allow knowledge updates"
         }
       },
       "toolRules": {
@@ -1846,7 +1921,13 @@
         "body": "The instructions a caller receives: persona, safety rules, and each bound resource's section, in order.",
         "purpose": "The compiled instructions show exactly what Agent Smith is told for each surface, with the template each section came from.",
         "surface": "Surface",
-        "sourceMap": "Where each section comes from"
+        "sourceMap": "Where each section comes from",
+        "tokens_one": "About {{value}} token",
+        "tokens_other": "About {{value}} tokens",
+        "bindings_one": "{{count}} resource",
+        "bindings_other": "{{count}} resources",
+        "chunkTip": "From {{key}} ({{layer}}, version {{version}})",
+        "forBinding": "for {{alias}}"
       },
       "tools": {
         "body": "Tools exactly as a caller of this profile sees them, after access modes and tool rules are applied.",
@@ -1855,7 +1936,13 @@
         "name": "Tool",
         "effect": "Effect",
         "description": "Description",
-        "perCall": "(classified per call)"
+        "perCall": "(classified per call)",
+        "hasModel": "Inference endpoint set",
+        "noModel": "No inference endpoint",
+        "resourceCount_one": "{{count}} resource bound",
+        "resourceCount_other": "{{count}} resources bound",
+        "resources": "Resources",
+        "meta": "Hugo tool"
       },
       "connect": {
         "claudeCode": "Claude Code (MCP over HTTP)",
@@ -1895,7 +1982,13 @@
         "classification": "Classification",
         "result": "Result",
         "notBound": "This profile does not bind the resource, so its tools cannot reach it.",
-        "pendingApproval": "The call is waiting for approval {{id}}. Decide it on the Approvals page."
+        "pendingApproval": "The call is waiting for approval {{id}}. Decide it on the Approvals page.",
+        "effectReason": "Classifier: {{reason}}",
+        "openApprovals": "Open Approvals",
+        "noOutput": "The tool returned no output.",
+        "recorded": "Recorded as a tool invocation.",
+        "openInvocations": "Open Tool Invocations",
+        "asAlias": "Calls go to alias {{alias}}:"
       }
     },
     "secrets": {
@@ -1956,8 +2049,8 @@
       "noTools": "This connector offers no tools.",
       "instructionsBody": "Every resource of this type adds these instructions for the agent. Edit them per tenant or globally under the template key {{key}}.",
       "editInstructions": "Edit in Prompt Templates",
-      "builtInInstructions": "Built-in default instructions",
-      "noInstructions": "This connector ships no default instructions."
+      "updatesKnowledge": "Writes knowledge",
+      "requiresModel": "Needs a model"
     },
     "mcpExplorer": {
       "title": "MCP Explorer",
@@ -2000,6 +2093,102 @@
       "tasks_one": "{{count}} task",
       "tasks_other": "{{count}} tasks",
       "noTasks": "No tasks for this profile yet."
+    },
+    "resourceDetail": {
+      "title": "Resource",
+      "noSettings": "No settings stored.",
+      "noSecrets": "No secret slots are filled.",
+      "boundBy": "Bound to profiles",
+      "notBound": "No profile binds this resource yet. Attach it on a profile's Bindings tab.",
+      "tabs": {
+        "overview": "Overview",
+        "tools": "Try a tool",
+        "knowledge": "Knowledge"
+      }
+    },
+    "knowledge": {
+      "title": "Knowledge",
+      "purpose": "Durable notes about this resource that agents read before they act: database and table context, host notes, and more.",
+      "body": "Notes agents read about this resource. Each save is a version; the source badge says who wrote it.",
+      "sqlBody": "What agents know about this database: database and table context (operator, generated, or agent written), the crawl's intelligence, and how tables relate.",
+      "views": {
+        "context": "Context",
+        "intelligence": "Intelligence",
+        "relationships": "Relationships"
+      },
+      "entries": "Entries",
+      "noEntries": "No knowledge saved yet.",
+      "databaseContext": "Database context",
+      "missing": "no context",
+      "noContext": "No context yet",
+      "loadTables": "List tables without context",
+      "add": "Add entry",
+      "scope": "Scope",
+      "key": "Key",
+      "content": "Context (Markdown)",
+      "preview": "Preview",
+      "edit": "Edit",
+      "empty": "Nothing written yet.",
+      "updatedBy": "by {{name}}",
+      "history": "Version history",
+      "hideHistory": "Hide history",
+      "saved": "Knowledge saved.",
+      "source": "Source",
+      "deleted": "deleted",
+      "deleteTitle": "Delete knowledge entry",
+      "deleteBody": "Delete the context for {{name}}? Agents stop seeing it. The version history is kept.",
+      "emptyTitle": "Nothing to edit yet",
+      "emptyBody": "Add an entry, or generate context for a SQL resource.",
+      "quality": "Context quality",
+      "tablesWithContext": "Tables with context",
+      "relationshipCounts": "Relationships",
+      "declaredInferred": "{{declared}} declared, {{inferred}} inferred",
+      "crawled": "Crawled {{time}}",
+      "gaps": "Context gaps",
+      "entities": "Entities",
+      "columns": {
+        "table": "Table",
+        "role": "Role",
+        "rows": "Rows",
+        "keyColumns": "Key columns",
+        "context": "Context",
+        "from": "From",
+        "to": "To",
+        "kind": "Kind",
+        "confidence": "Confidence",
+        "evidence": "Evidence"
+      },
+      "metrics": "Likely metrics",
+      "commonFilters": "Common filters",
+      "freshness": "Freshness columns",
+      "tenantColumns": "Tenant columns",
+      "softDelete": "Soft-delete columns",
+      "ambiguities": "Ambiguities to clarify",
+      "questions": "Starter questions",
+      "viaTool": "Read with {{tool}} on this resource.",
+      "refresh": "Recrawl",
+      "declared": "Declared",
+      "inferred": "Inferred",
+      "graphLabel": "Relationship graph: {{tables}} tables, {{edges}} relationships",
+      "noRelationshipsTitle": "No relationships found",
+      "noRelationshipsBody": "The crawl found no declared foreign keys and no likely joins in this schema.",
+      "generateOpen": "Generate context",
+      "generateTitle": "Generate context for {{name}}",
+      "generateBody": "The model reads the schema (and, if allowed, a few masked sample rows) and writes concise context. Operator-written entries are kept unless you choose to overwrite them.",
+      "generateNoBinding": "No profile binds this resource. Bind it to a profile that has an inference endpoint first.",
+      "generateNoModel": "This profile has no inference endpoint. Set one on the profile's General tab.",
+      "noModel": "no model",
+      "generateScope": "What to generate",
+      "generateScopes": {
+        "all": "Database and tables",
+        "database": "Database only",
+        "tables": "Tables only"
+      },
+      "overwrite": "Replace operator and agent entries",
+      "generateInstructions": "Extra guidance for the model",
+      "generate": "Generate",
+      "generating": "Generating...",
+      "generateProgress": "Generating context... {{elapsed}} elapsed. The model is reading the schema and writing notes."
     }
   },
   "tips": {
@@ -2124,7 +2313,9 @@
       "toolName": "Show only calls to this tool, for example sql_query. The list updates when you stop typing.",
       "principalId": "Show only records of one principal. Paste an ID; the list updates when you stop typing.",
       "principalType": "Show only sessions of administrators, users, or credentials.",
-      "visibility": "Show only private or tenant-wide records."
+      "visibility": "Show only private or tenant-wide records.",
+      "activeLayer": "Show only templates whose text comes from this layer.",
+      "customized": "Show templates by which layer was customized, or whose default changed since."
     },
     "form": {
       "option": "Include {{option}} in {{field}}. Checked options are saved; unchecked ones are left out.",
@@ -2248,13 +2439,17 @@
         "ApprovalRequired": "Approval required: the call waited for a person.",
         "Approved": "Approved: a person allowed the call.",
         "Rejected": "Rejected: a person refused the call.",
-        "Expired": "Expired: nobody decided in time."
+        "Expired": "Expired: nobody decided in time.",
+        "Cancelled": "Cancelled: the pending approval was withdrawn or cancelled by lockdown."
       },
       "toolStatus": {
         "Succeeded": "Succeeded: the tool ran and returned a result.",
         "Failed": "Failed: the tool or the target system returned an error.",
         "TimedOut": "Timed out: the tool did not finish within its timeout.",
-        "Cancelled": "Cancelled: the turn was stopped while the tool was running."
+        "Cancelled": "Cancelled: the turn was stopped while the tool was running.",
+        "Pending": "Pending: waiting for an approval before it can run.",
+        "Running": "Running: the tool is executing now.",
+        "NotExecuted": "Not executed: the call was denied, rejected, or only classified (dry run)."
       },
       "healthStatus": {
         "Healthy": "Healthy: the last check reached the system and it answered normally.",
@@ -2305,7 +2500,21 @@
         "AuthorizationDenied": "A principal tried something its permissions do not allow.",
         "SecretRevealed": "Someone revealed a secret's plaintext, with a reason.",
         "LockdownChanged": "A tenant administrator turned lockdown on or off.",
-        "HostKeyMismatch": "An SSH host presented a different key than the pinned one; the connection was refused."
+        "HostKeyMismatch": "An SSH host presented a different key than the pinned one; the connection was refused.",
+        "SessionReauthenticated": "A user re-entered their password on a session (needed before revealing secrets).",
+        "PermissionChanged": "A permission was created, changed, or deleted.",
+        "ConfigurationChanged": "A configuration record changed (for example a prompt template or profile setting).",
+        "PasswordChanged": "A user changed their password, or an administrator reset it.",
+        "RestartRequested": "Someone asked the server to restart.",
+        "KnowledgeChanged": "Resource knowledge was written or deleted by an operator, agent, or model.",
+        "ModelEndpointChanged": "A model endpoint was created, changed, or deleted.",
+        "SettingLearned": "A connector recorded a setting on first use, for example an SSH host key."
+      },
+      "knowledgeSource": {
+        "Operator": "Written or edited by a person in the dashboard or API.",
+        "Generated": "Drafted by a model with sql_generate_context. Review before relying on it.",
+        "Agent": "Recorded by an agent during its work (sql_update_context). Unverified.",
+        "Derived": "Computed by Hugo from the crawl, not written by a person or model."
       }
     },
     "resources": {
@@ -2398,7 +2607,14 @@
         "name": "Template name, unique in the tenant. Includes refer to templates by name.",
         "kind": "What the template is used for: system prompt, task wrapper, fragment, tool description, or config file.",
         "currentVersion": "The newest saved version. Every save keeps the previous text as a version you can restore.",
-        "description": "What the template does and where it is used."
+        "description": "What the template does and where it is used.",
+        "key": "The template key. Connectors use connector.<type>.instructions; personas use persona.<name>.",
+        "source": "Where the Built-in comes from: hugo for core templates, or the connector type.",
+        "activeLayer": "The layer whose text is used now: Tenant, then Global, then Built-in.",
+        "tenantLayer": "This tenant's override, with its version.",
+        "globalLayer": "The Global default for every tenant, with its version.",
+        "lastUpdateUtc": "When the Tenant or Global layer was last saved.",
+        "defaultUpdated": "The default below this layer changed after it was customized. Open the template to compare and adopt."
       },
       "audit": {
         "createdUtc": "When the event happened, in your local time zone.",
@@ -2434,7 +2650,8 @@
         "fromUtc": "Show approvals requested at or after this time.",
         "actions": {
           "decide": "Open the approval card to approve or reject this call with a note.",
-          "invocation": "Open the tool invocation record behind this approval."
+          "invocation": "Open the tool invocation record behind this approval.",
+          "cancel": "Withdraw this pending call so it never runs. The requester or an approver can cancel."
         }
       },
       "bindings": {
@@ -2446,7 +2663,9 @@
         "instructionText": "Extra or replacement instructions for this resource in this profile, for example which schemas matter.",
         "maxOutputBytes": "Cap on tool output from this resource, tighter than the connector default. Leave empty for the default.",
         "maxRows": "Cap on rows returned by queries on this resource. Leave empty for the connector default.",
-        "enabled": "Disabled bindings are kept but hidden from the agent, as if the resource were not bound."
+        "enabled": "Disabled bindings are kept but hidden from the agent, as if the resource were not bound.",
+        "denyPatterns": "Regular expressions matched against the command or statement of per-call classified tools. A match denies the call.",
+        "allowKnowledgeUpdates": "When off, tools that save knowledge about this resource (such as table context) return drafts instead of saving."
       },
       "models": {
         "apiKeySecretId": "The secret holding this provider's API key or credentials. Stored encrypted; never shown to the model.",
@@ -2520,7 +2739,8 @@
           "replaceValues": "Replace some or all of the values; fields you leave empty keep their stored values.",
           "reveal": "Show the plaintext values after stating a reason and re-entering your password. Audited.",
           "referrers": "List the resources and model endpoints that use this secret."
-        }
+        },
+        "fields": "The value fields this secret stores (never the values themselves)."
       },
       "toolInvocations": {
         "trace": "Open this call's distributed trace in Grafana Tempo in a new tab.",
@@ -2670,13 +2890,6 @@
         "serviceGeneric": "Open this bundled service in a new tab."
       },
       "templateEditor": {
-        "cloneName": "Name for the copy. Lowercase letters, digits, hyphens, and slashes work well; the builtin/ prefix is reserved.",
-        "cloneConfirm": "Create the copy with this name and open it in the editor.",
-        "clone": "Make an editable copy of this template. You choose the copy's name before it is created.",
-        "reset": "Restore this built-in template to the content Hugo ships with.",
-        "delete": "Delete this template and its versions. Anything that included it falls back to the built-in default.",
-        "create": "Create the template and its first version.",
-        "save": "Save the content as a new version. New conversations and MCP sessions pick it up.",
         "changeNote": "A short note saved with the version, explaining what changed and why.",
         "tabs": {},
         "columns": {
@@ -2686,7 +2899,7 @@
           "saved": "When the version was saved."
         },
         "diff": "Compare this version with what is in the editor now.",
-        "restore": "Make this version current again. The current content stays in history."
+        "back": "Back to every prompt template."
       },
       "serverInfo": {
         "rest": "Base address for REST API calls and SDKs.",
@@ -2810,7 +3023,9 @@
           "default": "The value used when a resource leaves the setting empty.",
           "range": "The allowed values or the minimum and maximum for numbers.",
           "group": "The section of the resource form the setting appears in."
-        }
+        },
+        "updatesKnowledge": "This tool saves durable knowledge about the resource (for example database context). Bindings can refuse it.",
+        "requiresModel": "This tool calls the calling profile's inference endpoint, so the profile needs one."
       },
       "mcpExplorer": {
         "profile": "Connect to /mcp/{profile}, or leave it to the server to resolve your profile from the credential or defaults.",
@@ -2848,12 +3063,16 @@
         },
         "instructions": {
           "surface": "Instructions differ slightly per surface (chat, MCP, A2A, OpenAI, REST). Pick one to preview.",
-          "section": "One section of the compiled instructions and the template layer it came from."
+          "section": "One section of the compiled instructions and the template layer it came from.",
+          "copy": "Copy the compiled instructions."
         },
         "tools": {
           "name": "The tool name a caller uses, usually family_operation such as sql_query.",
           "effect": "The base effect: Read, Write, or Destructive. Some tools are classified per call.",
-          "description": "What the tool does, as the caller's model sees it."
+          "description": "What the tool does, as the caller's model sees it.",
+          "hasModel": "Tools that need a model (such as generating database context) work only when the profile has an inference endpoint.",
+          "resources": "The bound aliases the tool accepts in its resource argument, with each binding's access mode and rule.",
+          "meta": "A built-in Hugo tool (for example instructions or approvals), not a connector tool."
         },
         "connect": {
           "copyCard": "Copy the agent card URL for another A2A agent to discover this profile.",
@@ -2870,7 +3089,9 @@
           "tool": "A tool the profile exposes for this resource.",
           "arguments": "The tool arguments as JSON. The resource argument names the binding alias.",
           "dryRun": "Classify the call (effect, decision, access mode) without running it.",
-          "execute": "Run the call through the full pipeline. Risky calls wait for approval like any other."
+          "execute": "Run the call through the full pipeline. Risky calls wait for approval like any other.",
+          "openApprovals": "Decide this call in the Approvals inbox.",
+          "openInvocations": "See this call with its redacted arguments and output in Tool Invocations."
         }
       },
       "secrets": {
@@ -2917,6 +3138,56 @@
           "Environment": "Set by an environment variable, which wins over any value saved here.",
           "Database": "Stored in the database."
         }
+      },
+      "resourceDetail": {
+        "back": "Back to every resource.",
+        "connector": "Open this connector's settings reference, tools, and default instructions.",
+        "tabs": {
+          "overview": "Connection, settings, secret slots, last test, and the profiles that bind this resource.",
+          "tools": "Dry run a tool as a profile, then execute it through the same pipeline as chat and MCP.",
+          "knowledge": "Durable context agents read about this resource: database and table notes, intelligence, and relationships."
+        }
+      },
+      "knowledge": {
+        "views": {
+          "context": "Database and table context, with source and version history.",
+          "intelligence": "Entities, likely metrics, common filters, freshness columns, ambiguities, and context quality (sql_get_intelligence).",
+          "relationships": "Declared foreign keys and inferred join candidates with confidence (sql_list_relationships)."
+        },
+        "loadTables": "Run sql_get_context on the resource to list every table, including those with no context yet.",
+        "add": "Write context for a table or another scope that has none yet.",
+        "select": "Open this entry in the editor.",
+        "scope": "The kind of note: database, table, or a connector-specific scope such as notes.",
+        "key": "For table context, the schema-qualified table, for example main.orders. Leave empty for a scope's root entry.",
+        "create": "Open the editor for this new entry. Nothing is saved until you press Save.",
+        "content": "Concise Markdown agents read: what the data means, business definitions, caveats, and confirmed join paths.",
+        "preview": "Switch between the Markdown source and its rendered preview.",
+        "history": "Every saved version of this entry, with its source and author. Compare with the editor or load one.",
+        "delete": "Delete this entry. Its versions stay in the history.",
+        "save": "Save as an operator edit. It becomes a new version with source Operator.",
+        "source": "Who wrote this version: an operator, a model (generated), an agent, or Hugo (derived).",
+        "quality": "A score from the crawl: database context, table coverage, and unresolved ambiguities.",
+        "columns": {
+          "table": "The table, schema-qualified when it is not in the default schema.",
+          "role": "How the crawl reads the table: core entity, entity, link table, log, and so on.",
+          "rows": "Estimated row count (exact on SQLite).",
+          "keyColumns": "Columns the crawl considers important: keys, metrics, filters, and timestamps.",
+          "context": "Whether durable context is saved for the table.",
+          "from": "The referencing column.",
+          "to": "The referenced column, usually a primary key.",
+          "kind": "Declared by a foreign key constraint, or inferred from names and types.",
+          "confidence": "How sure the crawl is: declared edges are 100 percent; inferred ones need confirming.",
+          "evidence": "Why the crawl proposes this edge."
+        },
+        "refresh": "Crawl the database again instead of using the cached crawl (after schema changes).",
+        "declared": "A foreign key constraint in the database.",
+        "inferred": "A join candidate from naming and types. Confirm it, then record it in table context.",
+        "generateOpen": "Have a model draft database and table context with sql_generate_context, run as a profile that binds this resource.",
+        "generateProfile": "The profile and binding to run as. Its inference endpoint does the writing and its binding must allow knowledge updates.",
+        "generateScope": "The database summary, table notes, or both.",
+        "overwrite": "Off by default: entries written by operators or agents are kept and only missing or generated ones are written.",
+        "generateInstructions": "Optional. For example business terms to define or tables to focus on.",
+        "generate": "Run sql_generate_context now. It can take a few minutes on large schemas."
       }
     },
     "export": {
@@ -3060,12 +3331,32 @@
       "saveResource": "Create the resource with these settings and its secret, then move on to binding it.",
       "bind": "Bind the new resource to the default Hugo profile with the chosen access mode.",
       "finish": "Close the wizard for this tenant and open Chat to talk to Agent Smith."
+    },
+    "layeredEditor": {
+      "layers": {
+        "Tenant": "This tenant's override. Applies to this tenant only.",
+        "Global": "The editable default for every tenant. System administrators only.",
+        "BuiltIn": "The text shipped with Hugo. Read only."
+      },
+      "source": "Where the Built-in comes from: hugo for core templates, or the connector type.",
+      "showChange": "See what changed in the default since this layer was customized.",
+      "adopt": "Reset this layer so it takes the new default. The old text stays in the version history.",
+      "diffBelow": "Line diff of this layer against the layer it overrides, computed by the server.",
+      "reset": {
+        "Tenant": "Switch off this tenant's override so the Global default applies.",
+        "Global": "Return the Global layer to the shipped Built-in text."
+      },
+      "save": {
+        "Tenant": "Save the editor text as a new version of this tenant's override.",
+        "Global": "Save the editor text as a new version of the Global default for every tenant."
+      },
+      "load": "Put this version's text in the editor. Save to make it current."
     }
   },
   "explainers": {
     "promptTemplates": {
       "title": "Prompt templates and their layers",
-      "p1": "Every instruction Hugo gives an agent is a template: the Agent Smith persona, the safety rules, and each connector's instructions. Templates use variables such as {{persona.name}} and {{resource.alias}}, and each save creates a new version.",
+      "p1": "Every instruction Hugo gives an agent is a template: the Agent Smith persona, the safety rules, and each connector's instructions. Templates use variables such as profile.personaName and this.alias in double braces, and each save creates a new version.",
       "p2": "Templates are layered: the built-in text ships with Hugo, a global default can override it for every tenant, and a tenant can override that. Reset to Default removes an override and falls back one layer."
     },
     "tenants": {
