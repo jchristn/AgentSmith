@@ -5,12 +5,13 @@ import SecretSlotPicker from './SecretField';
 import CodeBlock from './CodeBlock';
 import { FormField } from './FormFields';
 import { tip } from './Tooltip';
-import { PlugIcon } from './Icons';
+import ConnectorIcon from './ConnectorIcon';
 import { useAuth } from '../context/AuthContext';
 import { normalizeSchema, initialValues, validateSchemaValues, toSubmitValues } from '../utils/schemaForm';
 import { errorMessage } from '../utils/errors';
 import { enumLabel } from '../utils/enums';
 import { slotBindingsToMap } from '../utils/resources';
+import { connectorSlotLabel } from '../utils/tips';
 
 /**
  * A connector's settings schema. The server's connector view carries the descriptors as `settings` (a list); older
@@ -171,7 +172,7 @@ export default function ResourceSettingsPanel({ data, onChange, errors = {}, dis
       />
       {connector?.description && (
         <p className="field-hint">
-          <PlugIcon size={12} /> {connector.description}
+          <ConnectorIcon type={connector.type} iconKey={connector.iconKey} size={12} /> {connector.description}
         </p>
       )}
       {connector && (
@@ -193,7 +194,7 @@ export default function ResourceSettingsPanel({ data, onChange, errors = {}, dis
                 {connector.secretSlots.map((slot) => (
                   <SecretSlotPicker
                     key={slot.name}
-                    slot={slot}
+                    slot={{ ...slot, label: connectorSlotLabel(t, connector.type, slot) }}
                     secrets={secrets}
                     value={data.secretBindings?.[slot.name]}
                     error={errors[`slots.${slot.name}`]}

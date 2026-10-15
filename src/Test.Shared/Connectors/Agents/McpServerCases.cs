@@ -434,7 +434,7 @@ namespace Test.Shared.Connectors.Agents
                 ConnectorResourceContext r = AgentsTestHelper.Resource("mcp", AgentsTestHelper.Settings("transport", "Stdio", "command", "hugo-no-such-mcp-server", "allowStdio", "true"), null, pool);
                 ToolResult gated = await AgentsTestHelper.RunAsync(closed, "mcp_list_tools", "{}", AgentsTestHelper.Context(r), token).ConfigureAwait(false);
                 AgentsTestHelper.AssertError(gated, ConnectorErrorCodes.PermissionDenied, "server gate closed");
-                AgentsTestHelper.AssertContains(gated.Text, "Connectors.Mcp.AllowStdio", "server gate named");
+                AgentsTestHelper.AssertContains(gated.Text, "Connectors.McpAllowStdio", "server gate named");
                 ConnectorHealthResult health = await closed.TestConnectionAsync(r, token).ConfigureAwait(false);
                 AgentsTestHelper.Assert(!health.Success && health.ErrorCode == ConnectorErrorCodes.PermissionDenied, "health respects the server gate");
 

@@ -538,3 +538,56 @@ export function DatabaseIcon({ size = 18 }) {
     </svg>
   );
 }
+
+export function CloudIcon({ size = 18 }) {
+  return (
+    <svg {...base(size)}>
+      <path d="M17.5 19H7a5 5 0 0 1-.6-9.96A6 6 0 0 1 18 8.5a4.5 4.5 0 0 1-.5 10.5z" />
+    </svg>
+  );
+}
+
+export function GlobeIcon({ size = 18 }) {
+  return (
+    <svg {...base(size)}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+    </svg>
+  );
+}
+
+export function SearchIcon({ size = 18 }) {
+  return (
+    <svg {...base(size)}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-4-4" />
+    </svg>
+  );
+}
+
+export function ClusterIcon({ size = 18 }) {
+  return (
+    <svg {...base(size)}>
+      <path d="M12 2 3.5 7v10L12 22l8.5-5V7z" />
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 2v7M12 15v7M3.5 7l6 3.5M14.5 13.5l6 3.5M20.5 7l-6 3.5M9.5 13.5l-6 3.5" />
+    </svg>
+  );
+}
+
+export function ZapIcon({ size = 18 }) {
+  return (
+    <svg {...base(size)}>
+      <path d="M13 2 4 14h7l-1 8 9-12h-7z" />
+    </svg>
+  );
+}
+
+export function BucketIcon({ size = 18 }) {
+  return (
+    <svg {...base(size)}>
+      <ellipse cx="12" cy="6" rx="8" ry="3" />
+      <path d="M4 6l2 13c.2 1.2 2.8 2 6 2s5.8-.8 6-2l2-13" />
+    </svg>
+  );
+}

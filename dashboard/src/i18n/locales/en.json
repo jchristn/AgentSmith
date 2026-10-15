@@ -691,7 +691,15 @@
         "Connection": "Connection",
         "Authentication": "Authentication",
         "Limits": "Limits",
-        "Advanced": "Advanced"
+        "Advanced": "Advanced",
+        "TLS": "TLS",
+        "Safety": "Safety",
+        "Security": "Security",
+        "Scope": "Scope",
+        "Search": "Search",
+        "Execution": "Execution",
+        "Credentials": "Credentials",
+        "Jump host": "Jump host"
       },
       "errors": {
         "Required": "This setting is required.",
@@ -3848,6 +3856,542 @@
       "resource": "Choose a connector, fill in its settings, pick or create the secret it needs, and test the connection before saving.",
       "bind": "Attach the new resource to the default Hugo profile and choose what the agent may do with it.",
       "connect": "Add Hugo to Claude Code (or any MCP client) with this configuration, then start chatting with Agent Smith."
+    }
+  },
+  "connectors": {
+    "redis": {
+      "settings": {
+        "endpoints": {
+          "label": "Endpoints"
+        },
+        "clusterMode": {
+          "label": "Topology",
+          "values": {
+            "Auto": "Automatic",
+            "Standalone": "Standalone",
+            "Cluster": "Cluster",
+            "Sentinel": "Sentinel"
+          }
+        },
+        "sentinelServiceName": {
+          "label": "Sentinel service name"
+        },
+        "database": {
+          "label": "Database"
+        },
+        "username": {
+          "label": "ACL username"
+        },
+        "useSsl": {
+          "label": "Use TLS"
+        },
+        "sslHost": {
+          "label": "TLS host name"
+        },
+        "verifyTls": {
+          "label": "Verify TLS certificate"
+        },
+        "caCertificate": {
+          "label": "CA certificate (PEM)"
+        },
+        "connectTimeoutSeconds": {
+          "label": "Connect timeout (seconds)"
+        },
+        "commandTimeoutSeconds": {
+          "label": "Command timeout (seconds)"
+        },
+        "clientName": {
+          "label": "Client name"
+        },
+        "maxKeysScanned": {
+          "label": "Max keys scanned"
+        },
+        "maxValueBytes": {
+          "label": "Max value bytes"
+        },
+        "deniedCommands": {
+          "label": "Denied commands"
+        },
+        "allowKeysCommand": {
+          "label": "Allow KEYS"
+        },
+        "readOnlyCommands": {
+          "label": "Extra read-only commands"
+        }
+      },
+      "slots": {
+        "password": {
+          "label": "Password"
+        }
+      }
+    },
+    "aws": {
+      "settings": {
+        "region": {
+          "label": "Region"
+        },
+        "useInstanceRole": {
+          "label": "Use ambient credentials"
+        },
+        "assumeRoleArn": {
+          "label": "Role to assume"
+        },
+        "externalId": {
+          "label": "External ID"
+        },
+        "sessionName": {
+          "label": "Role session name"
+        },
+        "assumeRoleDurationSeconds": {
+          "label": "Role session duration (seconds)"
+        },
+        "allowedServices": {
+          "label": "Allowed services"
+        },
+        "endpointOverride": {
+          "label": "Endpoint override"
+        },
+        "maxResults": {
+          "label": "Default page size"
+        },
+        "maxRetries": {
+          "label": "SDK retries"
+        },
+        "defaultLookbackMinutes": {
+          "label": "Default lookback (minutes)"
+        },
+        "maxTimeRangeHours": {
+          "label": "Maximum time range (hours)"
+        },
+        "logsQueryTimeoutSeconds": {
+          "label": "Logs Insights wait (seconds)"
+        },
+        "logsMaxEvents": {
+          "label": "Maximum log events"
+        },
+        "lambdaMaxPayloadBytes": {
+          "label": "Maximum Lambda payload (bytes)"
+        }
+      },
+      "slots": {
+        "accessKeyPair": {
+          "label": "Access key pair"
+        }
+      }
+    },
+    "kubernetes": {
+      "settings": {
+        "context": {
+          "label": "Context"
+        },
+        "serverUrl": {
+          "label": "API server URL"
+        },
+        "insecureSkipTlsVerify": {
+          "label": "Skip TLS verification"
+        },
+        "requestTimeoutSeconds": {
+          "label": "Request timeout (seconds)"
+        },
+        "allowedNamespaces": {
+          "label": "Allowed namespaces"
+        },
+        "defaultNamespace": {
+          "label": "Default namespace"
+        },
+        "clusterScopedReads": {
+          "label": "Read cluster-scoped kinds"
+        },
+        "allowClusterScoped": {
+          "label": "Change cluster-scoped kinds"
+        },
+        "destructiveKinds": {
+          "label": "Destructive kinds"
+        },
+        "fieldManager": {
+          "label": "Field manager"
+        },
+        "maxLogLines": {
+          "label": "Max log lines"
+        },
+        "maxObjects": {
+          "label": "Max objects per list"
+        },
+        "execTimeoutSeconds": {
+          "label": "Exec timeout (seconds)"
+        }
+      },
+      "slots": {
+        "kubeconfig": {
+          "label": "Kubeconfig"
+        },
+        "serviceAccountToken": {
+          "label": "Service account token"
+        },
+        "certificateAuthority": {
+          "label": "Cluster CA certificate"
+        }
+      }
+    },
+    "docker": {
+      "settings": {
+        "endpoint": {
+          "label": "Endpoint"
+        },
+        "tlsVerify": {
+          "label": "Verify TLS"
+        },
+        "requestTimeoutSeconds": {
+          "label": "Request timeout (seconds)"
+        },
+        "showEnvironmentValues": {
+          "label": "Show environment values"
+        },
+        "maxLogLines": {
+          "label": "Max log lines"
+        },
+        "maxEventsWindowSeconds": {
+          "label": "Max events window (seconds)"
+        },
+        "execTimeoutSeconds": {
+          "label": "Exec timeout (seconds)"
+        },
+        "maxStatsContainers": {
+          "label": "Max containers per stats call"
+        }
+      },
+      "slots": {
+        "tlsClientCertificate": {
+          "label": "TLS client certificate"
+        }
+      }
+    },
+    "http": {
+      "settings": {
+        "baseUrl": {
+          "label": "Base URL"
+        },
+        "healthPath": {
+          "label": "Health path"
+        },
+        "defaultHeaders": {
+          "label": "Default headers"
+        },
+        "timeoutSeconds": {
+          "label": "Timeout (seconds)"
+        },
+        "followRedirects": {
+          "label": "Follow redirects"
+        },
+        "maxRedirects": {
+          "label": "Maximum redirects"
+        },
+        "verifyTls": {
+          "label": "Verify TLS certificates"
+        },
+        "authType": {
+          "label": "Authentication",
+          "values": {
+            "None": "None",
+            "Basic": "Basic",
+            "Bearer": "Bearer token",
+            "ApiKeyHeader": "API key header",
+            "OAuth2ClientCredentials": "OAuth2 client credentials"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "API key header"
+        },
+        "tokenUrl": {
+          "label": "OAuth2 token URL"
+        },
+        "scopes": {
+          "label": "OAuth2 scopes"
+        },
+        "allowedMethods": {
+          "label": "Allowed methods"
+        },
+        "allowedPathPrefixes": {
+          "label": "Allowed path prefixes"
+        },
+        "methodEffectOverrides": {
+          "label": "Effect overrides"
+        },
+        "maxResponseBytes": {
+          "label": "Max response bytes"
+        },
+        "maxRequestBytes": {
+          "label": "Max request bytes"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "Basic credentials"
+        },
+        "bearerToken": {
+          "label": "Bearer token"
+        },
+        "apiKey": {
+          "label": "API key"
+        },
+        "clientCredentials": {
+          "label": "OAuth2 client credentials"
+        }
+      }
+    },
+    "prometheus": {
+      "settings": {
+        "baseUrl": {
+          "label": "Base URL"
+        },
+        "authType": {
+          "label": "Authentication",
+          "values": {
+            "None": "None",
+            "Basic": "Basic",
+            "Bearer": "Bearer token",
+            "ApiKeyHeader": "API key header",
+            "OAuth2ClientCredentials": "OAuth2 client credentials"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "API key header"
+        },
+        "apiKeyPrefix": {
+          "label": "API key prefix"
+        },
+        "tokenUrl": {
+          "label": "OAuth2 token URL"
+        },
+        "scopes": {
+          "label": "OAuth2 scopes"
+        },
+        "defaultHeaders": {
+          "label": "Default headers"
+        },
+        "verifyTls": {
+          "label": "Verify TLS"
+        },
+        "maxResponseBytes": {
+          "label": "Max response bytes"
+        },
+        "maxSeries": {
+          "label": "Maximum series"
+        },
+        "maxPointsPerSeries": {
+          "label": "Maximum points per series"
+        },
+        "maxRangeHours": {
+          "label": "Maximum range (hours)"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "Basic credentials"
+        },
+        "bearerToken": {
+          "label": "Bearer token"
+        },
+        "apiKey": {
+          "label": "API key"
+        },
+        "clientCredentials": {
+          "label": "OAuth2 client credentials"
+        }
+      }
+    },
+    "loki": {
+      "settings": {
+        "baseUrl": {
+          "label": "Base URL"
+        },
+        "authType": {
+          "label": "Authentication",
+          "values": {
+            "None": "None",
+            "Basic": "Basic",
+            "Bearer": "Bearer token",
+            "ApiKeyHeader": "API key header",
+            "OAuth2ClientCredentials": "OAuth2 client credentials"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "API key header"
+        },
+        "apiKeyPrefix": {
+          "label": "API key prefix"
+        },
+        "tokenUrl": {
+          "label": "OAuth2 token URL"
+        },
+        "scopes": {
+          "label": "OAuth2 scopes"
+        },
+        "defaultHeaders": {
+          "label": "Default headers"
+        },
+        "verifyTls": {
+          "label": "Verify TLS"
+        },
+        "maxResponseBytes": {
+          "label": "Max response bytes"
+        },
+        "tenantHeader": {
+          "label": "Tenant ID"
+        },
+        "maxLines": {
+          "label": "Maximum lines"
+        },
+        "maxRangeHours": {
+          "label": "Maximum range (hours)"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "Basic credentials"
+        },
+        "bearerToken": {
+          "label": "Bearer token"
+        },
+        "apiKey": {
+          "label": "API key"
+        },
+        "clientCredentials": {
+          "label": "OAuth2 client credentials"
+        }
+      }
+    },
+    "elasticsearch": {
+      "settings": {
+        "baseUrl": {
+          "label": "Base URL"
+        },
+        "authType": {
+          "label": "Authentication",
+          "values": {
+            "None": "None",
+            "Basic": "Basic",
+            "Bearer": "Bearer token",
+            "ApiKeyHeader": "API key header",
+            "OAuth2ClientCredentials": "OAuth2 client credentials"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "API key header"
+        },
+        "apiKeyPrefix": {
+          "label": "API key prefix"
+        },
+        "tokenUrl": {
+          "label": "OAuth2 token URL"
+        },
+        "scopes": {
+          "label": "OAuth2 scopes"
+        },
+        "defaultHeaders": {
+          "label": "Default headers"
+        },
+        "verifyTls": {
+          "label": "Verify TLS"
+        },
+        "maxResponseBytes": {
+          "label": "Max response bytes"
+        },
+        "flavor": {
+          "label": "Flavor",
+          "values": {
+            "Elasticsearch": "Elasticsearch",
+            "OpenSearch": "OpenSearch"
+          }
+        },
+        "allowedIndexPatterns": {
+          "label": "Allowed index patterns"
+        },
+        "maxHits": {
+          "label": "Maximum hits"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "Basic credentials"
+        },
+        "bearerToken": {
+          "label": "Bearer token"
+        },
+        "apiKey": {
+          "label": "API key"
+        },
+        "clientCredentials": {
+          "label": "OAuth2 client credentials"
+        }
+      }
+    },
+    "mcp": {
+      "settings": {
+        "transport": {
+          "label": "Transport",
+          "values": {
+            "StreamableHttp": "Streamable HTTP",
+            "Stdio": "Stdio (local process)"
+          }
+        },
+        "url": {
+          "label": "Server URL"
+        },
+        "command": {
+          "label": "Command"
+        },
+        "arguments": {
+          "label": "Arguments"
+        },
+        "allowStdio": {
+          "label": "Allow stdio"
+        },
+        "includeTools": {
+          "label": "Include tools"
+        },
+        "excludeTools": {
+          "label": "Exclude tools"
+        },
+        "refreshIntervalMinutes": {
+          "label": "Tool list refresh (minutes)"
+        },
+        "timeoutSeconds": {
+          "label": "Timeout (seconds)"
+        }
+      },
+      "slots": {
+        "authorizationHeader": {
+          "label": "Authorization header"
+        },
+        "extraHeaders": {
+          "label": "Extra headers"
+        }
+      }
+    },
+    "a2a-agent": {
+      "settings": {
+        "agentCardUrl": {
+          "label": "Agent card URL"
+        },
+        "skillId": {
+          "label": "Skill"
+        },
+        "timeoutSeconds": {
+          "label": "Timeout (seconds)"
+        },
+        "streaming": {
+          "label": "Use streaming"
+        },
+        "allowCrossOriginEndpoint": {
+          "label": "Allow endpoint on another origin"
+        }
+      },
+      "slots": {
+        "bearerToken": {
+          "label": "Bearer token"
+        }
+      }
     }
   }
 }

@@ -164,8 +164,9 @@ namespace Hugo.Core.Instructions
 
         /// <summary>
         /// The third party's own guidance for the resource (an external MCP server's instructions, a remote agent's card),
-        /// already wrapped in an untrusted-content fence, or null when the connector offers none. Filled only by
-        /// hugo_describe_resource; compiled instructions never include remote text.
+        /// already wrapped in an untrusted-content fence, or null when the connector offers none. Filled by
+        /// hugo_describe_resource with a fresh fetch; <see cref="Instructions"/> leaves it out so it appears once.
+        /// Compiled instructions carry the cached copy inside the binding's section.
         /// </summary>
         public string? RemoteInstructions { get; set; } = null;
 

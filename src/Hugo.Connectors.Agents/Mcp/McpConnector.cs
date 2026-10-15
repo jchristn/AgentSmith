@@ -56,7 +56,7 @@ namespace Hugo.Connectors.Agents.Mcp
         }
 
         /// <summary>
-        /// Instantiate with options. The host passes its <c>Connectors.Mcp.AllowStdio</c> setting as
+        /// Instantiate with options. The host passes its <c>Connectors.McpAllowStdio</c> setting as
         /// <see cref="McpConnectorOptions.AllowStdio"/>.
         /// </summary>
         /// <param name="options">Options.</param>
@@ -102,7 +102,7 @@ namespace Hugo.Connectors.Agents.Mcp
                 if (!s.GetBool(McpSettingKeys.AllowStdio, false))
                     result.Add(McpSettingKeys.AllowStdio, "invalid_value", "Set allowStdio to true to use the Stdio transport. It starts a process inside the Hugo host.");
                 if (!Options.AllowStdio)
-                    result.Add(McpSettingKeys.Transport, "not_allowed", "Stdio MCP servers are disabled on this Hugo server (Connectors.Mcp.AllowStdio is false).");
+                    result.Add(McpSettingKeys.Transport, "not_allowed", "Stdio MCP servers are disabled on this Hugo server (Connectors.McpAllowStdio is false).");
             }
 
             ValidateBool(s, result, McpSettingKeys.AllowStdio);
@@ -294,7 +294,7 @@ namespace Hugo.Connectors.Agents.Mcp
                 AllowedValues = new List<string> { "StreamableHttp", "Stdio" },
                 Group = "Connection",
                 ShowInSummary = true,
-                Help = "StreamableHttp (default) reaches a remote server at url. Stdio starts command as a child process of the Hugo host and needs allowStdio here plus Connectors.Mcp.AllowStdio on the server."
+                Help = "StreamableHttp (default) reaches a remote server at url. Stdio starts command as a child process of the Hugo host and needs allowStdio here plus Connectors.McpAllowStdio on the server."
             });
             schema.Add(new SettingDescriptor(McpSettingKeys.Url, SettingValueKindEnum.String, "Server URL")
             {
@@ -317,7 +317,7 @@ namespace Hugo.Connectors.Agents.Mcp
             {
                 DefaultValue = "false",
                 Group = "Safety",
-                Help = "Resource-level opt-in for the Stdio transport. Stdio also needs Connectors.Mcp.AllowStdio on the server, because the process runs inside the Hugo host with its privileges. Default false."
+                Help = "Resource-level opt-in for the Stdio transport. Stdio also needs Connectors.McpAllowStdio on the server, because the process runs inside the Hugo host with its privileges. Default false."
             });
             schema.Add(new SettingDescriptor(McpSettingKeys.IncludeTools, SettingValueKindEnum.StringList, "Include tools")
             {

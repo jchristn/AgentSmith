@@ -6,9 +6,11 @@ seed can run any number of times against the same data.
 
 What it does:
   1. Signs in as anderson@hugo.local and replaces the first-boot password with the demo password.
-  2. Creates the secrets for the demo targets (SSH key, database passwords, MinIO keys, Redis and Grafana logins).
-  3. Creates eight resources pointing at the targets on the Compose network.
-  4. Binds all eight to the default Hugo profile with mixed access modes (the joel scenario, plan section 10.5).
+  2. Creates the secrets for the demo targets (SSH key, database passwords, MinIO and LocalStack keys, Redis and
+     Grafana logins).
+  3. Creates ten resources pointing at the targets on the Compose network (wave 1: PostgreSQL, MySQL, SSH, S3;
+     wave 2: Redis, Prometheus, Loki, HTTP, OpenSearch, AWS on LocalStack).
+  4. Binds all ten to the default Hugo profile with mixed access modes (the joel scenario, plan section 10.5).
   5. Adds a model endpoint for a local Ollama when one answers at HUGO_OLLAMA_URL, and uses it for Hugo.
   6. Creates the demo credential access_hugo_demo_not_for_production, bound and locked to Hugo, and prints it.
 
@@ -304,6 +306,7 @@ def main():
         ("factory-minio", "AccessKeyPair", {"accessKeyId": "factory-minio-demo", "secretAccessKey": "factory-minio-demo-secret"}, "MinIO root keys (demo only)"),
         ("factory-redis-reader", "Password", {"username": "hugo-reader", "password": "hugo-reader-password"}, "Redis ACL user limited to read commands"),
         ("factory-grafana", "Password", {"username": "admin", "password": "admin"}, "Grafana admin login of the factory stack"),
+        ("factory-localstack", "AccessKeyPair", {"accessKeyId": "test", "secretAccessKey": "test"}, "LocalStack keys (LocalStack accepts any pair; demo only)"),
     ]
     secret_ids = {}
     for name, kind, values, description in secrets:
@@ -359,6 +362,23 @@ def main():
             "description": "Grafana HTTP API of this stack (dashboards in the Hugo folder, datasources prometheus, tempo, loki).",
             "settings": {"baseUrl": "http://hugo-grafana:3000", "authType": "Basic", "allowedMethods": ["GET", "HEAD"], "allowedPathPrefixes": ["/api/"]},
             "secrets": {"basicAuth": "factory-grafana"},
+        },
+        {
+            "name": "search", "type": "elasticsearch", "access": "ReadOnly",
+            "description": "OpenSearch 2.19 log index hugo-logs-2026.10 (50 application log documents).",
+            "notes": "Only hugo-logs-* is allowed. The index hugo-secret and the alias hugo-alias exist but are refused by the index allow list.",
+            "settings": {"baseUrl": "http://opensearch:9200", "flavor": "OpenSearch", "allowedIndexPatterns": ["hugo-logs-*"]},
+        },
+        {
+            "name": "cloud", "type": "aws", "access": "ReadOnly",
+            "description": "AWS account 000000000000 in us-east-1, emulated by LocalStack: EC2, CloudWatch, CloudWatch Logs, SQS, SNS, Route 53.",
+            "notes": "Three EC2 instances tagged env=testbed, alarm hugo-testbed-high-latency in ALARM, log group /hugo/testbed/app, queue hugo-testbed-orders with a dead-letter queue.",
+            "settings": {
+                "region": "us-east-1",
+                "endpointOverride": "http://localstack:4566",
+                "allowedServices": ["sts", "ec2", "cloudwatch", "logs", "sqs", "sns", "route53"],
+            },
+            "secrets": {"accessKeyPair": "factory-localstack"},
         },
     ]
     resource_ids = {}

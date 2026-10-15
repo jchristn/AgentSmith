@@ -48,6 +48,27 @@ namespace Hugo.Connectors.Abstractions
         }
 
         /// <summary>
+        /// Wrap text in an untrusted-content fence, clipping the remote text first so a third party cannot flood the
+        /// prompt. Clipping happens before neutralizing, so a cut can never leave a usable fence tag behind.
+        /// </summary>
+        /// <param name="source">Short description of where the text came from. Quotes and angle brackets are removed.</param>
+        /// <param name="content">Remote text. Null is treated as empty.</param>
+        /// <param name="maxChars">Maximum characters of remote text kept; longer text is cut and marked as truncated. Minimum 1.</param>
+        /// <returns>The fenced text, ending with a newline.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when maxChars is less than 1.</exception>
+        public static string Fence(string source, string? content, int maxChars)
+        {
+            if (maxChars < 1) throw new ArgumentOutOfRangeException(nameof(maxChars), "maxChars must be at least 1.");
+            string value = content ?? String.Empty;
+            if (value.Length > maxChars)
+            {
+                int cut = Char.IsHighSurrogate(value[maxChars - 1]) ? maxChars - 1 : maxChars;
+                value = value.Substring(0, cut).TrimEnd() + "\n[third-party content truncated]";
+            }
+            return Fence(source, value);
+        }
+
+        /// <summary>
         /// Neutralize fence tags inside remote text by replacing the leading angle bracket with <c>&amp;lt;</c>.
         /// </summary>
         /// <param name="content">Remote text. Null is treated as empty.</param>

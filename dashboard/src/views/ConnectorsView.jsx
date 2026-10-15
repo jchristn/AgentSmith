@@ -6,7 +6,8 @@ import Explainer from '../components/Explainer';
 import { LoadingState, UnavailableState, ErrorPresenter, EmptyState } from '../components/States';
 import { Badge, EnumBadge } from '../components/StatusBadge';
 import { tip } from '../components/Tooltip';
-import { PlugIcon, RefreshIcon } from '../components/Icons';
+import { RefreshIcon } from '../components/Icons';
+import ConnectorIcon from '../components/ConnectorIcon';
 import { useAuth } from '../context/AuthContext';
 import { pathFor } from '../config/navConfig';
 import { ENUMS } from '../utils/constants';
@@ -123,7 +124,7 @@ export default function ConnectorsView() {
                   {...tip(t('tips.views.connectors.card', { name: c.displayName || c.type }))}
                 >
                   <div className="connector-card-head">
-                    <PlugIcon size={18} />
+                    <ConnectorIcon type={c.type} iconKey={c.iconKey} size={18} />
                     <strong>{c.displayName || c.type}</strong>
                     <EnumBadge group="connectorCategory" value={c.category || 'Other'} tone="info" />
                   </div>

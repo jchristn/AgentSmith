@@ -316,7 +316,7 @@ Management tools let an MCP client administer Hugo itself: look at profiles and 
 
 ## Connector tools
 
-Connector tools are named `<family>_<operation>` and take a required `resource` argument. There are 118 of them in this release. The table summarizes each family; [docs/MCP_CONNECTOR_TOOLS.md](docs/MCP_CONNECTOR_TOOLS.md) documents every one of the infrastructure tools with its input schema, effect classification, output shape, and an example, and [docs/CONNECTORS.md](docs/CONNECTORS.md) explains how to configure each connector.
+Connector tools are named `<family>_<operation>` and take a required `resource` argument. There are 118 of them in this release. The table summarizes each family; [docs/MCP_CONNECTOR_TOOLS.md](docs/MCP_CONNECTOR_TOOLS.md) documents every one of them, the `mcp_*` and `a2a_*` tools included, with its input schema, effect classification, output shape, and an example, and [docs/CONNECTORS.md](docs/CONNECTORS.md) explains how to configure each connector.
 
 | Family | Connector types | Tools | What they cover |
 |---|---|---|---|
@@ -350,7 +350,7 @@ An `mcp` resource attaches another MCP server, over Streamable HTTP or (when bot
 
 ### Remote A2A agents (`a2a_*`)
 
-An `a2a-agent` resource is another agent reachable over A2A. Its card is the remote agent's own description, and Hugo treats what comes back from it as data rather than instructions.
+An `a2a-agent` resource is another agent reachable over A2A. Its card is the remote agent's own description, and Hugo treats what comes back from it as data rather than instructions. The configuration of both connectors is in [CONNECTORS.md](docs/CONNECTORS.md#agents-external-mcp-servers-and-remote-a2a-agents).
 
 | Tool | Effect | Arguments | Result |
 |---|---|---|---|

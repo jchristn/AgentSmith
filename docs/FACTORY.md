@@ -3,7 +3,7 @@
 The factory stack is a complete Hugo installation that comes up already configured. One command wipes it and builds it again from nothing, so you always start from the same known state. Use it to:
 
 - **evaluate** Hugo without spending an afternoon on setup;
-- **demo** the primary journey (resources, a profile with eight bindings, approvals, MCP clients, Grafana);
+- **demo** the primary journey (resources, a profile with ten bindings, approvals, MCP clients, Grafana);
 - **run simulated user testing**, where every session must begin from identical data.
 
 It is not a deployment. Every password and key in it is a published demo value. For a real installation use `docker/compose.yaml` (see [DOCKER.md](DOCKER.md)).
@@ -25,6 +25,8 @@ It is not a deployment. Every password and key in it is a published demo value. 
 | `postgres`, `mysql` | PostgreSQL 16 and MySQL 8.4, each with the testbed `shop` database | none |
 | `minio` | MinIO (S3 API) with the bucket `hugo-testbed` | none |
 | `redis` | Redis 7.4 with seeded keys and a read-only ACL user | none |
+| `opensearch` | OpenSearch 2.19 with the testbed indexes `hugo-logs-2026.10`, `hugo-secret`, and the alias `hugo-alias` | none |
+| `localstack` | LocalStack 4.14 (AWS emulation) with the testbed EC2, CloudWatch, Logs, SQS, SNS, and Route 53 fixtures | none |
 | `hugo-seed` | One-shot container that configures Hugo through the REST API, then exits | none |
 
 The ports are chosen so the factory stack runs next to the plain stack in `docker/` (8800, 8801, 3000, 9090, 3100, 3200). Change them with `HUGO_FACTORY_REST_PORT`, `HUGO_FACTORY_DASHBOARD_PORT`, `HUGO_FACTORY_GRAFANA_PORT`, `HUGO_FACTORY_PROMETHEUS_PORT`, `HUGO_FACTORY_LOKI_PORT`, and `HUGO_FACTORY_TEMPO_PORT`. The demo targets publish no host ports; Hugo reaches them over the Compose network by service name. They reuse the images and seed data in `docker/testbed`.
@@ -33,7 +35,7 @@ Every host port binds to `127.0.0.1` only.
 
 ## Start, reset, stop
 
-The first start pulls about a dozen images and initializes two databases, so give it a few minutes. Later starts take well under a minute.
+The first start pulls about fifteen images and initializes two databases and an OpenSearch node, so give it a few minutes. Later starts take well under a minute. OpenSearch and LocalStack need about 1.5 GB of memory between them, so give Docker at least 6 GB.
 
 ```bash
 cd docker/factory
@@ -69,9 +71,9 @@ The seed replaces the first-boot password (`password`) with the demo password, s
 
 The seed talks only to the public REST API, the same calls the dashboard makes. Every object is looked up by name and created or updated, so running it twice changes nothing. The code is in `docker/factory/seed/seed.py`.
 
-**Secrets.** Six secrets hold the target logins: `factory-web-01-key` (an ed25519 key generated on each reset by the `ssh-keys` container), `factory-prod-db`, `factory-legacy-db`, `factory-minio`, `factory-redis-reader`, and `factory-grafana`.
+**Secrets.** Seven secrets hold the target logins: `factory-web-01-key` (an ed25519 key generated on each reset by the `ssh-keys` container), `factory-prod-db`, `factory-legacy-db`, `factory-minio`, `factory-redis-reader`, `factory-grafana`, and `factory-localstack` (LocalStack accepts any key pair; the seed stores `test` / `test`).
 
-**Resources and bindings.** Eight resources, all with environment `demo`, all bound to the default `Hugo` profile. This is the eight-binding profile of plan section 10.5 adapted to targets that run without privileged containers (the AWS and Kubernetes bindings are replaced by Prometheus, Loki, and Grafana).
+**Resources and bindings.** Ten resources, all with environment `demo`, all bound to the default `Hugo` profile. This is the eight-binding profile of plan section 10.5 adapted to targets that run without privileged containers, extended with the wave 2 connectors (plan P13.34): Redis, Prometheus, Loki, HTTP, OpenSearch through the `elasticsearch` connector, and AWS on LocalStack. Kubernetes is left out because k3s needs a privileged container.
 
 | Resource | Connector | Target | Access mode |
 |---|---|---|---|
@@ -83,8 +85,14 @@ The seed talks only to the public REST API, the same calls the dashboard makes. 
 | `metrics` | Prometheus | this stack's Prometheus | ReadOnly |
 | `logs` | Grafana Loki | this stack's Loki | ReadOnly |
 | `grafana` | HTTP API | this stack's Grafana API, GET and HEAD under `/api/` | ReadOnly |
+| `search` | Elasticsearch (OpenSearch flavor) | `opensearch:9200`, index allow list `hugo-logs-*` | ReadOnly |
+| `cloud` | AWS | LocalStack at `localstack:4566`, region `us-east-1`, services sts, ec2, cloudwatch, logs, sqs, sns, route53 | ReadOnly |
 
 The mix shows each access mode at work. Reads on every resource run immediately. Write and Destructive calls on `web-01` and `cache` wait for approval in the dashboard (Approvals). Write calls on the ReadOnly resources are refused, and their write tools are not offered at all. `cache` is ReadWriteWithApproval but signs in as a read-only Redis user, so an approved write still fails at Redis: a useful demonstration that Hugo's access mode and the target's own permissions are separate layers.
+
+Two wave 2 resources also show the connectors' own guard rails. `search` may query only `hugo-logs-*`: a search of `hugo-secret` or `hugo-alias` fails with `permission_denied`. `cloud` lists only the services LocalStack emulates here: a Lambda tool is refused before it runs (`classifier_rejected`). LocalStack runs without the Docker socket, so the testbed's Lambda function is not created, and an EC2 stop or terminate is refused by the ReadOnly binding before it reaches LocalStack.
+
+Some wave 2 connectors have no binding in the factory. Kubernetes (k3s) and Docker hosts need a privileged container or the host's Docker socket, which the factory never mounts. The `mcp` and `a2a-agent` connectors would point back at this Hugo, so a profile could call itself; add them by hand against another MCP server or A2A agent. The testbed (`docker/testbed`) covers all of them.
 
 Because the profile has more than three bindings, its compiled instructions use the compact connector text (decision D-043, about 10 KB). The agent calls `hugo_describe_resource` for the full text of one resource.
 
@@ -112,7 +120,7 @@ claude mcp add --transport http hugo-factory http://127.0.0.1:8810/mcp \
   --header "x-secret-key: $HUGO_SECRET_KEY"
 ```
 
-The seed prints this command with the keys filled in. In Claude Code, `/mcp` shows the server and its tools; the `initialize` answer carries the compiled instructions (Agent Smith, the safety rules, and the eight resources). A quick check from the shell:
+The seed prints this command with the keys filled in. In Claude Code, `/mcp` shows the server and its tools; the `initialize` answer carries the compiled instructions (Agent Smith, the safety rules, and the ten resources). A quick check from the shell:
 
 ```bash
 claude -p "Use the hugo-factory tools to list the tables in prod-db and count the orders by status." --allowedTools "mcp__hugo-factory"

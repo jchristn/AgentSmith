@@ -691,7 +691,15 @@
         "Connection": "कनेक्शन",
         "Authentication": "प्रमाणीकरण",
         "Limits": "सीमाएँ",
-        "Advanced": "उन्नत"
+        "Advanced": "उन्नत",
+        "TLS": "TLS",
+        "Safety": "सुरक्षा",
+        "Security": "संरक्षण",
+        "Scope": "दायरा",
+        "Search": "खोज",
+        "Execution": "निष्पादन",
+        "Credentials": "क्रेडेंशियल",
+        "Jump host": "जंप होस्ट"
       },
       "errors": {
         "Required": "यह सेटिंग आवश्यक है।",
@@ -3862,6 +3870,542 @@
       "resource": "एक कनेक्टर चुनें, उसकी सेटिंग भरें, उसके लिए आवश्यक सीक्रेट चुनें या बनाएँ, और सहेजने से पहले कनेक्शन जाँचें।",
       "bind": "नए संसाधन को डिफ़ॉल्ट Hugo प्रोफ़ाइल से जोड़ें और चुनें कि एजेंट इसके साथ क्या कर सकता है।",
       "connect": "इस कॉन्फ़िगरेशन के साथ Hugo को Claude Code (या किसी भी MCP क्लाइंट) में जोड़ें, फिर Agent Smith से चैट शुरू करें।"
+    }
+  },
+  "connectors": {
+    "redis": {
+      "settings": {
+        "endpoints": {
+          "label": "एंडपॉइंट"
+        },
+        "clusterMode": {
+          "label": "टोपोलॉजी",
+          "values": {
+            "Auto": "स्वचालित",
+            "Standalone": "स्टैंडअलोन",
+            "Cluster": "क्लस्टर",
+            "Sentinel": "Sentinel"
+          }
+        },
+        "sentinelServiceName": {
+          "label": "Sentinel सेवा नाम"
+        },
+        "database": {
+          "label": "डेटाबेस"
+        },
+        "username": {
+          "label": "ACL उपयोगकर्ता नाम"
+        },
+        "useSsl": {
+          "label": "TLS का उपयोग करें"
+        },
+        "sslHost": {
+          "label": "TLS होस्ट नाम"
+        },
+        "verifyTls": {
+          "label": "TLS प्रमाणपत्र सत्यापित करें"
+        },
+        "caCertificate": {
+          "label": "CA प्रमाणपत्र (PEM)"
+        },
+        "connectTimeoutSeconds": {
+          "label": "कनेक्शन टाइमआउट (सेकंड)"
+        },
+        "commandTimeoutSeconds": {
+          "label": "कमांड टाइमआउट (सेकंड)"
+        },
+        "clientName": {
+          "label": "क्लाइंट नाम"
+        },
+        "maxKeysScanned": {
+          "label": "अधिकतम स्कैन की गई कुंजियाँ"
+        },
+        "maxValueBytes": {
+          "label": "अधिकतम मान बाइट"
+        },
+        "deniedCommands": {
+          "label": "अस्वीकृत कमांड"
+        },
+        "allowKeysCommand": {
+          "label": "KEYS की अनुमति दें"
+        },
+        "readOnlyCommands": {
+          "label": "अतिरिक्त केवल-पढ़ने वाले कमांड"
+        }
+      },
+      "slots": {
+        "password": {
+          "label": "पासवर्ड"
+        }
+      }
+    },
+    "aws": {
+      "settings": {
+        "region": {
+          "label": "क्षेत्र"
+        },
+        "useInstanceRole": {
+          "label": "परिवेश क्रेडेंशियल का उपयोग करें"
+        },
+        "assumeRoleArn": {
+          "label": "ग्रहण की जाने वाली भूमिका"
+        },
+        "externalId": {
+          "label": "बाहरी ID"
+        },
+        "sessionName": {
+          "label": "भूमिका सत्र नाम"
+        },
+        "assumeRoleDurationSeconds": {
+          "label": "भूमिका सत्र अवधि (सेकंड)"
+        },
+        "allowedServices": {
+          "label": "अनुमत सेवाएँ"
+        },
+        "endpointOverride": {
+          "label": "एंडपॉइंट ओवरराइड"
+        },
+        "maxResults": {
+          "label": "डिफ़ॉल्ट पृष्ठ आकार"
+        },
+        "maxRetries": {
+          "label": "SDK पुनः प्रयास"
+        },
+        "defaultLookbackMinutes": {
+          "label": "डिफ़ॉल्ट पिछली अवधि (मिनट)"
+        },
+        "maxTimeRangeHours": {
+          "label": "अधिकतम समय सीमा (घंटे)"
+        },
+        "logsQueryTimeoutSeconds": {
+          "label": "Logs Insights प्रतीक्षा (सेकंड)"
+        },
+        "logsMaxEvents": {
+          "label": "अधिकतम लॉग इवेंट"
+        },
+        "lambdaMaxPayloadBytes": {
+          "label": "अधिकतम Lambda पेलोड (बाइट)"
+        }
+      },
+      "slots": {
+        "accessKeyPair": {
+          "label": "एक्सेस कुंजी जोड़ी"
+        }
+      }
+    },
+    "kubernetes": {
+      "settings": {
+        "context": {
+          "label": "संदर्भ"
+        },
+        "serverUrl": {
+          "label": "API सर्वर URL"
+        },
+        "insecureSkipTlsVerify": {
+          "label": "TLS सत्यापन छोड़ें"
+        },
+        "requestTimeoutSeconds": {
+          "label": "अनुरोध टाइमआउट (सेकंड)"
+        },
+        "allowedNamespaces": {
+          "label": "अनुमत नेमस्पेस"
+        },
+        "defaultNamespace": {
+          "label": "डिफ़ॉल्ट नेमस्पेस"
+        },
+        "clusterScopedReads": {
+          "label": "क्लस्टर-स्तरीय प्रकार पढ़ें"
+        },
+        "allowClusterScoped": {
+          "label": "क्लस्टर-स्तरीय प्रकार बदलें"
+        },
+        "destructiveKinds": {
+          "label": "विनाशकारी प्रकार"
+        },
+        "fieldManager": {
+          "label": "फ़ील्ड प्रबंधक"
+        },
+        "maxLogLines": {
+          "label": "अधिकतम लॉग पंक्तियाँ"
+        },
+        "maxObjects": {
+          "label": "प्रति सूची अधिकतम ऑब्जेक्ट"
+        },
+        "execTimeoutSeconds": {
+          "label": "Exec टाइमआउट (सेकंड)"
+        }
+      },
+      "slots": {
+        "kubeconfig": {
+          "label": "Kubeconfig"
+        },
+        "serviceAccountToken": {
+          "label": "सेवा खाता टोकन"
+        },
+        "certificateAuthority": {
+          "label": "क्लस्टर CA प्रमाणपत्र"
+        }
+      }
+    },
+    "docker": {
+      "settings": {
+        "endpoint": {
+          "label": "एंडपॉइंट"
+        },
+        "tlsVerify": {
+          "label": "TLS सत्यापित करें"
+        },
+        "requestTimeoutSeconds": {
+          "label": "अनुरोध टाइमआउट (सेकंड)"
+        },
+        "showEnvironmentValues": {
+          "label": "परिवेश मान दिखाएँ"
+        },
+        "maxLogLines": {
+          "label": "अधिकतम लॉग पंक्तियाँ"
+        },
+        "maxEventsWindowSeconds": {
+          "label": "अधिकतम इवेंट विंडो (सेकंड)"
+        },
+        "execTimeoutSeconds": {
+          "label": "Exec टाइमआउट (सेकंड)"
+        },
+        "maxStatsContainers": {
+          "label": "प्रति आँकड़ा कॉल अधिकतम कंटेनर"
+        }
+      },
+      "slots": {
+        "tlsClientCertificate": {
+          "label": "TLS क्लाइंट प्रमाणपत्र"
+        }
+      }
+    },
+    "http": {
+      "settings": {
+        "baseUrl": {
+          "label": "बेस URL"
+        },
+        "healthPath": {
+          "label": "हेल्थ पथ"
+        },
+        "defaultHeaders": {
+          "label": "डिफ़ॉल्ट हेडर"
+        },
+        "timeoutSeconds": {
+          "label": "टाइमआउट (सेकंड)"
+        },
+        "followRedirects": {
+          "label": "रीडायरेक्ट का पालन करें"
+        },
+        "maxRedirects": {
+          "label": "अधिकतम रीडायरेक्ट"
+        },
+        "verifyTls": {
+          "label": "TLS प्रमाणपत्रों को सत्यापित करें"
+        },
+        "authType": {
+          "label": "प्रमाणीकरण",
+          "values": {
+            "None": "कोई नहीं",
+            "Basic": "बेसिक",
+            "Bearer": "Bearer टोकन",
+            "ApiKeyHeader": "API कुंजी हेडर",
+            "OAuth2ClientCredentials": "OAuth2 क्लाइंट क्रेडेंशियल"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "API कुंजी हेडर"
+        },
+        "tokenUrl": {
+          "label": "OAuth2 टोकन URL"
+        },
+        "scopes": {
+          "label": "OAuth2 स्कोप"
+        },
+        "allowedMethods": {
+          "label": "अनुमत मेथड"
+        },
+        "allowedPathPrefixes": {
+          "label": "अनुमत पथ उपसर्ग"
+        },
+        "methodEffectOverrides": {
+          "label": "प्रभाव ओवरराइड"
+        },
+        "maxResponseBytes": {
+          "label": "अधिकतम प्रतिक्रिया बाइट"
+        },
+        "maxRequestBytes": {
+          "label": "अधिकतम अनुरोध बाइट"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "बेसिक क्रेडेंशियल"
+        },
+        "bearerToken": {
+          "label": "Bearer टोकन"
+        },
+        "apiKey": {
+          "label": "API कुंजी"
+        },
+        "clientCredentials": {
+          "label": "OAuth2 क्लाइंट क्रेडेंशियल"
+        }
+      }
+    },
+    "prometheus": {
+      "settings": {
+        "baseUrl": {
+          "label": "बेस URL"
+        },
+        "authType": {
+          "label": "प्रमाणीकरण",
+          "values": {
+            "None": "कोई नहीं",
+            "Basic": "बेसिक",
+            "Bearer": "Bearer टोकन",
+            "ApiKeyHeader": "API कुंजी हेडर",
+            "OAuth2ClientCredentials": "OAuth2 क्लाइंट क्रेडेंशियल"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "API कुंजी हेडर"
+        },
+        "apiKeyPrefix": {
+          "label": "API कुंजी उपसर्ग"
+        },
+        "tokenUrl": {
+          "label": "OAuth2 टोकन URL"
+        },
+        "scopes": {
+          "label": "OAuth2 स्कोप"
+        },
+        "defaultHeaders": {
+          "label": "डिफ़ॉल्ट हेडर"
+        },
+        "verifyTls": {
+          "label": "TLS सत्यापित करें"
+        },
+        "maxResponseBytes": {
+          "label": "अधिकतम प्रतिक्रिया बाइट"
+        },
+        "maxSeries": {
+          "label": "अधिकतम सीरीज़"
+        },
+        "maxPointsPerSeries": {
+          "label": "प्रति सीरीज़ अधिकतम बिंदु"
+        },
+        "maxRangeHours": {
+          "label": "अधिकतम सीमा (घंटे)"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "बेसिक क्रेडेंशियल"
+        },
+        "bearerToken": {
+          "label": "Bearer टोकन"
+        },
+        "apiKey": {
+          "label": "API कुंजी"
+        },
+        "clientCredentials": {
+          "label": "OAuth2 क्लाइंट क्रेडेंशियल"
+        }
+      }
+    },
+    "loki": {
+      "settings": {
+        "baseUrl": {
+          "label": "बेस URL"
+        },
+        "authType": {
+          "label": "प्रमाणीकरण",
+          "values": {
+            "None": "कोई नहीं",
+            "Basic": "बेसिक",
+            "Bearer": "Bearer टोकन",
+            "ApiKeyHeader": "API कुंजी हेडर",
+            "OAuth2ClientCredentials": "OAuth2 क्लाइंट क्रेडेंशियल"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "API कुंजी हेडर"
+        },
+        "apiKeyPrefix": {
+          "label": "API कुंजी उपसर्ग"
+        },
+        "tokenUrl": {
+          "label": "OAuth2 टोकन URL"
+        },
+        "scopes": {
+          "label": "OAuth2 स्कोप"
+        },
+        "defaultHeaders": {
+          "label": "डिफ़ॉल्ट हेडर"
+        },
+        "verifyTls": {
+          "label": "TLS सत्यापित करें"
+        },
+        "maxResponseBytes": {
+          "label": "अधिकतम प्रतिक्रिया बाइट"
+        },
+        "tenantHeader": {
+          "label": "टेनेंट ID"
+        },
+        "maxLines": {
+          "label": "अधिकतम पंक्तियाँ"
+        },
+        "maxRangeHours": {
+          "label": "अधिकतम सीमा (घंटे)"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "बेसिक क्रेडेंशियल"
+        },
+        "bearerToken": {
+          "label": "Bearer टोकन"
+        },
+        "apiKey": {
+          "label": "API कुंजी"
+        },
+        "clientCredentials": {
+          "label": "OAuth2 क्लाइंट क्रेडेंशियल"
+        }
+      }
+    },
+    "elasticsearch": {
+      "settings": {
+        "baseUrl": {
+          "label": "बेस URL"
+        },
+        "authType": {
+          "label": "प्रमाणीकरण",
+          "values": {
+            "None": "कोई नहीं",
+            "Basic": "बेसिक",
+            "Bearer": "Bearer टोकन",
+            "ApiKeyHeader": "API कुंजी हेडर",
+            "OAuth2ClientCredentials": "OAuth2 क्लाइंट क्रेडेंशियल"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "API कुंजी हेडर"
+        },
+        "apiKeyPrefix": {
+          "label": "API कुंजी उपसर्ग"
+        },
+        "tokenUrl": {
+          "label": "OAuth2 टोकन URL"
+        },
+        "scopes": {
+          "label": "OAuth2 स्कोप"
+        },
+        "defaultHeaders": {
+          "label": "डिफ़ॉल्ट हेडर"
+        },
+        "verifyTls": {
+          "label": "TLS सत्यापित करें"
+        },
+        "maxResponseBytes": {
+          "label": "अधिकतम प्रतिक्रिया बाइट"
+        },
+        "flavor": {
+          "label": "प्रकार",
+          "values": {
+            "Elasticsearch": "Elasticsearch",
+            "OpenSearch": "OpenSearch"
+          }
+        },
+        "allowedIndexPatterns": {
+          "label": "अनुमत इंडेक्स पैटर्न"
+        },
+        "maxHits": {
+          "label": "अधिकतम परिणाम"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "बेसिक क्रेडेंशियल"
+        },
+        "bearerToken": {
+          "label": "Bearer टोकन"
+        },
+        "apiKey": {
+          "label": "API कुंजी"
+        },
+        "clientCredentials": {
+          "label": "OAuth2 क्लाइंट क्रेडेंशियल"
+        }
+      }
+    },
+    "mcp": {
+      "settings": {
+        "transport": {
+          "label": "ट्रांसपोर्ट",
+          "values": {
+            "StreamableHttp": "स्ट्रीम करने योग्य HTTP",
+            "Stdio": "stdio (स्थानीय प्रोसेस)"
+          }
+        },
+        "url": {
+          "label": "सर्वर URL"
+        },
+        "command": {
+          "label": "कमांड"
+        },
+        "arguments": {
+          "label": "आर्गुमेंट"
+        },
+        "allowStdio": {
+          "label": "stdio की अनुमति दें"
+        },
+        "includeTools": {
+          "label": "टूल शामिल करें"
+        },
+        "excludeTools": {
+          "label": "टूल बाहर रखें"
+        },
+        "refreshIntervalMinutes": {
+          "label": "टूल सूची रीफ़्रेश (मिनट)"
+        },
+        "timeoutSeconds": {
+          "label": "टाइमआउट (सेकंड)"
+        }
+      },
+      "slots": {
+        "authorizationHeader": {
+          "label": "Authorization हेडर"
+        },
+        "extraHeaders": {
+          "label": "अतिरिक्त हेडर"
+        }
+      }
+    },
+    "a2a-agent": {
+      "settings": {
+        "agentCardUrl": {
+          "label": "एजेंट कार्ड URL"
+        },
+        "skillId": {
+          "label": "कौशल"
+        },
+        "timeoutSeconds": {
+          "label": "टाइमआउट (सेकंड)"
+        },
+        "streaming": {
+          "label": "स्ट्रीमिंग का उपयोग करें"
+        },
+        "allowCrossOriginEndpoint": {
+          "label": "दूसरे ऑरिजिन पर एंडपॉइंट की अनुमति दें"
+        }
+      },
+      "slots": {
+        "bearerToken": {
+          "label": "Bearer टोकन"
+        }
+      }
     }
   }
 }

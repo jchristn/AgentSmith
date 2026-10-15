@@ -81,6 +81,9 @@ Variables: `job`, `connector`, `effect`, `window`.
 - **Calls:** Tool calls, Failed calls, Denied, Approval required, Tool latency p95, Sessions open, Calls by connector, Calls by effect, Policy decisions, Calls by status, Calls by surface.
 - **Latency and output:** Tool latency (p50/p95/p99), Tool latency p95 by connector, Output size p95 by connector, Failures by connector and tool, Tools (table: calls, failure share, p50, p95).
 - **Approvals and resources:** Approvals by outcome, Approval wait (p50/p95 by effect), Sessions open by connector, Resource health, Failed tool spans.
+- **Wave 2 connectors:** Infrastructure calls by connector and effect (`redis`, `aws`, `kubernetes`, `docker`), Observability and HTTP latency p95 by connector (`prometheus`, `loki`, `elasticsearch`, `http`), Remote agent and MCP calls by tool and status (`mcp`, `a2a-agent`), Wave 2 policy decisions by connector, Wave 2 failures by connector and tool.
+
+The `connector` label carries the connector type exactly as the resource names it (`postgresql`, `ssh`, `s3`, `redis`, `aws`, `kubernetes`, `docker`, `http`, `prometheus`, `loki`, `elasticsearch`, `mcp`, `a2a-agent`, and so on), not the shorter tool-prefix family (`k8s`, `es`, `prom`). The `connector` variable is built from the label values Prometheus has seen, so a connector appears in it after its first call. The wave 2 panels add a fixed connector list on top of the variable, so they stay scoped to their group even when the variable is All.
 
 Label values are matched case-insensitively (`decision=~"(?i)denied"`), and a call counts as failed when its `status` is not ok, success, succeeded, or completed.
 

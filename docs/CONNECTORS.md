@@ -1,6 +1,6 @@
 # Connectors
 
-A connector is how Hugo reaches a system you run: an SSH host, a bucket, a database, a log service, a cache, a cloud account, a cluster, a Docker daemon, an HTTP API, or a metrics and logs backend. This page is the operator's reference for every connector that ships in Hugo today. It covers what each one connects to, every setting and secret slot, the tools it gives agents, how those tools are classified, the limits that bound them, and what to grant the upstream credential.
+A connector is how Hugo reaches a system you run: an SSH host, a bucket, a database, a log service, a cache, a cloud account, a cluster, a Docker daemon, an HTTP API, a metrics and logs backend, another MCP server, or another agent reachable over A2A. This page is the operator's reference for every connector that ships in Hugo today. It covers what each one connects to, every setting and secret slot, the tools it gives agents, how those tools are classified, the limits that bound them, and what to grant the upstream credential.
 
 Everything said here about a connector itself (settings, slots, tools, classification, limits, probes) comes from its code. Where the page describes what the server does around a connector, such as enforcing the access mode matrix, holding approvals, scrubbing output, or running the health sweep, it follows the design in `HUGO_PLAN.md`, because that part of the server is still being built.
 
@@ -72,10 +72,12 @@ Every call runs under limits the pipeline passes to the connector: output bytes 
 | `elasticsearch` | Elasticsearch / OpenSearch | `es` | Observability | 5 |
 | `loki` | Grafana Loki | `loki` | Observability | 4 |
 | `prometheus` | Prometheus | `prom` | Observability | 7 |
+| `mcp` | External MCP server | `mcp` | Agent | 4 |
+| `a2a-agent` | Remote A2A agent | `a2a` | Agent | 3 |
 
-Wave 2 of the plan also lists connectors for external MCP servers (`mcp`) and remote A2A agents (`a2a-agent`). The `Hugo.Connectors.Agents` project exists but contains no connector yet, so neither type can be configured.
+The `mcp` and `a2a-agent` connectors attach other agents' systems rather than infrastructure: another MCP server, or another agent reached over A2A. Both live in `Hugo.Connectors.Agents` and are described in [Agents: external MCP servers and remote A2A agents](#agents-external-mcp-servers-and-remote-a2a-agents).
 
-The testbed in `docker/testbed` runs a real target for every connector that has a self-hostable equivalent, all bound to `127.0.0.1` in the `28xxx` port range. Papertrail, SolarWinds Observability, and the HTTP connector are tested against in-process stubs in `src/Test.Shared/Connectors`. See `docker/testbed/README.md` for the commands.
+The testbed in `docker/testbed` runs a real target for every connector that has a self-hostable equivalent, all bound to `127.0.0.1` in the `28xxx` port range. Papertrail, SolarWinds Observability, the HTTP connector, and the `mcp` and `a2a-agent` connectors are tested against in-process stubs in `src/Test.Shared/Connectors`. See `docker/testbed/README.md` for the commands.
 
 ## SSH
 
@@ -762,3 +764,81 @@ A name can pass the patterns and still reach other indexes: an alias called `log
 Use Elasticsearch API keys with `authType: ApiKeyHeader`, `apiKeyHeaderName: Authorization`, and `apiKeyPrefix: ApiKey ` (with the trailing space). **Test connection** reads the root endpoint and cluster health, reports the distribution, version, cluster name, and status, and warns when `flavor` disagrees with the detected distribution. **Testbed:** OpenSearch 2.19.3 on port 28992 with the security plugin disabled, a log index, a "secret" index outside the allowed patterns, and an alias that points only at the secret index.
 
 **Known limitations.** `flavor` changes only the provider name in messages; both flavors use the same REST calls. Alias resolution needs the `_resolve/index` API (Elasticsearch 7.9 and later, and OpenSearch). Grant the API key `read` and `view_index_metadata` on the allowed indexes only, and `monitor` on the cluster for `es_cluster_health`, so the cluster enforces what the patterns intend.
+
+## Agents: external MCP servers and remote A2A agents
+
+Two connectors in `Hugo.Connectors.Agents` attach systems that other people's agents expose: `mcp` (family `mcp`) attaches another MCP server, and `a2a-agent` (family `a2a`) attaches a remote agent reachable over A2A. Both are in the Agent category. What comes back from either one (tool descriptions, schemas, server instructions, agent cards, replies, artifacts) is written by a third party. Hugo fences it as untrusted content and the default instructions tell the model to treat it as claims and data, never as instructions.
+
+### External MCP servers
+
+An `mcp` resource reaches a server over Streamable HTTP, or starts it as a Stdio child process of the Hugo host. Hugo does not re-export each remote tool under its own name. It exposes four fixed tools that take the remote tool name as an argument (decision D-044), so the tool list an agent sees stays the same size however large the remote server is.
+
+| Key | Kind | Default | Range or values | Meaning |
+|---|---|---|---|---|
+| `transport` | Enum | `StreamableHttp` | `StreamableHttp`, `Stdio` | StreamableHttp (default) reaches a remote server at url. Stdio starts command as a child process of the Hugo host and needs allowStdio here plus the server-level Stdio gate. |
+| `url` | String |  | pattern `^https?://` | Absolute http or https URL of the Streamable HTTP endpoint including its path, for example https://mcp.example.com/mcp. Required for StreamableHttp. No credentials in the URL. |
+| `command` | String |  |  | Stdio only: the executable that runs the MCP server, for example npx or /usr/local/bin/my-mcp-server. |
+| `arguments` | StringList |  |  | Stdio only: command arguments, one per line. Passed without a shell. |
+| `allowStdio` | Boolean | `false` |  | Resource-level opt-in for the Stdio transport. Stdio also needs the server-level gate, because the process runs inside the Hugo host with its privileges. Default false. |
+| `includeTools` | StringList |  |  | Remote tool names or `*` patterns (for example get_*) that agents may list and call, one per line. Empty allows every tool. |
+| `excludeTools` | StringList |  |  | Remote tool names or `*` patterns hidden from agents and refused, one per line. Wins over includeTools. |
+| `refreshIntervalMinutes` | Integer | `15` | 1 to 1440 | How long a discovered tool list is reused before it is fetched again. |
+| `timeoutSeconds` | Integer | `60` | 1 to 600 | Longest time one remote call may take, including connecting. The binding's timeout applies when shorter. |
+
+| Slot | Accepts | Required | Fields read | Meaning |
+|---|---|---|---|---|
+| `authorizationHeader` | BearerToken, ApiToken | no | `token` | Sent as `Authorization: Bearer <token>`. A value that already starts with a scheme, such as `Basic dXNlcjpwYXNz`, is sent as-is. |
+| `extraHeaders` | Generic | no | `names`, plus one field per listed name | Field `names` lists header names (comma or newline separated), and each listed name is a field holding that header's value, for example names=X-Api-Key with X-Api-Key=abc123. Transport headers (Host, Content-Type, Accept, Mcp-Session-Id, MCP-Protocol-Version, Cookie, Proxy-Authorization, and the like) cannot be set this way. |
+
+| Tool | Effect | Purpose |
+|---|---|---|
+| [`mcp_list_tools`](MCP_CONNECTOR_TOOLS.md#mcp_list_tools) | Read | List external MCP tools |
+| [`mcp_call_tool`](MCP_CONNECTOR_TOOLS.md#mcp_call_tool) | Read, per call | Call external MCP tool |
+| [`mcp_list_resources`](MCP_CONNECTOR_TOOLS.md#mcp_list_resources) | Read | List external MCP resources |
+| [`mcp_read_resource`](MCP_CONNECTOR_TOOLS.md#mcp_read_resource) | Read | Read external MCP resource |
+
+**How `mcp_call_tool` is classified.** The effect comes from the annotations the remote server publishes for the tool: `readOnlyHint` makes the call Read, `destructiveHint` makes it Destructive, and anything else is Write. A tool outside `includeTools`, or matched by `excludeTools`, is rejected. A tool Hugo has not discovered yet, or a call without a name, is treated as Destructive, which is why agents should call `mcp_list_tools` first. Annotations are hints from a third party, so a server that marks a destructive tool read-only defeats the classifier; use `excludeTools` for anything you do not trust. If the annotations change between approval and execution and the tool is now more severe than what was approved, the call fails with `permission_denied` and has to be made again.
+
+**Stdio.** A Stdio server runs inside the Hugo host process tree with the host's privileges. It starts only when `Connectors.McpAllowStdio` is true in the server settings (see [CONFIGURATION.md](CONFIGURATION.md)) and the resource sets `allowStdio`; otherwise the call fails with `permission_denied` before any process starts. Prefer Streamable HTTP for anything you did not write yourself.
+
+**Limits.** Remote tool descriptions, input schemas, and server instructions are clipped (by default 1,000, 4,000, and 8,000 characters); a schema over the limit is omitted with a note. Paginated lists stop after 20 pages and report `incomplete`. Discovered tool lists are cached per resource for `refreshIntervalMinutes`. A remote result with `isError` becomes a tool error with code `upstream_error`.
+
+**Test connection** opens a session, runs `initialize`, fetches the tool list, and reports the server name, endpoint, transport, protocol version, how many tools it has and how many `includeTools` and `excludeTools` allow, whether it offers resources, and whether it sent instructions. It is bounded at 20 seconds or the resource timeout, whichever is shorter.
+
+**Least privilege.** Give Hugo its own token on the remote server, scoped to the tools the bindings need, and mirror that scope in `includeTools`. Bind the resource ReadWriteWithApproval unless you have read the remote server's annotations and trust them.
+
+**Testbed:** an in-process MCP server stub (`src/Test.Shared/Connectors/Agents`).
+
+### Remote A2A agents
+
+An `a2a-agent` resource is another agent, run by someone else, that Hugo reaches over A2A. Hugo resolves the agent card, sends tasks to the endpoint the card names, and waits for the result or for the agent to ask for more input.
+
+| Key | Kind | Default | Range or values | Meaning |
+|---|---|---|---|---|
+| `agentCardUrl` | String, required |  | pattern `^https?://` | URL of the remote agent's card, for example https://agent.example.com/.well-known/agent-card.json, or the agent's base URL (the well-known path is added). No credentials in the URL. |
+| `skillId` | String |  |  | Optional skill identifier from the card. It is sent as skillId metadata with every delegated message, and Test Connection checks that the card lists it. |
+| `timeoutSeconds` | Integer | `120` | 1 to 3600 | Longest time a2a_delegate waits for the remote task to complete or ask for input. The binding's timeout applies when shorter. |
+| `streaming` | Boolean | `false` |  | Use SendStreamingMessage when the card advertises streaming, so progress and artifacts arrive as they happen. Otherwise Hugo sends a blocking request and polls the task. |
+| `allowCrossOriginEndpoint` | Boolean | `false` |  | When false, the endpoint named in the card must be on the same scheme, host, and port as agentCardUrl, so a card cannot redirect the bearer token elsewhere. |
+
+| Slot | Accepts | Required | Fields read | Meaning |
+|---|---|---|---|---|
+| `bearerToken` | BearerToken, ApiToken | no | `token` | Sent as `Authorization: Bearer <token>` to the card URL and the agent endpoint. A value that already starts with a scheme is sent as-is. |
+
+| Tool | Effect | Purpose |
+|---|---|---|
+| [`a2a_get_card`](MCP_CONNECTOR_TOOLS.md#a2a_get_card) | Read | Get remote agent card |
+| [`a2a_delegate`](MCP_CONNECTOR_TOOLS.md#a2a_delegate) | Write | Delegate to remote agent |
+| [`a2a_get_task`](MCP_CONNECTOR_TOOLS.md#a2a_get_task) | Read | Get remote agent task |
+
+**Effects.** `a2a_delegate` is always Write, because Hugo cannot know what the remote agent will do with a request, so it is denied on ReadOnly bindings and needs approval on ReadWriteWithApproval. Reading the card and reading a task are Read. A remote agent asking for input (`input-required`) is an ordinary result with `needsInput: true`, not a Hugo approval; the model answers with `a2a_delegate` and the `taskId` and `contextId` it got back. Failed, rejected, and canceled tasks are tool errors with `upstream_error`, an `auth-required` task is `auth_failed`, and a delegation that runs past `timeoutSeconds` returns `timeout` with the `taskId` to check later with `a2a_get_task`.
+
+**The bearer token stays on its origin.** With `allowCrossOriginEndpoint` off, a card that names an endpoint on another scheme, host, or port is refused, so a tampered card cannot collect the token. Turn it on only when you know the card and the endpoint are served from different origins by the same operator.
+
+**Limits.** Remote messages, artifacts, and descriptions are clipped (20,000 characters by default) before the call's output limits apply. A resolved card is reused for 15 minutes unless `a2a_get_card` is called with `refresh`.
+
+**Test connection** resolves the card, reports the agent name, version, endpoint, protocol binding, skill count, and whether it streams, and fails with `invalid_setting` when `skillId` is set and the card does not list it. It is bounded at 20 seconds or the resource timeout, whichever is shorter. It does not send a task.
+
+**Least privilege.** Ask the remote operator for a token that can only reach the skills you intend to use, and set `skillId` when one skill is all the bindings need.
+
+**Testbed:** an in-process A2A agent stub (`src/Test.Shared/Connectors/Agents`).

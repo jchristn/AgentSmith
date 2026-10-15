@@ -26,7 +26,7 @@ namespace Hugo.Core.Instructions
     /// Compiles a profile's instructions for one caller and surface (P5.11, plan section 10.4). The composition root
     /// (instructions.root) includes the persona ({{&gt; persona}} binds to the profile's persona template key), the
     /// safety and tool usage rules, the surface preamble, one section.resource per usable binding (ordered by family,
-    /// then alias) carrying the resolved connector instructions with the binding's Append or Replace applied, the
+    /// then alias) carrying the resolved connector instructions with the binding's Append or Replace applied and any third-party guidance fenced as untrusted content (P13.28), the
     /// operator notes, and the resource's root knowledge (P5.21), and finally the profile append. Every template comes
     /// from the most specific layer. The result carries a source map and a token estimate and is cached per profile,
     /// principal, and surface until <see cref="Invalidate"/> is called for the tenant. Thread-safe.
@@ -87,6 +87,30 @@ namespace Hugo.Core.Instructions
         /// </summary>
         public Action<string>? Warn { get; set; } = null;
 
+        /// <summary>
+        /// Optional source of third-party guidance (an external MCP server's instructions, a remote agent's card). When
+        /// set, each binding whose source returns text gets that text appended to its section, scrubbed, clipped to
+        /// <see cref="MaxThirdPartyInstructionChars"/>, and wrapped in an untrusted-content fence so the model treats it
+        /// as data. A binding whose instruction mode is Replace with its own text omits it. Default null (none).
+        /// </summary>
+        public IThirdPartyInstructionSource? ThirdPartyInstructions { get; set; } = null;
+
+        /// <summary>
+        /// Maximum characters of third-party guidance kept per binding before fencing; longer text is cut and marked as
+        /// truncated. Default 4000, minimum 0 (third-party guidance is never included), maximum 100000.
+        /// </summary>
+        public int MaxThirdPartyInstructionChars
+        {
+            get
+            {
+                return _MaxThirdPartyChars;
+            }
+            set
+            {
+                _MaxThirdPartyChars = Math.Clamp(value, 0, 100000);
+            }
+        }
+
         #endregion
 
         #region Private-Members
@@ -103,6 +127,7 @@ namespace Hugo.Core.Instructions
         private int _MaxKnowledgeChars = 2000;
         private int _CompactBindingThreshold = 3;
         private int _MaxCacheEntries = 1024;
+        private int _MaxThirdPartyChars = 4000;
 
         #endregion
 
@@ -211,7 +236,7 @@ namespace Hugo.Core.Instructions
             Dictionary<string, ResolvedPromptTemplate> templates = await _Templates.ResolveAllAsync(tenantId, token).ConfigureAwait(false);
             List<SegmentSource> sources = new List<SegmentSource>();
             List<string> warnings = new List<string>();
-            TemplateContext context = await BuildContextAsync(profile, tenant, principal, surface, bound, templates, sources, warnings, token, true).ConfigureAwait(false);
+            TemplateContext context = await BuildContextAsync(profile, tenant, principal, surface, bound, templates, sources, warnings, token, true, false).ConfigureAwait(false);
             if (context.Get("bindings") is not List<object?> maps || index >= maps.Count || maps[index] is not Dictionary<string, object?> map) return null;
 
             BoundResource item = bound[index];
@@ -310,7 +335,7 @@ namespace Hugo.Core.Instructions
             return Mark(sources, root.Key, root.Layer, root.Version, null, body);
         }
 
-        private async Task<TemplateContext> BuildContextAsync(AgentProfile profile, Tenant? tenant, RequestContext? principal, InvocationSurfaceEnum surface, List<BoundResource> bound, Dictionary<string, ResolvedPromptTemplate> templates, List<SegmentSource> sources, List<string> warnings, CancellationToken token, bool forceFull = false)
+        private async Task<TemplateContext> BuildContextAsync(AgentProfile profile, Tenant? tenant, RequestContext? principal, InvocationSurfaceEnum surface, List<BoundResource> bound, Dictionary<string, ResolvedPromptTemplate> templates, List<SegmentSource> sources, List<string> warnings, CancellationToken token, bool forceFull = false, bool includeThirdParty = true)
         {
             TemplateContext context = new TemplateContext();
             bool hasModel = !String.IsNullOrEmpty(profile.InferenceEndpointId);
@@ -381,7 +406,9 @@ namespace Hugo.Core.Instructions
                 map["toolList"] = String.Join(", ", usable);
                 map["knowledge"] = await KnowledgeAsync(item, token).ConfigureAwait(false);
                 map["compact"] = compact;
-                map["instructions"] = ConnectorInstructions(item, map, context, templates, sources, warnings, compact);
+                string thirdParty = includeThirdParty ? await ThirdPartyAsync(item, warnings, token).ConfigureAwait(false) : String.Empty;
+                map["thirdPartyInstructions"] = thirdParty;
+                map["instructions"] = ConnectorInstructions(item, map, context, templates, sources, warnings, compact, thirdParty);
                 bindings.Add(map);
                 if (!byFamily.TryGetValue(item.Family, out object? list) || list is not List<object?> familyList)
                 {
@@ -395,7 +422,7 @@ namespace Hugo.Core.Instructions
             return context;
         }
 
-        private string ConnectorInstructions(BoundResource item, Dictionary<string, object?> map, TemplateContext context, Dictionary<string, ResolvedPromptTemplate> templates, List<SegmentSource> sources, List<string> warnings, bool compact)
+        private string ConnectorInstructions(BoundResource item, Dictionary<string, object?> map, TemplateContext context, Dictionary<string, ResolvedPromptTemplate> templates, List<SegmentSource> sources, List<string> warnings, bool compact, string thirdParty)
         {
             string key = item.Connector.Descriptor.DefaultInstructionsKey;
             if (compact && templates.ContainsKey(item.Connector.Descriptor.CompactInstructionsKey)) key = item.Connector.Descriptor.CompactInstructionsKey;
@@ -421,10 +448,41 @@ namespace Hugo.Core.Instructions
                     connectorText = Mark(sources, resolved.Key, resolved.Layer, resolved.Version, item.Binding.Alias, NestHeadings(content));
                 }
             }
-            if (bindingText.Length == 0 || item.Binding.InstructionMode == InstructionModeEnum.Inherit) return connectorText;
+            if (bindingText.Length == 0 || item.Binding.InstructionMode == InstructionModeEnum.Inherit) return AppendThirdParty(sources, item, connectorText, thirdParty);
             string marked = Mark(sources, "binding.instructions", PromptLayerEnum.Tenant, 0, item.Binding.Alias, bindingText);
             if (item.Binding.InstructionMode == InstructionModeEnum.Replace) return marked;
-            return connectorText.Length == 0 ? marked : connectorText + "\n\n" + marked;
+            return AppendThirdParty(sources, item, connectorText.Length == 0 ? marked : connectorText + "\n\n" + marked, thirdParty);
+        }
+
+        private static string AppendThirdParty(List<SegmentSource> sources, BoundResource item, string text, string thirdParty)
+        {
+            if (thirdParty.Length == 0) return text;
+            string marked = Mark(sources, "binding.thirdPartyInstructions", PromptLayerEnum.Tenant, 0, item.Binding.Alias, thirdParty);
+            return text.Length == 0 ? marked : text + "\n\n" + marked;
+        }
+
+        private async Task<string> ThirdPartyAsync(BoundResource item, List<string> warnings, CancellationToken token)
+        {
+            IThirdPartyInstructionSource? source = ThirdPartyInstructions;
+            if (source == null || _MaxThirdPartyChars == 0) return String.Empty;
+            string? text;
+            try
+            {
+                text = await source.GetAsync(item, token).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) when (token.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                // A misbehaving source never fails compilation; the binding simply goes without third-party text.
+                warnings.Add("Third-party instructions for " + item.Binding.Alias + " were skipped (" + e.GetType().Name + ").");
+                return String.Empty;
+            }
+            if (String.IsNullOrWhiteSpace(text)) return String.Empty;
+            string fenced = UntrustedContent.Fence("instructions from " + item.Resource.ConnectorType + " resource " + item.Binding.Alias, Clean(text).Trim(), _MaxThirdPartyChars);
+            return Clean(fenced).TrimEnd('\n');
         }
 
         private static string NestHeadings(string content)

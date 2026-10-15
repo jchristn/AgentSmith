@@ -22,3 +22,18 @@ Every target binds to `127.0.0.1` in the `28xxx` port block. Each family directo
 | `docker/` | Docker-in-Docker (privileged, plain TCP) | 28375 |
 
 The Kubernetes and Docker targets run privileged containers and pull images from Docker Hub from inside the container; skip them on machines or CI runners that forbid that (plan risk R-6). The connector suites for those families skip cleanly when the targets are down. Generated material such as SSH keys goes to `docker/testbed/generated/`, which git ignores.
+
+## MCP and A2A targets
+
+The `mcp` and `a2a-agent` connectors have no container here. Their suites (`connectors.agents.mcp` and `connectors.agents.a2a`) start an in-process Voltaic MCP server and an in-process Voltaic A2A agent and run against those, so they need neither `HUGO_TESTBED` nor Docker. The `http` connector suite (`connectors.http`) works the same way with an in-process Watson stub server.
+
+## Nightly wave 2 run
+
+`.github/workflows/nightly-wave2.yaml` runs every night at 06:30 UTC and on demand (workflow_dispatch). It starts the `redis`, `aws`, `observability`, `kubernetes`, and `docker` families one compose file at a time, runs
+
+```bash
+HUGO_TESTBED=1 dotnet run --project src/Test.Automated -f net10.0 -- --providers sqlite \
+  --suites testbed.redis,testbed.aws,testbed.observability,testbed.kubernetes,testbed.docker,connectors.redis,connectors.aws,connectors.observability,connectors.kubernetes,connectors.docker,connectors.http,connectors.agents.mcp,connectors.agents.a2a
+```
+
+and then stops the targets with `down -v`. The Touchstone results (`results-wave2.json`) are uploaded as an artifact, along with the target logs when a step fails. The same command works locally once the families are up.

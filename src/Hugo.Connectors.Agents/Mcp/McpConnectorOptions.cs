@@ -11,7 +11,7 @@ namespace Hugo.Connectors.Agents.Mcp
         #region Public-Members
 
         /// <summary>
-        /// Server-level gate for the Stdio transport (Hugo's <c>Connectors.Mcp.AllowStdio</c>). A Stdio resource runs only
+        /// Server-level gate for the Stdio transport (Hugo's <c>Connectors.McpAllowStdio</c>). A Stdio resource runs only
         /// when this is true and the resource's own <c>allowStdio</c> setting is true. Default false, because a Stdio
         /// server is a process started inside the Hugo host.
         /// </summary>

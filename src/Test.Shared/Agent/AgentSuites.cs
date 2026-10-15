@@ -19,7 +19,8 @@ namespace Test.Shared.Agent
             {
                 new TestSuiteDescriptor("agent.units", "Agent building blocks: think parser, wrapper, locks, retry, breaker, gate, factory", AgentUnitCases.Build()),
                 new TestSuiteDescriptor("agent.inference", "Model gateway against the stub LLM: streaming, retries, fallback, circuit breaker, embeddings, validation", AgentInferenceCases.Build()),
-                new TestSuiteDescriptor("agent.runtime", "Agent runtime turns against the stub LLM", AgentRuntimeCases.Build())
+                new TestSuiteDescriptor("agent.runtime", "Agent runtime turns against the stub LLM", AgentRuntimeCases.Build()),
+                new TestSuiteDescriptor(ToolRetrievalScaleCases.Suite, "Tool retrieval on a profile with more than 100 tools (P13.35)", ToolRetrievalScaleCases.Build())
             };
         }
     }

@@ -701,7 +701,15 @@
         "Connection": "Подключение",
         "Authentication": "Аутентификация",
         "Limits": "Ограничения",
-        "Advanced": "Дополнительно"
+        "Advanced": "Дополнительно",
+        "TLS": "TLS",
+        "Safety": "Безопасность",
+        "Security": "Защита",
+        "Scope": "Область",
+        "Search": "Поиск",
+        "Execution": "Выполнение",
+        "Credentials": "Учетные данные",
+        "Jump host": "Промежуточный хост"
       },
       "errors": {
         "Required": "Эта настройка обязательна.",
@@ -3906,6 +3914,542 @@
       "resource": "Выберите коннектор, заполните его настройки, выберите или создайте нужный секрет и проверьте подключение перед сохранением.",
       "bind": "Подключите новый ресурс к профилю Hugo по умолчанию и выберите, что агенту разрешено с ним делать.",
       "connect": "Добавьте Hugo в Claude Code (или любой клиент MCP) с этой конфигурацией, затем начните общение с Agent Smith."
+    }
+  },
+  "connectors": {
+    "redis": {
+      "settings": {
+        "endpoints": {
+          "label": "Конечные точки"
+        },
+        "clusterMode": {
+          "label": "Топология",
+          "values": {
+            "Auto": "Автоматически",
+            "Standalone": "Автономный",
+            "Cluster": "Кластер",
+            "Sentinel": "Sentinel"
+          }
+        },
+        "sentinelServiceName": {
+          "label": "Имя службы Sentinel"
+        },
+        "database": {
+          "label": "База данных"
+        },
+        "username": {
+          "label": "Имя пользователя ACL"
+        },
+        "useSsl": {
+          "label": "Использовать TLS"
+        },
+        "sslHost": {
+          "label": "Имя хоста TLS"
+        },
+        "verifyTls": {
+          "label": "Проверять сертификат TLS"
+        },
+        "caCertificate": {
+          "label": "Сертификат CA (PEM)"
+        },
+        "connectTimeoutSeconds": {
+          "label": "Тайм-аут подключения (секунды)"
+        },
+        "commandTimeoutSeconds": {
+          "label": "Тайм-аут команды (секунды)"
+        },
+        "clientName": {
+          "label": "Имя клиента"
+        },
+        "maxKeysScanned": {
+          "label": "Макс. просматриваемых ключей"
+        },
+        "maxValueBytes": {
+          "label": "Макс. байт значения"
+        },
+        "deniedCommands": {
+          "label": "Запрещенные команды"
+        },
+        "allowKeysCommand": {
+          "label": "Разрешить KEYS"
+        },
+        "readOnlyCommands": {
+          "label": "Дополнительные команды только для чтения"
+        }
+      },
+      "slots": {
+        "password": {
+          "label": "Пароль"
+        }
+      }
+    },
+    "aws": {
+      "settings": {
+        "region": {
+          "label": "Регион"
+        },
+        "useInstanceRole": {
+          "label": "Использовать учетные данные среды"
+        },
+        "assumeRoleArn": {
+          "label": "Принимаемая роль"
+        },
+        "externalId": {
+          "label": "Внешний ID"
+        },
+        "sessionName": {
+          "label": "Имя сеанса роли"
+        },
+        "assumeRoleDurationSeconds": {
+          "label": "Длительность сеанса роли (секунды)"
+        },
+        "allowedServices": {
+          "label": "Разрешенные службы"
+        },
+        "endpointOverride": {
+          "label": "Переопределение конечной точки"
+        },
+        "maxResults": {
+          "label": "Размер страницы по умолчанию"
+        },
+        "maxRetries": {
+          "label": "Повторы SDK"
+        },
+        "defaultLookbackMinutes": {
+          "label": "Период просмотра по умолчанию (минуты)"
+        },
+        "maxTimeRangeHours": {
+          "label": "Максимальный интервал (часы)"
+        },
+        "logsQueryTimeoutSeconds": {
+          "label": "Ожидание Logs Insights (секунды)"
+        },
+        "logsMaxEvents": {
+          "label": "Макс. событий журнала"
+        },
+        "lambdaMaxPayloadBytes": {
+          "label": "Макс. размер полезной нагрузки Lambda (байты)"
+        }
+      },
+      "slots": {
+        "accessKeyPair": {
+          "label": "Пара ключей доступа"
+        }
+      }
+    },
+    "kubernetes": {
+      "settings": {
+        "context": {
+          "label": "Контекст"
+        },
+        "serverUrl": {
+          "label": "URL сервера API"
+        },
+        "insecureSkipTlsVerify": {
+          "label": "Пропустить проверку TLS"
+        },
+        "requestTimeoutSeconds": {
+          "label": "Тайм-аут запроса (секунды)"
+        },
+        "allowedNamespaces": {
+          "label": "Разрешенные пространства имен"
+        },
+        "defaultNamespace": {
+          "label": "Пространство имен по умолчанию"
+        },
+        "clusterScopedReads": {
+          "label": "Читать объекты уровня кластера"
+        },
+        "allowClusterScoped": {
+          "label": "Изменять объекты уровня кластера"
+        },
+        "destructiveKinds": {
+          "label": "Разрушительные типы"
+        },
+        "fieldManager": {
+          "label": "Менеджер полей"
+        },
+        "maxLogLines": {
+          "label": "Макс. строк журнала"
+        },
+        "maxObjects": {
+          "label": "Макс. объектов в списке"
+        },
+        "execTimeoutSeconds": {
+          "label": "Тайм-аут exec (секунды)"
+        }
+      },
+      "slots": {
+        "kubeconfig": {
+          "label": "Kubeconfig"
+        },
+        "serviceAccountToken": {
+          "label": "Токен служебной учетной записи"
+        },
+        "certificateAuthority": {
+          "label": "Сертификат CA кластера"
+        }
+      }
+    },
+    "docker": {
+      "settings": {
+        "endpoint": {
+          "label": "Конечная точка"
+        },
+        "tlsVerify": {
+          "label": "Проверять TLS"
+        },
+        "requestTimeoutSeconds": {
+          "label": "Тайм-аут запроса (секунды)"
+        },
+        "showEnvironmentValues": {
+          "label": "Показывать значения окружения"
+        },
+        "maxLogLines": {
+          "label": "Макс. строк журнала"
+        },
+        "maxEventsWindowSeconds": {
+          "label": "Макс. окно событий (секунды)"
+        },
+        "execTimeoutSeconds": {
+          "label": "Тайм-аут exec (секунды)"
+        },
+        "maxStatsContainers": {
+          "label": "Макс. контейнеров на вызов статистики"
+        }
+      },
+      "slots": {
+        "tlsClientCertificate": {
+          "label": "Клиентский сертификат TLS"
+        }
+      }
+    },
+    "http": {
+      "settings": {
+        "baseUrl": {
+          "label": "Базовый URL"
+        },
+        "healthPath": {
+          "label": "Путь проверки работоспособности"
+        },
+        "defaultHeaders": {
+          "label": "Заголовки по умолчанию"
+        },
+        "timeoutSeconds": {
+          "label": "Тайм-аут (секунды)"
+        },
+        "followRedirects": {
+          "label": "Следовать перенаправлениям"
+        },
+        "maxRedirects": {
+          "label": "Макс. перенаправлений"
+        },
+        "verifyTls": {
+          "label": "Проверять сертификаты TLS"
+        },
+        "authType": {
+          "label": "Аутентификация",
+          "values": {
+            "None": "Нет",
+            "Basic": "Базовая",
+            "Bearer": "Токен Bearer",
+            "ApiKeyHeader": "Заголовок ключа API",
+            "OAuth2ClientCredentials": "Учетные данные клиента OAuth2"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "Заголовок ключа API"
+        },
+        "tokenUrl": {
+          "label": "URL токена OAuth2"
+        },
+        "scopes": {
+          "label": "Области OAuth2"
+        },
+        "allowedMethods": {
+          "label": "Разрешенные методы"
+        },
+        "allowedPathPrefixes": {
+          "label": "Разрешенные префиксы путей"
+        },
+        "methodEffectOverrides": {
+          "label": "Переопределения эффекта"
+        },
+        "maxResponseBytes": {
+          "label": "Макс. байт ответа"
+        },
+        "maxRequestBytes": {
+          "label": "Макс. байт запроса"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "Учетные данные Basic"
+        },
+        "bearerToken": {
+          "label": "Токен Bearer"
+        },
+        "apiKey": {
+          "label": "Ключ API"
+        },
+        "clientCredentials": {
+          "label": "Учетные данные клиента OAuth2"
+        }
+      }
+    },
+    "prometheus": {
+      "settings": {
+        "baseUrl": {
+          "label": "Базовый URL"
+        },
+        "authType": {
+          "label": "Аутентификация",
+          "values": {
+            "None": "Нет",
+            "Basic": "Базовая",
+            "Bearer": "Токен Bearer",
+            "ApiKeyHeader": "Заголовок ключа API",
+            "OAuth2ClientCredentials": "Учетные данные клиента OAuth2"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "Заголовок ключа API"
+        },
+        "apiKeyPrefix": {
+          "label": "Префикс ключа API"
+        },
+        "tokenUrl": {
+          "label": "URL токена OAuth2"
+        },
+        "scopes": {
+          "label": "Области OAuth2"
+        },
+        "defaultHeaders": {
+          "label": "Заголовки по умолчанию"
+        },
+        "verifyTls": {
+          "label": "Проверять TLS"
+        },
+        "maxResponseBytes": {
+          "label": "Макс. байт ответа"
+        },
+        "maxSeries": {
+          "label": "Макс. рядов"
+        },
+        "maxPointsPerSeries": {
+          "label": "Макс. точек в ряду"
+        },
+        "maxRangeHours": {
+          "label": "Макс. диапазон (часы)"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "Учетные данные Basic"
+        },
+        "bearerToken": {
+          "label": "Токен Bearer"
+        },
+        "apiKey": {
+          "label": "Ключ API"
+        },
+        "clientCredentials": {
+          "label": "Учетные данные клиента OAuth2"
+        }
+      }
+    },
+    "loki": {
+      "settings": {
+        "baseUrl": {
+          "label": "Базовый URL"
+        },
+        "authType": {
+          "label": "Аутентификация",
+          "values": {
+            "None": "Нет",
+            "Basic": "Базовая",
+            "Bearer": "Токен Bearer",
+            "ApiKeyHeader": "Заголовок ключа API",
+            "OAuth2ClientCredentials": "Учетные данные клиента OAuth2"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "Заголовок ключа API"
+        },
+        "apiKeyPrefix": {
+          "label": "Префикс ключа API"
+        },
+        "tokenUrl": {
+          "label": "URL токена OAuth2"
+        },
+        "scopes": {
+          "label": "Области OAuth2"
+        },
+        "defaultHeaders": {
+          "label": "Заголовки по умолчанию"
+        },
+        "verifyTls": {
+          "label": "Проверять TLS"
+        },
+        "maxResponseBytes": {
+          "label": "Макс. байт ответа"
+        },
+        "tenantHeader": {
+          "label": "ID арендатора"
+        },
+        "maxLines": {
+          "label": "Макс. строк"
+        },
+        "maxRangeHours": {
+          "label": "Макс. диапазон (часы)"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "Учетные данные Basic"
+        },
+        "bearerToken": {
+          "label": "Токен Bearer"
+        },
+        "apiKey": {
+          "label": "Ключ API"
+        },
+        "clientCredentials": {
+          "label": "Учетные данные клиента OAuth2"
+        }
+      }
+    },
+    "elasticsearch": {
+      "settings": {
+        "baseUrl": {
+          "label": "Базовый URL"
+        },
+        "authType": {
+          "label": "Аутентификация",
+          "values": {
+            "None": "Нет",
+            "Basic": "Базовая",
+            "Bearer": "Токен Bearer",
+            "ApiKeyHeader": "Заголовок ключа API",
+            "OAuth2ClientCredentials": "Учетные данные клиента OAuth2"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "Заголовок ключа API"
+        },
+        "apiKeyPrefix": {
+          "label": "Префикс ключа API"
+        },
+        "tokenUrl": {
+          "label": "URL токена OAuth2"
+        },
+        "scopes": {
+          "label": "Области OAuth2"
+        },
+        "defaultHeaders": {
+          "label": "Заголовки по умолчанию"
+        },
+        "verifyTls": {
+          "label": "Проверять TLS"
+        },
+        "maxResponseBytes": {
+          "label": "Макс. байт ответа"
+        },
+        "flavor": {
+          "label": "Вариант",
+          "values": {
+            "Elasticsearch": "Elasticsearch",
+            "OpenSearch": "OpenSearch"
+          }
+        },
+        "allowedIndexPatterns": {
+          "label": "Разрешенные шаблоны индексов"
+        },
+        "maxHits": {
+          "label": "Макс. совпадений"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "Учетные данные Basic"
+        },
+        "bearerToken": {
+          "label": "Токен Bearer"
+        },
+        "apiKey": {
+          "label": "Ключ API"
+        },
+        "clientCredentials": {
+          "label": "Учетные данные клиента OAuth2"
+        }
+      }
+    },
+    "mcp": {
+      "settings": {
+        "transport": {
+          "label": "Транспорт",
+          "values": {
+            "StreamableHttp": "Потоковый HTTP",
+            "Stdio": "stdio (локальный процесс)"
+          }
+        },
+        "url": {
+          "label": "URL сервера"
+        },
+        "command": {
+          "label": "Команда"
+        },
+        "arguments": {
+          "label": "Аргументы"
+        },
+        "allowStdio": {
+          "label": "Разрешить stdio"
+        },
+        "includeTools": {
+          "label": "Включить инструменты"
+        },
+        "excludeTools": {
+          "label": "Исключить инструменты"
+        },
+        "refreshIntervalMinutes": {
+          "label": "Обновление списка инструментов (минуты)"
+        },
+        "timeoutSeconds": {
+          "label": "Тайм-аут (секунды)"
+        }
+      },
+      "slots": {
+        "authorizationHeader": {
+          "label": "Заголовок Authorization"
+        },
+        "extraHeaders": {
+          "label": "Дополнительные заголовки"
+        }
+      }
+    },
+    "a2a-agent": {
+      "settings": {
+        "agentCardUrl": {
+          "label": "URL карточки агента"
+        },
+        "skillId": {
+          "label": "Навык"
+        },
+        "timeoutSeconds": {
+          "label": "Тайм-аут (секунды)"
+        },
+        "streaming": {
+          "label": "Использовать потоковую передачу"
+        },
+        "allowCrossOriginEndpoint": {
+          "label": "Разрешить конечную точку другого источника"
+        }
+      },
+      "slots": {
+        "bearerToken": {
+          "label": "Токен Bearer"
+        }
+      }
     }
   }
 }

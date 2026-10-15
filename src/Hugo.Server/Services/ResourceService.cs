@@ -419,7 +419,8 @@ namespace Hugo.Server.Services
                     string? text = await provider.GetRemoteInstructionsAsync(lease.Context, timeout.Token).ConfigureAwait(false);
                     if (!String.IsNullOrWhiteSpace(text))
                     {
-                        result.Text = UntrustedContent.Fence("instructions from " + resource.ConnectorType + " resource " + alias, lease.Scrubber.Scrub(text));
+                        result.ScrubbedText = lease.Scrubber.Scrub(text);
+                        result.Text = UntrustedContent.Fence("instructions from " + resource.ConnectorType + " resource " + alias, result.ScrubbedText);
                     }
                 }
                 catch (OperationCanceledException) when (!token.IsCancellationRequested)

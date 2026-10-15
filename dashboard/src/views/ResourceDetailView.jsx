@@ -7,6 +7,7 @@ import JsonViewerModal from '../components/JsonViewerModal';
 import ResourceKnowledge from '../components/ResourceKnowledge';
 import { TryToolPanel } from '../components/TryToolModal';
 import { Badge, EnumBadge } from '../components/StatusBadge';
+import ConnectorIcon from '../components/ConnectorIcon';
 import { LoadingState, ErrorPresenter, UnavailableState } from '../components/States';
 import { tip } from '../components/Tooltip';
 import { useAuth } from '../context/AuthContext';
@@ -100,7 +101,9 @@ export default function ResourceDetailView({ recordId }) {
         title={resource.displayName || resource.name}
         subtitle={
           <span className="inline-meta">
-            <Badge tone="info">{connector?.displayName || resource.connectorType}</Badge>
+            <Badge tone="info">
+              <ConnectorIcon type={resource.connectorType} iconKey={connector?.iconKey} size={12} /> {connector?.displayName || resource.connectorType}
+            </Badge>
             {resource.environment && <Badge>{resource.environment}</Badge>}
             <EnumBadge group="healthStatus" value={health} tone={healthTone(health)} />
           </span>

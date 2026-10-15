@@ -711,7 +711,15 @@
         "Connection": "الاتصال",
         "Authentication": "المصادقة",
         "Limits": "الحدود",
-        "Advanced": "متقدم"
+        "Advanced": "متقدم",
+        "TLS": "TLS",
+        "Safety": "الأمان",
+        "Security": "الحماية",
+        "Scope": "النطاق",
+        "Search": "البحث",
+        "Execution": "التنفيذ",
+        "Credentials": "بيانات الاعتماد",
+        "Jump host": "مضيف القفز"
       },
       "errors": {
         "Required": "هذا الإعداد مطلوب.",
@@ -3950,6 +3958,542 @@
       "resource": "اختر موصّلًا، واملأ إعداداته، واختر السر الذي يحتاجه أو أنشئه، واختبر الاتصال قبل الحفظ.",
       "bind": "اربط المورد الجديد بملف تعريف Hugo الافتراضي واختر ما يُسمح للوكيل بفعله به.",
       "connect": "أضف Hugo إلى Claude Code (أو أي عميل MCP) بهذه الإعدادات، ثم ابدأ المحادثة مع Agent Smith."
+    }
+  },
+  "connectors": {
+    "redis": {
+      "settings": {
+        "endpoints": {
+          "label": "نقاط الاتصال"
+        },
+        "clusterMode": {
+          "label": "الطوبولوجيا",
+          "values": {
+            "Auto": "تلقائي",
+            "Standalone": "مستقل",
+            "Cluster": "كتلة",
+            "Sentinel": "Sentinel"
+          }
+        },
+        "sentinelServiceName": {
+          "label": "اسم خدمة Sentinel"
+        },
+        "database": {
+          "label": "قاعدة البيانات"
+        },
+        "username": {
+          "label": "اسم مستخدم ACL"
+        },
+        "useSsl": {
+          "label": "استخدام TLS"
+        },
+        "sslHost": {
+          "label": "اسم مضيف TLS"
+        },
+        "verifyTls": {
+          "label": "التحقق من شهادة TLS"
+        },
+        "caCertificate": {
+          "label": "شهادة CA (PEM)"
+        },
+        "connectTimeoutSeconds": {
+          "label": "مهلة الاتصال (بالثواني)"
+        },
+        "commandTimeoutSeconds": {
+          "label": "مهلة الأمر (بالثواني)"
+        },
+        "clientName": {
+          "label": "اسم العميل"
+        },
+        "maxKeysScanned": {
+          "label": "الحد الأقصى للمفاتيح المفحوصة"
+        },
+        "maxValueBytes": {
+          "label": "الحد الأقصى لبايتات القيمة"
+        },
+        "deniedCommands": {
+          "label": "الأوامر المحظورة"
+        },
+        "allowKeysCommand": {
+          "label": "السماح بـ KEYS"
+        },
+        "readOnlyCommands": {
+          "label": "أوامر إضافية للقراءة فقط"
+        }
+      },
+      "slots": {
+        "password": {
+          "label": "كلمة المرور"
+        }
+      }
+    },
+    "aws": {
+      "settings": {
+        "region": {
+          "label": "المنطقة"
+        },
+        "useInstanceRole": {
+          "label": "استخدام بيانات الاعتماد المحيطة"
+        },
+        "assumeRoleArn": {
+          "label": "الدور المراد تولّيه"
+        },
+        "externalId": {
+          "label": "المعرّف الخارجي"
+        },
+        "sessionName": {
+          "label": "اسم جلسة الدور"
+        },
+        "assumeRoleDurationSeconds": {
+          "label": "مدة جلسة الدور (بالثواني)"
+        },
+        "allowedServices": {
+          "label": "الخدمات المسموح بها"
+        },
+        "endpointOverride": {
+          "label": "تجاوز نقطة الاتصال"
+        },
+        "maxResults": {
+          "label": "حجم الصفحة الافتراضي"
+        },
+        "maxRetries": {
+          "label": "محاولات إعادة SDK"
+        },
+        "defaultLookbackMinutes": {
+          "label": "فترة الرجوع الافتراضية (بالدقائق)"
+        },
+        "maxTimeRangeHours": {
+          "label": "أقصى نطاق زمني (بالساعات)"
+        },
+        "logsQueryTimeoutSeconds": {
+          "label": "مهلة انتظار Logs Insights (بالثواني)"
+        },
+        "logsMaxEvents": {
+          "label": "الحد الأقصى لأحداث السجل"
+        },
+        "lambdaMaxPayloadBytes": {
+          "label": "الحد الأقصى لحمولة Lambda (بالبايت)"
+        }
+      },
+      "slots": {
+        "accessKeyPair": {
+          "label": "زوج مفاتيح الوصول"
+        }
+      }
+    },
+    "kubernetes": {
+      "settings": {
+        "context": {
+          "label": "السياق"
+        },
+        "serverUrl": {
+          "label": "عنوان URL لخادم API"
+        },
+        "insecureSkipTlsVerify": {
+          "label": "تخطي التحقق من TLS"
+        },
+        "requestTimeoutSeconds": {
+          "label": "مهلة الطلب (بالثواني)"
+        },
+        "allowedNamespaces": {
+          "label": "مساحات الأسماء المسموح بها"
+        },
+        "defaultNamespace": {
+          "label": "مساحة الأسماء الافتراضية"
+        },
+        "clusterScopedReads": {
+          "label": "قراءة الأنواع على مستوى الكتلة"
+        },
+        "allowClusterScoped": {
+          "label": "تغيير الأنواع على مستوى الكتلة"
+        },
+        "destructiveKinds": {
+          "label": "الأنواع المدمِّرة"
+        },
+        "fieldManager": {
+          "label": "مدير الحقول"
+        },
+        "maxLogLines": {
+          "label": "الحد الأقصى لأسطر السجل"
+        },
+        "maxObjects": {
+          "label": "الحد الأقصى للكائنات في كل قائمة"
+        },
+        "execTimeoutSeconds": {
+          "label": "مهلة التنفيذ (بالثواني)"
+        }
+      },
+      "slots": {
+        "kubeconfig": {
+          "label": "Kubeconfig"
+        },
+        "serviceAccountToken": {
+          "label": "رمز حساب الخدمة"
+        },
+        "certificateAuthority": {
+          "label": "شهادة CA للكتلة"
+        }
+      }
+    },
+    "docker": {
+      "settings": {
+        "endpoint": {
+          "label": "نقطة الاتصال"
+        },
+        "tlsVerify": {
+          "label": "التحقق من TLS"
+        },
+        "requestTimeoutSeconds": {
+          "label": "مهلة الطلب (بالثواني)"
+        },
+        "showEnvironmentValues": {
+          "label": "إظهار قيم البيئة"
+        },
+        "maxLogLines": {
+          "label": "الحد الأقصى لأسطر السجل"
+        },
+        "maxEventsWindowSeconds": {
+          "label": "أقصى نافذة للأحداث (بالثواني)"
+        },
+        "execTimeoutSeconds": {
+          "label": "مهلة التنفيذ (بالثواني)"
+        },
+        "maxStatsContainers": {
+          "label": "الحد الأقصى للحاويات في كل استدعاء إحصاءات"
+        }
+      },
+      "slots": {
+        "tlsClientCertificate": {
+          "label": "شهادة عميل TLS"
+        }
+      }
+    },
+    "http": {
+      "settings": {
+        "baseUrl": {
+          "label": "عنوان URL الأساسي"
+        },
+        "healthPath": {
+          "label": "مسار فحص الصحة"
+        },
+        "defaultHeaders": {
+          "label": "الترويسات الافتراضية"
+        },
+        "timeoutSeconds": {
+          "label": "المهلة (بالثواني)"
+        },
+        "followRedirects": {
+          "label": "اتباع عمليات إعادة التوجيه"
+        },
+        "maxRedirects": {
+          "label": "الحد الأقصى لإعادة التوجيه"
+        },
+        "verifyTls": {
+          "label": "التحقق من شهادات TLS"
+        },
+        "authType": {
+          "label": "المصادقة",
+          "values": {
+            "None": "بلا",
+            "Basic": "أساسية",
+            "Bearer": "رمز Bearer",
+            "ApiKeyHeader": "ترويسة مفتاح API",
+            "OAuth2ClientCredentials": "بيانات اعتماد عميل OAuth2"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "ترويسة مفتاح API"
+        },
+        "tokenUrl": {
+          "label": "عنوان URL لرمز OAuth2"
+        },
+        "scopes": {
+          "label": "نطاقات OAuth2"
+        },
+        "allowedMethods": {
+          "label": "الطرق المسموح بها"
+        },
+        "allowedPathPrefixes": {
+          "label": "بادئات المسارات المسموح بها"
+        },
+        "methodEffectOverrides": {
+          "label": "تجاوزات التأثير"
+        },
+        "maxResponseBytes": {
+          "label": "الحد الأقصى لبايتات الاستجابة"
+        },
+        "maxRequestBytes": {
+          "label": "الحد الأقصى لبايتات الطلب"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "بيانات الاعتماد الأساسية"
+        },
+        "bearerToken": {
+          "label": "رمز Bearer"
+        },
+        "apiKey": {
+          "label": "مفتاح API"
+        },
+        "clientCredentials": {
+          "label": "بيانات اعتماد عميل OAuth2"
+        }
+      }
+    },
+    "prometheus": {
+      "settings": {
+        "baseUrl": {
+          "label": "عنوان URL الأساسي"
+        },
+        "authType": {
+          "label": "المصادقة",
+          "values": {
+            "None": "بلا",
+            "Basic": "أساسية",
+            "Bearer": "رمز Bearer",
+            "ApiKeyHeader": "ترويسة مفتاح API",
+            "OAuth2ClientCredentials": "بيانات اعتماد عميل OAuth2"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "ترويسة مفتاح API"
+        },
+        "apiKeyPrefix": {
+          "label": "بادئة مفتاح API"
+        },
+        "tokenUrl": {
+          "label": "عنوان URL لرمز OAuth2"
+        },
+        "scopes": {
+          "label": "نطاقات OAuth2"
+        },
+        "defaultHeaders": {
+          "label": "الترويسات الافتراضية"
+        },
+        "verifyTls": {
+          "label": "التحقق من TLS"
+        },
+        "maxResponseBytes": {
+          "label": "الحد الأقصى لبايتات الاستجابة"
+        },
+        "maxSeries": {
+          "label": "الحد الأقصى للسلاسل"
+        },
+        "maxPointsPerSeries": {
+          "label": "الحد الأقصى للنقاط في كل سلسلة"
+        },
+        "maxRangeHours": {
+          "label": "أقصى نطاق (بالساعات)"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "بيانات الاعتماد الأساسية"
+        },
+        "bearerToken": {
+          "label": "رمز Bearer"
+        },
+        "apiKey": {
+          "label": "مفتاح API"
+        },
+        "clientCredentials": {
+          "label": "بيانات اعتماد عميل OAuth2"
+        }
+      }
+    },
+    "loki": {
+      "settings": {
+        "baseUrl": {
+          "label": "عنوان URL الأساسي"
+        },
+        "authType": {
+          "label": "المصادقة",
+          "values": {
+            "None": "بلا",
+            "Basic": "أساسية",
+            "Bearer": "رمز Bearer",
+            "ApiKeyHeader": "ترويسة مفتاح API",
+            "OAuth2ClientCredentials": "بيانات اعتماد عميل OAuth2"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "ترويسة مفتاح API"
+        },
+        "apiKeyPrefix": {
+          "label": "بادئة مفتاح API"
+        },
+        "tokenUrl": {
+          "label": "عنوان URL لرمز OAuth2"
+        },
+        "scopes": {
+          "label": "نطاقات OAuth2"
+        },
+        "defaultHeaders": {
+          "label": "الترويسات الافتراضية"
+        },
+        "verifyTls": {
+          "label": "التحقق من TLS"
+        },
+        "maxResponseBytes": {
+          "label": "الحد الأقصى لبايتات الاستجابة"
+        },
+        "tenantHeader": {
+          "label": "معرّف المستأجر"
+        },
+        "maxLines": {
+          "label": "الحد الأقصى للأسطر"
+        },
+        "maxRangeHours": {
+          "label": "أقصى نطاق (بالساعات)"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "بيانات الاعتماد الأساسية"
+        },
+        "bearerToken": {
+          "label": "رمز Bearer"
+        },
+        "apiKey": {
+          "label": "مفتاح API"
+        },
+        "clientCredentials": {
+          "label": "بيانات اعتماد عميل OAuth2"
+        }
+      }
+    },
+    "elasticsearch": {
+      "settings": {
+        "baseUrl": {
+          "label": "عنوان URL الأساسي"
+        },
+        "authType": {
+          "label": "المصادقة",
+          "values": {
+            "None": "بلا",
+            "Basic": "أساسية",
+            "Bearer": "رمز Bearer",
+            "ApiKeyHeader": "ترويسة مفتاح API",
+            "OAuth2ClientCredentials": "بيانات اعتماد عميل OAuth2"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "ترويسة مفتاح API"
+        },
+        "apiKeyPrefix": {
+          "label": "بادئة مفتاح API"
+        },
+        "tokenUrl": {
+          "label": "عنوان URL لرمز OAuth2"
+        },
+        "scopes": {
+          "label": "نطاقات OAuth2"
+        },
+        "defaultHeaders": {
+          "label": "الترويسات الافتراضية"
+        },
+        "verifyTls": {
+          "label": "التحقق من TLS"
+        },
+        "maxResponseBytes": {
+          "label": "الحد الأقصى لبايتات الاستجابة"
+        },
+        "flavor": {
+          "label": "النوع",
+          "values": {
+            "Elasticsearch": "Elasticsearch",
+            "OpenSearch": "OpenSearch"
+          }
+        },
+        "allowedIndexPatterns": {
+          "label": "أنماط الفهارس المسموح بها"
+        },
+        "maxHits": {
+          "label": "الحد الأقصى للنتائج"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "بيانات الاعتماد الأساسية"
+        },
+        "bearerToken": {
+          "label": "رمز Bearer"
+        },
+        "apiKey": {
+          "label": "مفتاح API"
+        },
+        "clientCredentials": {
+          "label": "بيانات اعتماد عميل OAuth2"
+        }
+      }
+    },
+    "mcp": {
+      "settings": {
+        "transport": {
+          "label": "النقل",
+          "values": {
+            "StreamableHttp": "HTTP قابل للبث",
+            "Stdio": "stdio (عملية محلية)"
+          }
+        },
+        "url": {
+          "label": "عنوان URL للخادم"
+        },
+        "command": {
+          "label": "الأمر"
+        },
+        "arguments": {
+          "label": "الوسائط"
+        },
+        "allowStdio": {
+          "label": "السماح بـ stdio"
+        },
+        "includeTools": {
+          "label": "الأدوات المضمنة"
+        },
+        "excludeTools": {
+          "label": "الأدوات المستبعدة"
+        },
+        "refreshIntervalMinutes": {
+          "label": "تحديث قائمة الأدوات (بالدقائق)"
+        },
+        "timeoutSeconds": {
+          "label": "المهلة (بالثواني)"
+        }
+      },
+      "slots": {
+        "authorizationHeader": {
+          "label": "ترويسة التفويض"
+        },
+        "extraHeaders": {
+          "label": "ترويسات إضافية"
+        }
+      }
+    },
+    "a2a-agent": {
+      "settings": {
+        "agentCardUrl": {
+          "label": "عنوان URL لبطاقة الوكيل"
+        },
+        "skillId": {
+          "label": "المهارة"
+        },
+        "timeoutSeconds": {
+          "label": "المهلة (بالثواني)"
+        },
+        "streaming": {
+          "label": "استخدام البث"
+        },
+        "allowCrossOriginEndpoint": {
+          "label": "السماح بنقطة اتصال على أصل آخر"
+        }
+      },
+      "slots": {
+        "bearerToken": {
+          "label": "رمز Bearer"
+        }
+      }
     }
   }
 }

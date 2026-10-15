@@ -129,6 +129,12 @@ namespace Hugo.Server.Modules
             compiler.MaxCacheEntries = settings.Instructions.CacheEntries;
             compiler.Warn = message => context.Logging.Warn("[Instructions] " + message);
             context.Register(compiler);
+            // Third-party guidance (external MCP server instructions, remote agent cards) is fenced inside each binding's
+            // section; a fetch that lands after a compile stopped waiting drops the tenant's cached compilations (P13.28).
+            ThirdPartyInstructionCache thirdParty = new ThirdPartyInstructionCache(_Registry, resources);
+            thirdParty.Changed += (sender, tenantId) => compiler.Invalidate(tenantId);
+            compiler.ThirdPartyInstructions = thirdParty;
+            context.Register(thirdParty);
             ToolCatalogService catalog = new ToolCatalogService(context.Database, bindingResolver);
             context.Register(catalog);
 

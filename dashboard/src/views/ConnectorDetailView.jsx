@@ -15,6 +15,7 @@ import { pathFor } from '../config/navConfig';
 import { isMissingEndpoint } from '../utils/errors';
 import { normalizeSchema, initialValues } from '../utils/schemaForm';
 import { enumLabel } from '../utils/enums';
+import { connectorSlotLabel } from '../utils/tips';
 
 const TABS = ['overview', 'settings', 'tools', 'instructions'];
 
@@ -145,7 +146,7 @@ export default function ConnectorDetailView({ recordId }) {
             <ul className="plain-list" data-testid="connector-slots">
               {slots.map((s) => (
                 <li key={s.name}>
-                  <strong>{s.label || s.name}</strong> <code>{s.name}</code>{' '}
+                  <strong>{connectorSlotLabel(t, connector.type, s)}</strong> <code>{s.name}</code>{' '}
                   {s.required && <span className="pill pill-warning">{t('common.generic.required')}</span>}{' '}
                   <span className="text-muted">{(s.acceptedKinds || []).map((k) => enumLabel(t, 'secretKind', k)).join(', ')}</span>
                   {s.help && <div className="field-hint">{s.help}</div>}

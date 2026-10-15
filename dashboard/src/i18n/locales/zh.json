@@ -691,7 +691,15 @@
         "Connection": "连接",
         "Authentication": "身份验证",
         "Limits": "限制",
-        "Advanced": "高级"
+        "Advanced": "高级",
+        "TLS": "TLS",
+        "Safety": "安全",
+        "Security": "安全防护",
+        "Scope": "范围",
+        "Search": "搜索",
+        "Execution": "执行",
+        "Credentials": "凭据",
+        "Jump host": "跳板主机"
       },
       "errors": {
         "Required": "此设置为必填项。",
@@ -3862,6 +3870,542 @@
       "resource": "选择连接器、填写其设置、选择或创建所需的密钥，并在保存前测试连接。",
       "bind": "将新资源关联到默认 Hugo 配置文件，并选择智能体可对其执行的操作。",
       "connect": "使用此配置将 Hugo 添加到 Claude Code（或任意 MCP 客户端），然后开始与 Agent Smith 聊天。"
+    }
+  },
+  "connectors": {
+    "redis": {
+      "settings": {
+        "endpoints": {
+          "label": "端点"
+        },
+        "clusterMode": {
+          "label": "拓扑",
+          "values": {
+            "Auto": "自动",
+            "Standalone": "独立",
+            "Cluster": "集群",
+            "Sentinel": "Sentinel"
+          }
+        },
+        "sentinelServiceName": {
+          "label": "Sentinel 服务名称"
+        },
+        "database": {
+          "label": "数据库"
+        },
+        "username": {
+          "label": "ACL 用户名"
+        },
+        "useSsl": {
+          "label": "使用 TLS"
+        },
+        "sslHost": {
+          "label": "TLS 主机名"
+        },
+        "verifyTls": {
+          "label": "验证 TLS 证书"
+        },
+        "caCertificate": {
+          "label": "CA 证书 (PEM)"
+        },
+        "connectTimeoutSeconds": {
+          "label": "连接超时 (秒)"
+        },
+        "commandTimeoutSeconds": {
+          "label": "命令超时 (秒)"
+        },
+        "clientName": {
+          "label": "客户端名称"
+        },
+        "maxKeysScanned": {
+          "label": "最大扫描键数"
+        },
+        "maxValueBytes": {
+          "label": "值的最大字节数"
+        },
+        "deniedCommands": {
+          "label": "禁止的命令"
+        },
+        "allowKeysCommand": {
+          "label": "允许 KEYS"
+        },
+        "readOnlyCommands": {
+          "label": "额外的只读命令"
+        }
+      },
+      "slots": {
+        "password": {
+          "label": "密码"
+        }
+      }
+    },
+    "aws": {
+      "settings": {
+        "region": {
+          "label": "区域"
+        },
+        "useInstanceRole": {
+          "label": "使用环境凭据"
+        },
+        "assumeRoleArn": {
+          "label": "要代入的角色"
+        },
+        "externalId": {
+          "label": "外部 ID"
+        },
+        "sessionName": {
+          "label": "角色会话名称"
+        },
+        "assumeRoleDurationSeconds": {
+          "label": "角色会话时长 (秒)"
+        },
+        "allowedServices": {
+          "label": "允许的服务"
+        },
+        "endpointOverride": {
+          "label": "端点覆盖"
+        },
+        "maxResults": {
+          "label": "默认页面大小"
+        },
+        "maxRetries": {
+          "label": "SDK 重试次数"
+        },
+        "defaultLookbackMinutes": {
+          "label": "默认回溯时长 (分钟)"
+        },
+        "maxTimeRangeHours": {
+          "label": "最大时间范围 (小时)"
+        },
+        "logsQueryTimeoutSeconds": {
+          "label": "Logs Insights 等待时间 (秒)"
+        },
+        "logsMaxEvents": {
+          "label": "最大日志事件数"
+        },
+        "lambdaMaxPayloadBytes": {
+          "label": "Lambda 最大负载 (字节)"
+        }
+      },
+      "slots": {
+        "accessKeyPair": {
+          "label": "访问密钥对"
+        }
+      }
+    },
+    "kubernetes": {
+      "settings": {
+        "context": {
+          "label": "上下文"
+        },
+        "serverUrl": {
+          "label": "API 服务器 URL"
+        },
+        "insecureSkipTlsVerify": {
+          "label": "跳过 TLS 验证"
+        },
+        "requestTimeoutSeconds": {
+          "label": "请求超时 (秒)"
+        },
+        "allowedNamespaces": {
+          "label": "允许的命名空间"
+        },
+        "defaultNamespace": {
+          "label": "默认命名空间"
+        },
+        "clusterScopedReads": {
+          "label": "读取集群范围的类型"
+        },
+        "allowClusterScoped": {
+          "label": "更改集群范围的类型"
+        },
+        "destructiveKinds": {
+          "label": "破坏性类型"
+        },
+        "fieldManager": {
+          "label": "字段管理器"
+        },
+        "maxLogLines": {
+          "label": "最大日志行数"
+        },
+        "maxObjects": {
+          "label": "每个列表的最大对象数"
+        },
+        "execTimeoutSeconds": {
+          "label": "exec 超时 (秒)"
+        }
+      },
+      "slots": {
+        "kubeconfig": {
+          "label": "Kubeconfig"
+        },
+        "serviceAccountToken": {
+          "label": "服务账户令牌"
+        },
+        "certificateAuthority": {
+          "label": "集群 CA 证书"
+        }
+      }
+    },
+    "docker": {
+      "settings": {
+        "endpoint": {
+          "label": "端点"
+        },
+        "tlsVerify": {
+          "label": "验证 TLS"
+        },
+        "requestTimeoutSeconds": {
+          "label": "请求超时 (秒)"
+        },
+        "showEnvironmentValues": {
+          "label": "显示环境变量值"
+        },
+        "maxLogLines": {
+          "label": "最大日志行数"
+        },
+        "maxEventsWindowSeconds": {
+          "label": "最大事件窗口 (秒)"
+        },
+        "execTimeoutSeconds": {
+          "label": "exec 超时 (秒)"
+        },
+        "maxStatsContainers": {
+          "label": "每次统计调用的最大容器数"
+        }
+      },
+      "slots": {
+        "tlsClientCertificate": {
+          "label": "TLS 客户端证书"
+        }
+      }
+    },
+    "http": {
+      "settings": {
+        "baseUrl": {
+          "label": "基础 URL"
+        },
+        "healthPath": {
+          "label": "健康检查路径"
+        },
+        "defaultHeaders": {
+          "label": "默认标头"
+        },
+        "timeoutSeconds": {
+          "label": "超时 (秒)"
+        },
+        "followRedirects": {
+          "label": "跟随重定向"
+        },
+        "maxRedirects": {
+          "label": "最大重定向次数"
+        },
+        "verifyTls": {
+          "label": "验证 TLS 证书"
+        },
+        "authType": {
+          "label": "身份验证",
+          "values": {
+            "None": "无",
+            "Basic": "基本",
+            "Bearer": "Bearer 令牌",
+            "ApiKeyHeader": "API 密钥标头",
+            "OAuth2ClientCredentials": "OAuth2 客户端凭据"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "API 密钥标头"
+        },
+        "tokenUrl": {
+          "label": "OAuth2 令牌 URL"
+        },
+        "scopes": {
+          "label": "OAuth2 范围"
+        },
+        "allowedMethods": {
+          "label": "允许的方法"
+        },
+        "allowedPathPrefixes": {
+          "label": "允许的路径前缀"
+        },
+        "methodEffectOverrides": {
+          "label": "效果覆盖"
+        },
+        "maxResponseBytes": {
+          "label": "最大响应字节数"
+        },
+        "maxRequestBytes": {
+          "label": "最大请求字节数"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "基本凭据"
+        },
+        "bearerToken": {
+          "label": "Bearer 令牌"
+        },
+        "apiKey": {
+          "label": "API 密钥"
+        },
+        "clientCredentials": {
+          "label": "OAuth2 客户端凭据"
+        }
+      }
+    },
+    "prometheus": {
+      "settings": {
+        "baseUrl": {
+          "label": "基础 URL"
+        },
+        "authType": {
+          "label": "身份验证",
+          "values": {
+            "None": "无",
+            "Basic": "基本",
+            "Bearer": "Bearer 令牌",
+            "ApiKeyHeader": "API 密钥标头",
+            "OAuth2ClientCredentials": "OAuth2 客户端凭据"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "API 密钥标头"
+        },
+        "apiKeyPrefix": {
+          "label": "API 密钥前缀"
+        },
+        "tokenUrl": {
+          "label": "OAuth2 令牌 URL"
+        },
+        "scopes": {
+          "label": "OAuth2 范围"
+        },
+        "defaultHeaders": {
+          "label": "默认标头"
+        },
+        "verifyTls": {
+          "label": "验证 TLS"
+        },
+        "maxResponseBytes": {
+          "label": "最大响应字节数"
+        },
+        "maxSeries": {
+          "label": "最大序列数"
+        },
+        "maxPointsPerSeries": {
+          "label": "每个序列的最大点数"
+        },
+        "maxRangeHours": {
+          "label": "最大范围 (小时)"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "基本凭据"
+        },
+        "bearerToken": {
+          "label": "Bearer 令牌"
+        },
+        "apiKey": {
+          "label": "API 密钥"
+        },
+        "clientCredentials": {
+          "label": "OAuth2 客户端凭据"
+        }
+      }
+    },
+    "loki": {
+      "settings": {
+        "baseUrl": {
+          "label": "基础 URL"
+        },
+        "authType": {
+          "label": "身份验证",
+          "values": {
+            "None": "无",
+            "Basic": "基本",
+            "Bearer": "Bearer 令牌",
+            "ApiKeyHeader": "API 密钥标头",
+            "OAuth2ClientCredentials": "OAuth2 客户端凭据"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "API 密钥标头"
+        },
+        "apiKeyPrefix": {
+          "label": "API 密钥前缀"
+        },
+        "tokenUrl": {
+          "label": "OAuth2 令牌 URL"
+        },
+        "scopes": {
+          "label": "OAuth2 范围"
+        },
+        "defaultHeaders": {
+          "label": "默认标头"
+        },
+        "verifyTls": {
+          "label": "验证 TLS"
+        },
+        "maxResponseBytes": {
+          "label": "最大响应字节数"
+        },
+        "tenantHeader": {
+          "label": "租户 ID"
+        },
+        "maxLines": {
+          "label": "最大行数"
+        },
+        "maxRangeHours": {
+          "label": "最大范围 (小时)"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "基本凭据"
+        },
+        "bearerToken": {
+          "label": "Bearer 令牌"
+        },
+        "apiKey": {
+          "label": "API 密钥"
+        },
+        "clientCredentials": {
+          "label": "OAuth2 客户端凭据"
+        }
+      }
+    },
+    "elasticsearch": {
+      "settings": {
+        "baseUrl": {
+          "label": "基础 URL"
+        },
+        "authType": {
+          "label": "身份验证",
+          "values": {
+            "None": "无",
+            "Basic": "基本",
+            "Bearer": "Bearer 令牌",
+            "ApiKeyHeader": "API 密钥标头",
+            "OAuth2ClientCredentials": "OAuth2 客户端凭据"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "API 密钥标头"
+        },
+        "apiKeyPrefix": {
+          "label": "API 密钥前缀"
+        },
+        "tokenUrl": {
+          "label": "OAuth2 令牌 URL"
+        },
+        "scopes": {
+          "label": "OAuth2 范围"
+        },
+        "defaultHeaders": {
+          "label": "默认标头"
+        },
+        "verifyTls": {
+          "label": "验证 TLS"
+        },
+        "maxResponseBytes": {
+          "label": "最大响应字节数"
+        },
+        "flavor": {
+          "label": "类型",
+          "values": {
+            "Elasticsearch": "Elasticsearch",
+            "OpenSearch": "OpenSearch"
+          }
+        },
+        "allowedIndexPatterns": {
+          "label": "允许的索引模式"
+        },
+        "maxHits": {
+          "label": "最大命中数"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "基本凭据"
+        },
+        "bearerToken": {
+          "label": "Bearer 令牌"
+        },
+        "apiKey": {
+          "label": "API 密钥"
+        },
+        "clientCredentials": {
+          "label": "OAuth2 客户端凭据"
+        }
+      }
+    },
+    "mcp": {
+      "settings": {
+        "transport": {
+          "label": "传输方式",
+          "values": {
+            "StreamableHttp": "可流式 HTTP",
+            "Stdio": "stdio (本地进程)"
+          }
+        },
+        "url": {
+          "label": "服务器 URL"
+        },
+        "command": {
+          "label": "命令"
+        },
+        "arguments": {
+          "label": "参数"
+        },
+        "allowStdio": {
+          "label": "允许 stdio"
+        },
+        "includeTools": {
+          "label": "包含的工具"
+        },
+        "excludeTools": {
+          "label": "排除的工具"
+        },
+        "refreshIntervalMinutes": {
+          "label": "工具列表刷新间隔 (分钟)"
+        },
+        "timeoutSeconds": {
+          "label": "超时 (秒)"
+        }
+      },
+      "slots": {
+        "authorizationHeader": {
+          "label": "Authorization 标头"
+        },
+        "extraHeaders": {
+          "label": "额外标头"
+        }
+      }
+    },
+    "a2a-agent": {
+      "settings": {
+        "agentCardUrl": {
+          "label": "智能体卡片 URL"
+        },
+        "skillId": {
+          "label": "技能"
+        },
+        "timeoutSeconds": {
+          "label": "超时 (秒)"
+        },
+        "streaming": {
+          "label": "使用流式传输"
+        },
+        "allowCrossOriginEndpoint": {
+          "label": "允许其他源上的端点"
+        }
+      },
+      "slots": {
+        "bearerToken": {
+          "label": "Bearer 令牌"
+        }
+      }
     }
   }
 }

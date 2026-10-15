@@ -691,7 +691,15 @@
         "Connection": "Sambungan",
         "Authentication": "Pengesahan",
         "Limits": "Had",
-        "Advanced": "Lanjutan"
+        "Advanced": "Lanjutan",
+        "TLS": "TLS",
+        "Safety": "Keselamatan",
+        "Security": "Perlindungan",
+        "Scope": "Skop",
+        "Search": "Carian",
+        "Execution": "Pelaksanaan",
+        "Credentials": "Kelayakan",
+        "Jump host": "Hos lompatan"
       },
       "errors": {
         "Required": "Tetapan ini diperlukan.",
@@ -3862,6 +3870,542 @@
       "resource": "Pilih penyambung, isikan tetapannya, pilih atau cipta rahsia yang diperlukan, dan uji sambungan sebelum menyimpan.",
       "bind": "Lampirkan sumber baharu pada profil Hugo lalai dan pilih apa yang boleh dilakukan oleh ejen dengannya.",
       "connect": "Tambah Hugo ke Claude Code (atau mana-mana klien MCP) dengan konfigurasi ini, kemudian mula bersembang dengan Agent Smith."
+    }
+  },
+  "connectors": {
+    "redis": {
+      "settings": {
+        "endpoints": {
+          "label": "Titik akhir"
+        },
+        "clusterMode": {
+          "label": "Topologi",
+          "values": {
+            "Auto": "Automatik",
+            "Standalone": "Kendiri",
+            "Cluster": "Kluster",
+            "Sentinel": "Sentinel"
+          }
+        },
+        "sentinelServiceName": {
+          "label": "Nama perkhidmatan Sentinel"
+        },
+        "database": {
+          "label": "Pangkalan data"
+        },
+        "username": {
+          "label": "Nama pengguna ACL"
+        },
+        "useSsl": {
+          "label": "Guna TLS"
+        },
+        "sslHost": {
+          "label": "Nama hos TLS"
+        },
+        "verifyTls": {
+          "label": "Sahkan sijil TLS"
+        },
+        "caCertificate": {
+          "label": "Sijil CA (PEM)"
+        },
+        "connectTimeoutSeconds": {
+          "label": "Had masa sambungan (saat)"
+        },
+        "commandTimeoutSeconds": {
+          "label": "Had masa arahan (saat)"
+        },
+        "clientName": {
+          "label": "Nama klien"
+        },
+        "maxKeysScanned": {
+          "label": "Kunci maksimum diimbas"
+        },
+        "maxValueBytes": {
+          "label": "Bait nilai maksimum"
+        },
+        "deniedCommands": {
+          "label": "Arahan ditolak"
+        },
+        "allowKeysCommand": {
+          "label": "Benarkan KEYS"
+        },
+        "readOnlyCommands": {
+          "label": "Arahan baca sahaja tambahan"
+        }
+      },
+      "slots": {
+        "password": {
+          "label": "Kata laluan"
+        }
+      }
+    },
+    "aws": {
+      "settings": {
+        "region": {
+          "label": "Rantau"
+        },
+        "useInstanceRole": {
+          "label": "Guna kelayakan persekitaran"
+        },
+        "assumeRoleArn": {
+          "label": "Peranan untuk diambil alih"
+        },
+        "externalId": {
+          "label": "ID luaran"
+        },
+        "sessionName": {
+          "label": "Nama sesi peranan"
+        },
+        "assumeRoleDurationSeconds": {
+          "label": "Tempoh sesi peranan (saat)"
+        },
+        "allowedServices": {
+          "label": "Perkhidmatan dibenarkan"
+        },
+        "endpointOverride": {
+          "label": "Gantian titik akhir"
+        },
+        "maxResults": {
+          "label": "Saiz halaman lalai"
+        },
+        "maxRetries": {
+          "label": "Cubaan semula SDK"
+        },
+        "defaultLookbackMinutes": {
+          "label": "Tempoh imbas balik lalai (minit)"
+        },
+        "maxTimeRangeHours": {
+          "label": "Julat masa maksimum (jam)"
+        },
+        "logsQueryTimeoutSeconds": {
+          "label": "Masa menunggu Logs Insights (saat)"
+        },
+        "logsMaxEvents": {
+          "label": "Peristiwa log maksimum"
+        },
+        "lambdaMaxPayloadBytes": {
+          "label": "Muatan Lambda maksimum (bait)"
+        }
+      },
+      "slots": {
+        "accessKeyPair": {
+          "label": "Pasangan kunci akses"
+        }
+      }
+    },
+    "kubernetes": {
+      "settings": {
+        "context": {
+          "label": "Konteks"
+        },
+        "serverUrl": {
+          "label": "URL pelayan API"
+        },
+        "insecureSkipTlsVerify": {
+          "label": "Langkau pengesahan TLS"
+        },
+        "requestTimeoutSeconds": {
+          "label": "Had masa permintaan (saat)"
+        },
+        "allowedNamespaces": {
+          "label": "Ruang nama dibenarkan"
+        },
+        "defaultNamespace": {
+          "label": "Ruang nama lalai"
+        },
+        "clusterScopedReads": {
+          "label": "Baca jenis skop kluster"
+        },
+        "allowClusterScoped": {
+          "label": "Ubah jenis skop kluster"
+        },
+        "destructiveKinds": {
+          "label": "Jenis pemusnah"
+        },
+        "fieldManager": {
+          "label": "Pengurus medan"
+        },
+        "maxLogLines": {
+          "label": "Baris log maksimum"
+        },
+        "maxObjects": {
+          "label": "Objek maksimum setiap senarai"
+        },
+        "execTimeoutSeconds": {
+          "label": "Had masa exec (saat)"
+        }
+      },
+      "slots": {
+        "kubeconfig": {
+          "label": "Kubeconfig"
+        },
+        "serviceAccountToken": {
+          "label": "Token akaun perkhidmatan"
+        },
+        "certificateAuthority": {
+          "label": "Sijil CA kluster"
+        }
+      }
+    },
+    "docker": {
+      "settings": {
+        "endpoint": {
+          "label": "Titik akhir"
+        },
+        "tlsVerify": {
+          "label": "Sahkan TLS"
+        },
+        "requestTimeoutSeconds": {
+          "label": "Had masa permintaan (saat)"
+        },
+        "showEnvironmentValues": {
+          "label": "Tunjukkan nilai persekitaran"
+        },
+        "maxLogLines": {
+          "label": "Baris log maksimum"
+        },
+        "maxEventsWindowSeconds": {
+          "label": "Tetingkap peristiwa maksimum (saat)"
+        },
+        "execTimeoutSeconds": {
+          "label": "Had masa exec (saat)"
+        },
+        "maxStatsContainers": {
+          "label": "Bekas maksimum setiap panggilan statistik"
+        }
+      },
+      "slots": {
+        "tlsClientCertificate": {
+          "label": "Sijil klien TLS"
+        }
+      }
+    },
+    "http": {
+      "settings": {
+        "baseUrl": {
+          "label": "URL asas"
+        },
+        "healthPath": {
+          "label": "Laluan kesihatan"
+        },
+        "defaultHeaders": {
+          "label": "Pengepala lalai"
+        },
+        "timeoutSeconds": {
+          "label": "Had masa (saat)"
+        },
+        "followRedirects": {
+          "label": "Ikut ubah hala"
+        },
+        "maxRedirects": {
+          "label": "Ubah hala maksimum"
+        },
+        "verifyTls": {
+          "label": "Sahkan sijil-sijil TLS"
+        },
+        "authType": {
+          "label": "Pengesahan",
+          "values": {
+            "None": "Tiada",
+            "Basic": "Asas",
+            "Bearer": "Token pembawa",
+            "ApiKeyHeader": "Pengepala kunci API",
+            "OAuth2ClientCredentials": "Kelayakan klien OAuth2"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "Pengepala kunci API"
+        },
+        "tokenUrl": {
+          "label": "URL token OAuth2"
+        },
+        "scopes": {
+          "label": "Skop OAuth2"
+        },
+        "allowedMethods": {
+          "label": "Kaedah dibenarkan"
+        },
+        "allowedPathPrefixes": {
+          "label": "Awalan laluan dibenarkan"
+        },
+        "methodEffectOverrides": {
+          "label": "Gantian kesan"
+        },
+        "maxResponseBytes": {
+          "label": "Bait respons maksimum"
+        },
+        "maxRequestBytes": {
+          "label": "Bait permintaan maksimum"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "Kelayakan asas"
+        },
+        "bearerToken": {
+          "label": "Token pembawa"
+        },
+        "apiKey": {
+          "label": "Kunci API"
+        },
+        "clientCredentials": {
+          "label": "Kelayakan klien OAuth2"
+        }
+      }
+    },
+    "prometheus": {
+      "settings": {
+        "baseUrl": {
+          "label": "URL asas"
+        },
+        "authType": {
+          "label": "Pengesahan",
+          "values": {
+            "None": "Tiada",
+            "Basic": "Asas",
+            "Bearer": "Token pembawa",
+            "ApiKeyHeader": "Pengepala kunci API",
+            "OAuth2ClientCredentials": "Kelayakan klien OAuth2"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "Pengepala kunci API"
+        },
+        "apiKeyPrefix": {
+          "label": "Awalan kunci API"
+        },
+        "tokenUrl": {
+          "label": "URL token OAuth2"
+        },
+        "scopes": {
+          "label": "Skop OAuth2"
+        },
+        "defaultHeaders": {
+          "label": "Pengepala lalai"
+        },
+        "verifyTls": {
+          "label": "Sahkan TLS"
+        },
+        "maxResponseBytes": {
+          "label": "Bait respons maksimum"
+        },
+        "maxSeries": {
+          "label": "Siri maksimum"
+        },
+        "maxPointsPerSeries": {
+          "label": "Titik maksimum setiap siri"
+        },
+        "maxRangeHours": {
+          "label": "Julat maksimum (jam)"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "Kelayakan asas"
+        },
+        "bearerToken": {
+          "label": "Token pembawa"
+        },
+        "apiKey": {
+          "label": "Kunci API"
+        },
+        "clientCredentials": {
+          "label": "Kelayakan klien OAuth2"
+        }
+      }
+    },
+    "loki": {
+      "settings": {
+        "baseUrl": {
+          "label": "URL asas"
+        },
+        "authType": {
+          "label": "Pengesahan",
+          "values": {
+            "None": "Tiada",
+            "Basic": "Asas",
+            "Bearer": "Token pembawa",
+            "ApiKeyHeader": "Pengepala kunci API",
+            "OAuth2ClientCredentials": "Kelayakan klien OAuth2"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "Pengepala kunci API"
+        },
+        "apiKeyPrefix": {
+          "label": "Awalan kunci API"
+        },
+        "tokenUrl": {
+          "label": "URL token OAuth2"
+        },
+        "scopes": {
+          "label": "Skop OAuth2"
+        },
+        "defaultHeaders": {
+          "label": "Pengepala lalai"
+        },
+        "verifyTls": {
+          "label": "Sahkan TLS"
+        },
+        "maxResponseBytes": {
+          "label": "Bait respons maksimum"
+        },
+        "tenantHeader": {
+          "label": "ID penyewa"
+        },
+        "maxLines": {
+          "label": "Baris maksimum"
+        },
+        "maxRangeHours": {
+          "label": "Julat maksimum (jam)"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "Kelayakan asas"
+        },
+        "bearerToken": {
+          "label": "Token pembawa"
+        },
+        "apiKey": {
+          "label": "Kunci API"
+        },
+        "clientCredentials": {
+          "label": "Kelayakan klien OAuth2"
+        }
+      }
+    },
+    "elasticsearch": {
+      "settings": {
+        "baseUrl": {
+          "label": "URL asas"
+        },
+        "authType": {
+          "label": "Pengesahan",
+          "values": {
+            "None": "Tiada",
+            "Basic": "Asas",
+            "Bearer": "Token pembawa",
+            "ApiKeyHeader": "Pengepala kunci API",
+            "OAuth2ClientCredentials": "Kelayakan klien OAuth2"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "Pengepala kunci API"
+        },
+        "apiKeyPrefix": {
+          "label": "Awalan kunci API"
+        },
+        "tokenUrl": {
+          "label": "URL token OAuth2"
+        },
+        "scopes": {
+          "label": "Skop OAuth2"
+        },
+        "defaultHeaders": {
+          "label": "Pengepala lalai"
+        },
+        "verifyTls": {
+          "label": "Sahkan TLS"
+        },
+        "maxResponseBytes": {
+          "label": "Bait respons maksimum"
+        },
+        "flavor": {
+          "label": "Varian",
+          "values": {
+            "Elasticsearch": "Elasticsearch",
+            "OpenSearch": "OpenSearch"
+          }
+        },
+        "allowedIndexPatterns": {
+          "label": "Corak indeks dibenarkan"
+        },
+        "maxHits": {
+          "label": "Hasil maksimum"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "Kelayakan asas"
+        },
+        "bearerToken": {
+          "label": "Token pembawa"
+        },
+        "apiKey": {
+          "label": "Kunci API"
+        },
+        "clientCredentials": {
+          "label": "Kelayakan klien OAuth2"
+        }
+      }
+    },
+    "mcp": {
+      "settings": {
+        "transport": {
+          "label": "Pengangkutan",
+          "values": {
+            "StreamableHttp": "HTTP boleh distrim",
+            "Stdio": "stdio (proses tempatan)"
+          }
+        },
+        "url": {
+          "label": "URL pelayan"
+        },
+        "command": {
+          "label": "Arahan"
+        },
+        "arguments": {
+          "label": "Argumen"
+        },
+        "allowStdio": {
+          "label": "Benarkan stdio"
+        },
+        "includeTools": {
+          "label": "Sertakan alat"
+        },
+        "excludeTools": {
+          "label": "Kecualikan alat"
+        },
+        "refreshIntervalMinutes": {
+          "label": "Muat semula senarai alat (minit)"
+        },
+        "timeoutSeconds": {
+          "label": "Had masa (saat)"
+        }
+      },
+      "slots": {
+        "authorizationHeader": {
+          "label": "Pengepala Authorization"
+        },
+        "extraHeaders": {
+          "label": "Pengepala tambahan"
+        }
+      }
+    },
+    "a2a-agent": {
+      "settings": {
+        "agentCardUrl": {
+          "label": "URL kad ejen"
+        },
+        "skillId": {
+          "label": "Kemahiran"
+        },
+        "timeoutSeconds": {
+          "label": "Had masa (saat)"
+        },
+        "streaming": {
+          "label": "Guna penstriman"
+        },
+        "allowCrossOriginEndpoint": {
+          "label": "Benarkan titik akhir pada asal lain"
+        }
+      },
+      "slots": {
+        "bearerToken": {
+          "label": "Token pembawa"
+        }
+      }
     }
   }
 }

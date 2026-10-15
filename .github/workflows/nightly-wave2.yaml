@@ -1,0 +1,73 @@
+name: Nightly wave 2 connectors
+
+# Runs the wave 2 connector suites (plan P13.1) against real targets every night: Redis, LocalStack (aws),
+# Prometheus, Loki, and OpenSearch (observability), k3s (kubernetes), and Docker-in-Docker (docker), all from
+# docker/testbed. The mcp, a2a-agent, and http suites need no container: they run against in-process Voltaic and
+# Watson servers started by the suites themselves. docker/testbed/README.md describes the targets.
+
+on:
+  schedule:
+    - cron: '30 6 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: nightly-wave2
+  cancel-in-progress: true
+
+jobs:
+  wave2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      HUGO_TESTBED: '1'
+      TESTBED_FAMILIES: 'redis aws observability kubernetes docker'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - name: Restore
+        run: dotnet restore src/Hugo.sln
+      - name: Build
+        run: dotnet build src/Hugo.sln --no-restore
+      - name: Start wave 2 testbed targets
+        run: |
+          for family in $TESTBED_FAMILIES; do
+            echo "Starting docker/testbed/$family"
+            docker compose -f "docker/testbed/$family/compose.yaml" up -d --wait --wait-timeout 600
+          done
+      - name: Testbed status
+        if: always()
+        run: |
+          for family in $TESTBED_FAMILIES; do
+            docker compose -f "docker/testbed/$family/compose.yaml" ps -a
+          done
+      - name: Touchstone (wave 2 testbed and in-process suites)
+        run: >-
+          dotnet run --project src/Test.Automated -f net10.0 --
+          --providers sqlite
+          --results results-wave2.json
+          --suites testbed.redis,testbed.aws,testbed.observability,testbed.kubernetes,testbed.docker,connectors.redis,connectors.aws,connectors.observability,connectors.kubernetes,connectors.docker,connectors.http,connectors.agents.mcp,connectors.agents.a2a
+      - name: Collect testbed logs
+        if: failure()
+        run: |
+          mkdir -p testbed-logs
+          for family in $TESTBED_FAMILIES; do
+            docker compose -f "docker/testbed/$family/compose.yaml" logs --no-color > "testbed-logs/$family.log" 2>&1 || true
+          done
+      - name: Stop wave 2 testbed targets
+        if: always()
+        run: |
+          for family in $TESTBED_FAMILIES; do
+            docker compose -f "docker/testbed/$family/compose.yaml" down -v || true
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nightly-wave2-results
+          path: |
+            results-wave2.json
+            testbed-logs/
+          if-no-files-found: ignore

@@ -470,6 +470,11 @@ code,
   gap: var(--spacing-sm);
   flex-wrap: wrap;
 }
+.connector-icon {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
 .connector-card-body {
   color: var(--color-text-secondary);
   font-size: var(--font-size-sm);

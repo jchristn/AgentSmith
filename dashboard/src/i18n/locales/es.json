@@ -691,7 +691,15 @@
         "Connection": "Conexión",
         "Authentication": "Autenticación",
         "Limits": "Límites",
-        "Advanced": "Avanzado"
+        "Advanced": "Avanzado",
+        "TLS": "TLS",
+        "Safety": "Seguridad",
+        "Security": "Protección",
+        "Scope": "Ámbito",
+        "Search": "Búsqueda",
+        "Execution": "Ejecución",
+        "Credentials": "Credenciales",
+        "Jump host": "Host de salto"
       },
       "errors": {
         "Required": "Este ajuste es obligatorio.",
@@ -3862,6 +3870,542 @@
       "resource": "Elija un conector, rellene sus ajustes, elija o cree el secreto que necesita y pruebe la conexión antes de guardar.",
       "bind": "Asocie el recurso nuevo al perfil predeterminado de Hugo y elija lo que puede hacer el agente con él.",
       "connect": "Añada Hugo a Claude Code (o a cualquier cliente MCP) con esta configuración y empiece a chatear con Agent Smith."
+    }
+  },
+  "connectors": {
+    "redis": {
+      "settings": {
+        "endpoints": {
+          "label": "Puntos de conexión"
+        },
+        "clusterMode": {
+          "label": "Topología",
+          "values": {
+            "Auto": "Automático",
+            "Standalone": "Independiente",
+            "Cluster": "Clúster",
+            "Sentinel": "Sentinel"
+          }
+        },
+        "sentinelServiceName": {
+          "label": "Nombre del servicio Sentinel"
+        },
+        "database": {
+          "label": "Base de datos"
+        },
+        "username": {
+          "label": "Usuario ACL"
+        },
+        "useSsl": {
+          "label": "Usar TLS"
+        },
+        "sslHost": {
+          "label": "Nombre de host TLS"
+        },
+        "verifyTls": {
+          "label": "Verificar certificado TLS"
+        },
+        "caCertificate": {
+          "label": "Certificado de CA (PEM)"
+        },
+        "connectTimeoutSeconds": {
+          "label": "Tiempo de espera de conexión (segundos)"
+        },
+        "commandTimeoutSeconds": {
+          "label": "Tiempo de espera de comando (segundos)"
+        },
+        "clientName": {
+          "label": "Nombre del cliente"
+        },
+        "maxKeysScanned": {
+          "label": "Máximo de claves examinadas"
+        },
+        "maxValueBytes": {
+          "label": "Bytes máximos por valor"
+        },
+        "deniedCommands": {
+          "label": "Comandos denegados"
+        },
+        "allowKeysCommand": {
+          "label": "Permitir KEYS"
+        },
+        "readOnlyCommands": {
+          "label": "Comandos adicionales de solo lectura"
+        }
+      },
+      "slots": {
+        "password": {
+          "label": "Contraseña"
+        }
+      }
+    },
+    "aws": {
+      "settings": {
+        "region": {
+          "label": "Región"
+        },
+        "useInstanceRole": {
+          "label": "Usar credenciales del entorno"
+        },
+        "assumeRoleArn": {
+          "label": "Rol que se asume"
+        },
+        "externalId": {
+          "label": "ID externo"
+        },
+        "sessionName": {
+          "label": "Nombre de la sesión del rol"
+        },
+        "assumeRoleDurationSeconds": {
+          "label": "Duración de la sesión del rol (segundos)"
+        },
+        "allowedServices": {
+          "label": "Servicios permitidos"
+        },
+        "endpointOverride": {
+          "label": "Punto de conexión alternativo"
+        },
+        "maxResults": {
+          "label": "Tamaño de página predeterminado"
+        },
+        "maxRetries": {
+          "label": "Reintentos del SDK"
+        },
+        "defaultLookbackMinutes": {
+          "label": "Periodo retrospectivo predeterminado (minutos)"
+        },
+        "maxTimeRangeHours": {
+          "label": "Intervalo de tiempo máximo (horas)"
+        },
+        "logsQueryTimeoutSeconds": {
+          "label": "Espera de Logs Insights (segundos)"
+        },
+        "logsMaxEvents": {
+          "label": "Máximo de eventos de registro"
+        },
+        "lambdaMaxPayloadBytes": {
+          "label": "Carga útil máxima de Lambda (bytes)"
+        }
+      },
+      "slots": {
+        "accessKeyPair": {
+          "label": "Par de claves de acceso"
+        }
+      }
+    },
+    "kubernetes": {
+      "settings": {
+        "context": {
+          "label": "Contexto"
+        },
+        "serverUrl": {
+          "label": "URL del servidor de API"
+        },
+        "insecureSkipTlsVerify": {
+          "label": "Omitir verificación TLS"
+        },
+        "requestTimeoutSeconds": {
+          "label": "Tiempo de espera de solicitud (segundos)"
+        },
+        "allowedNamespaces": {
+          "label": "Espacios de nombres permitidos"
+        },
+        "defaultNamespace": {
+          "label": "Espacio de nombres predeterminado"
+        },
+        "clusterScopedReads": {
+          "label": "Leer tipos de ámbito de clúster"
+        },
+        "allowClusterScoped": {
+          "label": "Cambiar tipos de ámbito de clúster"
+        },
+        "destructiveKinds": {
+          "label": "Tipos destructivos"
+        },
+        "fieldManager": {
+          "label": "Administrador de campos"
+        },
+        "maxLogLines": {
+          "label": "Máximo de líneas de registro"
+        },
+        "maxObjects": {
+          "label": "Máximo de objetos por lista"
+        },
+        "execTimeoutSeconds": {
+          "label": "Tiempo de espera de exec (segundos)"
+        }
+      },
+      "slots": {
+        "kubeconfig": {
+          "label": "Kubeconfig"
+        },
+        "serviceAccountToken": {
+          "label": "Token de cuenta de servicio"
+        },
+        "certificateAuthority": {
+          "label": "Certificado de CA del clúster"
+        }
+      }
+    },
+    "docker": {
+      "settings": {
+        "endpoint": {
+          "label": "Punto de conexión"
+        },
+        "tlsVerify": {
+          "label": "Verificar TLS"
+        },
+        "requestTimeoutSeconds": {
+          "label": "Tiempo de espera de solicitud (segundos)"
+        },
+        "showEnvironmentValues": {
+          "label": "Mostrar valores del entorno"
+        },
+        "maxLogLines": {
+          "label": "Máximo de líneas de registro"
+        },
+        "maxEventsWindowSeconds": {
+          "label": "Ventana máxima de eventos (segundos)"
+        },
+        "execTimeoutSeconds": {
+          "label": "Tiempo de espera de exec (segundos)"
+        },
+        "maxStatsContainers": {
+          "label": "Máximo de contenedores por llamada de estadísticas"
+        }
+      },
+      "slots": {
+        "tlsClientCertificate": {
+          "label": "Certificado de cliente TLS"
+        }
+      }
+    },
+    "http": {
+      "settings": {
+        "baseUrl": {
+          "label": "URL base"
+        },
+        "healthPath": {
+          "label": "Ruta de estado"
+        },
+        "defaultHeaders": {
+          "label": "Encabezados predeterminados"
+        },
+        "timeoutSeconds": {
+          "label": "Tiempo de espera (segundos)"
+        },
+        "followRedirects": {
+          "label": "Seguir redirecciones"
+        },
+        "maxRedirects": {
+          "label": "Máximo de redirecciones"
+        },
+        "verifyTls": {
+          "label": "Verificar certificados TLS"
+        },
+        "authType": {
+          "label": "Autenticación",
+          "values": {
+            "None": "Ninguna",
+            "Basic": "Básica",
+            "Bearer": "Token de portador",
+            "ApiKeyHeader": "Encabezado de clave de API",
+            "OAuth2ClientCredentials": "Credenciales de cliente de OAuth2"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "Encabezado de clave de API"
+        },
+        "tokenUrl": {
+          "label": "URL de token de OAuth2"
+        },
+        "scopes": {
+          "label": "Ámbitos de OAuth2"
+        },
+        "allowedMethods": {
+          "label": "Métodos permitidos"
+        },
+        "allowedPathPrefixes": {
+          "label": "Prefijos de ruta permitidos"
+        },
+        "methodEffectOverrides": {
+          "label": "Anulaciones de efecto"
+        },
+        "maxResponseBytes": {
+          "label": "Bytes máximos de respuesta"
+        },
+        "maxRequestBytes": {
+          "label": "Bytes máximos de solicitud"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "Credenciales básicas"
+        },
+        "bearerToken": {
+          "label": "Token de portador"
+        },
+        "apiKey": {
+          "label": "Clave de API"
+        },
+        "clientCredentials": {
+          "label": "Credenciales de cliente de OAuth2"
+        }
+      }
+    },
+    "prometheus": {
+      "settings": {
+        "baseUrl": {
+          "label": "URL base"
+        },
+        "authType": {
+          "label": "Autenticación",
+          "values": {
+            "None": "Ninguna",
+            "Basic": "Básica",
+            "Bearer": "Token de portador",
+            "ApiKeyHeader": "Encabezado de clave de API",
+            "OAuth2ClientCredentials": "Credenciales de cliente de OAuth2"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "Encabezado de clave de API"
+        },
+        "apiKeyPrefix": {
+          "label": "Prefijo de clave de API"
+        },
+        "tokenUrl": {
+          "label": "URL de token de OAuth2"
+        },
+        "scopes": {
+          "label": "Ámbitos de OAuth2"
+        },
+        "defaultHeaders": {
+          "label": "Encabezados predeterminados"
+        },
+        "verifyTls": {
+          "label": "Verificar TLS"
+        },
+        "maxResponseBytes": {
+          "label": "Bytes máximos de respuesta"
+        },
+        "maxSeries": {
+          "label": "Máximo de series"
+        },
+        "maxPointsPerSeries": {
+          "label": "Máximo de puntos por serie"
+        },
+        "maxRangeHours": {
+          "label": "Intervalo máximo (horas)"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "Credenciales básicas"
+        },
+        "bearerToken": {
+          "label": "Token de portador"
+        },
+        "apiKey": {
+          "label": "Clave de API"
+        },
+        "clientCredentials": {
+          "label": "Credenciales de cliente de OAuth2"
+        }
+      }
+    },
+    "loki": {
+      "settings": {
+        "baseUrl": {
+          "label": "URL base"
+        },
+        "authType": {
+          "label": "Autenticación",
+          "values": {
+            "None": "Ninguna",
+            "Basic": "Básica",
+            "Bearer": "Token de portador",
+            "ApiKeyHeader": "Encabezado de clave de API",
+            "OAuth2ClientCredentials": "Credenciales de cliente de OAuth2"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "Encabezado de clave de API"
+        },
+        "apiKeyPrefix": {
+          "label": "Prefijo de clave de API"
+        },
+        "tokenUrl": {
+          "label": "URL de token de OAuth2"
+        },
+        "scopes": {
+          "label": "Ámbitos de OAuth2"
+        },
+        "defaultHeaders": {
+          "label": "Encabezados predeterminados"
+        },
+        "verifyTls": {
+          "label": "Verificar TLS"
+        },
+        "maxResponseBytes": {
+          "label": "Bytes máximos de respuesta"
+        },
+        "tenantHeader": {
+          "label": "ID de inquilino"
+        },
+        "maxLines": {
+          "label": "Máximo de líneas"
+        },
+        "maxRangeHours": {
+          "label": "Intervalo máximo (horas)"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "Credenciales básicas"
+        },
+        "bearerToken": {
+          "label": "Token de portador"
+        },
+        "apiKey": {
+          "label": "Clave de API"
+        },
+        "clientCredentials": {
+          "label": "Credenciales de cliente de OAuth2"
+        }
+      }
+    },
+    "elasticsearch": {
+      "settings": {
+        "baseUrl": {
+          "label": "URL base"
+        },
+        "authType": {
+          "label": "Autenticación",
+          "values": {
+            "None": "Ninguna",
+            "Basic": "Básica",
+            "Bearer": "Token de portador",
+            "ApiKeyHeader": "Encabezado de clave de API",
+            "OAuth2ClientCredentials": "Credenciales de cliente de OAuth2"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "Encabezado de clave de API"
+        },
+        "apiKeyPrefix": {
+          "label": "Prefijo de clave de API"
+        },
+        "tokenUrl": {
+          "label": "URL de token de OAuth2"
+        },
+        "scopes": {
+          "label": "Ámbitos de OAuth2"
+        },
+        "defaultHeaders": {
+          "label": "Encabezados predeterminados"
+        },
+        "verifyTls": {
+          "label": "Verificar TLS"
+        },
+        "maxResponseBytes": {
+          "label": "Bytes máximos de respuesta"
+        },
+        "flavor": {
+          "label": "Variante",
+          "values": {
+            "Elasticsearch": "Elasticsearch",
+            "OpenSearch": "OpenSearch"
+          }
+        },
+        "allowedIndexPatterns": {
+          "label": "Patrones de índice permitidos"
+        },
+        "maxHits": {
+          "label": "Máximo de resultados"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "Credenciales básicas"
+        },
+        "bearerToken": {
+          "label": "Token de portador"
+        },
+        "apiKey": {
+          "label": "Clave de API"
+        },
+        "clientCredentials": {
+          "label": "Credenciales de cliente de OAuth2"
+        }
+      }
+    },
+    "mcp": {
+      "settings": {
+        "transport": {
+          "label": "Transporte",
+          "values": {
+            "StreamableHttp": "HTTP con streaming",
+            "Stdio": "stdio (proceso local)"
+          }
+        },
+        "url": {
+          "label": "URL del servidor"
+        },
+        "command": {
+          "label": "Comando"
+        },
+        "arguments": {
+          "label": "Argumentos"
+        },
+        "allowStdio": {
+          "label": "Permitir stdio"
+        },
+        "includeTools": {
+          "label": "Incluir herramientas"
+        },
+        "excludeTools": {
+          "label": "Excluir herramientas"
+        },
+        "refreshIntervalMinutes": {
+          "label": "Actualización de la lista de herramientas (minutos)"
+        },
+        "timeoutSeconds": {
+          "label": "Tiempo de espera (segundos)"
+        }
+      },
+      "slots": {
+        "authorizationHeader": {
+          "label": "Encabezado Authorization"
+        },
+        "extraHeaders": {
+          "label": "Encabezados adicionales"
+        }
+      }
+    },
+    "a2a-agent": {
+      "settings": {
+        "agentCardUrl": {
+          "label": "URL de la tarjeta del agente"
+        },
+        "skillId": {
+          "label": "Habilidad"
+        },
+        "timeoutSeconds": {
+          "label": "Tiempo de espera (segundos)"
+        },
+        "streaming": {
+          "label": "Usar streaming"
+        },
+        "allowCrossOriginEndpoint": {
+          "label": "Permitir punto de conexión en otro origen"
+        }
+      },
+      "slots": {
+        "bearerToken": {
+          "label": "Token de portador"
+        }
+      }
     }
   }
 }

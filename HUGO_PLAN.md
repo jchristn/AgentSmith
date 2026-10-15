@@ -95,7 +95,7 @@ These rules keep the plan honest:
 | 10 | Docker, testbed, and observability stack | M1 | In progress | 18 / 24 |
 | 11 | Documentation and Postman | M1 | Complete | 18 / 18 |
 | 12 | MVP verification (milestone M1) | M1 | In progress | 9 / 14 |
-| 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | In progress | 30 / 38 |
+| 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | In progress | 37 / 38 |
 | 14 | Knowledge, runbooks, and operator conveniences | M2 | Not started | 0 / 12 |
 | 15 | Benchmarking | M3 | Not started | 0 / 16 |
 | 17 | Kubernetes and minikube | M2 | In progress | 15 / 16 |
@@ -133,7 +133,8 @@ Milestones:
   - Follow-ups merged 2026-10-14 (credential bypass security fix with audited inheritOwnerBypass opt-in, approval-await execution fix, list filters, model endpoint health history, 502 for unreachable providers, template cycle detection, header echo removal, SessionExchange enforcement, HostKeyMismatch audit, OpenAPI fixes, storage fixtures, Loki empty test, HTTP healthPath). SDK and docs sync merged 2026-10-14: harnesses pass (C# 63, Python 83, JS 74) against default settings with 429 retry and a stub model, coverage check complete, REST/MCP/A2A docs and Postman updated, Newman 338 requests with 0 failures. Open minor items: auth rate limit always sends Retry-After 60; health-history maxResults is clamped rather than rejected; analytics counts only conversations that still exist; list filters are not declared in OpenAPI; tenant prompt-template update still requires name.
   - Phase 12 verification merged 2026-10-15. Fixed: dashboard chat sent `content` instead of `message` and misread tool events; request history recorded its own reads (self-amplifying); metric catalog name `hugo_tool_output_bytes`; verify-telemetry and leftover forced-password text. Open: tool arguments are not scrubbed (an operator-typed secret is visible to the approver); user-admin labels still say "must change at next sign-in"; update.sh does not pass `--profile postgres`; Alloy filters on compose project `hugo`; testbed README omits `ssh/generate-keys.sh`. Remaining for the user: real-model journey, Claude Code over MCP, full simulated user testing, M1 sign-off.
   - From the dashboard live journey (all resolved 2026-10-14): telemetry startup stack overflow, model list 500, include syntax wording, missing list filters, bindingCount, principalName, model endpoint health history, analytics routes in the dashboard.
-  - Dynamic tools (D-044): add optional `IDynamicToolProvider` so external MCP tools appear as `<prefix>__<tool>`; fence remote instructions inside compiled instructions (P13.28).
+  - Dynamic tools (D-044): add optional `IDynamicToolProvider` so external MCP tools appear as `<prefix>__<tool>` (fencing in compiled instructions is done, P13.28).
+  - Phase 13 wrap-up merged 2026-10-15 (P13.1, P13.28, P13.32 to P13.35, P13.37). Only P13.38 (user M2 connector sign-off) remains. Open: Grafana panels use `hugo_connector_sessions_active` and `hugo_resource_health`, which HugoMetricCatalog does not define; third-party instruction cache limits are not hugo.json settings; the nightly wave 2 workflow has not run on GitHub; wave 1 dashboard setting labels are untranslated.
   - SSH `jumpResourceName` (reuse another resource as bastion) needs a related-resource resolver; the jump settings cover the case today.
 - Next after the merges: Phase 3 pipeline (resources, invocation service, approvals), Phase 5 profiles and instructions, Phase 6 runtime, Phase 7 protocols.
 - Decisions D-001 through D-051 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
@@ -2128,7 +2129,7 @@ Quality
 ### Phase 13: Connectors wave 2 (M2)
 
 Testbed
-- [~] P13.1 Testbed additions: Redis 7, LocalStack, k3s, Docker-in-Docker, OpenSearch, plus seed data. Nightly CI workflow for wave 2.  | claude 2026-10-14 testbeds for redis, observability, aws, kubernetes, docker included; MCP and A2A targets pending
+- [x] P13.1 Testbed additions: Redis 7, LocalStack, k3s, Docker-in-Docker, OpenSearch, plus seed data. Nightly CI workflow for wave 2.  | claude 2026-10-15 testbeds for redis, observability, aws, kubernetes, docker; MCP and A2A targets are the in-process Voltaic servers (README); .github/workflows/nightly-wave2.yaml (06:30 UTC and manual) runs the wave 2 testbed and connector suites; not yet run on GitHub (P0.12 billing)
 
 Redis
 - [x] P13.2 `redis` descriptor, settings, slot, connection (standalone, sentinel, cluster, TLS).  | claude 2026-10-14 RedisConnector on StackExchange.Redis 3.4.5 (RESP2 pinned): standalone, Sentinel, Cluster, TLS; one pooled multiplexer per resource
@@ -2169,18 +2170,18 @@ Observability backends
 External MCP and remote A2A
 - [x] P13.26 `mcp` connector: HTTP transport via Voltaic client, discovery, prefixing, schema passthrough, annotation-based effects, periodic refresh.  | claude 2026-10-14 McpConnector: mcp_list_tools, mcp_call_tool (annotation effects; undiscovered tools fail closed; escalated annotations refused), mcp_list_resources, mcp_read_resource; cached discovery (D-044)
 - [x] P13.27 `mcp` stdio transport behind `Connectors.Mcp.AllowStdio`, with process lifetime management.  | claude 2026-10-14 stdio behind Connectors.McpAllowStdio and resource allowStdio; process stopped on session dispose
-- [~] P13.28 Third-party instruction fencing in compiled instructions.  | claude 2026-10-14 remote instructions, cards, replies fenced as <untrusted-content> in tool output; fencing inside compiled instructions pending the dynamic tools work
+- [x] P13.28 Third-party instruction fencing in compiled instructions.  | claude 2026-10-15 IThirdPartyInstructionSource hook; InstructionCompiler appends scrubbed, 4000-char capped, fenced remote text to the binding section (segment binding.thirdPartyInstructions, variable thirdPartyInstructions); server ThirdPartyInstructionCache waits at most 2 s on first fetch, refreshes after 10 min, remembers failures 60 s; suite third-party-instructions 3 cases. IDynamicToolProvider stays a D-044 follow-up
 - [x] P13.29 `mcp` suites with an in-process Voltaic test server.  | claude 2026-10-14 connectors.agents.mcp 23 cases against in-process Voltaic MCP server
 - [x] P13.30 `a2a-agent` connector: card resolution, `delegate_<alias>` tool, streaming, input-required propagation as a Hugo approval or tool result.  | claude 2026-10-14 A2AAgentConnector: a2a_get_card, a2a_delegate (Write; streaming or polling; contextId and taskId continuation), a2a_get_task; bearer only to the card host unless allowCrossOriginEndpoint
 - [x] P13.31 `a2a-agent` suites (Hugo to Hugo).  | claude 2026-10-14 connectors.agents.a2a 15 cases against in-process Voltaic A2A agent
 
 Wrap-up
-- [ ] P13.32 Dashboard: connector icons, settings labels, and i18n keys for every wave 2 connector.
-- [ ] P13.33 `docs/CONNECTORS.md`, `MCP_API.md`, and Postman updated for wave 2.
-- [ ] P13.34 Factory demo profile extended with wave 2 resources.
-- [ ] P13.35 Tool retrieval verified on a profile with more than 100 tools (latency and selection quality noted).
+- [x] P13.32 Dashboard: connector icons, settings labels, and i18n keys for every wave 2 connector.  | claude 2026-10-15 per-type ConnectorIcon for all 20 built-in types; connectors.<type> setting, value, and slot labels for wave 2 in 12 locales; connectorCatalog.test.jsx 39 tests; npm test 256 pass. Wave 1 labels still come from server descriptors; translations not reviewed by native speakers
+- [x] P13.33 `docs/CONNECTORS.md`, `MCP_API.md`, and Postman updated for wave 2.  | claude 2026-10-15 CONNECTORS.md mcp and a2a-agent section; MCP_CONNECTOR_TOOLS.md 118 tools including mcp_* and a2a_*; Postman already covered every wave 2 type
+- [x] P13.34 Factory demo profile extended with wave 2 resources.  | claude 2026-10-15 adds OpenSearch 2.19.3 (elasticsearch, ReadOnly, hugo-logs-*) and LocalStack 4.14.0 (aws, ReadOnly) to redis, prometheus, loki, http; 10 bindings; live check: seed exit 0, all connection tests pass, allow lists enforced
+- [x] P13.35 Tool retrieval verified on a profile with more than 100 tools (latency and selection quality noted).  | claude 2026-10-15 agent.retrieval-scale: 118 real connector tools plus 3 meta, top 20, stub hashing embedder: hit rate 12/12, 8/12 in top 5, mean rank 6.0; first selection 14 to 80 ms (embeds catalog), later 0.4 to 0.9 ms (max 1.7 ms); real embedding endpoints add network time
 - [x] P13.36 Least-privilege guides: IAM policy examples (read-only and operator), Kubernetes RBAC manifests, a Redis ACL example.  | claude 2026-10-14 AWS IAM, Kubernetes RBAC, and Redis ACL guides in docs/connectors
-- [ ] P13.37 Grafana Tools and Connectors dashboard updated for wave 2 labels.
+- [x] P13.37 Grafana Tools and Connectors dashboard updated for wave 2 labels.  | claude 2026-10-15 Wave 2 row (5 panels) in hugo-tools.json and its 3 mirrors; PromQL checked against factory Prometheus
 - [ ] P13.38 M2 connector sign-off by the user.
 
 ### Phase 14: Knowledge, runbooks, and operator conveniences (M2)

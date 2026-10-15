@@ -130,7 +130,7 @@ namespace Hugo.Connectors.Agents.Mcp
             ArgumentNullException.ThrowIfNull(connectorOptions);
             if (options.Transport != McpTransportEnum.Stdio) return;
             if (!connectorOptions.AllowStdio)
-                throw new ConnectorException(ConnectorErrorCodes.PermissionDenied, "Stdio MCP servers are disabled on this Hugo server (Connectors.Mcp.AllowStdio is false). Use a Streamable HTTP server or ask the administrator.");
+                throw new ConnectorException(ConnectorErrorCodes.PermissionDenied, "Stdio MCP servers are disabled on this Hugo server (Connectors.McpAllowStdio is false). Use a Streamable HTTP server or ask the administrator.");
             if (!options.AllowStdio)
                 throw new ConnectorException(ConnectorErrorCodes.PermissionDenied, "This resource uses the Stdio transport but its allowStdio setting is false.");
         }

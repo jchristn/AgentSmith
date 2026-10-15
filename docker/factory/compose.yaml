@@ -15,7 +15,7 @@
 # REST, MCP (/mcp), and A2A (/v1.0/a2a) http://127.0.0.1:8810. Grafana http://127.0.0.1:3010 (admin / admin).
 # Prometheus http://127.0.0.1:9091. Tempo http://127.0.0.1:3210. Loki http://127.0.0.1:3110.
 #
-# The testbed targets (SSH, PostgreSQL, MySQL, MinIO, Redis) are reachable only on the Compose network; they reuse the
+# The testbed targets (SSH, PostgreSQL, MySQL, MinIO, Redis, OpenSearch, LocalStack) are reachable only on the Compose network; they reuse the
 # seed data in docker/testbed. Every credential in this file is a demo value; never reuse one. docs/FACTORY.md has
 # the full description.
 
@@ -356,6 +356,61 @@ services:
     entrypoint: ['/bin/sh', '/seed.sh']
     restart: 'no'
 
+  # OpenSearch with the security plugin off, for the search resource (elasticsearch connector, OpenSearch flavor).
+  opensearch:
+    container_name: 'hugo-factory-opensearch'
+    image: 'opensearchproject/opensearch:2.19.3'
+    environment:
+      discovery.type: 'single-node'
+      DISABLE_SECURITY_PLUGIN: 'true'
+      DISABLE_INSTALL_DEMO_CONFIG: 'true'
+      OPENSEARCH_JAVA_OPTS: '-Xms512m -Xmx512m'
+      bootstrap.memory_lock: 'false'
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+    healthcheck:
+      test: ['CMD-SHELL', "curl -fsS 'http://127.0.0.1:9200/_cluster/health?wait_for_status=yellow&timeout=1s' > /dev/null"]
+      <<: *timing
+      start_period: 180s
+      start_interval: 2s
+    restart: 'unless-stopped'
+
+  # One-shot: loads the testbed indexes (hugo-logs-2026.10 with 50 documents, hugo-secret, alias hugo-alias).
+  opensearch-seed:
+    container_name: 'hugo-factory-opensearch-seed'
+    image: 'python:3.12.15-alpine3.24'
+    depends_on:
+      opensearch:
+        condition: service_healthy
+    environment:
+      OPENSEARCH_URL: 'http://opensearch:9200'
+    volumes:
+      - ../testbed/observability/seed.py:/seed/seed.py:ro
+    entrypoint: ['python', '-I', '/seed/seed.py', 'opensearch']
+    restart: 'no'
+
+  # LocalStack community edition, for the cloud resource (aws connector). It runs the testbed fixture script
+  # (EC2, CloudWatch, Logs, SQS, SNS, Route 53). The Docker socket is deliberately not mounted, so the script's last
+  # step (the Lambda function) fails and Lambda is left out of the resource's allowed services. The healthcheck
+  # passes once the script has run.
+  localstack:
+    container_name: 'hugo-factory-localstack'
+    image: 'localstack/localstack:4.14.0'
+    environment:
+      SERVICES: 'sts,iam,ec2,cloudwatch,logs,sqs,sns,route53,lambda'
+      AWS_DEFAULT_REGION: 'us-east-1'
+      EAGER_SERVICE_LOADING: '1'
+      SKIP_SSL_CERT_DOWNLOAD: '1'
+      DISABLE_EVENTS: '1'
+    volumes:
+      - ../testbed/aws/init/seed.sh:/etc/localstack/init/ready.d/seed.sh:ro
+    healthcheck:
+      test: ['CMD-SHELL', "curl -fsS http://127.0.0.1:4566/_localstack/init/ready | grep -q '\"completed\": *true'"]
+      <<: *timing
+      start_period: 240s
+      start_interval: 2s
+    restart: 'unless-stopped'
+
   # ------------------------------------------------------------------
   # One-shot seed: configures the demo through Hugo's REST API (docker/factory/seed/seed.py). Idempotent, so
   # "docker compose up -d" can rerun it at any time. Prints the URLs and the demo credential when it finishes.
@@ -392,6 +447,10 @@ services:
         condition: service_completed_successfully
       redis-seed:
         condition: service_completed_successfully
+      opensearch-seed:
+        condition: service_completed_successfully
+      localstack:
+        condition: service_healthy
       hugo-prometheus:
         condition: service_healthy
       hugo-loki:
@@ -412,4 +471,5 @@ volumes:
   postgres-data:
   mysql-data:
   minio-data:
+  opensearch-data:
   seed-state:

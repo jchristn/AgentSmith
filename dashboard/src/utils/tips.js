@@ -26,3 +26,12 @@ export function enumTip(t, group, value) {
   if (!value) return '';
   return optionalText(t, `tips.enums.${group}.${value}`);
 }
+
+/**
+ * Display label for a connector secret slot: connectors.<type>.slots.<name>.label when the catalog has one,
+ * otherwise the server's label, otherwise the slot name.
+ */
+export function connectorSlotLabel(t, connectorType, slot) {
+  if (!slot) return '';
+  return (connectorType ? optionalText(t, `connectors.${connectorType}.slots.${slot.name}.label`) : '') || slot.label || slot.name;
+}

@@ -691,7 +691,15 @@
         "Connection": "接続",
         "Authentication": "認証",
         "Limits": "制限",
-        "Advanced": "詳細"
+        "Advanced": "詳細",
+        "TLS": "TLS",
+        "Safety": "安全性",
+        "Security": "セキュリティ",
+        "Scope": "スコープ",
+        "Search": "検索",
+        "Execution": "実行",
+        "Credentials": "認証情報",
+        "Jump host": "踏み台ホスト"
       },
       "errors": {
         "Required": "この設定は必須です。",
@@ -3862,6 +3870,542 @@
       "resource": "コネクタを選び、設定を入力し、必要なシークレットを選択または作成して、保存前に接続をテストします。",
       "bind": "新しいリソースを既定の Hugo プロファイルに接続し、エージェントに許可する操作を選びます。",
       "connect": "この設定で Hugo を Claude Code (または任意の MCP クライアント) に追加し、Agent Smith とのチャットを始めましょう。"
+    }
+  },
+  "connectors": {
+    "redis": {
+      "settings": {
+        "endpoints": {
+          "label": "エンドポイント"
+        },
+        "clusterMode": {
+          "label": "トポロジ",
+          "values": {
+            "Auto": "自動",
+            "Standalone": "スタンドアロン",
+            "Cluster": "クラスター",
+            "Sentinel": "Sentinel"
+          }
+        },
+        "sentinelServiceName": {
+          "label": "Sentinel サービス名"
+        },
+        "database": {
+          "label": "データベース"
+        },
+        "username": {
+          "label": "ACL ユーザー名"
+        },
+        "useSsl": {
+          "label": "TLS を使用"
+        },
+        "sslHost": {
+          "label": "TLS ホスト名"
+        },
+        "verifyTls": {
+          "label": "TLS 証明書を検証"
+        },
+        "caCertificate": {
+          "label": "CA 証明書 (PEM)"
+        },
+        "connectTimeoutSeconds": {
+          "label": "接続タイムアウト (秒)"
+        },
+        "commandTimeoutSeconds": {
+          "label": "コマンドタイムアウト (秒)"
+        },
+        "clientName": {
+          "label": "クライアント名"
+        },
+        "maxKeysScanned": {
+          "label": "スキャンする最大キー数"
+        },
+        "maxValueBytes": {
+          "label": "値の最大バイト数"
+        },
+        "deniedCommands": {
+          "label": "拒否するコマンド"
+        },
+        "allowKeysCommand": {
+          "label": "KEYS を許可"
+        },
+        "readOnlyCommands": {
+          "label": "追加の読み取り専用コマンド"
+        }
+      },
+      "slots": {
+        "password": {
+          "label": "パスワード"
+        }
+      }
+    },
+    "aws": {
+      "settings": {
+        "region": {
+          "label": "リージョン"
+        },
+        "useInstanceRole": {
+          "label": "環境の認証情報を使用"
+        },
+        "assumeRoleArn": {
+          "label": "引き受けるロール"
+        },
+        "externalId": {
+          "label": "外部 ID"
+        },
+        "sessionName": {
+          "label": "ロールセッション名"
+        },
+        "assumeRoleDurationSeconds": {
+          "label": "ロールセッションの期間 (秒)"
+        },
+        "allowedServices": {
+          "label": "許可するサービス"
+        },
+        "endpointOverride": {
+          "label": "エンドポイントの上書き"
+        },
+        "maxResults": {
+          "label": "既定のページサイズ"
+        },
+        "maxRetries": {
+          "label": "SDK の再試行回数"
+        },
+        "defaultLookbackMinutes": {
+          "label": "既定の遡り期間 (分)"
+        },
+        "maxTimeRangeHours": {
+          "label": "最大時間範囲 (時間)"
+        },
+        "logsQueryTimeoutSeconds": {
+          "label": "Logs Insights の待機時間 (秒)"
+        },
+        "logsMaxEvents": {
+          "label": "最大ログイベント数"
+        },
+        "lambdaMaxPayloadBytes": {
+          "label": "Lambda ペイロードの最大サイズ (バイト)"
+        }
+      },
+      "slots": {
+        "accessKeyPair": {
+          "label": "アクセスキーペア"
+        }
+      }
+    },
+    "kubernetes": {
+      "settings": {
+        "context": {
+          "label": "コンテキスト"
+        },
+        "serverUrl": {
+          "label": "API サーバー URL"
+        },
+        "insecureSkipTlsVerify": {
+          "label": "TLS 検証をスキップ"
+        },
+        "requestTimeoutSeconds": {
+          "label": "リクエストタイムアウト (秒)"
+        },
+        "allowedNamespaces": {
+          "label": "許可する名前空間"
+        },
+        "defaultNamespace": {
+          "label": "既定の名前空間"
+        },
+        "clusterScopedReads": {
+          "label": "クラスタースコープの種類を読み取る"
+        },
+        "allowClusterScoped": {
+          "label": "クラスタースコープの種類を変更する"
+        },
+        "destructiveKinds": {
+          "label": "破壊的な種類"
+        },
+        "fieldManager": {
+          "label": "フィールドマネージャー"
+        },
+        "maxLogLines": {
+          "label": "最大ログ行数"
+        },
+        "maxObjects": {
+          "label": "一覧ごとの最大オブジェクト数"
+        },
+        "execTimeoutSeconds": {
+          "label": "exec タイムアウト (秒)"
+        }
+      },
+      "slots": {
+        "kubeconfig": {
+          "label": "Kubeconfig"
+        },
+        "serviceAccountToken": {
+          "label": "サービスアカウントトークン"
+        },
+        "certificateAuthority": {
+          "label": "クラスターの CA 証明書"
+        }
+      }
+    },
+    "docker": {
+      "settings": {
+        "endpoint": {
+          "label": "エンドポイント"
+        },
+        "tlsVerify": {
+          "label": "TLS を検証"
+        },
+        "requestTimeoutSeconds": {
+          "label": "リクエストタイムアウト (秒)"
+        },
+        "showEnvironmentValues": {
+          "label": "環境変数の値を表示"
+        },
+        "maxLogLines": {
+          "label": "最大ログ行数"
+        },
+        "maxEventsWindowSeconds": {
+          "label": "最大イベント期間 (秒)"
+        },
+        "execTimeoutSeconds": {
+          "label": "exec タイムアウト (秒)"
+        },
+        "maxStatsContainers": {
+          "label": "統計呼び出しごとの最大コンテナー数"
+        }
+      },
+      "slots": {
+        "tlsClientCertificate": {
+          "label": "TLS クライアント証明書"
+        }
+      }
+    },
+    "http": {
+      "settings": {
+        "baseUrl": {
+          "label": "ベース URL"
+        },
+        "healthPath": {
+          "label": "ヘルスチェックのパス"
+        },
+        "defaultHeaders": {
+          "label": "既定のヘッダー"
+        },
+        "timeoutSeconds": {
+          "label": "タイムアウト (秒)"
+        },
+        "followRedirects": {
+          "label": "リダイレクトに従う"
+        },
+        "maxRedirects": {
+          "label": "最大リダイレクト数"
+        },
+        "verifyTls": {
+          "label": "TLS 証明書を検証する"
+        },
+        "authType": {
+          "label": "認証",
+          "values": {
+            "None": "なし",
+            "Basic": "Basic",
+            "Bearer": "Bearer トークン",
+            "ApiKeyHeader": "API キーヘッダー",
+            "OAuth2ClientCredentials": "OAuth2 クライアント資格情報"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "API キーヘッダー"
+        },
+        "tokenUrl": {
+          "label": "OAuth2 トークン URL"
+        },
+        "scopes": {
+          "label": "OAuth2 スコープ"
+        },
+        "allowedMethods": {
+          "label": "許可するメソッド"
+        },
+        "allowedPathPrefixes": {
+          "label": "許可するパスのプレフィックス"
+        },
+        "methodEffectOverrides": {
+          "label": "効果の上書き"
+        },
+        "maxResponseBytes": {
+          "label": "応答の最大バイト数"
+        },
+        "maxRequestBytes": {
+          "label": "リクエストの最大バイト数"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "Basic 認証情報"
+        },
+        "bearerToken": {
+          "label": "Bearer トークン"
+        },
+        "apiKey": {
+          "label": "API キー"
+        },
+        "clientCredentials": {
+          "label": "OAuth2 クライアント資格情報"
+        }
+      }
+    },
+    "prometheus": {
+      "settings": {
+        "baseUrl": {
+          "label": "ベース URL"
+        },
+        "authType": {
+          "label": "認証",
+          "values": {
+            "None": "なし",
+            "Basic": "Basic",
+            "Bearer": "Bearer トークン",
+            "ApiKeyHeader": "API キーヘッダー",
+            "OAuth2ClientCredentials": "OAuth2 クライアント資格情報"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "API キーヘッダー"
+        },
+        "apiKeyPrefix": {
+          "label": "API キーのプレフィックス"
+        },
+        "tokenUrl": {
+          "label": "OAuth2 トークン URL"
+        },
+        "scopes": {
+          "label": "OAuth2 スコープ"
+        },
+        "defaultHeaders": {
+          "label": "既定のヘッダー"
+        },
+        "verifyTls": {
+          "label": "TLS を検証"
+        },
+        "maxResponseBytes": {
+          "label": "応答の最大バイト数"
+        },
+        "maxSeries": {
+          "label": "最大系列数"
+        },
+        "maxPointsPerSeries": {
+          "label": "系列ごとの最大ポイント数"
+        },
+        "maxRangeHours": {
+          "label": "最大範囲 (時間)"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "Basic 認証情報"
+        },
+        "bearerToken": {
+          "label": "Bearer トークン"
+        },
+        "apiKey": {
+          "label": "API キー"
+        },
+        "clientCredentials": {
+          "label": "OAuth2 クライアント資格情報"
+        }
+      }
+    },
+    "loki": {
+      "settings": {
+        "baseUrl": {
+          "label": "ベース URL"
+        },
+        "authType": {
+          "label": "認証",
+          "values": {
+            "None": "なし",
+            "Basic": "Basic",
+            "Bearer": "Bearer トークン",
+            "ApiKeyHeader": "API キーヘッダー",
+            "OAuth2ClientCredentials": "OAuth2 クライアント資格情報"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "API キーヘッダー"
+        },
+        "apiKeyPrefix": {
+          "label": "API キーのプレフィックス"
+        },
+        "tokenUrl": {
+          "label": "OAuth2 トークン URL"
+        },
+        "scopes": {
+          "label": "OAuth2 スコープ"
+        },
+        "defaultHeaders": {
+          "label": "既定のヘッダー"
+        },
+        "verifyTls": {
+          "label": "TLS を検証"
+        },
+        "maxResponseBytes": {
+          "label": "応答の最大バイト数"
+        },
+        "tenantHeader": {
+          "label": "テナント ID"
+        },
+        "maxLines": {
+          "label": "最大行数"
+        },
+        "maxRangeHours": {
+          "label": "最大範囲 (時間)"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "Basic 認証情報"
+        },
+        "bearerToken": {
+          "label": "Bearer トークン"
+        },
+        "apiKey": {
+          "label": "API キー"
+        },
+        "clientCredentials": {
+          "label": "OAuth2 クライアント資格情報"
+        }
+      }
+    },
+    "elasticsearch": {
+      "settings": {
+        "baseUrl": {
+          "label": "ベース URL"
+        },
+        "authType": {
+          "label": "認証",
+          "values": {
+            "None": "なし",
+            "Basic": "Basic",
+            "Bearer": "Bearer トークン",
+            "ApiKeyHeader": "API キーヘッダー",
+            "OAuth2ClientCredentials": "OAuth2 クライアント資格情報"
+          }
+        },
+        "apiKeyHeaderName": {
+          "label": "API キーヘッダー"
+        },
+        "apiKeyPrefix": {
+          "label": "API キーのプレフィックス"
+        },
+        "tokenUrl": {
+          "label": "OAuth2 トークン URL"
+        },
+        "scopes": {
+          "label": "OAuth2 スコープ"
+        },
+        "defaultHeaders": {
+          "label": "既定のヘッダー"
+        },
+        "verifyTls": {
+          "label": "TLS を検証"
+        },
+        "maxResponseBytes": {
+          "label": "応答の最大バイト数"
+        },
+        "flavor": {
+          "label": "種類",
+          "values": {
+            "Elasticsearch": "Elasticsearch",
+            "OpenSearch": "OpenSearch"
+          }
+        },
+        "allowedIndexPatterns": {
+          "label": "許可するインデックスパターン"
+        },
+        "maxHits": {
+          "label": "最大ヒット数"
+        }
+      },
+      "slots": {
+        "basicAuth": {
+          "label": "Basic 認証情報"
+        },
+        "bearerToken": {
+          "label": "Bearer トークン"
+        },
+        "apiKey": {
+          "label": "API キー"
+        },
+        "clientCredentials": {
+          "label": "OAuth2 クライアント資格情報"
+        }
+      }
+    },
+    "mcp": {
+      "settings": {
+        "transport": {
+          "label": "トランスポート",
+          "values": {
+            "StreamableHttp": "ストリーミング HTTP",
+            "Stdio": "stdio (ローカルプロセス)"
+          }
+        },
+        "url": {
+          "label": "サーバー URL"
+        },
+        "command": {
+          "label": "コマンド"
+        },
+        "arguments": {
+          "label": "引数"
+        },
+        "allowStdio": {
+          "label": "stdio を許可"
+        },
+        "includeTools": {
+          "label": "含めるツール"
+        },
+        "excludeTools": {
+          "label": "除外するツール"
+        },
+        "refreshIntervalMinutes": {
+          "label": "ツール一覧の更新間隔 (分)"
+        },
+        "timeoutSeconds": {
+          "label": "タイムアウト (秒)"
+        }
+      },
+      "slots": {
+        "authorizationHeader": {
+          "label": "Authorization ヘッダー"
+        },
+        "extraHeaders": {
+          "label": "追加ヘッダー"
+        }
+      }
+    },
+    "a2a-agent": {
+      "settings": {
+        "agentCardUrl": {
+          "label": "エージェントカード URL"
+        },
+        "skillId": {
+          "label": "スキル"
+        },
+        "timeoutSeconds": {
+          "label": "タイムアウト (秒)"
+        },
+        "streaming": {
+          "label": "ストリーミングを使用"
+        },
+        "allowCrossOriginEndpoint": {
+          "label": "別オリジンのエンドポイントを許可"
+        }
+      },
+      "slots": {
+        "bearerToken": {
+          "label": "Bearer トークン"
+        }
+      }
     }
   }
 }
