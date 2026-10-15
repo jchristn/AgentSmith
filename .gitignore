@@ -40,6 +40,11 @@ plugins/
 *.db-shm
 *.db-journal
 !docker/factory/seed/*.db
+# Storage testbed fixtures use data/ and logs/ prefixes on purpose. Re-include the directories themselves,
+# because git cannot re-include a file whose parent directory is excluded, and re-include the fixture log.
+!docker/testbed/storage/fixtures/hugo-testbed/data/
+!docker/testbed/storage/fixtures/hugo-testbed/logs/
+!docker/testbed/storage/fixtures/hugo-testbed/logs/**/*.log
 
 # Secrets
 .env
