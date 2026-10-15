@@ -3,6 +3,8 @@ namespace Hugo.Server.Services
     using System;
     using System.Collections.Generic;
     using Hugo.Connectors.Abstractions;
+    using Hugo.Connectors.Agents.A2A;
+    using Hugo.Connectors.Agents.Mcp;
     using Hugo.Connectors.Aws;
     using Hugo.Connectors.Docker;
     using Hugo.Connectors.Http;
@@ -26,10 +28,11 @@ namespace Hugo.Server.Services
         /// <summary>
         /// New instances of every built-in connector. Wave 1: ssh, s3, azure-blob, gcs, sqlite, mysql, sqlserver,
         /// postgresql, papertrail, solarwinds-observability. Wave 2: redis, http, prometheus, loki, elasticsearch, aws,
-        /// kubernetes, docker.
+        /// kubernetes, docker, mcp, a2a-agent.
         /// </summary>
+        /// <param name="allowMcpStdio">Server gate for external MCP servers over stdio (Connectors.McpAllowStdio). Default false.</param>
         /// <returns>Connectors.</returns>
-        public static List<IConnector> BuiltIns()
+        public static List<IConnector> BuiltIns(bool allowMcpStdio = false)
         {
             return new List<IConnector>
             {
@@ -50,7 +53,9 @@ namespace Hugo.Server.Services
                 new ElasticsearchConnector(),
                 new AwsConnector(),
                 new KubernetesConnector(),
-                new DockerConnector()
+                new DockerConnector(),
+                new McpConnector(new McpConnectorOptions { AllowStdio = allowMcpStdio }),
+                new A2AAgentConnector()
             };
         }
 
@@ -58,11 +63,12 @@ namespace Hugo.Server.Services
         /// Register every built-in connector.
         /// </summary>
         /// <param name="registry">Registry.</param>
+        /// <param name="allowMcpStdio">Server gate for external MCP servers over stdio. Default false.</param>
         /// <exception cref="ArgumentNullException">Thrown when registry is null.</exception>
-        public static void RegisterBuiltIns(ConnectorRegistry registry)
+        public static void RegisterBuiltIns(ConnectorRegistry registry, bool allowMcpStdio = false)
         {
             if (registry == null) throw new ArgumentNullException(nameof(registry));
-            foreach (IConnector connector in BuiltIns()) registry.Register(connector);
+            foreach (IConnector connector in BuiltIns(allowMcpStdio)) registry.Register(connector);
         }
 
         #endregion

@@ -1,0 +1,50 @@
+{
+  "name": "@jchristn/hugo-sdk",
+  "version": "0.1.0-alpha",
+  "description": "JavaScript and TypeScript SDK for Hugo, the multi-tenant super agent server.",
+  "license": "MIT",
+  "author": "Joel Christner",
+  "homepage": "https://github.com/jchristn/AgentSmith",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jchristn/AgentSmith.git",
+    "directory": "sdk/js"
+  },
+  "keywords": ["hugo", "agent", "mcp", "a2a", "sdk"],
+  "type": "module",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "build": "npm run clean && tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json && node -e \"require('fs').writeFileSync('dist/cjs/package.json', JSON.stringify({type:'commonjs'}))\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.4"
+  }
+}

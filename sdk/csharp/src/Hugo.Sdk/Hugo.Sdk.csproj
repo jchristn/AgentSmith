@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>Hugo.Sdk</RootNamespace>
+    <AssemblyName>Hugo.Sdk</AssemblyName>
+    <PackageId>Hugo.Sdk</PackageId>
+    <Version>0.1.0-alpha</Version>
+    <Authors>Joel Christner</Authors>
+    <Company>Joel Christner</Company>
+    <Product>Hugo</Product>
+    <Copyright>(c)2026 Joel Christner</Copyright>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <Title>Hugo SDK for .NET</Title>
+    <Description>Client SDK for Hugo, the multi-tenant super agent server. Covers authentication (tokens, access keys, signed requests), identity and administration, secrets, request history, server-sent events, and the resource, agent profile, tool invocation, approval, and conversation APIs.</Description>
+    <PackageTags>agents;mcp;a2a;sre;devops;hugo;agent-smith</PackageTags>
+    <PackageProjectUrl>https://github.com/jchristn/AgentSmith</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/jchristn/AgentSmith</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DebugType>portable</DebugType>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="Exists('..\..\..\..\assets\icon.png')">
+    <PackageIcon>icon.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Condition="Exists('..\..\..\..\assets\icon.png')" Include="..\..\..\..\assets\icon.png" Pack="true" PackagePath="\" Visible="false" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" Visible="false" />
+  </ItemGroup>
+
+</Project>
