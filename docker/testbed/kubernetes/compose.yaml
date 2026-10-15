@@ -1,0 +1,72 @@
+# Hugo Kubernetes testbed: a single-node k3s cluster with fixture workloads.
+#
+#   docker compose -f docker/testbed/kubernetes/compose.yaml up -d --wait
+#   HUGO_TESTBED=1 dotnet run --project src/Test.Automated -f net10.0 -- --suites testbed.kubernetes
+#   docker compose -f docker/testbed/kubernetes/compose.yaml down -v
+#
+# API server: https://127.0.0.1:28443 (override with HUGO_TESTBED_K3S_PORT; the suites read the same variable).
+# The init step writes these files to docker/testbed/generated/k3s (git ignores the directory):
+#   kubeconfig     cluster-admin kubeconfig with the server URL rewritten to https://127.0.0.1:28443
+#   reader-token   token of the hugo-test/hugo-reader service account (read-only Role in hugo-test)
+#   ca.crt         the cluster CA certificate (PEM)
+# Fixtures (manifests/fixtures.yaml): namespaces hugo-test and hugo-other, deployment and service "web",
+# configmap "hugo-config", secret "hugo-secret", a crash-looping pod "crasher" (for previous logs), a Widget
+# custom resource definition with one instance, and the hugo-reader service account.
+# metrics-server is disabled on purpose so the suites cover the k8s_top error path.
+#
+# k3s runs privileged (risk R-6 in HUGO_PLAN.md). Runners that forbid privileged containers skip testbed.kubernetes.
+
+name: hugo-testbed-kubernetes
+
+services:
+  k3s:
+    image: rancher/k3s:v1.35.9-k3s1
+    privileged: true
+    command:
+      - server
+      - --disable=traefik,servicelb,metrics-server,local-storage
+      - --disable-helm-controller
+      - --tls-san=127.0.0.1
+      - --tls-san=k3s
+      - --write-kubeconfig=/output/kubeconfig.yaml
+      - --write-kubeconfig-mode=644
+    tmpfs:
+      - /run
+      - /var/run
+    ports:
+      - "127.0.0.1:${HUGO_TESTBED_K3S_PORT:-28443}:6443"
+    volumes:
+      - k3s-data:/var/lib/rancher/k3s
+      - ../generated/k3s:/output
+    healthcheck:
+      test: ["CMD", "kubectl", "get", "--raw=/readyz"]
+      interval: 5s
+      timeout: 4s
+      retries: 2
+      start_period: 120s
+      start_interval: 2s
+    restart: "no"
+
+  k3s-init:
+    image: rancher/k3s:v1.35.9-k3s1
+    depends_on:
+      k3s:
+        condition: service_healthy
+    environment:
+      HOST_PORT: "${HUGO_TESTBED_K3S_PORT:-28443}"
+    volumes:
+      - ../generated/k3s:/output
+      - ./manifests:/manifests:ro
+      - ./init.sh:/init.sh:ro
+    entrypoint: ["/bin/sh", "/init.sh"]
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/seeded"]
+      interval: 5s
+      timeout: 4s
+      retries: 2
+      start_period: 300s
+      start_interval: 2s
+    restart: "no"
+
+volumes:
+  k3s-data:

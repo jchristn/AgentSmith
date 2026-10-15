@@ -37,6 +37,8 @@ namespace Test.Shared
                 suites.AddRange(StorageSuites.Build());
                 suites.AddRange(SqlSuites.Build());
                 suites.AddRange(LoggingSuites.Build());
+                suites.AddRange(KubernetesSuites.Build());
+                suites.AddRange(DockerSuites.Build());
                 return suites;
             }
         }
