@@ -5,7 +5,7 @@ namespace Hugo.Connectors.Sql
     using System.Text.Json.Serialization;
 
     /// <summary>
-    /// JSON serialization for structured tool content: camelCase names, null properties omitted. Thread-safe.
+    /// JSON serialization for structured tool content: camelCase names, null properties omitted, enums as names. Thread-safe.
     /// </summary>
     public static class SqlJson
     {
@@ -15,7 +15,8 @@ namespace Hugo.Connectors.Sql
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            WriteIndented = false
+            WriteIndented = false,
+            Converters = { new JsonStringEnumConverter() }
         };
 
         #endregion

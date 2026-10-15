@@ -4,6 +4,7 @@ namespace Hugo.Connectors.Sql
     using System;
     using System.Collections.Generic;
     using System.Data.Common;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Hugo.Connectors.Abstractions;
@@ -71,6 +72,24 @@ namespace Hugo.Connectors.Sql
                 return "SELECT s.name AS schema_name, p.name AS owner FROM sys.schemas s "
                     + "JOIN sys.database_principals p ON p.principal_id = s.principal_id "
                     + "WHERE s.name NOT IN ('sys', 'INFORMATION_SCHEMA', 'guest') AND s.name NOT LIKE 'db[_]%' ORDER BY s.name";
+            }
+        }
+
+        /// <inheritdoc />
+        public override string LimitSyntax
+        {
+            get
+            {
+                return "TOP (n)";
+            }
+        }
+
+        /// <inheritdoc />
+        public override string PromptNotes
+        {
+            get
+            {
+                return "SQL Server (T-SQL): there is no LIMIT; use SELECT TOP (n) ... ORDER BY, or OFFSET m ROWS FETCH NEXT n ROWS ONLY after ORDER BY; quote identifiers with square brackets only when needed; DATEADD(day, -30, SYSUTCDATETIME()), DATEFROMPARTS(YEAR(col), MONTH(col), 1) for months; STRING_AGG(expr, ', ') aggregates strings; concatenate with + or CONCAT; bit flags are 0 or 1.";
             }
         }
 
@@ -164,6 +183,20 @@ namespace Hugo.Connectors.Sql
                     if (session.Connection is SqlConnection pooled) SqlConnection.ClearPool(pooled);
                 }
             }
+        }
+
+        /// <inheritdoc />
+        public override string QuoteIdentifier(string identifier)
+        {
+            ArgumentNullException.ThrowIfNull(identifier);
+            return "[" + identifier.Replace("]", "]]", StringComparison.Ordinal) + "]";
+        }
+
+        /// <inheritdoc />
+        public override string BuildSampleSql(string schema, string table, IList<string> columns, int rows)
+        {
+            if (columns == null || columns.Count == 0) throw new ArgumentException("At least one column is required.", nameof(columns));
+            return "SELECT TOP (" + Math.Max(1, rows).ToString(System.Globalization.CultureInfo.InvariantCulture) + ") " + String.Join(", ", columns.Select(QuoteIdentifier)) + " FROM " + QualifiedName(schema, table);
         }
 
         #endregion

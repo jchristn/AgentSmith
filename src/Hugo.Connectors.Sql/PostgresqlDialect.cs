@@ -82,6 +82,15 @@ namespace Hugo.Connectors.Sql
             }
         }
 
+        /// <inheritdoc />
+        public override string PromptNotes
+        {
+            get
+            {
+                return "PostgreSQL: identifiers fold to lower case, quote with double quotes only when needed; use LIMIT n; date_trunc('month', col), now() - interval '30 days', ::date casts; ILIKE for case-insensitive matching; string_agg(expr, ', ') aggregates strings; concatenate with ||; booleans are true or false.";
+            }
+        }
+
         #endregion
 
         #region Private-Members

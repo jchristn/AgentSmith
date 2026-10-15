@@ -1,19 +1,45 @@
 namespace Hugo.Connectors.Sql.Tools
 {
     using System;
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.Linq;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Hugo.Connectors.Abstractions;
-    using Hugo.Connectors.Sql.Vendored.Tablix;
+    using Hugo.Connectors.Sql.Intelligence;
 
     /// <summary>
-    /// <c>sql_list_tables</c>: list tables and views in a schema with row estimates. Thread-safe.
+    /// <c>sql_list_tables</c>: a paged, compact index of the tables and views in a schema (Tablix
+    /// <c>tablix_list_tables</c>), one line per table with row estimate, column count, key summary, and a marker when
+    /// durable table context exists. Reads the shared full-crawl cache. Thread-safe.
     /// </summary>
     public class SqlListTablesTool : SqlToolBase
     {
+        #region Public-Members
+
+        /// <summary>
+        /// Default page size when the caller gives none (further capped by the invocation row limit). Minimum 1,
+        /// maximum 1000, default 100.
+        /// </summary>
+        public int DefaultPageSize
+        {
+            get
+            {
+                return _DefaultPageSize;
+            }
+            set
+            {
+                _DefaultPageSize = Math.Clamp(value, 1, 1000);
+            }
+        }
+
+        #endregion
+
+        #region Private-Members
+
+        private int _DefaultPageSize = 100;
+
+        #endregion
+
         #region Constructors-and-Factories
 
         /// <summary>
@@ -34,31 +60,34 @@ namespace Hugo.Connectors.Sql.Tools
         {
             ArgumentNullException.ThrowIfNull(context);
             ArgumentNullException.ThrowIfNull(arguments);
-            string? filter = arguments.GetString("filter");
-            int maxRows = Math.Max(context.Limits.MaxRows, 1);
+            string? search = arguments.GetString("search") ?? arguments.GetString("filter");
+            string? cursor = arguments.GetString("cursor");
+            int pageSize = Math.Min(arguments.GetInt("pageSize", _DefaultPageSize, 1, 1000), Math.Max(1, context.Limits.MaxRows));
 
-            return await RunAsync(context, true, async (session, timeoutSeconds, ct) =>
+            return await WithCrawlAsync(context, arguments, async (snapshot, ct) =>
             {
-                string schema = ResolveSchema(session, arguments);
-                List<TableDetail> tables = await Dialect.Crawler.ListTablesAsync(session.Connection, session.Transaction, schema, ct).ConfigureAwait(false);
-                if (!String.IsNullOrWhiteSpace(filter))
-                    tables = tables.Where(t => t.TableName.Contains(filter.Trim(), StringComparison.OrdinalIgnoreCase)).ToList();
+                SchemaKnowledge knowledge = await LoadKnowledgeAsync(context, ct).ConfigureAwait(false);
+                SchemaPage<TableSummary> page = SchemaProjection.CreateTableListResult(snapshot.Detail, knowledge, pageSize, cursor, search, null);
 
-                SqlQueryResult result = new SqlQueryResult { Title = "Tables in " + schema, RowLimit = maxRows };
-                result.Columns.Add(new SqlColumnInfo("table_name", "text"));
-                result.Columns.Add(new SqlColumnInfo("type", "text"));
-                result.Columns.Add(new SqlColumnInfo("row_estimate", "bigint"));
-                foreach (TableDetail t in tables)
+                StringBuilder sb = new StringBuilder();
+                sb.Append("Tables in ").Append(page.Schema).Append(" (").Append(page.TableCount).Append(" objects");
+                if (page.Search != null) sb.Append(", ").Append(page.TotalRecords).Append(" matching '").Append(page.Search).Append('\'');
+                if (page.Items.Count > 0)
                 {
-                    if (result.Rows.Count >= maxRows)
-                    {
-                        result.Truncated = true;
-                        break;
-                    }
-                    result.Rows.Add(new List<string?> { t.TableName, t.TableType, t.RowEstimate?.ToString(CultureInfo.InvariantCulture) });
+                    int first = SchemaProjection.ParseCursor(cursor) + 1;
+                    sb.Append("; showing ").Append(first).Append('-').Append(first + page.Items.Count - 1).Append(" of ").Append(page.TotalRecords);
                 }
-                if (tables.Count == 0) result.Note = "No tables or views found in schema '" + schema + "'. Use sql_list_schemas to see other schemas.";
-                return Bounded(context, Render(result, "object"), result, result.RowCount);
+                sb.Append(snapshot.Cached ? "; crawl from cache, refresh=true recrawls" : String.Empty).Append(")\n");
+                foreach (TableSummary t in page.Items) sb.Append(SchemaProjection.RenderLine(t)).Append('\n');
+                if (page.TotalRecords == 0)
+                    sb.Append(page.Search == null ? "No tables or views found in schema '" + page.Schema + "'. Use sql_list_schemas to see other schemas.\n" : "No tables or columns match '" + page.Search + "'.\n");
+                if (!page.EndOfResults) sb.Append("More tables exist: call again with cursor \"").Append(page.NextCursor).Append("\".\n");
+                sb.Append("Use sql_describe_table for full columns, keys, and indexes; sql_get_context for table meaning.\n");
+
+                ToolResult result = BoundedPayload(context, sb.ToString(), page, page.Items.Count);
+                result.Metrics["cached"] = snapshot.Cached ? 1 : 0;
+                result.Metrics["totalRecords"] = page.TotalRecords;
+                return result;
             }, token).ConfigureAwait(false);
         }
 
@@ -72,14 +101,19 @@ namespace Hugo.Connectors.Sql.Tools
             {
                 Name = "sql_list_tables",
                 Title = "List tables",
-                Description = "List the tables and views in a schema with their type and estimated row counts (exact counts on SQLite). "
-                    + "Use before writing a query so you use real table names. The schema defaults to the resource's default schema.",
+                Description = "Compact, paged index of the tables and views in a schema: one line per table with estimated rows (exact on SQLite), column count, primary and foreign keys, and a marker when durable table context exists. "
+                    + "Preferred discovery tool for large databases. Narrow with search (matches table, schema, and column names) and page with cursor until no nextCursor is returned. "
+                    + "The index is not enough to write SQL: call sql_describe_table for the tables you will query. Reads the cached crawl; refresh=true recrawls after DDL changes.",
                 InputSchemaJson = "{\"type\":\"object\",\"properties\":{"
-                    + "\"schema\":{\"type\":\"string\",\"description\":\"Schema (MySQL: database). Optional.\"},"
-                    + "\"filter\":{\"type\":\"string\",\"description\":\"Case-insensitive substring to match table names. Optional.\"}"
+                    + "\"schema\":{\"type\":\"string\",\"description\":\"Schema (MySQL: database). Defaults to the resource's default schema.\"},"
+                    + "\"search\":{\"type\":\"string\",\"description\":\"Case-insensitive text matched against table, schema, and column names. Optional.\"},"
+                    + "\"filter\":{\"type\":\"string\",\"description\":\"Older name for search. Optional.\"},"
+                    + "\"cursor\":{\"type\":\"string\",\"description\":\"nextCursor from the previous page. Omit for the first page.\"},"
+                    + "\"pageSize\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":1000,\"description\":\"Tables per page. Default 100, capped by the row limit.\"},"
+                    + "\"refresh\":{\"type\":\"boolean\",\"description\":\"Recrawl instead of using the cached crawl. Default false.\"}"
                     + "},\"additionalProperties\":false}",
                 BaseEffect = EffectEnum.Read,
-                OutputDescription = "Table of name, type, row estimate; structured content with columns and rows."
+                OutputDescription = "One line per table; structured content { schema, search, tableCount, totalRecords, pageSize, cursor, nextCursor, endOfResults, crawledUtc, items: [{ schemaName, tableName, tableType, rowEstimate, columns, foreignKeys, indexes, primaryKey, keySummary, hasContext, contextSource }] }."
             };
         }
 
