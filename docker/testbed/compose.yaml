@@ -1,0 +1,11 @@
+# Hugo connector testbed (D-030). Brings up every connector test target on 127.0.0.1 in the 28xxx port block.
+#   docker compose -f docker/testbed/compose.yaml up -d --wait
+#   HUGO_TESTBED=1 dotnet run --project src/Test.Automated -f net10.0 -- --suites testbed
+#   docker compose -f docker/testbed/compose.yaml down -v
+# Each family keeps its own compose file so it can also be started alone.
+name: hugo-testbed
+
+include:
+  - ssh/compose.yaml
+  - storage/compose.yaml
+  - sql/compose.yaml

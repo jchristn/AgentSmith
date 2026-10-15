@@ -59,3 +59,6 @@ user-testing/evidence/
 Thumbs.db
 .idea/
 .vscode/
+
+# Agent worktrees and local agent state
+.claude/
