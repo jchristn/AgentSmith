@@ -113,7 +113,8 @@ Milestones:
 ### Current state and where to pick up (updated 2026-10-14)
 
 - Execution started 2026-10-14. Phase 0 skeleton is committed: solution, connector contract (P3.1), CI workflow, assets. The foundation is being forked from Garrison (D-032).
-- In flight 2026-10-14 (parallel agents, one git worktree each, merged by the coordinator):
+- Paused 2026-10-14 at the user's request after the in-flight work completed. Nothing is running. Main builds with zero warnings and 2173 Touchstone cases pass on SQLite (309 testbed cases skip without HUGO_TESTBED=1); suites also pass on PostgreSQL. GitHub Actions cannot run until the account billing issue is resolved (P0.12).
+- Where to pick up next (in order): the follow-ups below, Phase 11 documentation and Postman (REST_API.md, MCP_API.md, A2A_API.md, Postman collection), the factory demo profile (P10.7, P10.8), Phase 12 MVP verification, then Phase 17 (Kubernetes and minikube).
 - Follow-ups recorded from connector work (fold into the named tasks):
   - P3.13: the pipeline applies binding-level command deny patterns (the invocation context has no binding policy).
   - P3.8: audit every `LearnSetting` call (pinned host keys, D-028) as `HostKeyPinned`.
