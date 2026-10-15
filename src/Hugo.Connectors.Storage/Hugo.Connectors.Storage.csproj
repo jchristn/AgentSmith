@@ -9,6 +9,18 @@
   <ItemGroup>
     <ProjectReference Include="..\Hugo.Connectors.Abstractions\Hugo.Connectors.Abstractions.csproj" />
   </ItemGroup>
+
+  <!--
+    Blobject provides the provider-neutral client. The provider SDKs it depends on (AWSSDK.S3, Azure.Storage.Blobs,
+    Google.Cloud.Storage.V1) are used directly only for presigned URLs and error mapping, at the versions Blobject pins.
+  -->
+  <ItemGroup>
+    <PackageReference Include="Blobject.Core" Version="6.1.2" />
+    <PackageReference Include="Blobject.AmazonS3" Version="6.1.2" />
+    <PackageReference Include="Blobject.AzureBlob" Version="6.1.2" />
+    <PackageReference Include="Blobject.GoogleCloud" Version="6.1.2" />
+  </ItemGroup>
+
   <ItemGroup>
     <EmbeddedResource Include="Instructions\**\*.md" />
   </ItemGroup>

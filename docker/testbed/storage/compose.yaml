@@ -1,0 +1,134 @@
+# Hugo object storage testbed: MinIO (S3 API), Azurite (Azure Blob), and fake-gcs-server (GCS JSON API).
+#
+#   docker compose -f docker/testbed/storage/compose.yaml up -d --wait
+#   HUGO_TESTBED=1 dotnet run --project src/Test.Automated -f net10.0 -- --suites testbed.storage
+#   docker compose -f docker/testbed/storage/compose.yaml down -v
+#
+# Every target serves the bucket or container "hugo-testbed", seeded from fixtures/hugo-testbed.
+# Ports (loopback only):
+#   MinIO S3 API     127.0.0.1:28900  (access key hugo-testbed, secret key hugo-testbed-secret)
+#   MinIO console    127.0.0.1:28901
+#   Azurite blob     127.0.0.1:28910  (account devstoreaccount1, well-known development key)
+#   fake-gcs-server  127.0.0.1:28920  (scheme http, any service account JSON is accepted)
+#
+# Each host port can be overridden (HUGO_TESTBED_S3_PORT, HUGO_TESTBED_S3_CONSOLE_PORT, HUGO_TESTBED_AZURITE_PORT,
+# HUGO_TESTBED_GCS_PORT); the test suites read the same variables.
+#
+# The official minio/minio images are no longer published on Docker Hub, so this file uses the community build
+# pgsty/minio, which ships the same server and the mc client.
+
+name: hugo-testbed-storage
+
+services:
+  minio:
+    image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z
+    command: ["server", "/data", "--address", ":9000", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: hugo-testbed
+      MINIO_ROOT_PASSWORD: hugo-testbed-secret
+    ports:
+      - "127.0.0.1:${HUGO_TESTBED_S3_PORT:-28900}:9000"
+      - "127.0.0.1:${HUGO_TESTBED_S3_CONSOLE_PORT:-28901}:9001"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 5s
+      timeout: 4s
+      retries: 2
+      start_period: 20s
+      start_interval: 1s
+
+  minio-init:
+    image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z
+    depends_on:
+      minio:
+        condition: service_healthy
+    volumes:
+      - ./fixtures:/fixtures:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >
+        mc alias set testbed http://minio:9000 hugo-testbed hugo-testbed-secret &&
+        mc mb --ignore-existing testbed/hugo-testbed &&
+        mc cp --recursive /fixtures/hugo-testbed/ testbed/hugo-testbed/ &&
+        touch /tmp/seeded &&
+        exec sleep infinity
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/seeded"]
+      interval: 5s
+      timeout: 4s
+      retries: 2
+      start_period: 30s
+      start_interval: 1s
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:3.35.0
+    command: ["azurite-blob", "--blobHost", "0.0.0.0", "--blobPort", "10000", "--loose", "--skipApiVersionCheck", "--inMemoryPersistence"]
+    ports:
+      - "127.0.0.1:${HUGO_TESTBED_AZURITE_PORT:-28910}:10000"
+    healthcheck:
+      test: ["CMD", "nc", "-z", "127.0.0.1", "10000"]
+      interval: 5s
+      timeout: 4s
+      retries: 2
+      start_period: 20s
+      start_interval: 1s
+
+  azurite-init:
+    image: python:3.12.15-alpine3.24
+    depends_on:
+      azurite:
+        condition: service_healthy
+    environment:
+      AZURITE_ENDPOINT: http://azurite:10000/devstoreaccount1
+      AZURITE_CONTAINER: hugo-testbed
+      FIXTURES: /fixtures/hugo-testbed
+    volumes:
+      - ./fixtures:/fixtures:ro
+      - ./seed_azurite.py:/seed_azurite.py:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - python -I /seed_azurite.py && touch /tmp/seeded && exec sleep infinity
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/seeded"]
+      interval: 5s
+      timeout: 4s
+      retries: 2
+      start_period: 30s
+      start_interval: 1s
+
+  fake-gcs:
+    image: fsouza/fake-gcs-server:1.56.1
+    command: ["-scheme", "http", "-port", "4443", "-backend", "memory", "-data", "/data", "-external-url", "http://127.0.0.1:${HUGO_TESTBED_GCS_PORT:-28920}", "-public-host", "127.0.0.1:${HUGO_TESTBED_GCS_PORT:-28920}"]
+    volumes:
+      - ./fixtures:/data:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:4443/storage/v1/b/hugo-testbed"]
+      interval: 5s
+      timeout: 4s
+      retries: 2
+      start_period: 20s
+      start_interval: 1s
+
+  # fake-gcs-server trims trailing zeros from fractional seconds, which the Google .NET client cannot parse.
+  # This proxy pads them (see gcs_proxy.py) and is the published GCS endpoint.
+  gcs-proxy:
+    image: python:3.12.15-alpine3.24
+    depends_on:
+      fake-gcs:
+        condition: service_healthy
+    environment:
+      UPSTREAM_HOST: fake-gcs
+      UPSTREAM_PORT: "4443"
+      LISTEN_PORT: "4443"
+    volumes:
+      - ./gcs_proxy.py:/gcs_proxy.py:ro
+    entrypoint: ["python", "-I", "/gcs_proxy.py"]
+    ports:
+      - "127.0.0.1:${HUGO_TESTBED_GCS_PORT:-28920}:4443"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:4443/storage/v1/b/hugo-testbed"]
+      interval: 5s
+      timeout: 4s
+      retries: 2
+      start_period: 20s
+      start_interval: 1s
