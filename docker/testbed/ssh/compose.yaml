@@ -1,0 +1,61 @@
+# Hugo SSH testbed: a target sshd and a bastion sshd that can reach the target.
+#
+#   ./generate-keys.sh                                  # once: client keys into ../generated/ssh
+#   docker compose -f docker/testbed/ssh/compose.yaml up -d --wait
+#   HUGO_TESTBED=1 dotnet run --project src/Test.Automated -f net10.0 -- --suites testbed.ssh
+#   docker compose -f docker/testbed/ssh/compose.yaml down
+#
+# Target:  127.0.0.1:28022 (hostname hugo-ssh-target, reachable from the bastion as ssh-target:2222)
+# Bastion: 127.0.0.1:28023 (hostname hugo-ssh-bastion)
+# Users on both: "hugo" (password hugo-testbed-password, keys also accepted) and "hugokey" (keys only).
+# Host keys are regenerated on every fresh start; tests pin them by trust on first use.
+name: hugo-testbed-ssh
+
+x-sshd: &sshd
+  image: lscr.io/linuxserver/openssh-server:10.3_p1-r1-ls237
+  entrypoint: ["/bin/bash", "/testbed/setup.sh"]
+  environment:
+    PUID: "1000"
+    PGID: "1000"
+    TZ: Etc/UTC
+    USER_NAME: hugo
+    USER_PASSWORD: hugo-testbed-password
+    PASSWORD_ACCESS: "true"
+    PUBLIC_KEY_DIR: /testbed/keys
+    SUDO_ACCESS: "false"
+    LOG_STDOUT: "true"
+  volumes:
+    - ./setup.sh:/testbed/setup.sh:ro
+    - ../generated/ssh/authorized:/testbed/keys:ro
+  networks:
+    - ssh
+  healthcheck:
+    test: ["CMD", "nc", "-z", "127.0.0.1", "2222"]
+    interval: 5s
+    timeout: 3s
+    retries: 2
+    start_period: 60s
+    start_interval: 2s
+  restart: "no"
+
+services:
+  ssh-target:
+    <<: *sshd
+    container_name: hugo-ssh-target
+    hostname: hugo-ssh-target
+    ports:
+      - "127.0.0.1:28022:2222"
+
+  ssh-bastion:
+    <<: *sshd
+    container_name: hugo-ssh-bastion
+    hostname: hugo-ssh-bastion
+    ports:
+      - "127.0.0.1:28023:2222"
+    depends_on:
+      ssh-target:
+        condition: service_healthy
+
+networks:
+  ssh:
+    name: hugo-testbed-ssh
