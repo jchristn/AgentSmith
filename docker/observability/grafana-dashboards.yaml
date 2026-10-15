@@ -1,5 +1,6 @@
 # Grafana dashboard provider: every JSON file under the mounted directory lands in the Hugo folder. Dashboard JSON
-# is maintained in assets/grafana/ and mirrored here (CI checks they match).
+# is maintained in assets/grafana/, which compose.yaml mounts read-only at /etc/grafana/dashboards/hugo.
+# scripts/check-grafana-mirror.sh validates it (JSON, unique UIDs, datasource UIDs) and any mirrors (docs/GRAFANA.md).
 apiVersion: 1
 
 providers:
