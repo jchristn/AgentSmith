@@ -92,7 +92,7 @@ These rules keep the plan honest:
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | In progress | 21 / 22 |
 | 8 | Dashboard | M1 | In progress | 51 / 53 |
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | In progress | 14 / 15 |
-| 10 | Docker, testbed, and observability stack | M1 | In progress | 15 / 24 |
+| 10 | Docker, testbed, and observability stack | M1 | In progress | 18 / 24 |
 | 11 | Documentation and Postman | M1 | In progress | 0 / 18 |
 | 12 | MVP verification (milestone M1) | M1 | Not started | 0 / 14 |
 | 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | In progress | 30 / 38 |
@@ -2062,8 +2062,8 @@ Quality
 - [x] P10.4 `docker/hugo/hugo.json` default settings (SQLite) and a `hugo.postgres.json` variant.  | claude 2026-10-14 docker/hugo/hugo.json mounted as /app/config (0.0.0.0, /app/data paths, OTLP to Alloy); PostgreSQL via HUGO_DB_TYPE and the postgres profile
 - [~] P10.5 `.env.example`, plus `docker/start.sh`/`.bat` generating missing keys into `.env`.  | claude 2026-10-14 docker/.env.example and start.sh/.bat generating HUGO_MASTER_KEY and HUGO_AUTH_SIGNING_KEY; compose falls back to labeled development keys
 - [x] P10.6 `docker/update.bat` and `update.sh` per REPOSITORY_REQUIREMENTS.md.  | claude 2026-10-14 docker/update.sh and update.bat: pull, down, up -d, ps -a (non-destructive)
-- [~] P10.7 `docker/factory/compose.yaml`, seeded data, `reset.bat` and `reset.sh`.  | claude 2026-10-14 factory/reset.sh and reset.bat (typed RESET confirmation, down -v, up); factory seed and factory compose come with P10.8
-- [ ] P10.8 Factory demo content: demo resources pointing at the testbed, a profile with eight bindings (the joel scenario), and a demo credential.
+- [x] P10.7 `docker/factory/compose.yaml`, seeded data, `reset.bat` and `reset.sh`.  | claude 2026-10-14 docker/factory: compose.yaml (project hugo-factory, ports 8810/8811/3010/9091/3110/3210, testbed targets, ssh-keys and seed one-shots), reset.sh/.bat for the factory stack; docker/reset.sh/.bat resets the plain stack
+- [x] P10.8 Factory demo content: demo resources pointing at the testbed, a profile with eight bindings (the joel scenario), and a demo credential.  | claude 2026-10-14 seed.py through the REST API: demo password, six secrets, eight resources bound to Hugo with mixed access modes, optional Ollama endpoint, demo credential locked to Hugo, idempotent; verified with published v0.1.0 images incl. MCP initialize, tools/list (61), dry run, invoke, approval 202; docs/FACTORY.md
 - [x] P10.9 Prometheus config scraping `hugo-server:8800/metrics` on the internal network.  | claude 2026-10-14 Prometheus target hugo-server up
 - [~] P10.10 Tempo config (OTLP gRPC and HTTP), pinned to 2.6.1.  | claude 2026-10-14 docker/observability/tempo.yaml from Garrison; Alloy OTLP receiver forwards to Tempo
 - [~] P10.11 Loki config and Radiant log export.  | claude 2026-10-14 docker/observability/loki.yaml and Alloy container log shipping
@@ -2074,11 +2074,11 @@ Quality
 - [x] P10.16 Grafana dashboard: Tools and Connectors.  | claude 2026-10-14 hugo-tools
 - [x] P10.17 Grafana dashboard: Models.  | claude 2026-10-14 hugo-models
 - [x] P10.18 Grafana dashboards: MCP and A2A, Security.  | claude 2026-10-14 hugo-protocols and hugo-security, plus hugo-database, hugo-integrations, hugo-control-plane, hugo-logs; docs/GRAFANA.md
-- [~] P10.19 Dashboard JSON mirrored into `assets/grafana/` and `docker/factory/`, with a CI check that they match.  | claude 2026-10-14 scripts/check-grafana-mirror.sh validates JSON, UIDs, datasources, descriptions, and mirrors when present; CI wiring and factory mirror pending
+- [~] P10.19 Dashboard JSON mirrored into `assets/grafana/` and `docker/factory/`, with a CI check that they match.  | claude 2026-10-14 factory Grafana mirror in docker/factory/grafana, check-grafana-mirror.sh passes; CI wiring pending
 - [x] P10.20 Telemetry verifier script (`scripts/verify-telemetry.sh`): every catalog metric appears in Prometheus after a scripted workload.  | claude 2026-10-14 scripts/verify-telemetry.sh/.bat: PASS on a fresh stack (21 required families); hugo_authz_requests_total has no call site (gap)
 - [ ] P10.21 `compose.docker-socket.yaml` override for the Docker connector, documented.
 - [x] P10.22 Multi-arch image build scripts (`build-server`, `build-dashboard`, `build-all`, `.sh` and `.bat`).  | claude 2026-10-14 build-server, build-dashboard, build-all (.sh and .bat) at the repository root: Docker Build Cloud, linux/amd64 and linux/arm64, tags <tag> and latest, push then pull back (Garrison pattern); compose.yaml references jchristn77/hugo-server:v0.1.0 and jchristn77/hugo-dashboard:v0.1.0
-- [ ] P10.23 Image publication to Docker Hub (`jchristn/hugo-server`, `jchristn/hugo-dashboard`) when the user approves.
+- [x] P10.23 Image publication to Docker Hub (`jchristn/hugo-server`, `jchristn/hugo-dashboard`) when the user approves.  | claude 2026-10-14 build-all.sh v0.1.0 published jchristn77/hugo-server and jchristn77/hugo-dashboard, tags v0.1.0 and latest, linux/amd64 and linux/arm64, from commit 39d57f9
 - [x] P10.24 `docs/DOCKER.md` (networking to targets, volumes, keys, Postgres profile, upgrade, factory reset).  | claude 2026-10-14 docs/DOCKER.md: services, first start and keys, configuration, PostgreSQL, reaching your own systems, Docker socket override, data and backups, update and reset, health
 
 ### Phase 11: Documentation and Postman (M1)

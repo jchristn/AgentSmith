@@ -33,7 +33,7 @@ Keeping it current and starting over:
 
 ```bash
 ./update.sh               # pull new images and recreate the stack; data is kept
-./factory/reset.sh        # delete everything, including stored secrets, and start fresh
+./reset.sh                # delete everything, including stored secrets, and start fresh
 ```
 
 Every host port binds to `127.0.0.1` and can be changed in `docker/.env`. See [`docs/DOCKER.md`](docs/DOCKER.md) for networking to your own systems (`host.docker.internal`, the Docker socket for the Docker connector), PostgreSQL, and upgrades.
