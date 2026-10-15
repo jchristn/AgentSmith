@@ -10,7 +10,7 @@ The default profile is named Hugo. It calls itself Agent Smith, and it calls you
 
 ## Deploy with Docker
 
-Docker is how Hugo is deployed. Kubernetes and minikube assets are planned in `k8s/` and `minikube/` (Phase 17 of the plan); until they land, Docker Compose is the only supported deployment.
+Hugo is deployed as containers: with Docker Compose (below), on Kubernetes with `k8s/`, or on minikube with `minikube/` (see [`docs/KUBERNETES.md`](docs/KUBERNETES.md)).
 
 ```bash
 git clone https://github.com/jchristn/AgentSmith.git

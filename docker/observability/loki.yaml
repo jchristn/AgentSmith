@@ -1,4 +1,4 @@
-# Loki configuration for Garrison: single binary, filesystem storage, 72 hours of retention. Shared by
+# Loki configuration for Hugo: single binary, filesystem storage, 72 hours of retention. Shared by
 # k8s/components/observability, the Helm chart (mirrored copy, diffed in CI), and the Docker Compose
 # observability profile (mounted from here).
 auth_enabled: false

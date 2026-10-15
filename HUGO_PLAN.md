@@ -98,7 +98,7 @@ These rules keep the plan honest:
 | 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | In progress | 30 / 38 |
 | 14 | Knowledge, runbooks, and operator conveniences | M2 | Not started | 0 / 12 |
 | 15 | Benchmarking | M3 | Not started | 0 / 16 |
-| 17 | Kubernetes and minikube | M2 | Not started | 0 / 16 |
+| 17 | Kubernetes and minikube | M2 | In progress | 15 / 16 |
 | 16 | Hardening, simulated user testing, and 1.0 release | M4 | Not started | 0 / 18 |
 
 Milestones:
@@ -134,7 +134,7 @@ Milestones:
   - Dynamic tools (D-044): add optional `IDynamicToolProvider` so external MCP tools appear as `<prefix>__<tool>`; fence remote instructions inside compiled instructions (P13.28).
   - SSH `jumpResourceName` (reuse another resource as bastion) needs a related-resource resolver; the jump settings cover the case today.
 - Next after the merges: Phase 3 pipeline (resources, invocation service, approvals), Phase 5 profiles and instructions, Phase 6 runtime, Phase 7 protocols.
-- Decisions D-001 through D-050 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
+- Decisions D-001 through D-051 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
 - Before P0.1, confirm the open questions in [section 23](#23-risks-and-open-questions) that are marked "before Phase 0".
 
 ---
@@ -271,6 +271,7 @@ This journey is the acceptance story for M1. Phase 12 replays it end to end.
 | D-048 | First login never forces a password change (user direction 2026-10-14). Seeded and administrator-reset accounts carry `mustChangePassword` as an advisory flag; the server blocks no route, and the dashboard shows a prompt with Change password and Skip (Skip lasts for the browser session and the prompt returns at the next sign-in). This replaces the P1.16 enforcement. | The forced change made first use and automation needlessly hostile; the prompt still nudges toward a real password. | 3.6, 15.2, 18 |
 | D-049 | Secrets have a distinct `BearerToken` kind (field `token`) for tokens sent exactly as `Authorization: Bearer`, alongside `ApiToken` for tokens whose header or format depends on the service. Slots that send a bearer header (HTTP and observability bearer auth, Kubernetes service account tokens, MCP and A2A connectors, SolarWinds Observability, model endpoint API keys in the dashboard) accept both; slots with their own header (Papertrail's `X-Papertrail-Token`, API key headers, the Azure account key) accept only `ApiToken`. The dashboard topbar also links the project Discord (https://discord.gg/tRAN8HgvK5) next to GitHub. | User direction 2026-10-14. | 12, 18 |
 | D-050 | Model endpoints (user direction 2026-10-14): names accept letters, digits, spaces, and `. _ - : / @` (model identifiers like `llama3:8b` are common names; names are labels, endpoints are referenced by ID). The create and edit forms have a Validate button backed by `POST /v1.0/api/model-endpoints/validate`, which checks unsaved settings with a tiny prompt or embedding and stores nothing. Validation results are shown as a laid-out view (outcome, model, kind, latency, dimensions, provider HTTP status, reply preview, error, problems), never as raw JSON. | Validating before saving avoids create-then-fix loops; raw JSON is not an operator experience. | 13.1, 18 |
+| D-051 | Kubernetes details from Phase 17: startup probes allow 5 minutes for first boot (readiness and liveness keep the 2-failure rule); third-party images use kubelet HTTP or TCP probes (the Kubernetes form of D-037); the dashboard pod runs as root with a writable root filesystem because the stock nginx image writes its config at startup (capabilities trimmed); the server PodDisruptionBudget is `maxUnavailable: 1` so node drains are not blocked; the namespace is fixed to `hugo`; the settings file is read-only in Kubernetes, so the dashboard Settings page cannot persist file changes there; components are add-ons layered on an overlay. | Recorded from the live minikube and k3s runs. | 17.5 |
 
 ---
 
@@ -2216,22 +2217,22 @@ Wrap-up
 
 ### Phase 17: Kubernetes and minikube (M2, D-045)
 
-- [ ] P17.1 `k8s/base`: server and dashboard Deployments (one server replica, Recreate strategy), Services, ConfigMap from `docker/hugo/hugo.json` adapted for Kubernetes, PVC for `/app/data`, ServiceAccount, security contexts, NetworkPolicies, kustomization. *Accept:* `kubectl kustomize k8s/base` renders and `kubeconform` validates it.
-- [ ] P17.2 Probes: readiness, liveness, and startup via `curl` to `127.0.0.1` in the container (`periodSeconds: 5`, `failureThreshold: 2`); init container waiting for PostgreSQL when that component is used.
-- [ ] P17.3 `k8s/scripts/generate-secrets.sh/.bat`: create the Secret with generated master key, signing key, database and Grafana passwords; print where to back them up; never write them into the repository.
-- [ ] P17.4 `k8s/components/postgres`: StatefulSet, Service, PVC, Secret wiring, `HUGO_DB_TYPE=Postgresql`.
-- [ ] P17.5 `k8s/components/observability`: Prometheus (scraping the server Service), Tempo, Loki, Alloy (pod logs through the Kubernetes API), Grafana with the Hugo dashboards from `assets/grafana`; datasource UIDs unchanged.
-- [ ] P17.6 `k8s/components/ingress`: Ingress for the dashboard and API (MCP and A2A included), with SSE-safe annotations (buffering off, long timeouts).
-- [ ] P17.7 `k8s/overlays/k3s`: local-path storage, Traefik ingress, image pull policy for locally imported images.
-- [ ] P17.8 `k8s/overlays/production`: requests and limits, PodDisruptionBudget, topology hints, external PostgreSQL option, TLS on ingress.
-- [ ] P17.9 `k8s/helm/hugo`: chart mirroring base and components; `values.yaml` documented; a CI check renders Helm and Kustomize and compares the objects.
-- [ ] P17.10 `k8s/scripts`: deploy, port-forward, update (pull, rolling restart, pod status; non-destructive), factory-reset (delete PVCs and Secrets, redeploy, typed confirmation), wait-rollout, smoke-test (health, login, password change, list connectors); `.sh` and `.bat` pairs.
-- [ ] P17.11 `minikube/overlay`: minikube storage class, NodePort or ingress addon, image loading from the local Docker daemon (`minikube image load`) or Docker Hub.
-- [ ] P17.12 `minikube/scripts`: start (profile with CPU and memory defaults and the ingress and metrics-server addons), deploy, port-forward (8800, 8801, 3000), update, factory-reset, teardown, smoke-test; `.sh` and `.bat` pairs.
-- [ ] P17.13 Live verification on minikube: deploy from a clean profile, smoke test passes, the primary journey works through the dashboard, Grafana shows data, update keeps data, factory reset clears it. *Accept:* transcript and screenshots in the annotation.
-- [ ] P17.14 Live verification on k3s (k3s in Docker is acceptable): the same checks with the k3s overlay, with and without the postgres and observability components.
-- [ ] P17.15 `docs/KUBERNETES.md` and `minikube/README.md`, plus `k8s/README.md`: choosing a runtime, secrets first, deploy, reach, update, reset, back up (PVC plus the Secret together), and the single-replica limit.
-- [ ] P17.16 README, DOCKERHUB_README, and the simulated user testing inventory list all three deployment paths; CI renders the manifests and Helm chart on every push.
+- [x] P17.1 `k8s/base`: server and dashboard Deployments (one server replica, Recreate strategy), Services, ConfigMap from `docker/hugo/hugo.json` adapted for Kubernetes, PVC for `/app/data`, ServiceAccount, security contexts, NetworkPolicies, kustomization. *Accept:* `kubectl kustomize k8s/base` renders and `kubeconform` validates it.  | claude 2026-10-14 base: one server replica (Recreate), PVC, ConfigMap, non-root read-only root filesystem, NetworkPolicies
+- [x] P17.2 Probes: readiness, liveness, and startup via `curl` to `127.0.0.1` in the container (`periodSeconds: 5`, `failureThreshold: 2`); init container waiting for PostgreSQL when that component is used.  | claude 2026-10-14 curl probes to 127.0.0.1 every 5 s, failure/success threshold 2; startup probe allows 5 minutes; pg_isready init wait
+- [x] P17.3 `k8s/scripts/generate-secrets.sh/.bat`: create the Secret with generated master key, signing key, database and Grafana passwords; print where to back them up; never write them into the repository.  | claude 2026-10-14 generate-secrets creates hugo-secrets without overwriting unless --force
+- [x] P17.4 `k8s/components/postgres`: StatefulSet, Service, PVC, Secret wiring, `HUGO_DB_TYPE=Postgresql`.  | claude 2026-10-14 postgres component
+- [x] P17.5 `k8s/components/observability`: Prometheus (scraping the server Service), Tempo, Loki, Alloy (pod logs through the Kubernetes API), Grafana with the Hugo dashboards from `assets/grafana`; datasource UIDs unchanged.  | claude 2026-10-14 observability component (Prometheus, Tempo, Loki, Alloy, Grafana with Hugo dashboards)
+- [x] P17.6 `k8s/components/ingress`: Ingress for the dashboard and API (MCP and A2A included), with SSE-safe annotations (buffering off, long timeouts).  | claude 2026-10-14 ingress with SSE-safe annotations; /metrics not routed
+- [x] P17.7 `k8s/overlays/k3s`: local-path storage, Traefik ingress, image pull policy for locally imported images.  | claude 2026-10-14 k3s overlay
+- [x] P17.8 `k8s/overlays/production`: requests and limits, PodDisruptionBudget, topology hints, external PostgreSQL option, TLS on ingress.  | claude 2026-10-14 production overlay (requests/limits, PDB maxUnavailable 1, TLS, external PostgreSQL)
+- [x] P17.9 `k8s/helm/hugo`: chart mirroring base and components; `values.yaml` documented; a CI check renders Helm and Kustomize and compares the objects.  | claude 2026-10-14 Helm chart k8s/helm/hugo; k8s/tests/check-render.sh compares Helm and Kustomize objects for all 10 shapes
+- [x] P17.10 `k8s/scripts`: deploy, port-forward, update (pull, rolling restart, pod status; non-destructive), factory-reset (delete PVCs and Secrets, redeploy, typed confirmation), wait-rollout, smoke-test (health, login, password change, list connectors); `.sh` and `.bat` pairs.  | claude 2026-10-14 k8s scripts (.bat untested, no Windows host)
+- [x] P17.11 `minikube/overlay`: minikube storage class, NodePort or ingress addon, image loading from the local Docker daemon (`minikube image load`) or Docker Hub.  | claude 2026-10-14 minikube overlay
+- [x] P17.12 `minikube/scripts`: start (profile with CPU and memory defaults and the ingress and metrics-server addons), deploy, port-forward (8800, 8801, 3000), update, factory-reset, teardown, smoke-test; `.sh` and `.bat` pairs.  | claude 2026-10-14 minikube scripts start, deploy, port-forward, update, factory-reset, teardown, smoke-test
+- [x] P17.13 Live verification on minikube: deploy from a clean profile, smoke test passes, the primary journey works through the dashboard, Grafana shows data, update keeps data, factory reset clears it. *Accept:* transcript and screenshots in the annotation.  | claude 2026-10-14 minikube hugo-verify profile with published v0.1.0 images: smoke 10/10, Grafana data, ingress, update keeps data, reset clears, teardown
+- [x] P17.14 Live verification on k3s (k3s in Docker is acceptable): the same checks with the k3s overlay, with and without the postgres and observability components.  | claude 2026-10-14 k3s v1.35.5 via k3d: SQLite smoke 8/8 with Traefik ingress and SSE; PostgreSQL plus observability 10/10 with network policies; Helm install smoke 8/8
+- [x] P17.15 `docs/KUBERNETES.md` and `minikube/README.md`, plus `k8s/README.md`: choosing a runtime, secrets first, deploy, reach, update, reset, back up (PVC plus the Secret together), and the single-replica limit.  | claude 2026-10-14 docs/KUBERNETES.md, k8s/README.md, minikube/README.md
+- [~] P17.16 README, DOCKERHUB_README, and the simulated user testing inventory list all three deployment paths; CI renders the manifests and Helm chart on every push.  | claude 2026-10-14 README pointer and stale wording fixed; .github/workflows/k8s.yaml renders, validates (kubeconform), and compares; DOCKERHUB_README and simulated user testing inventory pending
 
 ### Phase 16: Hardening, simulated user testing, and 1.0 (M4)
 
