@@ -44,7 +44,8 @@
       "view": "View",
       "viewDetails": "View details",
       "viewJson": "View JSON",
-      "dismiss": "Dismiss"
+      "dismiss": "Dismiss",
+      "openDiscord": "Open Discord"
     },
     "boolean": {
       "yes": "Yes",
@@ -271,7 +272,8 @@
       "Kubeconfig": "Kubeconfig",
       "ConnectionString": "Connection string",
       "Certificate": "Certificate",
-      "Generic": "Generic secret"
+      "Generic": "Generic secret",
+      "BearerToken": "Bearer token"
     },
     "effect": {
       "Read": "Read",
@@ -635,7 +637,7 @@
     },
     "passwordChange": {
       "title": "Choose a new password",
-      "body": "This account still has its initial or reset password. Choose a new one of at least {{min}} characters to continue.",
+      "body": "This account still has its initial or reset password. We recommend choosing a new one of at least {{min}} characters. You can skip this for now.",
       "current": "Current password",
       "new": "New password",
       "confirm": "Confirm new password",
@@ -643,7 +645,8 @@
       "changed": "Password changed.",
       "tooShort": "Use at least {{min}} characters.",
       "sameAsCurrent": "Choose a password different from the current one.",
-      "mismatch": "The two new passwords do not match."
+      "mismatch": "The two new passwords do not match.",
+      "skip": "Skip"
     },
     "progress": {
       "count": "{{done}} of {{total}}",
@@ -2252,7 +2255,8 @@
       "lockdownOff": "Lock down the tenant: deny every write and destructive call from every surface until you lift it.",
       "lockdownOn": "The tenant is locked down. Click to review and lift the lockdown.",
       "lockdownEngage": "Deny every non-read call in this tenant now and cancel pending approvals.",
-      "lockdownLift": "Allow write and destructive calls again, subject to access modes and approvals."
+      "lockdownLift": "Allow write and destructive calls again, subject to access modes and approvals.",
+      "discord": "Join the Hugo community on Discord (opens in a new tab)."
     },
     "login": {
       "passwordTab": "Sign in as a person with a tenant, email, and password.",
@@ -2465,13 +2469,14 @@
       "secretKind": {
         "Password": "A password, optionally with its username.",
         "PrivateKey": "An SSH or TLS private key, optionally with its passphrase.",
-        "ApiToken": "An API or bearer token issued by a service.",
+        "ApiToken": "An API token or key whose header or format depends on the service (it might be a bearer token, or something else).",
         "AccessKeyPair": "An access key ID and secret access key, such as AWS keys.",
         "ServiceAccountJson": "A cloud service account key file in JSON, such as Google Cloud.",
         "Kubeconfig": "A Kubernetes kubeconfig file with cluster and user credentials.",
         "ConnectionString": "A full connection string that includes credentials.",
         "Certificate": "A certificate with its private key, for mutual TLS.",
-        "Generic": "Any other single secret value."
+        "Generic": "Any other single secret value.",
+        "BearerToken": "A token sent exactly as the Authorization: Bearer header."
       },
       "connectorCategory": {
         "Compute": "Hosts and machines reached over SSH or similar.",
@@ -3280,7 +3285,8 @@
       "current": "The password you signed in with: the seeded one or the one an administrator set for you.",
       "new": "Your new password. Use a long passphrase; the server may enforce more rules.",
       "confirm": "Type the new password again so a typo does not lock you out.",
-      "submit": "Save the new password and continue to the dashboard."
+      "submit": "Save the new password.",
+      "skip": "Keep the current password for now. You can change it later from your profile."
     },
     "promptEditor": {
       "content": "The template text. Variables in double braces are filled in when instructions are compiled.",

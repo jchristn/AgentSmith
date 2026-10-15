@@ -407,7 +407,7 @@ export interface RequestHistorySummary extends Json {
 // Secrets
 // ---------------------------------------------------------------------------------------------------------------
 
-export type SecretKind = "Password" | "PrivateKey" | "ApiToken" | "AccessKeyPair" | "ServiceAccountJson" | "Kubeconfig" | "ConnectionString" | "Certificate" | "Generic";
+export type SecretKind = "Password" | "PrivateKey" | "ApiToken" | "AccessKeyPair" | "ServiceAccountJson" | "Kubeconfig" | "ConnectionString" | "Certificate" | "Generic" | "BearerToken";
 
 export interface SecretReferrer extends Json {
   referrerType: string;

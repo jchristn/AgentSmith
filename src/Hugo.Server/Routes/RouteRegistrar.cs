@@ -63,17 +63,6 @@ namespace Hugo.Server.Routes
         #region Private-Members
 
         private static readonly Regex _ParameterPattern = new Regex(@"\{([A-Za-z0-9_]+)\}", RegexOptions.Compiled);
-        private static readonly HashSet<string> _PasswordChangeAllowed = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "GET /v1.0/token",
-            "GET /v1.0/token/details",
-            "DELETE /v1.0/token",
-            "POST /v1.0/token/refresh",
-            "GET /v1.0/api/users/me",
-            "POST /v1.0/api/users/me/password",
-            "GET /v1.0/api/server-info",
-            "GET /v1.0/api/info"
-        };
 
         private readonly Webserver _Server;
         private readonly AuthorizationService _Authorization;
@@ -279,24 +268,10 @@ namespace Hugo.Server.Routes
 
         private void Add(HttpMethod method, string path, Func<HttpContextBase, Task> handler, OpenApiRouteMetadata metadata)
         {
-            // Every authenticated route under /tenants/{tenantId} checks here, once, that the tenant exists. Users who must
-            // change their password reach only the password change, token, and identity routes (P1.16).
-            bool passwordChangeAllowed = _PasswordChangeAllowed.Contains(method.ToString() + " " + path);
+            // Every authenticated route under /tenants/{tenantId} checks here, once, that the tenant exists. A user whose
+            // password is still the seeded or reset default is only prompted to change it (MustChangePassword on the token
+            // and identity responses); no route is blocked (D-048).
             Func<HttpContextBase, Task> inner = handler;
-            if (!passwordChangeAllowed)
-            {
-                Func<HttpContextBase, Task> guarded = inner;
-                inner = async context =>
-                {
-                    RequestContext ctx = RouteHelpers.Context(context);
-                    if (ctx.PrincipalType == PrincipalTypeEnum.User && ctx.User != null && ctx.User.MustChangePassword)
-                    {
-                        await RouteHelpers.ErrorAsync(context, 403, "PasswordChangeRequired", "Change your password (POST /v1.0/api/users/me/password) before using other routes.").ConfigureAwait(false);
-                        return;
-                    }
-                    await guarded(context).ConfigureAwait(false);
-                };
-            }
             if (path.Contains("/tenants/{tenantId}", StringComparison.Ordinal) || path.StartsWith("/v1.0/api/", StringComparison.Ordinal))
             {
                 Func<HttpContextBase, Task> scoped = inner;

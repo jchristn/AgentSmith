@@ -44,7 +44,8 @@
       "view": "Visualizza",
       "viewDetails": "Visualizza dettagli",
       "viewJson": "Visualizza JSON",
-      "dismiss": "Ignora"
+      "dismiss": "Ignora",
+      "openDiscord": "Apri Discord"
     },
     "boolean": {
       "yes": "Sì",
@@ -271,7 +272,8 @@
       "Kubeconfig": "Kubeconfig",
       "ConnectionString": "Stringa di connessione",
       "Certificate": "Certificato",
-      "Generic": "Segreto generico"
+      "Generic": "Segreto generico",
+      "BearerToken": "Token bearer"
     },
     "effect": {
       "Read": "Lettura",
@@ -643,7 +645,8 @@
       "changed": "Password cambiata.",
       "tooShort": "Usa almeno {{min}} caratteri.",
       "sameAsCurrent": "Scegli una password diversa da quella attuale.",
-      "mismatch": "Le due nuove password non corrispondono."
+      "mismatch": "Le due nuove password non corrispondono.",
+      "skip": "Salta"
     },
     "progress": {
       "count": "{{done}} di {{total}}",
@@ -2267,7 +2270,8 @@
       "lockdownOff": "Blocca il tenant: nega ogni chiamata di scrittura e distruttiva da ogni superficie finché non revochi il blocco.",
       "lockdownOn": "Il tenant è in blocco. Fai clic per esaminare e revocare il blocco.",
       "lockdownEngage": "Nega subito ogni chiamata non di lettura in questo tenant e annulla le approvazioni in sospeso.",
-      "lockdownLift": "Consenti di nuovo le chiamate di scrittura e distruttive, nel rispetto delle modalità di accesso e delle approvazioni."
+      "lockdownLift": "Consenti di nuovo le chiamate di scrittura e distruttive, nel rispetto delle modalità di accesso e delle approvazioni.",
+      "discord": "Unisciti alla community di Hugo su Discord (si apre in una nuova scheda)."
     },
     "login": {
       "passwordTab": "Accedi come persona con tenant, email e password.",
@@ -2486,7 +2490,8 @@
         "Kubeconfig": "Un file kubeconfig di Kubernetes con le credenziali del cluster e dell'utente.",
         "ConnectionString": "Una stringa di connessione completa che include le credenziali.",
         "Certificate": "Un certificato con la relativa chiave privata, per TLS reciproco.",
-        "Generic": "Qualsiasi altro valore segreto singolo."
+        "Generic": "Qualsiasi altro valore segreto singolo.",
+        "BearerToken": "Un token inviato esattamente nell’intestazione Authorization: Bearer."
       },
       "connectorCategory": {
         "Compute": "Host e macchine raggiunti tramite SSH o simili.",
@@ -3294,7 +3299,8 @@
       "current": "La password con cui hai effettuato l'accesso: quella predefinita o quella impostata per te da un amministratore.",
       "new": "La tua nuova password. Usa una passphrase lunga; il server potrebbe applicare altre regole.",
       "confirm": "Digita di nuovo la nuova password, così un errore di battitura non ti impedirà di accedere.",
-      "submit": "Salva la nuova password e prosegui alla dashboard."
+      "submit": "Salva la nuova password e prosegui alla dashboard.",
+      "skip": "Mantieni la password attuale per ora. Puoi cambiarla in seguito dal tuo profilo."
     },
     "promptEditor": {
       "content": "Il testo del modello. Le variabili tra doppie parentesi graffe vengono compilate quando si generano le istruzioni.",

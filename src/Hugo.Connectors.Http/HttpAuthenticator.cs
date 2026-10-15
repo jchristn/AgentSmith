@@ -79,7 +79,7 @@ namespace Hugo.Connectors.Http
                     break;
                 case HttpAuthTypeEnum.Bearer:
                     _Token = s.Get(HttpSettingKeys.BearerTokenSlot, HttpSettingKeys.TokenField);
-                    if (String.IsNullOrEmpty(_Token)) throw Missing(resource, HttpSettingKeys.BearerTokenSlot, "an ApiToken secret");
+                    if (String.IsNullOrEmpty(_Token)) throw Missing(resource, HttpSettingKeys.BearerTokenSlot, "a BearerToken or ApiToken secret");
                     break;
                 case HttpAuthTypeEnum.ApiKeyHeader:
                     _Token = s.Get(HttpSettingKeys.ApiKeySlot, HttpSettingKeys.TokenField);

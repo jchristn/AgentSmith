@@ -44,7 +44,8 @@
       "view": "Ver",
       "viewDetails": "Ver detalles",
       "viewJson": "Ver JSON",
-      "dismiss": "Descartar"
+      "dismiss": "Descartar",
+      "openDiscord": "Abrir Discord"
     },
     "boolean": {
       "yes": "Sí",
@@ -271,7 +272,8 @@
       "Kubeconfig": "Kubeconfig",
       "ConnectionString": "Cadena de conexión",
       "Certificate": "Certificado",
-      "Generic": "Secreto genérico"
+      "Generic": "Secreto genérico",
+      "BearerToken": "Token de portador"
     },
     "effect": {
       "Read": "Lectura",
@@ -643,7 +645,8 @@
       "changed": "Contraseña cambiada.",
       "tooShort": "Use al menos {{min}} caracteres.",
       "sameAsCurrent": "Elija una contraseña distinta de la actual.",
-      "mismatch": "Las dos contraseñas nuevas no coinciden."
+      "mismatch": "Las dos contraseñas nuevas no coinciden.",
+      "skip": "Omitir"
     },
     "progress": {
       "count": "{{done}} de {{total}}",
@@ -2267,7 +2270,8 @@
       "lockdownOff": "Bloquea el inquilino: deniega toda llamada de escritura y destructiva desde cualquier superficie hasta que se levante el bloqueo.",
       "lockdownOn": "El inquilino está bloqueado. Haga clic para revisar y levantar el bloqueo.",
       "lockdownEngage": "Deniega ahora toda llamada que no sea de lectura en este inquilino y cancela las aprobaciones pendientes.",
-      "lockdownLift": "Vuelve a permitir las llamadas de escritura y destructivas, sujetas a los modos de acceso y las aprobaciones."
+      "lockdownLift": "Vuelve a permitir las llamadas de escritura y destructivas, sujetas a los modos de acceso y las aprobaciones.",
+      "discord": "Únase a la comunidad de Hugo en Discord (se abre en una pestaña nueva)."
     },
     "login": {
       "passwordTab": "Inicia sesión como persona con un inquilino, un correo electrónico y una contraseña.",
@@ -2486,7 +2490,8 @@
         "Kubeconfig": "Un archivo kubeconfig de Kubernetes con credenciales de clúster y de usuario.",
         "ConnectionString": "Una cadena de conexión completa que incluye credenciales.",
         "Certificate": "Un certificado con su clave privada, para TLS mutuo.",
-        "Generic": "Cualquier otro valor secreto único."
+        "Generic": "Cualquier otro valor secreto único.",
+        "BearerToken": "Un token enviado exactamente en el encabezado Authorization: Bearer."
       },
       "connectorCategory": {
         "Compute": "Hosts y máquinas a los que se accede por SSH o similar.",
@@ -3294,7 +3299,8 @@
       "current": "La contraseña con la que inició sesión: la inicial o la que le asignó un administrador.",
       "new": "Su contraseña nueva. Use una frase de contraseña larga; el servidor puede aplicar más reglas.",
       "confirm": "Vuelva a escribir la contraseña nueva para que un error tipográfico no le impida el acceso.",
-      "submit": "Guarda la contraseña nueva y continúa al panel."
+      "submit": "Guarda la contraseña nueva y continúa al panel.",
+      "skip": "Mantener la contraseña actual por ahora. Puede cambiarla más tarde desde su perfil."
     },
     "promptEditor": {
       "content": "El texto de la plantilla. Las variables entre llaves dobles se rellenan al compilar las instrucciones.",

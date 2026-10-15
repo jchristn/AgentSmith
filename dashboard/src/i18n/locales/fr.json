@@ -44,7 +44,8 @@
       "view": "Voir",
       "viewDetails": "Voir les détails",
       "viewJson": "Voir le JSON",
-      "dismiss": "Ignorer"
+      "dismiss": "Ignorer",
+      "openDiscord": "Ouvrir Discord"
     },
     "boolean": {
       "yes": "Oui",
@@ -271,7 +272,8 @@
       "Kubeconfig": "Kubeconfig",
       "ConnectionString": "Chaîne de connexion",
       "Certificate": "Certificat",
-      "Generic": "Secret générique"
+      "Generic": "Secret générique",
+      "BearerToken": "Jeton porteur"
     },
     "effect": {
       "Read": "Lecture",
@@ -643,7 +645,8 @@
       "changed": "Mot de passe changé.",
       "tooShort": "Utilisez au moins {{min}} caractères.",
       "sameAsCurrent": "Choisissez un mot de passe différent de l'actuel.",
-      "mismatch": "Les deux nouveaux mots de passe ne correspondent pas."
+      "mismatch": "Les deux nouveaux mots de passe ne correspondent pas.",
+      "skip": "Ignorer"
     },
     "progress": {
       "count": "{{done}} sur {{total}}",
@@ -2267,7 +2270,8 @@
       "lockdownOff": "Verrouiller le locataire : refuser tout appel en écriture et destructif depuis toutes les surfaces jusqu'à la levée du verrouillage.",
       "lockdownOn": "Le locataire est verrouillé. Cliquez pour examiner et lever le verrouillage.",
       "lockdownEngage": "Refuser dès maintenant tout appel autre qu'une lecture dans ce locataire et annuler les approbations en attente.",
-      "lockdownLift": "Autoriser de nouveau les appels en écriture et destructifs, sous réserve des modes d'accès et des approbations."
+      "lockdownLift": "Autoriser de nouveau les appels en écriture et destructifs, sous réserve des modes d'accès et des approbations.",
+      "discord": "Rejoindre la communauté Hugo sur Discord (s’ouvre dans un nouvel onglet)."
     },
     "login": {
       "passwordTab": "Se connecter en tant que personne avec un locataire, une adresse e-mail et un mot de passe.",
@@ -2486,7 +2490,8 @@
         "Kubeconfig": "Un fichier kubeconfig Kubernetes avec les identifiants du cluster et de l'utilisateur.",
         "ConnectionString": "Une chaîne de connexion complète qui inclut les identifiants.",
         "Certificate": "Un certificat avec sa clé privée, pour le TLS mutuel.",
-        "Generic": "Toute autre valeur secrète unique."
+        "Generic": "Toute autre valeur secrète unique.",
+        "BearerToken": "Un jeton envoyé tel quel dans l’en-tête Authorization: Bearer."
       },
       "connectorCategory": {
         "Compute": "Hôtes et machines accessibles via SSH ou un moyen similaire.",
@@ -3294,7 +3299,8 @@
       "current": "Le mot de passe avec lequel vous vous êtes connecté : celui pré-créé ou celui qu'un administrateur a défini pour vous.",
       "new": "Votre nouveau mot de passe. Utilisez une longue phrase secrète ; le serveur peut appliquer d'autres règles.",
       "confirm": "Saisissez à nouveau le nouveau mot de passe pour qu'une faute de frappe ne vous bloque pas.",
-      "submit": "Enregistrer le nouveau mot de passe et continuer vers le tableau de bord."
+      "submit": "Enregistrer le nouveau mot de passe et continuer vers le tableau de bord.",
+      "skip": "Garder le mot de passe actuel pour le moment. Vous pourrez le changer plus tard depuis votre profil."
     },
     "promptEditor": {
       "content": "Le texte du modèle. Les variables entre doubles accolades sont renseignées lors de la compilation des instructions.",

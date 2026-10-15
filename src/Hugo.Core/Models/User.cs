@@ -96,8 +96,9 @@ namespace Hugo.Core.Models
         public bool IsTenantAdmin { get; set; } = false;
 
         /// <summary>
-        /// Whether the user must change the password before using any route other than password change, token
-        /// details, and logout. Default false; seeded accounts start with true.
+        /// Whether the dashboard should prompt the user to change the password (the password is still the seeded or an
+        /// administrator-reset default). Advisory only: no route is blocked, and the prompt can be skipped (D-048).
+        /// Default false; seeded accounts start with true.
         /// </summary>
         public bool MustChangePassword { get; set; } = false;
 

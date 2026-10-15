@@ -226,7 +226,7 @@ namespace Hugo.Connectors.Agents.A2A
             d.SettingsSchema = schema;
             d.SecretSlots = new List<SecretSlotDescriptor>
             {
-                new SecretSlotDescriptor(A2AAgentSettingKeys.BearerTokenSlot, "Bearer token", SecretKindEnum.ApiToken) { Help = "ApiToken secret (field 'token') sent as Authorization: Bearer <token> to the card URL and the agent endpoint. A value that already starts with a scheme is sent as-is." }
+                new SecretSlotDescriptor(A2AAgentSettingKeys.BearerTokenSlot, "Bearer token", SecretKindEnum.BearerToken, SecretKindEnum.ApiToken) { Help = "BearerToken (or ApiToken) secret (field 'token') sent as Authorization: Bearer <token> to the card URL and the agent endpoint. A value that already starts with a scheme is sent as-is." }
             };
             d.DefaultInstructionsKey = "connector." + TypeName + ".instructions";
             d.DefaultInstructions = EmbeddedText.Read(typeof(A2AAgentConnector).Assembly, "connector.a2a-agent.instructions.md");

@@ -168,6 +168,6 @@ Drives a small workload through the REST API (health routes, a rejected sign-in,
 - **unemitted:** catalog families nothing records yet (`hugo_authz_requests_total`). Warnings; the script says when one starts appearing.
 - **pending:** section 21 families that are not in the catalog. Warnings. When one is added to the catalog it becomes required automatically unless it is listed as conditional.
 
-The seeded users must change their password at first sign-in (the server answers 403 `PasswordChangeRequired` on other routes). Pass `--new-password` (or `HUGO_NEW_PASSWORD`) and the script changes it through `POST /v1.0/api/users/me/password` and signs in again; on later runs it signs in with the new password directly. Without it, the authenticated reads are skipped with a warning and some required families may be missing.
+The seeded users start with the password `password` and are only prompted to change it. Pass `--new-password` (or `HUGO_NEW_PASSWORD`) if you want the script to change it through `POST /v1.0/api/users/me/password`; on later runs it signs in with the new password directly.
 
 Options: `--base-url` (default `http://127.0.0.1:8800`), `--prometheus-url` (default `http://127.0.0.1:9090`), `--job` (default `hugo-server`), `--tenant`, `--email`, `--password`, `--new-password`, `--iterations`, `--scrape-timeout`, `--catalog`. Each has an environment variable (`HUGO_BASE_URL`, `HUGO_PROMETHEUS_URL`, ...); run with `--help` for the list. Exit code 2 means the server or Prometheus could not be reached.

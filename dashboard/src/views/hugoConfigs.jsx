@@ -744,7 +744,7 @@ export const modelsConfig = {
             name: 'apiKey',
             label: t('resources.models.fields.apiKeySecretId'),
             help: t('tips.resources.models.apiKeySecretId'),
-            acceptedKinds: ['ApiToken', 'AccessKeyPair', 'ServiceAccountJson', 'Generic']
+            acceptedKinds: ['ApiToken', 'BearerToken', 'AccessKeyPair', 'ServiceAccountJson', 'Generic']
           }}
           secrets={options.secrets || []}
           value={{ secretId: data.apiKeySecretId }}

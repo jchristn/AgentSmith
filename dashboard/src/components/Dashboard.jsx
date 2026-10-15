@@ -45,7 +45,7 @@ export function resolveRoute(section, id) {
 export default function Dashboard() {
   const { t } = useTranslation();
   const { section = 'home', id } = useParams();
-  const { apiClient, principal, mustChangePassword } = useAuth();
+  const { apiClient, principal, passwordPromptOpen } = useAuth();
   const { sidebarCollapsed, toggleSidebar, tenantId, setWizardOpen, lockdown, setLockdown } = useApp();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [health, setHealth] = useState(null);
@@ -57,9 +57,7 @@ export default function Dashboard() {
 
   // Pending approvals for the sidebar and topbar badges: re-read on approval events, on polling ticks, and every
   // 30 seconds. A 403 or 404 (no Approval Read permission, or a server without approvals yet) hides the badge.
-  // Until a forced password change is done, the server answers every other route with 403 PasswordChangeRequired, so
-  // nothing that would remember a 403 runs before then.
-  const ready = !!apiClient && !mustChangePassword;
+  const ready = !!apiClient;
 
   const refreshApprovals = useCallback(() => {
     if (!ready || !approvalsReadable.current) return;
@@ -165,8 +163,7 @@ export default function Dashboard() {
 
   const permitted = route.kind === 'hub' || allowed(route.page.requires, principal);
   let content;
-  if (mustChangePassword) content = null;
-  else if (!permitted) content = <EmptyState title={t('common.states.forbiddenTitle')} body={t('common.states.forbiddenBody')} />;
+  if (!permitted) content = <EmptyState title={t('common.states.forbiddenTitle')} body={t('common.states.forbiddenBody')} />;
   else if (route.kind === 'hub') content = <HubView key={`${route.hub.key}-${tenantId}`} hubKey={route.hub.key} apiClient={apiClient} />;
   else {
     const View = route.View;
@@ -205,7 +202,7 @@ export default function Dashboard() {
           </main>
           <SetupWizard />
           <Tour />
-          <PasswordChangeModal open={!!mustChangePassword} />
+          <PasswordChangeModal open={!!passwordPromptOpen} />
         </div>
       </ApprovalsProvider>
     </EventsProvider>

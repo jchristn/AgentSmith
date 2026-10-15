@@ -27,7 +27,7 @@ cd AgentSmith/docker
 | Grafana (admin / admin, change it) | http://127.0.0.1:3000 |
 | Prometheus | http://127.0.0.1:9090 |
 
-Log in to the dashboard as `anderson@hugo.local` with the password `password` (tenant `default`). Hugo makes you choose a new password before anything else. A system administrator, `admin@hugo.local`, is seeded the same way.
+Log in to the dashboard as `anderson@hugo.local` with the password `password` (tenant `default`). Hugo prompts you to choose a new password; you can change it right away or skip the prompt for now. A system administrator, `admin@hugo.local`, is seeded the same way.
 
 Keeping it current and starting over:
 

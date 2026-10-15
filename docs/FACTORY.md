@@ -63,7 +63,7 @@ The seed container exits with code 0 when every step succeeded. When a resource'
 | User | `anderson@hugo.local` (Thomas Anderson, tenant administrator) |
 | Password | `HugoDemo2026!` |
 
-The seed replaces the first-boot password (`password`) with the demo password, so you are not asked to change it. Set `HUGO_FACTORY_DEMO_PASSWORD` before a reset to use a different one. The system administrator `admin@hugo.local` keeps its first-boot password `password` and must change it at first sign-in.
+The seed replaces the first-boot password (`password`) with the demo password, so you are not asked to change it. Set `HUGO_FACTORY_DEMO_PASSWORD` before a reset to use a different one. The system administrator `admin@hugo.local` keeps its first-boot password `password`; the dashboard prompts it to change the password, and the prompt can be skipped.
 
 ## What is seeded
 

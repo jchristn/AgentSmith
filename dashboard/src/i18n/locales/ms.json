@@ -44,7 +44,8 @@
       "view": "Lihat",
       "viewDetails": "Lihat butiran",
       "viewJson": "Lihat JSON",
-      "dismiss": "Tolak"
+      "dismiss": "Tolak",
+      "openDiscord": "Buka Discord"
     },
     "boolean": {
       "yes": "Ya",
@@ -271,7 +272,8 @@
       "Kubeconfig": "Kubeconfig",
       "ConnectionString": "Rentetan sambungan",
       "Certificate": "Sijil",
-      "Generic": "Rahsia generik"
+      "Generic": "Rahsia generik",
+      "BearerToken": "Token pembawa"
     },
     "effect": {
       "Read": "Baca",
@@ -643,7 +645,8 @@
       "changed": "Kata laluan telah ditukar.",
       "tooShort": "Gunakan sekurang-kurangnya {{min}} aksara.",
       "sameAsCurrent": "Pilih kata laluan yang berbeza daripada kata laluan semasa.",
-      "mismatch": "Kedua-dua kata laluan baharu tidak sepadan."
+      "mismatch": "Kedua-dua kata laluan baharu tidak sepadan.",
+      "skip": "Langkau"
     },
     "progress": {
       "count": "{{done}} daripada {{total}}",
@@ -2267,7 +2270,8 @@
       "lockdownOff": "Kenakan sekatan penuh pada penyewa: tolak setiap panggilan tulis dan memusnahkan daripada setiap permukaan sehingga anda menarik baliknya.",
       "lockdownOn": "Penyewa berada dalam sekatan penuh. Klik untuk menyemak dan menarik balik sekatan penuh.",
       "lockdownEngage": "Tolak setiap panggilan bukan baca dalam penyewa ini sekarang dan batalkan kelulusan yang belum selesai.",
-      "lockdownLift": "Benarkan semula panggilan tulis dan memusnahkan, tertakluk kepada mod akses dan kelulusan."
+      "lockdownLift": "Benarkan semula panggilan tulis dan memusnahkan, tertakluk kepada mod akses dan kelulusan.",
+      "discord": "Sertai komuniti Hugo di Discord (dibuka dalam tab baharu)."
     },
     "login": {
       "passwordTab": "Log masuk sebagai seseorang dengan penyewa, e-mel dan kata laluan.",
@@ -2486,7 +2490,8 @@
         "Kubeconfig": "Fail kubeconfig Kubernetes dengan kelayakan kluster dan pengguna.",
         "ConnectionString": "Rentetan sambungan penuh yang mengandungi kelayakan.",
         "Certificate": "Sijil bersama kunci peribadinya, untuk TLS bersama.",
-        "Generic": "Sebarang nilai rahsia tunggal yang lain."
+        "Generic": "Sebarang nilai rahsia tunggal yang lain.",
+        "BearerToken": "Token yang dihantar tepat sebagai pengepala Authorization: Bearer."
       },
       "connectorCategory": {
         "Compute": "Hos dan mesin yang dicapai melalui SSH atau yang serupa.",
@@ -3294,7 +3299,8 @@
       "current": "Kata laluan yang anda gunakan untuk log masuk: yang disemai atau yang ditetapkan oleh pentadbir untuk anda.",
       "new": "Kata laluan baharu anda. Gunakan frasa laluan yang panjang; pelayan mungkin menguatkuasakan lebih banyak peraturan.",
       "confirm": "Taip kata laluan baharu sekali lagi supaya kesilapan menaip tidak mengunci anda di luar.",
-      "submit": "Simpan kata laluan baharu dan teruskan ke papan pemuka."
+      "submit": "Simpan kata laluan baharu dan teruskan ke papan pemuka.",
+      "skip": "Kekalkan kata laluan semasa buat masa ini. Anda boleh menukarnya kemudian daripada profil anda."
     },
     "promptEditor": {
       "content": "Teks templat. Pemboleh ubah dalam kurungan kerinting berganda diisi apabila arahan dikompil.",

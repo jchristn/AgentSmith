@@ -44,7 +44,8 @@
       "view": "Visualizar",
       "viewDetails": "Ver detalhes",
       "viewJson": "Ver JSON",
-      "dismiss": "Dispensar"
+      "dismiss": "Dispensar",
+      "openDiscord": "Abrir Discord"
     },
     "boolean": {
       "yes": "Sim",
@@ -271,7 +272,8 @@
       "Kubeconfig": "Kubeconfig",
       "ConnectionString": "String de conexão",
       "Certificate": "Certificado",
-      "Generic": "Segredo genérico"
+      "Generic": "Segredo genérico",
+      "BearerToken": "Token de portador"
     },
     "effect": {
       "Read": "Leitura",
@@ -643,7 +645,8 @@
       "changed": "Senha alterada.",
       "tooShort": "Use pelo menos {{min}} caracteres.",
       "sameAsCurrent": "Escolha uma senha diferente da atual.",
-      "mismatch": "As duas novas senhas não coincidem."
+      "mismatch": "As duas novas senhas não coincidem.",
+      "skip": "Pular"
     },
     "progress": {
       "count": "{{done}} de {{total}}",
@@ -2267,7 +2270,8 @@
       "lockdownOff": "Bloquear o locatário: negar todas as chamadas de escrita e destrutivas de todas as superfícies até que o bloqueio seja suspenso.",
       "lockdownOn": "O locatário está bloqueado. Clique para revisar e suspender o bloqueio.",
       "lockdownEngage": "Negar agora todas as chamadas que não sejam de leitura neste locatário e cancelar as aprovações pendentes.",
-      "lockdownLift": "Permitir novamente chamadas de escrita e destrutivas, sujeitas aos modos de acesso e às aprovações."
+      "lockdownLift": "Permitir novamente chamadas de escrita e destrutivas, sujeitas aos modos de acesso e às aprovações.",
+      "discord": "Participe da comunidade Hugo no Discord (abre em uma nova aba)."
     },
     "login": {
       "passwordTab": "Entrar como pessoa com locatário, email e senha.",
@@ -2486,7 +2490,8 @@
         "Kubeconfig": "Um arquivo kubeconfig do Kubernetes com credenciais de cluster e de usuário.",
         "ConnectionString": "Uma string de conexão completa que inclui credenciais.",
         "Certificate": "Um certificado com sua chave privada, para TLS mútuo.",
-        "Generic": "Qualquer outro valor secreto único."
+        "Generic": "Qualquer outro valor secreto único.",
+        "BearerToken": "Um token enviado exatamente no cabeçalho Authorization: Bearer."
       },
       "connectorCategory": {
         "Compute": "Hosts e máquinas acessados via SSH ou similar.",
@@ -3294,7 +3299,8 @@
       "current": "A senha com que você entrou: a pré-criada ou a que um administrador definiu para você.",
       "new": "Sua nova senha. Use uma frase secreta longa; o servidor pode aplicar mais regras.",
       "confirm": "Digite a nova senha novamente para que um erro de digitação não bloqueie seu acesso.",
-      "submit": "Salvar a nova senha e continuar para o painel."
+      "submit": "Salvar a nova senha e continuar para o painel.",
+      "skip": "Manter a senha atual por enquanto. Você pode alterá-la depois no seu perfil."
     },
     "promptEditor": {
       "content": "O texto do modelo. As variáveis entre chaves duplas são preenchidas quando as instruções são compiladas.",
