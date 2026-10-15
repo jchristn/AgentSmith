@@ -1,0 +1,1 @@
+{"model":"Hugo","messages":[{"role":"system","content":"Answer in one sentence."},{"role":"user","content":"Is echo-a healthy?"}],"temperature":0.2,"max_tokens":256}

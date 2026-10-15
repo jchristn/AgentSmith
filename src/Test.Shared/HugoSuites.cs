@@ -51,6 +51,7 @@ namespace Test.Shared
                 suites.AddRange(Test.Shared.Integration.SnapshotPluginSuite.Build());
                 suites.AddRange(Test.Shared.Chat.ChatSuite.Build());
                 suites.AddRange(Test.Shared.Chat.A2ASuite.Build());
+                suites.AddRange(Test.Shared.Chat.OpenAISuite.Build());
                 return suites;
             }
         }
