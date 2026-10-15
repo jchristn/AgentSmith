@@ -204,7 +204,7 @@ namespace Hugo.Core.Secrets
                     if (label == "ENCRYPTED PRIVATE KEY") rsa.ImportFromEncryptedPem(block, passphrase);
                     else rsa.ImportFromPem(block);
                 }
-                catch (Exception e) when (e is CryptographicException || e is ArgumentException)
+                catch (Exception e) when (e is CryptographicException || e is ArgumentException || e is PlatformNotSupportedException)
                 {
                     return false;
                 }
@@ -225,46 +225,53 @@ namespace Hugo.Core.Secrets
         private static bool TryEcdsa(string block, string label, string? passphrase, SecretImportResult result)
         {
             if (label == "RSA PRIVATE KEY") return false;
-            using (ECDsa ecdsa = ECDsa.Create())
+            byte[]? der = null;
+            bool pkcs8 = label != "EC PRIVATE KEY";
+            if (label == "ENCRYPTED PRIVATE KEY")
             {
-                try
+                using (ECDsa ecdsa = ECDsa.Create())
                 {
-                    if (label == "ENCRYPTED PRIVATE KEY") ecdsa.ImportFromEncryptedPem(block, passphrase);
-                    else ecdsa.ImportFromPem(block);
+                    try
+                    {
+                        ecdsa.ImportFromEncryptedPem(block, passphrase);
+                        der = ecdsa.ExportPkcs8PrivateKey();
+                    }
+                    catch (Exception e) when (e is CryptographicException || e is ArgumentException || e is PlatformNotSupportedException)
+                    {
+                        return false;
+                    }
                 }
-                catch (Exception e) when (e is CryptographicException || e is ArgumentException)
-                {
-                    return false;
-                }
-                ECParameters parameters = ecdsa.ExportParameters(false);
-                string? curve = parameters.Curve.Oid?.Value switch
-                {
-                    "1.2.840.10045.3.1.7" => "nistp256",
-                    "1.3.132.0.34" => "nistp384",
-                    "1.3.132.0.35" => "nistp521",
-                    _ => null
-                };
-                result.KeySizeBits = ecdsa.KeySize;
-                if (curve == null)
-                {
-                    result.KeyType = "ecdsa";
-                    result.Warnings.Add("The elliptic curve is not one SSH supports; no fingerprint was computed.");
-                    return true;
-                }
-                byte[] point = new byte[1 + parameters.Q.X!.Length + parameters.Q.Y!.Length];
-                point[0] = 0x04;
-                Buffer.BlockCopy(parameters.Q.X, 0, point, 1, parameters.Q.X.Length);
-                Buffer.BlockCopy(parameters.Q.Y, 0, point, 1 + parameters.Q.X.Length, parameters.Q.Y.Length);
-                using (MemoryStream blob = new MemoryStream())
-                {
-                    WriteString(blob, Encoding.ASCII.GetBytes("ecdsa-sha2-" + curve));
-                    WriteString(blob, Encoding.ASCII.GetBytes(curve));
-                    WriteString(blob, point);
-                    result.Fingerprint = Fingerprint(blob.ToArray());
-                }
-                result.KeyType = "ecdsa-sha2-" + curve;
+            }
+            else
+            {
+                Match body = _Block.Match(block);
+                der = body.Success ? Base64BodySafe(body.Groups[2].Value) : null;
+            }
+            if (der == null || !EcKeyReader.TryRead(der, pkcs8, out string? oid, out byte[]? point) || oid == null || point == null) return false;
+
+            string? curve = oid switch
+            {
+                "1.2.840.10045.3.1.7" => "nistp256",
+                "1.3.132.0.34" => "nistp384",
+                "1.3.132.0.35" => "nistp521",
+                _ => null
+            };
+            result.KeySizeBits = curve == null ? null : (curve == "nistp521" ? 521 : Int32.Parse(curve.Substring(5), System.Globalization.CultureInfo.InvariantCulture));
+            if (curve == null)
+            {
+                result.KeyType = "ecdsa";
+                result.Warnings.Add("The elliptic curve is not one SSH supports; no fingerprint was computed.");
                 return true;
             }
+            using (MemoryStream blob = new MemoryStream())
+            {
+                WriteString(blob, Encoding.ASCII.GetBytes("ecdsa-sha2-" + curve));
+                WriteString(blob, Encoding.ASCII.GetBytes(curve));
+                WriteString(blob, point);
+                result.Fingerprint = Fingerprint(blob.ToArray());
+            }
+            result.KeyType = "ecdsa-sha2-" + curve;
+            return true;
         }
 
         private static bool IsEd25519Pkcs8(byte[]? der)

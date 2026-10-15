@@ -1,7 +1,10 @@
 namespace Test.Shared
 {
     using System.Collections.Generic;
+    using Hugo.Core.Enums;
     using Test.Shared.Connectors;
+    using Test.Shared.Infrastructure;
+    using Test.Shared.Suites;
     using Touchstone.Core;
 
     /// <summary>
@@ -17,6 +20,16 @@ namespace Test.Shared
             get
             {
                 List<TestSuiteDescriptor> suites = new List<TestSuiteDescriptor>();
+                foreach (DatabaseTypeEnum provider in TestEnvironment.Providers())
+                {
+                    suites.Add(DatabaseContractSuite.Build(provider));
+                }
+                suites.AddRange(TemplateSuite.Build());
+                suites.AddRange(IdentitySuite.Build());
+                suites.AddRange(FoundationSuite.Build());
+                suites.AddRange(AuthorizationMatrixSuite.Build());
+                suites.AddRange(TenantScopingSuite.Build());
+                suites.AddRange(SecretsSuite.Build());
                 suites.AddRange(AbstractionsSuites.Build());
                 suites.AddRange(SshSuites.Build());
                 suites.AddRange(StorageSuites.Build());

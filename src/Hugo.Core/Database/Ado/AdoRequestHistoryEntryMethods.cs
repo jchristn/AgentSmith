@@ -248,7 +248,7 @@ namespace Hugo.Core.Database.Ado
             object? countValue = await _Driver.ScalarAsync("SELECT COUNT(*) FROM " + _Table + where + ";", bind, token).ConfigureAwait(false);
             long total = countValue == null ? 0 : Convert.ToInt64(countValue);
 
-            string columns = "id, tenant_id, user_id, principal_name, method, path, url, status_code, duration_ms, source_ip, NULL AS request_body, request_body_bytes, request_body_truncated, NULL AS response_body, response_body_bytes, response_body_truncated, created_utc, completed_utc";
+            string columns = "id, tenant_id, user_id, principal_name, method, path, url, status_code, duration_ms, source_ip, trace_id, correlation_id, NULL AS request_body, request_body_bytes, request_body_truncated, NULL AS response_body, response_body_bytes, response_body_truncated, created_utc, completed_utc";
             List<RequestHistoryEntry> rows = await _Driver.QueryAsync(
                 "SELECT " + columns + " FROM " + _Table + where + " ORDER BY created_utc DESC, id DESC" + _Driver.Dialect.LimitOffsetClause() + ";",
                 command =>

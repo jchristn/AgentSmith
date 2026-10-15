@@ -155,6 +155,9 @@ namespace Hugo.Server.Routes
                 return;
             }
 
+            // A secret that does not exist in the caller's tenant answers 404 before anything else is checked.
+            await _Secrets.ReadAsync(tenantId, id, http.Token).ConfigureAwait(false);
+
             SecretRevealRequest request = RouteHelpers.Body<SecretRevealRequest>(http) ?? new SecretRevealRequest();
             string reason = (request.Reason ?? String.Empty).Trim();
             if (reason.Length == 0 || reason.Length > 1024)

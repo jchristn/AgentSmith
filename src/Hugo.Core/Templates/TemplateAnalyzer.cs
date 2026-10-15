@@ -29,7 +29,7 @@ namespace Hugo.Core.Templates
 
         private static readonly HashSet<string> _KnownRoots = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            "tenant", "agent", "deployment", "run", "input", "caller", "resources", "hugo", "harness", "executor", "approval", "tool", "now", "prompts", "secret", "repair", "conversation", "pipeline", "this", "@index", "@first", "@last"
+            "tenant", "profile", "persona", "user", "now", "bindings", "bindingsByFamily", "binding", "connector", "resources", "resource", "limits", "surface", "tool", "hugo", "input", "conversation", "approval", "secret", "this", "@index", "@first", "@last"
         };
 
         #endregion

@@ -50,14 +50,14 @@ namespace Hugo.Core.Secrets
             if (String.IsNullOrWhiteSpace(content)) throw new ArgumentException("The file is empty.", nameof(request));
             if (content.Length > MaxContentLength) throw new ArgumentException("The file is larger than 1 MiB.", nameof(request));
 
-            if (content.Contains("-----BEGIN CERTIFICATE-----", StringComparison.Ordinal)) return ParseCertificate(content, request.Passphrase);
-            if (SshKeyInspector.ContainsPrivateKey(content)) return SshKeyInspector.Inspect(content, request.Passphrase);
-
+            // JSON first: a service account key embeds a PEM private key.
             string trimmed = content.TrimStart();
             if (trimmed.StartsWith("{", StringComparison.Ordinal) && content.Contains("\"type\"", StringComparison.Ordinal) && content.Contains("service_account", StringComparison.Ordinal))
             {
                 return ParseServiceAccount(content);
             }
+            if (content.Contains("-----BEGIN CERTIFICATE-----", StringComparison.Ordinal)) return ParseCertificate(content, request.Passphrase);
+            if (SshKeyInspector.ContainsPrivateKey(content)) return SshKeyInspector.Inspect(content, request.Passphrase);
             if (content.Contains("clusters", StringComparison.Ordinal) && content.Contains("contexts", StringComparison.Ordinal))
             {
                 return ParseKubeconfig(content);
