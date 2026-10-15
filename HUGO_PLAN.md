@@ -117,7 +117,6 @@ Milestones:
   1. Chat, conversations, A2A, OpenAI-compatible surface, delegation service: P6 remainder, P7.13 to P7.19, A2A part of P7.22.
   2. MCP surface: P7.1 to P7.12, MCP part of P7.22.
   3. Dashboard wiring to the real routes and the live primary-journey test: P8.33, P8.34, P8.35, P8.38, P8.53.
-  7. Connector bug fixes from the documentation review (SSH command wrapper classification, Redis deny list, Kubernetes, AWS, logs, storage paging, SQL Server TLS, Elasticsearch aliases).
 - Follow-ups recorded from connector work (fold into the named tasks):
   - P3.13: the pipeline applies binding-level command deny patterns (the invocation context has no binding policy).
   - P3.8: audit every `LearnSetting` call (pinned host keys, D-028) as `HostKeyPinned`.
@@ -128,6 +127,10 @@ Milestones:
   - Server must implement IAgentToolCatalog, IAgentToolExecutor, IAgentEventSink, IConversationStore (Hugo.Core.Agent) and set AgentRuntime.IdFactory to PrettyId.
   - Knowledge contract follow-ups from the SQL intelligence work: compare-and-swap put (expected version) for append races, `FinishReason` on `ConnectorModelResponse`, a JSON-mode hint, reason and reviewed fields on entries, `ToolArguments.GetDouble`, a crawl cache persistence hook, and a per-invocation model-call budget (`sql_generate_context` can make up to 51 calls; invocation timeouts for RequiresModel tools need to be longer than 120 seconds).
   - Server inconsistencies found by the SDK harnesses (fix after the Phase 7 merges): secret PUT requires kind and name instead of keeping omitted fields; RouteNotFound body lacks requestId; OpenAPI declares 200 for create routes that return 201; OpenAPI names `a2AUrl` where the server sends `a2aUrl`; SessionIssued audit records have statusCode 0; knowledge scope root stored as key "" but read as `_root`; template variable roots (`{{input.name}}`) documented only in an error message.
+  - Connector fixes merged 2026-10-14 (documentation review): SSH command wrappers classify their payload (command -v no longer hides rm), sudo requires -n; Redis deniedCommands is additive with allowKeysCommand, and DEL/UNLINK/GETDEL always require approval; Kubernetes destructiveKinds additive; AWS parameter descriptions; logs cursor rejects new arguments; storage deep paging; SQL Server sslMode=Disable means Encrypt=false; Elasticsearch resolves aliases to allowed concrete indexes.
+  - Testbed defect: docker/testbed/storage/fixtures/hugo-testbed/{data,logs} are excluded by the data/ and logs/ .gitignore rules, so 33 storage testbed cases fail on a fresh clone. Add a .gitignore exception and commit the fixtures.
+  - docs/connectors/redis-acl.md still says KEYS lives in the default deniedCommands; it is now a built-in denial.
+  - Kubernetes testbed has one timing-sensitive crash-loop case (k8s_events or k8s_logs) that fails intermittently.
   - Dynamic tools (D-044): add optional `IDynamicToolProvider` so external MCP tools appear as `<prefix>__<tool>`; fence remote instructions inside compiled instructions (P13.28).
   - SSH `jumpResourceName` (reuse another resource as bastion) needs a related-resource resolver; the jump settings cover the case today.
 - Next after the merges: Phase 3 pipeline (resources, invocation service, approvals), Phase 5 profiles and instructions, Phase 6 runtime, Phase 7 protocols.
