@@ -419,7 +419,13 @@ namespace Hugo.Core.Instructions
                 i++;
             }
             segments.Sort((a, b) => a.Start != b.Start ? a.Start.CompareTo(b.Start) : a.Depth.CompareTo(b.Depth));
-            return Tidy(text.ToString());
+            string tidy = Tidy(text.ToString());
+            foreach (InstructionSegment segment in segments)
+            {
+                if (segment.Start > tidy.Length) segment.Start = tidy.Length;
+                if (segment.Start + segment.Length > tidy.Length) segment.Length = tidy.Length - segment.Start;
+            }
+            return tidy;
         }
 
         private static string Tidy(string text)
