@@ -2082,7 +2082,7 @@ Quality
 - [x] P10.20 Telemetry verifier script (`scripts/verify-telemetry.sh`): every catalog metric appears in Prometheus after a scripted workload.  | claude 2026-10-14 scripts/verify-telemetry.sh/.bat: PASS on a fresh stack (21 required families); hugo_authz_requests_total has no call site (gap)
 - [ ] P10.21 `compose.docker-socket.yaml` override for the Docker connector, documented.
 - [x] P10.22 Multi-arch image build scripts (`build-server`, `build-dashboard`, `build-all`, `.sh` and `.bat`).  | claude 2026-10-14 build-server, build-dashboard, build-all (.sh and .bat) at the repository root: Docker Build Cloud, linux/amd64 and linux/arm64, tags <tag> and latest, push then pull back (Garrison pattern); compose.yaml references jchristn77/hugo-server:v0.1.0 and jchristn77/hugo-dashboard:v0.1.0
-- [x] P10.23 Image publication to Docker Hub (`jchristn/hugo-server`, `jchristn/hugo-dashboard`) when the user approves.  | claude 2026-10-14 build-all.sh v0.1.0 published jchristn77/hugo-server and jchristn77/hugo-dashboard, tags v0.1.0 and latest, linux/amd64 and linux/arm64, from commit 39d57f9
+- [x] P10.23 Image publication to Docker Hub (`jchristn/hugo-server`, `jchristn/hugo-dashboard`) when the user approves.  | claude 2026-10-14 v0.1.0 and latest republished from 16b4d99 (D-048, D-049, D-050, docs): hugo-server sha256:ea659d78..., hugo-dashboard sha256:074d8113..., linux/amd64 and linux/arm64
 - [x] P10.24 `docs/DOCKER.md` (networking to targets, volumes, keys, Postgres profile, upgrade, factory reset).  | claude 2026-10-14 docs/DOCKER.md: services, first start and keys, configuration, PostgreSQL, reaching your own systems, Docker socket override, data and backups, update and reset, health
 
 ### Phase 11: Documentation and Postman (M1)
