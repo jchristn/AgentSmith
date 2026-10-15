@@ -347,7 +347,7 @@ namespace Test.Shared.Connectors.Aws
 
             Hugo.Connectors.Aws.Models.AwsOutput? output = AwsJson.Deserialize<Hugo.Connectors.Aws.Models.AwsOutput>(result.StructuredJson!);
             string queryId = output!.Details!["queryId"]!;
-            ToolResult again = await AwsTestSupport.InvokeAsync(Context(), "aws_logs_insights_query", "{\"queryId\":\"" + queryId + "\"}", token).ConfigureAwait(false);
+            ToolResult again = await AwsTestSupport.InvokeAsync(Context(), "aws_logs_insights_query", "{\"logGroupNames\":[\"" + LogGroup + "\"],\"query\":\"fields @message\",\"queryId\":\"" + queryId + "\"}", token).ConfigureAwait(false);
             AwsAssert.Ok(again, "poll by query id");
             AwsAssert.Contains(again.Text, queryId, "same query");
         }

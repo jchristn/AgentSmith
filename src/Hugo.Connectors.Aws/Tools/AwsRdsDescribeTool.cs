@@ -136,8 +136,8 @@ namespace Hugo.Connectors.Aws.Tools
                 + "\"identifier\":{\"type\":\"string\",\"description\":\"DB instance or cluster identifier (for events, the event source).\"},"
                 + "\"sourceType\":{\"type\":\"string\",\"enum\":[\"db-instance\",\"db-cluster\",\"db-parameter-group\",\"db-security-group\",\"db-snapshot\",\"db-cluster-snapshot\"],\"description\":\"events with identifier: the source type. Default db-instance.\"},"
                 + "\"lookbackMinutes\":{\"type\":\"integer\",\"minimum\":1,\"description\":\"events: window length. RDS keeps 14 days of events.\"},"
-                + "\"startTime\":{\"type\":\"string\"},\"endTime\":{\"type\":\"string\"},"
-                + "\"maxResults\":{\"type\":\"integer\",\"minimum\":20,\"maximum\":100},"
+                + "\"startTime\":{\"type\":\"string\",\"description\":\"events: ISO 8601 start (UTC when no offset). Overrides lookbackMinutes.\"},\"endTime\":{\"type\":\"string\",\"description\":\"events: ISO 8601 end. Default now.\"},"
+                + "\"maxResults\":{\"type\":\"integer\",\"minimum\":20,\"maximum\":100,\"description\":\"Rows per page, 20 to 100 (the RDS API refuses fewer than 20). Defaults to the resource's maxResults.\"},"
                 + "\"nextToken\":{\"type\":\"string\",\"description\":\"Marker from the previous page.\"}"
                 + "},\"additionalProperties\":false}";
             d.BaseEffect = EffectEnum.Read;

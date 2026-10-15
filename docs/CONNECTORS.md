@@ -519,7 +519,7 @@ The `aws` connector covers the AWS control plane for one account and one region 
 
 **Testbed:** `docker/testbed/aws` runs LocalStack 4.14.0 on port 28566 with seeded EC2 instances, CloudWatch metrics and alarms, a log group, SQS queues, an SNS topic, a Route 53 zone, and a Lambda function. LocalStack's community edition does not emulate ECS, RDS, Elastic Load Balancing v2, or Auto Scaling, so those tools are tested against a recorded wire-protocol stub (`AwsStubServer`) instead.
 
-**Known limitations.** The tools cover the services listed and nothing else; there is no generic "call any API" tool. Several parameters (`nextToken`, `maxResults`, and most of the AWS filter fields) carry no description in their schemas, which the model has to infer from the tool description.
+**Known limitations.** The tools cover the services listed and nothing else; there is no generic "call any API" tool.
 
 ## Kubernetes
 

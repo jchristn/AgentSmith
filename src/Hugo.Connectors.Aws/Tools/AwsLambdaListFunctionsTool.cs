@@ -85,9 +85,9 @@ namespace Hugo.Connectors.Aws.Tools
                 + "filters each page by a case-insensitive substring. Paged with nextToken.";
             d.InputSchemaJson =
                 "{\"type\":\"object\",\"properties\":{"
-                + "\"nameContains\":{\"type\":\"string\"},"
-                + "\"maxResults\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":50},"
-                + "\"nextToken\":{\"type\":\"string\"}"
+                + "\"nameContains\":{\"type\":\"string\",\"description\":\"Keep only functions whose name contains this text (case-insensitive). It filters the current page only, so keep paging with nextToken to search every function.\"},"
+                + "\"maxResults\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":50,\"description\":\"Functions per page, 1 to 50. Defaults to the resource's maxResults and is capped by the call's row limit.\"},"
+                + "\"nextToken\":{\"type\":\"string\",\"description\":\"The nextToken from the previous page, to fetch the next page. Send the same filters again.\"}"
                 + "},\"additionalProperties\":false}";
             d.BaseEffect = EffectEnum.Read;
             d.OutputDescription = "A table of functions and a nextToken when more pages exist.";

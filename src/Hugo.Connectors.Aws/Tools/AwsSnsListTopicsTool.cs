@@ -120,9 +120,9 @@ namespace Hugo.Connectors.Aws.Tools
                 + "and the display name. nameContains filters each page by a substring. Paged with nextToken.";
             d.InputSchemaJson =
                 "{\"type\":\"object\",\"properties\":{"
-                + "\"nameContains\":{\"type\":\"string\"},"
+                + "\"nameContains\":{\"type\":\"string\",\"description\":\"Keep only topics whose name contains this text (case-insensitive). It filters the current page of up to 100 topics, so keep paging with nextToken to search every topic.\"},"
                 + "\"includeAttributes\":{\"type\":\"boolean\",\"description\":\"Fetch subscription counts. Default false.\"},"
-                + "\"nextToken\":{\"type\":\"string\"}"
+                + "\"nextToken\":{\"type\":\"string\",\"description\":\"The nextToken from the previous page, to fetch the next page. Send the same filters again.\"}"
                 + "},\"additionalProperties\":false}";
             d.BaseEffect = EffectEnum.Read;
             d.OutputDescription = "A table of topics and a nextToken when more pages exist.";

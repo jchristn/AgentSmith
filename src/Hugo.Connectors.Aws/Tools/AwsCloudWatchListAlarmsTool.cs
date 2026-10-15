@@ -103,11 +103,11 @@ namespace Hugo.Connectors.Aws.Tools
                 + "state=ALARM when investigating an incident. Paged with nextToken.";
             d.InputSchemaJson =
                 "{\"type\":\"object\",\"properties\":{"
-                + "\"state\":{\"type\":\"string\",\"enum\":[\"ALARM\",\"OK\",\"INSUFFICIENT_DATA\"]},"
+                + "\"state\":{\"type\":\"string\",\"enum\":[\"ALARM\",\"OK\",\"INSUFFICIENT_DATA\"],\"description\":\"Only alarms currently in this state. Omit for every state.\"},"
                 + "\"namePrefix\":{\"type\":\"string\",\"description\":\"Alarm name prefix.\"},"
-                + "\"alarmNames\":{\"type\":\"array\",\"items\":{\"type\":\"string\"},\"maxItems\":100},"
-                + "\"maxResults\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":100},"
-                + "\"nextToken\":{\"type\":\"string\"}"
+                + "\"alarmNames\":{\"type\":\"array\",\"items\":{\"type\":\"string\"},\"maxItems\":100,\"description\":\"Exact alarm names to describe (up to 100). Omit to list alarms, optionally narrowed by namePrefix.\"},"
+                + "\"maxResults\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":100,\"description\":\"Alarms per page, 1 to 100. Defaults to the resource's maxResults and is capped by the call's row limit.\"},"
+                + "\"nextToken\":{\"type\":\"string\",\"description\":\"The nextToken from the previous page, to fetch the next page. Send the same filters again.\"}"
                 + "},\"additionalProperties\":false}";
             d.BaseEffect = EffectEnum.Read;
             d.OutputDescription = "A table of alarms and a nextToken when more pages exist.";
