@@ -1,0 +1,10 @@
+# Traefik, which k3s installs by default, on its web entrypoint (port 80). Traefik streams responses without
+# buffering and has no response timeout by default, so Server-Sent Events need no extra settings; the ingress-nginx
+# annotations from components/ingress are replaced because Traefik ignores them.
+- op: replace
+  path: /spec/ingressClassName
+  value: traefik
+- op: replace
+  path: /metadata/annotations
+  value:
+    traefik.ingress.kubernetes.io/router.entrypoints: web

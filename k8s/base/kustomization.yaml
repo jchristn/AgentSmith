@@ -1,0 +1,40 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Hugo base: one server replica (Recreate strategy, D-045), the dashboard, a PersistentVolumeClaim for /app/data,
+# the settings ConfigMap (config/hugo.json), service accounts, and network policies. SQLite on the claim is the
+# default database; components/postgres switches to PostgreSQL.
+#
+# Secrets are not part of the base. Create Secret hugo-secrets first with k8s/scripts/generate-secrets.sh
+# (keys master-key, signing-key, db-password, grafana-admin-password). Nothing secret is ever committed.
+#
+# config/hugo.json is mirrored in k8s/helm/hugo/files; k8s/tests/check-render.sh diffs the copies and compares the
+# objects Kustomize and Helm render.
+
+namespace: hugo
+
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: hugo
+    includeSelectors: false
+
+resources:
+  - namespace.yaml
+  - serviceaccounts.yaml
+  - server-pvc.yaml
+  - server-deployment.yaml
+  - server-service.yaml
+  - dashboard-deployment.yaml
+  - dashboard-service.yaml
+  - networkpolicies.yaml
+
+configMapGenerator:
+  - name: hugo-server-settings
+    files:
+      - hugo.json=config/hugo.json
+
+images:
+  - name: jchristn77/hugo-server
+    newTag: v0.1.0
+  - name: jchristn77/hugo-dashboard
+    newTag: v0.1.0

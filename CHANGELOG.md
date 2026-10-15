@@ -11,6 +11,7 @@ Everything below is new in this release. The images are `jchristn77/hugo-server:
 ### Deployment
 
 - Docker Compose is the supported deployment (`docker/`). `start.sh` and `start.bat` generate the master key and session signing key on first run; `update.sh` and `update.bat` pull and recreate the stack without touching data; `reset.sh` and `reset.bat` delete everything after you type RESET.
+- Kubernetes (`k8s/`: Kustomize base and overlays, a Helm chart, and scripts) and minikube (`minikube/`) deployments on the same images, one server replica by design. See `docs/KUBERNETES.md`.
 - A seeded demo stack in `docker/factory/` with its own project name and ports (API 8810, dashboard 8811), a demo profile, sample resources, and its own `factory/reset.sh`. See `docs/FACTORY.md`.
 - The stack runs the server, the dashboard, Prometheus, Tempo, Loki, Alloy, and Grafana, with a curl or wget healthcheck on every service and dependency ordering. Every host port binds to `127.0.0.1`.
 - SQLite by default; PostgreSQL with `HUGO_DB_TYPE=Postgresql` and the `postgres` Compose profile.

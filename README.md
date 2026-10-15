@@ -27,7 +27,7 @@ Hugo holds the access and the judgment about using it. Credentials live encrypte
 
 ## Deploy with Docker
 
-Hugo ships as two container images, `jchristn77/hugo-server` and `jchristn77/hugo-dashboard` (tag `v0.1.0`), and runs with Docker Compose. Containers are the only supported way to run it (decision D-045 in the plan); Kubernetes and minikube manifests are being added in `k8s/` and `minikube/` on the same images.
+Hugo ships as two container images, `jchristn77/hugo-server` and `jchristn77/hugo-dashboard` (tag `v0.1.0`), and containers are the only supported way to run it (decision D-045): with Docker Compose (below), on Kubernetes with `k8s/`, or on minikube with `minikube/`. The Kubernetes and minikube paths are described in [`docs/KUBERNETES.md`](docs/KUBERNETES.md); like the Compose stack, they run a single replica.
 
 ```bash
 git clone https://github.com/jchristn/AgentSmith.git
@@ -164,13 +164,24 @@ Treat Hugo's classifiers as a second line of defense. Give it read-only database
 | Prompt templates and instruction composition | [`docs/PROMPTS.md`](docs/PROMPTS.md) |
 | Connectors | [`docs/CONNECTORS.md`](docs/CONNECTORS.md), [`docs/connectors/`](docs/connectors/) |
 | Telemetry and Grafana | [`docs/TELEMETRY.md`](docs/TELEMETRY.md), [`docs/GRAFANA.md`](docs/GRAFANA.md) |
-| Docker, the factory demo, upgrades | [`docs/DOCKER.md`](docs/DOCKER.md), [`docs/FACTORY.md`](docs/FACTORY.md), [`docs/UPGRADING.md`](docs/UPGRADING.md) |
+| Deployment: Docker, Kubernetes and minikube, the factory demo, upgrades | [`docs/DOCKER.md`](docs/DOCKER.md), [`docs/KUBERNETES.md`](docs/KUBERNETES.md), [`docs/FACTORY.md`](docs/FACTORY.md), [`docs/UPGRADING.md`](docs/UPGRADING.md) |
 | When something goes wrong | [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md) |
 | Dashboard languages | [`docs/I18N.md`](docs/I18N.md) |
 
 ## Community
 
 Questions, ideas, and war stories are welcome on Discord: https://discord.gg/tRAN8HgvK5. Bugs and feature requests go to [GitHub issues](https://github.com/jchristn/AgentSmith/issues).
+
+## Kubernetes and minikube
+
+The same images deploy to Kubernetes with `k8s/` (Kustomize base, postgres, observability, and ingress components, k3s and production overlays, a Helm chart, and scripts) and to a laptop with `minikube/`:
+
+```bash
+minikube/scripts/start.sh && minikube/scripts/deploy.sh --with observability && minikube/scripts/port-forward.sh
+k8s/scripts/deploy.sh k3s --with postgres,observability      # any cluster in your current kubectl context
+```
+
+Hugo runs one server replica everywhere. See [`docs/KUBERNETES.md`](docs/KUBERNETES.md) for secrets, updates, factory reset, and backups.
 
 ## Developing Hugo
 

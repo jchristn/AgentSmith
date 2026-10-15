@@ -1,6 +1,6 @@
 # Running Hugo with Docker
 
-Docker Compose is the supported way to run Hugo today. Kubernetes and minikube assets are planned in `k8s/` and `minikube/` (Phase 17 of `HUGO_PLAN.md`) and will follow the same configuration model. Everything here happens in the `docker/` directory.
+This guide covers Docker Compose. Kubernetes and minikube use the same images and configuration model; see [`KUBERNETES.md`](KUBERNETES.md). Everything here happens in the `docker/` directory.
 
 ## What runs
 

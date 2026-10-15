@@ -42,7 +42,7 @@ cd AgentSmith/docker
 | Grafana | http://127.0.0.1:3000 |
 | Prometheus | http://127.0.0.1:9090 |
 
-Sign in as `anderson@hugo.local` with the password `password` (tenant `default`) and change the password when Hugo asks. `./update.sh` pulls new images and recreates the stack without touching data; `./reset.sh` deletes everything and starts fresh. A seeded demo stack with real targets to talk to lives in `docker/factory/` ([FACTORY.md](https://github.com/jchristn/AgentSmith/blob/main/docs/FACTORY.md)).
+Sign in as `anderson@hugo.local` with the password `password` (tenant `default`) and change the password when Hugo asks. `./update.sh` pulls new images and recreates the stack without touching data; `./reset.sh` deletes everything and starts fresh. The same images run on Kubernetes and minikube with the manifests in `k8s/` and `minikube/` ([KUBERNETES.md](https://github.com/jchristn/AgentSmith/blob/main/docs/KUBERNETES.md)). A seeded demo stack with real targets to talk to lives in `docker/factory/` ([FACTORY.md](https://github.com/jchristn/AgentSmith/blob/main/docs/FACTORY.md)).
 
 Running the server image on its own is fine for a quick look:
 

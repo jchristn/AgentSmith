@@ -1,0 +1,128 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hugo-server
+  labels:
+    app.kubernetes.io/name: hugo-server
+    app.kubernetes.io/component: server
+spec:
+  # One replica, always (D-045). The event hub and approval wake-ups are in-process (D-027), so a second replica
+  # would miss events and approvals raised on the first. Recreate stops the old pod before the new one starts, which
+  # also lets the ReadWriteOnce data volume move between them. Do not raise replicas or add an autoscaler until those
+  # signals are shared across replicas.
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hugo-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hugo-server
+        app.kubernetes.io/component: server
+      annotations:
+        # /metrics is served on the REST port (Telemetry.ServeMetricsOnServicePort). The Ingress never routes it and
+        # the dashboard never proxies it, so only pods inside the cluster (Prometheus) read it.
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8800"
+        prometheus.io/path: /metrics
+    spec:
+      serviceAccountName: hugo-server
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: server
+          image: jchristn77/hugo-server
+          # Always, so k8s/scripts/update.sh picks up a re-pushed tag on restart. The k3s and minikube overlays use
+          # IfNotPresent for images imported into the node.
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8800
+          env:
+            - name: HUGO_SETTINGS_FILE
+              value: /app/config/hugo.json
+            # The settings file is a read-only ConfigMap. Change config/hugo.json (or patch it in an overlay) and
+            # redeploy; edits made in the dashboard's Settings page are not saved to the file.
+            - name: HUGO_SETTINGS_READONLY
+              value: "true"
+            - name: HUGO_REST_HOSTNAME
+              value: 0.0.0.0
+            # The pod name is the node name in logs, traces, and the Loki node label.
+            - name: HUGO_NODE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: HUGO_MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hugo-secrets
+                  key: master-key
+            - name: HUGO_AUTH_SIGNING_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hugo-secrets
+                  key: signing-key
+          volumeMounts:
+            - name: settings
+              mountPath: /app/config
+              readOnly: true
+            - name: data
+              mountPath: /app/data
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "2"
+              memory: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          # REPOSITORY_REQUIREMENTS.md item 11 in Kubernetes form: curl against 127.0.0.1 inside the container every
+          # 5 seconds, two failures to go unhealthy and two successes to come back. The startup probe allows up to five
+          # minutes for the first boot (schema creation and seeding), the counterpart of the Compose start_period;
+          # liveness and readiness take over once it passes.
+          startupProbe:
+            exec:
+              command: ["curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8800/v1.0/api/health/live"]
+            periodSeconds: 5
+            timeoutSeconds: 4
+            failureThreshold: 60
+            successThreshold: 1
+          readinessProbe:
+            exec:
+              command: ["curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8800/v1.0/api/health"]
+            periodSeconds: 5
+            timeoutSeconds: 4
+            failureThreshold: 2
+            successThreshold: 2
+          livenessProbe:
+            exec:
+              command: ["curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8800/v1.0/api/health/live"]
+            periodSeconds: 5
+            timeoutSeconds: 4
+            failureThreshold: 2
+            successThreshold: 1
+      volumes:
+        - name: settings
+          configMap:
+            name: hugo-server-settings
+        - name: data
+          persistentVolumeClaim:
+            claimName: hugo-data
+        - name: tmp
+          emptyDir: {}

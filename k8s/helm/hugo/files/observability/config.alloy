@@ -1,0 +1,161 @@
+// Grafana Alloy for Hugo on Kubernetes (k8s/components/observability and the Helm chart, which mirrors this file;
+// k8s/tests/check-render.sh diffs them).
+//
+// 1. OTLP receiver (gRPC 4317, HTTP 4318) for traces from the server, forwarded to Tempo. OTLP metrics and logs are
+//    accepted and dropped: Prometheus scrapes the metrics, and logs are read from the pods.
+// 2. Pod logs. The Hugo server and dashboard pods in this namespace are discovered through the Kubernetes API and
+//    their container logs are read through the API as well (no host paths, no DaemonSet), then shipped to Loki with
+//    the labels app="hugo", component (server, dashboard), node (the pod name, which is also the Hugo node name),
+//    level when the line has a Hugo severity, and tenant when the line names one. The labels match the Docker
+//    Compose configuration, so the dashboards and deep links work unchanged.
+
+otelcol.receiver.otlp "default" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  output {
+    traces = [otelcol.processor.filter.probes.input]
+  }
+}
+
+// Health probes and Prometheus scrapes would otherwise produce several traces a second that nobody reads.
+otelcol.processor.filter "probes" {
+  error_mode = "ignore"
+
+  traces {
+    span = [
+      "IsMatch(attributes[\"http.route\"], \"^(/v1\\\\.0/api/health|/health|/metrics)(/.*)?$\")",
+    ]
+  }
+
+  output {
+    traces = [otelcol.processor.tail_sampling.idle.input]
+  }
+}
+
+// Background services start a root span on every iteration and tag it hugo.idle="true" when the iteration found
+// nothing to do. Those traces are dropped here, whole, so idle polling does not flood Tempo; every iteration is still
+// counted in hugo_background_* metrics.
+otelcol.processor.tail_sampling "idle" {
+  decision_wait = "10s"
+
+  policy {
+    name = "drop-idle-background-iterations"
+    type = "string_attribute"
+
+    string_attribute {
+      key          = "hugo.idle"
+      values       = ["true"]
+      invert_match = true
+    }
+  }
+
+  output {
+    traces = [otelcol.processor.batch.default.input]
+  }
+}
+
+otelcol.processor.batch "default" {
+  output {
+    traces = [otelcol.exporter.otlp.tempo.input]
+  }
+}
+
+otelcol.exporter.otlp "tempo" {
+  client {
+    endpoint = "hugo-tempo:4317"
+
+    tls {
+      insecure = true
+    }
+  }
+}
+
+discovery.kubernetes "pods" {
+  role = "pod"
+
+  namespaces {
+    own_namespace = true
+  }
+}
+
+discovery.relabel "hugo" {
+  targets = discovery.kubernetes.pods.targets
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+    regex         = "hugo-(server|dashboard)"
+    action        = "keep"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_container_init"]
+    regex         = "true"
+    action        = "drop"
+  }
+
+  rule {
+    target_label = "app"
+    replacement  = "hugo"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+    regex         = "hugo-(server|dashboard)"
+    target_label  = "component"
+    replacement   = "$1"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_name"]
+    target_label  = "node"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_namespace"]
+    target_label  = "namespace"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_container_name"]
+    target_label  = "container"
+  }
+}
+
+loki.source.kubernetes "hugo" {
+  targets    = discovery.relabel.hugo.output
+  forward_to = [loki.process.hugo.receiver]
+}
+
+loki.process "hugo" {
+  // Hugo lines look like "2026-10-10 18:38:03 <node> Info [Component] message".
+  stage.regex {
+    expression = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} \\S+ (?P<level>Debug|Info|Warn|Error|Alert|Critical|Emergency) "
+  }
+
+  // Lines that concern a tenant carry tenant=<tenant ID>; promote it to a Loki label so log panels and queries can
+  // filter by tenant without a line filter. Tenants are few, so the label stays low-cardinality.
+  stage.regex {
+    expression = " tenant=(?P<tenant>[A-Za-z0-9_\\-]+)"
+  }
+
+  stage.labels {
+    values = {
+      level  = "",
+      tenant = "",
+    }
+  }
+
+  forward_to = [loki.write.default.receiver]
+}
+
+loki.write "default" {
+  endpoint {
+    url = "http://hugo-loki:3100/loki/api/v1/push"
+  }
+}

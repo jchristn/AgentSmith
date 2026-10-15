@@ -1,4 +1,4 @@
-# Tempo configuration for Garrison: single binary, local storage, 24 hours of retention. Traces arrive over OTLP
+# Tempo configuration for Hugo: single binary, local storage, 24 hours of retention. Traces arrive over OTLP
 # from Grafana Alloy (garrison-alloy), which is what the server and workers export to. Shared by
 # k8s/components/observability, the Helm chart (mirrored copy, diffed in CI), and the Docker Compose
 # observability profile (mounted from here).
