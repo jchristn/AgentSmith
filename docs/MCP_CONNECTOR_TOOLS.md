@@ -4162,7 +4162,7 @@ Connector reference: [CONNECTORS.md](CONNECTORS.md#elasticsearch-and-opensearch)
 
 Search one or more allowed indexes with a Query DSL query and return hits (index, id, score, source) and aggregations. Always set size (default 10, capped by the resource's maxHits), filter by time with a range query, and request only the fields you need with _source. Use aggs with size 0 for counts and breakdowns instead of reading many documents.
 
-**Note.** Only the listed body keys are accepted; `script_fields`, `runtime_mappings`, and similar top-level keys are rejected. Hits from indexes outside the allowed patterns (reached through an alias) are dropped, but totals and aggregations still count them.
+**Note.** Only the listed body keys are accepted; `script_fields`, `runtime_mappings`, and similar top-level keys are rejected. Before searching, Hugo resolves the index expression; when an alias or wildcard reaches indexes outside the allowed patterns, only the allowed concrete indexes are searched (the result says how many were left out), and when it reaches no allowed index the call fails with `permission_denied`. Totals and aggregations therefore cover only allowed indexes.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -4226,6 +4226,8 @@ aggregations: {"by_service":{"buckets":[{"key":"checkout","doc_count":388},{"key
 *Count Elasticsearch documents.* Base effect **Read**. Connectors: `elasticsearch`.
 
 Count documents that match a Query DSL query in allowed indexes, without returning them. Use it to size a problem before searching.
+
+**Note.** The index expression is resolved first, as for `es_search`: indexes outside the allowed patterns that an alias or wildcard reaches are left out of the count, and an expression that reaches no allowed index fails with `permission_denied`.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|

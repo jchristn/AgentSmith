@@ -129,8 +129,11 @@ namespace Hugo.Connectors.Observability
 
             string body = BuildBody(query, size, from, sort, source, aggs, searchAfter, trackTotal);
             ObservabilityTransport transport = Transport(context.Resource, settings);
+            EsResolvedTarget target = await new EsTargetResolver().ResolveAsync(transport, index, settings.AllowedIndexPatterns, token).ConfigureAwait(false);
+            if (target.Excluded.Count > 0)
+                notes.Add(target.Excluded.Count.ToString(CultureInfo.InvariantCulture) + " index(es) outside the allowed patterns, reached through an alias or wildcard, were left out; hits, totals, and aggregations cover only the allowed indexes.");
             List<KeyValuePair<string, string?>> q = new List<KeyValuePair<string, string?>> { new KeyValuePair<string, string?>("expand_wildcards", "open") };
-            string json = await transport.PostJsonAsync(index + "/_search", q, body, token).ConfigureAwait(false);
+            string json = await transport.PostJsonAsync(target.Expression + "/_search", q, body, token).ConfigureAwait(false);
             EsSearchResponse response = ObservabilityJson.DeserializeUpstream<EsSearchResponse>(json, transport.Provider);
 
             List<EsHit> allowedHits = response.Hits.Hits.Where(h => EsIndexGuard.IsIndexAllowed(h.Index, settings.AllowedIndexPatterns)).ToList();
@@ -163,7 +166,7 @@ namespace Hugo.Connectors.Observability
             }
 
             string structured = Structured(index, total, relation, response, allowedHits, filtered);
-            ToolResult result = Finish(sb.ToString(), structured, context.Limits, filtered > 0 || requested > cap);
+            ToolResult result = Finish(sb.ToString(), structured, context.Limits, filtered > 0 || requested > cap || target.Excluded.Count > 0);
             result.Metrics["hits"] = allowedHits.Count;
             result.Metrics["total"] = total;
             result.Metrics["tookMs"] = response.Took;
