@@ -69,6 +69,18 @@ namespace Hugo.Connectors.Abstractions
         }
 
         /// <summary>
+        /// Language model bound to the calling profile's inference endpoint, or null when the profile has none. Tools that
+        /// need a model must return a clear <c>not_supported</c> error when this is null.
+        /// </summary>
+        public IConnectorModel? Model { get; set; } = null;
+
+        /// <summary>
+        /// Whether the binding allows this call to change the resource's durable knowledge (tools with
+        /// <see cref="ToolDescriptor.UpdatesKnowledge"/>). Default true.
+        /// </summary>
+        public bool AllowKnowledgeUpdates { get; set; } = true;
+
+        /// <summary>
         /// Non-secret description of the caller (for example <c>user anderson@hugo.local via MCP</c>), for logs.
         /// </summary>
         public string PrincipalSummary { get; set; } = String.Empty;

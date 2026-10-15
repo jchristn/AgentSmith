@@ -96,6 +96,22 @@ namespace Hugo.Connectors.Abstractions
         }
 
         /// <summary>
+        /// Durable knowledge store for this resource. Never null; the server supplies a persistent, tenant-scoped store,
+        /// and the default is an in-memory store.
+        /// </summary>
+        public IResourceKnowledgeStore Knowledge
+        {
+            get
+            {
+                return _Knowledge;
+            }
+            set
+            {
+                _Knowledge = value ?? new InMemoryResourceKnowledgeStore();
+            }
+        }
+
+        /// <summary>
         /// Recorder for values the connector learns and wants persisted on the resource (for example a pinned SSH host
         /// key fingerprint). Null when the caller does not persist learned values.
         /// </summary>
@@ -109,6 +125,7 @@ namespace Hugo.Connectors.Abstractions
         private SecretAccessor _Secrets = new SecretAccessor();
         private IConnectorLogger _Logger = NullConnectorLogger.Instance;
         private IConnectorSessionPool _Sessions = new NoPoolSessionPool();
+        private IResourceKnowledgeStore _Knowledge = new InMemoryResourceKnowledgeStore();
 
         #endregion
 

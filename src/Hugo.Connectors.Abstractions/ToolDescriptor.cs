@@ -64,6 +64,19 @@ namespace Hugo.Connectors.Abstractions
         public bool ClassifiedPerCall { get; set; } = false;
 
         /// <summary>
+        /// Whether the tool changes Hugo's durable knowledge about the resource (not the resource itself). Such calls do
+        /// not affect the target system, so their effect toward the target stays Read; the pipeline instead requires the
+        /// binding to allow knowledge updates and audits every change. Default false.
+        /// </summary>
+        public bool UpdatesKnowledge { get; set; } = false;
+
+        /// <summary>
+        /// Whether the tool needs <see cref="ConnectorInvocationContext.Model"/>. The server hides it from profiles that
+        /// have no inference endpoint. Default false.
+        /// </summary>
+        public bool RequiresModel { get; set; } = false;
+
+        /// <summary>
         /// Short description of the result shape, for documentation.
         /// </summary>
         public string OutputDescription { get; set; } = String.Empty;
