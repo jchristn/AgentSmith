@@ -75,10 +75,12 @@ Back up `hugo-data` (or the PostgreSQL database) together with `docker/.env`. On
 
 ```bash
 ./update.sh            # pull the latest images, recreate the stack, keep all data
-./factory/reset.sh     # delete every volume (data, secrets, metrics, logs) and start fresh
+./reset.sh             # delete every volume (data, secrets, metrics, logs) and start fresh
 ```
 
 `update` is safe to run at any time; database migrations run automatically on startup. `reset` asks you to type RESET before it deletes anything. Both have `.bat` versions for Windows.
+
+`docker/factory/` is a different stack: a seeded demo with its own project name and ports (API on 8810, dashboard on 8811), and `factory/reset.sh` resets that demo, not this stack. See [`FACTORY.md`](FACTORY.md).
 
 ## Health
 
