@@ -14,7 +14,7 @@ Hugo implements A2A 1.0 over the JSON-RPC binding, as Watson routes on the REST 
 
 A profile is reachable when it is active, has `exposeA2A` on (the default), and, for the public card, has Tenant visibility. Anything else answers 404, the same as a profile that does not exist. `A2A.Enable` set to false turns the whole surface off.
 
-Callers authenticate with the REST schemes: a bearer session token, credential keys (`x-access-key` and `x-secret-key`), or a signed request. For an agent that calls Hugo regularly, create a credential bound to the profile and locked to it; a locked credential calling another profile is refused with -32007 `ProfileLocked`.
+Callers authenticate with the REST schemes: a bearer session token, credential keys (`x-access-key` and `x-secret-key`), or a signed request. For an agent that calls Hugo regularly, create a credential bound to the profile and locked to it; a locked credential calling another profile is refused with -32007 `ProfileLocked`. Give the credential a role (`roleName`, for example Operator) when you create it: credentials do not inherit their owner's administrator bypass, so one without a scope assignment is refused with -32007 `AuthorizationDenied`. A SessionExchange credential exchanges its keys at `POST /v1.0/token` first; its keys alone answer 401 here.
 
 ## The agent card
 

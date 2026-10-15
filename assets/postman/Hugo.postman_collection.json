@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "201ef823-b318-5721-b39d-2c160ae749e0",
     "name": "Hugo",
-    "description": "Every Hugo REST route, plus MCP and A2A JSON-RPC examples, organized by area. Hugo is a multi-tenant super agent server: you give it access to the systems behind your production stack, group that access into agent profiles, and reach those profiles over MCP, A2A, REST, an OpenAI-compatible endpoint, or the dashboard. The full reference is REST_API.md, MCP_API.md, and A2A_API.md in the repository.\n\nHow to use it\n\n1. Import this collection and `Hugo.postman_environment.json`, and select the environment.\n2. Set `host` and `port` for your server. The Docker stack serves the API on 127.0.0.1:8800; the seeded demo stack in `docker/factory/` serves it on 127.0.0.1:8810.\n3. Set `password` to the seeded password (`password` on a fresh stack) and `newPassword` to the password you want the accounts to have. On first use the collection signs in with `password`, changes it to `newPassword` (Hugo asks for that, though since D-048 it no longer blocks anything until you do), and keeps going. Against the factory demo stack, set both to that stack's demo password.\n4. Run the folders in order (Collection Runner or `scripts/newman.sh`). Later folders use IDs that earlier folders capture into collection variables.\n\nAuthentication\n\nThe collection uses a bearer token. Its pre-request script keeps `{{token}}` (the tenant administrator `{{email}}`) and `{{adminToken}}` (the system administrator `{{adminEmail}}`) valid and only calls the server when a token is missing or about to expire. Requests that show another scheme (credential keys, a signed request, anonymous routes) set their own authorization. Token routes are rate limited to 10 per minute per IP by default (`Auth.RateLimitPerMinute`); the run stays under that.\n\nWhat runs where\n\nEverything runs against a fresh server with nothing else installed: the examples use `demo-db`, a SQLite resource on `:memory:`. Requests that need a model (chat, A2A tasks, the OpenAI-compatible completions, `ask_agent_smith`) are skipped unless `modelBaseUrl` is set to a reachable OpenAI-compatible endpoint. Requests that would restart the server or hold a stream open forever are documented but always skipped. The last folder deletes what the run created.",
+    "description": "Every Hugo REST route, plus MCP and A2A JSON-RPC examples, organized by area. Hugo is a multi-tenant super agent server: you give it access to the systems behind your production stack, group that access into agent profiles, and reach those profiles over MCP, A2A, REST, an OpenAI-compatible endpoint, or the dashboard. The full reference is REST_API.md, MCP_API.md, and A2A_API.md in the repository.\n\nHow to use it\n\n1. Import this collection and `Hugo.postman_environment.json`, and select the environment.\n2. Set `host` and `port` for your server. The Docker stack serves the API on 127.0.0.1:8800; the seeded demo stack in `docker/factory/` serves it on 127.0.0.1:8810.\n3. Set `password` and `adminPassword` to the accounts' passwords (`password` on a fresh stack). The collection never changes them: since D-048 `mustChangePassword` is advisory and blocks nothing. If you changed the seeded passwords to one value, you can leave `password` alone and put that value in `newPassword`; the collection tries it when `password` is refused. Against the factory demo stack, set both to that stack's demo password.\n4. Run the folders in order (Collection Runner or `scripts/newman.sh`). Later folders use IDs that earlier folders capture into collection variables.\n\nAuthentication\n\nThe collection uses a bearer token. Its pre-request script keeps `{{token}}` (the tenant administrator `{{email}}`) and `{{adminToken}}` (the system administrator `{{adminEmail}}`) valid and only calls the server when a token is missing or about to expire. Requests that show another scheme (credential keys, a signed request, anonymous routes) set their own authorization. Token routes are rate limited to 10 per minute per IP by default (`Auth.RateLimitPerMinute`); the run stays under that, and the sign-in script waits out a 429 (honoring `Retry-After`) and tries once more.\n\nCredentials do not inherit their owner's administrator bypass, so every credential the collection creates gets an explicit role (`roleName`).\n\nWhat runs where\n\nEverything runs against a fresh server with nothing else installed: the examples use `demo-db`, a SQLite resource on `:memory:`. Requests that need a model (chat, A2A tasks, the OpenAI-compatible completions, `ask_agent_smith`) are skipped unless `modelBaseUrl` is set to a reachable OpenAI-compatible endpoint. Requests that would restart the server or hold a stream open forever are documented but always skipped. The last folder deletes what the run created.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -23,10 +23,12 @@
         "exec": [
           "// Collection pre-request script: keeps {{token}} (the tenant administrator, {{email}}) and {{adminToken}}",
           "// (the system administrator, {{adminEmail}}) valid. It runs before every request but only calls the server when a",
-          "// token is missing or expires within a minute. Sign-in tries {{newPassword}} first; on a fresh server it falls back",
-          "// to the seeded {{password}}, changes it to {{newPassword}} (the seeded accounts carry the advisory",
-          "// mustChangePassword flag), and refreshes the session. Token routes are rate limited (Auth.RateLimitPerMinute, default 10 per",
-          "// minute per IP), so this flow spends at most two sign-ins per account.",
+          "// token is missing or expires within a minute. Sign-in tries {{password}} (or {{adminPassword}}) first and, when that",
+          "// is refused and {{newPassword}} is set, {{newPassword}}, for servers whose seeded passwords were already changed.",
+          "// The password that worked is kept in {{currentPassword}} (or {{adminCurrentPassword}}) for the requests that need",
+          "// it. Nothing changes a password here: mustChangePassword is advisory (D-048) and blocks no route.",
+          "// Token routes are rate limited (Auth.RateLimitPerMinute, default 10 per minute per IP); a 429 is retried once after",
+          "// the Retry-After delay.",
           "const baseUrl = pm.variables.replaceIn('{{baseUrl}}');",
           "const tenantId = pm.variables.get('tenantId');",
           "",
@@ -36,52 +38,39 @@
           "    return token && expires && (Date.parse(expires) - Date.now() > 60000);",
           "}",
           "",
-          "function store(prefix, body) {",
+          "function store(prefix, body, password) {",
           "    pm.collectionVariables.set(prefix, body.token);",
           "    pm.collectionVariables.set(prefix + 'ExpiresUtc', body.expiresUtc);",
+          "    pm.collectionVariables.set(prefix === 'token' ? 'currentPassword' : 'adminCurrentPassword', password);",
           "}",
           "",
-          "function signIn(email, password, callback) {",
+          "function signIn(email, password, callback, retried) {",
+          "    if (!password) { callback(null); return; }",
           "    pm.sendRequest({",
           "        url: baseUrl + '/v1.0/token',",
           "        method: 'POST',",
           "        header: { 'x-email': email, 'x-password': password, 'x-tenant-id': tenantId }",
           "    }, function (err, res) {",
+          "        if (!err && res.code === 429 && !retried) {",
+          "            const wait = Math.min(65, parseInt(res.headers.get('Retry-After') || '60', 10)) * 1000;",
+          "            setTimeout(function () { signIn(email, password, callback, true); }, wait);",
+          "            return;",
+          "        }",
           "        if (err || res.code !== 200) { callback(null); return; }",
           "        callback(res.json());",
-          "    });",
-          "}",
-          "",
-          "function changeAndRefresh(prefix, session, current, next, done) {",
-          "    pm.sendRequest({",
-          "        url: baseUrl + '/v1.0/api/users/me/password',",
-          "        method: 'POST',",
-          "        header: { 'Authorization': 'Bearer ' + session.token, 'Content-Type': 'application/json' },",
-          "        body: { mode: 'raw', raw: JSON.stringify({ currentPassword: current, newPassword: next }) }",
-          "    }, function (err, res) {",
-          "        if (err || res.code !== 200) { console.warn('Hugo: password change failed for ' + prefix); done(); return; }",
-          "        pm.sendRequest({",
-          "            url: baseUrl + '/v1.0/token/refresh',",
-          "            method: 'POST',",
-          "            header: { 'Authorization': 'Bearer ' + session.token }",
-          "        }, function (err2, res2) {",
-          "            if (!err2 && res2.code === 200) store(prefix, res2.json());",
-          "            done();",
-          "        });",
           "    });",
           "}",
           "",
           "function ensure(prefix, emailVar, done) {",
           "    if (stillValid(prefix)) { done(); return; }",
           "    const email = pm.variables.get(emailVar);",
-          "    const fresh = pm.variables.get('newPassword');",
-          "    const seeded = pm.variables.get(emailVar === 'adminEmail' ? 'adminPassword' : 'password');",
-          "    signIn(email, fresh, function (body) {",
-          "        if (body && !body.mustChangePassword) { store(prefix, body); done(); return; }",
-          "        signIn(email, seeded, function (first) {",
-          "            if (!first) { console.warn('Hugo: could not sign in as ' + email); done(); return; }",
-          "            if (first.mustChangePassword) { changeAndRefresh(prefix, first, seeded, fresh, done); return; }",
-          "            store(prefix, first);",
+          "    const primary = pm.variables.get(emailVar === 'adminEmail' ? 'adminPassword' : 'password');",
+          "    const alternate = pm.variables.get('newPassword');",
+          "    signIn(email, primary, function (body) {",
+          "        if (body) { store(prefix, body, primary); done(); return; }",
+          "        signIn(email, alternate, function (second) {",
+          "            if (second) { store(prefix, second, alternate); done(); return; }",
+          "            console.warn('Hugo: could not sign in as ' + email);",
           "            done();",
           "        });",
           "    });",
@@ -563,6 +552,42 @@
       "value": "",
       "type": "string",
       "description": "Set by a test or pre-request script during the run."
+    },
+    {
+      "key": "currentPassword",
+      "value": ""
+    },
+    {
+      "key": "adminCurrentPassword",
+      "value": ""
+    },
+    {
+      "key": "noRoleCredentialId",
+      "value": ""
+    },
+    {
+      "key": "noRoleAccessKey",
+      "value": ""
+    },
+    {
+      "key": "noRoleSecretKey",
+      "value": ""
+    },
+    {
+      "key": "exchangeCredentialId",
+      "value": ""
+    },
+    {
+      "key": "exchangeAccessKey",
+      "value": ""
+    },
+    {
+      "key": "exchangeSecretKey",
+      "value": ""
+    },
+    {
+      "key": "bearerSecretId",
+      "value": ""
     }
   ],
   "item": [
@@ -1001,7 +1026,7 @@
               },
               {
                 "key": "x-password",
-                "value": "{{newPassword}}",
+                "value": "{{currentPassword}}",
                 "description": "User password."
               },
               {
@@ -1237,7 +1262,7 @@
             "description": "The same route also reads a JSON body with `tenantId`, `email`, and `password` (or `accessKey` and `secretKey`). Body fields win; headers fill in whatever the body leaves out. Without a tenant, the default tenant is used. When an access key is present, the request is a credential sign-in.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tenantId\": \"{{tenantId}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{newPassword}}\"\n}",
+              "raw": "{\n  \"tenantId\": \"{{tenantId}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{currentPassword}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1782,7 +1807,7 @@
             "description": "Change your own password and clear `mustChangePassword`. The new password must differ from the current one. Existing sessions stay valid. This run changes the password to a temporary value and the next request changes it back.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"currentPassword\": \"{{newPassword}}\",\n  \"newPassword\": \"{{newPassword}}-tmp\"\n}",
+              "raw": "{\n  \"currentPassword\": \"{{currentPassword}}\",\n  \"newPassword\": \"{{currentPassword}}-tmp\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1838,10 +1863,10 @@
                 "password"
               ]
             },
-            "description": "Restore `{{newPassword}}` so later runs can sign in.",
+            "description": "Restore `{{currentPassword}}` so later runs can sign in.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"currentPassword\": \"{{newPassword}}-tmp\",\n  \"newPassword\": \"{{newPassword}}\"\n}",
+              "raw": "{\n  \"currentPassword\": \"{{currentPassword}}-tmp\",\n  \"newPassword\": \"{{currentPassword}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1881,7 +1906,8 @@
                   "let j = null;",
                   "try { j = pm.response.json(); } catch (e) { j = null; }",
                   "const h = (name) => pm.response.headers.get(name);",
-                  "try { const v = (j.objects.find(p => p.name === pm.variables.get('profileName')).id); if (v !== undefined && v !== null && v !== '') { pm.collectionVariables.set('profileId', v); } } catch (e) { }"
+                  "try { const v = (j.objects.find(p => p.name === pm.variables.get('profileName')).id); if (v !== undefined && v !== null && v !== '') { pm.collectionVariables.set('profileId', v); } } catch (e) { }",
+                  "pm.test('each profile carries bindingCount', function () { pm.response.json().objects.forEach(function (p) { pm.expect(p).to.have.property('bindingCount'); }); });"
                 ]
               }
             }
@@ -3117,6 +3143,110 @@
               ]
             },
             "description": "Test a saved resource's connection and record the result in `lastTestUtc`, `lastTestResult`, and `lastTestMessage`. SSH resources pin the host key on first success (trust on first use).",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List resources by health and environment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [200]', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('only healthy resources', function () { const j = pm.response.json(); pm.expect(j.totalRecords).to.be.at.least(1); j.objects.forEach(function (r) { pm.expect(r.lastTestResult).to.eql(true); }); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/resources?health=Healthy&connectorType=sqlite",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "resources"
+              ],
+              "query": [
+                {
+                  "key": "health",
+                  "value": "Healthy"
+                },
+                {
+                  "key": "connectorType",
+                  "value": "sqlite"
+                }
+              ]
+            },
+            "description": "Filter resources by the result of their last connection test (`health`: Healthy, Unhealthy, or Unknown) and by `environment` (case-insensitive exact match). `demo-db` passed its test above, so it is listed as Healthy.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Unknown filter values are rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [400]', function () {",
+                  "    pm.expect([400]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('ValidationFailed names the allowed values', function () { const j = pm.response.json(); pm.expect(j.code).to.eql('ValidationFailed'); pm.expect(j.message).to.include('Healthy'); pm.expect(j).to.have.property('requestId'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/resources?health=Bogus",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "resources"
+              ],
+              "query": [
+                {
+                  "key": "health",
+                  "value": "Bogus"
+                }
+              ]
+            },
+            "description": "An enum filter with an unknown value answers 400 `ValidationFailed` and lists the allowed values, rather than returning an unfiltered list.",
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -7029,6 +7159,168 @@
           "response": []
         },
         {
+          "name": "List tool invocations by effect and window",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [200]', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('only Read calls', function () { const j = pm.response.json(); pm.expect(j.totalRecords).to.be.at.least(1); j.objects.forEach(function (t) { pm.expect(t.effect).to.eql('Read'); }); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/tool-invocations?effect=Read&fromUtc=2026-01-01T00:00:00Z&toUtc=2100-01-01T00:00:00Z",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "tool-invocations"
+              ],
+              "query": [
+                {
+                  "key": "effect",
+                  "value": "Read"
+                },
+                {
+                  "key": "fromUtc",
+                  "value": "2026-01-01T00:00:00Z"
+                },
+                {
+                  "key": "toUtc",
+                  "value": "2100-01-01T00:00:00Z"
+                }
+              ]
+            },
+            "description": "Filter invocations by `effect` (Read, Write, Destructive) and a time window, `fromUtc` (also accepted as `since`) and `toUtc`.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List approvals by effect and window",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [200]', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('approvals in the window', function () { pm.expect(pm.response.json().totalRecords).to.be.at.least(3); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/approvals?fromUtc=2026-01-01T00:00:00Z&toUtc=2100-01-01T00:00:00Z",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "approvals"
+              ],
+              "query": [
+                {
+                  "key": "fromUtc",
+                  "value": "2026-01-01T00:00:00Z"
+                },
+                {
+                  "key": "toUtc",
+                  "value": "2100-01-01T00:00:00Z"
+                }
+              ]
+            },
+            "description": "Approvals take the same `effect`, `fromUtc`, and `toUtc` filters, next to `status`, `agentProfileId`, `resourceId`, `principalId`, and `toolName`. The writes above asked for three approvals.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List approvals for Read calls",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [200]', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('no approvals for Read calls', function () { pm.expect(pm.response.json().totalRecords).to.eql(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/approvals?effect=Read",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "approvals"
+              ],
+              "query": [
+                {
+                  "key": "effect",
+                  "value": "Read"
+                }
+              ]
+            },
+            "description": "No Read call needs an approval, so this filter comes back empty.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Tool invocation summary",
           "event": [
             {
@@ -7404,6 +7696,112 @@
           "response": []
         },
         {
+          "name": "Model endpoint health history",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [200]', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('the validation above is recorded', function () { const j = pm.response.json(); pm.expect(j).to.be.an('array'); pm.expect(j.length).to.be.at.least(1); pm.expect(j[0].source).to.eql('Validate'); pm.expect(j[0].modelEndpointId).to.eql(pm.collectionVariables.get('modelEndpointId')); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/model-endpoints/{{modelEndpointId}}/health-history?maxResults=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "model-endpoints",
+                "{{modelEndpointId}}",
+                "health-history"
+              ],
+              "query": [
+                {
+                  "key": "maxResults",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Recent health checks of the endpoint, newest first: each `validate` (source Validate) and each background sweep (source Sweep). `maxResults` is 1 to 1000, default 50.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List model endpoints by kind and provider",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [200]', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('only OpenAICompatible inference endpoints', function () { const j = pm.response.json(); pm.expect(j.totalRecords).to.be.at.least(1); j.objects.forEach(function (m) { pm.expect(m.kind).to.eql('Inference'); pm.expect(m.provider).to.eql('OpenAICompatible'); }); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/model-endpoints?kind=Inference&provider=OpenAICompatible",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "model-endpoints"
+              ],
+              "query": [
+                {
+                  "key": "kind",
+                  "value": "Inference"
+                },
+                {
+                  "key": "provider",
+                  "value": "OpenAICompatible"
+                }
+              ]
+            },
+            "description": "Filter model endpoints with `kind` (Inference, Embedding), `provider`, and `health` (Healthy, Unhealthy, Unknown).",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "List provider models",
           "event": [
             {
@@ -7421,8 +7819,8 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('status is one of [200, 500, 502]', function () {",
-                  "    pm.expect([200, 500, 502]).to.include(pm.response.code);",
+                  "pm.test('status is one of [200]', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
                   "});"
                 ]
               }
@@ -7444,7 +7842,7 @@
                 "models"
               ]
             },
-            "description": "Models the provider offers (Ollama, OpenAI, OpenAI-compatible, Anthropic, Gemini). Known issue in 0.1.0-alpha: an unreachable provider answers 500 instead of 502.",
+            "description": "Models the provider offers. A provider that cannot be reached answers 502 `ProviderUnreachable` (or `ProviderTimeout`); this request runs only when `modelBaseUrl` points at a reachable endpoint.",
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -11400,6 +11798,71 @@
           "response": []
         },
         {
+          "name": "An include cycle is refused",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [400]', function () {",
+                  "    pm.expect([400]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('names the cycle', function () { const j = pm.response.json(); pm.expect(j.code).to.eql('ValidationFailed'); pm.expect(j.fields.content).to.include('persona.neutral > persona.neutral'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/prompt-templates/persona.neutral?layer=Tenant",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "prompt-templates",
+                "persona.neutral"
+              ],
+              "query": [
+                {
+                  "key": "layer",
+                  "value": "Tenant"
+                }
+              ]
+            },
+            "description": "A save whose includes (`{{> key}}`) would form a cycle, directly or through other templates, is refused with 400 `ValidationFailed`; `message` and `fields.content` name the cycle.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Neutral persona. {{> persona.neutral}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "List stored templates (tenant-scoped)",
           "event": [
             {
@@ -12111,6 +12574,161 @@
           "response": []
         },
         {
+          "name": "Create a bearer token secret",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [201]', function () {",
+                  "    pm.expect([201]).to.include(pm.response.code);",
+                  "});",
+                  "let j = null;",
+                  "try { j = pm.response.json(); } catch (e) { j = null; }",
+                  "try { const v = (j.id); if (v !== undefined && v !== null && v !== '') { pm.collectionVariables.set('bearerSecretId', v); } } catch (e) { }",
+                  "pm.test('kind is BearerToken', function () { pm.expect(pm.response.json().kind).to.eql('BearerToken'); pm.expect(pm.response.json().fields).to.eql(['token']); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/secrets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "secrets"
+              ]
+            },
+            "description": "A `BearerToken` secret (field `token`) is sent exactly as `Authorization: Bearer <token>` by the slots that accept it (HTTP and observability bearer auth, Kubernetes service account tokens, MCP and A2A connectors, model endpoint API keys). Use `ApiToken` for a token a service expects in its own header (D-049).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"demo-bearer-token\",\n  \"kind\": \"BearerToken\",\n  \"description\": \"Bearer token for an internal API\",\n  \"values\": {\n    \"token\": \"not-a-real-bearer-token-0123456789\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List secrets by kind",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [200]', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('only BearerToken secrets', function () { const j = pm.response.json(); pm.expect(j.totalRecords).to.be.at.least(1); j.objects.forEach(function (s) { pm.expect(s.kind).to.eql('BearerToken'); }); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/secrets?kind=BearerToken",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "secrets"
+              ],
+              "query": [
+                {
+                  "key": "kind",
+                  "value": "BearerToken"
+                }
+              ]
+            },
+            "description": "Filter secrets by `kind` (Password, PrivateKey, ApiToken, BearerToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, Generic).",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete the bearer token secret",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [204]', function () {",
+                  "    pm.expect([204]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/secrets/{{bearerSecretId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "secrets",
+                "{{bearerSecretId}}"
+              ]
+            },
+            "description": "Delete a secret no resource or model endpoint references.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Read a secret",
           "event": [
             {
@@ -12164,7 +12782,8 @@
                 "exec": [
                   "pm.test('status is one of [200]', function () {",
                   "    pm.expect([200]).to.include(pm.response.code);",
-                  "});"
+                  "});",
+                  "pm.test('omitted name and kind are kept', function () { const j = pm.response.json(); pm.expect(j.name).to.eql('demo-api-token'); pm.expect(j.kind).to.eql('ApiToken'); });"
                 ]
               }
             }
@@ -12189,10 +12808,10 @@
                 "{{secretId}}"
               ]
             },
-            "description": "Change name, description, or expiry. In 0.1.0-alpha the body must repeat `name` and `kind` (the kind cannot change); values are ignored here.",
+            "description": "Change name, description, or expiry. The update is partial: omitted fields (here `name` and `kind`) keep their values. Values change only through `/values`.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"demo-api-token\",\n  \"kind\": \"ApiToken\",\n  \"description\": \"Example token, rotated quarterly\",\n  \"expiresUtc\": \"2027-01-01T00:00:00Z\"\n}",
+              "raw": "{\n  \"description\": \"Example token, rotated quarterly\",\n  \"expiresUtc\": \"2027-01-01T00:00:00Z\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -12412,7 +13031,7 @@
             "description": "Re-enter the password on the current session. Required within `Secrets.RevealReauthMinutes` before revealing a secret. Rate limited like the other token routes.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"password\": \"{{newPassword}}\"\n}",
+              "raw": "{\n  \"password\": \"{{currentPassword}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -12686,7 +13305,7 @@
             "description": "Tenant-scoped metadata update.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"demo-db-password\",\n  \"kind\": \"Password\",\n  \"description\": \"Read-only login for the demo database\"\n}",
+              "raw": "{\n  \"description\": \"Read-only login for the demo database\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -13003,7 +13622,8 @@
                   "const h = (name) => pm.response.headers.get(name);",
                   "try { const v = (j.credential.id); if (v !== undefined && v !== null && v !== '') { pm.collectionVariables.set('credentialId', v); } } catch (e) { }",
                   "try { const v = (j.accessKey); if (v !== undefined && v !== null && v !== '') { pm.collectionVariables.set('accessKey', v); } } catch (e) { }",
-                  "try { const v = (j.secretKey); if (v !== undefined && v !== null && v !== '') { pm.collectionVariables.set('secretKey', v); } } catch (e) { }"
+                  "try { const v = (j.secretKey); if (v !== undefined && v !== null && v !== '') { pm.collectionVariables.set('secretKey', v); } } catch (e) { }",
+                  "pm.test('no inherited bypass by default', function () { pm.expect(pm.response.json().credential.inheritOwnerBypass).to.eql(false); });"
                 ]
               }
             }
@@ -13029,7 +13649,7 @@
                 "credentials"
               ]
             },
-            "description": "Create a credential for a user (default: the caller), bound to the `Hugo` profile. `roleName` narrows it to a built-in or custom role; a credential can never exceed its owner. The secret key appears only in this response and is captured as `{{secretKey}}`.",
+            "description": "Create a credential for a user (default: the caller), bound to the `Hugo` profile. `roleName` gives it its permissions through a scope assignment: a credential does not inherit its owner's administrator bypass, so one without a role is denied every route. A credential can never exceed its owner. The secret key appears only in this response and is captured as `{{secretKey}}`.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"claude-code\",\n  \"authMode\": \"Hybrid\",\n  \"agentProfileId\": \"{{profileId}}\",\n  \"lockToProfile\": false,\n  \"roleName\": \"Operator\"\n}",
@@ -13463,6 +14083,542 @@
               ]
             },
             "description": "The same document under the mandated path.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create a credential without a role",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [201]', function () {",
+                  "    pm.expect([201]).to.include(pm.response.code);",
+                  "});",
+                  "let j = null;",
+                  "try { j = pm.response.json(); } catch (e) { j = null; }",
+                  "try { const v = (j.credential.id); if (v !== undefined && v !== null && v !== '') { pm.collectionVariables.set('noRoleCredentialId', v); } } catch (e) { }",
+                  "try { const v = (j.accessKey); if (v !== undefined && v !== null && v !== '') { pm.collectionVariables.set('noRoleAccessKey', v); } } catch (e) { }",
+                  "try { const v = (j.secretKey); if (v !== undefined && v !== null && v !== '') { pm.collectionVariables.set('noRoleSecretKey', v); } } catch (e) { }",
+                  "pm.test('inheritOwnerBypass is false', function () { pm.expect(pm.response.json().credential.inheritOwnerBypass).to.eql(false); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/tenants/{{tenantId}}/credentials",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "tenants",
+                "{{tenantId}}",
+                "credentials"
+              ]
+            },
+            "description": "A credential created without `roleName` has no scope assignment, and since credentials do not inherit their owner's tenant administrator bypass, it can do nothing yet.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"no-role-example\",\n  \"authMode\": \"DirectHeader\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "A credential without a role is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [403]', function () {",
+                  "    pm.expect([403]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('AuthorizationDenied', function () { pm.expect(pm.response.json().code).to.eql('AuthorizationDenied'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-access-key",
+                "value": "{{noRoleAccessKey}}"
+              },
+              {
+                "key": "x-secret-key",
+                "value": "{{noRoleSecretKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/resources",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "resources"
+              ]
+            },
+            "description": "The credential without a role gets 403 on every route, even though its owner is a tenant administrator.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Opt a credential into its owner's bypass",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [200]', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('inheritOwnerBypass is true', function () { pm.expect(pm.response.json().inheritOwnerBypass).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/tenants/{{tenantId}}/credentials/{{noRoleCredentialId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "tenants",
+                "{{tenantId}}",
+                "credentials",
+                "{{noRoleCredentialId}}"
+              ]
+            },
+            "description": "Only a signed-in tenant or system administrator can set `inheritOwnerBypass`; the change is audited as `CredentialBypassChanged`. With it, the credential carries its owner's tenant administrator bypass.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"inheritOwnerBypass\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "The credential now carries the bypass",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [200]', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-access-key",
+                "value": "{{noRoleAccessKey}}"
+              },
+              {
+                "key": "x-secret-key",
+                "value": "{{noRoleSecretKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/resources",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "resources"
+              ]
+            },
+            "description": "The same call now succeeds.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "A credential cannot change its own bypass",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [403]', function () {",
+                  "    pm.expect([403]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('BypassRequiresAdministrator', function () { pm.expect(pm.response.json().code).to.eql('BypassRequiresAdministrator'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-access-key",
+                "value": "{{noRoleAccessKey}}"
+              },
+              {
+                "key": "x-secret-key",
+                "value": "{{noRoleSecretKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/tenants/{{tenantId}}/credentials/{{noRoleCredentialId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "tenants",
+                "{{tenantId}}",
+                "credentials",
+                "{{noRoleCredentialId}}"
+              ]
+            },
+            "description": "A credential, even one that carries the bypass, can never set or clear `inheritOwnerBypass`: 403 `BypassRequiresAdministrator`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"inheritOwnerBypass\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Audit records of bypass changes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [200]', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('the opt-in is audited', function () { pm.expect(pm.response.json().totalCount).to.be.at.least(1); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/tenants/{{tenantId}}/audit?eventType=CredentialBypassChanged&pageSize=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "tenants",
+                "{{tenantId}}",
+                "audit"
+              ],
+              "query": [
+                {
+                  "key": "eventType",
+                  "value": "CredentialBypassChanged"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Every change of `inheritOwnerBypass` writes a `CredentialBypassChanged` audit record naming the credential and its owner's flags.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete the credential without a role",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [204]', function () {",
+                  "    pm.expect([204]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/tenants/{{tenantId}}/credentials/{{noRoleCredentialId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "tenants",
+                "{{tenantId}}",
+                "credentials",
+                "{{noRoleCredentialId}}"
+              ]
+            },
+            "description": "Clean up the example credential.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create a SessionExchange credential",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [201]', function () {",
+                  "    pm.expect([201]).to.include(pm.response.code);",
+                  "});",
+                  "let j = null;",
+                  "try { j = pm.response.json(); } catch (e) { j = null; }",
+                  "try { const v = (j.credential.id); if (v !== undefined && v !== null && v !== '') { pm.collectionVariables.set('exchangeCredentialId', v); } } catch (e) { }",
+                  "try { const v = (j.accessKey); if (v !== undefined && v !== null && v !== '') { pm.collectionVariables.set('exchangeAccessKey', v); } } catch (e) { }",
+                  "try { const v = (j.secretKey); if (v !== undefined && v !== null && v !== '') { pm.collectionVariables.set('exchangeSecretKey', v); } } catch (e) { }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/tenants/{{tenantId}}/credentials",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "tenants",
+                "{{tenantId}}",
+                "credentials"
+              ]
+            },
+            "description": "A SessionExchange credential sends its keys only to `POST /v1.0/token` and uses the session token it gets back.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"session-exchange-example\",\n  \"authMode\": \"SessionExchange\",\n  \"roleName\": \"Viewer\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "SessionExchange keys are refused outside the token route",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [401]', function () {",
+                  "    pm.expect([401]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-access-key",
+                "value": "{{exchangeAccessKey}}"
+              },
+              {
+                "key": "x-secret-key",
+                "value": "{{exchangeSecretKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/resources",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "resources"
+              ]
+            },
+            "description": "Its keys answer 401 on any route other than `POST /v1.0/token`.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete the SessionExchange credential",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [204]', function () {",
+                  "    pm.expect([204]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/tenants/{{tenantId}}/credentials/{{exchangeCredentialId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "tenants",
+                "{{tenantId}}",
+                "credentials",
+                "{{exchangeCredentialId}}"
+              ]
+            },
+            "description": "Clean up the example credential.",
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -14559,7 +15715,8 @@
                 "exec": [
                   "pm.test('status is one of [200]', function () {",
                   "    pm.expect([200]).to.include(pm.response.code);",
-                  "});"
+                  "});",
+                  "pm.test('sessions carry principalName', function () { pm.response.json().objects.forEach(function (s) { pm.expect(s).to.have.property('principalName'); }); });"
                 ]
               }
             }
@@ -14624,6 +15781,60 @@
               ]
             },
             "description": "The tenant-scoped twin.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List sessions of a credential",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [200]', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('credential sessions with principalName', function () { const j = pm.response.json(); pm.expect(j.totalRecords).to.be.at.least(1); j.objects.forEach(function (s) { pm.expect(s.principalType).to.eql('Credential'); pm.expect(s.credentialId).to.eql(pm.collectionVariables.get('credentialId')); pm.expect(s.principalName).to.be.a('string'); }); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/sessions?principalType=Credential&credentialId={{credentialId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "sessions"
+              ],
+              "query": [
+                {
+                  "key": "principalType",
+                  "value": "Credential"
+                },
+                {
+                  "key": "credentialId",
+                  "value": "{{credentialId}}"
+                }
+              ]
+            },
+            "description": "Filter sessions with `principalType` (Administrator, User, Credential), `userId`, and `credentialId`. Each session carries `principalName`: the user's email or the credential's name.",
             "auth": {
               "type": "bearer",
               "bearer": [
