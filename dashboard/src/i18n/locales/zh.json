@@ -1,0 +1,3475 @@
+{
+  "common": {
+    "fieldCodes": {
+      "ExpiryInPast": "请选择未来的时间。",
+      "SettingsFileReadOnly": "设置文件为只读，因此无法保存此更改。",
+      "OverriddenByEnvironment": "此值由环境变量设置，因此无法在此更改。",
+      "PathRequired": "需要设置路径。",
+      "UnknownSetting": "此服务器没有该设置。",
+      "TooLong": "此值过长。",
+      "NotAllowedValue": "请选择允许的值之一。",
+      "NotABoolean": "请选择 true 或 false。",
+      "NotAnInteger": "请输入整数。",
+      "OutOfRange": "值超出允许的范围。"
+    },
+    "appName": "Hugo",
+    "language": {
+      "label": "语言"
+    },
+    "theme": {
+      "switchToLight": "切换到浅色主题",
+      "switchToDark": "切换到深色主题"
+    },
+    "actions": {
+      "apply": "应用",
+      "back": "返回",
+      "cancel": "取消",
+      "clear": "清除",
+      "clone": "克隆",
+      "close": "关闭",
+      "confirm": "确认",
+      "copied": "已复制",
+      "copy": "复制",
+      "delete": "删除",
+      "duplicate": "复制一份",
+      "edit": "编辑",
+      "hide": "隐藏值",
+      "logout": "退出登录",
+      "next": "下一步",
+      "openGithub": "在 GitHub 上打开 Hugo 仓库（AgentSmith）",
+      "remove": "移除",
+      "retry": "重试",
+      "reveal": "显示值",
+      "save": "保存",
+      "view": "查看",
+      "viewDetails": "查看详情",
+      "viewJson": "查看 JSON",
+      "dismiss": "关闭"
+    },
+    "boolean": {
+      "yes": "是",
+      "no": "否"
+    },
+    "confirm": {
+      "deleteNamed": "删除“{{name}}”？此操作无法撤销。",
+      "bulkDelete": "删除所选的 {{count}} 条记录？此操作无法撤销。"
+    },
+    "errors": {
+      "listItem": "第 {{index}} 项：{{message}}",
+      "chooseOne": "请至少选择一个选项。",
+      "fixFields": "部分字段需要处理，请检查突出显示的值。",
+      "invalidEmail": "请输入有效的电子邮件地址。",
+      "invalidJson": "这不是有效的 JSON。",
+      "loadFailed": "数据加载失败。",
+      "requestId": "请求 {{id}}。",
+      "required": "此字段为必填项。",
+      "requiredPermission": "需要对 {{resource}} 拥有 {{permission}} 权限。",
+      "title": "请求失败",
+      "status": "HTTP {{status}}",
+      "requestIdLabel": "请求 ID",
+      "traceIdLabel": "跟踪 ID"
+    },
+    "generic": {
+      "deletedName": "{{name}}（已删除）",
+      "actions": "操作",
+      "active": "启用",
+      "all": "全部",
+      "any": "任意",
+      "builtIn": "内置",
+      "custom": "自定义",
+      "inactive": "停用",
+      "loading": "加载中...",
+      "never": "从不",
+      "none": "无",
+      "notAvailable": "不适用",
+      "saving": "保存中...",
+      "default": "默认",
+      "disabled": "已禁用",
+      "enabled": "已启用",
+      "lockdown": "锁定",
+      "locked": "已锁定",
+      "required": "必填"
+    },
+    "relativeTime": {
+      "now": "刚刚"
+    },
+    "states": {
+      "forbiddenTitle": "你无权访问此页面",
+      "forbiddenBody": "请向管理员申请可授予访问权限的角色，或选择其他页面。",
+      "notExposedTitle": "此服务器尚不支持{{feature}}",
+      "notExposedBody": "控制台已支持{{feature}}，但此 Hugo 服务器尚未提供所需的路由。服务器提供后即可在此使用，本页面无需任何更改。",
+      "notExposedEndpoint": "控制台调用的路由："
+    },
+    "toasts": {
+      "bulkDeleted": "已删除 {{count}} 条记录（{{failed}} 条失败）。",
+      "cloned": "已克隆。",
+      "created": "已创建。",
+      "deleted": "已删除。",
+      "saved": "已保存。"
+    },
+    "units": {
+      "msShort": "毫秒",
+      "sShort": "秒",
+      "mShort": "分钟"
+    },
+    "tagline": "Agent Smith 随时为你效劳",
+    "serverText": {
+      "valueClamped": "{{field}} 的值 {{given}} 超出允许范围 {{minimum}} 到 {{maximum}}，已保存 {{stored}}。",
+      "approvalWaitingExpires": "正在等待有人批准 {{subject}}；审批 {{id}} 将于 {{expires}} 过期。",
+      "approvalWaiting": "正在等待有人批准 {{subject}}；审批 {{id}}。",
+      "inUse": "{{what}} 仍被 {{users}} 使用。请先移除这些引用。"
+    }
+  },
+  "errorCodes": {
+    "ApprovalNotPending": "此审批已处理或已过期，无法再次处理。",
+    "TenantNotFound": "该租户不存在。请检查租户 ID。",
+    "NetworkError": "无法连接到服务器。请检查服务器 URL，并确认服务器正在运行。",
+    "AuthenticationRequired": "你的会话已过期，请重新登录。",
+    "InvalidCredentials": "租户、电子邮件、密码或密钥不正确。",
+    "RateLimited": "登录尝试次数过多，请等待一分钟后重试。",
+    "AuthorizationDenied": "你无权执行此操作。",
+    "NotFound": "未找到该记录。",
+    "RouteNotFound": "此服务器尚不支持该端点。",
+    "ValidationFailed": "部分值无效。",
+    "InvalidBody": "请求正文无效。",
+    "InvalidJson": "请求正文不是有效的 JSON。",
+    "Conflict": "与现有记录冲突。",
+    "BuiltInImmutable": "内置记录无法修改。请克隆后再自定义。",
+    "Protected": "此记录受保护，无法删除。",
+    "InternalError": "服务器发生内部错误。请使用请求 ID 查看服务器日志。",
+    "Http400": "请求被视为无效而遭拒绝。",
+    "Http403": "你无权执行此操作。",
+    "Http404": "未找到。",
+    "Http409": "与当前状态冲突。",
+    "Http500": "服务器发生内部错误。",
+    "Http503": "服务器不可用。",
+    "ConversationBusy": "此对话仍在处理上一轮。请等待其完成或将其停止，然后重试。",
+    "ApprovalExpired": "此审批在有人处理之前已过期。",
+    "ReauthenticationRequired": "显示密钥前请重新输入密码。",
+    "SecretInUse": "此密钥仍被资源或模型端点使用。请先移除这些引用。",
+    "ResourceInUse": "此资源仍绑定到配置文件。请先移除绑定。",
+    "LockdownActive": "租户已锁定，仅允许读取调用。",
+    "ConnectorNotFound": "此服务器没有该类型的连接器。可能有插件加载失败。",
+    "ProfileNotExposed": "此配置文件未在该接口上公开。",
+    "NoInferenceEndpoint": "此配置文件没有推理模型，因此 Hugo 无法为其运行自己的智能体循环。"
+  },
+  "enums": {
+    "principalType": {
+      "Administrator": "系统管理员",
+      "User": "用户",
+      "Credential": "凭据"
+    },
+    "credentialAuthMode": {
+      "DirectHeader": "直接请求头",
+      "SignedRequest": "签名请求",
+      "SessionExchange": "换取会话令牌",
+      "Hybrid": "任意方式"
+    },
+    "operationType": {
+      "All": "全部",
+      "Create": "创建",
+      "Read": "读取",
+      "Write": "写入（创建、更新、删除）",
+      "Update": "更新",
+      "Delete": "删除",
+      "Execute": "执行",
+      "Admin": "管理",
+      "Reveal": "显示"
+    },
+    "promptTemplateKind": {
+      "System": "系统",
+      "Task": "任务",
+      "Fragment": "片段",
+      "ToolDescription": "工具描述",
+      "ConfigFile": "配置文件",
+      "Other": "其他"
+    },
+    "permissionType": {
+      "Permit": "允许",
+      "Deny": "拒绝"
+    },
+    "resourceScope": {
+      "Tenant": "租户",
+      "Resource": "资源"
+    },
+    "resourceType": {
+      "All": "全部",
+      "Tenant": "租户",
+      "Admin": "系统管理",
+      "User": "用户",
+      "Credential": "凭据",
+      "Session": "会话",
+      "Role": "角色",
+      "Permission": "权限",
+      "Assignment": "分配",
+      "Audit": "审计",
+      "Settings": "设置",
+      "Secret": "机密",
+      "Resource": "资源",
+      "Connector": "连接器",
+      "AgentProfile": "智能体配置",
+      "Binding": "绑定",
+      "PromptTemplate": "提示词模板",
+      "ModelEndpoint": "模型端点",
+      "Conversation": "对话",
+      "ToolInvocation": "工具调用",
+      "Approval": "审批",
+      "RequestHistory": "请求历史",
+      "Knowledge": "知识",
+      "Plugin": "插件",
+      "Analytics": "分析"
+    },
+    "auditEventType": {
+      "AuthSuccess": "登录成功",
+      "AuthFailure": "登录失败",
+      "SessionIssued": "已签发会话",
+      "SessionRevoked": "已吊销会话",
+      "CredentialCreated": "已创建访问密钥",
+      "CredentialRotated": "已轮换访问密钥",
+      "CredentialUsed": "已使用访问密钥",
+      "AuthorizationDenied": "访问被拒绝",
+      "AuthorizationBypass": "已绕过访问检查",
+      "RoleChanged": "角色已更改",
+      "AssignmentChanged": "分配已更改",
+      "SecretCreated": "密钥已创建",
+      "SecretUpdated": "密钥已更新",
+      "SecretRevealed": "密钥已显示",
+      "SecretDeleted": "密钥已删除",
+      "MasterKeyRotated": "主密钥已轮换",
+      "ResourceChanged": "资源已更改",
+      "ProfileChanged": "配置文件已更改",
+      "BindingChanged": "绑定已更改",
+      "PromptTemplateChanged": "提示模板已更改",
+      "ApprovalDecided": "审批已决定",
+      "LockdownChanged": "锁定状态已更改",
+      "SettingsChanged": "设置已更改",
+      "ServerRestarted": "服务器已重启",
+      "PluginLoaded": "插件已加载",
+      "HostKeyPinned": "SSH 主机密钥已固定",
+      "HostKeyMismatch": "SSH 主机密钥不匹配"
+    },
+    "secretKind": {
+      "Password": "密码",
+      "PrivateKey": "私钥",
+      "ApiToken": "API 令牌",
+      "AccessKeyPair": "访问密钥对",
+      "ServiceAccountJson": "服务账号 JSON",
+      "Kubeconfig": "Kubeconfig",
+      "ConnectionString": "连接字符串",
+      "Certificate": "证书",
+      "Generic": "通用密钥"
+    },
+    "effect": {
+      "Read": "读取",
+      "Write": "写入",
+      "Destructive": "破坏性"
+    },
+    "accessMode": {
+      "ReadOnly": "只读",
+      "ReadWriteWithApproval": "读写（需审批）",
+      "ReadWrite": "读写"
+    },
+    "connectorCategory": {
+      "Compute": "计算",
+      "Storage": "存储",
+      "Database": "数据库",
+      "Logging": "日志",
+      "Cache": "缓存",
+      "Cloud": "云",
+      "Orchestration": "编排",
+      "Observability": "可观测性",
+      "Http": "HTTP API",
+      "Agent": "智能体",
+      "Other": "其他"
+    },
+    "settingValueKind": {
+      "String": "文本",
+      "Text": "长文本",
+      "Integer": "整数",
+      "Boolean": "真或假",
+      "StringList": "列表",
+      "Enum": "选项之一"
+    },
+    "approvalStatus": {
+      "Pending": "待处理",
+      "Approved": "已批准",
+      "Rejected": "已拒绝",
+      "Expired": "已过期",
+      "Cancelled": "已取消"
+    },
+    "toolDecision": {
+      "Allowed": "已允许",
+      "Denied": "已拒绝",
+      "ApprovalRequired": "需要审批",
+      "Approved": "已批准",
+      "Rejected": "已驳回",
+      "Expired": "已过期"
+    },
+    "toolStatus": {
+      "Succeeded": "成功",
+      "Failed": "失败",
+      "TimedOut": "超时",
+      "Cancelled": "已取消"
+    },
+    "surface": {
+      "Chat": "聊天",
+      "Mcp": "MCP",
+      "A2A": "A2A",
+      "OpenAI": "OpenAI 兼容",
+      "Rest": "REST"
+    },
+    "conversationSource": {
+      "Dashboard": "控制台",
+      "A2A": "A2A",
+      "OpenAI": "OpenAI 兼容",
+      "Mcp": "MCP"
+    },
+    "visibility": {
+      "Private": "私有",
+      "Tenant": "租户"
+    },
+    "instructionMode": {
+      "Inherit": "继承",
+      "Append": "追加",
+      "Replace": "替换"
+    },
+    "toolRule": {
+      "Allow": "允许",
+      "Deny": "拒绝",
+      "RequireApproval": "需要审批"
+    },
+    "modelKind": {
+      "Inference": "推理",
+      "Embedding": "嵌入"
+    },
+    "modelProvider": {
+      "Ollama": "Ollama",
+      "OpenAI": "OpenAI",
+      "OpenAICompatible": "OpenAI 兼容",
+      "Anthropic": "Anthropic",
+      "Gemini": "Gemini",
+      "AzureOpenAI": "Azure OpenAI",
+      "Bedrock": "Amazon Bedrock",
+      "VertexAI": "Vertex AI",
+      "VoyageAI": "Voyage AI"
+    },
+    "healthStatus": {
+      "Healthy": "健康",
+      "Degraded": "降级",
+      "Unhealthy": "不健康",
+      "Unknown": "未检查"
+    },
+    "promptLayer": {
+      "BuiltIn": "内置",
+      "Global": "全局默认",
+      "Tenant": "租户"
+    }
+  },
+  "login": {
+    "title": "登录 Hugo",
+    "subtitle": "Agent Smith 正在等你，Mr. Anderson。",
+    "tabs": {
+      "password": "电子邮件和密码",
+      "accessKey": "访问密钥"
+    },
+    "serverUrl": "服务器 URL",
+    "tenantId": "租户 ID",
+    "email": "电子邮件",
+    "password": "密码",
+    "accessKey": "访问密钥",
+    "secretKey": "私密密钥",
+    "submit": "登录",
+    "connecting": "正在登录...",
+    "restoring": "正在恢复你的会话...",
+    "errorGeneric": "无法登录。请检查服务器 URL 和你的凭据。",
+    "footerHint": "Hugo 以加密方式存储你各系统的凭据，并让智能体安全地使用它们。",
+    "tenant": "租户",
+    "tenantFound": "正在登录租户 {{name}}。",
+    "unreachable": "无法连接到位于 {{url}} 的 Hugo 服务器。请检查服务器 URL，并确认服务器正在运行。",
+    "badCredentials": "电子邮件、密码或租户不正确。",
+    "defaultsHint": "本地默认账号：{{email}}，密码为“{{password}}”。系统会要求你修改密码。",
+    "useDefaults": "使用本地默认值"
+  },
+  "topbar": {
+    "tenant": "租户",
+    "switchTenant": "切换租户",
+    "copyServer": "复制服务器 URL",
+    "live": "实时",
+    "polling": "轮询",
+    "health": {
+      "healthy": "健康",
+      "unhealthy": "无法访问",
+      "unknown": "检查中"
+    },
+    "lockdown": {
+      "on": "已锁定",
+      "off": "锁定",
+      "banner": "租户锁定已开启：所有非读取调用都会被拒绝，待处理的审批已取消。",
+      "engageTitle": "锁定此租户？",
+      "engageBody": "在解除锁定之前，来自所有接口的写入或删除类工具调用都将被拒绝。待处理的审批将被取消。读取操作不受影响。",
+      "engage": "锁定",
+      "engaged": "租户锁定已开启。",
+      "liftTitle": "解除锁定？",
+      "liftBody": "写入和破坏性工具调用将重新被允许，但仍受各绑定的访问模式和审批约束。",
+      "lift": "解除锁定",
+      "lifted": "租户锁定已解除。"
+    }
+  },
+  "roles": {
+    "systemAdmin": "系统管理员",
+    "tenantAdmin": "租户管理员",
+    "user": "用户",
+    "credential": "访问密钥"
+  },
+  "components": {
+    "fieldWarnings": {
+      "title_one": "已保存，{{count}} 个值已调整",
+      "title_other": "已保存，{{count}} 个值已调整",
+      "body": "服务器已接受请求，但以下值的保存结果与提交的值不同。",
+      "dismiss": "关闭",
+      "codes": {
+        "ValueClamped": "值已限制在允许范围内"
+      }
+    },
+    "autoRefresh": {
+      "label": "自动刷新",
+      "none": "关闭",
+      "seconds_one": "每 {{count}} 秒",
+      "seconds_other": "每 {{count}} 秒"
+    },
+    "chart": {
+      "success": "成功",
+      "failure": "失败",
+      "total": "总计",
+      "avgDuration": "平均耗时",
+      "noData": "此时间范围内没有活动。",
+      "range": "时间范围",
+      "ranges": {
+        "hour": "最近 1 小时",
+        "day": "最近 1 天",
+        "week": "最近 1 周",
+        "month": "最近 1 个月",
+        "custom": "自定义"
+      }
+    },
+    "confirm": {
+      "title": "请确认",
+      "message": "确定要继续吗？"
+    },
+    "diff": {
+      "before": "修改前",
+      "after": "修改后"
+    },
+    "explainer": {
+      "about": "关于{{topic}}",
+      "dismiss": "隐藏此说明"
+    },
+    "export": {
+      "label": "导出",
+      "csv": "CSV（数据）",
+      "png": "PNG 图片",
+      "svg": "SVG 图片",
+      "json": "JSON（数据）",
+      "failed": "导出失败。{{message}}",
+      "tableTitle": "表格 {{table}}"
+    },
+    "filters": {
+      "allTenants": "所有租户",
+      "clear": "清除筛选条件",
+      "from": "开始",
+      "to": "结束",
+      "method": "方法",
+      "path": "路径包含",
+      "pathPlaceholder": "例如 /v1.0/api/tenants",
+      "searchName": "按名称搜索",
+      "status": "状态码",
+      "statusPlaceholder": "例如 404",
+      "tenant": "租户"
+    },
+    "form": {
+      "addItem": "添加项",
+      "addRow": "添加行",
+      "key": "键",
+      "value": "值",
+      "moveUp": "上移",
+      "moveDown": "下移",
+      "noItems": "暂无项目。",
+      "onePerLine": "每行一个值",
+      "steps": "表单步骤"
+    },
+    "permissions": {
+      "title": "有效权限",
+      "none": "没有任何授权。此主体只能使用绕过规则（如果有）。",
+      "source": "角色",
+      "type": "类型",
+      "resources": "资源类型",
+      "operations": "操作",
+      "scope": "范围"
+    },
+    "requestDetails": {
+      "title": "请求详情",
+      "metadata": "元数据",
+      "requestHeaders": "请求头",
+      "requestBody": "请求正文",
+      "responseHeaders": "响应头",
+      "responseBody": "响应正文",
+      "rawJson": "原始 JSON",
+      "truncated": "已截断（原始大小 {{bytes}} 字节）",
+      "empty": "无内容。",
+      "fields": {
+        "id": "请求 ID",
+        "method": "方法",
+        "path": "路径",
+        "url": "URL",
+        "status": "状态",
+        "duration": "耗时",
+        "createdUtc": "创建时间",
+        "completedUtc": "完成时间",
+        "sourceIp": "来源 IP",
+        "principal": "主体",
+        "tenant": "租户",
+        "user": "用户"
+      }
+    },
+    "secretOnce": {
+      "title": "请立即复制此密钥",
+      "warning": "密钥仅在此时显示一次。关闭前请将其妥善保存。",
+      "accessKey": "访问密钥",
+      "secretKey": "私密密钥",
+      "done": "我已保存",
+      "snippet": "Claude Code 的 MCP 配置",
+      "snippetHint": "将其粘贴到 MCP 客户端设置中，并将 HUGO_SECRET_KEY 设置为上方显示的密钥。"
+    },
+    "table": {
+      "bulkActions": "批量操作",
+      "bulkDelete": "删除所选项",
+      "clearSelection": "清除选择",
+      "empty": "没有可显示的记录。",
+      "first": "第一页",
+      "jump": "跳转到页",
+      "last": "最后一页",
+      "loading": "正在加载记录...",
+      "next": "下一页",
+      "noMatches": "没有符合当前筛选条件的记录。",
+      "pageOf": "第 {{page}} 页，共 {{total}} 页",
+      "pageSize": "每页",
+      "pinned": "始终显示",
+      "prev": "上一页",
+      "records_one": "条记录",
+      "records_other": "条记录",
+      "refresh": "刷新",
+      "selectAll": "选择本页所有行",
+      "selectColumns": "选择列",
+      "selected_one": "已选择 {{count}} 项",
+      "selected_other": "已选择 {{count}} 项",
+      "selectRow": "选择行",
+      "showing": "显示第 {{from}} 至 {{to}} 条"
+    },
+    "approvalCard": {
+      "title": "需要审批",
+      "approve": "批准",
+      "reject": "拒绝",
+      "note": "处理备注",
+      "notePlaceholder": "审计记录的可选备注",
+      "resource": "资源",
+      "tool": "工具",
+      "reason": "需要审批的原因：{{reason}}",
+      "expires": "如无人处理，将于 {{time}} 过期。",
+      "decided": "处理结果：{{status}}。",
+      "by": "处理人：{{name}}。",
+      "withNote": "备注：{{note}}"
+    },
+    "chat": {
+      "you": "你",
+      "assistant": "Agent Smith",
+      "thinking": "推理过程",
+      "waiting": "Agent Smith 正在思考...",
+      "stopped": "回答未完成即已停止。",
+      "streamError": "回答流传输失败。",
+      "ttft": "首个 token {{value}}",
+      "duration": "本轮 {{value}}",
+      "tokens": "Token：输入 {{input}}，输出 {{output}}",
+      "transcript": "对话记录",
+      "empty": "暂无消息。提出一个问题即可开始。",
+      "message": "消息",
+      "placeholder": "向 Agent Smith 提问。按 Enter 发送，Shift+Enter 换行。",
+      "send": "发送",
+      "stop": "停止"
+    },
+    "passwordChange": {
+      "title": "设置新密码",
+      "body": "此账号仍在使用初始密码或重置后的密码。请设置一个至少 {{min}} 个字符的新密码以继续。",
+      "current": "当前密码",
+      "new": "新密码",
+      "confirm": "确认新密码",
+      "submit": "修改密码",
+      "changed": "密码已修改。",
+      "tooShort": "请至少使用 {{min}} 个字符。",
+      "sameAsCurrent": "请选择与当前密码不同的密码。",
+      "mismatch": "两次输入的新密码不一致。"
+    },
+    "progress": {
+      "count": "{{done}} / {{total}}",
+      "deleting_one": "正在删除 {{count}} 条记录",
+      "deleting_other": "正在删除 {{count}} 条记录"
+    },
+    "promptEditor": {
+      "content": "模板文本",
+      "palette": "插入变量",
+      "used": "此文本中的变量",
+      "variables": "变量",
+      "noVariables": "此文本未使用变量。",
+      "preview": "预览",
+      "diff": "更改",
+      "sampleContext": "示例上下文（JSON）",
+      "rendered": "渲染结果",
+      "serverRender": "由服务器渲染",
+      "localRender": "在浏览器中渲染",
+      "previewEmpty": "模板渲染结果为空文本。",
+      "missing": "示例上下文中缺少：{{list}}",
+      "current": "当前文本",
+      "syntaxHint": "可使用 {{variable}}、{{variable | default: \"text\"}}、{{#if variable}}...{{/if}} 和 {{#each list}}...{{/each}}。"
+    },
+    "result": {
+      "succeeded": "成功。",
+      "failed": "失败。",
+      "latency": "耗时 {{value}}。"
+    },
+    "schemaForm": {
+      "noSettings": "此连接器没有设置项。",
+      "range": "允许范围：{{minimum}} 到 {{maximum}}。",
+      "groups": {
+        "General": "常规",
+        "Connection": "连接",
+        "Authentication": "身份验证",
+        "Limits": "限制",
+        "Advanced": "高级"
+      },
+      "errors": {
+        "Required": "此设置为必填项。",
+        "NotAnInteger": "请输入整数。",
+        "OutOfRange": "请输入 {{minimum}} 到 {{maximum}} 之间的值。",
+        "NotAllowedValue": "请从以下选项中选择：{{values}}。",
+        "PatternMismatch": "值的格式不符合要求。",
+        "TooLong": "最多使用 {{maximum}} 个字符。"
+      }
+    },
+    "secretField": {
+      "accepts": "接受：{{kinds}}。",
+      "anyKind": "任意类型的密钥",
+      "noneSelected": "未选择密钥",
+      "createInline": "新建密钥",
+      "saveInline": "保存密钥",
+      "import": "从文件导入",
+      "importNamed": "从文件导入{{field}}",
+      "replaceHint": "留空则保留已存储的值。",
+      "fields": {
+        "username": "用户名",
+        "password": "密码",
+        "privateKey": "私钥",
+        "passphrase": "密码短语",
+        "token": "令牌",
+        "accessKeyId": "访问密钥 ID",
+        "secretAccessKey": "秘密访问密钥",
+        "sessionToken": "会话令牌",
+        "json": "服务账号 JSON",
+        "kubeconfig": "Kubeconfig",
+        "connectionString": "连接字符串",
+        "certificate": "证书（PEM）",
+        "value": "值"
+      },
+      "file": {
+        "pem": "文件包含类型为 {{type}} 的 PEM 块。",
+        "serviceAccount": "项目 {{project}} 的服务账号（{{email}}）。",
+        "kubeconfig": "Kubeconfig 上下文：{{contexts}}。",
+        "kubeconfigNone": "此 kubeconfig 中未找到上下文。",
+        "invalidJson": "此文件不是有效的 JSON。"
+      }
+    },
+    "toolActivity": {
+      "arguments": "参数（已隐去密钥）",
+      "output": "输出预览",
+      "error": "错误",
+      "noArguments": "无参数。",
+      "noOutput": "暂无输出。",
+      "truncated": "输出已按绑定的限制截断。",
+      "effectReason": "分类依据：{{reason}}",
+      "status": {
+        "proposed": "已提议",
+        "running": "运行中",
+        "awaitingApproval": "等待审批"
+      }
+    }
+  },
+  "resources": {
+    "tenants": {
+      "title": "租户",
+      "subtitle": "此服务器上相互隔离的租户。除内置角色和全局默认值外，所有内容都只属于一个租户。",
+      "add": "添加租户",
+      "create": "创建租户",
+      "edit": "编辑租户",
+      "view": "租户详情",
+      "deleteTitle": "删除租户",
+      "emptyTitle": "暂无租户",
+      "emptyBody": "创建租户以隔离团队或客户。",
+      "columns": {
+        "name": "名称",
+        "id": "ID",
+        "description": "描述",
+        "active": "启用",
+        "createdUtc": "创建时间",
+        "region": "区域",
+        "lockdown": "锁定"
+      },
+      "fields": {
+        "name": "名称",
+        "description": "描述",
+        "active": "启用",
+        "region": "区域"
+      }
+    },
+    "users": {
+      "title": "用户",
+      "subtitle": "使用电子邮件和密码登录此租户的人员。",
+      "add": "添加用户",
+      "create": "创建用户",
+      "edit": "编辑用户",
+      "view": "用户详情",
+      "deleteTitle": "删除用户",
+      "emptyTitle": "暂无用户",
+      "emptyBody": "添加用户，以便相应人员登录此租户。",
+      "columns": {
+        "email": "电子邮件",
+        "name": "姓名",
+        "id": "ID",
+        "role": "角色",
+        "active": "启用",
+        "createdUtc": "创建时间"
+      },
+      "fields": {
+        "email": "电子邮件",
+        "password": "密码",
+        "firstName": "名",
+        "lastName": "姓",
+        "isTenantAdmin": "租户管理员",
+        "isAdmin": "系统管理员",
+        "active": "启用",
+        "mustChangePassword": "下次登录时必须修改密码"
+      },
+      "hints": {
+        "isAdmin": "系统管理员可以管理所有租户，并绕过所有授权检查。",
+        "password": "编辑时留空即可保留当前密码。"
+      },
+      "actions": {
+        "permissions": "有效权限",
+        "resetPassword": "重置密码",
+        "assignRole": "分配角色"
+      },
+      "passwordReset": "密码已重置。用户下次登录时必须修改密码。"
+    },
+    "credentials": {
+      "title": "访问密钥",
+      "subtitle": "供自动化脚本、SDK 和集成使用的访问密钥。私密密钥只显示一次。",
+      "add": "添加访问密钥",
+      "create": "创建访问密钥",
+      "edit": "编辑访问密钥",
+      "view": "访问密钥详情",
+      "deleteTitle": "删除访问密钥",
+      "emptyTitle": "暂无访问密钥",
+      "emptyBody": "创建访问密钥，以便脚本或服务调用 Hugo。",
+      "columns": {
+        "name": "名称",
+        "accessKey": "访问密钥",
+        "secretKeyLast4": "私密密钥",
+        "userId": "所有者",
+        "lastUsedUtc": "上次使用",
+        "expiresUtc": "过期时间",
+        "active": "启用",
+        "id": "ID",
+        "agentProfileId": "配置文件",
+        "lockToProfile": "已锁定"
+      },
+      "fields": {
+        "name": "名称",
+        "userId": "所有者",
+        "authMode": "身份验证模式",
+        "expiresUtc": "过期时间",
+        "active": "启用",
+        "agentProfileId": "绑定的配置文件",
+        "lockToProfile": "锁定到此配置文件"
+      },
+      "hints": {
+        "userId": "访问密钥的权限永远不会超过其所有者的权限。"
+      },
+      "actions": {
+        "rotate": "轮换私密密钥",
+        "scopes": "作用域分配"
+      }
+    },
+    "roles": {
+      "title": "角色",
+      "subtitle": "角色是权限的集合。内置角色为只读，如需自定义请先克隆。",
+      "add": "添加角色",
+      "create": "创建角色",
+      "edit": "编辑角色",
+      "view": "角色详情",
+      "deleteTitle": "删除角色",
+      "emptyTitle": "暂无角色",
+      "emptyBody": "创建自定义角色，或克隆内置角色。",
+      "columns": {
+        "name": "名称",
+        "description": "描述",
+        "isBuiltIn": "类型",
+        "active": "启用",
+        "id": "ID",
+        "createdUtc": "创建时间"
+      },
+      "fields": {
+        "name": "名称",
+        "description": "描述",
+        "active": "启用"
+      }
+    },
+    "permissions": {
+      "title": "权限",
+      "subtitle": "允许或拒绝对资源类型执行操作。拒绝始终优先。",
+      "add": "添加权限",
+      "create": "创建权限",
+      "edit": "编辑权限",
+      "view": "权限详情",
+      "deleteTitle": "删除权限",
+      "emptyTitle": "暂无权限",
+      "emptyBody": "创建权限并将其映射到角色。",
+      "columns": {
+        "name": "名称",
+        "permissionType": "类型",
+        "resourceTypes": "资源类型",
+        "operationTypes": "操作",
+        "isBuiltIn": "来源",
+        "id": "ID"
+      },
+      "fields": {
+        "name": "名称",
+        "permissionType": "类型",
+        "resourceTypes": "资源类型",
+        "operationTypes": "操作",
+        "active": "启用"
+      }
+    },
+    "userAssignments": {
+      "title": "用户分配",
+      "subtitle": "在租户或资源范围内向用户授予角色。",
+      "add": "添加用户分配",
+      "create": "创建用户分配",
+      "edit": "编辑用户分配",
+      "view": "用户分配详情",
+      "deleteTitle": "删除用户分配",
+      "emptyTitle": "暂无用户分配",
+      "emptyBody": "为用户分配角色。",
+      "columns": {
+        "userId": "用户",
+        "roleName": "角色",
+        "resourceScope": "范围",
+        "resourceId": "资源",
+        "active": "启用",
+        "createdUtc": "创建时间",
+        "id": "ID"
+      },
+      "fields": {
+        "userId": "用户",
+        "roleId": "角色",
+        "resourceScope": "范围",
+        "resourceId": "资源 ID",
+        "inheritsToChildren": "应用于租户内的资源",
+        "active": "启用"
+      }
+    },
+    "credentialAssignments": {
+      "title": "访问密钥分配",
+      "subtitle": "向访问密钥授予角色。访问密钥的权限应比其所有者更窄。",
+      "add": "添加访问密钥分配",
+      "create": "创建访问密钥分配",
+      "edit": "编辑访问密钥分配",
+      "view": "访问密钥分配详情",
+      "deleteTitle": "删除访问密钥分配",
+      "emptyTitle": "暂无访问密钥分配",
+      "emptyBody": "为访问密钥分配角色。",
+      "columns": {
+        "credentialId": "访问密钥",
+        "roleName": "角色",
+        "resourceScope": "范围",
+        "resourceId": "资源",
+        "active": "启用",
+        "createdUtc": "创建时间",
+        "id": "ID"
+      },
+      "fields": {
+        "credentialId": "访问密钥",
+        "roleId": "角色",
+        "resourceScope": "范围",
+        "resourceId": "资源 ID",
+        "inheritsToChildren": "应用于租户内的资源",
+        "active": "启用"
+      }
+    },
+    "promptTemplates": {
+      "deleteUnbound": "删除“{{name}}”及其所有版本？包含它的配置文件将回退到内置默认值。此操作无法撤销。",
+      "title": "提示词模板",
+      "subtitle": "Hugo 渲染的所有提示和配置文件。每次保存都会创建一个版本。",
+      "add": "新建模板",
+      "create": "创建模板",
+      "edit": "编辑模板",
+      "view": "模板详情",
+      "deleteTitle": "删除模板",
+      "emptyTitle": "暂无提示词模板",
+      "emptyBody": "创建模板，或克隆内置模板。",
+      "columns": {
+        "name": "名称",
+        "kind": "类别",
+        "currentVersion": "版本",
+        "description": "描述",
+        "isBuiltIn": "来源",
+        "id": "ID",
+        "lastUpdateUtc": "更新时间"
+      },
+      "fields": {
+        "name": "名称",
+        "kind": "类别",
+        "description": "描述"
+      }
+    },
+    "audit": {
+      "title": "审计",
+      "subtitle": "此租户的身份验证、授权和配置事件。",
+      "add": "添加审计记录",
+      "create": "创建审计记录",
+      "edit": "编辑审计记录",
+      "view": "审计记录详情",
+      "deleteTitle": "删除审计记录",
+      "emptyTitle": "暂无审计记录",
+      "emptyBody": "当人员和智能体使用 Hugo 时，安全事件会显示在这里。",
+      "columns": {
+        "createdUtc": "时间",
+        "eventType": "事件",
+        "principalName": "主体",
+        "resource": "资源",
+        "reason": "原因",
+        "sourceIp": "来源 IP",
+        "id": "ID"
+      },
+      "fields": {
+        "eventType": "事件",
+        "principalType": "主体类型",
+        "principalName": "主体",
+        "principalId": "主体 ID",
+        "resourceType": "资源类型",
+        "resourceId": "资源 ID",
+        "operation": "操作",
+        "method": "方法",
+        "path": "路径",
+        "authResult": "身份验证结果",
+        "authorizationResult": "授权结果",
+        "reason": "原因",
+        "bypassReason": "绕过原因",
+        "statusCode": "状态码",
+        "sourceIp": "来源 IP",
+        "requestId": "请求 ID",
+        "createdUtc": "时间"
+      }
+    },
+    "approvals": {
+      "approved": "已批准。调用正在运行。",
+      "rejected": "已拒绝。调用方会收到操作被拒绝的通知。",
+      "notPending": "此审批已处理或已过期。",
+      "bulkNote": "已从审批收件箱中批量拒绝。",
+      "bulkRejected_one": "已拒绝 {{count}} 个审批（{{failed}} 个失败）。",
+      "bulkRejected_other": "已拒绝 {{count}} 个审批（{{failed}} 个失败）。",
+      "title": "审批",
+      "subtitle": "等待人工处理的写入和破坏性工具调用。批准即运行，拒绝即驳回。",
+      "add": "添加审批",
+      "create": "创建审批",
+      "edit": "编辑审批",
+      "view": "审批详情",
+      "deleteTitle": "删除审批",
+      "emptyTitle": "暂无审批",
+      "emptyBody": "当前没有待处理项。智能体提出需要审批的调用后，会立即显示在这里和聊天中。",
+      "purpose": "审批收件箱存放需要人工处理的工具调用：破坏性调用，以及需要审批的绑定上的所有写入调用。",
+      "columns": {
+        "summary": "操作",
+        "effect": "影响",
+        "status": "状态",
+        "agentProfileId": "配置文件",
+        "requestedBy": "请求者",
+        "createdUtc": "请求时间",
+        "expiresUtc": "过期时间",
+        "decidedBy": "决定者",
+        "id": "ID"
+      },
+      "fields": {
+        "summary": "操作",
+        "effect": "影响",
+        "status": "状态",
+        "decisionNote": "处理备注",
+        "agentProfileId": "配置文件",
+        "fromUtc": "开始时间"
+      },
+      "actions": {
+        "decide": "批准或拒绝",
+        "invocation": "查看工具调用",
+        "bulkReject": "拒绝所选项"
+      }
+    },
+    "resources": {
+      "deleteReferenced_one": "{{name}} 已绑定到 {{count}} 个配置文件或端点。请先移除这些绑定；在仍被引用时，服务器会拒绝删除。",
+      "deleteReferenced_other": "{{name}} 已绑定到 {{count}} 个配置文件或端点。请先移除这些绑定；在仍被引用时，服务器会拒绝删除。",
+      "noReferrers": "尚未被任何对象使用。",
+      "referrerTypes": {
+        "profiles": "配置文件",
+        "bindings": "绑定",
+        "resources": "资源",
+        "modelEndpoints": "模型端点"
+      },
+      "title": "资源",
+      "subtitle": "连接到你的系统的配置，包含其设置和密钥。将其绑定到配置文件，即可让智能体使用。",
+      "add": "添加资源",
+      "create": "创建资源",
+      "edit": "编辑资源",
+      "view": "资源详情",
+      "deleteTitle": "删除资源",
+      "emptyTitle": "暂无资源",
+      "emptyBody": "添加 SSH 主机、存储桶、数据库或日志服务。每个表单都根据连接器的架构生成，并可在保存前进行测试。",
+      "purpose": "资源是已配置的真实系统连接：SSH 主机、S3 存储桶、PostgreSQL 数据库、Papertrail 账号。其密钥在 Hugo 中始终加密保存。",
+      "sections": {
+        "general": "常规",
+        "connector": "连接器"
+      },
+      "columns": {
+        "name": "名称",
+        "connectorType": "连接器",
+        "environment": "环境",
+        "endpoint": "端点",
+        "health": "健康状况",
+        "lastTestUtc": "上次测试",
+        "visibility": "可见性",
+        "id": "ID",
+        "createdUtc": "创建时间"
+      },
+      "fields": {
+        "name": "名称",
+        "displayName": "显示名称",
+        "environment": "环境",
+        "visibility": "可见性",
+        "defaultAccessModeCeiling": "允许的最高访问模式",
+        "endpoint": "端点摘要",
+        "description": "描述",
+        "notes": "给智能体的说明",
+        "connectorType": "连接器"
+      },
+      "hints": {
+        "notes": "会注入到绑定此资源的每个配置文件的指令中。",
+        "endpoint": "显示在列表和指令中，例如 web-01.example.com:22。"
+      },
+      "actions": {
+        "test": "测试连接",
+        "testTitle": "连接测试：{{name}}",
+        "tryTool": "试用工具",
+        "referrers": "使用位置",
+        "referrersTitle": "{{name}} 的使用位置"
+      }
+    },
+    "secrets": {
+      "deleteReferenced_one": "{{name}} 被 {{count}} 个资源或模型端点使用。在仍被引用时，服务器会拒绝删除。",
+      "deleteReferenced_other": "{{name}} 被 {{count}} 个资源或模型端点使用。在仍被引用时，服务器会拒绝删除。",
+      "expired": "已过期",
+      "expiringSoon": "即将过期",
+      "errors": {
+        "expiryPast": "请选择未来的时间。",
+        "noValues": "请至少填写一个要替换的值。"
+      },
+      "title": "机密",
+      "subtitle": "使用主密钥加密的密码、密钥、令牌和证书。除经过审计的显示操作外，值永远不会显示。",
+      "add": "添加机密",
+      "create": "创建机密",
+      "edit": "编辑机密",
+      "view": "机密详情",
+      "deleteTitle": "删除机密",
+      "emptyTitle": "暂无机密",
+      "emptyBody": "添加资源所需的凭据。你也可以在添加资源时直接创建。",
+      "purpose": "密钥库以加密方式（AES-256-GCM）存储凭据材料。资源和模型端点按槽位引用密钥；智能体永远看不到其值。",
+      "sections": {
+        "values": "值"
+      },
+      "columns": {
+        "name": "名称",
+        "kind": "类别",
+        "fingerprint": "指纹",
+        "referrerCount": "使用方",
+        "lastRotatedUtc": "上次轮换",
+        "expiresUtc": "过期时间",
+        "lastRevealedUtc": "上次显示",
+        "id": "ID",
+        "createdUtc": "创建时间"
+      },
+      "fields": {
+        "name": "名称",
+        "kind": "类别",
+        "description": "描述",
+        "expiresUtc": "过期时间"
+      },
+      "actions": {
+        "replaceValues": "替换值",
+        "reveal": "显示",
+        "referrers": "使用位置",
+        "referrersTitle": "{{name}} 的使用位置"
+      }
+    },
+    "toolInvocations": {
+      "openTrace": "在 Grafana 中打开跟踪",
+      "truncated": "已截断",
+      "title": "工具调用",
+      "subtitle": "来自所有接口的每一次工具调用：运行了什么、在哪个资源上、如何分类、如何处理以及最终结果。",
+      "add": "添加工具调用",
+      "create": "创建工具调用",
+      "edit": "编辑工具调用",
+      "view": "工具调用详情",
+      "deleteTitle": "删除工具调用",
+      "emptyTitle": "暂无工具调用",
+      "emptyBody": "智能体通过聊天、MCP、A2A、OpenAI 端点或 REST API 使用资源后，工具调用会立即显示在这里。",
+      "purpose": "工具调用是经过审计的记录，涵盖所有接口通过 Hugo 统一调用管道发起的每一次工具调用。",
+      "columns": {
+        "createdUtc": "时间",
+        "toolName": "工具",
+        "resourceId": "资源",
+        "effect": "影响",
+        "decision": "决定",
+        "status": "状态",
+        "durationMs": "时长",
+        "surface": "接口",
+        "agentProfileId": "配置文件",
+        "principalId": "主体",
+        "id": "ID"
+      },
+      "fields": {
+        "surface": "接口",
+        "effect": "影响",
+        "decision": "决定",
+        "status": "状态",
+        "agentProfileId": "配置文件",
+        "resourceId": "资源",
+        "toolName": "工具名称",
+        "principalId": "主体 ID",
+        "fromUtc": "开始时间",
+        "toUtc": "结束时间",
+        "accessMode": "访问模式",
+        "outputBytes": "输出大小",
+        "approvalId": "审批",
+        "traceId": "跟踪",
+        "argumentsRedacted": "参数（已隐去密钥）",
+        "outputPreview": "输出预览"
+      }
+    },
+    "models": {
+      "lastHealth": "上次健康检查 {{time}}：{{message}}",
+      "title": "模型端点",
+      "subtitle": "供 Hugo 自身智能体循环使用的推理和嵌入模型。聊天、A2A 和 OpenAI 兼容客户端需要推理模型。",
+      "add": "添加模型端点",
+      "create": "创建模型端点",
+      "edit": "编辑模型端点",
+      "view": "模型端点详情",
+      "deleteTitle": "删除模型端点",
+      "emptyTitle": "暂无模型端点",
+      "emptyBody": "聊天需要推理模型。请添加本地 Ollama 模型或托管服务商（如 OpenAI 或 Anthropic）。",
+      "purpose": "模型端点是 Hugo 智能体循环调用的推理和嵌入服务商：Ollama、OpenAI、Anthropic、Gemini、Azure OpenAI、Bedrock、Vertex 和 VoyageAI。",
+      "sections": {
+        "endpoint": "端点",
+        "capabilities": "能力",
+        "limits": "限制"
+      },
+      "columns": {
+        "name": "名称",
+        "kind": "类型",
+        "provider": "服务商",
+        "model": "模型",
+        "baseUrl": "基础 URL",
+        "healthStatus": "健康状况",
+        "lastHealthUtc": "上次检查",
+        "id": "ID"
+      },
+      "fields": {
+        "name": "名称",
+        "kind": "类型",
+        "provider": "服务商",
+        "baseUrl": "基础 URL",
+        "model": "模型",
+        "apiKey": "API 密钥",
+        "apiKeySecretId": "API 密钥（密钥库）",
+        "region": "区域",
+        "deploymentName": "部署名称",
+        "apiVersion": "API 版本",
+        "contextWindowTokens": "上下文窗口（token）",
+        "maxOutputTokens": "最大输出 token 数",
+        "embeddingDimensions": "嵌入维度",
+        "supportsTools": "支持工具调用",
+        "supportsStreaming": "支持流式传输",
+        "maxConcurrency": "最大并发请求数",
+        "timeoutSeconds": "超时（秒）",
+        "maxRetries": "最大重试次数"
+      },
+      "errors": {
+        "baseUrl": "请输入以 http:// 或 https:// 开头的 URL。"
+      },
+      "actions": {
+        "validate": "验证",
+        "validateTitle": "验证：{{name}}",
+        "listModels": "列出服务商模型",
+        "listModelsTitle": "{{name}} 提供的模型"
+      }
+    },
+    "knowledge": {
+      "allProfiles": "所有配置文件",
+      "title": "知识",
+      "subtitle": "关于你的技术栈的笔记，Hugo 会将其检索到上下文中，适用于单个配置文件、单个资源或所有配置文件。",
+      "add": "添加笔记",
+      "create": "创建笔记",
+      "edit": "编辑笔记",
+      "view": "笔记详情",
+      "deleteTitle": "删除笔记",
+      "emptyTitle": "暂无知识",
+      "emptyBody": "写下运维人员会告诉新同事的内容：哪些主机承载结账服务，什么时候不要重启支付服务。",
+      "purpose": "知识笔记是运维人员编写的关于技术栈的事实，会被嵌入并在对话中检索到上下文（里程碑 M2）。",
+      "columns": {
+        "title": "标题",
+        "agentProfileId": "配置文件",
+        "resourceId": "资源",
+        "lastUpdateUtc": "更新时间",
+        "id": "ID"
+      },
+      "fields": {
+        "title": "标题",
+        "agentProfileId": "配置文件",
+        "resourceId": "资源",
+        "content": "笔记"
+      }
+    },
+    "profiles": {
+      "noModel": "无模型",
+      "title": "智能体配置",
+      "subtitle": "每个配置文件就是一个智能体：包含角色、模型及其可使用的资源，可通过 MCP、A2A、REST、OpenAI 和聊天访问。",
+      "add": "添加配置文件",
+      "create": "创建配置文件",
+      "edit": "编辑配置文件",
+      "view": "配置文件详情",
+      "deleteTitle": "删除配置文件",
+      "emptyTitle": "暂无智能体配置",
+      "emptyBody": "创建一个配置文件，或从默认 Hugo 配置文件开始并为其绑定资源。",
+      "purpose": "智能体配置将角色（默认为 Agent Smith）、模型以及带访问模式的资源组合在一起。所有接口（MCP、A2A、REST、聊天）都与配置文件交互。",
+      "sections": {
+        "identity": "身份",
+        "models": "模型",
+        "limits": "限制",
+        "exposure": "公开方式"
+      },
+      "columns": {
+        "name": "配置文件",
+        "personaName": "角色",
+        "visibility": "可见性",
+        "inferenceEndpointId": "推理模型",
+        "bindingCount": "绑定",
+        "exposure": "公开接口",
+        "id": "ID",
+        "createdUtc": "创建时间"
+      },
+      "fields": {
+        "name": "名称",
+        "displayName": "显示名称",
+        "description": "描述",
+        "personaName": "角色名称",
+        "userAddress": "对用户的称呼",
+        "visibility": "可见性",
+        "inferenceEndpointId": "推理模型",
+        "fallbackInferenceEndpointId": "备用推理模型",
+        "embeddingEndpointId": "嵌入模型",
+        "maxIterations": "每轮最大迭代次数",
+        "maxToolCallsPerTurn": "每轮最大工具调用次数",
+        "toolTimeoutSeconds": "工具超时（秒）",
+        "temperature": "温度",
+        "exposeMcp": "通过 MCP 公开",
+        "exposeA2a": "通过 A2A 公开",
+        "exposeOpenai": "通过 OpenAI 兼容端点公开",
+        "exposeManagementTools": "公开管理工具",
+        "instructionsAppend": "附加指令"
+      },
+      "hints": {
+        "name": "可使用字母、数字、点、连字符和下划线。用于 /mcp/{name} 等 URL 中。"
+      },
+      "errors": {
+        "urlSafe": "请使用字母、数字、点、连字符和下划线，并以字母或数字开头。"
+      },
+      "actions": {
+        "chat": "与此配置文件聊天",
+        "duplicate": "复制一份"
+      }
+    },
+    "sessions": {
+      "revoked": "已撤销",
+      "title": "会话",
+      "subtitle": "此租户中的活动登录会话和令牌。撤销后该客户端会立即退出登录。",
+      "add": "添加会话",
+      "create": "创建会话",
+      "edit": "编辑会话",
+      "view": "会话详情",
+      "deleteTitle": "删除会话",
+      "emptyTitle": "暂无会话",
+      "emptyBody": "当前没有活动会话。登录或兑换访问密钥时会创建会话。",
+      "purpose": "会话是在登录或兑换访问密钥时签发的持有者令牌。撤销后会立即终止。",
+      "columns": {
+        "principalName": "主体",
+        "principalType": "类型",
+        "authScheme": "认证方式",
+        "sourceIp": "来源 IP",
+        "issuedUtc": "签发时间",
+        "lastUsedUtc": "上次使用",
+        "expiresUtc": "过期时间",
+        "revokedUtc": "状态",
+        "userAgent": "客户端",
+        "id": "ID"
+      },
+      "fields": {
+        "principalName": "主体",
+        "authScheme": "认证方式",
+        "sourceIp": "来源 IP",
+        "userAgent": "客户端",
+        "principalType": "主体类型",
+        "principalId": "主体 ID"
+      }
+    },
+    "conversations": {
+      "title": "对话",
+      "subtitle": "此租户中来自所有接口的对话。打开一个对话即可在聊天中继续。",
+      "add": "添加对话",
+      "create": "创建对话",
+      "edit": "编辑对话",
+      "view": "对话详情",
+      "deleteTitle": "删除对话",
+      "emptyTitle": "还没有对话",
+      "emptyBody": "有人通过控制台或任意客户端与配置文件聊天后，对话会立即显示在这里。",
+      "purpose": "对话是调用方与配置文件之间持久保存的会话线程，来源包括控制台聊天、A2A 上下文、MCP 以及 OpenAI 兼容会话。",
+      "columns": {
+        "title": "标题",
+        "agentProfileId": "配置文件",
+        "userId": "用户",
+        "source": "来源",
+        "messageCount": "消息数",
+        "tokens": "Token",
+        "lastMessageUtc": "最后一条消息",
+        "id": "ID"
+      },
+      "fields": {
+        "source": "来源",
+        "agentProfileId": "配置文件",
+        "userId": "用户 ID",
+        "fromUtc": "开始时间"
+      },
+      "actions": {
+        "export": "导出为 Markdown"
+      }
+    },
+    "plugins": {
+      "title": "插件",
+      "subtitle": "从插件目录加载的连接器插件。可启用或禁用插件，并查看插件加载失败的原因。",
+      "add": "添加插件",
+      "create": "创建插件",
+      "edit": "编辑插件",
+      "view": "插件详情",
+      "deleteTitle": "删除插件",
+      "emptyTitle": "暂无插件",
+      "emptyBody": "未安装任何插件。将连接器插件放入插件目录，并开启 Connectors.EnablePlugins。",
+      "purpose": "插件无需重新构建 Hugo 即可添加连接器类型。插件从插件目录加载，并在隔离的上下文中运行。",
+      "columns": {
+        "name": "名称",
+        "version": "版本",
+        "connectorTypes": "连接器类型",
+        "enabled": "状态",
+        "loadError": "加载错误",
+        "sha256": "SHA-256",
+        "id": "ID"
+      },
+      "fields": {
+        "name": "名称",
+        "version": "版本",
+        "enabled": "已启用"
+      },
+      "actions": {
+        "enable": "启用",
+        "disable": "禁用"
+      }
+    }
+  },
+  "views": {
+    "home": {
+      "observabilityState": {
+        "reachable": "可访问",
+        "unreachable": "无法访问",
+        "checking": "检查中",
+        "unknown": "状态未知"
+      },
+      "observabilityVersion": "版本 {{version}}",
+      "observabilityOpen": "打开 {{service}}",
+      "kpisGrafana": "在 Grafana 中打开概览",
+      "grafanaDashboards": "Grafana 仪表板",
+      "grafanaSections": {
+        "overview": "概览",
+        "http": "HTTP API",
+        "models": "模型",
+        "protocols": "MCP 和 A2A",
+        "security": "安全",
+        "agent": "智能体和聊天",
+        "tools": "工具和连接器"
+      },
+      "observabilitySetup": "设置可观测性",
+      "observabilityNone": "此 Hugo 服务器未配置任何可观测性服务（Grafana、Prometheus、Tempo 或 Loki）。",
+      "observability": "可观测性",
+      "title": "首页",
+      "subtitle": "Hugo 当前正在做什么、哪些事项需要你关注，以及下一步去哪里。",
+      "lastLoaded": "更新于 {{time}}",
+      "getStartedTitle": "让 Agent Smith 开始工作",
+      "getStartedBody": "此租户还没有模型端点和资源。设置向导可在几分钟内连接一个模型和第一个系统。",
+      "runSetup": "运行设置向导",
+      "kpis": {
+        "last24h": "最近 24 小时",
+        "requests": "请求",
+        "toolCalls": "工具调用",
+        "failures": "失败",
+        "approvals": "待处理审批",
+        "unhealthy": "不健康的资源",
+        "tokens": "今日 Token",
+        "today": "自午夜起"
+      },
+      "requestActivity": "API 请求活动",
+      "recentFailures": "最近失败的工具调用",
+      "noFailures": "最近没有失败的工具调用。",
+      "cta": {
+        "title": "常用工作流",
+        "apiExplorer": "打开 API 浏览器",
+        "addResource": "添加资源",
+        "addModel": "添加模型端点",
+        "chat": "与 Agent Smith 聊天",
+        "connect": "连接 Claude Code",
+        "approvals": "查看审批"
+      },
+      "services": {
+        "loki": "Loki",
+        "grafana": "Grafana",
+        "prometheus": "Prometheus",
+        "tempo": "Tempo"
+      },
+      "partial_one": "{{count}} 个面板无法加载，因此下方部分数据缺失。页面其余内容为最新。",
+      "partial_other": "{{count}} 个面板无法加载，因此下方部分数据缺失。页面其余内容为最新。",
+      "failuresUnavailable": "此服务器尚不报告工具调用。",
+      "unhealthyTitle": "不健康的资源",
+      "allHealthy": "所有资源均通过了上次健康检查。",
+      "resourcesUnavailable": "此服务器尚不报告资源。"
+    },
+    "markdown": {
+      "showRaw": "显示原始文本",
+      "showRendered": "显示格式化内容"
+    },
+    "templateEditor": {
+      "cloneToEdit": "克隆后编辑",
+      "builtInReadOnly": "内置模板为只读，因此这里的所有字段都已锁定。克隆后即可获得可编辑的副本。",
+      "renameHint": "你可以重命名此模板。按名称包含它的模板需要手动更新。",
+      "cloneDialog": {
+        "taken": "已存在名为 {{name}} 的模板。请换一个名称。",
+        "reserved": "以 builtin/ 开头的名称保留给内置模板。",
+        "hint": "之后可以在副本页面中重命名。",
+        "name": "副本名称",
+        "body": "副本以当前内容作为第 1 版，之后可以编辑、重命名和删除。",
+        "title": "克隆 {{name}}"
+      },
+      "newTitle": "新建提示词模板",
+      "subtitle": "编写模板，使用示例上下文预览，然后保存。",
+      "changeNote": "变更说明",
+      "versions_one": "版本（{{count}}）",
+      "versions_other": "版本（{{count}}）",
+      "noVersions": "暂无已保存的版本。",
+      "version": "版本",
+      "note": "说明",
+      "author": "作者",
+      "diff": "差异",
+      "restore": "恢复",
+      "diffTitle": "版本 {{version}} 与编辑器内容的对比",
+      "current": "编辑器",
+      "reset": "重置为默认值",
+      "savedVersion": "已保存新版本。",
+      "restored": "已恢复版本 {{version}}。",
+      "resetDone": "已重置为随产品提供的内容。",
+      "confirm": {
+        "restoreTitle": "恢复版本",
+        "restoreMessage": "恢复版本 {{version}}？当前内容会保留在历史记录中。",
+        "resetTitle": "重置模板",
+        "resetMessage": "将“{{name}}”重置为随产品提供的内容？",
+        "deleteTitle": "删除模板",
+        "deleteMessage": "删除“{{name}}”？使用它的配置文件和连接器将回退到内置默认值。"
+      },
+      "saved": "已保存的文本"
+    },
+    "requests": {
+      "grafana": "Grafana 中的 HTTP 仪表板",
+      "title": "请求历史",
+      "subtitle": "已捕获的 API 流量。可深入查看任意请求并管理保留策略。",
+      "kpis": {
+        "total": "保留的请求",
+        "success": "成功",
+        "failure": "失败",
+        "avgDuration": "平均耗时"
+      },
+      "columns": {
+        "time": "时间",
+        "method": "方法",
+        "path": "路径",
+        "status": "状态",
+        "duration": "耗时",
+        "principal": "主体"
+      },
+      "bulkDeleteTitle": "删除请求历史",
+      "bulkDeleteMessage": "删除符合当前筛选条件的全部 {{count}} 个请求？",
+      "bulkDeleteAll": "删除所有匹配项",
+      "deleteOneTitle": "删除请求",
+      "deleteOneMessage": "删除请求 {{id}}？",
+      "deleted": "已删除。",
+      "emptyTitle": "暂无请求历史",
+      "emptyBodyNoTraffic": "尚未保留任何 API 流量。",
+      "emptyBodyNoMatch": "没有符合当前筛选条件的请求。"
+    },
+    "explorer": {
+      "title": "API 浏览器",
+      "subtitle": "基于此服务器的 OpenAPI 文档，对其实时执行调用。",
+      "operations": "操作",
+      "selectOperation": "选择一个操作来构建请求。",
+      "selectOperationOption": "选择操作...",
+      "pathParams": "路径参数",
+      "queryParams": "查询参数",
+      "headers": "请求头",
+      "addHeader": "添加请求头",
+      "headerName": "请求头名称",
+      "headerValue": "请求头 {{name}} 的值",
+      "removeHeader": "移除请求头 {{name}}",
+      "body": "请求正文",
+      "resolvedUrl": "解析后的 URL",
+      "copyUrl": "复制 URL",
+      "execute": "执行",
+      "executing": "正在执行...",
+      "stop": "停止",
+      "streaming": "流式传输",
+      "response": "响应",
+      "responseHeaders": "响应头",
+      "responseBody": "响应正文",
+      "snippets": "代码片段",
+      "history": "最近的请求",
+      "historyEmpty": "没有最近的请求。",
+      "loadHistory": "加载",
+      "deleteHistory": "删除",
+      "clearHistory": "清除历史",
+      "required": "必填",
+      "confirmTitle": "执行破坏性操作",
+      "confirmMessage": "此 {{method}} 请求可能会修改或删除数据。是否继续？",
+      "noSpecTitle": "OpenAPI 文档不可用",
+      "noSpecBody": "此服务器未返回可用的 /openapi.json 文档，因此浏览器无法列出操作。"
+    },
+    "settings": {
+      "errors": {
+        "allowed": "请选择以下值之一：{{values}}。",
+        "boolean": "请选择 true 或 false。",
+        "max": "请输入不大于 {{max}} 的值。",
+        "min": "请输入不小于 {{min}} 的值。",
+        "range": "请输入 {{min}} 到 {{max}} 之间的值。",
+        "integer": "请输入整数。",
+        "number": "请输入数字。"
+      },
+      "notSaved": "未保存任何内容。请修正标出的设置，然后重新保存。",
+      "title": "设置",
+      "subtitle": "服务器的 hugo.json 设置，环境变量覆盖的值以只读方式显示。部分更改即时生效，其他更改需重启后生效。",
+      "readOnly": "你正在以只读方式查看设置。只有系统管理员可以更改设置。",
+      "restartBanner": "部分已保存的更改需要重启后才能生效。",
+      "restarting": "服务器正在重启。此页面会自动重新连接。",
+      "restarted": "服务器已恢复在线。",
+      "restartTimeout": "服务器未在三分钟内恢复。请使用 docker ps 检查容器状态。",
+      "restart": "重启服务器",
+      "restartConfirmTitle": "重启服务器",
+      "restartConfirmMessage": "立即重启 Hugo 服务器？进行中的请求和聊天流将被中断；容器会重启进程，本页面将自动重新连接。",
+      "savedLive": "设置已保存并生效。",
+      "savedRestart": "设置已保存。请重启服务器以应用所有更改。",
+      "live": "即时生效",
+      "restartRequired": "需要重启",
+      "secretSet": "已设置（输入新值可替换）",
+      "secretNotSet": "未设置",
+      "range": "允许范围 {{min}} 至 {{max}}",
+      "testDatabase": "测试数据库连接",
+      "testing": "正在测试...",
+      "dbOk": "连接成功",
+      "dbFailed": "连接失败",
+      "unavailableTitle": "设置不可用",
+      "unavailableBody": "此服务器未返回其设置。",
+      "sources": {
+        "File": "设置文件",
+        "Environment": "环境变量",
+        "Database": "数据库"
+      },
+      "lockedBy": {
+        "Environment": "由环境变量设置，以环境变量的值为准。",
+        "other": "此设置无法在此更改。"
+      },
+      "groups": {
+        "General": "常规",
+        "Rest": "REST 监听器",
+        "Mcp": "MCP",
+        "Database": "数据库",
+        "Logging": "日志",
+        "Auth": "身份验证",
+        "RequestHistory": "请求历史",
+        "Telemetry": "遥测",
+        "Audit": "审计",
+        "Secrets": "密钥库",
+        "Agent": "智能体循环",
+        "Approvals": "审批",
+        "Connectors": "连接器",
+        "Models": "模型端点",
+        "A2A": "A2A",
+        "OpenAI": "OpenAI 兼容端点",
+        "Embeddings": "嵌入"
+      },
+      "fields": {
+        "Rest": {
+          "Hostname": "监听主机名",
+          "Port": "监听端口",
+          "Ssl": "使用 TLS",
+          "ExternalBaseUrl": "外部基础 URL",
+          "AllowedOrigins": "允许的 CORS 来源"
+        },
+        "Database": {
+          "Type": "数据库类型",
+          "Filename": "SQLite 文件",
+          "Server": "数据库服务器",
+          "Port": "数据库端口",
+          "DatabaseName": "数据库名称",
+          "Username": "数据库用户",
+          "Password": "数据库密码"
+        },
+        "Auth": {
+          "SigningKey": "令牌签名密钥",
+          "UserSessionMinutes": "用户会话时长（分钟）",
+          "AdminSessionMinutes": "管理员会话时长（分钟）",
+          "SessionAbsoluteMaxHours": "会话绝对上限（小时）",
+          "RateLimitPerMinute": "每分钟登录尝试次数"
+        },
+        "Secrets": {
+          "MasterKey": "主密钥（仅限开发环境）",
+          "RevealReauthMinutes": "显示密钥的重新验证时间窗口（分钟）"
+        },
+        "Agent": {
+          "DefaultMaxIterations": "每轮默认最大迭代次数",
+          "DefaultMaxToolCallsPerTurn": "每轮默认最大工具调用次数",
+          "MaxParallelToolCalls": "并行读取工具调用数",
+          "ToolRetrievalThreshold": "工具检索阈值",
+          "CompactionThresholdRatio": "历史压缩阈值"
+        },
+        "Approvals": {
+          "ExpirySeconds": "审批过期时间（秒）",
+          "McpWaitSeconds": "MCP 审批等待时间（秒）",
+          "AllowSelfApproval": "允许批准自己的调用"
+        },
+        "Connectors": {
+          "EnablePlugins": "启用连接器插件",
+          "PluginDirectory": "插件目录",
+          "DefaultToolTimeoutSeconds": "默认工具超时（秒）",
+          "HealthSweepMinutes": "资源健康巡检间隔（分钟）"
+        },
+        "Models": {
+          "HealthIntervalSeconds": "模型健康检查间隔（秒）"
+        }
+      }
+    },
+    "serverInfo": {
+      "title": "服务器信息",
+      "subtitle": "端点、版本以及你当前登录所用的身份。",
+      "endpoints": "端点",
+      "rest": "REST API",
+      "mcp": "MCP",
+      "a2a": "A2A",
+      "openapi": "OpenAPI",
+      "server": "服务器",
+      "version": "服务器版本",
+      "dashboardVersion": "控制台版本",
+      "node": "服务器节点",
+      "database": "数据库",
+      "health": "健康状况",
+      "routes": "已注册的操作",
+      "serverTime": "服务器时间",
+      "principal": "登录身份",
+      "principalName": "主体",
+      "principalType": "主体类型",
+      "role": "角色",
+      "tenant": "租户",
+      "expires": "会话过期时间",
+      "features": "功能开关",
+      "connectors": "已加载的连接器",
+      "openai": "OpenAI 兼容"
+    },
+    "analytics": {
+      "legend": "{{chart}}中的数据系列",
+      "noDataInChart": "所选范围内此图表没有数据。",
+      "dataTable": "数据表",
+      "bucketStart": "时间段开始",
+      "title": "分析",
+      "subtitle": "Token 用量、按影响和连接器划分的工具调用、模型延迟和错误，以及审批处理时长。",
+      "purpose": "分析功能将工具调用、聊天轮次和模型调用汇总为按配置文件和模型划分的用量与成本趋势。",
+      "profile": "配置文件",
+      "panels": {
+        "overview": "总计",
+        "tokens": "Token 用量",
+        "tools": "按影响划分的工具调用",
+        "models": "模型",
+        "modelLatency": "模型延迟",
+        "modelErrors": "模型错误"
+      },
+      "purposes": {
+        "overview": "所选时间范围内的轮次、工具调用、失败、Token 和审批总计。",
+        "tokens": "随时间变化的输入和输出 Token，涵盖运行 Hugo 自身循环的所有接口。",
+        "tools": "按影响划分的工具调用随时间变化情况，以及各连接器的调用数、失败数和延迟。",
+        "models": "各模型端点的延迟百分位数和错误数。"
+      },
+      "help": {
+        "tokens": "每个时间区间的输入和输出 Token。",
+        "tools": "每个时间区间按影响划分的工具调用：读取、写入和破坏性。",
+        "modelLatency": "每个区间的模型响应时间中位数（p50）和 p95。",
+        "modelErrors": "每个区间内失败的模型请求。"
+      },
+      "kpis": {
+        "turns": "聊天轮次",
+        "toolCalls": "工具调用",
+        "failures": "失败的工具调用",
+        "tokens": "Token",
+        "approvals": "审批",
+        "turnaround": "审批处理时长",
+        "approvalRate": "批准比例"
+      },
+      "metrics": {
+        "inputTokens": "输入 Token",
+        "outputTokens": "输出 Token",
+        "latencyMsP50": "中位数（p50）",
+        "latencyMsP95": "p95",
+        "errors": "错误",
+        "Read": "读取",
+        "Write": "写入",
+        "Destructive": "破坏性"
+      },
+      "columns": {
+        "connector": "连接器",
+        "calls": "调用数",
+        "failures": "失败数",
+        "p95": "p95 时长"
+      }
+    },
+    "chat": {
+      "title": "聊天",
+      "subtitle": "与 Agent Smith 对话。工具调用会连同其影响内联显示，有风险的调用会等待你的审批。",
+      "purpose": "聊天会针对你选择的配置文件运行 Hugo 自身的智能体循环：通过工具读取已绑定的资源，在执行有风险的操作前征求同意，并在此处流式输出回答。",
+      "conversations": "对话",
+      "search": "搜索对话",
+      "noConversations": "暂无对话。",
+      "untitled": "未命名对话",
+      "new": "新建对话",
+      "export": "导出",
+      "context": "上下文",
+      "profile": "配置文件",
+      "model": "模型：{{model}}",
+      "modelLabel": "模型",
+      "persona": "角色",
+      "addresses": "对你的称呼",
+      "resources": "已绑定的资源",
+      "noResources": "此配置文件未绑定任何资源。",
+      "usage": "Token 用量",
+      "pending": "待处理审批",
+      "noPending": "没有等待你处理的事项。",
+      "noModel": "此配置文件没有推理模型，因此 Agent Smith 暂时无法回答。请添加模型端点并在配置文件中选择它。",
+      "goModels": "添加模型端点",
+      "noProfilesTitle": "暂无智能体配置",
+      "noProfilesBody": "聊天需要与智能体配置交互。创建一个配置文件（或让服务器生成默认 Hugo 配置文件）即可开始。",
+      "goProfiles": "打开智能体配置",
+      "emptyHint": "向 {{persona}} 询问你的技术栈，例如“为什么结账很慢？”"
+    },
+    "profile": {
+      "title": "智能体配置",
+      "subtitle": "角色 {{persona}}，称呼用户为 {{address}}。",
+      "tabs": {
+        "general": "常规",
+        "bindings": "绑定",
+        "instructions": "指令",
+        "tools": "工具",
+        "connect": "连接"
+      },
+      "bindings": {
+        "body": "每个绑定以别名将一个资源关联到此配置文件，并通过访问模式决定智能体可以执行的操作。",
+        "purpose": "绑定将资源关联到配置文件，并附带访问模式、审批策略和工具规则。",
+        "add": "添加绑定",
+        "edit": "编辑绑定",
+        "emptyTitle": "尚未绑定资源",
+        "emptyBody": "在为此配置文件绑定资源之前，它无法访问任何系统。请先添加资源，然后在此绑定。",
+        "goResources": "打开资源",
+        "noResources": "还没有可绑定的资源。请先在资源页面添加。",
+        "approvalOn": "审批",
+        "aliasInvalid": "请使用字母、数字、点、连字符和下划线，并以字母或数字开头。",
+        "aliasTaken": "此配置文件上的另一个绑定已使用该别名。",
+        "deleteTitle": "移除绑定",
+        "deleteBody": "从此配置文件中移除 {{alias}}？资源本身会保留；此配置文件的调用方将失去对它的访问权限。",
+        "columns": {
+          "alias": "别名",
+          "resource": "资源",
+          "accessMode": "访问模式",
+          "approval": "审批",
+          "enabled": "状态"
+        },
+        "fields": {
+          "resourceId": "资源",
+          "alias": "别名",
+          "accessMode": "访问模式",
+          "requireApprovalForDestructive": "破坏性调用需要审批",
+          "instructionMode": "指令",
+          "instructionText": "指令文本",
+          "maxOutputBytes": "最大输出字节数",
+          "maxRows": "最大行数",
+          "enabled": "已启用"
+        }
+      },
+      "toolRules": {
+        "title": "{{alias}} 的工具规则",
+        "body": "覆盖此绑定上的单个工具。未设置的工具遵循访问模式。",
+        "open": "工具规则",
+        "rule": "规则",
+        "ruleFor": "{{tool}} 的规则",
+        "inherit": "遵循访问模式",
+        "noTools": "服务器未报告此配置文件的任何工具。"
+      },
+      "instructions": {
+        "body": "调用方收到的指令：角色、安全规则以及各已绑定资源的部分，按顺序排列。",
+        "purpose": "编译后的指令准确显示 Agent Smith 在每个接口上收到的内容，以及每个部分来自哪个模板。",
+        "surface": "接口",
+        "sourceMap": "各部分的来源"
+      },
+      "tools": {
+        "body": "应用访问模式和工具规则后，此配置文件的调用方看到的工具。",
+        "purpose": "工具列表显示应用访问模式和工具规则后，此配置文件的调用方可以调用的工具。",
+        "empty": "此配置文件未公开任何工具。",
+        "name": "工具",
+        "effect": "影响",
+        "description": "描述",
+        "perCall": "（按每次调用分类）"
+      },
+      "connect": {
+        "claudeCode": "Claude Code（基于 HTTP 的 MCP）",
+        "claudeCodeBody": "将此内容添加到 MCP 设置中。将 HUGO_TOKEN 设置为会话令牌，或使用绑定到此配置文件的凭据。",
+        "claudeCli": "Claude Code CLI",
+        "claudeCliBody": "通过命令行注册同一服务器。",
+        "stdio": "Stdio 中继",
+        "stdioBody": "适用于仅支持 stdio 的 MCP 客户端：hugo CLI 会中继到 HTTP 端点。",
+        "a2a": "A2A 智能体卡片",
+        "a2aBody": "其他智能体通过 A2A 卡片发现此配置文件。",
+        "a2aOff": "此配置文件已关闭 A2A。请在“常规”选项卡中开启 A2A 公开以发布卡片。",
+        "openai": "OpenAI 兼容端点",
+        "openaiBody": "将任意 OpenAI 兼容客户端指向此基础 URL，并使用模型名称 {{model}}。",
+        "openaiOff": "此配置文件已关闭 OpenAI 兼容端点。",
+        "credential": "此配置文件的凭据",
+        "credentialBody": "调用框架应使用绑定到此配置文件的凭据进行连接，以确保其始终以该配置文件身份运行，且权限不超出该配置文件。",
+        "credentialAction": "创建凭据"
+      }
+    },
+    "resources": {
+      "form": {
+        "chooseConnector": "选择连接器",
+        "connectorsUnavailable": "服务器未列出其连接器，因此暂时无法生成设置。",
+        "settings": "设置",
+        "secrets": "密钥",
+        "test": "测试连接",
+        "testing": "测试中..."
+      },
+      "tryTool": {
+        "title": "在 {{name}} 上试用工具",
+        "body": "选择绑定了此资源的配置文件和一个工具。试运行只对调用进行分类而不执行；执行会经过与其他所有接口相同的安全检查后运行。",
+        "profile": "以配置文件身份运行",
+        "tool": "工具",
+        "arguments": "参数（JSON）",
+        "dryRun": "试运行",
+        "execute": "执行",
+        "classification": "分类",
+        "result": "结果",
+        "notBound": "此配置文件未绑定该资源，因此其工具无法访问它。",
+        "pendingApproval": "调用正在等待审批 {{id}}。请在审批页面处理。"
+      }
+    },
+    "secrets": {
+      "reveal": {
+        "title": "显示 {{name}}",
+        "warning": "显示操作会展示明文值。此操作会连同你的原因一起被审计，值将在 30 秒后隐藏。",
+        "reason": "原因",
+        "reasonRequired": "请说明你需要查看该值的原因。",
+        "submit": "显示",
+        "reauthBody": "为了安全，显示密钥前请重新输入密码。",
+        "password": "你的密码",
+        "reauthSubmit": "确认并显示",
+        "hidesIn": "将在 {{seconds}} 秒后隐藏。",
+        "hidden": "值已重新隐藏。",
+        "again": "再次显示"
+      }
+    },
+    "connectors": {
+      "title": "连接器",
+      "subtitle": "Hugo 可以访问的系统类型，包括其设置、密钥、工具和默认指令。",
+      "purpose": "连接器目录列出此服务器可以访问的所有服务类别（SSH、对象存储、数据库、日志服务等），以及每种类别所需的设置和密钥及其提供的工具。",
+      "search": "搜索连接器",
+      "category": "类别",
+      "count_one": "{{shown}} 个连接器",
+      "count_other": "{{shown}} 个连接器",
+      "emptyTitle": "没有匹配的连接器",
+      "emptyBody": "清除搜索或选择其他类别。",
+      "noDescription": "无描述。",
+      "toolCount_one": "{{count}} 个工具",
+      "toolCount_other": "{{count}} 个工具",
+      "loadError": "加载错误",
+      "addResource": "添加资源",
+      "tabs": {
+        "overview": "概览",
+        "settings": "设置架构",
+        "tools": "工具",
+        "instructions": "默认指令"
+      },
+      "fields": {
+        "type": "类型",
+        "family": "类别",
+        "category": "分类",
+        "version": "版本",
+        "documentation": "文档"
+      },
+      "slots": "密钥槽位",
+      "noSlots": "此连接器不需要密钥。",
+      "settingsBody": "这是此类型新资源使用的表单。可在此试用，不会保存任何内容。",
+      "reference": "设置参考",
+      "columns": {
+        "key": "键",
+        "kind": "类型",
+        "required": "必填",
+        "default": "默认值",
+        "range": "允许的值",
+        "group": "分组"
+      },
+      "noTools": "此连接器不提供工具。",
+      "instructionsBody": "此类型的每个资源都会为智能体添加这些指令。可按租户或全局在模板键 {{key}} 下编辑。",
+      "editInstructions": "在提示模板中编辑",
+      "builtInInstructions": "内置默认指令",
+      "noInstructions": "此连接器未附带默认指令。"
+    },
+    "mcpExplorer": {
+      "title": "MCP 浏览器",
+      "subtitle": "以你自己的身份连接到 Hugo 的 MCP 端点，读取指令、列出工具并调用它们。",
+      "purpose": "MCP 浏览器与 Claude Code 完全一样地与 /mcp 通信，让你在接入调用框架之前检查配置文件公开的指令和工具列表。",
+      "profile": "配置文件",
+      "defaultProfile": "由服务器决定",
+      "connect": "连接",
+      "reconnect": "重新连接",
+      "session": "会话 {{id}}",
+      "failed": "MCP 请求失败",
+      "tools": "工具",
+      "toolsCount_one": "{{count}} 个工具",
+      "toolsCount_other": "{{count}} 个工具",
+      "noTools": "服务器未为此调用方列出任何工具。",
+      "serverInfo": "服务器",
+      "instructions": "initialize 返回的指令",
+      "noInstructions": "服务器未发送指令。",
+      "call": "调用工具",
+      "toolOk": "工具返回了结果。",
+      "toolError": "工具报告了错误。",
+      "invalidJson": "{{field}} 的值不是有效的 JSON。",
+      "log_one": "JSON-RPC 日志（{{count}} 条消息）",
+      "log_other": "JSON-RPC 日志（{{count}} 条消息）"
+    },
+    "a2aExplorer": {
+      "title": "A2A 浏览器",
+      "subtitle": "通过 A2A 获取配置文件的智能体卡片、向其发送消息、流式接收回答并列出任务。",
+      "purpose": "A2A 浏览器像其他智能体一样，使用 A2A 1.0 JSON-RPC 方法调用 /v1.0/a2a/{tenant}/{profile}。",
+      "profile": "配置文件",
+      "fetchCard": "获取卡片",
+      "listTasks": "列出任务",
+      "message": "消息",
+      "stream": "流式接收回答",
+      "send": "发送",
+      "context": "继续上下文 {{id}}",
+      "result": "结果",
+      "events_one": "流事件（{{count}}）",
+      "events_other": "流事件（{{count}}）",
+      "tasks_one": "{{count}} 个任务",
+      "tasks_other": "{{count}} 个任务",
+      "noTasks": "此配置文件暂无任务。"
+    }
+  },
+  "tips": {
+    "fieldWarnings": {
+      "dismiss": "隐藏此提示。记录已按此处列出的值保存。"
+    },
+    "ids": {
+      "deleted": "此记录已删除。ID {{id}}。复制按钮会复制此 ID。",
+      "named": "ID {{id}}。使用复制按钮复制此 ID，用于 API、SDK 或支持请求。"
+    },
+    "markdown": {
+      "column": "智能体输出中表格的 {{name}} 列。较宽的表格可在其框内横向滚动。",
+      "showRaw": "显示智能体返回的原始文本，不带 Markdown 格式，便于检查或复制。",
+      "showRendered": "重新以 Markdown 格式显示文本，包括表格、列表、代码块和链接。",
+      "copy": "将原始结果文本（包括 Markdown 语法）复制到剪贴板。",
+      "link": "在新标签页中打开 {{href}}。该链接来自智能体的输出，请先核对地址再信任它。"
+    },
+    "common": {
+      "fields": {
+        "name": "此记录在租户内的唯一名称。其他记录通过此名称引用它。",
+        "description": "写给人看的自由文本备注，说明这条记录的用途，运行时不会使用。",
+        "active": "未启用的记录会保留但被忽略。关闭此项即可暂停某项内容而无需删除。",
+        "id": "系统生成的标识符，带有类型前缀。可在 API 调用和脚本中使用，它永远不会改变。",
+        "createdUtc": "此记录的创建时间。将鼠标悬停在值上可查看确切的日期和时间。",
+        "lastUpdateUtc": "此记录最后一次修改的时间。",
+        "isBuiltIn": "内置记录随 Hugo 提供且为只读。自定义记录在此租户中创建，可以编辑。",
+        "expiresUtc": "超过此时间后记录将失效。留空表示永不过期。"
+      }
+    },
+    "explainer": {
+      "reopen": "再次显示{{topic}}的说明：此页面管理的内容以及它与 Hugo 其他部分的关系。",
+      "dismiss": "隐藏此说明。原位置会保留一个小的“关于”按钮，你可以随时重新打开。"
+    },
+    "topbar": {
+      "toggleSidebar": "折叠或展开导航侧边栏。在小屏幕上，导航会以浮层方式打开。",
+      "server": "此控制台连接的 Hugo 服务器：{{url}}。圆点表示其健康检查是否通过。",
+      "health": {
+        "healthy": "服务器在过去 30 秒内响应了健康检查。",
+        "unhealthy": "服务器没有响应健康检查。此页面发出的请求很可能会失败。",
+        "unknown": "正在等待服务器返回第一个健康检查结果。"
+      },
+      "copyServer": "复制服务器 URL，例如用于配置 SDK 或 curl 命令。",
+      "switchTenant": "系统管理员可以查看任意租户。每个页面都显示所选租户的数据。",
+      "tenant": "你正在租户 {{tenant}} 中工作。你看到的所有记录都属于该租户。",
+      "principal": "你当前以 {{name}} 的身份登录。你执行的操作都会记录在此身份下。",
+      "role": "你在此租户中的最高访问级别。它决定了哪些页面和操作可用。",
+      "liveOn": "已连接到服务器事件流，审批和工具调用会实时显示。",
+      "liveOff": "无实时连接。页面改为定时轮询，因此更改可能需要几秒钟才会显示。",
+      "github": "在新标签页中打开 GitHub 上的 Hugo 源代码仓库（AgentSmith），查看文档和问题。",
+      "themeLight": "切换到浅色主题。此浏览器会记住你的选择。",
+      "themeDark": "切换到深色主题。此浏览器会记住你的选择。",
+      "logout": "退出登录并撤销此浏览器会话。之后需要重新登录。",
+      "language": "更改显示语言。日期和数字格式也会随语言变化，并且会记住你的选择。",
+      "approvals_one": "有 {{count}} 个审批正在等待处理。打开审批收件箱。",
+      "approvals_other": "有 {{count}} 个审批正在等待处理。打开审批收件箱。",
+      "lockdownOff": "锁定租户：在你解除锁定之前，拒绝来自所有接口的每个写入和破坏性调用。",
+      "lockdownOn": "租户已锁定。点击查看并解除锁定。",
+      "lockdownEngage": "立即拒绝此租户中所有非读取调用，并取消待处理的审批。",
+      "lockdownLift": "重新允许写入和破坏性调用，但仍受访问模式和审批约束。"
+    },
+    "login": {
+      "passwordTab": "以人员身份使用租户、电子邮件和密码登录。",
+      "keyTab": "使用访问密钥和私密密钥登录，与脚本和 SDK 使用的密钥对相同。",
+      "serverUrl": "Hugo 服务器的基础地址，例如本地的 http://127.0.0.1:8800，或在控制台代理后面时使用本页面自身的地址。",
+      "tenantId": "你的账户所属的租户。本地默认租户名为 default。",
+      "email": "你在此租户中的用户账户的电子邮件地址。",
+      "password": "你的账户密码。它只会发送一次用于获取会话令牌，浏览器应用不会保存它。",
+      "accessKey": "访问密钥的公开部分，以 access_ 开头。在“管理”下的“凭据”中创建密钥。",
+      "secretKey": "访问密钥的私密部分。它仅在创建或轮换密钥时显示过一次。",
+      "submit": "向服务器验证凭据，并打开你所在租户的控制台。",
+      "tenantSelect": "你的电子邮件属于多个租户。请选择要登录的租户。",
+      "useDefaults": "填入预置的本地管理员账号。仅当服务器位于本机时显示。"
+    },
+    "table": {
+      "selectAll": "选中或取消选中此页的所有行，例如用于一起删除。",
+      "selectRow": "选中此行以执行批量操作，例如删除。",
+      "sortServer": "{{tip}} 点击可按此列对整个列表排序；再次点击可反转顺序。",
+      "sortPageOnly": "{{tip}} 点击仅对本页的行排序；服务器无法按此列排序。",
+      "clearSelection": "取消选中所有已选行，不做任何更改。",
+      "pageSize": "每页加载的行数。页面越大，加载越慢。每个表格会分别记住你的选择。",
+      "first": "转到结果的第一页。",
+      "prev": "返回结果的上一页。",
+      "jump": "输入 1 到 {{total}} 之间的页码并按 Enter，直接跳转到该页。",
+      "next": "前进到结果的下一页。",
+      "last": "转到结果的最后一页。",
+      "refresh": "立即从服务器重新加载此列表，保留当前页码、筛选条件和排序。",
+      "autoRefresh": "按计时器自动重新加载此数据。关闭后数据保持不变，方便阅读。",
+      "selectColumns": "选择表格显示哪些列。此浏览器会为每个表格分别记住你的选择。",
+      "columnPinned": "{{column}} 始终显示，因为没有它就无法识别各行。",
+      "columnToggle": "显示或隐藏 {{column}} 列。{{tip}}",
+      "actionsFor": "打开 {{name}} 的操作：查看、编辑、复制一份、查看 JSON、删除，以及该记录特有的操作。",
+      "actionsMenu": "打开此行可用的操作。",
+      "actionsColumn": "每行的操作。点击三个点可查看、编辑、复制一份、检查 JSON 或删除。",
+      "search": "输入名称的一部分来缩小列表范围。停止输入后会在服务器端执行搜索。",
+      "clearFilters": "清除搜索文本和所有筛选条件，重新显示完整列表。",
+      "bulkDelete": "删除所有已选行。系统会先请你确认。"
+    },
+    "filters": {
+      "status": "只显示处于此状态的记录。选择“全部”可取消筛选。",
+      "kind": "只显示某一类记录。选择“全部”可取消筛选。",
+      "eventType": "只显示某一类型的审计事件，例如登录失败或机密变更。",
+      "fromUtc": "只显示在此时间或之后创建的记录（你的本地时区）。",
+      "toUtc": "只显示在此时间之前创建的记录（你的本地时区）。",
+      "method": "只显示使用此 HTTP 方法的请求。",
+      "statusCode": "只显示返回此 HTTP 状态码的请求，例如 404 或 500。",
+      "pathContains": "只显示路径包含此文本的请求，例如 /agents。",
+      "tenantId": "只显示在此租户中发出的请求。留空表示所有租户。",
+      "apply": "使用上面的筛选值执行搜索。",
+      "clear": "将上面的所有筛选条件重置为空并重新搜索。",
+      "effect": "仅显示具有此影响的调用：读取、写入或破坏性。",
+      "agentProfileId": "仅显示属于某个智能体配置的记录。选择“全部”以移除筛选。",
+      "source": "仅显示从某个接口发起的对话。",
+      "userId": "仅显示某个用户的记录。粘贴用户 ID，停止输入后列表会更新。",
+      "connectorType": "仅显示某种连接器类型的资源，例如 SSH 或 PostgreSQL。",
+      "environment": "仅显示带有此环境标签的资源，例如 prod。",
+      "health": "仅显示处于此健康状态的资源。",
+      "healthStatus": "仅显示处于此健康状态的模型端点。",
+      "provider": "仅显示某个服务商的模型端点。",
+      "surface": "仅显示从某个接口发起的调用：聊天、MCP、A2A、OpenAI 兼容或 REST。",
+      "decision": "仅显示具有此安全决定的调用，例如已拒绝或需要审批。",
+      "resourceId": "仅显示针对某个资源的调用。",
+      "toolName": "仅显示对此工具的调用，例如 sql_query。停止输入后列表会更新。",
+      "principalId": "仅显示某个主体的记录。粘贴 ID，停止输入后列表会更新。",
+      "principalType": "仅显示管理员、用户或凭据的会话。",
+      "visibility": "仅显示私有或租户范围的记录。"
+    },
+    "form": {
+      "option": "在 {{field}} 中包含 {{option}}。选中的选项会被保存；未选中的会被排除。",
+      "reveal": "以明文显示输入的值，便于保存前检查。",
+      "hide": "重新遮盖该值，防止旁人看到你的屏幕内容。",
+      "key": "{{field}} 中此条目的键。键在列表中必须唯一。",
+      "value": "{{field}} 中此条目的值。在注明的地方可以使用模板和机密引用。",
+      "removeRow": "从列表中移除此条目。在点击“保存”之前不会保存任何内容。",
+      "addRow": "向 {{field}} 添加一个空的键值条目。",
+      "moveUp": "将此项向前移动一位。这里的顺序很重要，例如参数列表。",
+      "moveDown": "将此项向后移动一位。这里的顺序很重要，例如参数列表。",
+      "removeItem": "从列表中移除此项。在点击“保存”之前不会保存任何内容。",
+      "addItem": "向 {{field}} 添加一个新的空项，并填写其字段。"
+    },
+    "actions": {
+      "openDetail": "打开此记录的完整详情页。",
+      "view": "以只读方式打开此记录，查看所有字段，不会有误改的风险。",
+      "edit": "在表单中打开此记录进行修改。点击“保存”后更改才会生效。",
+      "duplicate": "以此记录的值预填一条新记录，名称带 -copy 后缀。保存之前不会创建任何内容。",
+      "viewJson": "显示 API 返回的原始 JSON，用于调试或复制到脚本中。",
+      "delete": "永久删除此记录。系统会请你确认，且无法撤销。",
+      "add": "在表单中创建此类型的新记录。",
+      "switchToEdit": "将此只读视图切换为可编辑表单。",
+      "retryLoad": "再次尝试从服务器加载此数据。",
+      "dismiss": "隐藏此消息。如果问题再次出现，它会重新显示。"
+    },
+    "modal": {
+      "close": "关闭此窗口。服务器上的内容不会改变。",
+      "dismiss": "不保存并关闭此窗口。也可以按 Escape 键。",
+      "cancelForm": "关闭表单并放弃未保存的更改。",
+      "back": "返回表单的上一步。已输入的值会保留。",
+      "next": "前往表单的下一步。在点击“保存”之前不会保存任何内容。",
+      "saveEdit": "保存对此记录的更改。服务器会进行验证，并指出需要处理的字段。",
+      "saveCreate": "使用这些值创建记录。服务器会进行验证，并指出需要处理的字段。",
+      "saveValue": "将该值发送到服务器。它在到达时即被加密，之后不会再显示。"
+    },
+    "confirm": {
+      "delete": "是的，永久删除此记录。",
+      "bulkDelete": "是的，永久删除所有已选记录。",
+      "cancel": "返回，不执行任何操作。",
+      "danger": "执行此破坏性操作。此操作无法撤销。",
+      "confirm": "执行上面描述的操作。"
+    },
+    "copy": {
+      "id": "将记录 ID 复制到剪贴板，供 REST API、SDK 或筛选器使用。",
+      "value": "将此值复制到剪贴板。",
+      "block": "将整个代码块复制到剪贴板，可直接粘贴到终端或文件中。",
+      "done": "已复制到剪贴板。"
+    },
+    "chart": {
+      "ranges": {
+        "hour": "显示最近 60 分钟，每个区间为一分钟。",
+        "day": "显示最近 24 小时。区间大小会自动调整，以保持图表清晰易读。",
+        "week": "显示最近 7 天。区间大小会自动调整，以保持图表清晰易读。",
+        "month": "显示最近 30 天。区间大小会自动调整，以保持图表清晰易读。",
+        "custom": "自行选择开始和结束时间。时间范围过长会被服务器拒绝。"
+      },
+      "refresh": "立即从服务器重新加载图表数据。",
+      "tenant": "显示单个租户或服务器上所有租户的请求活动。"
+    },
+    "badges": {
+      "active": "启用：此记录正在使用中。",
+      "inactive": "停用：此记录会保留，但在重新启用之前会被忽略。",
+      "builtIn": "内置：随 Hugo 提供且为只读。克隆后即可得到可编辑的版本。",
+      "custom": "自定义：在此租户中创建，因此可以编辑和删除。",
+      "systemAdmin": "系统管理员：可以管理所有租户，并绕过授权检查。",
+      "tenantAdmin": "租户管理员：可以管理此租户内的一切。",
+      "user": "用户：访问权限仅来自角色分配。",
+      "role": "此分配授予 {{role}} 角色及其中的所有权限。",
+      "defaultProfile": "租户默认配置文件：未指定配置文件的调用方将使用此配置文件。",
+      "expiringSoon": "此密钥将在 14 天内过期。请在资源停止工作前替换其值或延长有效期。",
+      "lockdown": "此租户已锁定：在租户管理员解除锁定之前，仅允许读取调用。",
+      "locked": "已锁定到其配置文件：无论调用方请求什么，该凭据只能以绑定的配置文件身份运行。"
+    },
+    "permissions": {
+      "source": "此授权来自的角色。要调整访问权限，请修改该角色或授予该角色的分配。",
+      "type": "“允许”授予这些操作；“拒绝”会阻止这些操作，即使其他角色允许它们。",
+      "resources": "此授权涵盖的记录类型，例如资源、密钥或智能体配置。",
+      "operations": "可以对这些记录执行的操作，例如 Read、Create 或 Execute。",
+      "scope": "租户范围涵盖该类型的所有记录；资源范围只涵盖某一条特定记录。"
+    },
+    "secretOnce": {
+      "accessKey": "公开的访问密钥 ID。它用于标识该访问密钥，可以安全地存放在配置中。",
+      "secretKey": "私密密钥。这是它唯一一次显示；请立即将其复制到你的密码管理器或机密存储中。",
+      "done": "关闭此窗口。私密密钥之后无法找回，只能轮换。",
+      "snippet": "使用此访问密钥、可直接粘贴的 MCP 客户端配置。密钥从环境变量中读取。"
+    },
+    "enums": {
+      "promptTemplateKind": {
+        "System": "系统提示词：用于设定智能体的固定指令。",
+        "Task": "任务提示：将调用方的消息包装成智能体收到的内容。",
+        "Fragment": "可复用的片段，其他模板通过 {{> name}} 引入。",
+        "ToolDescription": "将智能体描述为 MCP 工具或 A2A 技能的文本。",
+        "ConfigFile": "生成的配置文件的内容，例如 MCP 配置。",
+        "Other": "Hugo 渲染到指令中的其他任何文本。"
+      },
+      "permissionType": {
+        "Permit": "允许：允许列出的操作。",
+        "Deny": "拒绝：阻止列出的操作，即使其他权限允许它们。"
+      },
+      "effect": {
+        "Read": "读取：查看数据而不做任何更改，例如 SELECT 或列出文件。",
+        "Write": "写入：更改可以恢复的内容，例如 INSERT 或上传文件。",
+        "Destructive": "破坏性：删除、丢弃、重启或其他无法撤销的操作。默认需要等待审批。"
+      },
+      "accessMode": {
+        "ReadOnly": "只读：智能体可以查看，但写入和破坏性工具根本不会列出。",
+        "ReadWriteWithApproval": "读写（需审批）：每个写入或破坏性调用都要等待人工处理。",
+        "ReadWrite": "读写：写入直接运行；除非绑定选择退出，破坏性调用仍需等待审批。"
+      },
+      "approvalStatus": {
+        "Pending": "待处理：等待有人批准或拒绝。",
+        "Approved": "已批准：有人允许了该调用，调用已运行。",
+        "Rejected": "已拒绝：有人拒绝了该调用，智能体已收到通知。",
+        "Expired": "已过期：无人及时处理，因此调用被拒绝。",
+        "Cancelled": "已取消：在做出决定之前，该轮已结束或租户已被锁定。"
+      },
+      "toolDecision": {
+        "Allowed": "已允许：访问模式允许调用直接运行而无需询问。",
+        "Denied": "已拒绝：访问模式、工具规则或锁定拒绝了该调用。",
+        "ApprovalRequired": "需要审批：调用曾等待人工处理。",
+        "Approved": "已批准：有人允许了该调用。",
+        "Rejected": "已驳回：有人拒绝了该调用。",
+        "Expired": "已过期：无人及时处理。"
+      },
+      "toolStatus": {
+        "Succeeded": "成功：工具已运行并返回结果。",
+        "Failed": "失败：工具或目标系统返回了错误。",
+        "TimedOut": "超时：工具未在超时时间内完成。",
+        "Cancelled": "已取消：工具运行期间该轮被停止。"
+      },
+      "healthStatus": {
+        "Healthy": "健康：上次检查已连接到系统且其响应正常。",
+        "Degraded": "降级：系统有响应，但速度较慢或带有警告。",
+        "Unhealthy": "不健康：上次检查无法连接到系统，或系统返回了错误。",
+        "Unknown": "尚未检查：尚未运行连接测试或健康检查。"
+      },
+      "secretKind": {
+        "Password": "密码，可附带用户名。",
+        "PrivateKey": "SSH 或 TLS 私钥，可附带密码短语。",
+        "ApiToken": "服务签发的 API 令牌或持有者令牌。",
+        "AccessKeyPair": "访问密钥 ID 和秘密访问密钥，例如 AWS 密钥。",
+        "ServiceAccountJson": "JSON 格式的云服务账号密钥文件，例如 Google Cloud。",
+        "Kubeconfig": "包含集群和用户凭据的 Kubernetes kubeconfig 文件。",
+        "ConnectionString": "包含凭据的完整连接字符串。",
+        "Certificate": "带私钥的证书，用于双向 TLS。",
+        "Generic": "任何其他单个密钥值。"
+      },
+      "connectorCategory": {
+        "Compute": "通过 SSH 或类似方式访问的主机和机器。",
+        "Storage": "对象存储，例如 S3、Azure Blob 和 Google Cloud Storage。",
+        "Database": "SQL 及其他数据库。",
+        "Logging": "日志服务，例如 Papertrail 和 Loki。",
+        "Cache": "缓存，例如 Redis。",
+        "Cloud": "云控制平面，例如 AWS。",
+        "Orchestration": "容器编排，例如 Kubernetes 和 Docker。",
+        "Observability": "指标和监控，例如 Prometheus 和 SolarWinds。",
+        "Http": "通用 HTTP API。",
+        "Agent": "通过 MCP 或 A2A 访问的其他智能体。",
+        "Other": "不属于其他任何类别的连接器。"
+      },
+      "surface": {
+        "Chat": "使用 Hugo 自身智能体循环的控制台聊天。",
+        "Mcp": "由 MCP 客户端（如 Claude Code）发起的调用。",
+        "A2A": "另一个智能体通过 A2A 调用了此配置文件。",
+        "OpenAI": "OpenAI 兼容客户端与此配置文件进行了交互。",
+        "Rest": "直接通过 REST 或 SDK 发起的工具调用。"
+      },
+      "modelKind": {
+        "Inference": "生成回答和工具调用。",
+        "Embedding": "将文本转换为向量以供检索。"
+      },
+      "visibility": {
+        "Private": "仅所有者可以使用。",
+        "Tenant": "租户中所有有访问权限的人都可以使用。"
+      },
+      "auditEventType": {
+        "AuthorizationDenied": "某个主体尝试执行其权限不允许的操作。",
+        "SecretRevealed": "有人在说明原因后显示了密钥的明文。",
+        "LockdownChanged": "租户管理员开启或关闭了锁定。",
+        "HostKeyMismatch": "SSH 主机提供的密钥与已固定的密钥不同，连接已被拒绝。"
+      }
+    },
+    "resources": {
+      "tenants": {
+        "add": "创建新租户：一个拥有独立用户、资源、密钥和配置文件的隔离空间。",
+        "name": "租户的显示名称。人们登录时通过租户 ID 选择租户。",
+        "description": "此租户是为谁或为什么而设，例如某个团队或客户。",
+        "active": "停用的租户无法登录或调用工具。其数据会保留。",
+        "region": "此租户的可选区域标签，供你自行记录。",
+        "lockdown": "已锁定的租户会拒绝所有非读取调用。"
+      },
+      "users": {
+        "add": "创建一个使用电子邮件和密码登录的人员。之后通过角色分配为其授予访问权限。",
+        "email": "此人登录所用的地址。在租户内唯一。",
+        "name": "名字和姓氏，显示在审计记录和列表中。",
+        "role": "账户的管理员级别。普通用户通过角色分配获得访问权限。",
+        "password": "登录密码。编辑时留空即可保留当前密码。",
+        "firstName": "名字，显示在列表和审计记录中。",
+        "lastName": "姓氏，显示在列表和审计记录中。",
+        "isTenantAdmin": "租户管理员可以管理此租户内的一切，包括用户和机密。",
+        "isAdmin": "系统管理员管理所有租户并绕过授权检查。请谨慎授予。",
+        "active": "未启用的用户无法登录，其访问密钥也会失效。",
+        "actions": {
+          "permissions": "显示此用户在合并所有角色和分配后最终拥有的全部权限。",
+          "resetPassword": "设置临时密码；用户下次登录时必须修改。",
+          "assignRole": "打开按此用户筛选的分配页面以授予角色。"
+        },
+        "mustChangePassword": "用户下次登录时必须设置新密码。"
+      },
+      "credentials": {
+        "add": "为脚本、SDK 或服务创建访问密钥。保存后私密密钥只显示一次。",
+        "name": "此密钥的用途，例如 claude-code-laptop。便于在轮换或删除前找到它。",
+        "accessKey": "密钥的公开部分，随每个请求发送。可以安全地存放在配置中。",
+        "secretKeyLast4": "私密密钥的最后四个字符，便于在不查看密钥的情况下进行比对。",
+        "userId": "拥有此密钥的用户。密钥的权限永远不会超过其所有者。",
+        "lastUsedUtc": "此密钥最后一次对请求进行身份验证的时间。日期很久远说明密钥未被使用，可以删除。",
+        "authMode": "密钥的身份验证方式：直接发送、按请求签名、换取会话，或以上任意一种（Hybrid）。",
+        "expiresUtc": "超过此时间后密钥失效。留空表示密钥永不过期。",
+        "active": "未启用的密钥会被拒绝但会保留，因此可以重新启用。",
+        "actions": {
+          "rotate": "用新的私密密钥替换旧的。旧密钥立即失效；新密钥只显示一次。",
+          "permissions": "显示此密钥在合并其所有者、角色和分配后最终拥有的全部权限。",
+          "scopes": "打开按此凭据筛选的凭据作用域分配。"
+        },
+        "agentProfileId": "此凭据默认使用的配置文件。调用框架应使用已绑定的凭据。",
+        "lockToProfile": "开启后，无论调用方请求什么，该凭据只能以其绑定的配置文件身份运行。"
+      },
+      "roles": {
+        "add": "创建一个自定义角色，然后为其添加权限，并分配给用户或密钥。",
+        "name": "分配角色时人们看到的名称，例如 Release Operator。",
+        "description": "此角色的用途以及应该授予谁。",
+        "active": "未启用的角色不授予任何权限，即使已被分配。",
+        "actions": {
+          "clone": "为此内置角色创建一个可编辑的副本，供你调整。"
+        }
+      },
+      "permissions": {
+        "add": "创建一条允许或拒绝对资源类型执行操作的规则。",
+        "name": "规则的简短名称，在构建角色时显示。",
+        "permissionType": "“允许”放行下面的操作。“拒绝”阻止这些操作，并且始终优先于“允许”。",
+        "resourceTypes": "规则涵盖哪些类型的记录。All 表示涵盖所有类型。",
+        "operationTypes": "规则涵盖哪些操作，例如 Read、Create 或 Execute（调用）。",
+        "active": "未启用的权限不起任何作用。"
+      },
+      "userAssignments": {
+        "add": "为用户授予一个角色，范围可以是整个租户或某一条特定记录。",
+        "userId": "获得该角色的人员。",
+        "roleName": "授予的角色。此人将获得其中的全部权限。",
+        "roleId": "要授予的角色。此人将获得其中的全部权限。",
+        "resourceScope": "“租户”将角色应用于所有记录。“资源”将其限制为下面指定的那一条记录。",
+        "resourceId": "角色所适用的单条记录的标识符，例如某个智能体 ID。",
+        "inheritsToChildren": "将角色应用于租户中的所有记录，包括以后创建的记录。",
+        "active": "未启用的分配不授予任何权限，但会保留。"
+      },
+      "credentialAssignments": {
+        "add": "为访问密钥授予一个角色，范围可以是整个租户或某一条特定记录。",
+        "credentialId": "获得该角色的访问密钥。它的权限仍然不能超过其所有者。",
+        "roleName": "授予该密钥的角色。",
+        "roleId": "要授予的角色。请选择能让自动化完成工作的最小权限角色。",
+        "resourceScope": "“租户”将角色应用于所有记录。“资源”将其限制为下面指定的那一条记录。",
+        "resourceId": "角色所适用的单条记录的标识符，例如 CI 作业可以调用的那个智能体。",
+        "inheritsToChildren": "将角色应用于租户中的所有记录，包括以后创建的记录。",
+        "active": "未启用的分配不授予任何权限，但会保留。"
+      },
+      "promptTemplates": {
+        "actions": {
+          "clone": "以你选择的新名称复制此模板，然后在编辑器中打开副本。"
+        },
+        "add": "在带实时预览的编辑器中编写新的提示词模板。每次保存都会成为一个版本。",
+        "name": "模板名称，在租户内唯一。包含语句按名称引用模板。",
+        "kind": "模板的用途：系统提示词、任务包装、片段、工具描述或配置文件。",
+        "currentVersion": "最新保存的版本。每次保存都会将之前的文本保留为可恢复的版本。",
+        "description": "模板的作用以及使用位置。"
+      },
+      "audit": {
+        "createdUtc": "事件发生的时间，按你的本地时区显示。",
+        "eventType": "这是哪一类安全或配置事件。",
+        "principalName": "操作者：管理员、用户或访问密钥。",
+        "resource": "涉及的记录类型和操作，例如 Agent / Read。",
+        "reason": "事件发生的原因，或访问被拒绝的原因。",
+        "sourceIp": "请求来源的网络地址。",
+        "principalType": "操作者是管理员、用户还是访问密钥。",
+        "principalId": "执行操作的管理员、用户或访问密钥的标识符。",
+        "resourceType": "涉及的记录类型，例如 Agent 或 Secret。",
+        "resourceId": "涉及的记录的标识符。",
+        "operation": "尝试执行的操作，例如 Read 或 Execute。",
+        "method": "请求的 HTTP 方法。",
+        "path": "引发该事件的请求路径。",
+        "authResult": "检查调用方身份的结果。",
+        "authorizationResult": "检查调用方权限的结果。",
+        "bypassReason": "跳过授权的原因，例如系统管理员。",
+        "statusCode": "返回给调用方的 HTTP 状态码。",
+        "requestId": "请求标识符。可用它搜索请求历史或服务器日志。"
+      },
+      "approvals": {
+        "bulkReject": "一次性拒绝所有选中的审批。每个调用方都会收到其操作被拒绝的通知。",
+        "summary": "等待审批的具体操作，例如在主机上运行命令。",
+        "effect": "调用的分类方式：写入会更改内容，破坏性会删除或重启。",
+        "status": "待处理表示等待人工处理；其他状态均为最终状态。",
+        "agentProfileId": "其绑定要求审批的配置文件。",
+        "requestedBy": "发起调用的主体（用户、凭据或智能体运行）。",
+        "createdUtc": "智能体提出调用的时间。",
+        "expiresUtc": "如无人处理，请求的过期时间。过期的调用会被拒绝。",
+        "decidedBy": "批准或拒绝该调用的人。",
+        "decisionNote": "审批人随决定留下的备注。",
+        "fromUtc": "显示在此时间或之后请求的审批。",
+        "actions": {
+          "decide": "打开审批卡片，附带备注批准或拒绝此调用。",
+          "invocation": "打开此审批对应的工具调用记录。"
+        }
+      },
+      "bindings": {
+        "resourceId": "此绑定关联的资源。一个资源可以绑定到多个配置文件。",
+        "alias": "智能体在工具调用和指令中对此资源使用的名称，例如 prod-db。",
+        "accessMode": "只读、读写（风险调用需审批）或读写。决定智能体可以执行的操作。",
+        "requireApprovalForDestructive": "即使在读写模式下，破坏性调用（删除、重启、丢弃）也要等待人工处理。默认开启。",
+        "instructionMode": "继承：使用连接器和资源的指令；追加：添加你的文本；替换：仅使用你的文本。",
+        "instructionText": "此配置文件中针对此资源的附加或替换指令，例如哪些架构比较重要。",
+        "maxOutputBytes": "此资源工具输出的上限，比连接器默认值更严格。留空则使用默认值。",
+        "maxRows": "此资源上查询返回的行数上限。留空则使用连接器默认值。",
+        "enabled": "已禁用的绑定会保留，但对智能体隐藏，如同资源未绑定一样。"
+      },
+      "models": {
+        "apiKeySecretId": "保存此服务商 API 密钥或凭据的密钥。加密存储，永远不会向模型显示。",
+        "add": "为 Hugo 自身的智能体循环添加推理或嵌入模型端点。",
+        "kind": "推理模型回答聊天轮次；嵌入模型将文本转换为向量以供检索。",
+        "provider": "端点使用的 API。OpenAI 兼容涵盖 vLLM、LM Studio 及类似服务器。",
+        "baseUrl": "服务商 API 的监听地址，例如本地 Ollama 的 http://127.0.0.1:11434。",
+        "model": "服务商的模型名称，例如 llama3.1、gpt-4o 或 claude-sonnet。",
+        "apiKey": "服务商 API 密钥。以加密密钥形式存储，并由端点引用。",
+        "region": "需要区域的服务商（如 Bedrock 或 Vertex）所用的云区域。",
+        "deploymentName": "提供该模型的 Azure OpenAI 部署。",
+        "apiVersion": "要调用的 Azure OpenAI API 版本。",
+        "contextWindowTokens": "模型可接受的 token 数。Hugo 会在达到上限前压缩历史记录。",
+        "maxOutputTokens": "模型在一次回答中可生成的 token 数上限。",
+        "embeddingDimensions": "嵌入模型生成的向量大小。留空时由“验证”自动填写。",
+        "supportsTools": "模型是否可以调用工具。聊天中除简单回答外的任何操作都需要此能力。",
+        "supportsStreaming": "回答是否可以逐 token 流式输出。",
+        "maxConcurrency": "Hugo 同时向此端点发送的请求数。",
+        "timeoutSeconds": "单个模型请求在失败前可持续的时长。",
+        "maxRetries": "失败的请求在放弃前重试的次数。",
+        "healthStatus": "上次验证或后台健康检查的结果。",
+        "lastHealthUtc": "上次检查端点的时间。",
+        "sections": {
+          "endpoint": "服务商和模型，以及如何访问。",
+          "capabilities": "模型的能力以及可处理的文本量。",
+          "limits": "调用此端点的并发数、超时和重试。"
+        },
+        "actions": {
+          "validate": "发送一个简短提示（或嵌入一段短文本），并记录延迟和结果。",
+          "listModels": "向服务商查询其提供的模型（如果服务商支持列出）。"
+        }
+      },
+      "resources": {
+        "name": "此资源在租户内的唯一名称。绑定将其用作智能体看到的默认别名。",
+        "connectorType": "系统的类型（SSH、PostgreSQL、S3 等）。它决定设置、密钥和工具。",
+        "environment": "自由标签，例如 prod 或 staging。智能体可以看到它，有助于谨慎对待生产环境。",
+        "add": "添加到某个系统的连接：选择连接器、填写设置、选择密钥并进行测试。",
+        "displayName": "供人查看的可选友好名称。智能体使用名称或绑定别名。",
+        "visibility": "私有资源仅其所有者可用；租户资源可供租户中的所有配置文件使用。",
+        "defaultAccessModeCeiling": "绑定在此资源上可授予的最高权限。留空则允许任何访问模式。",
+        "endpoint": "资源所在位置的简短摘要。可搜索，并会显示给智能体。",
+        "description": "此资源是什么，供浏览列表的人查看。",
+        "notes": "智能体在其指令中收到的运维说明，例如哪些表比较重要或哪些内容绝不能动。",
+        "health": "上次连接测试或健康巡检的结果。",
+        "lastTestUtc": "上次测试连接的时间。",
+        "sections": {
+          "general": "名称、环境以及智能体会读取的说明。",
+          "connector": "连接器及其设置和密钥。"
+        },
+        "actions": {
+          "test": "立即针对真实系统测试已保存的设置和密钥。",
+          "tryTool": "以所选配置文件的身份试运行并执行此资源的某个工具。",
+          "referrers": "列出使用此资源的配置文件和绑定。"
+        }
+      },
+      "secrets": {
+        "name": "此密钥在租户内的唯一名称。资源和模型端点按名称选择它。",
+        "kind": "密钥保存的内容。类型决定其包含哪些字段以及哪些连接器槽位接受它。",
+        "saveValue": "加密并存储新值。留空的字段保留已存储的值。",
+        "add": "存储新密钥：选择类型并填写值，或从文件导入。",
+        "description": "此密钥的用途及其所有者。切勿在此处填写密钥值。",
+        "expiresUtc": "凭据失效的时间，以便 Hugo 在过期前发出警告。",
+        "fingerprint": "不可逆的提示信息，例如末尾几个字符或 SSH 密钥指纹，用于区分密钥。",
+        "referrerCount": "使用此密钥的资源和模型端点数量。",
+        "lastRotatedUtc": "上次替换值的时间。",
+        "lastRevealedUtc": "上次有人通过经审计的显示操作查看明文的时间。",
+        "sections": {
+          "values": "此类型的密钥值。存储前会先加密。"
+        },
+        "actions": {
+          "replaceValues": "替换部分或全部值；留空的字段保留已存储的值。",
+          "reveal": "说明原因并重新输入密码后显示明文值。此操作会被审计。",
+          "referrers": "列出使用此密钥的资源和模型端点。"
+        }
+      },
+      "toolInvocations": {
+        "trace": "在新标签页中打开此调用在 Grafana Tempo 中的分布式跟踪。",
+        "createdUtc": "调用发起的时间。悬停可查看确切时间。",
+        "toolName": "被调用的工具，例如 sql_query 或 ssh_exec。",
+        "resourceId": "调用所针对的资源（绑定别名）。",
+        "effect": "调用的分类方式：读取、写入或破坏性。",
+        "decision": "安全管道的决定：允许、拒绝或提交审批及其结果。",
+        "status": "调用的结束方式：成功、失败、超时或已取消。",
+        "durationMs": "调用在服务器上耗费的时间。",
+        "surface": "发起调用的接口：聊天、MCP、A2A、OpenAI 兼容或 REST。",
+        "agentProfileId": "调用方所使用的配置文件。",
+        "principalId": "发起调用的用户或凭据。",
+        "fromUtc": "显示在此时间或之后发起的调用。",
+        "toUtc": "显示在此时间之前发起的调用。",
+        "accessMode": "发起调用时绑定的访问模式。",
+        "outputBytes": "截断前工具输出的大小。",
+        "approvalId": "调用所等待的审批（如有）。",
+        "traceId": "调用的分布式跟踪，可在 Grafana Tempo 中查看。",
+        "argumentsRedacted": "已存储的参数，其中的密钥已替换为标记。",
+        "outputPreview": "智能体收到的输出开头部分（已清除密钥）。"
+      },
+      "profiles": {
+        "add": "创建智能体配置：角色、模型、限制以及公开它的接口。",
+        "name": "URL 安全的名称，在租户内唯一。MCP 客户端通过 /mcp/{name} 访问配置文件，A2A 通过 .../{name} 访问。",
+        "displayName": "在控制台和 A2A 智能体卡片中显示的友好名称。",
+        "description": "此配置文件的用途。显示给用户，并出现在 A2A 卡片摘要中。",
+        "personaName": "智能体在对话中的自称。默认配置文件使用 Agent Smith。",
+        "userAddress": "智能体对调用方的称呼。默认配置文件称呼 Mr. Anderson。",
+        "visibility": "私有配置文件仅其所有者可见；租户配置文件对租户中所有有访问权限的人可见。",
+        "inferenceEndpointId": "为聊天、A2A 和 OpenAI 客户端运行 Hugo 自身智能体循环的模型。MCP 调用方使用自己的模型。",
+        "fallbackInferenceEndpointId": "在主模型失败或不可用时使用。",
+        "embeddingEndpointId": "嵌入工具描述和知识笔记，使大型配置文件只检索相关工具。",
+        "maxIterations": "一轮中模型和工具往返次数的上限。最后一次往返必须在不使用工具的情况下给出回答。",
+        "maxToolCallsPerTurn": "一轮中所有往返的工具调用总数上限。",
+        "toolTimeoutSeconds": "单个工具调用在被取消前可运行的时长。",
+        "temperature": "模型的采样温度。值越低，回答越确定。",
+        "exposeMcp": "向 MCP 客户端（如 Claude Code）列出此配置文件的工具和指令。",
+        "exposeA2a": "为此配置文件发布 A2A 智能体卡片并接受 A2A 消息。",
+        "exposeOpenai": "允许 OpenAI 兼容客户端将此配置文件作为模型名称使用。",
+        "exposeManagementTools": "同时向具有管理员权限的调用方公开管理工具（创建资源、更改绑定）。默认关闭。",
+        "instructionsAppend": "追加到编译后指令末尾（所有资源部分之后）的自由文本。",
+        "bindingCount": "绑定到此配置文件的资源数量。",
+        "exposure": "可以访问此配置文件的协议接口。",
+        "sections": {
+          "identity": "名称、角色和可见性。",
+          "models": "在 Hugo 自身循环中为此配置文件回答的模型。",
+          "limits": "每轮的上限，以便失控的循环能够停止。",
+          "exposure": "可以访问此配置文件的协议接口。"
+        },
+        "actions": {
+          "chat": "打开聊天，与此配置文件对话。",
+          "duplicate": "以新名称复制此配置文件及其绑定，然后打开副本。"
+        }
+      },
+      "conversations": {
+        "title": "对话标题，根据第一轮交流生成。",
+        "agentProfileId": "对话所交互的配置文件。",
+        "userId": "对话所属者：用户或凭据。",
+        "source": "对话的发起位置：控制台聊天、A2A、MCP 或 OpenAI 兼容客户端。",
+        "messageCount": "对话中来自用户和智能体的消息数。",
+        "tokens": "对话迄今使用的输入和输出 token 总数。",
+        "lastMessageUtc": "最新一条消息的添加时间。",
+        "fromUtc": "显示在此时间或之后有活动的对话。",
+        "actions": {
+          "export": "将对话下载为 Markdown，并汇总其中的工具调用。"
+        }
+      },
+      "knowledge": {
+        "add": "编写一条关于技术栈的笔记，Hugo 可以将其检索到上下文中。",
+        "title": "简短的标题，说明笔记的内容。",
+        "agentProfileId": "将笔记限定于某个配置文件，或留空以便所有配置文件都能使用。",
+        "resourceId": "将笔记关联到某个资源，以便在涉及该资源时使用。",
+        "content": "笔记内容，使用通俗语言，例如哪些主机承载结账服务。",
+        "lastUpdateUtc": "笔记上次编辑（并重新嵌入）的时间。"
+      },
+      "sessions": {
+        "principalName": "会话所属者：用户、管理员或凭据。",
+        "principalType": "会话属于管理员、用户还是凭据。",
+        "principalId": "仅显示此主体 ID 的会话。",
+        "authScheme": "会话的获取方式：密码登录、访问密钥兑换或签名请求。",
+        "sourceIp": "创建会话的地址。",
+        "issuedUtc": "会话的签发时间。",
+        "lastUsedUtc": "会话上次用于请求的时间。",
+        "expiresUtc": "会话自动过期的时间。",
+        "revokedUtc": "已撤销的会话不再有效；活动会话仍然有效。",
+        "userAgent": "创建会话的客户端（按其自我标识）。"
+      },
+      "plugins": {
+        "name": "插件程序集的名称。",
+        "version": "插件在其程序集中声明的版本。",
+        "connectorTypes": "此插件添加到目录中的连接器类型。",
+        "enabled": "已禁用的插件仍保留在磁盘上，但不会提供其连接器。",
+        "loadError": "插件加载失败的原因（如有）。",
+        "sha256": "插件文件的校验和，用于确认加载的是哪个构建版本。",
+        "actions": {
+          "enable": "在下次重启时加载此插件的连接器。",
+          "disable": "在下次重启后停止提供此插件的连接器。"
+        }
+      }
+    },
+    "views": {
+      "home": {
+        "observabilityState": {
+          "reachable": "服务器在最近 30 秒内通过内部 URL 访问到了 {{service}}。",
+          "unreachable": "服务器无法通过内部 URL 访问 {{service}}。请检查该服务是否在运行，以及内部 URL 设置是否指向它。",
+          "checking": "正在询问服务器 {{service}} 是否可访问。",
+          "unknown": "服务器没有报告 {{service}} 是否可访问。状态检查失败，或者此服务器尚不支持该检查。"
+        },
+        "observabilityVersion": "{{service}} 在服务器健康检查中报告的版本。",
+        "kpisGrafana": "在新标签页中打开 Grafana 中的 Hugo 概览仪表板，查看这些数据随时间的变化。",
+        "grafanaDashboards": "Grafana 中的 Hugo 文件夹为每个部分提供一个仪表板。每个链接都会在新标签页中打开对应仪表板。",
+        "grafanaSections": {
+          "overview": "健康状况一览：运行时间、请求速率、错误率、工具调用和待处理审批。",
+          "http": "HTTP 流量：按路由和状态类别划分的速率、延迟分位数以及最慢的路由。",
+          "models": "按服务商划分的模型请求、错误、延迟和 token。",
+          "protocols": "按方法和结果划分的 MCP 和 A2A 请求。",
+          "security": "登录、授权拒绝、密钥显示、脱敏和锁定。",
+          "agent": "智能体循环和聊天：轮次、阶段细分、迭代次数和首个 token 时间。",
+          "tools": "按连接器和影响划分的工具调用、决定、延迟、输出大小和失败。"
+        },
+        "observabilityDocs": "在新标签页中打开遥测指南：如何抓取 Hugo 指标并连接 Grafana、Prometheus、Tempo 或 Loki。",
+        "observability": "此 Hugo 服务器报告为已配置的指标、仪表板和跟踪工具的链接。未配置的服务不会显示。",
+        "kpis": {
+          "requests": "服务器在过去 24 小时内处理的 API 请求。点击打开请求历史。",
+          "toolCalls": "过去 24 小时内来自所有接口的工具调用。点击打开工具调用。",
+          "failures": "过去 24 小时内失败的 API 请求和失败的工具调用。点击查看失败的工具调用。",
+          "approvals": "当前正在等待人工处理的受控工具调用。点击打开审批收件箱。",
+          "unhealthy": "上次连接测试或健康检查失败的资源。点击查看。",
+          "tokens": "自午夜起 Hugo 自身模型调用使用的输入和输出 token 总数。点击打开分析。"
+        },
+        "openFailure": "打开按此失败工具筛选的工具调用。",
+        "cta": {
+          "apiExplorer": "针对此服务器实时试用任意 API 调用。",
+          "addResource": "连接一个系统：SSH 主机、存储桶、数据库或日志服务，以及其密钥。",
+          "addModel": "添加推理或嵌入模型，让 Agent Smith 可以在聊天中回答。",
+          "chat": "打开聊天，向 Agent Smith 询问你的技术栈。",
+          "connect": "打开配置文件的“连接”选项卡，获取 Claude Code、A2A 和 OpenAI 兼容设置。",
+          "approvals": "查看等待决定的有风险的工具调用。"
+        },
+        "services": {
+          "loki": "在新标签页中打开 Loki 搜索 Hugo 日志。",
+          "grafana": "在新标签页中打开 Hugo 指标的 Grafana 仪表板。",
+          "prometheus": "在新标签页中打开抓取 Hugo 指标的 Prometheus 服务器。",
+          "tempo": "在新标签页中打开 Tempo 浏览链路追踪。"
+        },
+        "serviceGeneric": "在新标签页中打开此捆绑服务。"
+      },
+      "templateEditor": {
+        "cloneName": "副本名称。建议使用小写字母、数字、连字符和斜杠；builtin/ 前缀为保留前缀。",
+        "cloneConfirm": "以此名称创建副本并在编辑器中打开。",
+        "clone": "创建此模板的可编辑副本。创建前可以为副本命名。",
+        "reset": "将此内置模板恢复为 Hugo 附带的内容。",
+        "delete": "删除此模板及其版本。所有包含它的内容都将回退到内置默认值。",
+        "create": "创建模板及其第一个版本。",
+        "save": "将内容另存为新版本。新对话和 MCP 会话将使用该版本。",
+        "changeNote": "随版本保存的简短说明，解释改了什么以及为什么改。",
+        "columns": {
+          "version": "版本号。数字越大越新。",
+          "note": "随版本保存的变更说明。",
+          "author": "保存此模板版本的人。",
+          "saved": "版本的保存时间。"
+        },
+        "diff": "将此版本与编辑器中的当前内容进行比较。",
+        "restore": "将此版本重新设为当前版本。当前内容会保留在历史记录中。"
+      },
+      "serverInfo": {
+        "rest": "REST API 调用和 SDK 使用的基础地址。",
+        "mcp": "MCP 客户端连接的地址。每个作为工具公开的智能体都会出现在那里。",
+        "a2a": "此租户的 A2A 网关基础地址。每个智能体在其下都有自己的卡片。",
+        "openapi": "描述所有 REST 操作的 OpenAPI 文档。",
+        "version": "Hugo 服务器的版本。",
+        "dashboardVersion": "此控制台的版本。",
+        "node": "响应本页面服务器信息请求的服务器实例。",
+        "database": "服务器使用的数据库引擎。",
+        "health": "服务器健康检查的结果。",
+        "routes": "服务器注册的 API 操作数量。",
+        "serverTime": "服务器时钟。与你的时钟相差过大可能导致签名请求失败。",
+        "principalName": "你当前登录所用的身份。",
+        "principalType": "你是以用户身份登录还是使用访问密钥登录。",
+        "role": "你的最高访问级别。",
+        "tenant": "你的会话所属的租户。",
+        "expires": "你的会话结束、需要重新登录的时间。",
+        "rawJson": "显示服务器信息的原始响应。",
+        "connectors": "服务器加载的连接器类型数量，包括插件。",
+        "openai": "OpenAI 兼容端点的基础 URL；配置文件名称即模型 ID。"
+      },
+      "requests": {
+        "grafana": "在新标签页中打开 Grafana 的 HTTP 仪表板：基于 Prometheus 指标的请求速率、延迟和错误随时间的变化。",
+        "kpis": {
+          "total": "服务器在所选时间范围和筛选条件下保留在历史记录中的请求。",
+          "success": "返回 2xx 或 3xx 状态的请求。",
+          "failure": "返回 4xx 或 5xx 状态的请求。",
+          "avgDuration": "服务器响应的平均耗时。"
+        },
+        "columns": {
+          "time": "请求到达的时间。",
+          "method": "请求的 HTTP 方法。",
+          "path": "被调用的路径。将鼠标悬停在值上可查看完整内容。",
+          "status": "服务器返回的 HTTP 状态。",
+          "duration": "服务器响应所用的时间。",
+          "principal": "发起请求者：管理员、用户或访问密钥。"
+        },
+        "viewDetails": "打开请求，查看请求头、请求体和耗时。",
+        "viewJson": "打开请求记录，包括其原始 JSON。",
+        "deleteOne": "从历史记录中移除此请求。",
+        "bulkDeleteAll": "删除所有符合当前筛选条件的请求，而不仅是本页的请求。"
+      },
+      "explorer": {
+        "operations": "选择一个按领域分组的 API 操作。下方的表单会根据其参数自动调整。",
+        "pathParam": "路径参数 {{name}}（{{type}}）。它会被代入 URL 中。{{description}}",
+        "queryParam": "查询参数 {{name}}（{{type}}）。填写后会附加到 URL 上。{{description}}",
+        "copyUrl": "复制完全解析后的请求 URL。",
+        "headerName": "请求头的名称。Authorization 会根据你的会话自动添加。",
+        "headerValue": "为此请求头发送的值。",
+        "removeHeader": "从请求中移除此请求头。",
+        "addHeader": "再添加一个请求头。",
+        "body": "用于创建或修改记录的操作的 JSON 请求体。",
+        "execute": "立即使用你的会话将请求发送到服务器。破坏性方法会先请你确认。",
+        "stop": "中止请求，或停止读取流式响应。",
+        "snippets": {
+          "curl": "以 curl 命令表示的相同请求，可在终端中使用。",
+          "fetch": "以 JavaScript fetch 代码表示的相同请求。",
+          "csharp": "以 C# HttpClient 代码表示的相同请求。"
+        },
+        "clearHistory": "清除此浏览器中保存的所有最近请求。",
+        "loadHistory": "将此请求重新加载到表单中。",
+        "deleteHistory": "从最近请求列表中移除此条目。",
+        "confirmExecute": "即使此请求可能修改或删除数据，仍然发送它。"
+      },
+      "a2aExplorer": {
+        "profile": "要交互的配置文件。只有开启了 A2A 公开的配置文件才会响应。",
+        "fetchCard": "从配置文件的 well-known URL 下载其公开的智能体卡片。",
+        "listTasks": "列出你在此配置文件上拥有的 A2A 任务（租户管理员可以看到所有任务）。",
+        "message": "作为用户消息发送给智能体的文本。",
+        "stream": "使用 SendStreamingMessage 并在事件到达时显示，而不是等待最终回答。",
+        "send": "以你自己的主体身份通过 A2A JSON-RPC 发送消息。",
+        "context": "同一上下文中的消息会延续同一个对话。更改配置文件即可重新开始。",
+        "events": "服务器发送的每个流事件。"
+      },
+      "analytics": {
+        "profile": "将所有图表限定于某个智能体配置，或显示整个租户。",
+        "kpis": {
+          "turns": "该时间范围内运行 Hugo 自身智能体循环的聊天、A2A 和 OpenAI 兼容轮次。",
+          "toolCalls": "该时间范围内来自所有接口的工具调用，包括被拒绝和被驳回的调用。",
+          "failures": "该时间范围内以失败或超时结束的工具调用。",
+          "tokens": "该时间范围内 Hugo 模型调用使用的输入和输出 token 总数。",
+          "approvals": "该时间范围内请求的审批，无论结果如何。",
+          "turnaround": "从请求审批到有人做出决定的中位时间。",
+          "approvalRate": "已处理的审批中被批准（而非拒绝）的比例。"
+        },
+        "columns": {
+          "connector": "调用所指向的连接器类型。",
+          "calls": "该时间范围内对此连接器的工具调用。",
+          "failures": "对此连接器的调用中失败或超时的调用。",
+          "p95": "对此连接器 95% 的调用在此时间内完成。"
+        }
+      },
+      "chat": {
+        "search": "按标题搜索你的对话。",
+        "profile": "要交互的智能体配置。它决定角色、模型以及智能体可以使用的资源。",
+        "model": "此配置文件用于生成回答的推理模型。",
+        "new": "使用所选配置文件开始新对话。",
+        "export": "将此对话下载为 Markdown。",
+        "drawer": "显示或隐藏上下文抽屉：配置文件、已绑定的资源、token 用量和待处理审批。",
+        "goModels": "打开模型端点以添加推理模型。",
+        "goProfiles": "打开智能体配置以创建或选择配置文件。"
+      },
+      "connectors": {
+        "search": "按类型、类别、名称或描述筛选连接器。",
+        "category": "仅显示某一类连接器，例如数据库或日志服务。",
+        "card": "打开 {{name}}：其设置、密钥槽位、工具和默认指令。",
+        "back": "返回连接器目录。",
+        "addResource": "打开资源页面，添加使用某个连接器的资源。",
+        "editInstructions": "打开按此连接器指令模板筛选的提示模板。",
+        "tabs": {
+          "overview": "类型、类别、分类、版本以及此连接器所需的密钥槽位。",
+          "settings": "此类型资源的设置表单，以及所有设置的参考表。",
+          "tools": "此连接器提供的所有工具及其基础影响。",
+          "instructions": "此类型的每个资源为智能体添加的指令。"
+        },
+        "columns": {
+          "key": "存储在资源上并被 API 接受的设置键。",
+          "kind": "值类型：文本、长文本、整数、真或假、列表或选项之一。",
+          "required": "资源是否必须为此设置指定值。",
+          "default": "资源未填写此设置时使用的值。",
+          "range": "允许的值，或数字的最小值和最大值。",
+          "group": "该设置在资源表单中所在的部分。"
+        }
+      },
+      "mcpExplorer": {
+        "profile": "连接到 /mcp/{profile}，或交由服务器根据凭据或默认值确定你的配置文件。",
+        "connect": "运行 initialize，然后列出此调用方可见的工具。",
+        "session": "服务器分配的 MCP 会话。此浏览器中的每个请求都会复用它。",
+        "instructions": "服务器在 initialize 中返回的编译后指令，与 MCP 客户端收到的内容一致。",
+        "call": "使用这些参数，通过完整的安全管道调用所选工具。",
+        "log": "与服务器交换的每个 JSON-RPC 请求和响应，按顺序排列。"
+      },
+      "profile": {
+        "back": "返回智能体配置列表。",
+        "chat": "打开聊天，与此配置文件对话。",
+        "tabs": {
+          "general": "角色、对用户的称呼、模型、限制以及公开此配置文件的接口。",
+          "bindings": "关联到此配置文件的资源，每个都有别名和访问模式。",
+          "instructions": "调用方收到的编译后指令，以及每个部分的来源。",
+          "tools": "应用访问模式和工具规则后，此配置文件的调用方看到的工具。",
+          "connect": "用于连接 Claude Code、其他 MCP 客户端、A2A 智能体和 OpenAI 兼容客户端的代码片段。"
+        },
+        "bindings": {
+          "add": "以别名和访问模式将资源关联到此配置文件。",
+          "goResources": "打开资源页面，添加此配置文件需要访问的系统。",
+          "columns": {
+            "alias": "智能体在工具调用中对该资源使用的名称。",
+            "resource": "此绑定关联的资源。",
+            "accessMode": "智能体可对该资源执行的操作：只读、读写（需审批）或读写。",
+            "approval": "此绑定上的某些调用是否需要等待人工处理。",
+            "enabled": "已禁用的绑定对智能体隐藏。"
+          }
+        },
+        "toolRules": {
+          "open": "为此绑定上的单个工具设置允许、拒绝或需要审批。",
+          "rule": "允许：工具按访问模式运行；拒绝：隐藏该工具；需要审批：始终询问人工。",
+          "save": "保存这些工具规则。它们会立即应用于新的调用。"
+        },
+        "instructions": {
+          "surface": "不同接口（聊天、MCP、A2A、OpenAI、REST）的指令略有不同。选择一个进行预览。",
+          "section": "编译后指令中的一个部分及其来源的模板层级。"
+        },
+        "tools": {
+          "name": "调用方使用的工具名称，通常为 family_operation 形式，例如 sql_query。",
+          "effect": "基础影响：读取、写入或破坏性。部分工具按每次调用分类。",
+          "description": "工具的功能，与调用方的模型看到的一致。"
+        },
+        "connect": {
+          "copyCard": "复制智能体卡片 URL，供其他 A2A 智能体发现此配置文件。",
+          "copyOpenai": "复制 OpenAI 兼容的基础 URL。",
+          "credential": "打开凭据页面，创建绑定到此配置文件的访问密钥。"
+        }
+      },
+      "resources": {
+        "form": {
+          "test": "在保存任何内容之前，针对真实系统测试此表单中的设置和密钥。"
+        },
+        "tryTool": {
+          "profile": "要使用的配置文件。其绑定决定调用的访问模式和审批。",
+          "tool": "配置文件为此资源公开的工具。",
+          "arguments": "JSON 格式的工具参数。resource 参数指定绑定别名。",
+          "dryRun": "对调用进行分类（影响、决定、访问模式）而不运行它。",
+          "execute": "通过完整管道运行调用。有风险的调用与其他调用一样需要等待审批。"
+        }
+      },
+      "secrets": {
+        "reveal": {
+          "reason": "你需要查看此密钥的原因。会随显示操作保存在审计记录中。",
+          "submit": "向服务器请求明文值。需要“显示”权限，且会被审计。",
+          "password": "你的账号密码，用于在显示密钥前确认是你本人。",
+          "reauth": "使用密码重新验证此会话，然后显示密钥。",
+          "copy": "将此值复制到剪贴板。隐藏后不会再次显示。",
+          "again": "再次显示值。这将作为新的显示操作被审计。"
+        }
+      },
+      "settings": {
+        "applyLive": "保存后立即生效。",
+        "applyRestart": "服务器重启后生效。",
+        "fieldGeneric": "服务器设置 {{path}}。",
+        "groupGeneric": "{{group}} 组中的设置。",
+        "restart": "重启 Hugo 服务器，使需要重启的设置生效。容器会自动重启服务器。",
+        "save": "保存所有已更改的设置。实时设置会立即生效；其他设置需等待重启。",
+        "settingPath": "设置路径：{{path}}。在 hugo.json 和设置 REST API 中使用此名称。",
+        "sourceGeneric": "当前值的来源。",
+        "testDatabase": "在保存之前，先尝试使用上面的数据库设置进行连接。",
+        "viewJson": "显示原始的设置响应。",
+        "groups": {
+          "Rest": "服务器的监听位置以及如何从外部访问，包括位于代理之后的情况。",
+          "Database": "Hugo 存储自身数据所用的数据库：SQLite 或 PostgreSQL。",
+          "Logging": "服务器进程的控制台和文件日志。",
+          "Auth": "会话时长、令牌签名和登录速率限制。",
+          "Secrets": "密钥库：主密钥来源以及显示密钥的重新验证时间窗口。",
+          "RequestHistory": "是否记录 API 请求、保留每个请求正文的多少内容以及保留多长时间。",
+          "Audit": "安全事件的保留时长以及成功登录的采样频率。",
+          "Telemetry": "导出到内置 Tempo 和 Prometheus 的跟踪和指标。",
+          "Agent": "Hugo 自身智能体循环在聊天、A2A 和 OpenAI 客户端中的限制和行为。",
+          "Approvals": "审批的等待时长、MCP 调用为等待审批而阻塞的时长，以及是否允许自我审批。",
+          "Connectors": "插件、工具超时以及资源的后台健康巡检。",
+          "Models": "模型端点的健康检查频率。",
+          "Mcp": "MCP 端点：开启或关闭、会话超时和消息大小。",
+          "A2A": "是否可以通过 A2A 访问配置文件。",
+          "OpenAI": "是否开启 OpenAI 兼容端点。",
+          "Embeddings": "向量的存储和搜索方式，包括 PostgreSQL 上的 pgvector。"
+        },
+        "source": {
+          "File": "当前在 hugo.json 中设置。在此保存会更新该文件。",
+          "Environment": "由环境变量设置，其优先级高于在这里保存的任何值。",
+          "Database": "存储在数据库中。"
+        }
+      }
+    },
+    "export": {
+      "menu": "下载 {{name}}：以 CSV 或 JSON 格式下载数据，或将图表下载为 PNG 或 SVG 图像，包含标题、图例、筛选条件和时间范围。",
+      "csv": "以 CSV 格式下载此视图背后的确切数据：每个区间或每条记录一行，时间戳为 ISO 8601 UTC，数字使用普通的点号小数格式。",
+      "png": "将图表下载为两倍屏幕分辨率的 PNG 图像，包含标题、图例、当前筛选条件和时间范围。",
+      "svg": "将图表下载为可缩放的 SVG 图像，包含标题、图例、当前筛选条件和时间范围。",
+      "json": "以 JSON 格式下载数据，将系列、区间、筛选条件和时间范围放在一个文档中。"
+    },
+    "analytics": {
+      "dataTable": "以表格形式显示此图表背后的数据，每个时间区间一行。",
+      "bucketStart": "时间区间的开始时间。每行对应一个区间。"
+    },
+    "approvalCard": {
+      "approve": "立即允许此调用运行。决定和你的备注会记录在审计记录中。",
+      "reject": "拒绝此调用。智能体会收到操作被拒绝的通知，并在没有该操作的情况下继续。",
+      "note": "随决定保存的可选备注，例如你批准重启的原因。"
+    },
+    "chat": {
+      "input": "输入发送给 Agent Smith 的消息。按 Enter 发送；按 Shift+Enter 换行。每个对话的草稿都会保留。",
+      "send": "发送消息并流式接收回答，包括 Agent Smith 发起的所有工具调用。",
+      "stop": "立即停止回答。正在运行的工具调用会被取消，已生成的部分回答会保留。",
+      "thinking": "模型为此回答进行的推理（如果模型提供）。默认折叠。",
+      "ttft": "首个 token 时间：从发送消息到回答的第一部分到达的时间。",
+      "duration": "整轮所用的时间，包括工具调用和等待审批。",
+      "tokens": "服务商报告的模型所用输入和输出 token。"
+    },
+    "errors": {
+      "status": "服务器返回的 HTTP 状态码。",
+      "requestId": "服务器为此请求分配的 ID。可在请求历史或服务器日志中搜索。",
+      "copyRequestId": "复制请求 ID，例如用于填写问题报告。",
+      "traceId": "分布式跟踪 ID。可通过 Grafana 在 Tempo 中用它查找完整请求。"
+    },
+    "nav": {
+      "approvalsBadge_one": "有 {{count}} 个工具调用正在等待人工批准或拒绝。打开审批页面进行处理。",
+      "approvalsBadge_other": "有 {{count}} 个工具调用正在等待人工批准或拒绝。打开审批页面进行处理。",
+      "setup": "打开设置向导：连接模型、添加第一个资源、将其绑定到 Hugo 配置文件并连接 Claude Code。",
+      "skipToContent": "跳过导航，直接进入此页面的主要内容。主要供键盘用户使用。",
+      "tour": "重新播放简短的引导教程，了解导航、上下文以及各功能的位置。",
+      "environment": {
+        "local": "控制台正在与本机上的 Hugo 服务器（回环地址）通信。",
+        "remote": "控制台正在与另一台主机上的 Hugo 服务器通信。在此所做的更改会影响该服务器。"
+      },
+      "subtabs": {
+        "roles": "角色将权限归入一个名称下，例如 Operator 或 Builder。分配角色即可授予其全部权限。",
+        "permissions": "允许或拒绝对资源类型执行操作的单条规则。角色由这些规则组成；拒绝始终优先。",
+        "userAssignments": "为使用电子邮件和密码登录的人员授予角色，范围可以是整个租户或单个资源。",
+        "credentialAssignments": "为调用框架和自动化使用的访问密钥授予角色。密钥的权限应比其所有者更窄。"
+      },
+      "hubs": {
+        "home": "打开指挥中心：KPI、请求活动、最近失败、不健康的资源和常用工作流。",
+        "chat": "与 Agent Smith 讨论你的技术栈。工具调用会内联显示，有风险的调用会等待你的审批。",
+        "profiles": "创建智能体配置，并以访问模式为其绑定资源；所有接口都与配置文件交互。",
+        "approvals": "处理来自任何接口、正在等待人工处理的写入和破坏性工具调用。",
+        "conversations": "查看租户中来自聊天、A2A、MCP 和 OpenAI 兼容客户端的对话。",
+        "resources": "添加并测试到 SSH 主机、存储桶、数据库、日志服务及其他系统的连接。",
+        "secrets": "加密存储密码、密钥和令牌。资源和模型端点按槽位使用它们。",
+        "connectors": "浏览 Hugo 支持的服务类别、其工具和影响以及默认指令。",
+        "models": "添加 Hugo 自身智能体循环在聊天、A2A 和 OpenAI 客户端中使用的推理和嵌入模型。",
+        "prompts": "按层级（内置、全局、租户）编辑指令模板，支持预览、版本和重置。",
+        "knowledge": "通过笔记让 Hugo 了解你的技术栈，Hugo 会在对话中将其检索到上下文。",
+        "toolInvocations": "来自所有接口的每一次工具调用，包括其影响、决定、结果和跟踪链接。",
+        "requests": "检查服务器处理的每个 API 请求，包括标头、正文、耗时和状态。",
+        "analytics": "了解 token 用量、按影响和连接器划分的工具调用、模型延迟和审批处理时长。",
+        "audit": "查看登录、拒绝、密钥显示和配置更改等安全事件。",
+        "explorer": "根据服务器的实时 OpenAPI 文档试用任意 REST 路由，并生成代码片段。",
+        "mcpExplorer": "以你自己的身份连接到 MCP 端点，查看指令和工具并调用工具。",
+        "a2aExplorer": "获取配置文件的智能体卡片，并通过 A2A JSON-RPC 向其发送消息。",
+        "tenants": "创建和管理此服务器上相互隔离的租户。只有系统管理员可以看到此页面。",
+        "users": "管理登录此租户的人员、重置密码并查看有效权限。",
+        "credentials": "为调用框架和 SDK 创建访问密钥，将其绑定到配置文件并进行轮换。",
+        "rbac": "管理此租户中的角色、角色包含的权限以及角色持有者。",
+        "sessions": "查看租户中所有活动的会话和令牌，并可撤销其中任何一个。",
+        "settings": "编辑服务器设置文件、重启服务器并查看服务器信息。",
+        "plugins": "启用或禁用连接器插件并查看加载错误。只有系统管理员可以看到此页面。"
+      },
+      "tabs": {
+        "roles": "角色及其包含的权限。克隆内置角色即可进行自定义。",
+        "assignments": "谁持有哪个角色：用户和凭据，范围为整个租户或单个资源。",
+        "settings": "编辑服务器设置文件，带有验证、即时生效与需重启的标记，以及“重启服务器”。",
+        "serverInfo": "可复制的端点、服务器和控制台版本、功能以及你的身份。"
+      }
+    },
+    "passwordChange": {
+      "current": "你登录时使用的密码：预置密码或管理员为你设置的密码。",
+      "new": "你的新密码。建议使用较长的密码短语；服务器可能会强制执行更多规则。",
+      "confirm": "再次输入新密码，以免因输入错误而无法登录。",
+      "submit": "保存新密码并继续进入控制台。"
+    },
+    "promptEditor": {
+      "content": "模板文本。双花括号中的变量会在编译指令时填入。",
+      "insert": "在光标处插入 {{variable}}。",
+      "preview": "使用示例上下文渲染文本，查看智能体将读取的内容。",
+      "diff": "逐行比较此文本与已保存版本或默认版本。",
+      "sampleContext": "预览使用的示例值。编辑它们即可尝试不同的角色、资源或访问模式。",
+      "serverRender": "服务器使用与真实指令相同的渲染器渲染了此预览。",
+      "localRender": "服务器的预览路由不可用，因此由浏览器渲染了近似结果。"
+    },
+    "schemaForm": {
+      "setting": "连接器设置 {{label}}。保存或测试资源时，连接器会对其进行验证。"
+    },
+    "secretField": {
+      "slot": "此连接器为 {{slot}} 读取的密钥。仅列出可接受类型的密钥。",
+      "createInline": "无需离开此表单即可创建新密钥。它会被加密并选用于此槽位。",
+      "saveInline": "加密并存储新密钥，然后将其选用于此槽位。",
+      "import": "将计算机上的密钥、证书、kubeconfig 或 JSON 文件读入此字段。仅在保存时发送。",
+      "fields": {
+        "username": "用于登录的账号名称。它本身不是机密，但会与密码一起存储。",
+        "password": "密码。加密存储，永远不会显示给智能体。",
+        "privateKey": "PEM 或 OpenSSH 格式的私钥。将密钥文件拖放到此处或导入。",
+        "passphrase": "保护私钥的密码短语（如有）。",
+        "token": "服务签发的 API 令牌或持有者令牌。",
+        "accessKeyId": "访问密钥 ID，例如 AWS 上以 AKIA 开头、后接字母和数字的 ID。",
+        "secretAccessKey": "访问密钥对中的秘密部分。加密存储。",
+        "sessionToken": "临时凭据的可选会话令牌。",
+        "json": "完整的服务账号密钥文件（JSON），例如来自 Google Cloud。",
+        "kubeconfig": "包含要使用的集群、用户和上下文的 kubeconfig 文件。",
+        "connectionString": "包含凭据的完整连接字符串，例如用于 SQL Server 或 Redis。",
+        "certificate": "PEM 格式的证书。它本身不是机密，但会与其密钥一起保存。",
+        "value": "适用于只需单个不透明密钥的连接器的任意密钥值。"
+      }
+    },
+    "toolActivity": {
+      "toggle": "显示或隐藏此工具调用的参数和输出。",
+      "resource": "调用所针对的资源别名（按配置文件上的绑定）。",
+      "status": "调用当前所处阶段：已提议、运行中、等待审批或已完成。",
+      "duration": "调用在服务器上从开始到返回结果所用的时间。"
+    },
+    "tour": {
+      "skip": "立即结束引导教程。你可以从侧边栏重新播放。",
+      "back": "显示引导教程的上一步。",
+      "next": "前往引导教程的下一步。",
+      "done": "完成引导教程。你可以从侧边栏重新播放。"
+    },
+    "wizard": {
+      "skip": "关闭向导，并且不再为此租户提供它。你可以从侧边栏重新打开。",
+      "back": "返回向导的上一步。",
+      "start": "开始设置：连接模型、添加资源、绑定资源并连接客户端。",
+      "skipStep": "不完成此步骤直接继续。你可以稍后在对应页面中完成。",
+      "saveModel": "创建模型端点（如果输入了 API 密钥，同时创建其密钥）并继续。",
+      "saveResource": "使用这些设置及其密钥创建资源，然后继续进行绑定。",
+      "bind": "以所选访问模式将新资源绑定到默认 Hugo 配置文件。",
+      "finish": "关闭此租户的向导，并打开聊天与 Agent Smith 对话。"
+    }
+  },
+  "explainers": {
+    "promptTemplates": {
+      "title": "提示模板及其层级",
+      "p1": "Hugo 给智能体的每条指令都是模板：Agent Smith 角色、安全规则以及每个连接器的指令。模板使用 {{persona.name}} 和 {{resource.alias}} 等变量，每次保存都会创建一个新版本。",
+      "p2": "模板是分层的：内置文本随 Hugo 提供，全局默认值可为所有租户覆盖它，租户又可以覆盖全局默认值。“重置为默认值”会移除覆盖并回退一层。"
+    },
+    "tenants": {
+      "title": "租户",
+      "p1": "租户是此服务器上一个隔离的组织。用户、访问密钥、资源、密钥、配置文件和对话都只属于一个租户，租户之间互不可见。"
+    },
+    "users": {
+      "title": "用户与访问密钥",
+      "p1": "用户是使用电子邮件和密码登录的人员。访问密钥是自动化程序的登录方式。每个访问密钥都属于一个用户，其权限永远不会超过该用户。",
+      "p2": "两者都不会仅因存在就获得访问权限。访问权限来自用户上的管理员标志以及角色分配。"
+    },
+    "credentials": {
+      "title": "访问密钥与用户",
+      "p1": "访问密钥是供脚本、SDK 和服务使用的访问密钥 ID 与私密密钥对。它属于某个用户。其有效权限是它自身角色分配所授予的权限与其所有者可执行操作的交集。",
+      "p2": "私密密钥只在创建或轮换密钥时显示一次。请定期轮换密钥，并删除长时间未使用的密钥。"
+    },
+    "roles": {
+      "title": "角色、权限与分配",
+      "p1": "权限是一条规则：允许或拒绝对某些资源类型（如资源、密钥或智能体配置）执行某些操作（如读取、执行或显示）。角色是一组具名的权限。拒绝始终优先于允许。",
+      "p2": "在分配角色之前，任何人的权限都不会改变。下一个标签页中的分配会将角色授予用户或访问密钥，范围可以是整个租户或单条记录。"
+    },
+    "assignments": {
+      "title": "分配",
+      "p1": "分配将一个角色授予一个用户或访问密钥。租户范围将角色应用于所涵盖类型的所有记录；资源范围将其应用于单条记录，例如调用框架可以使用的某个智能体配置。",
+      "p2": "在用户或访问密钥上使用“有效权限”，可查看其所有分配合并后的结果。"
+    },
+    "audit": {
+      "title": "审计与请求历史",
+      "p1": "审计记录是安全和配置事件：登录、被拒绝的请求、密钥显示和更改、角色和绑定更改、锁定以及重启。它们会按设置中的保留期限保存。",
+      "p2": "上一个标签页中的请求历史是原始的 HTTP 流量。用审计来回答“谁改了什么”，用请求历史来调试客户端实际发送了什么。"
+    },
+    "requests": {
+      "title": "请求历史",
+      "p1": "此服务器捕获的每个 API 请求，包括方法、路径、状态、耗时、请求头和请求体（按配置的大小截断）。可用于调试集成和 SDK 调用。点击图表中的柱形可将表格缩小到该时间段。"
+    },
+    "diagram": {
+      "label": "密钥、资源、绑定、配置文件和接口之间的关系"
+    },
+    "profiles": {
+      "title": "配置文件、资源和接口之间的关系",
+      "p1": "配置文件就是一个智能体：一个角色（默认为 Agent Smith）、它用于思考的模型以及一组绑定。每个绑定以别名和访问模式关联一个资源。",
+      "p2": "每个接口都是同一配置文件的客户端。MCP 客户端获取配置文件的工具和指令；聊天、A2A 和 OpenAI 兼容客户端使用配置文件的模型运行 Hugo 自身的循环。"
+    },
+    "approvals": {
+      "title": "调用何时需要等待人工处理",
+      "p1": "每个工具调用都被分类为读取、写入或破坏性。破坏性调用默认需要等待审批；在“读写（需审批）”模式的绑定上，每个写入调用也需要等待。",
+      "p2": "批准即允许调用运行，拒绝即驳回调用。无论哪种情况，智能体都会收到通知，决定会连同你的备注一起记录。"
+    },
+    "conversations": {
+      "title": "来自所有接口的对话",
+      "p1": "控制台聊天、A2A 上下文、MCP 委派和 OpenAI 兼容会话都会在此成为对话，所有接口的历史记录集中在一处。"
+    },
+    "resources": {
+      "title": "资源、密钥和绑定",
+      "p1": "资源是一个已配置的系统：包括其连接器、设置以及使用的密钥。密钥在 Hugo 中始终加密保存，智能体永远看不到。",
+      "p2": "资源在被配置文件绑定之前不起任何作用。绑定决定智能体看到的别名以及它可以执行的操作。"
+    },
+    "secrets": {
+      "title": "密钥如何受到保护",
+      "p1": "值使用主密钥以 AES-256-GCM 加密，并与其租户绑定。资源和模型端点按槽位引用密钥。",
+      "p2": "除通过“显示”操作外，任何人都无法再次看到值；该操作需要“显示”权限、原因以及重新验证密码，并且始终会被审计。"
+    },
+    "models": {
+      "title": "Hugo 何时需要模型",
+      "p1": "Claude Code 等 MCP 客户端使用自己的模型；Hugo 只提供工具和指令。聊天、A2A 和 OpenAI 兼容端点运行 Hugo 自身的循环，需要在配置文件上设置推理模型。"
+    },
+    "knowledge": {
+      "title": "知识笔记的用途",
+      "p1": "笔记是运维人员会告诉同事的事实。Hugo 会对其进行嵌入，并在每一轮中将相关笔记检索到上下文中。"
+    },
+    "toolInvocations": {
+      "title": "每次工具调用一条记录",
+      "p1": "来自所有接口的每个工具调用都经过同一管道：分类、绑定的访问模式、必要时的审批、连接器以及密钥清除器。每次调用都记录在这里。"
+    },
+    "connectors": {
+      "title": "连接器和资源",
+      "p1": "连接器是知道如何与某一类系统通信的代码。资源是连接器的一个已配置实例，拥有自己的设置和密钥。"
+    },
+    "analytics": {
+      "title": "这些数据的来源",
+      "p1": "分析功能在服务器上汇总工具调用、聊天轮次和模型调用，按时间分区并限定于此租户。"
+    },
+    "sessions": {
+      "title": "会话和令牌",
+      "p1": "登录或兑换访问密钥会签发会话令牌。撤销会话会立即终止它，无论它在何处使用。"
+    },
+    "plugins": {
+      "title": "连接器插件",
+      "p1": "插件从插件目录添加连接器类型，无需重新构建 Hugo。仅当 Connectors.EnablePlugins 开启时才会加载。"
+    }
+  },
+  "nav": {
+    "primary": "主导航",
+    "collapseSidebar": "切换导航栏",
+    "setup": "设置向导",
+    "skipToContent": "跳到主要内容",
+    "tour": "引导教程",
+    "version": "版本 {{version}}",
+    "approvalsPending_one": "{{count}} 个审批等待处理",
+    "approvalsPending_other": "{{count}} 个审批等待处理",
+    "environment": {
+      "local": "本地",
+      "remote": "远程"
+    },
+    "sections": {
+      "start": "开始",
+      "agents": "智能体",
+      "connect": "连接",
+      "configure": "配置",
+      "observe": "观察",
+      "develop": "开发",
+      "administer": "管理"
+    },
+    "hubs": {
+      "home": {
+        "label": "首页",
+        "tip": "Hugo 正在做什么、哪些事项需要关注，以及常见的下一步操作。"
+      },
+      "chat": {
+        "label": "聊天",
+        "tip": "与 Agent Smith 对话；工具调用和审批内联显示。"
+      },
+      "profiles": {
+        "label": "智能体配置",
+        "tip": "绑定了资源和访问模式的角色，可通过所有接口访问。"
+      },
+      "approvals": {
+        "label": "审批",
+        "tip": "等待人工批准或拒绝的有风险的工具调用。"
+      },
+      "conversations": {
+        "label": "对话",
+        "tip": "租户中来自聊天、A2A、MCP 和 OpenAI 客户端的所有对话。"
+      },
+      "resources": {
+        "label": "资源",
+        "tip": "已配置的系统连接：主机、存储桶、数据库、日志服务。"
+      },
+      "secrets": {
+        "label": "密钥",
+        "tip": "资源和模型端点使用的加密凭据材料。"
+      },
+      "connectors": {
+        "label": "连接器",
+        "tip": "Hugo 可访问的系统类型、其工具和默认指令。"
+      },
+      "models": {
+        "label": "模型端点",
+        "tip": "供 Hugo 自身智能体循环使用的推理和嵌入模型。"
+      },
+      "prompts": {
+        "label": "提示模板",
+        "tip": "所有指令模板：角色、安全规则和连接器指令。"
+      },
+      "knowledge": {
+        "label": "知识",
+        "tip": "Hugo 检索到上下文中的技术栈笔记。"
+      },
+      "toolInvocations": {
+        "label": "工具调用",
+        "tip": "所有智能体执行的每个操作，包括其影响、决定和结果。"
+      },
+      "requests": {
+        "label": "请求历史",
+        "tip": "服务器处理的每个 API 请求，包括标头和正文。"
+      },
+      "analytics": {
+        "label": "分析",
+        "tip": "用量、成本、延迟和审批随时间变化的趋势。"
+      },
+      "audit": {
+        "label": "审计",
+        "tip": "安全事件：登录、拒绝、密钥显示、配置更改。"
+      },
+      "explorer": {
+        "label": "API 浏览器",
+        "tip": "根据实时 OpenAPI 文档试用任意 REST 路由。"
+      },
+      "mcpExplorer": {
+        "label": "MCP 浏览器",
+        "tip": "以 MCP 客户端身份连接、列出工具并调用。"
+      },
+      "a2aExplorer": {
+        "label": "A2A 浏览器",
+        "tip": "获取智能体卡片并通过 A2A 与配置文件对话。"
+      },
+      "tenants": {
+        "label": "租户",
+        "tip": "此服务器上相互隔离的租户。仅限系统管理员。"
+      },
+      "users": {
+        "label": "用户",
+        "tip": "登录此租户的人员。"
+      },
+      "credentials": {
+        "label": "凭据",
+        "tip": "供调用框架、SDK 和自动化使用的访问密钥。"
+      },
+      "rbac": {
+        "label": "角色和权限",
+        "tip": "角色、权限及其持有者。"
+      },
+      "sessions": {
+        "label": "会话",
+        "tip": "活动的登录会话和令牌；可撤销其中任何一个。"
+      },
+      "settings": {
+        "label": "设置",
+        "tip": "服务器配置、重启和服务器信息。"
+      },
+      "plugins": {
+        "label": "插件",
+        "tip": "从插件目录加载的连接器插件。"
+      }
+    },
+    "items": {
+      "home": {
+        "label": "首页",
+        "tip": "Hugo 正在做什么、哪些事项需要关注，以及常见的下一步操作。"
+      },
+      "chat": {
+        "label": "聊天",
+        "tip": "与 Agent Smith 对话；工具调用和审批内联显示。"
+      },
+      "profiles": {
+        "label": "智能体配置",
+        "tip": "绑定了资源和访问模式的角色。"
+      },
+      "approvals": {
+        "label": "审批",
+        "tip": "等待人工处理的有风险的工具调用。"
+      },
+      "conversations": {
+        "label": "对话",
+        "tip": "租户中的所有对话。"
+      },
+      "resources": {
+        "label": "资源",
+        "tip": "已配置的系统连接。"
+      },
+      "secrets": {
+        "label": "机密",
+        "tip": "加密的凭据材料。"
+      },
+      "connectors": {
+        "label": "连接器",
+        "tip": "Hugo 可访问的服务类别。"
+      },
+      "models": {
+        "label": "模型端点",
+        "tip": "推理和嵌入模型。"
+      },
+      "promptTemplates": {
+        "label": "提示词模板",
+        "tip": "指令模板及其层级。"
+      },
+      "knowledge": {
+        "label": "知识",
+        "tip": "Hugo 检索到上下文中的笔记。"
+      },
+      "toolInvocations": {
+        "label": "工具调用",
+        "tip": "所有智能体执行的每个操作。"
+      },
+      "requests": {
+        "label": "请求历史",
+        "tip": "服务器处理的每个 API 请求。"
+      },
+      "analytics": {
+        "label": "分析",
+        "tip": "用量和延迟趋势。"
+      },
+      "audit": {
+        "label": "审计",
+        "tip": "安全事件。"
+      },
+      "explorer": {
+        "label": "API 浏览器",
+        "tip": "实时试用 REST 路由。"
+      },
+      "mcpExplorer": {
+        "label": "MCP 浏览器",
+        "tip": "以客户端身份试用 MCP。"
+      },
+      "a2aExplorer": {
+        "label": "A2A 浏览器",
+        "tip": "以智能体身份试用 A2A。"
+      },
+      "tenants": {
+        "label": "租户",
+        "tip": "此服务器上相互隔离的租户。"
+      },
+      "users": {
+        "label": "用户",
+        "tip": "登录的人员。"
+      },
+      "credentials": {
+        "label": "访问密钥",
+        "tip": "用于自动化的访问密钥。"
+      },
+      "roles": {
+        "label": "角色",
+        "tip": "角色及其授予的权限。"
+      },
+      "assignments": {
+        "label": "分配",
+        "tip": "谁在何处持有哪个角色。"
+      },
+      "sessions": {
+        "label": "会话",
+        "tip": "活动的会话和令牌。"
+      },
+      "settings": {
+        "label": "设置",
+        "tip": "服务器配置。"
+      },
+      "serverInfo": {
+        "label": "服务器信息",
+        "tip": "端点、版本和你的身份。"
+      },
+      "plugins": {
+        "label": "插件",
+        "tip": "连接器插件。"
+      }
+    }
+  },
+  "tour": {
+    "title": "引导教程",
+    "skip": "跳过教程",
+    "done": "完成",
+    "steps": {
+      "sidebar": {
+        "title": "导航",
+        "body": "所有功能按工作内容分组：开始聊天、构建智能体、连接系统、配置提示、观察活动、试用 API 以及管理租户。"
+      },
+      "topbar": {
+        "title": "上下文和控件",
+        "body": "服务器、租户、你的身份和角色、实时状态、待处理审批、租户锁定、语言、主题和退出登录都在这里。"
+      },
+      "kpis": {
+        "title": "指挥中心",
+        "body": "今日的请求、工具调用、失败、待处理审批、不健康的资源和 token 用量。点击卡片可查看详情。"
+      },
+      "chat": {
+        "title": "与 Agent Smith 聊天",
+        "body": "询问有关技术栈的问题。每个工具调用都会连同其影响内联显示，有风险的调用会等待你的审批。"
+      },
+      "connect": {
+        "title": "连接你的系统",
+        "body": "添加资源（SSH 主机、存储桶、数据库、日志服务）及其密钥，并在保存前测试每个连接。"
+      },
+      "profiles": {
+        "title": "组建智能体配置",
+        "body": "将资源绑定到配置文件，并为每个资源设置访问模式。MCP、A2A、聊天和 API 都与配置文件交互。"
+      },
+      "approvals": {
+        "title": "审批有风险的操作",
+        "body": "需要人工处理的写入和破坏性调用会在此处和聊天中等待，直到有人批准或拒绝。"
+      },
+      "observe": {
+        "title": "查看发生的一切",
+        "body": "工具调用、请求历史、分析和审计会显示来自所有接口的每个操作。"
+      }
+    }
+  },
+  "wizard": {
+    "title": "设置 Hugo",
+    "stepOf": "第 {{step}} 步，共 {{total}} 步",
+    "skip": "跳过设置",
+    "skipStep": "跳过此步",
+    "start": "开始",
+    "saveModel": "保存端点",
+    "saveResource": "保存资源",
+    "bind": "绑定到配置文件",
+    "finish": "打开聊天",
+    "modelSaved": "模型端点已保存。",
+    "bound": "{{alias}} 现已绑定到 {{profile}}。",
+    "nothingToBind": "上一步未创建资源，因此暂时没有可绑定的内容。你可以稍后在配置文件页面中绑定资源。",
+    "apiKeyHint": "以加密密钥形式存储；端点会引用它。",
+    "welcomeItem1": "连接一个模型，让 Agent Smith 能够思考（Ollama、OpenAI、Anthropic 等）。",
+    "welcomeItem2": "添加第一个资源，例如 SSH 主机或数据库，并提供其凭据。",
+    "welcomeItem3": "将其绑定到默认 Hugo 配置文件，并通过 MCP 连接 Claude Code。",
+    "steps": {
+      "welcome": "欢迎",
+      "inference": "推理模型",
+      "embedding": "嵌入",
+      "resource": "第一个资源",
+      "bind": "绑定",
+      "connect": "连接"
+    },
+    "bodies": {
+      "welcome": "Hugo 掌管对你各系统的访问权限，并判断如何使用这些权限。此向导可在几分钟内让你从空租户到可用的聊天。",
+      "inference": "聊天、A2A 和 OpenAI 兼容端点运行 Hugo 自身的智能体循环，需要推理模型。MCP 客户端使用自己的模型，因此如果只使用 MCP，可以跳过此步骤。",
+      "embedding": "可选。嵌入模型可让 Hugo 在配置文件拥有大量工具时挑选相关工具，并为后续的知识笔记提供支持。",
+      "resource": "选择连接器、填写其设置、选择或创建所需的密钥，并在保存前测试连接。",
+      "bind": "将新资源关联到默认 Hugo 配置文件，并选择智能体可对其执行的操作。",
+      "connect": "使用此配置将 Hugo 添加到 Claude Code（或任意 MCP 客户端），然后开始与 Agent Smith 聊天。"
+    }
+  }
+}

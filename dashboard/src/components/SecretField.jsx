@@ -134,6 +134,7 @@ export default function SecretSlotPicker({ slot, value, secrets = [], onChange, 
           tip: slot?.help || t('tips.secretField.slot', { slot: label }),
           hint: t('components.secretField.accepts', { kinds: kindsText }),
           noneLabel: t('components.secretField.noneSelected'),
+          allowNone: true,
           options: options.map((s) => ({ value: s.id, label: `${s.name} (${enumLabel(t, 'secretKind', s.kind)})` }))
         }}
         value={value?.secretId || ''}

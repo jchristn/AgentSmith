@@ -120,7 +120,7 @@ function FieldControl({ field, value, onChange, disabled, id }) {
     case 'select':
       return (
         <select id={id} {...tp} value={value ?? ''} disabled={disabled} onChange={(e) => onChange(e.target.value === '' ? null : e.target.value)}>
-          {!field.required && <option value="">{field.noneLabel || t('common.generic.none')}</option>}
+          {(!field.required || field.allowNone) && <option value="">{field.noneLabel || t('common.generic.none')}</option>}
           {(field.options || []).map((o) => {
             const opt = typeof o === 'object' ? o : { value: o, label: field.optionLabel ? field.optionLabel(o) : o };
             return (

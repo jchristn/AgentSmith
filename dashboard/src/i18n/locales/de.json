@@ -1,0 +1,3475 @@
+{
+  "common": {
+    "fieldCodes": {
+      "ExpiryInPast": "Wählen Sie einen Zeitpunkt in der Zukunft.",
+      "SettingsFileReadOnly": "Die Einstellungsdatei ist schreibgeschützt, daher kann diese Änderung nicht gespeichert werden.",
+      "OverriddenByEnvironment": "Eine Umgebungsvariable setzt diesen Wert, daher kann er hier nicht geändert werden.",
+      "PathRequired": "Ein Einstellungspfad ist erforderlich.",
+      "UnknownSetting": "Diese Einstellung gibt es auf diesem Server nicht.",
+      "TooLong": "Dieser Wert ist zu lang.",
+      "NotAllowedValue": "Wählen Sie einen der zulässigen Werte.",
+      "NotABoolean": "Wählen Sie wahr oder falsch.",
+      "NotAnInteger": "Geben Sie eine ganze Zahl ein.",
+      "OutOfRange": "Der Wert liegt außerhalb des zulässigen Bereichs."
+    },
+    "appName": "Hugo",
+    "language": {
+      "label": "Sprache"
+    },
+    "theme": {
+      "switchToLight": "Zum hellen Design wechseln",
+      "switchToDark": "Zum dunklen Design wechseln"
+    },
+    "actions": {
+      "apply": "Anwenden",
+      "back": "Zurück",
+      "cancel": "Abbrechen",
+      "clear": "Leeren",
+      "clone": "Klonen",
+      "close": "Schließen",
+      "confirm": "Bestätigen",
+      "copied": "Kopiert",
+      "copy": "Kopieren",
+      "delete": "Löschen",
+      "duplicate": "Duplizieren",
+      "edit": "Bearbeiten",
+      "hide": "Wert ausblenden",
+      "logout": "Abmelden",
+      "next": "Weiter",
+      "openGithub": "Hugo-Repository (AgentSmith) auf GitHub öffnen",
+      "remove": "Entfernen",
+      "retry": "Erneut versuchen",
+      "reveal": "Wert anzeigen",
+      "save": "Speichern",
+      "view": "Anzeigen",
+      "viewDetails": "Details anzeigen",
+      "viewJson": "JSON anzeigen",
+      "dismiss": "Ausblenden"
+    },
+    "boolean": {
+      "yes": "Ja",
+      "no": "Nein"
+    },
+    "confirm": {
+      "deleteNamed": "\"{{name}}\" löschen? Dies kann nicht rückgängig gemacht werden.",
+      "bulkDelete": "{{count}} ausgewählte Datensätze löschen? Dies kann nicht rückgängig gemacht werden."
+    },
+    "errors": {
+      "listItem": "Eintrag {{index}}: {{message}}",
+      "chooseOne": "Wählen Sie mindestens eine Option.",
+      "fixFields": "Einige Felder müssen korrigiert werden. Prüfen Sie die markierten Werte.",
+      "invalidEmail": "Geben Sie eine gültige E-Mail-Adresse ein.",
+      "invalidJson": "Dies ist kein gültiges JSON.",
+      "loadFailed": "Daten konnten nicht geladen werden.",
+      "requestId": "Anfrage {{id}}.",
+      "required": "Dieses Feld ist erforderlich.",
+      "requiredPermission": "Erfordert {{permission}} für {{resource}}.",
+      "title": "Die Anfrage ist fehlgeschlagen",
+      "status": "HTTP {{status}}",
+      "requestIdLabel": "Anfrage-ID",
+      "traceIdLabel": "Trace-ID"
+    },
+    "generic": {
+      "deletedName": "{{name}} (gelöscht)",
+      "actions": "Aktionen",
+      "active": "Aktiv",
+      "all": "Alle",
+      "any": "Beliebig",
+      "builtIn": "Integriert",
+      "custom": "Benutzerdefiniert",
+      "inactive": "Inaktiv",
+      "loading": "Wird geladen...",
+      "never": "Nie",
+      "none": "Keine",
+      "notAvailable": "k. A.",
+      "saving": "Wird gespeichert...",
+      "default": "Standard",
+      "disabled": "Deaktiviert",
+      "enabled": "Aktiviert",
+      "lockdown": "Sperre",
+      "locked": "Gesperrt",
+      "required": "Erforderlich"
+    },
+    "relativeTime": {
+      "now": "gerade eben"
+    },
+    "states": {
+      "forbiddenTitle": "Sie haben keinen Zugriff auf diese Seite",
+      "forbiddenBody": "Bitten Sie eine Administratorin oder einen Administrator um eine passende Rolle, oder wählen Sie eine andere Seite.",
+      "notExposedTitle": "{{feature}} ist auf diesem Server noch nicht verfügbar",
+      "notExposedBody": "Das Dashboard ist für {{feature}} bereit, aber dieser Hugo-Server stellt die benötigte Route nicht bereit. Sobald der Server sie anbietet, funktioniert es hier; an dieser Seite muss nichts geändert werden.",
+      "notExposedEndpoint": "Vom Dashboard aufgerufene Route:"
+    },
+    "toasts": {
+      "bulkDeleted": "{{count}} Datensätze gelöscht ({{failed}} fehlgeschlagen).",
+      "cloned": "Geklont.",
+      "created": "Erstellt.",
+      "deleted": "Gelöscht.",
+      "saved": "Gespeichert."
+    },
+    "units": {
+      "msShort": "ms",
+      "sShort": "s",
+      "mShort": "Min."
+    },
+    "tagline": "Agent Smith steht zu Ihren Diensten",
+    "serverText": {
+      "valueClamped": "Der Wert {{given}} für {{field}} liegt außerhalb des zulässigen Bereichs {{minimum}} bis {{maximum}}; gespeichert wurde {{stored}}.",
+      "approvalWaitingExpires": "Wartet auf die Freigabe von {{subject}} durch eine Person; Freigabe {{id}} läuft um {{expires}} ab.",
+      "approvalWaiting": "Wartet auf die Freigabe von {{subject}} durch eine Person; Freigabe {{id}}.",
+      "inUse": "{{what}} wird noch von {{users}} verwendet. Entfernen Sie zuerst diese Verweise."
+    }
+  },
+  "errorCodes": {
+    "ApprovalNotPending": "Über diese Freigabe wurde bereits entschieden oder sie ist abgelaufen, daher kann nicht erneut entschieden werden.",
+    "TenantNotFound": "Dieser Mandant existiert nicht. Prüfen Sie die Mandanten-ID.",
+    "NetworkError": "Der Server ist nicht erreichbar. Prüfen Sie die Server-URL und ob der Server läuft.",
+    "AuthenticationRequired": "Ihre Sitzung ist abgelaufen. Melden Sie sich erneut an.",
+    "InvalidCredentials": "Mandant, E-Mail, Passwort oder Schlüssel sind falsch.",
+    "RateLimited": "Zu viele Anmeldeversuche. Warten Sie eine Minute und versuchen Sie es erneut.",
+    "AuthorizationDenied": "Sie haben keine Berechtigung für diese Aktion.",
+    "NotFound": "Der Datensatz wurde nicht gefunden.",
+    "RouteNotFound": "Dieser Server unterstützt diesen Endpunkt noch nicht.",
+    "ValidationFailed": "Einige Werte sind ungültig.",
+    "InvalidBody": "Der Anfragetext ist ungültig.",
+    "InvalidJson": "Der Anfragetext ist kein gültiges JSON.",
+    "Conflict": "Dies steht im Konflikt mit einem vorhandenen Datensatz.",
+    "BuiltInImmutable": "Integrierte Datensätze können nicht geändert werden. Klonen Sie sie zum Anpassen.",
+    "Protected": "Dieser Datensatz ist geschützt und kann nicht gelöscht werden.",
+    "InternalError": "Interner Serverfehler. Prüfen Sie die Serverprotokolle mit der Anfrage-ID.",
+    "Http400": "Die Anfrage wurde als ungültig abgelehnt.",
+    "Http403": "Sie haben keine Berechtigung für diese Aktion.",
+    "Http404": "Nicht gefunden.",
+    "Http409": "Konflikt mit dem aktuellen Zustand.",
+    "Http500": "Interner Serverfehler.",
+    "Http503": "Der Server ist nicht verfügbar.",
+    "ConversationBusy": "Diese Konversation bearbeitet noch ihren vorherigen Schritt. Warten Sie, bis er abgeschlossen ist, oder stoppen Sie ihn, und versuchen Sie es dann erneut.",
+    "ApprovalExpired": "Diese Freigabe ist abgelaufen, bevor jemand entschieden hat.",
+    "ReauthenticationRequired": "Geben Sie Ihr Passwort erneut ein, bevor Sie Secrets anzeigen.",
+    "SecretInUse": "Dieses Secret wird noch von Ressourcen oder Modellendpunkten verwendet. Entfernen Sie zuerst diese Verweise.",
+    "ResourceInUse": "Diese Ressource ist noch an Profile gebunden. Entfernen Sie zuerst die Bindungen.",
+    "LockdownActive": "Der Mandant ist gesperrt, daher sind nur lesende Aufrufe erlaubt.",
+    "ConnectorNotFound": "Dieser Server hat keinen Konnektor dieses Typs. Möglicherweise konnte ein Plugin nicht geladen werden.",
+    "ProfileNotExposed": "Dieses Profil ist auf dieser Schnittstelle nicht verfügbar.",
+    "NoInferenceEndpoint": "Dieses Profil hat kein Inferenzmodell, daher kann Hugo keine eigene Agentenschleife dafür ausführen."
+  },
+  "enums": {
+    "principalType": {
+      "Administrator": "Systemadministrator",
+      "User": "Benutzer",
+      "Credential": "Zugangsschlüssel"
+    },
+    "credentialAuthMode": {
+      "DirectHeader": "Direkte Header",
+      "SignedRequest": "Signierte Anfragen",
+      "SessionExchange": "Sitzungstoken-Austausch",
+      "Hybrid": "Beliebige Methode"
+    },
+    "operationType": {
+      "All": "Alles",
+      "Create": "Erstellen",
+      "Read": "Lesen",
+      "Write": "Schreiben (erstellen, aktualisieren, löschen)",
+      "Update": "Aktualisieren",
+      "Delete": "Löschen",
+      "Execute": "Ausführen",
+      "Admin": "Verwalten",
+      "Reveal": "Anzeigen"
+    },
+    "promptTemplateKind": {
+      "System": "System",
+      "Task": "Aufgabe",
+      "Fragment": "Fragment",
+      "ToolDescription": "Werkzeugbeschreibung",
+      "ConfigFile": "Konfigurationsdatei",
+      "Other": "Sonstiges"
+    },
+    "permissionType": {
+      "Permit": "Erlauben",
+      "Deny": "Verweigern"
+    },
+    "resourceScope": {
+      "Tenant": "Mandant",
+      "Resource": "Ressource"
+    },
+    "resourceType": {
+      "All": "Alles",
+      "Tenant": "Mandant",
+      "Admin": "Systemverwaltung",
+      "User": "Benutzer",
+      "Credential": "Zugangsschlüssel",
+      "Session": "Sitzung",
+      "Role": "Rolle",
+      "Permission": "Berechtigung",
+      "Assignment": "Zuweisung",
+      "Audit": "Audit",
+      "Settings": "Einstellungen",
+      "Secret": "Geheimnis",
+      "Resource": "Ressource",
+      "Connector": "Konnektor",
+      "AgentProfile": "Agentenprofil",
+      "Binding": "Bindung",
+      "PromptTemplate": "Prompt-Vorlage",
+      "ModelEndpoint": "Modellendpunkt",
+      "Conversation": "Unterhaltung",
+      "ToolInvocation": "Toolaufruf",
+      "Approval": "Freigabe",
+      "RequestHistory": "Anfrageverlauf",
+      "Knowledge": "Wissen",
+      "Plugin": "Plugin",
+      "Analytics": "Analysen"
+    },
+    "auditEventType": {
+      "AuthSuccess": "Anmeldung erfolgreich",
+      "AuthFailure": "Anmeldung fehlgeschlagen",
+      "SessionIssued": "Sitzung ausgestellt",
+      "SessionRevoked": "Sitzung widerrufen",
+      "CredentialCreated": "Zugangsdaten erstellt",
+      "CredentialRotated": "Zugangsdaten rotiert",
+      "CredentialUsed": "Zugangsdaten verwendet",
+      "AuthorizationDenied": "Zugriff verweigert",
+      "AuthorizationBypass": "Zugriffsprüfung umgangen",
+      "RoleChanged": "Rolle geändert",
+      "AssignmentChanged": "Zuweisung geändert",
+      "SecretCreated": "Secret erstellt",
+      "SecretUpdated": "Secret aktualisiert",
+      "SecretRevealed": "Secret angezeigt",
+      "SecretDeleted": "Secret gelöscht",
+      "MasterKeyRotated": "Hauptschlüssel rotiert",
+      "ResourceChanged": "Ressource geändert",
+      "ProfileChanged": "Profil geändert",
+      "BindingChanged": "Bindung geändert",
+      "PromptTemplateChanged": "Prompt-Vorlage geändert",
+      "ApprovalDecided": "Freigabe entschieden",
+      "LockdownChanged": "Sperre geändert",
+      "SettingsChanged": "Einstellungen geändert",
+      "ServerRestarted": "Server neu gestartet",
+      "PluginLoaded": "Plugin geladen",
+      "HostKeyPinned": "SSH-Hostschlüssel fixiert",
+      "HostKeyMismatch": "SSH-Hostschlüssel stimmt nicht überein"
+    },
+    "secretKind": {
+      "Password": "Passwort",
+      "PrivateKey": "Privater Schlüssel",
+      "ApiToken": "API-Token",
+      "AccessKeyPair": "Zugriffsschlüsselpaar",
+      "ServiceAccountJson": "Dienstkonto-JSON",
+      "Kubeconfig": "Kubeconfig",
+      "ConnectionString": "Verbindungszeichenfolge",
+      "Certificate": "Zertifikat",
+      "Generic": "Allgemeines Secret"
+    },
+    "effect": {
+      "Read": "Lesen",
+      "Write": "Schreiben",
+      "Destructive": "Destruktiv"
+    },
+    "accessMode": {
+      "ReadOnly": "Nur Lesen",
+      "ReadWriteWithApproval": "Lesen und Schreiben mit Freigabe",
+      "ReadWrite": "Lesen und Schreiben"
+    },
+    "connectorCategory": {
+      "Compute": "Compute",
+      "Storage": "Speicher",
+      "Database": "Datenbanken",
+      "Logging": "Protokollierung",
+      "Cache": "Caches",
+      "Cloud": "Cloud",
+      "Orchestration": "Orchestrierung",
+      "Observability": "Observability",
+      "Http": "HTTP-APIs",
+      "Agent": "Agenten",
+      "Other": "Sonstiges"
+    },
+    "settingValueKind": {
+      "String": "Text",
+      "Text": "Langer Text",
+      "Integer": "Ganze Zahl",
+      "Boolean": "Wahr oder falsch",
+      "StringList": "Liste",
+      "Enum": "Einer aus einer Auswahl"
+    },
+    "approvalStatus": {
+      "Pending": "Ausstehend",
+      "Approved": "Erlaubt",
+      "Rejected": "Abgelehnt",
+      "Expired": "Abgelaufen",
+      "Cancelled": "Abgebrochen"
+    },
+    "toolDecision": {
+      "Allowed": "Erlaubt",
+      "Denied": "Verweigert",
+      "ApprovalRequired": "Freigabe erforderlich",
+      "Approved": "Freigegeben",
+      "Rejected": "Abgelehnt",
+      "Expired": "Abgelaufen"
+    },
+    "toolStatus": {
+      "Succeeded": "Erfolgreich",
+      "Failed": "Fehlgeschlagen",
+      "TimedOut": "Zeitüberschreitung",
+      "Cancelled": "Abgebrochen"
+    },
+    "surface": {
+      "Chat": "Chat",
+      "Mcp": "MCP",
+      "A2A": "A2A",
+      "OpenAI": "OpenAI-kompatibel",
+      "Rest": "REST"
+    },
+    "conversationSource": {
+      "Dashboard": "Dashboard",
+      "A2A": "A2A",
+      "OpenAI": "OpenAI-kompatibel",
+      "Mcp": "MCP"
+    },
+    "visibility": {
+      "Private": "Privat",
+      "Tenant": "Mandant"
+    },
+    "instructionMode": {
+      "Inherit": "Erben",
+      "Append": "Anhängen",
+      "Replace": "Ersetzen"
+    },
+    "toolRule": {
+      "Allow": "Erlauben",
+      "Deny": "Verweigern",
+      "RequireApproval": "Freigabe verlangen"
+    },
+    "modelKind": {
+      "Inference": "Inferenz",
+      "Embedding": "Embedding"
+    },
+    "modelProvider": {
+      "Ollama": "Ollama",
+      "OpenAI": "OpenAI",
+      "OpenAICompatible": "OpenAI-kompatibel",
+      "Anthropic": "Anthropic",
+      "Gemini": "Gemini",
+      "AzureOpenAI": "Azure OpenAI",
+      "Bedrock": "Amazon Bedrock",
+      "VertexAI": "Vertex AI",
+      "VoyageAI": "Voyage AI"
+    },
+    "healthStatus": {
+      "Healthy": "Fehlerfrei",
+      "Degraded": "Beeinträchtigt",
+      "Unhealthy": "Fehlerhaft",
+      "Unknown": "Nicht geprüft"
+    },
+    "promptLayer": {
+      "BuiltIn": "Integriert",
+      "Global": "Globaler Standard",
+      "Tenant": "Mandant"
+    }
+  },
+  "login": {
+    "title": "Bei Hugo anmelden",
+    "subtitle": "Agent Smith erwartet Sie, Mr. Anderson.",
+    "tabs": {
+      "password": "E-Mail und Passwort",
+      "accessKey": "Zugangsschlüssel"
+    },
+    "serverUrl": "Server-URL",
+    "tenantId": "Mandanten-ID",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "accessKey": "Zugangsschlüssel",
+    "secretKey": "Geheimer Schlüssel",
+    "submit": "Anmelden",
+    "connecting": "Anmeldung läuft...",
+    "restoring": "Ihre Sitzung wird wiederhergestellt...",
+    "errorGeneric": "Anmeldung nicht möglich. Prüfen Sie die Server-URL und Ihre Zugangsdaten.",
+    "footerHint": "Hugo speichert Zugangsdaten für Ihre Systeme verschlüsselt und lässt Agenten sie sicher verwenden.",
+    "tenant": "Mandant",
+    "tenantFound": "Anmeldung bei Mandant {{name}}.",
+    "unreachable": "Der Hugo-Server unter {{url}} ist nicht erreichbar. Prüfen Sie die Server-URL und ob der Server läuft.",
+    "badCredentials": "E-Mail, Passwort oder Mandant ist nicht korrekt.",
+    "defaultsHint": "Lokales Standardkonto: {{email}} mit Passwort \"{{password}}\". Sie werden aufgefordert, es zu ändern.",
+    "useDefaults": "Lokale Standardwerte verwenden"
+  },
+  "topbar": {
+    "tenant": "Mandant",
+    "switchTenant": "Mandant wechseln",
+    "copyServer": "Server-URL kopieren",
+    "live": "Live",
+    "polling": "Abfrage",
+    "health": {
+      "healthy": "Gesund",
+      "unhealthy": "Nicht erreichbar",
+      "unknown": "Wird geprüft"
+    },
+    "lockdown": {
+      "on": "Sperre aktiv",
+      "off": "Sperre",
+      "banner": "Mandantensperre ist aktiv: Jeder nicht lesende Aufruf wird verweigert, und ausstehende Freigaben wurden abgebrochen.",
+      "engageTitle": "Diesen Mandanten sperren?",
+      "engageBody": "Jeder schreibende oder löschende Toolaufruf wird von jeder Schnittstelle aus verweigert, bis die Sperre aufgehoben wird. Ausstehende Freigaben werden abgebrochen. Lesezugriffe funktionieren weiterhin.",
+      "engage": "Sperren",
+      "engaged": "Mandantensperre ist aktiv.",
+      "liftTitle": "Sperre aufheben?",
+      "liftBody": "Schreibende und destruktive Toolaufrufe werden wieder erlaubt, abhängig vom Zugriffsmodus und den Freigaben jeder Bindung.",
+      "lift": "Sperre aufheben",
+      "lifted": "Mandantensperre aufgehoben."
+    }
+  },
+  "roles": {
+    "systemAdmin": "Systemadministration",
+    "tenantAdmin": "Mandantenadministration",
+    "user": "Benutzer",
+    "credential": "Zugangsschlüssel"
+  },
+  "components": {
+    "fieldWarnings": {
+      "title_one": "Gespeichert mit {{count}} angepasstem Wert",
+      "title_other": "Gespeichert mit {{count}} angepassten Werten",
+      "body": "Der Server hat die Anfrage angenommen, diese Werte aber anders gespeichert als gesendet.",
+      "dismiss": "Ausblenden",
+      "codes": {
+        "ValueClamped": "Wert auf den zulässigen Bereich begrenzt"
+      }
+    },
+    "autoRefresh": {
+      "label": "Automatisch aktualisieren",
+      "none": "Aus",
+      "seconds_one": "Jede Sekunde",
+      "seconds_other": "Alle {{count}} Sekunden"
+    },
+    "chart": {
+      "success": "Erfolgreich",
+      "failure": "Fehlgeschlagen",
+      "total": "Gesamt",
+      "avgDuration": "Mittlere Dauer",
+      "noData": "Keine Aktivität in diesem Zeitraum.",
+      "range": "Zeitraum",
+      "ranges": {
+        "hour": "Letzte Stunde",
+        "day": "Letzter Tag",
+        "week": "Letzte Woche",
+        "month": "Letzter Monat",
+        "custom": "Benutzerdefiniert"
+      }
+    },
+    "confirm": {
+      "title": "Bitte bestätigen",
+      "message": "Möchten Sie wirklich fortfahren?"
+    },
+    "diff": {
+      "before": "Vorher",
+      "after": "Nachher"
+    },
+    "explainer": {
+      "about": "Über {{topic}}",
+      "dismiss": "Diese Erklärung ausblenden"
+    },
+    "export": {
+      "label": "Exportieren",
+      "csv": "CSV (Daten)",
+      "png": "PNG-Bild",
+      "svg": "SVG-Bild",
+      "json": "JSON (Daten)",
+      "failed": "Export fehlgeschlagen. {{message}}",
+      "tableTitle": "Tabelle {{table}}"
+    },
+    "filters": {
+      "allTenants": "Alle Mandanten",
+      "clear": "Filter zurücksetzen",
+      "from": "Von",
+      "to": "Bis",
+      "method": "Methode",
+      "path": "Pfad enthält",
+      "pathPlaceholder": "zum Beispiel /v1.0/api/tenants",
+      "searchName": "Nach Namen suchen",
+      "status": "Statuscode",
+      "statusPlaceholder": "zum Beispiel 404",
+      "tenant": "Mandant"
+    },
+    "form": {
+      "addItem": "Eintrag hinzufügen",
+      "addRow": "Zeile hinzufügen",
+      "key": "Schlüssel",
+      "value": "Wert",
+      "moveUp": "Nach oben",
+      "moveDown": "Nach unten",
+      "noItems": "Noch keine Einträge.",
+      "onePerLine": "Ein Wert pro Zeile",
+      "steps": "Formularschritte"
+    },
+    "permissions": {
+      "title": "Effektive Berechtigungen",
+      "none": "Keine Berechtigungen. Dieser Prinzipal kann nur Umgehungsregeln nutzen, sofern vorhanden.",
+      "source": "Rolle",
+      "type": "Typ",
+      "resources": "Ressourcentypen",
+      "operations": "Operationen",
+      "scope": "Geltungsbereich"
+    },
+    "requestDetails": {
+      "title": "Anfragedetails",
+      "metadata": "Metadaten",
+      "requestHeaders": "Anfrage-Header",
+      "requestBody": "Anfragetext",
+      "responseHeaders": "Antwort-Header",
+      "responseBody": "Antworttext",
+      "rawJson": "Rohes JSON",
+      "truncated": "Gekürzt ({{bytes}} Bytes im Original)",
+      "empty": "Kein Inhalt.",
+      "fields": {
+        "id": "Anfrage-ID",
+        "method": "Methode",
+        "path": "Pfad",
+        "url": "URL",
+        "status": "Status",
+        "duration": "Dauer",
+        "createdUtc": "Erstellt",
+        "completedUtc": "Abgeschlossen",
+        "sourceIp": "Quell-IP",
+        "principal": "Prinzipal",
+        "tenant": "Mandant",
+        "user": "Benutzer"
+      }
+    },
+    "secretOnce": {
+      "title": "Kopieren Sie dieses Geheimnis jetzt",
+      "warning": "Das Geheimnis wird nur dieses eine Mal angezeigt. Speichern Sie es sicher, bevor Sie schließen.",
+      "accessKey": "Zugangsschlüssel",
+      "secretKey": "Geheimer Schlüssel",
+      "done": "Gespeichert",
+      "snippet": "MCP-Konfiguration für Claude Code",
+      "snippetHint": "Fügen Sie dies in die Einstellungen Ihres MCP-Clients ein und setzen Sie HUGO_SECRET_KEY auf den oben angezeigten geheimen Schlüssel."
+    },
+    "table": {
+      "bulkActions": "Sammelaktionen",
+      "bulkDelete": "Auswahl löschen",
+      "clearSelection": "Auswahl aufheben",
+      "empty": "Keine Datensätze vorhanden.",
+      "first": "Erste Seite",
+      "jump": "Zu Seite springen",
+      "last": "Letzte Seite",
+      "loading": "Datensätze werden geladen...",
+      "next": "Nächste Seite",
+      "noMatches": "Keine Datensätze entsprechen den aktuellen Filtern.",
+      "pageOf": "Seite {{page}} von {{total}}",
+      "pageSize": "Pro Seite",
+      "pinned": "Immer sichtbar",
+      "prev": "Vorherige Seite",
+      "records_one": "Datensatz",
+      "records_other": "Datensätze",
+      "refresh": "Aktualisieren",
+      "selectAll": "Alle Zeilen dieser Seite auswählen",
+      "selectColumns": "Spalten auswählen",
+      "selected_one": "{{count}} ausgewählt",
+      "selected_other": "{{count}} ausgewählt",
+      "selectRow": "Zeile auswählen",
+      "showing": "{{from}} bis {{to}} werden angezeigt"
+    },
+    "approvalCard": {
+      "title": "Freigabe erforderlich",
+      "approve": "Freigeben",
+      "reject": "Ablehnen",
+      "note": "Entscheidungsnotiz",
+      "notePlaceholder": "Optionale Notiz für das Audit-Protokoll",
+      "resource": "Ressource",
+      "tool": "Tool",
+      "reason": "Warum eine Freigabe nötig ist: {{reason}}",
+      "expires": "Läuft {{time}} ab, wenn niemand entscheidet.",
+      "decided": "Entscheidung: {{status}}.",
+      "by": "Entschieden von {{name}}.",
+      "withNote": "Notiz: {{note}}"
+    },
+    "chat": {
+      "you": "Sie",
+      "assistant": "Agent Smith",
+      "thinking": "Überlegungen",
+      "waiting": "Agent Smith denkt nach...",
+      "stopped": "Gestoppt, bevor die Antwort vollständig war.",
+      "streamError": "Der Antwortstream ist fehlgeschlagen.",
+      "ttft": "Erstes Token {{value}}",
+      "duration": "Schritt {{value}}",
+      "tokens": "Tokens: {{input}} Eingabe, {{output}} Ausgabe",
+      "transcript": "Gesprächsverlauf",
+      "empty": "Noch keine Nachrichten. Stellen Sie eine Frage, um zu beginnen.",
+      "message": "Nachricht",
+      "placeholder": "Fragen Sie Agent Smith. Enter sendet, Umschalt+Enter fügt eine Zeile ein.",
+      "send": "Senden",
+      "stop": "Stoppen"
+    },
+    "passwordChange": {
+      "title": "Neues Passwort wählen",
+      "body": "Dieses Konto hat noch sein anfängliches oder zurückgesetztes Passwort. Wählen Sie ein neues mit mindestens {{min}} Zeichen, um fortzufahren.",
+      "current": "Aktuelles Passwort",
+      "new": "Neues Passwort",
+      "confirm": "Neues Passwort bestätigen",
+      "submit": "Passwort ändern",
+      "changed": "Passwort geändert.",
+      "tooShort": "Verwenden Sie mindestens {{min}} Zeichen.",
+      "sameAsCurrent": "Wählen Sie ein anderes Passwort als das aktuelle.",
+      "mismatch": "Die beiden neuen Passwörter stimmen nicht überein."
+    },
+    "progress": {
+      "count": "{{done}} von {{total}}",
+      "deleting_one": "{{count}} Datensatz wird gelöscht",
+      "deleting_other": "{{count}} Datensätze werden gelöscht"
+    },
+    "promptEditor": {
+      "content": "Vorlagentext",
+      "palette": "Variable einfügen",
+      "used": "Variablen in diesem Text",
+      "variables": "Variablen",
+      "noVariables": "Dieser Text verwendet keine Variablen.",
+      "preview": "Vorschau",
+      "diff": "Änderungen",
+      "sampleContext": "Beispielkontext (JSON)",
+      "rendered": "Gerendert",
+      "serverRender": "vom Server gerendert",
+      "localRender": "im Browser gerendert",
+      "previewEmpty": "Die Vorlage ergibt leeren Text.",
+      "missing": "Nicht im Beispielkontext: {{list}}",
+      "current": "Aktueller Text",
+      "syntaxHint": "Verwenden Sie {{variable}}, {{variable | default: \"text\"}}, {{#if variable}}...{{/if}} und {{#each list}}...{{/each}}."
+    },
+    "result": {
+      "succeeded": "Erfolgreich.",
+      "failed": "Fehlgeschlagen.",
+      "latency": "Dauer: {{value}}."
+    },
+    "schemaForm": {
+      "noSettings": "Dieser Konnektor hat keine Einstellungen.",
+      "range": "Zulässiger Bereich: {{minimum}} bis {{maximum}}.",
+      "groups": {
+        "General": "Allgemein",
+        "Connection": "Verbindung",
+        "Authentication": "Authentifizierung",
+        "Limits": "Limits",
+        "Advanced": "Erweitert"
+      },
+      "errors": {
+        "Required": "Diese Einstellung ist erforderlich.",
+        "NotAnInteger": "Geben Sie eine ganze Zahl ein.",
+        "OutOfRange": "Geben Sie einen Wert von {{minimum}} bis {{maximum}} ein.",
+        "NotAllowedValue": "Wählen Sie einen der folgenden Werte: {{values}}.",
+        "PatternMismatch": "Der Wert hat nicht das erwartete Format.",
+        "TooLong": "Verwenden Sie höchstens {{maximum}} Zeichen."
+      }
+    },
+    "secretField": {
+      "accepts": "Akzeptiert: {{kinds}}.",
+      "anyKind": "jede Art von Secret",
+      "noneSelected": "Kein Secret ausgewählt",
+      "createInline": "Neues Secret erstellen",
+      "saveInline": "Secret speichern",
+      "import": "Aus Datei importieren",
+      "importNamed": "{{field}} aus einer Datei importieren",
+      "replaceHint": "Leer lassen, um den gespeicherten Wert beizubehalten.",
+      "fields": {
+        "username": "Benutzername",
+        "password": "Passwort",
+        "privateKey": "Privater Schlüssel",
+        "passphrase": "Passphrase",
+        "token": "Token",
+        "accessKeyId": "Zugriffsschlüssel-ID",
+        "secretAccessKey": "Geheimer Zugriffsschlüssel",
+        "sessionToken": "Sitzungstoken",
+        "json": "Dienstkonto-JSON",
+        "kubeconfig": "Kubeconfig",
+        "connectionString": "Verbindungszeichenfolge",
+        "certificate": "Zertifikat (PEM)",
+        "value": "Wert"
+      },
+      "file": {
+        "pem": "Die Datei enthält einen PEM-Block vom Typ {{type}}.",
+        "serviceAccount": "Dienstkonto für Projekt {{project}} ({{email}}).",
+        "kubeconfig": "Kubeconfig-Kontexte: {{contexts}}.",
+        "kubeconfigNone": "In dieser kubeconfig wurden keine Kontexte gefunden.",
+        "invalidJson": "Diese Datei ist kein gültiges JSON."
+      }
+    },
+    "toolActivity": {
+      "arguments": "Argumente (Secrets geschwärzt)",
+      "output": "Ausgabevorschau",
+      "error": "Fehler",
+      "noArguments": "Keine Argumente.",
+      "noOutput": "Noch keine Ausgabe.",
+      "truncated": "Die Ausgabe wurde auf das Limit der Bindung gekürzt.",
+      "effectReason": "Eingestuft, weil: {{reason}}",
+      "status": {
+        "proposed": "Vorgeschlagen",
+        "running": "Läuft",
+        "awaitingApproval": "Wartet auf Freigabe"
+      }
+    }
+  },
+  "resources": {
+    "tenants": {
+      "title": "Mandanten",
+      "subtitle": "Isolierte Mandanten auf diesem Server. Alles außer integrierten Rollen und globalen Standards gehört zu genau einem Mandanten.",
+      "add": "Mandant hinzufügen",
+      "create": "Mandant erstellen",
+      "edit": "Mandant bearbeiten",
+      "view": "Mandantendetails",
+      "deleteTitle": "Mandant löschen",
+      "emptyTitle": "Noch keine Mandanten",
+      "emptyBody": "Erstellen Sie einen Mandanten, um ein Team oder eine Kundschaft zu isolieren.",
+      "columns": {
+        "name": "Name",
+        "id": "ID",
+        "description": "Beschreibung",
+        "active": "Aktiv",
+        "createdUtc": "Erstellt",
+        "region": "Region",
+        "lockdown": "Sperre"
+      },
+      "fields": {
+        "name": "Name",
+        "description": "Beschreibung",
+        "active": "Aktiv",
+        "region": "Region"
+      }
+    },
+    "users": {
+      "title": "Benutzer",
+      "subtitle": "Personen, die sich mit E-Mail und Passwort bei diesem Mandanten anmelden.",
+      "add": "Benutzer hinzufügen",
+      "create": "Benutzer erstellen",
+      "edit": "Benutzer bearbeiten",
+      "view": "Benutzerdetails",
+      "deleteTitle": "Benutzer löschen",
+      "emptyTitle": "Noch keine Benutzer",
+      "emptyBody": "Fügen Sie einen Benutzer hinzu, damit sich eine Person anmelden kann.",
+      "columns": {
+        "email": "E-Mail",
+        "name": "Name",
+        "id": "ID",
+        "role": "Rolle",
+        "active": "Aktiv",
+        "createdUtc": "Erstellt"
+      },
+      "fields": {
+        "email": "E-Mail",
+        "password": "Passwort",
+        "firstName": "Vorname",
+        "lastName": "Nachname",
+        "isTenantAdmin": "Mandantenadministration",
+        "isAdmin": "Systemadministration",
+        "active": "Aktiv",
+        "mustChangePassword": "Muss das Passwort bei der nächsten Anmeldung ändern"
+      },
+      "hints": {
+        "isAdmin": "Systemadministration kann alle Mandanten verwalten und umgeht jede Autorisierung.",
+        "password": "Beim Bearbeiten leer lassen, um das aktuelle Passwort zu behalten."
+      },
+      "actions": {
+        "permissions": "Effektive Berechtigungen",
+        "resetPassword": "Passwort zurücksetzen",
+        "assignRole": "Rolle zuweisen"
+      },
+      "passwordReset": "Passwort zurückgesetzt. Der Benutzer muss es bei der nächsten Anmeldung ändern."
+    },
+    "credentials": {
+      "title": "Zugangsschlüssel",
+      "subtitle": "Schlüssel für Automatisierung, SDKs und Integrationen. Geheimnisse werden einmal angezeigt.",
+      "add": "Schlüssel hinzufügen",
+      "create": "Schlüssel erstellen",
+      "edit": "Schlüssel bearbeiten",
+      "view": "Schlüsseldetails",
+      "deleteTitle": "Schlüssel löschen",
+      "emptyTitle": "Noch keine Zugangsschlüssel",
+      "emptyBody": "Erstellen Sie einen Zugangsschlüssel, damit ein Skript oder Dienst Hugo aufrufen kann.",
+      "columns": {
+        "name": "Name",
+        "accessKey": "Zugangsschlüssel",
+        "secretKeyLast4": "Geheimnis",
+        "userId": "Eigentümer",
+        "lastUsedUtc": "Zuletzt verwendet",
+        "expiresUtc": "Läuft ab",
+        "active": "Aktiv",
+        "id": "ID",
+        "agentProfileId": "Profil",
+        "lockToProfile": "Gesperrt"
+      },
+      "fields": {
+        "name": "Name",
+        "userId": "Eigentümer",
+        "authMode": "Authentifizierungsmodus",
+        "expiresUtc": "Läuft ab",
+        "active": "Aktiv",
+        "agentProfileId": "Gebundenes Profil",
+        "lockToProfile": "Auf dieses Profil beschränken"
+      },
+      "hints": {
+        "userId": "Ein Schlüssel kann nie mehr Berechtigungen haben als sein Eigentümer."
+      },
+      "actions": {
+        "rotate": "Geheimnis rotieren",
+        "scopes": "Geltungsbereichszuweisungen"
+      }
+    },
+    "roles": {
+      "title": "Rollen",
+      "subtitle": "Rollen bündeln Berechtigungen. Integrierte Rollen sind schreibgeschützt; klonen Sie eine zum Anpassen.",
+      "add": "Rolle hinzufügen",
+      "create": "Rolle erstellen",
+      "edit": "Rolle bearbeiten",
+      "view": "Rollendetails",
+      "deleteTitle": "Rolle löschen",
+      "emptyTitle": "Noch keine Rollen",
+      "emptyBody": "Erstellen Sie eine eigene Rolle oder klonen Sie eine integrierte.",
+      "columns": {
+        "name": "Name",
+        "description": "Beschreibung",
+        "isBuiltIn": "Typ",
+        "active": "Aktiv",
+        "id": "ID",
+        "createdUtc": "Erstellt"
+      },
+      "fields": {
+        "name": "Name",
+        "description": "Beschreibung",
+        "active": "Aktiv"
+      }
+    },
+    "permissions": {
+      "title": "Berechtigungen",
+      "subtitle": "Operationen auf Ressourcentypen erlauben oder verweigern. Verweigern gewinnt immer.",
+      "add": "Berechtigung hinzufügen",
+      "create": "Berechtigung erstellen",
+      "edit": "Berechtigung bearbeiten",
+      "view": "Berechtigungsdetails",
+      "deleteTitle": "Berechtigung löschen",
+      "emptyTitle": "Noch keine Berechtigungen",
+      "emptyBody": "Erstellen Sie eine Berechtigung und ordnen Sie sie einer Rolle zu.",
+      "columns": {
+        "name": "Name",
+        "permissionType": "Typ",
+        "resourceTypes": "Ressourcentypen",
+        "operationTypes": "Operationen",
+        "isBuiltIn": "Herkunft",
+        "id": "ID"
+      },
+      "fields": {
+        "name": "Name",
+        "permissionType": "Typ",
+        "resourceTypes": "Ressourcentypen",
+        "operationTypes": "Operationen",
+        "active": "Aktiv"
+      }
+    },
+    "userAssignments": {
+      "title": "Benutzerzuweisungen",
+      "subtitle": "Rollen an Benutzer auf Mandanten- oder Ressourcenebene vergeben.",
+      "add": "Zuweisung hinzufügen",
+      "create": "Zuweisung erstellen",
+      "edit": "Zuweisung bearbeiten",
+      "view": "Zuweisungsdetails",
+      "deleteTitle": "Zuweisung löschen",
+      "emptyTitle": "Noch keine Benutzerzuweisungen",
+      "emptyBody": "Weisen Sie einem Benutzer eine Rolle zu.",
+      "columns": {
+        "userId": "Benutzer",
+        "roleName": "Rolle",
+        "resourceScope": "Geltungsbereich",
+        "resourceId": "Ressource",
+        "active": "Aktiv",
+        "createdUtc": "Erstellt",
+        "id": "ID"
+      },
+      "fields": {
+        "userId": "Benutzer",
+        "roleId": "Rolle",
+        "resourceScope": "Geltungsbereich",
+        "resourceId": "Ressourcen-ID",
+        "inheritsToChildren": "Gilt für Ressourcen im Mandanten",
+        "active": "Aktiv"
+      }
+    },
+    "credentialAssignments": {
+      "title": "Schlüsselzuweisungen",
+      "subtitle": "Rollen an Zugangsschlüssel vergeben. Halten Sie Schlüssel enger als ihre Eigentümer.",
+      "add": "Zuweisung hinzufügen",
+      "create": "Zuweisung erstellen",
+      "edit": "Zuweisung bearbeiten",
+      "view": "Zuweisungsdetails",
+      "deleteTitle": "Zuweisung löschen",
+      "emptyTitle": "Noch keine Schlüsselzuweisungen",
+      "emptyBody": "Weisen Sie einem Schlüssel eine Rolle zu.",
+      "columns": {
+        "credentialId": "Schlüssel",
+        "roleName": "Rolle",
+        "resourceScope": "Geltungsbereich",
+        "resourceId": "Ressource",
+        "active": "Aktiv",
+        "createdUtc": "Erstellt",
+        "id": "ID"
+      },
+      "fields": {
+        "credentialId": "Schlüssel",
+        "roleId": "Rolle",
+        "resourceScope": "Geltungsbereich",
+        "resourceId": "Ressourcen-ID",
+        "inheritsToChildren": "Gilt für Ressourcen im Mandanten",
+        "active": "Aktiv"
+      }
+    },
+    "promptTemplates": {
+      "deleteUnbound": "\"{{name}}\" und alle Versionen löschen? Profile, die sie einbinden, greifen auf den integrierten Standard zurück. Dies kann nicht rückgängig gemacht werden.",
+      "title": "Prompt-Vorlagen",
+      "subtitle": "Jeder Prompt und jede Konfigurationsdatei, die Hugo rendert. Jedes Speichern erzeugt eine Version.",
+      "add": "Neue Vorlage",
+      "create": "Vorlage erstellen",
+      "edit": "Vorlage bearbeiten",
+      "view": "Vorlagendetails",
+      "deleteTitle": "Vorlage löschen",
+      "emptyTitle": "Noch keine Prompt-Vorlagen",
+      "emptyBody": "Erstellen Sie eine Vorlage oder klonen Sie eine integrierte.",
+      "columns": {
+        "name": "Name",
+        "kind": "Art",
+        "currentVersion": "Version",
+        "description": "Beschreibung",
+        "isBuiltIn": "Herkunft",
+        "id": "ID",
+        "lastUpdateUtc": "Aktualisiert"
+      },
+      "fields": {
+        "name": "Name",
+        "kind": "Art",
+        "description": "Beschreibung"
+      }
+    },
+    "audit": {
+      "title": "Audit",
+      "subtitle": "Authentifizierungs-, Autorisierungs- und Konfigurationsereignisse dieses Mandanten.",
+      "add": "Eintrag hinzufügen",
+      "create": "Eintrag erstellen",
+      "edit": "Eintrag bearbeiten",
+      "view": "Auditdetails",
+      "deleteTitle": "Eintrag löschen",
+      "emptyTitle": "Noch keine Auditeinträge",
+      "emptyBody": "Sicherheitsereignisse erscheinen hier, sobald Personen und Agenten Hugo verwenden.",
+      "columns": {
+        "createdUtc": "Zeit",
+        "eventType": "Ereignis",
+        "principalName": "Prinzipal",
+        "resource": "Ressource",
+        "reason": "Grund",
+        "sourceIp": "Quell-IP",
+        "id": "ID"
+      },
+      "fields": {
+        "eventType": "Ereignis",
+        "principalType": "Prinzipaltyp",
+        "principalName": "Prinzipal",
+        "principalId": "Prinzipal-ID",
+        "resourceType": "Ressourcentyp",
+        "resourceId": "Ressourcen-ID",
+        "operation": "Operation",
+        "method": "Methode",
+        "path": "Pfad",
+        "authResult": "Authentifizierungsergebnis",
+        "authorizationResult": "Autorisierungsergebnis",
+        "reason": "Grund",
+        "bypassReason": "Grund der Umgehung",
+        "statusCode": "Statuscode",
+        "sourceIp": "Quell-IP",
+        "requestId": "Anfrage-ID",
+        "createdUtc": "Zeit"
+      }
+    },
+    "approvals": {
+      "approved": "Freigegeben. Der Aufruf wird jetzt ausgeführt.",
+      "rejected": "Abgelehnt. Der Aufrufer erfährt, dass die Aktion verweigert wurde.",
+      "notPending": "Über diese Freigabe wurde bereits entschieden oder sie ist abgelaufen.",
+      "bulkNote": "Gesammelt im Freigabe-Posteingang abgelehnt.",
+      "bulkRejected_one": "{{count}} Freigabe abgelehnt ({{failed}} fehlgeschlagen).",
+      "bulkRejected_other": "{{count}} Freigaben abgelehnt ({{failed}} fehlgeschlagen).",
+      "title": "Freigaben",
+      "subtitle": "Schreibende und destruktive Toolaufrufe, die auf eine Person warten. Freigeben, um sie auszuführen, ablehnen, um sie zu verweigern.",
+      "add": "Freigabe hinzufügen",
+      "create": "Freigabe erstellen",
+      "edit": "Freigabe bearbeiten",
+      "view": "Freigabedetails",
+      "deleteTitle": "Freigabe löschen",
+      "emptyTitle": "Noch keine Freigaben",
+      "emptyBody": "Nichts wartet. Aufrufe, die eine Freigabe benötigen, erscheinen hier und im Chat, sobald ein Agent sie vorschlägt.",
+      "purpose": "Der Freigabe-Posteingang enthält Toolaufrufe, die eine Person benötigen: destruktive Aufrufe und jeden Schreibzugriff auf Bindungen mit erforderlicher Freigabe.",
+      "columns": {
+        "summary": "Aktion",
+        "effect": "Wirkung",
+        "status": "Status",
+        "agentProfileId": "Profil",
+        "requestedBy": "Angefordert von",
+        "createdUtc": "Angefordert",
+        "expiresUtc": "Läuft ab",
+        "decidedBy": "Entschieden von",
+        "id": "ID"
+      },
+      "fields": {
+        "summary": "Aktion",
+        "effect": "Wirkung",
+        "status": "Status",
+        "decisionNote": "Entscheidungsnotiz",
+        "agentProfileId": "Profil",
+        "fromUtc": "Von"
+      },
+      "actions": {
+        "decide": "Freigeben oder ablehnen",
+        "invocation": "Toolaufruf anzeigen",
+        "bulkReject": "Auswahl ablehnen"
+      }
+    },
+    "resources": {
+      "deleteReferenced_one": "{{name}} ist an {{count}} Profil oder Endpunkt gebunden. Entfernen Sie zuerst diese Bindungen; der Server verweigert das Löschen, solange darauf verwiesen wird.",
+      "deleteReferenced_other": "{{name}} ist an {{count}} Profile oder Endpunkte gebunden. Entfernen Sie zuerst diese Bindungen; der Server verweigert das Löschen, solange darauf verwiesen wird.",
+      "noReferrers": "Noch nichts verwendet dies.",
+      "referrerTypes": {
+        "profiles": "Profil",
+        "bindings": "Bindung",
+        "resources": "Ressource",
+        "modelEndpoints": "Modellendpunkt"
+      },
+      "title": "Ressourcen",
+      "subtitle": "Verbindungen zu Ihren Systemen mit ihren Einstellungen und Secrets. Binden Sie sie an Profile, damit Agenten sie verwenden können.",
+      "add": "Ressource hinzufügen",
+      "create": "Ressource erstellen",
+      "edit": "Ressource bearbeiten",
+      "view": "Ressourcendetails",
+      "deleteTitle": "Ressource löschen",
+      "emptyTitle": "Noch keine Ressourcen",
+      "emptyBody": "Fügen Sie einen SSH-Host, einen Bucket, eine Datenbank oder einen Protokolldienst hinzu. Jedes Formular basiert auf dem Schema des Konnektors und kann vor dem Speichern getestet werden.",
+      "purpose": "Ressourcen sind konfigurierte Verbindungen zu echten Systemen: ein SSH-Host, ein S3-Bucket, eine PostgreSQL-Datenbank, ein Papertrail-Konto. Ihre Secrets bleiben in Hugo verschlüsselt.",
+      "sections": {
+        "general": "Allgemein",
+        "connector": "Konnektor"
+      },
+      "columns": {
+        "name": "Name",
+        "connectorType": "Konnektor",
+        "environment": "Umgebung",
+        "endpoint": "Endpunkt",
+        "health": "Zustand",
+        "lastTestUtc": "Zuletzt getestet",
+        "visibility": "Sichtbarkeit",
+        "id": "ID",
+        "createdUtc": "Erstellt"
+      },
+      "fields": {
+        "name": "Name",
+        "displayName": "Anzeigename",
+        "environment": "Umgebung",
+        "visibility": "Sichtbarkeit",
+        "defaultAccessModeCeiling": "Höchster erlaubter Zugriffsmodus",
+        "endpoint": "Endpunktübersicht",
+        "description": "Beschreibung",
+        "notes": "Hinweise für den Agenten",
+        "connectorType": "Konnektor"
+      },
+      "hints": {
+        "notes": "Wird in die Anweisungen jedes Profils eingefügt, das diese Ressource bindet.",
+        "endpoint": "Wird in Listen und Anweisungen angezeigt, zum Beispiel web-01.example.com:22."
+      },
+      "actions": {
+        "test": "Verbindung testen",
+        "testTitle": "Verbindungstest: {{name}}",
+        "tryTool": "Tool ausprobieren",
+        "referrers": "Wo es verwendet wird",
+        "referrersTitle": "Wo {{name}} verwendet wird"
+      }
+    },
+    "secrets": {
+      "deleteReferenced_one": "{{name}} wird von {{count}} Ressource oder Modellendpunkt verwendet. Der Server verweigert das Löschen, solange darauf verwiesen wird.",
+      "deleteReferenced_other": "{{name}} wird von {{count}} Ressourcen oder Modellendpunkten verwendet. Der Server verweigert das Löschen, solange darauf verwiesen wird.",
+      "expired": "Abgelaufen",
+      "expiringSoon": "Läuft bald ab",
+      "errors": {
+        "expiryPast": "Wählen Sie einen Zeitpunkt in der Zukunft.",
+        "noValues": "Füllen Sie mindestens einen zu ersetzenden Wert aus."
+      },
+      "title": "Geheimnisse",
+      "subtitle": "Passwörter, Schlüssel, Tokens und Zertifikate, verschlüsselt mit dem Hauptschlüssel. Werte werden nur über ein protokolliertes Anzeigen sichtbar.",
+      "add": "Geheimnis hinzufügen",
+      "create": "Geheimnis erstellen",
+      "edit": "Geheimnis bearbeiten",
+      "view": "Geheimnisdetails",
+      "deleteTitle": "Geheimnis löschen",
+      "emptyTitle": "Noch keine Geheimnisse",
+      "emptyBody": "Fügen Sie die Zugangsdaten hinzu, die Ihre Ressourcen benötigen. Sie können sie auch direkt beim Hinzufügen einer Ressource erstellen.",
+      "purpose": "Der Secret-Tresor speichert Zugangsdaten verschlüsselt (AES-256-GCM). Ressourcen und Modellendpunkte verweisen über Slots auf Secrets; Agenten sehen die Werte nie.",
+      "sections": {
+        "values": "Werte"
+      },
+      "columns": {
+        "name": "Name",
+        "kind": "Art",
+        "fingerprint": "Fingerabdruck",
+        "referrerCount": "Verwendet von",
+        "lastRotatedUtc": "Zuletzt rotiert",
+        "expiresUtc": "Läuft ab",
+        "lastRevealedUtc": "Zuletzt angezeigt",
+        "id": "ID",
+        "createdUtc": "Erstellt"
+      },
+      "fields": {
+        "name": "Name",
+        "kind": "Art",
+        "description": "Beschreibung",
+        "expiresUtc": "Läuft ab"
+      },
+      "actions": {
+        "replaceValues": "Werte ersetzen",
+        "reveal": "Anzeigen",
+        "referrers": "Wo es verwendet wird",
+        "referrersTitle": "Wo {{name}} verwendet wird"
+      }
+    },
+    "toolInvocations": {
+      "openTrace": "Trace in Grafana öffnen",
+      "truncated": "Gekürzt",
+      "title": "Toolaufrufe",
+      "subtitle": "Jeder Toolaufruf von jeder Schnittstelle: was ausgeführt wurde, auf welcher Ressource, wie er eingestuft wurde, was entschieden wurde und wie er endete.",
+      "add": "Toolaufruf hinzufügen",
+      "create": "Toolaufruf erstellen",
+      "edit": "Toolaufruf bearbeiten",
+      "view": "Details zum Toolaufruf",
+      "deleteTitle": "Toolaufruf löschen",
+      "emptyTitle": "Noch keine Toolaufrufe",
+      "emptyBody": "Toolaufrufe erscheinen hier, sobald ein Agent eine Ressource verwendet, ob über Chat, MCP, A2A, den OpenAI-Endpunkt oder die REST-API.",
+      "purpose": "Toolaufrufe sind der protokollierte Nachweis jedes Toolaufrufs von jeder Schnittstelle über Hugos zentrale Aufruf-Pipeline.",
+      "columns": {
+        "createdUtc": "Zeitpunkt",
+        "toolName": "Tool",
+        "resourceId": "Ressource",
+        "effect": "Wirkung",
+        "decision": "Entscheidung",
+        "status": "Status",
+        "durationMs": "Dauer",
+        "surface": "Schnittstelle",
+        "agentProfileId": "Profil",
+        "principalId": "Prinzipal",
+        "id": "ID"
+      },
+      "fields": {
+        "surface": "Schnittstelle",
+        "effect": "Wirkung",
+        "decision": "Entscheidung",
+        "status": "Status",
+        "agentProfileId": "Profil",
+        "resourceId": "Ressource",
+        "toolName": "Toolname",
+        "principalId": "Prinzipal-ID",
+        "fromUtc": "Von",
+        "toUtc": "Bis",
+        "accessMode": "Zugriffsmodus",
+        "outputBytes": "Ausgabegröße",
+        "approvalId": "Freigabe",
+        "traceId": "Trace",
+        "argumentsRedacted": "Argumente (Secrets geschwärzt)",
+        "outputPreview": "Ausgabevorschau"
+      }
+    },
+    "models": {
+      "lastHealth": "Letzte Zustandsprüfung {{time}}: {{message}}",
+      "title": "Modellendpunkte",
+      "subtitle": "Inferenz- und Embedding-Modelle für Hugos eigene Agentenschleife. Chat, A2A und OpenAI-kompatible Clients benötigen ein Inferenzmodell.",
+      "add": "Modellendpunkt hinzufügen",
+      "create": "Modellendpunkt erstellen",
+      "edit": "Modellendpunkt bearbeiten",
+      "view": "Details zum Modellendpunkt",
+      "deleteTitle": "Modellendpunkt löschen",
+      "emptyTitle": "Noch keine Modellendpunkte",
+      "emptyBody": "Der Chat benötigt ein Inferenzmodell. Fügen Sie ein lokales Ollama-Modell oder einen gehosteten Anbieter wie OpenAI oder Anthropic hinzu.",
+      "purpose": "Modellendpunkte sind die Inferenz- und Embedding-Anbieter, die Hugos Agentenschleife aufruft: Ollama, OpenAI, Anthropic, Gemini, Azure OpenAI, Bedrock, Vertex und VoyageAI.",
+      "sections": {
+        "endpoint": "Endpunkt",
+        "capabilities": "Fähigkeiten",
+        "limits": "Limits"
+      },
+      "columns": {
+        "name": "Name",
+        "kind": "Art",
+        "provider": "Anbieter",
+        "model": "Modell",
+        "baseUrl": "Basis-URL",
+        "healthStatus": "Zustand",
+        "lastHealthUtc": "Zuletzt geprüft",
+        "id": "ID"
+      },
+      "fields": {
+        "name": "Name",
+        "kind": "Art",
+        "provider": "Anbieter",
+        "baseUrl": "Basis-URL",
+        "model": "Modell",
+        "apiKey": "API-Schlüssel",
+        "apiKeySecretId": "Secret für API-Schlüssel",
+        "region": "Region",
+        "deploymentName": "Deployment-Name",
+        "apiVersion": "API-Version",
+        "contextWindowTokens": "Kontextfenster (Tokens)",
+        "maxOutputTokens": "Maximale Ausgabe-Tokens",
+        "embeddingDimensions": "Embedding-Dimensionen",
+        "supportsTools": "Unterstützt Toolaufrufe",
+        "supportsStreaming": "Unterstützt Streaming",
+        "maxConcurrency": "Maximale gleichzeitige Anfragen",
+        "timeoutSeconds": "Zeitlimit (Sekunden)",
+        "maxRetries": "Maximale Wiederholungen"
+      },
+      "errors": {
+        "baseUrl": "Geben Sie eine URL ein, die mit http:// oder https:// beginnt."
+      },
+      "actions": {
+        "validate": "Validieren",
+        "validateTitle": "Validierung: {{name}}",
+        "listModels": "Modelle des Anbieters auflisten",
+        "listModelsTitle": "Von {{name}} angebotene Modelle"
+      }
+    },
+    "knowledge": {
+      "allProfiles": "Jedes Profil",
+      "title": "Wissen",
+      "subtitle": "Notizen über Ihren Stack, die Hugo in den Kontext abruft, für ein Profil, eine Ressource oder für jedes Profil.",
+      "add": "Notiz hinzufügen",
+      "create": "Notiz erstellen",
+      "edit": "Notiz bearbeiten",
+      "view": "Notizdetails",
+      "deleteTitle": "Notiz löschen",
+      "emptyTitle": "Noch kein Wissen",
+      "emptyBody": "Notieren Sie, was ein Operator einem neuen Teammitglied erzählen würde: welche Hosts den Checkout bedienen, wann Payments nicht neu gestartet werden darf.",
+      "purpose": "Wissensnotizen sind von Operatoren verfasste Fakten über Ihren Stack, die eingebettet und während Konversationen in den Kontext abgerufen werden (Meilenstein M2).",
+      "columns": {
+        "title": "Titel",
+        "agentProfileId": "Profil",
+        "resourceId": "Ressource",
+        "lastUpdateUtc": "Aktualisiert",
+        "id": "ID"
+      },
+      "fields": {
+        "title": "Titel",
+        "agentProfileId": "Profil",
+        "resourceId": "Ressource",
+        "content": "Notiz"
+      }
+    },
+    "profiles": {
+      "noModel": "Kein Modell",
+      "title": "Agentenprofile",
+      "subtitle": "Jedes Profil ist ein Agent: eine Persona, Modelle und die Ressourcen, die er verwenden darf, erreichbar über MCP, A2A, REST, OpenAI und Chat.",
+      "add": "Profil hinzufügen",
+      "create": "Profil erstellen",
+      "edit": "Profil bearbeiten",
+      "view": "Profildetails",
+      "deleteTitle": "Profil löschen",
+      "emptyTitle": "Noch keine Agentenprofile",
+      "emptyBody": "Erstellen Sie ein Profil oder beginnen Sie mit dem Hugo-Standardprofil und binden Sie Ressourcen daran.",
+      "purpose": "Agentenprofile bündeln eine Persona (standardmäßig Agent Smith), Modelle und Ressourcen mit Zugriffsmodi. Jede Schnittstelle (MCP, A2A, REST, Chat) spricht mit einem Profil.",
+      "sections": {
+        "identity": "Identität",
+        "models": "Modelle",
+        "limits": "Limits",
+        "exposure": "Bereitstellung"
+      },
+      "columns": {
+        "name": "Profil",
+        "personaName": "Persona",
+        "visibility": "Sichtbarkeit",
+        "inferenceEndpointId": "Inferenzmodell",
+        "bindingCount": "Bindungen",
+        "exposure": "Bereitgestellt über",
+        "id": "ID",
+        "createdUtc": "Erstellt"
+      },
+      "fields": {
+        "name": "Name",
+        "displayName": "Anzeigename",
+        "description": "Beschreibung",
+        "personaName": "Name der Persona",
+        "userAddress": "Spricht den Benutzer an als",
+        "visibility": "Sichtbarkeit",
+        "inferenceEndpointId": "Inferenzmodell",
+        "fallbackInferenceEndpointId": "Ausweich-Inferenzmodell",
+        "embeddingEndpointId": "Embedding-Modell",
+        "maxIterations": "Maximale Iterationen pro Schritt",
+        "maxToolCallsPerTurn": "Maximale Toolaufrufe pro Schritt",
+        "toolTimeoutSeconds": "Tool-Zeitlimit (Sekunden)",
+        "temperature": "Temperatur",
+        "exposeMcp": "Über MCP bereitstellen",
+        "exposeA2a": "Über A2A bereitstellen",
+        "exposeOpenai": "Über den OpenAI-kompatiblen Endpunkt bereitstellen",
+        "exposeManagementTools": "Verwaltungstools bereitstellen",
+        "instructionsAppend": "Zusätzliche Anweisungen"
+      },
+      "hints": {
+        "name": "Buchstaben, Ziffern, Punkte, Bindestriche und Unterstriche. Wird in URLs wie /mcp/{name} verwendet."
+      },
+      "errors": {
+        "urlSafe": "Verwenden Sie Buchstaben, Ziffern, Punkte, Bindestriche und Unterstriche, beginnend mit einem Buchstaben oder einer Ziffer."
+      },
+      "actions": {
+        "chat": "Mit diesem Profil chatten",
+        "duplicate": "Duplizieren"
+      }
+    },
+    "sessions": {
+      "revoked": "Widerrufen",
+      "title": "Sitzungen",
+      "subtitle": "Aktive Anmeldesitzungen und Tokens in diesem Mandanten. Widerrufen Sie eine, um diesen Client sofort abzumelden.",
+      "add": "Sitzung hinzufügen",
+      "create": "Sitzung erstellen",
+      "edit": "Sitzung bearbeiten",
+      "view": "Sitzungsdetails",
+      "deleteTitle": "Sitzung löschen",
+      "emptyTitle": "Noch keine Sitzungen",
+      "emptyBody": "Es sind keine Sitzungen aktiv. Eine Anmeldung oder der Austausch eines Zugangsschlüssels erzeugt eine.",
+      "purpose": "Sitzungen sind die Bearer-Tokens, die bei der Anmeldung oder durch Austausch eines Zugangsschlüssels ausgestellt werden. Ein Widerruf beendet sie sofort.",
+      "columns": {
+        "principalName": "Prinzipal",
+        "principalType": "Typ",
+        "authScheme": "Schema",
+        "sourceIp": "Quell-IP",
+        "issuedUtc": "Ausgestellt",
+        "lastUsedUtc": "Zuletzt verwendet",
+        "expiresUtc": "Läuft ab",
+        "revokedUtc": "Zustand",
+        "userAgent": "Client",
+        "id": "ID"
+      },
+      "fields": {
+        "principalName": "Prinzipal",
+        "authScheme": "Schema",
+        "sourceIp": "Quell-IP",
+        "userAgent": "Client",
+        "principalType": "Prinzipaltyp",
+        "principalId": "Prinzipal-ID"
+      }
+    },
+    "conversations": {
+      "title": "Konversationen",
+      "subtitle": "Konversationen von jeder Schnittstelle in diesem Mandanten. Öffnen Sie eine, um sie im Chat fortzusetzen.",
+      "add": "Konversation hinzufügen",
+      "create": "Konversation erstellen",
+      "edit": "Konversation bearbeiten",
+      "view": "Konversationsdetails",
+      "deleteTitle": "Konversation löschen",
+      "emptyTitle": "Noch keine Konversationen",
+      "emptyBody": "Konversationen erscheinen hier, sobald jemand mit einem Profil chattet, ob über das Dashboard oder einen beliebigen Client.",
+      "purpose": "Konversationen sind die gespeicherten Verläufe zwischen Aufrufern und Profilen, aus dem Dashboard-Chat, A2A-Kontexten, MCP und OpenAI-kompatiblen Sitzungen.",
+      "columns": {
+        "title": "Titel",
+        "agentProfileId": "Profil",
+        "userId": "Benutzer",
+        "source": "Quelle",
+        "messageCount": "Nachrichten",
+        "tokens": "Tokens",
+        "lastMessageUtc": "Letzte Nachricht",
+        "id": "ID"
+      },
+      "fields": {
+        "source": "Quelle",
+        "agentProfileId": "Profil",
+        "userId": "Benutzer-ID",
+        "fromUtc": "Von"
+      },
+      "actions": {
+        "export": "Als Markdown exportieren"
+      }
+    },
+    "plugins": {
+      "title": "Plugins",
+      "subtitle": "Konnektor-Plugins aus dem Plugin-Verzeichnis. Aktivieren oder deaktivieren Sie sie und sehen Sie, warum eines nicht geladen werden konnte.",
+      "add": "Plugin hinzufügen",
+      "create": "Plugin erstellen",
+      "edit": "Plugin bearbeiten",
+      "view": "Plugin-Details",
+      "deleteTitle": "Plugin löschen",
+      "emptyTitle": "Noch keine Plugins",
+      "emptyBody": "Es sind keine Plugins installiert. Legen Sie ein Konnektor-Plugin im Plugin-Verzeichnis ab und aktivieren Sie Connectors.EnablePlugins.",
+      "purpose": "Plugins fügen Konnektortypen hinzu, ohne Hugo neu zu erstellen. Sie werden in einem isolierten Kontext aus dem Plugin-Verzeichnis geladen.",
+      "columns": {
+        "name": "Name",
+        "version": "Version",
+        "connectorTypes": "Konnektortypen",
+        "enabled": "Zustand",
+        "loadError": "Ladefehler",
+        "sha256": "SHA-256",
+        "id": "ID"
+      },
+      "fields": {
+        "name": "Name",
+        "version": "Version",
+        "enabled": "Aktiviert"
+      },
+      "actions": {
+        "enable": "Aktivieren",
+        "disable": "Deaktivieren"
+      }
+    }
+  },
+  "views": {
+    "home": {
+      "observabilityState": {
+        "reachable": "Erreichbar",
+        "unreachable": "Nicht erreichbar",
+        "checking": "Wird geprüft",
+        "unknown": "Status unbekannt"
+      },
+      "observabilityVersion": "Version {{version}}",
+      "observabilityOpen": "{{service}} öffnen",
+      "kpisGrafana": "Übersicht in Grafana öffnen",
+      "grafanaDashboards": "Grafana-Dashboards",
+      "grafanaSections": {
+        "overview": "Übersicht",
+        "http": "HTTP-API",
+        "models": "Modelle",
+        "protocols": "MCP und A2A",
+        "security": "Sicherheit",
+        "agent": "Agent und Chat",
+        "tools": "Tools und Konnektoren"
+      },
+      "observabilitySetup": "Beobachtbarkeit einrichten",
+      "observabilityNone": "Für diesen Hugo-Server sind keine Observability-Dienste (Grafana, Prometheus, Tempo oder Loki) konfiguriert.",
+      "observability": "Beobachtbarkeit",
+      "title": "Startseite",
+      "subtitle": "Was Hugo gerade tut, was Ihre Aufmerksamkeit braucht und wohin es als Nächstes geht.",
+      "lastLoaded": "Aktualisiert {{time}}",
+      "getStartedTitle": "Agent Smith einsatzbereit machen",
+      "getStartedBody": "Dieser Mandant hat noch keinen Modellendpunkt und keine Ressourcen. Der Einrichtungsassistent verbindet in wenigen Minuten ein Modell und ein erstes System.",
+      "runSetup": "Einrichtung starten",
+      "kpis": {
+        "last24h": "Letzte 24 Stunden",
+        "requests": "Anfragen",
+        "toolCalls": "Toolaufrufe",
+        "failures": "Fehler",
+        "approvals": "Wartende Freigaben",
+        "unhealthy": "Fehlerhafte Ressourcen",
+        "tokens": "Tokens heute",
+        "today": "seit Mitternacht"
+      },
+      "requestActivity": "API-Anfrageaktivität",
+      "recentFailures": "Kürzlich fehlgeschlagene Toolaufrufe",
+      "noFailures": "In letzter Zeit keine fehlgeschlagenen Toolaufrufe.",
+      "cta": {
+        "title": "Häufige Abläufe",
+        "apiExplorer": "API-Explorer öffnen",
+        "addResource": "Ressource hinzufügen",
+        "addModel": "Modellendpunkt hinzufügen",
+        "chat": "Mit Agent Smith chatten",
+        "connect": "Claude Code verbinden",
+        "approvals": "Freigaben prüfen"
+      },
+      "services": {
+        "loki": "Loki",
+        "grafana": "Grafana",
+        "prometheus": "Prometheus",
+        "tempo": "Tempo"
+      },
+      "partial_one": "{{count}} Bereich konnte nicht geladen werden, daher fehlen unten einige Zahlen. Der Rest der Seite ist aktuell.",
+      "partial_other": "{{count}} Bereiche konnten nicht geladen werden, daher fehlen unten einige Zahlen. Der Rest der Seite ist aktuell.",
+      "failuresUnavailable": "Dieser Server meldet noch keine Toolaufrufe.",
+      "unhealthyTitle": "Fehlerhafte Ressourcen",
+      "allHealthy": "Jede Ressource hat ihre letzte Zustandsprüfung bestanden.",
+      "resourcesUnavailable": "Dieser Server meldet noch keine Ressourcen."
+    },
+    "markdown": {
+      "showRaw": "Rohtext anzeigen",
+      "showRendered": "Formatiert anzeigen"
+    },
+    "templateEditor": {
+      "cloneToEdit": "Zum Bearbeiten klonen",
+      "builtInReadOnly": "Integrierte Vorlagen sind schreibgeschützt, daher sind alle Felder hier gesperrt. Klonen Sie die Vorlage, um eine bearbeitbare Kopie zu erhalten.",
+      "renameHint": "Sie können diese Vorlage umbenennen. Vorlagen, die sie über den Namen einbinden, müssen manuell angepasst werden.",
+      "cloneDialog": {
+        "taken": "Eine Vorlage namens {{name}} existiert bereits. Wählen Sie einen anderen Namen.",
+        "reserved": "Namen mit dem Präfix builtin/ sind integrierten Vorlagen vorbehalten.",
+        "hint": "Sie können die Kopie später auf ihrer Seite umbenennen.",
+        "name": "Name der Kopie",
+        "body": "Die Kopie beginnt mit dem aktuellen Inhalt als Version 1 und kann bearbeitet, umbenannt und gelöscht werden.",
+        "title": "{{name}} klonen"
+      },
+      "newTitle": "Neue Prompt-Vorlage",
+      "subtitle": "Vorlage schreiben, mit Beispielkontext prüfen und speichern.",
+      "changeNote": "Änderungsnotiz",
+      "versions_one": "Versionen ({{count}})",
+      "versions_other": "Versionen ({{count}})",
+      "noVersions": "Noch keine gespeicherten Versionen.",
+      "version": "Version",
+      "note": "Notiz",
+      "author": "Autor",
+      "diff": "Vergleich",
+      "restore": "Wiederherstellen",
+      "diffTitle": "Version {{version}} im Vergleich zum Editor",
+      "current": "Editor",
+      "reset": "Auf Standard zurücksetzen",
+      "savedVersion": "Neue Version gespeichert.",
+      "restored": "Version {{version}} wiederhergestellt.",
+      "resetDone": "Auf den Auslieferungsstand zurückgesetzt.",
+      "confirm": {
+        "restoreTitle": "Version wiederherstellen",
+        "restoreMessage": "Version {{version}} wiederherstellen? Der aktuelle Inhalt bleibt im Verlauf erhalten.",
+        "resetTitle": "Vorlage zurücksetzen",
+        "resetMessage": "\"{{name}}\" auf den Auslieferungsstand zurücksetzen?",
+        "deleteTitle": "Vorlage löschen",
+        "deleteMessage": "\"{{name}}\" löschen? Profile und Konnektoren, die sie verwenden, greifen auf den integrierten Standard zurück."
+      },
+      "saved": "Gespeicherter Text"
+    },
+    "requests": {
+      "grafana": "HTTP-Dashboard in Grafana",
+      "title": "Anfrageverlauf",
+      "subtitle": "Erfasster API-Verkehr. Jede Anfrage im Detail prüfen und Aufbewahrung verwalten.",
+      "kpis": {
+        "total": "Gespeicherte Anfragen",
+        "success": "Erfolgreich",
+        "failure": "Fehler",
+        "avgDuration": "Mittlere Dauer"
+      },
+      "columns": {
+        "time": "Zeit",
+        "method": "Methode",
+        "path": "Pfad",
+        "status": "Status",
+        "duration": "Dauer",
+        "principal": "Prinzipal"
+      },
+      "bulkDeleteTitle": "Anfrageverlauf löschen",
+      "bulkDeleteMessage": "Alle {{count}} Anfragen löschen, die den aktuellen Filtern entsprechen?",
+      "bulkDeleteAll": "Alle Treffer löschen",
+      "deleteOneTitle": "Anfrage löschen",
+      "deleteOneMessage": "Anfrage {{id}} löschen?",
+      "deleted": "Gelöscht.",
+      "emptyTitle": "Kein Anfrageverlauf",
+      "emptyBodyNoTraffic": "Es wurde noch kein API-Verkehr gespeichert.",
+      "emptyBodyNoMatch": "Keine Anfragen entsprechen den aktuellen Filtern."
+    },
+    "explorer": {
+      "title": "API-Explorer",
+      "subtitle": "Live-Aufrufe gegen diesen Server ausführen, gesteuert durch sein OpenAPI-Dokument.",
+      "operations": "Operationen",
+      "selectOperation": "Wählen Sie eine Operation, um eine Anfrage zu erstellen.",
+      "selectOperationOption": "Operation auswählen...",
+      "pathParams": "Pfadparameter",
+      "queryParams": "Abfrageparameter",
+      "headers": "Header",
+      "addHeader": "Header hinzufügen",
+      "headerName": "Header-Name",
+      "headerValue": "Wert des Headers {{name}}",
+      "removeHeader": "Header {{name}} entfernen",
+      "body": "Anfragetext",
+      "resolvedUrl": "Aufgelöste URL",
+      "copyUrl": "URL kopieren",
+      "execute": "Ausführen",
+      "executing": "Wird ausgeführt...",
+      "stop": "Stoppen",
+      "streaming": "Streaming",
+      "response": "Antwort",
+      "responseHeaders": "Antwort-Header",
+      "responseBody": "Antworttext",
+      "snippets": "Codebeispiele",
+      "history": "Letzte Anfragen",
+      "historyEmpty": "Keine letzten Anfragen.",
+      "loadHistory": "Laden",
+      "deleteHistory": "Löschen",
+      "clearHistory": "Verlauf leeren",
+      "required": "erforderlich",
+      "confirmTitle": "Destruktive Operation ausführen",
+      "confirmMessage": "Diese {{method}}-Anfrage kann Daten ändern oder löschen. Fortfahren?",
+      "noSpecTitle": "OpenAPI-Dokument nicht verfügbar",
+      "noSpecBody": "Dieser Server hat kein verwendbares /openapi.json geliefert, daher kann der Explorer keine Operationen anzeigen."
+    },
+    "settings": {
+      "errors": {
+        "allowed": "Wählen Sie einen dieser Werte: {{values}}.",
+        "boolean": "Wählen Sie wahr oder falsch.",
+        "max": "Geben Sie {{max}} oder weniger ein.",
+        "min": "Geben Sie {{min}} oder mehr ein.",
+        "range": "Geben Sie einen Wert von {{min}} bis {{max}} ein.",
+        "integer": "Geben Sie eine ganze Zahl ein.",
+        "number": "Geben Sie eine Zahl ein."
+      },
+      "notSaved": "Es wurde nichts gespeichert. Korrigieren Sie die markierten Einstellungen und speichern Sie erneut.",
+      "title": "Einstellungen",
+      "subtitle": "Die hugo.json-Einstellungen des Servers, mit schreibgeschützt angezeigten Umgebungsüberschreibungen. Manche Änderungen gelten sofort, andere nach einem Neustart.",
+      "readOnly": "Sie sehen die Einstellungen schreibgeschützt. Nur Systemadministration kann sie ändern.",
+      "restartBanner": "Einige gespeicherte Änderungen werden erst nach einem Neustart wirksam.",
+      "restarting": "Der Server startet neu. Diese Seite verbindet sich automatisch wieder.",
+      "restarted": "Der Server ist wieder erreichbar.",
+      "restartTimeout": "Der Server war nach drei Minuten nicht wieder erreichbar. Prüfen Sie den Containerstatus mit docker ps.",
+      "restart": "Server neu starten",
+      "restartConfirmTitle": "Server neu starten",
+      "restartConfirmMessage": "Hugo-Server jetzt neu starten? Laufende Anfragen und Chat-Streams werden abgebrochen; der Container startet den Prozess neu und diese Seite verbindet sich erneut.",
+      "savedLive": "Einstellungen gespeichert und angewendet.",
+      "savedRestart": "Einstellungen gespeichert. Starten Sie den Server neu, um alle Änderungen anzuwenden.",
+      "live": "Sofort wirksam",
+      "restartRequired": "Neustart erforderlich",
+      "secretSet": "Gesetzt (neuen Wert eingeben zum Ersetzen)",
+      "secretNotSet": "Nicht gesetzt",
+      "range": "Zulässiger Bereich {{min}} bis {{max}}",
+      "testDatabase": "Datenbankverbindung testen",
+      "testing": "Wird getestet...",
+      "dbOk": "Verbindung erfolgreich",
+      "dbFailed": "Verbindung fehlgeschlagen",
+      "unavailableTitle": "Einstellungen nicht verfügbar",
+      "unavailableBody": "Dieser Server hat seine Einstellungen nicht geliefert.",
+      "sources": {
+        "File": "Einstellungsdatei",
+        "Environment": "Umgebung",
+        "Database": "Datenbank"
+      },
+      "lockedBy": {
+        "Environment": "Durch eine Umgebungsvariable gesetzt. Der Umgebungswert hat Vorrang.",
+        "other": "Diese Einstellung kann hier nicht geändert werden."
+      },
+      "groups": {
+        "General": "Allgemein",
+        "Rest": "REST-Listener",
+        "Mcp": "MCP",
+        "Database": "Datenbank",
+        "Logging": "Protokollierung",
+        "Auth": "Authentifizierung",
+        "RequestHistory": "Anfrageverlauf",
+        "Telemetry": "Telemetrie",
+        "Audit": "Audit",
+        "Secrets": "Secret-Tresor",
+        "Agent": "Agentenschleife",
+        "Approvals": "Freigaben",
+        "Connectors": "Konnektoren",
+        "Models": "Modellendpunkte",
+        "A2A": "A2A",
+        "OpenAI": "OpenAI-kompatibler Endpunkt",
+        "Embeddings": "Embeddings"
+      },
+      "fields": {
+        "Rest": {
+          "Hostname": "Hostname des Listeners",
+          "Port": "Port des Listeners",
+          "Ssl": "TLS verwenden",
+          "ExternalBaseUrl": "Externe Basis-URL",
+          "AllowedOrigins": "Erlaubte CORS-Ursprünge"
+        },
+        "Database": {
+          "Type": "Datenbanktyp",
+          "Filename": "SQLite-Datei",
+          "Server": "Datenbankserver",
+          "Port": "Datenbankport",
+          "DatabaseName": "Datenbankname",
+          "Username": "Datenbankbenutzer",
+          "Password": "Datenbankpasswort"
+        },
+        "Auth": {
+          "SigningKey": "Token-Signaturschlüssel",
+          "UserSessionMinutes": "Dauer der Benutzersitzung (Minuten)",
+          "AdminSessionMinutes": "Dauer der Administratorsitzung (Minuten)",
+          "SessionAbsoluteMaxHours": "Absolutes Sitzungslimit (Stunden)",
+          "RateLimitPerMinute": "Anmeldeversuche pro Minute"
+        },
+        "Secrets": {
+          "MasterKey": "Hauptschlüssel (nur Entwicklung)",
+          "RevealReauthMinutes": "Zeitfenster der erneuten Authentifizierung für Anzeigen (Minuten)"
+        },
+        "Agent": {
+          "DefaultMaxIterations": "Standardmäßige maximale Iterationen pro Schritt",
+          "DefaultMaxToolCallsPerTurn": "Standardmäßige maximale Toolaufrufe pro Schritt",
+          "MaxParallelToolCalls": "Parallele lesende Toolaufrufe",
+          "ToolRetrievalThreshold": "Schwellenwert für Tool-Abruf",
+          "CompactionThresholdRatio": "Schwellenwert für Verlaufsverdichtung"
+        },
+        "Approvals": {
+          "ExpirySeconds": "Ablauf von Freigaben (Sekunden)",
+          "McpWaitSeconds": "MCP-Wartezeit auf Freigabe (Sekunden)",
+          "AllowSelfApproval": "Freigabe eigener Aufrufe erlauben"
+        },
+        "Connectors": {
+          "EnablePlugins": "Konnektor-Plugins aktivieren",
+          "PluginDirectory": "Plugin-Verzeichnis",
+          "DefaultToolTimeoutSeconds": "Standard-Tool-Zeitlimit (Sekunden)",
+          "HealthSweepMinutes": "Zustandsprüfung der Ressourcen (Minuten)"
+        },
+        "Models": {
+          "HealthIntervalSeconds": "Intervall der Modell-Zustandsprüfung (Sekunden)"
+        }
+      }
+    },
+    "serverInfo": {
+      "title": "Serverinfo",
+      "subtitle": "Endpunkte, Versionen und die Identität, mit der Sie angemeldet sind.",
+      "endpoints": "Endpunkte",
+      "rest": "REST-API",
+      "mcp": "MCP",
+      "a2a": "A2A",
+      "openapi": "OpenAPI",
+      "server": "Server",
+      "version": "Serverversion",
+      "dashboardVersion": "Dashboard-Version",
+      "node": "Serverknoten",
+      "database": "Datenbank",
+      "health": "Zustand",
+      "routes": "Registrierte Operationen",
+      "serverTime": "Serverzeit",
+      "principal": "Angemeldet als",
+      "principalName": "Prinzipal",
+      "principalType": "Prinzipaltyp",
+      "role": "Rolle",
+      "tenant": "Mandant",
+      "expires": "Sitzung läuft ab",
+      "features": "Funktionsschalter",
+      "connectors": "Geladene Konnektoren",
+      "openai": "OpenAI-kompatibel"
+    },
+    "analytics": {
+      "legend": "Reihen in {{chart}}",
+      "noDataInChart": "Keine Daten für dieses Diagramm im gewählten Zeitraum.",
+      "dataTable": "Datentabelle",
+      "bucketStart": "Intervallbeginn",
+      "title": "Analysen",
+      "subtitle": "Token-Verbrauch, Toolaufrufe nach Wirkung und Konnektor, Modelllatenz und Fehler sowie Bearbeitungszeit von Freigaben.",
+      "purpose": "Analysen machen aus Toolaufrufen, Chat-Schritten und Modellaufrufen Nutzungs- und Kostentrends pro Profil und Modell.",
+      "profile": "Profil",
+      "panels": {
+        "overview": "Summen",
+        "tokens": "Token-Verbrauch",
+        "tools": "Toolaufrufe nach Wirkung",
+        "models": "Modelle",
+        "modelLatency": "Modelllatenz",
+        "modelErrors": "Modellfehler"
+      },
+      "purposes": {
+        "overview": "Summen für Schritte, Toolaufrufe, Fehler, Tokens und Freigaben im gewählten Zeitraum.",
+        "tokens": "Eingabe- und Ausgabe-Tokens im Zeitverlauf, über jede Schnittstelle, die Hugos eigene Schleife ausführt.",
+        "tools": "Toolaufrufe im Zeitverlauf nach Wirkung sowie Aufrufe, Fehler und Latenz pro Konnektor.",
+        "models": "Latenzperzentile und Fehleranzahl für jeden Modellendpunkt."
+      },
+      "help": {
+        "tokens": "Eingabe- und Ausgabe-Tokens pro Zeitintervall.",
+        "tools": "Toolaufrufe pro Zeitintervall nach Wirkung: Lesen, Schreiben und Destruktiv.",
+        "modelLatency": "Median (p50) und p95 der Modellantwortzeit pro Intervall.",
+        "modelErrors": "Fehlgeschlagene Modellanfragen pro Intervall."
+      },
+      "kpis": {
+        "turns": "Chat-Schritte",
+        "toolCalls": "Toolaufrufe",
+        "failures": "Fehlgeschlagene Toolaufrufe",
+        "tokens": "Tokens",
+        "approvals": "Freigaben",
+        "turnaround": "Bearbeitungszeit von Freigaben",
+        "approvalRate": "Anteil freigegeben"
+      },
+      "metrics": {
+        "inputTokens": "Eingabe-Tokens",
+        "outputTokens": "Ausgabe-Tokens",
+        "latencyMsP50": "Median (p50)",
+        "latencyMsP95": "p95",
+        "errors": "Fehler",
+        "Read": "Lesen",
+        "Write": "Schreiben",
+        "Destructive": "Destruktiv"
+      },
+      "columns": {
+        "connector": "Konnektor",
+        "calls": "Aufrufe",
+        "failures": "Fehler",
+        "p95": "p95-Dauer"
+      }
+    },
+    "chat": {
+      "title": "Chat",
+      "subtitle": "Sprechen Sie mit Agent Smith. Toolaufrufe erscheinen direkt mit ihrer Wirkung, und riskante warten auf Ihre Freigabe.",
+      "purpose": "Der Chat führt Hugos eigene Agentenschleife mit dem gewählten Profil aus: Er liest Ihre gebundenen Ressourcen über deren Tools, fragt vor riskanten Aktionen nach und streamt die Antwort hierher.",
+      "conversations": "Konversationen",
+      "search": "Konversationen durchsuchen",
+      "noConversations": "Noch keine Konversationen.",
+      "untitled": "Unbenannte Konversation",
+      "new": "Neue Konversation",
+      "export": "Exportieren",
+      "context": "Kontext",
+      "profile": "Profil",
+      "model": "Modell: {{model}}",
+      "modelLabel": "Modell",
+      "persona": "Persona",
+      "addresses": "Spricht Sie an als",
+      "resources": "Gebundene Ressourcen",
+      "noResources": "An dieses Profil sind keine Ressourcen gebunden.",
+      "usage": "Token-Verbrauch",
+      "pending": "Ausstehende Freigaben",
+      "noPending": "Nichts wartet auf Sie.",
+      "noModel": "Dieses Profil hat kein Inferenzmodell, daher kann Agent Smith noch nicht antworten. Fügen Sie einen Modellendpunkt hinzu und wählen Sie ihn im Profil aus.",
+      "goModels": "Modellendpunkt hinzufügen",
+      "noProfilesTitle": "Noch keine Agentenprofile",
+      "noProfilesBody": "Der Chat spricht mit einem Agentenprofil. Erstellen Sie eines (oder lassen Sie den Server das Hugo-Standardprofil anlegen), um zu beginnen.",
+      "goProfiles": "Agentenprofile öffnen",
+      "emptyHint": "Fragen Sie {{persona}} nach Ihrem Stack, zum Beispiel \"Warum ist der Checkout langsam?\""
+    },
+    "profile": {
+      "title": "Agentenprofil",
+      "subtitle": "Persona {{persona}}, spricht den Benutzer als {{address}} an.",
+      "tabs": {
+        "general": "Allgemein",
+        "bindings": "Bindungen",
+        "instructions": "Anweisungen",
+        "tools": "Tools",
+        "connect": "Verbinden"
+      },
+      "bindings": {
+        "body": "Jede Bindung verknüpft eine Ressource unter einem Alias mit diesem Profil, mit einem Zugriffsmodus, der festlegt, was der Agent tun darf.",
+        "purpose": "Bindungen verknüpfen Ressourcen mit einem Profil, mit Zugriffsmodus, Freigaberichtlinie und Tool-Regeln.",
+        "add": "Bindung hinzufügen",
+        "edit": "Bindung bearbeiten",
+        "emptyTitle": "Noch keine Ressourcen gebunden",
+        "emptyBody": "Dieses Profil kann auf kein System zugreifen, bis Sie Ressourcen daran binden. Fügen Sie zuerst Ressourcen hinzu und binden Sie sie dann hier.",
+        "goResources": "Ressourcen öffnen",
+        "noResources": "Es gibt noch keine Ressourcen zum Binden. Fügen Sie zuerst eine auf der Seite Ressourcen hinzu.",
+        "approvalOn": "Freigabe",
+        "aliasInvalid": "Verwenden Sie Buchstaben, Ziffern, Punkte, Bindestriche und Unterstriche, beginnend mit einem Buchstaben oder einer Ziffer.",
+        "aliasTaken": "Eine andere Bindung in diesem Profil verwendet diesen Alias bereits.",
+        "deleteTitle": "Bindung entfernen",
+        "deleteBody": "{{alias}} aus diesem Profil entfernen? Die Ressource selbst bleibt erhalten; Aufrufer dieses Profils verlieren den Zugriff darauf.",
+        "columns": {
+          "alias": "Alias",
+          "resource": "Ressource",
+          "accessMode": "Zugriffsmodus",
+          "approval": "Freigabe",
+          "enabled": "Zustand"
+        },
+        "fields": {
+          "resourceId": "Ressource",
+          "alias": "Alias",
+          "accessMode": "Zugriffsmodus",
+          "requireApprovalForDestructive": "Freigabe für destruktive Aufrufe verlangen",
+          "instructionMode": "Anweisungen",
+          "instructionText": "Anweisungstext",
+          "maxOutputBytes": "Maximale Ausgabe-Bytes",
+          "maxRows": "Maximale Zeilen",
+          "enabled": "Aktiviert"
+        }
+      },
+      "toolRules": {
+        "title": "Tool-Regeln für {{alias}}",
+        "body": "Überschreiben Sie einzelne Tools in dieser Bindung. Nicht festgelegte Tools folgen dem Zugriffsmodus.",
+        "open": "Tool-Regeln",
+        "rule": "Regel",
+        "ruleFor": "Regel für {{tool}}",
+        "inherit": "Dem Zugriffsmodus folgen",
+        "noTools": "Der Server hat für dieses Profil keine Tools gemeldet."
+      },
+      "instructions": {
+        "body": "Die Anweisungen, die ein Aufrufer erhält: Persona, Sicherheitsregeln und der Abschnitt jeder gebundenen Ressource, in dieser Reihenfolge.",
+        "purpose": "Die kompilierten Anweisungen zeigen genau, was Agent Smith für jede Schnittstelle gesagt wird, mit der Vorlage, aus der jeder Abschnitt stammt.",
+        "surface": "Schnittstelle",
+        "sourceMap": "Herkunft der einzelnen Abschnitte"
+      },
+      "tools": {
+        "body": "Tools genau so, wie ein Aufrufer dieses Profils sie sieht, nach Anwendung von Zugriffsmodi und Tool-Regeln.",
+        "purpose": "Die Tool-Liste zeigt, was ein Aufrufer dieses Profils nach Zugriffsmodi und Tool-Regeln aufrufen kann.",
+        "empty": "Dieses Profil stellt keine Tools bereit.",
+        "name": "Tool",
+        "effect": "Wirkung",
+        "description": "Beschreibung",
+        "perCall": "(pro Aufruf eingestuft)"
+      },
+      "connect": {
+        "claudeCode": "Claude Code (MCP über HTTP)",
+        "claudeCodeBody": "Fügen Sie dies zu Ihren MCP-Einstellungen hinzu. Setzen Sie HUGO_TOKEN auf ein Sitzungstoken oder verwenden Sie einen an dieses Profil gebundenen Zugangsschlüssel.",
+        "claudeCli": "Claude Code CLI",
+        "claudeCliBody": "Derselbe Server, über die Befehlszeile registriert.",
+        "stdio": "Stdio-Relay",
+        "stdioBody": "Für MCP-Clients, die nur stdio sprechen: Die hugo-CLI leitet an den HTTP-Endpunkt weiter.",
+        "a2a": "A2A-Agentenkarte",
+        "a2aBody": "Andere Agenten finden dieses Profil über seine A2A-Karte.",
+        "a2aOff": "A2A ist für dieses Profil deaktiviert. Aktivieren Sie die A2A-Bereitstellung auf dem Tab Allgemein, um die Karte zu veröffentlichen.",
+        "openai": "OpenAI-kompatibler Endpunkt",
+        "openaiBody": "Richten Sie einen beliebigen OpenAI-kompatiblen Client auf diese Basis-URL aus und verwenden Sie den Modellnamen {{model}}.",
+        "openaiOff": "Der OpenAI-kompatible Endpunkt ist für dieses Profil deaktiviert.",
+        "credential": "Ein Zugangsschlüssel für dieses Profil",
+        "credentialBody": "Harnesses sollten sich mit einem an dieses Profil gebundenen Zugangsschlüssel verbinden, damit sie immer als dieses Profil handeln und nicht mehr.",
+        "credentialAction": "Zugangsschlüssel erstellen"
+      }
+    },
+    "resources": {
+      "form": {
+        "chooseConnector": "Konnektor wählen",
+        "connectorsUnavailable": "Der Server hat seine Konnektoren nicht aufgelistet, daher können die Einstellungen noch nicht erzeugt werden.",
+        "settings": "Einstellungen",
+        "secrets": "Secrets",
+        "test": "Verbindung testen",
+        "testing": "Wird getestet..."
+      },
+      "tryTool": {
+        "title": "Tool auf {{name}} ausprobieren",
+        "body": "Wählen Sie ein Profil, das diese Ressource bindet, und ein Tool. Der Probelauf stuft den Aufruf ein, ohne ihn auszuführen; Ausführen durchläuft dieselben Sicherheitsprüfungen wie jede andere Schnittstelle.",
+        "profile": "Als Profil ausführen",
+        "tool": "Tool",
+        "arguments": "Argumente (JSON)",
+        "dryRun": "Probelauf",
+        "execute": "Ausführen",
+        "classification": "Einstufung",
+        "result": "Ergebnis",
+        "notBound": "Dieses Profil bindet die Ressource nicht, daher können seine Tools sie nicht erreichen.",
+        "pendingApproval": "Der Aufruf wartet auf Freigabe {{id}}. Entscheiden Sie auf der Seite Freigaben."
+      }
+    },
+    "secrets": {
+      "reveal": {
+        "title": "{{name}} anzeigen",
+        "warning": "Beim Anzeigen wird der Klartextwert sichtbar. Der Vorgang wird mit Ihrer Begründung protokolliert, und die Werte verschwinden nach 30 Sekunden.",
+        "reason": "Begründung",
+        "reasonRequired": "Geben Sie an, warum Sie den Wert sehen müssen.",
+        "submit": "Anzeigen",
+        "reauthBody": "Geben Sie zu Ihrer Sicherheit Ihr Passwort erneut ein, bevor Secrets angezeigt werden.",
+        "password": "Ihr Passwort",
+        "reauthSubmit": "Bestätigen und anzeigen",
+        "hidesIn": "Wird in {{seconds}} Sekunden wieder ausgeblendet.",
+        "hidden": "Die Werte wurden wieder ausgeblendet.",
+        "again": "Erneut anzeigen"
+      }
+    },
+    "connectors": {
+      "title": "Konnektoren",
+      "subtitle": "Die Arten von Systemen, die Hugo erreichen kann, mit ihren Einstellungen, Secrets, Tools und Standardanweisungen.",
+      "purpose": "Der Konnektorkatalog listet jede Dienstfamilie auf, die dieser Server erreichen kann (SSH, Objektspeicher, Datenbanken, Protokolldienste und mehr), mit den jeweils benötigten Einstellungen und Secrets und den angebotenen Tools.",
+      "search": "Konnektoren durchsuchen",
+      "category": "Kategorie",
+      "count_one": "{{shown}} Konnektor",
+      "count_other": "{{shown}} Konnektoren",
+      "emptyTitle": "Keine passenden Konnektoren",
+      "emptyBody": "Leeren Sie die Suche oder wählen Sie eine andere Kategorie.",
+      "noDescription": "Keine Beschreibung.",
+      "toolCount_one": "{{count}} Tool",
+      "toolCount_other": "{{count}} Tools",
+      "loadError": "Ladefehler",
+      "addResource": "Ressource hinzufügen",
+      "tabs": {
+        "overview": "Übersicht",
+        "settings": "Einstellungsschema",
+        "tools": "Tools",
+        "instructions": "Standardanweisungen"
+      },
+      "fields": {
+        "type": "Typ",
+        "family": "Familie",
+        "category": "Kategorie",
+        "version": "Version",
+        "documentation": "Dokumentation"
+      },
+      "slots": "Secret-Slots",
+      "noSlots": "Dieser Konnektor benötigt keine Secrets.",
+      "settingsBody": "Dies ist das Formular, das eine neue Ressource dieses Typs erhält. Probieren Sie es hier aus; nichts wird gespeichert.",
+      "reference": "Einstellungsreferenz",
+      "columns": {
+        "key": "Schlüssel",
+        "kind": "Art",
+        "required": "Erforderlich",
+        "default": "Standard",
+        "range": "Zulässige Werte",
+        "group": "Gruppe"
+      },
+      "noTools": "Dieser Konnektor bietet keine Tools.",
+      "instructionsBody": "Jede Ressource dieses Typs fügt diese Anweisungen für den Agenten hinzu. Bearbeiten Sie sie pro Mandant oder global unter dem Vorlagenschlüssel {{key}}.",
+      "editInstructions": "In Prompt-Vorlagen bearbeiten",
+      "builtInInstructions": "Integrierte Standardanweisungen",
+      "noInstructions": "Dieser Konnektor liefert keine Standardanweisungen mit."
+    },
+    "mcpExplorer": {
+      "title": "MCP-Explorer",
+      "subtitle": "Verbinden Sie sich als Sie selbst mit Hugos MCP-Endpunkt, lesen Sie die Anweisungen, listen Sie Tools auf und rufen Sie sie auf.",
+      "purpose": "Der MCP-Explorer spricht mit /mcp genau wie Claude Code, sodass Sie die Anweisungen und die Tool-Liste eines Profils prüfen können, bevor Sie ein Harness anbinden.",
+      "profile": "Profil",
+      "defaultProfile": "Vom Server bestimmt",
+      "connect": "Verbinden",
+      "reconnect": "Neu verbinden",
+      "session": "Sitzung {{id}}",
+      "failed": "Die MCP-Anfrage ist fehlgeschlagen",
+      "tools": "Tools",
+      "toolsCount_one": "{{count}} Tool",
+      "toolsCount_other": "{{count}} Tools",
+      "noTools": "Der Server hat für diesen Aufrufer keine Tools aufgelistet.",
+      "serverInfo": "Server",
+      "instructions": "Anweisungen aus initialize",
+      "noInstructions": "Der Server hat keine Anweisungen gesendet.",
+      "call": "Tool aufrufen",
+      "toolOk": "Das Tool hat ein Ergebnis zurückgegeben.",
+      "toolError": "Das Tool hat einen Fehler gemeldet.",
+      "invalidJson": "Der Wert von {{field}} ist kein gültiges JSON.",
+      "log_one": "JSON-RPC-Protokoll ({{count}} Nachricht)",
+      "log_other": "JSON-RPC-Protokoll ({{count}} Nachrichten)"
+    },
+    "a2aExplorer": {
+      "title": "A2A-Explorer",
+      "subtitle": "Rufen Sie die Agentenkarte eines Profils ab, senden Sie ihm eine Nachricht, streamen Sie die Antwort und listen Sie Aufgaben über A2A auf.",
+      "purpose": "Der A2A-Explorer ruft /v1.0/a2a/{tenant}/{profile} mit den JSON-RPC-Methoden von A2A 1.0 auf, so wie es ein anderer Agent tun würde.",
+      "profile": "Profil",
+      "fetchCard": "Karte abrufen",
+      "listTasks": "Aufgaben auflisten",
+      "message": "Nachricht",
+      "stream": "Antwort streamen",
+      "send": "Senden",
+      "context": "Kontext {{id}} wird fortgesetzt",
+      "result": "Ergebnis",
+      "events_one": "Stream-Ereignisse ({{count}})",
+      "events_other": "Stream-Ereignisse ({{count}})",
+      "tasks_one": "{{count}} Aufgabe",
+      "tasks_other": "{{count}} Aufgaben",
+      "noTasks": "Noch keine Aufgaben für dieses Profil."
+    }
+  },
+  "tips": {
+    "fieldWarnings": {
+      "dismiss": "Diesen Hinweis ausblenden. Der Datensatz ist bereits mit den hier aufgeführten Werten gespeichert."
+    },
+    "ids": {
+      "deleted": "Dieser Datensatz wurde gelöscht. ID {{id}}. Die Kopierschaltfläche kopiert die ID.",
+      "named": "ID {{id}}. Mit der Kopierschaltfläche kopieren Sie die ID für die API, SDKs oder eine Supportanfrage."
+    },
+    "markdown": {
+      "column": "Spalte {{name}} einer Tabelle aus der Ausgabe des Agenten. Breite Tabellen scrollen seitlich in ihrem Rahmen.",
+      "showRaw": "Zeigt den exakten Text, den der Agent zurückgegeben hat, ohne Markdown-Formatierung, zum Prüfen oder Kopieren.",
+      "showRendered": "Zeigt den Text wieder als Markdown formatiert, mit Tabellen, Listen, Codeblöcken und Links.",
+      "copy": "Kopiert den rohen Ergebnistext einschließlich Markdown-Syntax in die Zwischenablage.",
+      "link": "Öffnet {{href}} in einem neuen Tab. Der Link stammt aus der Ausgabe des Agenten, prüfen Sie die Adresse also, bevor Sie ihr vertrauen."
+    },
+    "common": {
+      "fields": {
+        "name": "Eindeutiger Name für diesen Datensatz innerhalb des Mandanten. Andere Datensätze verweisen über diesen Namen darauf.",
+        "description": "Freitextnotiz für Menschen. Sie erklärt, wofür dieser Datensatz gedacht ist, und wird zur Laufzeit nicht verwendet.",
+        "active": "Inaktive Datensätze bleiben erhalten, werden aber ignoriert. Schalten Sie dies aus, um etwas zu pausieren, ohne es zu löschen.",
+        "id": "Vom System erzeugte Kennung mit Typpräfix. Verwenden Sie sie in API-Aufrufen und Skripten; sie ändert sich nie.",
+        "createdUtc": "Wann dieser Datensatz erstellt wurde. Fahren Sie mit der Maus über den Wert, um Datum und Uhrzeit genau zu sehen.",
+        "lastUpdateUtc": "Wann dieser Datensatz zuletzt geändert wurde.",
+        "isBuiltIn": "Integrierte Datensätze werden mit Hugo ausgeliefert und sind schreibgeschützt. Benutzerdefinierte Datensätze wurden in diesem Mandanten erstellt und können bearbeitet werden.",
+        "expiresUtc": "Nach diesem Zeitpunkt funktioniert der Datensatz nicht mehr. Leer lassen für keinen Ablauf."
+      }
+    },
+    "explainer": {
+      "reopen": "Die Erklärung zu {{topic}} erneut anzeigen: was diese Seite verwaltet und wie sie mit dem Rest von Hugo zusammenhängt.",
+      "dismiss": "Diese Erklärung ausblenden. An ihrer Stelle bleibt eine kleine Schaltfläche \"Über\", mit der Sie sie jederzeit wieder einblenden können."
+    },
+    "topbar": {
+      "toggleSidebar": "Die Navigationsleiste ein- oder ausklappen. Auf kleinen Bildschirmen öffnet sich die Navigation als Überlagerung.",
+      "server": "Der Hugo-Server, mit dem diese Konsole spricht: {{url}}. Der Punkt zeigt, ob seine Zustandsprüfung erfolgreich ist.",
+      "health": {
+        "healthy": "Der Server hat in den letzten 30 Sekunden auf seine Zustandsprüfung geantwortet.",
+        "unhealthy": "Der Server hat nicht auf seine Zustandsprüfung geantwortet. Anfragen von dieser Seite schlagen wahrscheinlich fehl.",
+        "unknown": "Warten auf das erste Ergebnis der Zustandsprüfung des Servers."
+      },
+      "copyServer": "Die Server-URL kopieren, zum Beispiel um ein SDK oder einen curl-Befehl zu konfigurieren.",
+      "switchTenant": "Systemadministration kann jeden Mandanten ansehen. Jede Seite zeigt die Daten des ausgewählten Mandanten.",
+      "tenant": "Sie arbeiten im Mandanten {{tenant}}. Jeder angezeigte Datensatz gehört dazu.",
+      "principal": "Sie sind als {{name}} angemeldet. Ihre Aktionen werden unter dieser Identität protokolliert.",
+      "role": "Ihre höchste Zugriffsstufe in diesem Mandanten. Sie bestimmt, welche Seiten und Aktionen verfügbar sind.",
+      "liveOn": "Mit dem Ereignisstream des Servers verbunden, sodass Freigaben und Toolaufrufe sofort erscheinen.",
+      "liveOff": "Keine Live-Verbindung. Die Seiten fragen stattdessen in Intervallen ab, daher kann es einige Sekunden dauern, bis Änderungen erscheinen.",
+      "github": "Das Hugo-Quellcode-Repository (AgentSmith) auf GitHub in einem neuen Tab öffnen, für Dokumentation und Issues.",
+      "themeLight": "Zum hellen Farbschema wechseln. Die Auswahl wird in diesem Browser gespeichert.",
+      "themeDark": "Zum dunklen Farbschema wechseln. Die Auswahl wird in diesem Browser gespeichert.",
+      "logout": "Abmelden und diese Browsersitzung widerrufen. Sie müssen sich danach erneut anmelden.",
+      "language": "Die Anzeigesprache ändern. Datums- und Zahlenformate folgen der Sprache, und die Auswahl wird gespeichert.",
+      "approvals_one": "{{count}} Freigabe wartet auf eine Person. Öffnen Sie den Freigabe-Posteingang.",
+      "approvals_other": "{{count}} Freigaben warten auf eine Person. Öffnen Sie den Freigabe-Posteingang.",
+      "lockdownOff": "Mandanten sperren: jeden schreibenden und destruktiven Aufruf von jeder Schnittstelle verweigern, bis Sie die Sperre aufheben.",
+      "lockdownOn": "Der Mandant ist gesperrt. Klicken Sie, um die Sperre zu prüfen und aufzuheben.",
+      "lockdownEngage": "Jeden nicht lesenden Aufruf in diesem Mandanten sofort verweigern und ausstehende Freigaben abbrechen.",
+      "lockdownLift": "Schreibende und destruktive Aufrufe wieder erlauben, abhängig von Zugriffsmodi und Freigaben."
+    },
+    "login": {
+      "passwordTab": "Als Person mit Mandant, E-Mail und Passwort anmelden.",
+      "keyTab": "Mit Zugangsschlüssel und geheimem Schlüssel anmelden, demselben Paar, das Skripte und SDKs verwenden.",
+      "serverUrl": "Basisadresse des Hugo-Servers, zum Beispiel lokal http://127.0.0.1:8800 oder die eigene Adresse dieser Seite hinter dem Dashboard-Proxy.",
+      "tenantId": "Der Mandant, zu dem Ihr Konto gehört. Der lokale Standardmandant heißt default.",
+      "email": "Die E-Mail-Adresse Ihres Benutzerkontos in diesem Mandanten.",
+      "password": "Ihr Kontopasswort. Es wird einmal gesendet, um ein Sitzungstoken zu erhalten, und von der Browser-Anwendung nie gespeichert.",
+      "accessKey": "Der öffentliche Teil eines Zugangsschlüssels, beginnend mit access_. Schlüssel erstellen Sie unter Verwaltung, Zugangsschlüssel.",
+      "secretKey": "Der private Teil des Zugangsschlüssels. Er wurde einmal angezeigt, als der Schlüssel erstellt oder rotiert wurde.",
+      "submit": "Die Zugangsdaten beim Server prüfen und die Konsole für Ihren Mandanten öffnen.",
+      "tenantSelect": "Ihre E-Mail gehört zu mehr als einem Mandanten. Wählen Sie den aus, bei dem Sie sich anmelden möchten.",
+      "useDefaults": "Das vorbereitete lokale Administratorkonto eintragen. Wird nur angezeigt, wenn der Server auf diesem Rechner läuft."
+    },
+    "table": {
+      "selectAll": "Alle Zeilen dieser Seite auswählen oder abwählen, zum Beispiel um sie gemeinsam zu löschen.",
+      "selectRow": "Diese Zeile für eine Sammelaktion wie Löschen auswählen.",
+      "sortServer": "{{tip}} Klicken, um die gesamte Liste nach dieser Spalte zu sortieren; erneut klicken kehrt die Reihenfolge um.",
+      "sortPageOnly": "{{tip}} Klicken, um nur die Zeilen dieser Seite zu sortieren; der Server kann nicht nach dieser Spalte sortieren.",
+      "clearSelection": "Alle ausgewählten Zeilen abwählen, ohne etwas zu ändern.",
+      "pageSize": "Wie viele Zeilen pro Seite geladen werden. Größere Seiten laden länger. Die Auswahl wird pro Tabelle gespeichert.",
+      "first": "Zur ersten Ergebnisseite wechseln.",
+      "prev": "Eine Ergebnisseite zurückgehen.",
+      "jump": "Geben Sie eine Seitenzahl zwischen 1 und {{total}} ein und drücken Sie die Eingabetaste, um direkt dorthin zu springen.",
+      "next": "Eine Ergebnisseite weitergehen.",
+      "last": "Zur letzten Ergebnisseite wechseln.",
+      "refresh": "Diese Liste jetzt neu vom Server laden; Seite, Filter und Sortierung bleiben erhalten.",
+      "autoRefresh": "Diese Daten automatisch per Timer neu laden. Aus hält die Ansicht still, während Sie lesen.",
+      "selectColumns": "Auswählen, welche Spalten die Tabelle zeigt. Ihre Auswahl wird pro Tabelle in diesem Browser gespeichert.",
+      "columnPinned": "{{column}} wird immer angezeigt, weil Zeilen ohne diese Spalte nicht zu identifizieren sind.",
+      "columnToggle": "Die Spalte {{column}} ein- oder ausblenden. {{tip}}",
+      "actionsFor": "Die Aktionen für {{name}} öffnen: anzeigen, bearbeiten, duplizieren, JSON anzeigen, löschen und datensatzspezifische Aktionen.",
+      "actionsMenu": "Die für diese Zeile verfügbaren Aktionen öffnen.",
+      "actionsColumn": "Aktionen pro Zeile. Klicken Sie auf die drei Punkte, um anzuzeigen, zu bearbeiten, zu duplizieren, das JSON zu prüfen oder zu löschen.",
+      "search": "Geben Sie einen Teil eines Namens ein, um die Liste einzugrenzen. Die Suche läuft auf dem Server, sobald Sie aufhören zu tippen.",
+      "clearFilters": "Suchtext und alle Filter entfernen und wieder die vollständige Liste anzeigen.",
+      "bulkDelete": "Alle ausgewählten Zeilen löschen. Sie werden zuerst um Bestätigung gebeten."
+    },
+    "filters": {
+      "status": "Nur Datensätze in diesem Zustand anzeigen. Wählen Sie Alle, um den Filter zu entfernen.",
+      "kind": "Nur Datensätze einer Art anzeigen. Wählen Sie Alle, um den Filter zu entfernen.",
+      "eventType": "Nur Audit-Ereignisse eines Typs anzeigen, etwa fehlgeschlagene Anmeldungen oder Änderungen an Geheimnissen.",
+      "fromUtc": "Nur Datensätze anzeigen, die zu oder nach diesem Zeitpunkt erstellt wurden (Ihre lokale Zeitzone).",
+      "toUtc": "Nur Datensätze anzeigen, die vor diesem Zeitpunkt erstellt wurden (Ihre lokale Zeitzone).",
+      "method": "Nur Anfragen mit dieser HTTP-Methode anzeigen.",
+      "statusCode": "Nur Anfragen anzeigen, die diesen HTTP-Statuscode zurückgegeben haben, zum Beispiel 404 oder 500.",
+      "pathContains": "Nur Anfragen anzeigen, deren Pfad diesen Text enthält, zum Beispiel /agents.",
+      "tenantId": "Nur Anfragen in diesem Mandanten anzeigen. Leer lassen für alle Mandanten.",
+      "apply": "Die Suche mit den obigen Filterwerten ausführen.",
+      "clear": "Alle obigen Filter leeren und erneut suchen.",
+      "effect": "Nur Aufrufe mit dieser Wirkung anzeigen: Lesen, Schreiben oder Destruktiv.",
+      "agentProfileId": "Nur Datensätze eines Agentenprofils anzeigen. Wählen Sie Alle, um den Filter zu entfernen.",
+      "source": "Nur Konversationen anzeigen, die auf einer bestimmten Schnittstelle begonnen haben.",
+      "userId": "Nur Datensätze eines Benutzers anzeigen. Fügen Sie eine Benutzer-ID ein; die Liste aktualisiert sich, wenn Sie aufhören zu tippen.",
+      "connectorType": "Nur Ressourcen eines Konnektortyps anzeigen, etwa SSH oder PostgreSQL.",
+      "environment": "Nur Ressourcen mit dieser Umgebung anzeigen, zum Beispiel prod.",
+      "health": "Nur Ressourcen in diesem Zustand anzeigen.",
+      "healthStatus": "Nur Modellendpunkte in diesem Zustand anzeigen.",
+      "provider": "Nur Modellendpunkte eines Anbieters anzeigen.",
+      "surface": "Nur Aufrufe von einer Schnittstelle anzeigen: Chat, MCP, A2A, OpenAI-kompatibel oder REST.",
+      "decision": "Nur Aufrufe mit dieser Sicherheitsentscheidung anzeigen, etwa verweigert oder Freigabe erforderlich.",
+      "resourceId": "Nur Aufrufe gegen eine Ressource anzeigen.",
+      "toolName": "Nur Aufrufe dieses Tools anzeigen, zum Beispiel sql_query. Die Liste aktualisiert sich, wenn Sie aufhören zu tippen.",
+      "principalId": "Nur Datensätze eines Prinzipals anzeigen. Fügen Sie eine ID ein; die Liste aktualisiert sich, wenn Sie aufhören zu tippen.",
+      "principalType": "Nur Sitzungen von Administratoren, Benutzern oder Zugangsschlüsseln anzeigen.",
+      "visibility": "Nur private oder mandantenweite Datensätze anzeigen."
+    },
+    "form": {
+      "option": "{{option}} in {{field}} aufnehmen. Ausgewählte Optionen werden gespeichert, nicht ausgewählte weggelassen.",
+      "reveal": "Den eingegebenen Wert im Klartext anzeigen, damit Sie ihn vor dem Speichern prüfen können.",
+      "hide": "Den Wert wieder maskieren, damit Personen, die auf Ihren Bildschirm schauen, ihn nicht lesen können.",
+      "key": "Schlüssel für diesen Eintrag von {{field}}. Schlüssel müssen innerhalb der Liste eindeutig sein.",
+      "value": "Wert für diesen Eintrag von {{field}}. Vorlagen und Verweise auf Geheimnisse sind erlaubt, wo angegeben.",
+      "removeRow": "Diesen Eintrag aus der Liste entfernen. Gespeichert wird erst, wenn Sie auf Speichern klicken.",
+      "addRow": "Einen leeren Eintrag aus Schlüssel und Wert zu {{field}} hinzufügen.",
+      "moveUp": "Dieses Element eine Position nach vorn verschieben. Die Reihenfolge ist hier wichtig, zum Beispiel bei Argumentlisten.",
+      "moveDown": "Dieses Element eine Position nach hinten verschieben. Die Reihenfolge ist hier wichtig, zum Beispiel bei Argumentlisten.",
+      "removeItem": "Dieses Element aus der Liste entfernen. Gespeichert wird erst, wenn Sie auf Speichern klicken.",
+      "addItem": "Ein neues, leeres Element zu {{field}} hinzufügen und seine Felder ausfüllen."
+    },
+    "actions": {
+      "openDetail": "Die vollständige Detailseite dieses Datensatzes öffnen.",
+      "view": "Diesen Datensatz schreibgeschützt öffnen, um alle Felder ohne Risiko einer Änderung zu sehen.",
+      "edit": "Diesen Datensatz in einem Formular öffnen, um ihn zu ändern. Änderungen werden beim Klick auf Speichern übernommen.",
+      "duplicate": "Einen neuen Datensatz beginnen, vorbefüllt mit den Werten dieses Datensatzes und einem Namen mit -copy. Erstellt wird erst beim Speichern.",
+      "viewJson": "Das rohe JSON genau so anzeigen, wie die API es liefert, zur Fehlersuche oder zum Kopieren in Skripte.",
+      "delete": "Diesen Datensatz dauerhaft löschen. Sie werden um Bestätigung gebeten, und es kann nicht rückgängig gemacht werden.",
+      "add": "Einen neuen Datensatz dieses Typs in einem Formular erstellen.",
+      "switchToEdit": "Diese schreibgeschützte Ansicht in ein bearbeitbares Formular umschalten.",
+      "retryLoad": "Erneut versuchen, diese Daten vom Server zu laden.",
+      "dismiss": "Diese Meldung ausblenden. Sie erscheint wieder, wenn das Problem erneut auftritt."
+    },
+    "modal": {
+      "close": "Dieses Fenster schließen. Auf dem Server ändert sich nichts.",
+      "dismiss": "Dieses Fenster ohne Speichern schließen. Sie können auch Escape drücken.",
+      "cancelForm": "Das Formular schließen und nicht gespeicherte Änderungen verwerfen.",
+      "back": "Zum vorherigen Schritt des Formulars wechseln. Ihre Eingaben bleiben erhalten.",
+      "next": "Zum nächsten Schritt des Formulars wechseln. Gespeichert wird erst, wenn Sie auf Speichern klicken.",
+      "saveEdit": "Ihre Änderungen an diesem Datensatz speichern. Der Server prüft sie und meldet jedes Feld, das korrigiert werden muss.",
+      "saveCreate": "Den Datensatz mit diesen Werten erstellen. Der Server prüft sie und meldet jedes Feld, das korrigiert werden muss.",
+      "saveValue": "Den Wert an den Server senden. Er wird beim Eintreffen verschlüsselt und nie wieder angezeigt."
+    },
+    "confirm": {
+      "delete": "Ja, diesen Datensatz dauerhaft löschen.",
+      "bulkDelete": "Ja, alle ausgewählten Datensätze dauerhaft löschen.",
+      "cancel": "Zurückgehen, ohne etwas zu tun.",
+      "danger": "Diese destruktive Aktion ausführen. Sie kann nicht rückgängig gemacht werden.",
+      "confirm": "Die oben beschriebene Aktion ausführen."
+    },
+    "copy": {
+      "id": "Die Datensatz-ID in die Zwischenablage kopieren, etwa für die REST API, SDKs oder Filter.",
+      "value": "Diesen Wert in die Zwischenablage kopieren.",
+      "block": "Den gesamten Block in die Zwischenablage kopieren, bereit zum Einfügen in ein Terminal oder eine Datei.",
+      "done": "In die Zwischenablage kopiert."
+    },
+    "chart": {
+      "ranges": {
+        "hour": "Die letzten 60 Minuten anzeigen, in Intervallen von einer Minute.",
+        "day": "Die letzten 24 Stunden anzeigen. Die Intervalle sind so bemessen, dass das Diagramm lesbar bleibt.",
+        "week": "Die letzten 7 Tage anzeigen. Die Intervalle sind so bemessen, dass das Diagramm lesbar bleibt.",
+        "month": "Die letzten 30 Tage anzeigen. Die Intervalle sind so bemessen, dass das Diagramm lesbar bleibt.",
+        "custom": "Eigene Start- und Endzeit wählen. Sehr lange Zeiträume lehnt der Server ab."
+      },
+      "refresh": "Die Diagrammdaten jetzt neu vom Server laden.",
+      "tenant": "Anfrageaktivität für einen Mandanten oder für alle Mandanten des Servers anzeigen."
+    },
+    "badges": {
+      "active": "Aktiv: Dieser Datensatz wird verwendet.",
+      "inactive": "Inaktiv: Dieser Datensatz bleibt erhalten, wird aber ignoriert, bis er wieder eingeschaltet wird.",
+      "builtIn": "Integriert: mit Hugo ausgeliefert und schreibgeschützt. Klonen Sie den Eintrag, um eine bearbeitbare Version zu erstellen.",
+      "custom": "Benutzerdefiniert: in diesem Mandanten erstellt, daher bearbeitbar und löschbar.",
+      "systemAdmin": "Systemadministration: kann alle Mandanten verwalten und umgeht Autorisierungsprüfungen.",
+      "tenantAdmin": "Mandantenadministration: kann alles innerhalb dieses Mandanten verwalten.",
+      "user": "Normaler Benutzer: Zugriff ergibt sich nur aus Rollenzuweisungen.",
+      "role": "Diese Zuweisung vergibt die Rolle {{role}} mit allen ihren Berechtigungen.",
+      "defaultProfile": "Das Standardprofil des Mandanten: Aufrufer, die kein Profil angeben, erhalten dieses.",
+      "expiringSoon": "Dieses Secret läuft innerhalb von 14 Tagen ab. Ersetzen Sie die Werte oder verlängern Sie den Ablauf, bevor Ressourcen nicht mehr funktionieren.",
+      "lockdown": "Dieser Mandant ist gesperrt: Nur lesende Aufrufe sind erlaubt, bis ein Mandantenadministrator die Sperre aufhebt.",
+      "locked": "An sein Profil gebunden: Der Zugangsschlüssel kann nur als das gebundene Profil handeln, unabhängig davon, was der Aufrufer anfordert."
+    },
+    "permissions": {
+      "source": "Die Rolle, aus der diese Berechtigung stammt. Ändern Sie den Zugriff über diese Rolle oder die Zuweisung, die sie vergibt.",
+      "type": "Erlauben gewährt die Operationen; Verweigern blockiert sie, selbst wenn eine andere Rolle sie erlaubt.",
+      "resources": "Die Arten von Datensätzen, die diese Berechtigung abdeckt, etwa Ressource, Secret oder Agentenprofil.",
+      "operations": "Was mit diesen Datensätzen getan werden darf, etwa Read, Create oder Execute.",
+      "scope": "Der Geltungsbereich Mandant umfasst alle Datensätze des Typs; der Geltungsbereich Ressource umfasst einen bestimmten Datensatz."
+    },
+    "secretOnce": {
+      "accessKey": "Der öffentliche Zugangsschlüssel. Er identifiziert die Zugangsdaten und kann bedenkenlos in der Konfiguration gespeichert werden.",
+      "secretKey": "Der geheime Schlüssel. Er wird nur dieses eine Mal angezeigt; kopieren Sie ihn jetzt in Ihren Passwortmanager oder Geheimnisspeicher.",
+      "done": "Dieses Fenster schließen. Der geheime Schlüssel kann später nicht abgerufen, nur rotiert werden.",
+      "snippet": "Einfügefertige MCP-Client-Konfiguration mit diesem Zugangsschlüssel. Der geheime Schlüssel wird aus einer Umgebungsvariable gelesen."
+    },
+    "enums": {
+      "promptTemplateKind": {
+        "System": "Ein System-Prompt: die dauerhaften Anweisungen, die den Agenten einrichten.",
+        "Task": "Ein Aufgaben-Prompt: verpackt die Nachricht des Aufrufers in das, was der Agent erhält.",
+        "Fragment": "Ein wiederverwendbarer Baustein, den andere Vorlagen mit {{> name}} einbinden.",
+        "ToolDescription": "Text, der einen Agenten als MCP-Werkzeug oder A2A-Fähigkeit beschreibt.",
+        "ConfigFile": "Der Inhalt einer erzeugten Konfigurationsdatei, etwa einer MCP-Konfiguration.",
+        "Other": "Jeder andere Text, den Hugo in Anweisungen rendert."
+      },
+      "permissionType": {
+        "Permit": "Erlauben: gestattet die aufgeführten Operationen.",
+        "Deny": "Verweigern: blockiert die aufgeführten Operationen, selbst wenn eine andere Berechtigung sie erlaubt."
+      },
+      "effect": {
+        "Read": "Lesen: betrachtet Daten, ohne etwas zu ändern, etwa ein SELECT oder das Auflisten von Dateien.",
+        "Write": "Schreiben: ändert etwas, das rückgängig gemacht werden kann, etwa ein INSERT oder das Hochladen einer Datei.",
+        "Destructive": "Destruktiv: löscht, verwirft, startet neu oder ist auf andere Weise nicht rückgängig zu machen. Wartet standardmäßig auf Freigabe."
+      },
+      "accessMode": {
+        "ReadOnly": "Nur Lesen: Der Agent kann nachsehen, aber schreibende und destruktive Tools werden gar nicht erst aufgelistet.",
+        "ReadWriteWithApproval": "Lesen und Schreiben mit Freigabe: Jeder schreibende oder destruktive Aufruf wartet auf eine Person.",
+        "ReadWrite": "Lesen und Schreiben: Schreibzugriffe laufen direkt; destruktive Aufrufe warten weiterhin, sofern die Bindung dies nicht abwählt."
+      },
+      "approvalStatus": {
+        "Pending": "Ausstehend: wartet darauf, dass eine Person freigibt oder ablehnt.",
+        "Approved": "Freigegeben: Eine Person hat den Aufruf erlaubt, und er wurde ausgeführt.",
+        "Rejected": "Abgelehnt: Eine Person hat den Aufruf verweigert; der Agent wurde informiert.",
+        "Expired": "Abgelaufen: Niemand hat rechtzeitig entschieden, daher wurde der Aufruf verweigert.",
+        "Cancelled": "Abgebrochen: Der Schritt endete oder der Mandant wurde vor einer Entscheidung gesperrt."
+      },
+      "toolDecision": {
+        "Allowed": "Erlaubt: Der Zugriffsmodus ließ den Aufruf ohne Nachfrage zu.",
+        "Denied": "Verweigert: Der Zugriffsmodus, eine Tool-Regel oder die Sperre hat den Aufruf verweigert.",
+        "ApprovalRequired": "Freigabe erforderlich: Der Aufruf hat auf eine Person gewartet.",
+        "Approved": "Freigegeben: Eine Person hat den Aufruf erlaubt.",
+        "Rejected": "Abgelehnt: Eine Person hat den Aufruf verweigert.",
+        "Expired": "Abgelaufen: Niemand hat rechtzeitig entschieden."
+      },
+      "toolStatus": {
+        "Succeeded": "Erfolgreich: Das Tool wurde ausgeführt und hat ein Ergebnis geliefert.",
+        "Failed": "Fehlgeschlagen: Das Tool oder das Zielsystem hat einen Fehler gemeldet.",
+        "TimedOut": "Zeitüberschreitung: Das Tool wurde nicht innerhalb seines Zeitlimits fertig.",
+        "Cancelled": "Abgebrochen: Der Schritt wurde gestoppt, während das Tool lief."
+      },
+      "healthStatus": {
+        "Healthy": "Fehlerfrei: Die letzte Prüfung hat das System erreicht, und es hat normal geantwortet.",
+        "Degraded": "Beeinträchtigt: Das System hat geantwortet, aber langsam oder mit Warnungen.",
+        "Unhealthy": "Fehlerhaft: Die letzte Prüfung konnte das System nicht erreichen, oder es hat mit einem Fehler geantwortet.",
+        "Unknown": "Noch nicht geprüft: Es wurde noch kein Verbindungstest und keine Zustandsprüfung ausgeführt."
+      },
+      "secretKind": {
+        "Password": "Ein Passwort, optional mit Benutzername.",
+        "PrivateKey": "Ein privater SSH- oder TLS-Schlüssel, optional mit Passphrase.",
+        "ApiToken": "Ein API- oder Bearer-Token, das von einem Dienst ausgestellt wurde.",
+        "AccessKeyPair": "Eine Zugriffsschlüssel-ID und ein geheimer Zugriffsschlüssel, etwa AWS-Schlüssel.",
+        "ServiceAccountJson": "Eine Schlüsseldatei eines Cloud-Dienstkontos in JSON, etwa für Google Cloud.",
+        "Kubeconfig": "Eine Kubernetes-kubeconfig-Datei mit Cluster- und Benutzer-Zugangsdaten.",
+        "ConnectionString": "Eine vollständige Verbindungszeichenfolge einschließlich Zugangsdaten.",
+        "Certificate": "Ein Zertifikat mit privatem Schlüssel, für Mutual TLS.",
+        "Generic": "Jeder andere einzelne geheime Wert."
+      },
+      "connectorCategory": {
+        "Compute": "Hosts und Maschinen, die über SSH oder Ähnliches erreicht werden.",
+        "Storage": "Objektspeicher wie S3, Azure Blob und Google Cloud Storage.",
+        "Database": "SQL- und andere Datenbanken.",
+        "Logging": "Protokolldienste wie Papertrail und Loki.",
+        "Cache": "Caches wie Redis.",
+        "Cloud": "Cloud-Steuerungsebenen wie AWS.",
+        "Orchestration": "Container-Orchestrierung wie Kubernetes und Docker.",
+        "Observability": "Metriken und Monitoring wie Prometheus und SolarWinds.",
+        "Http": "Allgemeine HTTP-APIs.",
+        "Agent": "Andere Agenten, die über MCP oder A2A erreicht werden.",
+        "Other": "Konnektoren, die in keine andere Kategorie passen."
+      },
+      "surface": {
+        "Chat": "Dashboard-Chat mit Hugos eigener Agentenschleife.",
+        "Mcp": "Ein MCP-Client wie Claude Code hat den Aufruf ausgelöst.",
+        "A2A": "Ein anderer Agent hat dieses Profil über A2A aufgerufen.",
+        "OpenAI": "Ein OpenAI-kompatibler Client hat mit dem Profil gesprochen.",
+        "Rest": "Ein direkter Toolaufruf über REST oder SDK."
+      },
+      "modelKind": {
+        "Inference": "Erzeugt Antworten und Toolaufrufe.",
+        "Embedding": "Wandelt Text für den Abruf in Vektoren um."
+      },
+      "visibility": {
+        "Private": "Nur der Eigentümer kann es verwenden.",
+        "Tenant": "Jeder mit Zugriff im Mandanten kann es verwenden."
+      },
+      "auditEventType": {
+        "AuthorizationDenied": "Ein Prinzipal hat etwas versucht, das seine Berechtigungen nicht erlauben.",
+        "SecretRevealed": "Jemand hat den Klartext eines Secrets mit Begründung angezeigt.",
+        "LockdownChanged": "Ein Mandantenadministrator hat die Sperre aktiviert oder aufgehoben.",
+        "HostKeyMismatch": "Ein SSH-Host hat einen anderen als den fixierten Schlüssel präsentiert; die Verbindung wurde verweigert."
+      }
+    },
+    "resources": {
+      "tenants": {
+        "add": "Neuen Mandanten erstellen: ein isolierter Bereich mit eigenen Benutzern, Ressourcen, Secrets und Profilen.",
+        "name": "Anzeigename des Mandanten. Bei der Anmeldung wählen Personen den Mandanten über seine ID.",
+        "description": "Für wen oder was dieser Mandant gedacht ist, zum Beispiel ein Team oder eine Kundschaft.",
+        "active": "Inaktive Mandanten können sich nicht anmelden und keine Tools aufrufen. Ihre Daten bleiben erhalten.",
+        "region": "Optionale Regionsbezeichnung für diesen Mandanten, für Ihre eigene Übersicht.",
+        "lockdown": "Ein gesperrter Mandant verweigert jeden Aufruf, der nicht lesend ist."
+      },
+      "users": {
+        "add": "Eine Person anlegen, die sich mit E-Mail und Passwort anmeldet. Vergeben Sie anschließend Zugriff über eine Rollenzuweisung.",
+        "email": "Die Adresse, mit der sich die Person anmeldet. Innerhalb des Mandanten eindeutig.",
+        "name": "Vor- und Nachname, angezeigt in Auditeinträgen und Listen.",
+        "role": "Administrationsstufe des Kontos. Normale Benutzer erhalten Zugriff über Rollenzuweisungen.",
+        "password": "Anmeldepasswort. Beim Bearbeiten leer lassen, um das aktuelle Passwort zu behalten.",
+        "firstName": "Vorname, angezeigt in Listen und Auditeinträgen.",
+        "lastName": "Nachname, angezeigt in Listen und Auditeinträgen.",
+        "isTenantAdmin": "Mandantenadministration kann alles innerhalb dieses Mandanten verwalten, einschließlich Benutzern und Geheimnissen.",
+        "isAdmin": "Systemadministration verwaltet alle Mandanten und umgeht die Autorisierung. Vergeben Sie dies sparsam.",
+        "active": "Inaktive Benutzer können sich nicht anmelden, und ihre Zugangsschlüssel funktionieren nicht mehr.",
+        "actions": {
+          "permissions": "Alle Berechtigungen anzeigen, die dieser Benutzer nach Kombination aller Rollen und Zuweisungen erhält.",
+          "resetPassword": "Ein temporäres Passwort festlegen; der Benutzer muss es bei der nächsten Anmeldung ändern.",
+          "assignRole": "Zuweisungen gefiltert auf diesen Benutzer öffnen, um eine Rolle zu vergeben."
+        },
+        "mustChangePassword": "Der Benutzer muss bei der nächsten Anmeldung ein neues Passwort wählen."
+      },
+      "credentials": {
+        "add": "Einen Zugangsschlüssel für ein Skript, ein SDK oder einen Dienst erstellen. Das Geheimnis wird nach dem Speichern einmal angezeigt.",
+        "name": "Wofür dieser Schlüssel gedacht ist, zum Beispiel claude-code-laptop. Hilft Ihnen, ihn vor dem Rotieren oder Löschen zu finden.",
+        "accessKey": "Der öffentliche Teil des Schlüssels, der mit jeder Anfrage gesendet wird. Kann bedenkenlos in der Konfiguration gespeichert werden.",
+        "secretKeyLast4": "Die letzten vier Zeichen des Geheimnisses, damit Sie einen Schlüssel zuordnen können, ohne ihn zu sehen.",
+        "userId": "Der Benutzer, dem dieser Schlüssel gehört. Ein Schlüssel kann nie mehr als sein Eigentümer.",
+        "lastUsedUtc": "Wann der Schlüssel zuletzt eine Anfrage authentifiziert hat. Alte Daten deuten auf ungenutzte Schlüssel hin, die Sie löschen können.",
+        "authMode": "Wie sich der Schlüssel authentifizieren darf: direkt gesendet, pro Anfrage signiert, gegen eine Sitzung getauscht oder auf jede dieser Arten (Hybrid).",
+        "expiresUtc": "Nach diesem Zeitpunkt funktioniert der Schlüssel nicht mehr. Leer lassen für einen Schlüssel ohne Ablauf.",
+        "active": "Inaktive Schlüssel werden abgelehnt, bleiben aber erhalten, sodass Sie sie wieder einschalten können.",
+        "actions": {
+          "rotate": "Das Geheimnis durch ein neues ersetzen. Das alte Geheimnis funktioniert sofort nicht mehr; das neue wird einmal angezeigt.",
+          "permissions": "Alle Berechtigungen anzeigen, die dieser Schlüssel nach Kombination von Eigentümer, Rollen und Zuweisungen erhält.",
+          "scopes": "Die Geltungsbereichszuweisungen gefiltert auf diesen Zugangsschlüssel öffnen."
+        },
+        "agentProfileId": "Das Profil, als das dieser Zugangsschlüssel standardmäßig handelt. Harnesses sollten einen gebundenen Zugangsschlüssel verwenden.",
+        "lockToProfile": "Wenn aktiviert, kann der Zugangsschlüssel nur als sein gebundenes Profil handeln, unabhängig davon, was der Aufrufer anfordert."
+      },
+      "roles": {
+        "add": "Eine eigene Rolle erstellen, ihr dann Berechtigungen hinzufügen und sie Benutzern oder Schlüsseln zuweisen.",
+        "name": "Name, den Personen beim Zuweisen der Rolle sehen, zum Beispiel Release Operator.",
+        "description": "Wofür die Rolle gedacht ist und wer sie erhalten sollte.",
+        "active": "Inaktive Rollen gewähren nichts, auch wenn sie zugewiesen sind.",
+        "actions": {
+          "clone": "Eine bearbeitbare Kopie dieser integrierten Rolle erstellen, die Sie anpassen können."
+        }
+      },
+      "permissions": {
+        "add": "Eine Regel erstellen, die Operationen auf Ressourcentypen erlaubt oder verweigert.",
+        "name": "Kurzer Name der Regel, angezeigt beim Zusammenstellen von Rollen.",
+        "permissionType": "Erlauben gestattet die unten stehenden Operationen. Verweigern blockiert sie und gewinnt immer gegenüber einer Erlaubnis.",
+        "resourceTypes": "Welche Arten von Datensätzen die Regel abdeckt. Alle umfasst jeden Typ.",
+        "operationTypes": "Welche Operationen die Regel abdeckt, etwa Read, Create oder Execute (Aufruf).",
+        "active": "Inaktive Berechtigungen haben keine Wirkung."
+      },
+      "userAssignments": {
+        "add": "Einem Benutzer eine Rolle vergeben, für den ganzen Mandanten oder für einen bestimmten Datensatz.",
+        "userId": "Die Person, die die Rolle erhält.",
+        "roleName": "Die vergebene Rolle. Die Person erhält alle ihre Berechtigungen.",
+        "roleId": "Die zu vergebende Rolle. Die Person erhält alle ihre Berechtigungen.",
+        "resourceScope": "Mandant wendet die Rolle auf jeden Datensatz an. Ressource beschränkt sie auf den unten genannten Datensatz.",
+        "resourceId": "Kennung des einzelnen Datensatzes, für den die Rolle gilt, zum Beispiel eine Agenten-ID.",
+        "inheritsToChildren": "Die Rolle auf jeden Datensatz im Mandanten anwenden, auch auf später erstellte.",
+        "active": "Inaktive Zuweisungen gewähren nichts, bleiben aber erhalten."
+      },
+      "credentialAssignments": {
+        "add": "Einem Zugangsschlüssel eine Rolle vergeben, für den ganzen Mandanten oder für einen bestimmten Datensatz.",
+        "credentialId": "Der Zugangsschlüssel, der die Rolle erhält. Er kann trotzdem nie mehr als sein Eigentümer.",
+        "roleName": "Die an den Schlüssel vergebene Rolle.",
+        "roleId": "Die zu vergebende Rolle. Wählen Sie die engste Rolle, mit der die Automatisierung ihre Aufgabe erledigen kann.",
+        "resourceScope": "Mandant wendet die Rolle auf jeden Datensatz an. Ressource beschränkt sie auf den unten genannten Datensatz.",
+        "resourceId": "Kennung des einzelnen Datensatzes, für den die Rolle gilt, zum Beispiel der eine Agent, den ein CI-Job aufrufen darf.",
+        "inheritsToChildren": "Die Rolle auf jeden Datensatz im Mandanten anwenden, auch auf später erstellte.",
+        "active": "Inaktive Zuweisungen gewähren nichts, bleiben aber erhalten."
+      },
+      "promptTemplates": {
+        "actions": {
+          "clone": "Diese Vorlage unter einem selbst gewählten Namen kopieren und die Kopie im Editor öffnen."
+        },
+        "add": "Eine neue Prompt-Vorlage im Editor mit Live-Vorschau schreiben. Jedes Speichern wird zu einer Version.",
+        "name": "Name der Vorlage, eindeutig im Mandanten. Einbindungen verweisen über den Namen auf Vorlagen.",
+        "kind": "Wofür die Vorlage verwendet wird: System-Prompt, Aufgabenrahmen, Fragment, Werkzeugbeschreibung oder Konfigurationsdatei.",
+        "currentVersion": "Die neueste gespeicherte Version. Jedes Speichern bewahrt den vorherigen Text als wiederherstellbare Version.",
+        "description": "Was die Vorlage tut und wo sie verwendet wird."
+      },
+      "audit": {
+        "createdUtc": "Wann das Ereignis stattfand, in Ihrer lokalen Zeitzone.",
+        "eventType": "Welche Art von Sicherheits- oder Konfigurationsereignis dies war.",
+        "principalName": "Wer es getan hat: ein Administrator, ein Benutzer oder ein Zugangsschlüssel.",
+        "resource": "Die Art des Datensatzes und die beteiligte Operation, zum Beispiel Agent / Read.",
+        "reason": "Warum das Ereignis eingetreten ist oder warum der Zugriff verweigert wurde.",
+        "sourceIp": "Netzwerkadresse, von der die Anfrage kam.",
+        "principalType": "Ob der Handelnde ein Administrator, ein Benutzer oder ein Zugangsschlüssel war.",
+        "principalId": "Kennung des handelnden Administrators, Benutzers oder Zugangsschlüssels.",
+        "resourceType": "Art des beteiligten Datensatzes, etwa Agent oder Secret.",
+        "resourceId": "Kennung des beteiligten Datensatzes.",
+        "operation": "Versuchte Operation, etwa Read oder Execute.",
+        "method": "HTTP-Methode der Anfrage.",
+        "path": "Pfad der Anfrage, die das Ereignis ausgelöst hat.",
+        "authResult": "Ergebnis der Prüfung, wer der Aufrufer ist.",
+        "authorizationResult": "Ergebnis der Prüfung, was der Aufrufer tun darf.",
+        "bypassReason": "Warum die Autorisierung übersprungen wurde, zum Beispiel Systemadministration.",
+        "statusCode": "An den Aufrufer zurückgegebener HTTP-Status.",
+        "requestId": "Anfrage-ID. Suchen Sie damit im Anfrageverlauf oder in den Serverprotokollen."
+      },
+      "approvals": {
+        "bulkReject": "Alle ausgewählten Freigaben auf einmal ablehnen. Jeder Aufrufer erfährt, dass seine Aktion verweigert wurde.",
+        "summary": "Die genaue Aktion, die auf Freigabe wartet, zum Beispiel das Ausführen eines Befehls auf einem Host.",
+        "effect": "Wie der Aufruf eingestuft wurde: Schreiben ändert etwas, Destruktiv löscht oder startet neu.",
+        "status": "Ausstehend wartet auf eine Person; die anderen Zustände sind endgültig.",
+        "agentProfileId": "Das Profil, dessen Bindung die Freigabe verlangt hat.",
+        "requestedBy": "Der Prinzipal (Benutzer, Zugangsschlüssel oder Agentenlauf), der den Aufruf ausgelöst hat.",
+        "createdUtc": "Wann der Agent den Aufruf vorgeschlagen hat.",
+        "expiresUtc": "Wann die Anfrage abläuft, wenn niemand entscheidet. Abgelaufene Aufrufe werden verweigert.",
+        "decidedBy": "Wer den Aufruf freigegeben oder abgelehnt hat.",
+        "decisionNote": "Die Notiz, die der Freigebende mit der Entscheidung hinterlassen hat.",
+        "fromUtc": "Freigaben anzeigen, die zu oder nach diesem Zeitpunkt angefordert wurden.",
+        "actions": {
+          "decide": "Die Freigabekarte öffnen, um diesen Aufruf mit einer Notiz freizugeben oder abzulehnen.",
+          "invocation": "Den Toolaufruf-Datensatz hinter dieser Freigabe öffnen."
+        }
+      },
+      "bindings": {
+        "resourceId": "Die Ressource, die diese Bindung verknüpft. Eine Ressource kann an viele Profile gebunden sein.",
+        "alias": "Der Name, den der Agent für diese Ressource in Toolaufrufen und Anweisungen verwendet, zum Beispiel prod-db.",
+        "accessMode": "Nur Lesen, Lesen und Schreiben mit Freigabe für riskante Aufrufe oder Lesen und Schreiben. Legt fest, was der Agent tun darf.",
+        "requireApprovalForDestructive": "Auch im Modus Lesen und Schreiben warten destruktive Aufrufe (Löschen, Neustarts, Drops) auf eine Person. Standardmäßig aktiviert.",
+        "instructionMode": "Erben verwendet die Anweisungen von Konnektor und Ressource; Anhängen fügt Ihren Text hinzu; Ersetzen verwendet nur Ihren Text.",
+        "instructionText": "Zusätzliche oder ersetzende Anweisungen für diese Ressource in diesem Profil, zum Beispiel welche Schemas wichtig sind.",
+        "maxOutputBytes": "Obergrenze für die Tool-Ausgabe dieser Ressource, strenger als der Konnektor-Standard. Leer lassen für den Standard.",
+        "maxRows": "Obergrenze für die von Abfragen auf dieser Ressource gelieferten Zeilen. Leer lassen für den Konnektor-Standard.",
+        "enabled": "Deaktivierte Bindungen bleiben erhalten, sind aber für den Agenten verborgen, als wäre die Ressource nicht gebunden."
+      },
+      "models": {
+        "apiKeySecretId": "Das Secret mit dem API-Schlüssel oder den Zugangsdaten dieses Anbieters. Verschlüsselt gespeichert; wird dem Modell nie gezeigt.",
+        "add": "Einen Inferenz- oder Embedding-Modellendpunkt für Hugos eigene Agentenschleife hinzufügen.",
+        "kind": "Inferenzmodelle beantworten Chat-Schritte; Embedding-Modelle wandeln Text für den Abruf in Vektoren um.",
+        "provider": "Welche API der Endpunkt spricht. OpenAI-kompatibel umfasst vLLM, LM Studio und ähnliche Server.",
+        "baseUrl": "Wo die Anbieter-API lauscht, zum Beispiel http://127.0.0.1:11434 für ein lokales Ollama.",
+        "model": "Der Modellname des Anbieters, zum Beispiel llama3.1, gpt-4o oder claude-sonnet.",
+        "apiKey": "Der API-Schlüssel des Anbieters. Wird als verschlüsseltes Secret gespeichert und vom Endpunkt referenziert.",
+        "region": "Cloud-Region für Anbieter, die eine benötigen, etwa Bedrock oder Vertex.",
+        "deploymentName": "Das Azure OpenAI-Deployment, das das Modell bereitstellt.",
+        "apiVersion": "Die aufzurufende Azure OpenAI-API-Version.",
+        "contextWindowTokens": "Wie viele Tokens das Modell akzeptiert. Hugo verdichtet den Verlauf, bevor diese Grenze erreicht wird.",
+        "maxOutputTokens": "Obergrenze der Tokens, die das Modell in einer Antwort erzeugen darf.",
+        "embeddingDimensions": "Vektorgröße, die das Embedding-Modell erzeugt. Wird von Validieren ausgefüllt, wenn leer gelassen.",
+        "supportsTools": "Ob das Modell Tools aufrufen kann. Der Chat benötigt dies für alles über einfache Antworten hinaus.",
+        "supportsStreaming": "Ob Antworten Token für Token gestreamt werden können.",
+        "maxConcurrency": "Wie viele Anfragen Hugo gleichzeitig an diesen Endpunkt sendet.",
+        "timeoutSeconds": "Wie lange eine Modellanfrage dauern darf, bevor sie fehlschlägt.",
+        "maxRetries": "Wie oft eine fehlgeschlagene Anfrage wiederholt wird, bevor aufgegeben wird.",
+        "healthStatus": "Ergebnis der letzten Validierung oder Hintergrund-Zustandsprüfung.",
+        "lastHealthUtc": "Wann der Endpunkt zuletzt geprüft wurde.",
+        "sections": {
+          "endpoint": "Welcher Anbieter und welches Modell dies ist und wie es erreicht wird.",
+          "capabilities": "Was das Modell kann und wie viel Text es verarbeitet.",
+          "limits": "Parallelität, Zeitlimits und Wiederholungen für Aufrufe an diesen Endpunkt."
+        },
+        "actions": {
+          "validate": "Einen kleinen Prompt senden (oder einen kurzen Text einbetten) und Latenz und Ergebnis erfassen.",
+          "listModels": "Den Anbieter fragen, welche Modelle er anbietet, sofern der Anbieter das Auflisten unterstützt."
+        }
+      },
+      "resources": {
+        "name": "Eindeutiger Name für diese Ressource im Mandanten. Bindungen verwenden ihn als Standard-Alias, den der Agent sieht.",
+        "connectorType": "Um welche Art von System es sich handelt (SSH, PostgreSQL, S3 usw.). Legt Einstellungen, Secrets und Tools fest.",
+        "environment": "Freie Kennzeichnung wie prod oder staging. Der Agent sieht sie, was ihm hilft, mit Produktion vorsichtig umzugehen.",
+        "add": "Eine Verbindung zu einem System hinzufügen: Konnektor wählen, Einstellungen ausfüllen, Secrets auswählen und testen.",
+        "displayName": "Optionaler, verständlicher Name für Personen. Der Agent verwendet den Namen oder den Alias der Bindung.",
+        "visibility": "Private Ressourcen kann ihr Eigentümer verwenden; Mandantenressourcen jedes Profil im Mandanten.",
+        "defaultAccessModeCeiling": "Das Maximum, das eine Bindung für diese Ressource gewähren darf. Leer lassen, um jeden Zugriffsmodus zu erlauben.",
+        "endpoint": "Kurze Angabe, wo sich die Ressource befindet. Durchsuchbar und für den Agenten sichtbar.",
+        "description": "Was diese Ressource ist, für Personen, die die Liste lesen.",
+        "notes": "Hinweise des Operators, die der Agent in seinen Anweisungen erhält, etwa welche Tabellen wichtig sind oder was nie angefasst werden darf.",
+        "health": "Ergebnis des letzten Verbindungstests oder der letzten Zustandsprüfung.",
+        "lastTestUtc": "Wann die Verbindung zuletzt getestet wurde.",
+        "sections": {
+          "general": "Name, Umgebung und Hinweise, die der Agent liest.",
+          "connector": "Der Konnektor, seine Einstellungen und seine Secrets."
+        },
+        "actions": {
+          "test": "Die gespeicherten Einstellungen und Secrets jetzt gegen das echte System testen.",
+          "tryTool": "Eines der Tools dieser Ressource als gewähltes Profil zuerst im Probelauf und dann tatsächlich ausführen.",
+          "referrers": "Die Profile und Bindungen auflisten, die diese Ressource verwenden."
+        }
+      },
+      "secrets": {
+        "name": "Eindeutiger Name für dieses Secret im Mandanten. Ressourcen und Modellendpunkte wählen es über den Namen aus.",
+        "kind": "Was das Secret enthält. Die Art legt fest, welche Felder es hat und welche Konnektor-Slots es akzeptieren.",
+        "saveValue": "Die neuen Werte verschlüsseln und speichern. Leer gelassene Felder behalten ihre gespeicherten Werte.",
+        "add": "Ein neues Secret speichern: Art wählen und Werte ausfüllen oder aus einer Datei importieren.",
+        "description": "Wofür das Secret gedacht ist und wem es gehört. Tragen Sie hier niemals geheime Werte ein.",
+        "expiresUtc": "Wann die Zugangsdaten nicht mehr funktionieren, damit Hugo vor dem Ablauf warnen kann.",
+        "fingerprint": "Ein nicht umkehrbarer Hinweis, etwa die letzten Zeichen oder ein SSH-Schlüssel-Fingerabdruck, um Secrets zu unterscheiden.",
+        "referrerCount": "Wie viele Ressourcen und Modellendpunkte dieses Secret verwenden.",
+        "lastRotatedUtc": "Wann die Werte zuletzt ersetzt wurden.",
+        "lastRevealedUtc": "Wann jemand zuletzt den Klartext über das protokollierte Anzeigen eingesehen hat.",
+        "sections": {
+          "values": "Die geheimen Werte für diese Art. Sie werden vor dem Speichern verschlüsselt."
+        },
+        "actions": {
+          "replaceValues": "Einige oder alle Werte ersetzen; leer gelassene Felder behalten ihre gespeicherten Werte.",
+          "reveal": "Die Klartextwerte anzeigen, nachdem Sie eine Begründung angegeben und Ihr Passwort erneut eingegeben haben. Wird protokolliert.",
+          "referrers": "Die Ressourcen und Modellendpunkte auflisten, die dieses Secret verwenden."
+        }
+      },
+      "toolInvocations": {
+        "trace": "Den verteilten Trace dieses Aufrufs in Grafana Tempo in einem neuen Tab öffnen.",
+        "createdUtc": "Wann der Aufruf erfolgte. Bewegen Sie den Mauszeiger darüber für die genaue Zeit.",
+        "toolName": "Das aufgerufene Tool, etwa sql_query oder ssh_exec.",
+        "resourceId": "Die Ressource (Alias der Bindung), gegen die der Aufruf lief.",
+        "effect": "Wie der Aufruf eingestuft wurde: Lesen, Schreiben oder Destruktiv.",
+        "decision": "Was die Sicherheits-Pipeline entschieden hat: erlaubt, verweigert oder zur Freigabe geschickt, samt Ergebnis.",
+        "status": "Wie der Aufruf endete: erfolgreich, fehlgeschlagen, Zeitüberschreitung oder abgebrochen.",
+        "durationMs": "Wie lange der Aufruf auf dem Server gedauert hat.",
+        "surface": "Welche Schnittstelle den Aufruf ausgelöst hat: Chat, MCP, A2A, OpenAI-kompatibel oder REST.",
+        "agentProfileId": "Das Profil, als das der Aufrufer gehandelt hat.",
+        "principalId": "Der Benutzer oder Zugangsschlüssel hinter dem Aufruf.",
+        "fromUtc": "Aufrufe anzeigen, die zu oder nach diesem Zeitpunkt erfolgten.",
+        "toUtc": "Aufrufe anzeigen, die vor diesem Zeitpunkt erfolgten.",
+        "accessMode": "Der Zugriffsmodus der Bindung zum Zeitpunkt des Aufrufs.",
+        "outputBytes": "Größe der Tool-Ausgabe vor dem Kürzen.",
+        "approvalId": "Die Freigabe, auf die der Aufruf gewartet hat, falls vorhanden.",
+        "traceId": "Verteilter Trace des Aufrufs, einsehbar in Grafana Tempo.",
+        "argumentsRedacted": "Die Argumente wie gespeichert, mit durch Platzhalter ersetzten Secrets.",
+        "outputPreview": "Der Anfang der Ausgabe, die der Agent erhalten hat, nach dem Entfernen von Secrets."
+      },
+      "profiles": {
+        "add": "Ein Agentenprofil erstellen: eine Persona, Modelle, Limits und die Schnittstellen, die es bereitstellen.",
+        "name": "URL-sicherer Name, eindeutig im Mandanten. MCP-Clients erreichen das Profil unter /mcp/{name} und A2A unter .../{name}.",
+        "displayName": "Verständlicher Name, der im Dashboard und in der A2A-Agentenkarte angezeigt wird.",
+        "description": "Wofür dieses Profil gedacht ist. Wird Personen und in der Zusammenfassung der A2A-Karte angezeigt.",
+        "personaName": "Wie sich der Agent im Gespräch selbst nennt. Das Standardprofil verwendet Agent Smith.",
+        "userAddress": "Wie der Agent den Aufrufer anspricht. Das Standardprofil sagt Mr. Anderson.",
+        "visibility": "Private Profile sind für ihren Eigentümer sichtbar; Mandantenprofile für jeden mit Zugriff im Mandanten.",
+        "inferenceEndpointId": "Das Modell, das Hugos eigene Agentenschleife für Chat, A2A und OpenAI-Clients ausführt. MCP-Aufrufer bringen ihr eigenes Modell mit.",
+        "fallbackInferenceEndpointId": "Wird verwendet, wenn das primäre Modell fehlschlägt oder nicht verfügbar ist.",
+        "embeddingEndpointId": "Bettet Tool-Beschreibungen und Wissensnotizen ein, damit große Profile nur relevante Tools abrufen.",
+        "maxIterations": "Obergrenze für Modell- und Tool-Runden in einem Schritt. Die letzte Runde muss ohne Tools antworten.",
+        "maxToolCallsPerTurn": "Obergrenze für Toolaufrufe in einem Schritt, über alle Runden hinweg.",
+        "toolTimeoutSeconds": "Wie lange ein Toolaufruf laufen darf, bevor er abgebrochen wird.",
+        "temperature": "Sampling-Temperatur für das Modell. Niedrigere Werte machen Antworten deterministischer.",
+        "exposeMcp": "Die Tools und Anweisungen dieses Profils für MCP-Clients wie Claude Code auflisten.",
+        "exposeA2a": "Eine A2A-Agentenkarte veröffentlichen und A2A-Nachrichten für dieses Profil annehmen.",
+        "exposeOpenai": "OpenAI-kompatiblen Clients erlauben, dieses Profil als Modellnamen zu verwenden.",
+        "exposeManagementTools": "Zusätzlich Verwaltungstools (Ressourcen erstellen, Bindungen ändern) für Aufrufer mit Administratorrechten bereitstellen. Standardmäßig deaktiviert.",
+        "instructionsAppend": "Freier Text, der nach allen Ressourcenabschnitten an die kompilierten Anweisungen angehängt wird.",
+        "bindingCount": "Wie viele Ressourcen an dieses Profil gebunden sind.",
+        "exposure": "Welche Protokollschnittstellen dieses Profil erreichen können.",
+        "sections": {
+          "identity": "Name, Persona und Sichtbarkeit.",
+          "models": "Welche Modelle in Hugos eigener Schleife für dieses Profil antworten.",
+          "limits": "Grenzen für jeden Schritt, damit eine außer Kontrolle geratene Schleife stoppt.",
+          "exposure": "Welche Protokollschnittstellen dieses Profil erreichen können."
+        },
+        "actions": {
+          "chat": "Den Chat öffnen, um mit diesem Profil zu sprechen.",
+          "duplicate": "Dieses Profil und seine Bindungen unter einem neuen Namen kopieren und dann die Kopie öffnen."
+        }
+      },
+      "conversations": {
+        "title": "Der Titel der Konversation, aus dem ersten Austausch erzeugt.",
+        "agentProfileId": "Das Profil, mit dem die Konversation geführt wird.",
+        "userId": "Wem die Konversation gehört: einem Benutzer oder einem Zugangsschlüssel.",
+        "source": "Wo die Konversation begonnen hat: Dashboard-Chat, A2A, MCP oder ein OpenAI-kompatibler Client.",
+        "messageCount": "Nachrichten in der Konversation, vom Benutzer und vom Agenten.",
+        "tokens": "Eingabe- plus Ausgabe-Tokens, die die Konversation bisher verbraucht hat.",
+        "lastMessageUtc": "Wann die neueste Nachricht hinzugefügt wurde.",
+        "fromUtc": "Konversationen anzeigen, die zu oder nach diesem Zeitpunkt aktiv waren.",
+        "actions": {
+          "export": "Die Konversation als Markdown herunterladen, mit zusammengefassten Toolaufrufen."
+        }
+      },
+      "knowledge": {
+        "add": "Eine Notiz über Ihren Stack schreiben, die Hugo in den Kontext abrufen kann.",
+        "title": "Ein kurzer Titel, der sagt, worum es in der Notiz geht.",
+        "agentProfileId": "Die Notiz auf ein Profil beschränken oder leer lassen, damit jedes Profil sie verwenden kann.",
+        "resourceId": "Die Notiz an eine Ressource knüpfen, damit sie verwendet wird, wenn diese Ressource beteiligt ist.",
+        "content": "Die Notiz selbst, in einfacher Sprache, zum Beispiel welche Hosts den Checkout bedienen.",
+        "lastUpdateUtc": "Wann die Notiz zuletzt bearbeitet (und neu eingebettet) wurde."
+      },
+      "sessions": {
+        "principalName": "Wem die Sitzung gehört: einem Benutzer, einem Administrator oder einem Zugangsschlüssel.",
+        "principalType": "Ob die Sitzung einem Administrator, einem Benutzer oder einem Zugangsschlüssel gehört.",
+        "principalId": "Nur Sitzungen dieser Prinzipal-ID anzeigen.",
+        "authScheme": "Wie die Sitzung erlangt wurde: Passwortanmeldung, Austausch eines Zugangsschlüssels oder signierte Anfrage.",
+        "sourceIp": "Die Adresse, von der aus die Sitzung erstellt wurde.",
+        "issuedUtc": "Wann die Sitzung ausgestellt wurde.",
+        "lastUsedUtc": "Wann die Sitzung zuletzt für eine Anfrage verwendet wurde.",
+        "expiresUtc": "Wann die Sitzung von selbst abläuft.",
+        "revokedUtc": "Widerrufene Sitzungen funktionieren nicht mehr; aktive weiterhin.",
+        "userAgent": "Der Client, der die Sitzung erstellt hat, wie er sich selbst identifiziert hat."
+      },
+      "plugins": {
+        "name": "Der Name der Plugin-Assembly.",
+        "version": "Die Version des Plugins, wie in seiner Assembly angegeben.",
+        "connectorTypes": "Konnektortypen, die dieses Plugin dem Katalog hinzufügt.",
+        "enabled": "Deaktivierte Plugins bleiben auf der Festplatte, aber ihre Konnektoren werden nicht angeboten.",
+        "loadError": "Warum das Plugin nicht geladen werden konnte, falls zutreffend.",
+        "sha256": "Prüfsumme der Plugin-Datei, um zu bestätigen, welcher Build geladen ist.",
+        "actions": {
+          "enable": "Die Konnektoren dieses Plugins beim nächsten Neustart laden.",
+          "disable": "Die Konnektoren dieses Plugins nach dem nächsten Neustart nicht mehr anbieten."
+        }
+      }
+    },
+    "views": {
+      "home": {
+        "observabilityState": {
+          "reachable": "Der Server hat {{service}} in den letzten 30 Sekunden über die interne URL erreicht.",
+          "unreachable": "Der Server konnte {{service}} über die interne URL nicht erreichen. Prüfen Sie, ob der Dienst läuft und die Einstellung für die interne URL auf ihn zeigt.",
+          "checking": "Der Server wird gefragt, ob {{service}} erreichbar ist.",
+          "unknown": "Der Server hat nicht gemeldet, ob {{service}} erreichbar ist. Die Statusprüfung ist fehlgeschlagen oder dieser Server unterstützt sie noch nicht."
+        },
+        "observabilityVersion": "Version, die {{service}} bei der Integritätsprüfung des Servers gemeldet hat.",
+        "kpisGrafana": "Das Hugo-Übersichts-Dashboard in Grafana in einem neuen Tab öffnen, um diese Zahlen im Zeitverlauf zu sehen.",
+        "grafanaDashboards": "Der Hugo-Ordner in Grafana enthält ein Dashboard pro Bereich. Jeder Link öffnet das Dashboard in einem neuen Tab.",
+        "grafanaSections": {
+          "overview": "Zustand auf einen Blick: Betriebszeit, Anfragerate, Fehlerquote, Toolaufrufe und ausstehende Freigaben.",
+          "http": "HTTP-Verkehr: Rate nach Route und Statusklasse, Latenzquantile und die langsamsten Routen.",
+          "models": "Modellanfragen, Fehler, Latenz und Tokens nach Anbieter.",
+          "protocols": "MCP- und A2A-Anfragen nach Methode und Ergebnis.",
+          "security": "Anmeldungen, Autorisierungsablehnungen, Secret-Anzeigen, Schwärzungen und Sperre.",
+          "agent": "Agentenschleife und Chat: Schritte, Aufschlüsselung nach Phasen, Iterationen und Zeit bis zum ersten Token.",
+          "tools": "Toolaufrufe nach Konnektor und Wirkung, Entscheidungen, Latenz, Ausgabegrößen und Fehler."
+        },
+        "observabilityDocs": "Den Telemetrie-Leitfaden in einem neuen Tab öffnen: wie Sie Hugo-Metriken abrufen und Grafana, Prometheus, Tempo oder Loki anbinden.",
+        "observability": "Links zu den Metrik-, Dashboard- und Tracing-Tools, die dieser Hugo-Server als konfiguriert meldet. Nicht konfigurierte Dienste werden nicht angezeigt.",
+        "kpis": {
+          "requests": "API-Anfragen, die der Server in den letzten 24 Stunden verarbeitet hat. Klicken, um den Anfrageverlauf zu öffnen.",
+          "toolCalls": "Toolaufrufe von jeder Schnittstelle in den letzten 24 Stunden. Klicken, um Toolaufrufe zu öffnen.",
+          "failures": "Fehlgeschlagene API-Anfragen plus fehlgeschlagene Toolaufrufe in den letzten 24 Stunden. Klicken, um fehlgeschlagene Toolaufrufe zu sehen.",
+          "approvals": "Gesperrte Toolaufrufe, die gerade auf eine Person warten. Klicken, um den Freigabe-Posteingang zu öffnen.",
+          "unhealthy": "Ressourcen, deren letzter Verbindungstest oder letzte Zustandsprüfung fehlgeschlagen ist. Klicken, um sie zu sehen.",
+          "tokens": "Eingabe- plus Ausgabe-Tokens, die Hugos eigene Modellaufrufe seit Mitternacht verbraucht haben. Klicken, um Analysen zu öffnen."
+        },
+        "openFailure": "Toolaufrufe gefiltert auf dieses fehlgeschlagene Tool öffnen.",
+        "cta": {
+          "apiExplorer": "Einen beliebigen API-Aufruf live gegen diesen Server ausprobieren.",
+          "addResource": "Ein System verbinden: einen SSH-Host, Bucket, eine Datenbank oder einen Protokolldienst, mit seinen Secrets.",
+          "addModel": "Ein Inferenz- oder Embedding-Modell hinzufügen, damit Agent Smith im Chat antworten kann.",
+          "chat": "Den Chat öffnen und Agent Smith nach Ihrem Stack fragen.",
+          "connect": "Den Tab Verbinden eines Profils für Einstellungen zu Claude Code, A2A und OpenAI-Kompatibilität öffnen.",
+          "approvals": "Riskante Toolaufrufe prüfen, die auf eine Entscheidung warten."
+        },
+        "services": {
+          "loki": "Loki in einem neuen Tab öffnen, um Hugo-Protokolle zu durchsuchen.",
+          "grafana": "Grafana-Dashboards für Hugo-Metriken in einem neuen Tab öffnen.",
+          "prometheus": "Den Prometheus-Server, der Hugo-Metriken abruft, in einem neuen Tab öffnen.",
+          "tempo": "Tempo in einem neuen Tab öffnen, um Traces zu durchsuchen."
+        },
+        "serviceGeneric": "Diesen mitgelieferten Dienst in einem neuen Tab öffnen."
+      },
+      "templateEditor": {
+        "cloneName": "Name der Kopie. Kleinbuchstaben, Ziffern, Bindestriche und Schrägstriche eignen sich gut; das Präfix builtin/ ist reserviert.",
+        "cloneConfirm": "Die Kopie mit diesem Namen erstellen und im Editor öffnen.",
+        "clone": "Eine bearbeitbare Kopie dieser Vorlage anlegen. Sie wählen den Namen der Kopie, bevor sie erstellt wird.",
+        "reset": "Diese integrierte Vorlage auf den mit Hugo ausgelieferten Inhalt zurücksetzen.",
+        "delete": "Diese Vorlage und ihre Versionen löschen. Alles, was sie eingebunden hat, greift auf den integrierten Standard zurück.",
+        "create": "Die Vorlage und ihre erste Version erstellen.",
+        "save": "Den Inhalt als neue Version speichern. Neue Konversationen und MCP-Sitzungen übernehmen ihn.",
+        "changeNote": "Eine kurze Notiz, die mit der Version gespeichert wird und erklärt, was sich geändert hat und warum.",
+        "columns": {
+          "version": "Versionsnummer. Höher ist neuer.",
+          "note": "Die mit der Version gespeicherte Änderungsnotiz.",
+          "author": "Wer diese Version der Vorlage gespeichert hat.",
+          "saved": "Wann die Version gespeichert wurde."
+        },
+        "diff": "Diese Version mit dem aktuellen Inhalt des Editors vergleichen.",
+        "restore": "Diese Version wieder zur aktuellen machen. Der aktuelle Inhalt bleibt im Verlauf erhalten."
+      },
+      "serverInfo": {
+        "rest": "Basisadresse für REST-API-Aufrufe und SDKs.",
+        "mcp": "Adresse, mit der sich MCP-Clients verbinden. Jeder als Werkzeug bereitgestellte Agent erscheint dort.",
+        "a2a": "Basisadresse des A2A-Gateways für diesen Mandanten. Jeder Agent hat darunter seine eigene Karte.",
+        "openapi": "Das OpenAPI-Dokument, das jede REST-Operation beschreibt.",
+        "version": "Version des Hugo-Servers.",
+        "dashboardVersion": "Version dieser Konsole.",
+        "node": "Die Serverinstanz, die die Serverinfo-Anfrage dieser Seite beantwortet hat.",
+        "database": "Datenbank-Engine, die der Server verwendet.",
+        "health": "Ergebnis der Zustandsprüfung des Servers.",
+        "routes": "Wie viele API-Operationen der Server registriert hat.",
+        "serverTime": "Die Serveruhr. Große Abweichungen von Ihrer Uhr können signierte Anfragen scheitern lassen.",
+        "principalName": "Die Identität, mit der Sie angemeldet sind.",
+        "principalType": "Ob Sie sich als Benutzer oder mit einem Zugangsschlüssel angemeldet haben.",
+        "role": "Ihre höchste Zugriffsstufe.",
+        "tenant": "Der Mandant, zu dem Ihre Sitzung gehört.",
+        "expires": "Wann Ihre Sitzung endet und Sie sich erneut anmelden müssen.",
+        "rawJson": "Die rohe Antwort der Serverinfo anzeigen.",
+        "connectors": "Wie viele Konnektortypen der Server geladen hat, einschließlich Plugins.",
+        "openai": "Basis-URL des OpenAI-kompatiblen Endpunkts; Profilnamen sind die Modell-IDs."
+      },
+      "requests": {
+        "grafana": "Das HTTP-Dashboard in Grafana in einem neuen Tab öffnen: Anfrageraten, Latenz und Fehler im Zeitverlauf aus den Prometheus-Metriken.",
+        "kpis": {
+          "total": "Anfragen, die der Server für den gewählten Zeitraum und die Filter in seinem Verlauf aufbewahrt hat.",
+          "success": "Anfragen, die einen 2xx- oder 3xx-Status zurückgegeben haben.",
+          "failure": "Anfragen, die einen 4xx- oder 5xx-Status zurückgegeben haben.",
+          "avgDuration": "Durchschnittliche Antwortzeit des Servers."
+        },
+        "columns": {
+          "time": "Wann die Anfrage eingetroffen ist.",
+          "method": "HTTP-Methode der Anfrage.",
+          "path": "Aufgerufener Pfad. Fahren Sie mit der Maus über einen Wert, um ihn vollständig zu sehen.",
+          "status": "Vom Server zurückgegebener HTTP-Status.",
+          "duration": "Wie lange der Server für die Antwort gebraucht hat.",
+          "principal": "Wer die Anfrage gestellt hat: ein Administrator, ein Benutzer oder ein Zugangsschlüssel."
+        },
+        "viewDetails": "Die Anfrage mit Headern, Inhalten und Zeiten öffnen.",
+        "viewJson": "Den Anfragedatensatz einschließlich seines rohen JSON öffnen.",
+        "deleteOne": "Diese Anfrage aus dem Verlauf entfernen.",
+        "bulkDeleteAll": "Alle Anfragen löschen, die den aktuellen Filtern entsprechen, nicht nur diese Seite."
+      },
+      "explorer": {
+        "operations": "Eine API-Operation auswählen, gruppiert nach Bereich. Das Formular darunter passt sich ihren Parametern an.",
+        "pathParam": "Pfadparameter {{name}} ({{type}}). Er wird in die URL eingesetzt. {{description}}",
+        "queryParam": "Abfrageparameter {{name}} ({{type}}). Er wird an die URL angehängt, wenn er ausgefüllt ist. {{description}}",
+        "copyUrl": "Die vollständig aufgelöste Anfrage-URL kopieren.",
+        "headerName": "Name eines Anfrage-Headers. Authorization wird automatisch aus Ihrer Sitzung ergänzt.",
+        "headerValue": "Für diesen Header gesendeter Wert.",
+        "removeHeader": "Diesen Header aus der Anfrage entfernen.",
+        "addHeader": "Einen weiteren Anfrage-Header hinzufügen.",
+        "body": "JSON-Anfragetext für Operationen, die Datensätze erstellen oder ändern.",
+        "execute": "Die Anfrage jetzt mit Ihrer Sitzung an den Server senden. Destruktive Methoden fragen nach einer Bestätigung.",
+        "stop": "Die Anfrage abbrechen oder das Lesen einer Streaming-Antwort beenden.",
+        "snippets": {
+          "curl": "Dieselbe Anfrage als curl-Befehl für ein Terminal.",
+          "fetch": "Dieselbe Anfrage als JavaScript-fetch-Code.",
+          "csharp": "Dieselbe Anfrage als C#-HttpClient-Code."
+        },
+        "clearHistory": "Alle in diesem Browser gespeicherten letzten Anfragen vergessen.",
+        "loadHistory": "Diese Anfrage zurück in das Formular laden.",
+        "deleteHistory": "Diesen Eintrag aus der Liste der letzten Anfragen entfernen.",
+        "confirmExecute": "Diese Anfrage senden, obwohl sie Daten ändern oder löschen kann."
+      },
+      "a2aExplorer": {
+        "profile": "Das Profil, mit dem gesprochen wird. Nur Profile mit aktivierter A2A-Bereitstellung antworten.",
+        "fetchCard": "Die öffentliche Agentenkarte des Profils von ihrer Well-known-URL herunterladen.",
+        "listTasks": "Ihre eigenen A2A-Aufgaben für dieses Profil auflisten (Mandantenadministratoren sehen jede Aufgabe).",
+        "message": "Der Text, der als Benutzernachricht an den Agenten gesendet wird.",
+        "stream": "SendStreamingMessage verwenden und Ereignisse beim Eintreffen anzeigen, statt auf die endgültige Antwort zu warten.",
+        "send": "Die Nachricht über A2A JSON-RPC als Ihr eigener Prinzipal senden.",
+        "context": "Nachrichten im selben Kontext setzen eine Konversation fort. Wechseln Sie das Profil, um neu zu beginnen.",
+        "events": "Jedes gestreamte Ereignis, wie der Server es gesendet hat."
+      },
+      "analytics": {
+        "profile": "Alle Diagramme auf ein Agentenprofil beschränken oder den gesamten Mandanten anzeigen.",
+        "kpis": {
+          "turns": "Chat-, A2A- und OpenAI-kompatible Schritte im Zeitraum, die Hugos eigene Agentenschleife ausgeführt haben.",
+          "toolCalls": "Toolaufrufe von jeder Schnittstelle im Zeitraum, einschließlich verweigerter und abgelehnter.",
+          "failures": "Toolaufrufe im Zeitraum, die mit Failed oder TimedOut endeten.",
+          "tokens": "Eingabe- plus Ausgabe-Tokens, die Hugos Modellaufrufe im Zeitraum verbraucht haben.",
+          "approvals": "Im Zeitraum angeforderte Freigaben, unabhängig vom Ergebnis.",
+          "turnaround": "Medianzeit von der Anforderung einer Freigabe bis zur Entscheidung durch eine Person.",
+          "approvalRate": "Anteil der entschiedenen Freigaben, die freigegeben statt abgelehnt wurden."
+        },
+        "columns": {
+          "connector": "Der Konnektortyp, an den die Aufrufe gingen.",
+          "calls": "Toolaufrufe an diesen Konnektor im Zeitraum.",
+          "failures": "Aufrufe an diesen Konnektor, die fehlgeschlagen sind oder das Zeitlimit überschritten haben.",
+          "p95": "95 Prozent der Aufrufe an diesen Konnektor wurden innerhalb dieser Zeit abgeschlossen."
+        }
+      },
+      "chat": {
+        "search": "Ihre Konversationen nach Titel durchsuchen.",
+        "profile": "Das Agentenprofil, mit dem gesprochen wird. Es bestimmt Persona, Modell und welche Ressourcen der Agent verwenden kann.",
+        "model": "Das Inferenzmodell, das dieses Profil für seine Antworten verwendet.",
+        "new": "Eine neue Konversation mit dem gewählten Profil beginnen.",
+        "export": "Diese Konversation als Markdown herunterladen.",
+        "drawer": "Den Kontextbereich ein- oder ausblenden: Profil, gebundene Ressourcen, Token-Verbrauch und ausstehende Freigaben.",
+        "goModels": "Modellendpunkte öffnen, um ein Inferenzmodell hinzuzufügen.",
+        "goProfiles": "Agentenprofile öffnen, um ein Profil zu erstellen oder auszuwählen."
+      },
+      "connectors": {
+        "search": "Konnektoren nach Typ, Familie, Name oder Beschreibung filtern.",
+        "category": "Nur eine Kategorie von Konnektoren anzeigen, etwa Datenbanken oder Protokolldienste.",
+        "card": "{{name}} öffnen: Einstellungen, Secret-Slots, Tools und Standardanweisungen.",
+        "back": "Zurück zum Konnektorkatalog.",
+        "addResource": "Ressourcen öffnen, um eine Ressource hinzuzufügen, die einen Konnektor verwendet.",
+        "editInstructions": "Prompt-Vorlagen gefiltert auf die Anweisungsvorlage dieses Konnektors öffnen.",
+        "tabs": {
+          "overview": "Typ, Familie, Kategorie, Version und die Secret-Slots, die dieser Konnektor benötigt.",
+          "settings": "Das Einstellungsformular, das eine Ressource dieses Typs erhält, und eine Referenztabelle aller Einstellungen.",
+          "tools": "Jedes Tool, das dieser Konnektor anbietet, mit seiner Grundwirkung.",
+          "instructions": "Die Anweisungen, die jede Ressource dieses Typs für den Agenten hinzufügt."
+        },
+        "columns": {
+          "key": "Der Einstellungsschlüssel, wie er in der Ressource gespeichert und von der API akzeptiert wird.",
+          "kind": "Der Werttyp: Text, langer Text, ganze Zahl, wahr oder falsch, Liste oder einer aus einer Auswahl.",
+          "required": "Ob eine Ressource für diese Einstellung einen Wert setzen muss.",
+          "default": "Der Wert, der verwendet wird, wenn eine Ressource die Einstellung leer lässt.",
+          "range": "Die zulässigen Werte oder Minimum und Maximum für Zahlen.",
+          "group": "Der Abschnitt des Ressourcenformulars, in dem die Einstellung erscheint."
+        }
+      },
+      "mcpExplorer": {
+        "profile": "Mit /mcp/{profile} verbinden oder den Server Ihr Profil aus dem Zugangsschlüssel oder den Standards bestimmen lassen.",
+        "connect": "initialize ausführen und dann die Tools auflisten, die dieser Aufrufer sieht.",
+        "session": "Die MCP-Sitzung, die der Server zugewiesen hat. Jede Anfrage in diesem Explorer verwendet sie erneut.",
+        "instructions": "Die kompilierten Anweisungen, die der Server aus initialize zurückgibt, so wie ein MCP-Client sie erhält.",
+        "call": "Das gewählte Tool mit diesen Argumenten über die vollständige Sicherheits-Pipeline aufrufen.",
+        "log": "Jede mit dem Server ausgetauschte JSON-RPC-Anfrage und -Antwort, in Reihenfolge."
+      },
+      "profile": {
+        "back": "Zurück zur Liste der Agentenprofile.",
+        "chat": "Den Chat öffnen, um mit diesem Profil zu sprechen.",
+        "tabs": {
+          "general": "Persona, Ansprache des Benutzers, Modelle, Limits und welche Schnittstellen dieses Profil bereitstellen.",
+          "bindings": "Mit diesem Profil verknüpfte Ressourcen, jeweils mit Alias und Zugriffsmodus.",
+          "instructions": "Die kompilierten Anweisungen, die ein Aufrufer erhält, mit der Herkunft jedes Abschnitts.",
+          "tools": "Die Tools, die ein Aufrufer dieses Profils nach Zugriffsmodi und Tool-Regeln sieht.",
+          "connect": "Snippets zum Verbinden von Claude Code, anderen MCP-Clients, A2A-Agenten und OpenAI-kompatiblen Clients."
+        },
+        "bindings": {
+          "add": "Eine Ressource mit Alias und Zugriffsmodus an dieses Profil binden.",
+          "goResources": "Ressourcen öffnen, um die Systeme hinzuzufügen, die dieses Profil erreichen soll.",
+          "columns": {
+            "alias": "Der Name, den der Agent in Toolaufrufen für die Ressource verwendet.",
+            "resource": "Die Ressource, die diese Bindung verknüpft.",
+            "accessMode": "Was der Agent mit der Ressource tun darf: nur lesen, lesen und schreiben mit Freigabe oder lesen und schreiben.",
+            "approval": "Ob einige Aufrufe auf dieser Bindung auf eine Person warten.",
+            "enabled": "Deaktivierte Bindungen sind für den Agenten verborgen."
+          }
+        },
+        "toolRules": {
+          "open": "Einzelne Tools auf dieser Bindung erlauben, verweigern oder mit Freigabepflicht versehen.",
+          "rule": "Erlauben lässt das Tool unter dem Zugriffsmodus laufen; Verweigern verbirgt es; Freigabe verlangen fragt immer eine Person.",
+          "save": "Diese Tool-Regeln speichern. Sie gelten sofort für neue Aufrufe."
+        },
+        "instructions": {
+          "surface": "Anweisungen unterscheiden sich je Schnittstelle leicht (Chat, MCP, A2A, OpenAI, REST). Wählen Sie eine für die Vorschau.",
+          "section": "Ein Abschnitt der kompilierten Anweisungen und die Vorlagenebene, aus der er stammt."
+        },
+        "tools": {
+          "name": "Der Toolname, den ein Aufrufer verwendet, meist family_operation wie sql_query.",
+          "effect": "Die Grundwirkung: Lesen, Schreiben oder Destruktiv. Manche Tools werden pro Aufruf eingestuft.",
+          "description": "Was das Tool tut, wie das Modell des Aufrufers es sieht."
+        },
+        "connect": {
+          "copyCard": "Die URL der Agentenkarte kopieren, damit ein anderer A2A-Agent dieses Profil finden kann.",
+          "copyOpenai": "Die OpenAI-kompatible Basis-URL kopieren.",
+          "credential": "Zugangsschlüssel öffnen, um einen an dieses Profil gebundenen Zugangsschlüssel zu erstellen."
+        }
+      },
+      "resources": {
+        "form": {
+          "test": "Die Einstellungen und Secrets in diesem Formular gegen das echte System testen, bevor etwas gespeichert wird."
+        },
+        "tryTool": {
+          "profile": "Das Profil, als das gehandelt wird. Seine Bindung bestimmt Zugriffsmodus und Freigaben für den Aufruf.",
+          "tool": "Ein Tool, das das Profil für diese Ressource bereitstellt.",
+          "arguments": "Die Tool-Argumente als JSON. Das Argument resource nennt den Alias der Bindung.",
+          "dryRun": "Den Aufruf einstufen (Wirkung, Entscheidung, Zugriffsmodus), ohne ihn auszuführen.",
+          "execute": "Den Aufruf durch die vollständige Pipeline ausführen. Riskante Aufrufe warten wie alle anderen auf Freigabe."
+        }
+      },
+      "secrets": {
+        "reveal": {
+          "reason": "Warum Sie dieses Secret sehen müssen. Wird mit dem Anzeigen im Audit-Protokoll gespeichert.",
+          "submit": "Den Server nach den Klartextwerten fragen. Erfordert die Berechtigung Anzeigen und wird protokolliert.",
+          "password": "Ihr Kontopasswort, um zu bestätigen, dass Sie es wirklich sind, bevor Secrets angezeigt werden.",
+          "reauth": "Diese Sitzung mit Ihrem Passwort erneut authentifizieren und dann das Secret anzeigen.",
+          "copy": "Diesen Wert in die Zwischenablage kopieren. Nach dem Ausblenden wird er nicht erneut angezeigt.",
+          "again": "Die Werte erneut anzeigen. Dies wird als neues Anzeigen protokolliert."
+        }
+      },
+      "settings": {
+        "applyLive": "Wird beim Speichern sofort wirksam.",
+        "applyRestart": "Wird nach einem Neustart des Servers wirksam.",
+        "fieldGeneric": "Servereinstellung {{path}}.",
+        "groupGeneric": "Einstellungen in der Gruppe {{group}}.",
+        "restart": "Den Hugo-Server neu starten, damit Einstellungen mit Neustartpflicht wirksam werden. Der Container startet ihn automatisch neu.",
+        "save": "Alle geänderten Einstellungen speichern. Sofort wirksame Einstellungen gelten unmittelbar; andere warten auf einen Neustart.",
+        "settingPath": "Einstellungspfad: {{path}}. Verwenden Sie diesen Namen in hugo.json und in der Einstellungs-REST-API.",
+        "sourceGeneric": "Woher der aktuelle Wert stammt.",
+        "testDatabase": "Vor dem Speichern versuchen, mit den obigen Datenbankeinstellungen eine Verbindung herzustellen.",
+        "viewJson": "Die rohe Antwort der Einstellungen anzeigen.",
+        "groups": {
+          "Rest": "Wo der Server lauscht und wie er von außen erreicht wird, auch hinter Proxys.",
+          "Database": "In welcher Datenbank Hugo seine eigenen Daten speichert: SQLite oder PostgreSQL.",
+          "Logging": "Konsolen- und Dateiprotokollierung für den Serverprozess.",
+          "Auth": "Sitzungsdauer, Token-Signierung und Ratenlimits für Anmeldungen.",
+          "Secrets": "Der Secret-Tresor: Quelle des Hauptschlüssels und Zeitfenster der erneuten Authentifizierung für Anzeigen.",
+          "RequestHistory": "Ob API-Anfragen aufgezeichnet werden, wie viel von jedem Text aufbewahrt wird und wie lange.",
+          "Audit": "Wie lange Sicherheitsereignisse aufbewahrt werden und wie oft erfolgreiche Anmeldungen stichprobenartig erfasst werden.",
+          "Telemetry": "Traces und Metriken, die an die mitgelieferten Tempo- und Prometheus-Instanzen exportiert werden.",
+          "Agent": "Limits und Verhalten von Hugos eigener Agentenschleife für Chat, A2A und OpenAI-Clients.",
+          "Approvals": "Wie lange Freigaben warten, wie lange MCP-Aufrufe auf sie blockieren und ob Selbstfreigabe erlaubt ist.",
+          "Connectors": "Plugins, Tool-Zeitlimits und die Hintergrund-Zustandsprüfung von Ressourcen.",
+          "Models": "Wie oft Modellendpunkte auf ihren Zustand geprüft werden.",
+          "Mcp": "Der MCP-Endpunkt: ein oder aus, Sitzungszeitlimits und Nachrichtengröße.",
+          "A2A": "Ob Profile über A2A erreichbar sind.",
+          "OpenAI": "Ob der OpenAI-kompatible Endpunkt aktiviert ist.",
+          "Embeddings": "Wie Vektoren gespeichert und durchsucht werden, einschließlich pgvector auf PostgreSQL."
+        },
+        "source": {
+          "File": "Derzeit in hugo.json gesetzt. Speichern hier aktualisiert die Datei.",
+          "Environment": "Durch eine Umgebungsvariable gesetzt, die Vorrang vor jedem hier gespeicherten Wert hat.",
+          "Database": "In der Datenbank gespeichert."
+        }
+      }
+    },
+    "export": {
+      "menu": "{{name}} herunterladen: die Daten als CSV oder JSON oder das Diagramm als PNG- oder SVG-Bild mit Titel, Legende, Filtern und Zeitraum.",
+      "csv": "Genau die Daten hinter dieser Ansicht als CSV herunterladen: eine Zeile pro Intervall oder Datensatz, Zeitstempel in ISO 8601 UTC und einfache Zahlen mit Dezimalpunkt.",
+      "png": "Das Diagramm als PNG-Bild in doppelter Bildschirmauflösung herunterladen, mit Titel, Legende, aktiven Filtern und Zeitraum.",
+      "svg": "Das Diagramm als skalierbares SVG-Bild herunterladen, mit Titel, Legende, aktiven Filtern und Zeitraum.",
+      "json": "Die Daten als JSON herunterladen, mit Reihen, Intervallen, Filtern und Zeitraum in einem Dokument."
+    },
+    "analytics": {
+      "dataTable": "Die Zahlen hinter diesem Diagramm als Tabelle anzeigen, eine Zeile pro Zeitintervall.",
+      "bucketStart": "Beginn des Zeitintervalls. Jede Zeile deckt ein Intervall ab."
+    },
+    "approvalCard": {
+      "approve": "Diesen Aufruf jetzt ausführen lassen. Die Entscheidung und Ihre Notiz werden im Audit-Protokoll erfasst.",
+      "reject": "Diesen Aufruf verweigern. Der Agent erfährt, dass die Aktion abgelehnt wurde, und fährt ohne sie fort.",
+      "note": "Optionale Notiz zu Ihrer Entscheidung, zum Beispiel warum Sie einen Neustart freigegeben haben."
+    },
+    "chat": {
+      "input": "Geben Sie eine Nachricht für Agent Smith ein. Enter sendet; Umschalt+Enter beginnt eine neue Zeile. Entwürfe werden pro Konversation gespeichert.",
+      "send": "Die Nachricht senden und die Antwort streamen, einschließlich aller Toolaufrufe von Agent Smith.",
+      "stop": "Die Antwort jetzt stoppen. Laufende Toolaufrufe werden abgebrochen, und die Teilantwort bleibt erhalten.",
+      "thinking": "Die Überlegungen des Modells zu dieser Antwort, sofern das Modell sie teilt. Standardmäßig eingeklappt.",
+      "ttft": "Zeit bis zum ersten Token: vom Senden der Nachricht bis zum Eintreffen des ersten Teils der Antwort.",
+      "duration": "Wie lange der gesamte Schritt gedauert hat, einschließlich Toolaufrufen und Warten auf Freigaben.",
+      "tokens": "Vom Modell verbrauchte Eingabe- und Ausgabe-Tokens, wie vom Anbieter gemeldet."
+    },
+    "errors": {
+      "status": "Der HTTP-Statuscode, mit dem der Server geantwortet hat.",
+      "requestId": "Die ID des Servers für diese Anfrage. Suchen Sie sie im Anfrageverlauf oder in den Serverprotokollen.",
+      "copyRequestId": "Die Anfrage-ID kopieren, zum Beispiel für einen Fehlerbericht.",
+      "traceId": "ID des verteilten Traces. Damit finden Sie die gesamte Anfrage in Tempo über Grafana."
+    },
+    "nav": {
+      "approvalsBadge_one": "{{count}} Toolaufruf wartet darauf, dass eine Person ihn freigibt oder ablehnt. Öffnen Sie Freigaben, um zu entscheiden.",
+      "approvalsBadge_other": "{{count}} Toolaufrufe warten darauf, dass eine Person sie freigibt oder ablehnt. Öffnen Sie Freigaben, um zu entscheiden.",
+      "setup": "Den Einrichtungsassistenten öffnen: ein Modell verbinden, eine erste Ressource hinzufügen, sie an das Hugo-Profil binden und Claude Code verbinden.",
+      "skipToContent": "Die Navigation überspringen und direkt zum Hauptinhalt dieser Seite springen. Vor allem für Tastaturnutzung hilfreich.",
+      "tour": "Die kurze geführte Tour erneut abspielen, die Navigation, Kontext und den Ort aller Bereiche zeigt.",
+      "environment": {
+        "local": "Das Dashboard spricht mit einem Hugo-Server auf diesem Rechner (eine Loopback-Adresse).",
+        "remote": "Das Dashboard spricht mit einem Hugo-Server auf einem anderen Host. Änderungen hier wirken sich auf diesen Server aus."
+      },
+      "subtabs": {
+        "roles": "Rollen fassen Berechtigungen unter einem Namen zusammen, etwa Operator oder Builder. Weisen Sie eine Rolle zu, um alle ihre Berechtigungen zu vergeben.",
+        "permissions": "Einzelne Regeln, die Operationen auf Ressourcentypen erlauben oder verweigern. Rollen bestehen daraus; Verweigern gewinnt immer.",
+        "userAssignments": "Rollen an Personen vergeben, die sich mit E-Mail und Passwort anmelden, mandantenweit oder für eine Ressource.",
+        "credentialAssignments": "Rollen an Zugangsschlüssel vergeben, die von Harnesses und Automatisierung genutzt werden. Halten Sie Schlüssel enger als ihre Eigentümer."
+      },
+      "hubs": {
+        "home": "Die Kommandozentrale öffnen: KPIs, Anfrageaktivität, aktuelle Fehler, fehlerhafte Ressourcen und häufige Abläufe.",
+        "chat": "Mit Agent Smith über Ihren Stack sprechen. Toolaufrufe erscheinen direkt, und riskante warten auf Ihre Freigabe.",
+        "profiles": "Agentenprofile erstellen und Ressourcen mit Zugriffsmodi daran binden; jede Schnittstelle spricht mit einem Profil.",
+        "approvals": "Über schreibende und destruktive Toolaufrufe von jeder Schnittstelle entscheiden, die auf eine Person warten.",
+        "conversations": "Konversationen im gesamten Mandanten aus Chat, A2A, MCP und OpenAI-kompatiblen Clients prüfen.",
+        "resources": "Verbindungen zu SSH-Hosts, Buckets, Datenbanken, Protokolldiensten und anderen Systemen hinzufügen und testen.",
+        "secrets": "Passwörter, Schlüssel und Tokens verschlüsselt speichern. Ressourcen und Modellendpunkte verwenden sie über Slots.",
+        "connectors": "Die von Hugo unterstützten Dienstfamilien, ihre Tools und Wirkungen sowie ihre Standardanweisungen durchsuchen.",
+        "models": "Die Inferenz- und Embedding-Modelle hinzufügen, die Hugos eigene Agentenschleife für Chat, A2A und OpenAI-Clients verwendet.",
+        "prompts": "Anweisungsvorlagen pro Ebene (integriert, global, Mandant) bearbeiten, mit Vorschau, Versionen und Zurücksetzen.",
+        "knowledge": "Hugo mit Notizen über Ihren Stack anlernen, die es während Konversationen in den Kontext abruft.",
+        "toolInvocations": "Jeder Toolaufruf von jeder Schnittstelle, mit Wirkung, Entscheidung, Ergebnis und Trace-Link.",
+        "requests": "Jede vom Server verarbeitete API-Anfrage untersuchen, mit Headern, Inhalten, Zeitangaben und Status.",
+        "analytics": "Token-Verbrauch, Toolaufrufe nach Wirkung und Konnektor, Modelllatenz und Bearbeitungszeit von Freigaben verstehen.",
+        "audit": "Sicherheitsereignisse wie Anmeldungen, Ablehnungen, Secret-Anzeigen und Konfigurationsänderungen prüfen.",
+        "explorer": "Jede REST-Route aus dem aktuellen OpenAPI-Dokument des Servers ausprobieren, mit generierten Code-Snippets.",
+        "mcpExplorer": "Sich als Sie selbst mit dem MCP-Endpunkt verbinden, um Anweisungen und Tools zu sehen und Tools aufzurufen.",
+        "a2aExplorer": "Die Agentenkarte eines Profils abrufen und ihm Nachrichten über A2A JSON-RPC senden.",
+        "tenants": "Isolierte Mandanten auf diesem Server erstellen und verwalten. Nur Systemadministratoren sehen diese Seite.",
+        "users": "Die Personen verwalten, die sich bei diesem Mandanten anmelden, Passwörter zurücksetzen und effektive Berechtigungen einsehen.",
+        "credentials": "Zugangsschlüssel für Harnesses und SDKs erstellen, an ein Profil binden und rotieren.",
+        "rbac": "Rollen, die darin enthaltenen Berechtigungen und deren Inhaber in diesem Mandanten verwalten.",
+        "sessions": "Jede aktive Sitzung und jedes Token im Mandanten sehen und beliebige davon widerrufen.",
+        "settings": "Die Einstellungsdatei des Servers bearbeiten, den Server neu starten und Serverinformationen einsehen.",
+        "plugins": "Konnektor-Plugins aktivieren oder deaktivieren und Ladefehler einsehen. Nur Systemadministratoren sehen diese Seite."
+      },
+      "tabs": {
+        "roles": "Rollen und die darin enthaltenen Berechtigungen. Klonen Sie eine integrierte Rolle, um sie anzupassen.",
+        "assignments": "Wer welche Rolle hat: Benutzer und Zugangsschlüssel, mandantenweit oder für eine Ressource.",
+        "settings": "Die Einstellungsdatei des Servers mit Validierung, Kennzeichnung für sofort oder nach Neustart wirksam und Server neu starten bearbeiten.",
+        "serverInfo": "Kopierbare Endpunkte, Server- und Dashboard-Versionen, Funktionen und Ihre Identität."
+      }
+    },
+    "passwordChange": {
+      "current": "Das Passwort, mit dem Sie sich angemeldet haben: das vorbereitete oder das von einem Administrator für Sie festgelegte.",
+      "new": "Ihr neues Passwort. Verwenden Sie eine lange Passphrase; der Server kann weitere Regeln durchsetzen.",
+      "confirm": "Geben Sie das neue Passwort erneut ein, damit Sie sich nicht durch einen Tippfehler aussperren.",
+      "submit": "Das neue Passwort speichern und zum Dashboard weitergehen."
+    },
+    "promptEditor": {
+      "content": "Der Vorlagentext. Variablen in doppelten geschweiften Klammern werden beim Kompilieren der Anweisungen ausgefüllt.",
+      "insert": "{{variable}} an der Cursorposition einfügen.",
+      "preview": "Den Text mit dem Beispielkontext rendern, um zu sehen, was der Agent lesen wird.",
+      "diff": "Diesen Text Zeile für Zeile mit der gespeicherten oder der Standardversion vergleichen.",
+      "sampleContext": "Beispielwerte für die Vorschau. Bearbeiten Sie sie, um verschiedene Personas, Ressourcen oder Zugriffsmodi auszuprobieren.",
+      "serverRender": "Der Server hat diese Vorschau mit demselben Renderer erstellt, den er für echte Anweisungen verwendet.",
+      "localRender": "Die Vorschau-Route des Servers ist nicht verfügbar, daher hat der Browser eine Annäherung gerendert."
+    },
+    "schemaForm": {
+      "setting": "Konnektor-Einstellung {{label}}. Der Konnektor validiert sie, wenn die Ressource gespeichert oder getestet wird."
+    },
+    "secretField": {
+      "slot": "Das Secret, das dieser Konnektor für {{slot}} liest. Nur Secrets einer akzeptierten Art werden aufgelistet.",
+      "createInline": "Ein neues Secret erstellen, ohne dieses Formular zu verlassen. Es wird verschlüsselt und für diesen Slot ausgewählt.",
+      "saveInline": "Das neue Secret verschlüsseln und speichern und dann für diesen Slot auswählen.",
+      "import": "Einen Schlüssel, ein Zertifikat, eine kubeconfig oder eine JSON-Datei von Ihrem Computer in dieses Feld einlesen. Es wird erst beim Speichern gesendet.",
+      "fields": {
+        "username": "Der Kontoname für die Anmeldung. Nicht geheim, wird aber mit dem Passwort gespeichert.",
+        "password": "Das Passwort. Verschlüsselt gespeichert und dem Agenten nie gezeigt.",
+        "privateKey": "Ein privater Schlüssel im PEM- oder OpenSSH-Format. Legen Sie die Schlüsseldatei hier ab oder importieren Sie sie.",
+        "passphrase": "Passphrase, die den privaten Schlüssel schützt, falls vorhanden.",
+        "token": "Das API-Token oder Bearer-Token, das der Dienst ausgestellt hat.",
+        "accessKeyId": "Die Zugriffsschlüssel-ID, bei AWS zum Beispiel AKIA gefolgt von Buchstaben und Ziffern.",
+        "secretAccessKey": "Der geheime Teil des Zugriffsschlüsselpaars. Verschlüsselt gespeichert.",
+        "sessionToken": "Optionales Sitzungstoken für temporäre Zugangsdaten.",
+        "json": "Die gesamte Schlüsseldatei des Dienstkontos als JSON, zum Beispiel von Google Cloud.",
+        "kubeconfig": "Eine kubeconfig-Datei mit dem zu verwendenden Cluster, Benutzer und Kontext.",
+        "connectionString": "Eine vollständige Verbindungszeichenfolge einschließlich Zugangsdaten, zum Beispiel für SQL Server oder Redis.",
+        "certificate": "Das Zertifikat im PEM-Format. Für sich nicht geheim, wird aber mit seinem Schlüssel aufbewahrt.",
+        "value": "Ein beliebiger geheimer Wert für Konnektoren, die ein einzelnes undurchsichtiges Secret verwenden."
+      }
+    },
+    "toolActivity": {
+      "toggle": "Argumente und Ausgabe dieses Toolaufrufs ein- oder ausblenden.",
+      "resource": "Der Ressourcen-Alias, gegen den der Aufruf lief, wie im Profil gebunden.",
+      "status": "Wo der Aufruf steht: vorgeschlagen, läuft, wartet auf Freigabe oder abgeschlossen.",
+      "duration": "Wie lange der Aufruf auf dem Server gedauert hat, vom Start bis zum Ergebnis."
+    },
+    "tour": {
+      "skip": "Die Tour jetzt beenden. Sie können sie über die Seitenleiste erneut abspielen.",
+      "back": "Die vorherige Station der Tour anzeigen.",
+      "next": "Zur nächsten Station der Tour wechseln.",
+      "done": "Die Tour abschließen. Sie können sie über die Seitenleiste erneut abspielen."
+    },
+    "wizard": {
+      "skip": "Den Assistenten schließen und für diesen Mandanten nicht mehr anbieten. Sie können ihn über die Seitenleiste wieder öffnen.",
+      "back": "Zum vorherigen Schritt des Assistenten zurückgehen.",
+      "start": "Einrichtung beginnen: ein Modell verbinden, eine Ressource hinzufügen, sie binden und einen Client verbinden.",
+      "skipStep": "Ohne Abschluss dieses Schritts fortfahren. Sie können ihn später auf der entsprechenden Seite erledigen.",
+      "saveModel": "Den Modellendpunkt (und sein API-Schlüssel-Secret, falls eingegeben) erstellen und fortfahren.",
+      "saveResource": "Die Ressource mit diesen Einstellungen und ihrem Secret erstellen und dann mit dem Binden fortfahren.",
+      "bind": "Die neue Ressource mit dem gewählten Zugriffsmodus an das Hugo-Standardprofil binden.",
+      "finish": "Den Assistenten für diesen Mandanten schließen und den Chat öffnen, um mit Agent Smith zu sprechen."
+    }
+  },
+  "explainers": {
+    "promptTemplates": {
+      "title": "Prompt-Vorlagen und ihre Ebenen",
+      "p1": "Jede Anweisung, die Hugo einem Agenten gibt, ist eine Vorlage: die Persona Agent Smith, die Sicherheitsregeln und die Anweisungen jedes Konnektors. Vorlagen verwenden Variablen wie {{persona.name}} und {{resource.alias}}, und jedes Speichern erzeugt eine neue Version.",
+      "p2": "Vorlagen sind geschichtet: Der integrierte Text wird mit Hugo ausgeliefert, ein globaler Standard kann ihn für jeden Mandanten überschreiben, und ein Mandant kann wiederum diesen überschreiben. Auf Standard zurücksetzen entfernt eine Überschreibung und fällt eine Ebene zurück."
+    },
+    "tenants": {
+      "title": "Mandanten",
+      "p1": "Ein Mandant ist eine isolierte Organisation auf diesem Server. Benutzer, Zugangsschlüssel, Ressourcen, Secrets, Profile und Konversationen gehören jeweils zu einem Mandanten, und nichts ist mandantenübergreifend sichtbar."
+    },
+    "users": {
+      "title": "Benutzer und Zugangsschlüssel",
+      "p1": "Ein Benutzer ist eine Person, die sich mit E-Mail und Passwort anmeldet. Ein Zugangsschlüssel ist die Art, wie sich Automatisierung anmeldet. Jeder Zugangsschlüssel gehört einem Benutzer und kann nie mehr als dieser Benutzer.",
+      "p2": "Keiner von beiden erhält Zugriff allein dadurch, dass er existiert. Zugriff ergibt sich aus den Administrationsmarkierungen am Benutzer und aus Rollenzuweisungen."
+    },
+    "credentials": {
+      "title": "Zugangsschlüssel und Benutzer",
+      "p1": "Ein Zugangsschlüssel ist ein Paar aus Zugangsschlüssel und geheimem Schlüssel für Skripte, SDKs und Dienste. Er gehört einem Benutzer. Seine effektiven Berechtigungen sind die Schnittmenge aus dem, was seine eigenen Rollenzuweisungen gewähren, und dem, was sein Eigentümer darf.",
+      "p2": "Der geheime Schlüssel wird einmal angezeigt, wenn der Schlüssel erstellt oder rotiert wird. Rotieren Sie Schlüssel regelmäßig und löschen Sie solche, die lange nicht verwendet wurden."
+    },
+    "roles": {
+      "title": "Rollen, Berechtigungen und Zuweisungen",
+      "p1": "Eine Berechtigung ist eine einzelne Regel: bestimmte Operationen (etwa Lesen, Ausführen oder Anzeigen) für bestimmte Ressourcentypen (etwa Ressource, Secret oder Agentenprofil) erlauben oder verweigern. Eine Rolle ist ein benanntes Bündel von Berechtigungen. Verweigern hat immer Vorrang vor Erlauben.",
+      "p2": "Für niemanden ändert sich etwas, bis eine Rolle zugewiesen wird. Zuweisungen auf der nächsten Registerkarte verbinden eine Rolle mit einem Benutzer oder Zugangsschlüssel, für den ganzen Mandanten oder für einen Datensatz."
+    },
+    "assignments": {
+      "title": "Zuweisungen",
+      "p1": "Eine Zuweisung vergibt eine Rolle an einen Benutzer oder Zugangsschlüssel. Der Mandanten-Geltungsbereich wendet die Rolle auf jeden Datensatz der abgedeckten Typen an; der Ressourcen-Geltungsbereich auf einen einzelnen Datensatz, etwa ein Agentenprofil, das ein Harness verwenden darf.",
+      "p2": "Verwenden Sie Effektive Berechtigungen bei einem Benutzer oder Zugangsschlüssel, um das kombinierte Ergebnis aller Zuweisungen zu sehen."
+    },
+    "audit": {
+      "title": "Audit und Anfrageverlauf",
+      "p1": "Audit-Einträge sind Sicherheits- und Konfigurationsereignisse: Anmeldungen, abgelehnte Anfragen, Anzeigen und Änderungen von Secrets, Rollen- und Bindungsänderungen, Sperren und Neustarts. Sie werden für die in den Einstellungen festgelegte Aufbewahrungsdauer gespeichert.",
+      "p2": "Der Anfrageverlauf auf der vorherigen Registerkarte ist der rohe HTTP-Verkehr. Verwenden Sie das Audit, um zu klären, wer was geändert hat, und den Anfrageverlauf, um zu untersuchen, was ein Client tatsächlich gesendet hat."
+    },
+    "requests": {
+      "title": "Anfrageverlauf",
+      "p1": "Jede von diesem Server erfasste API-Anfrage mit Methode, Pfad, Status, Zeiten, Headern und Inhalten (gekürzt auf die konfigurierte Größe). Verwenden Sie ihn zur Fehlersuche bei Integrationen und SDK-Aufrufen. Klicken Sie auf einen Balken im Diagramm, um die Tabelle auf diesen Zeitraum einzugrenzen."
+    },
+    "diagram": {
+      "label": "Wie Secrets, Ressourcen, Bindungen, Profile und Schnittstellen zusammenhängen"
+    },
+    "profiles": {
+      "title": "Wie Profile, Ressourcen und Schnittstellen zusammenhängen",
+      "p1": "Ein Profil ist ein Agent: eine Persona (standardmäßig Agent Smith), die Modelle, mit denen er denkt, und eine Reihe von Bindungen. Jede Bindung verknüpft eine Ressource unter einem Alias mit einem Zugriffsmodus.",
+      "p2": "Jede Schnittstelle ist ein Client desselben Profils. MCP-Clients erhalten die Tools und Anweisungen des Profils; Chat, A2A und OpenAI-kompatible Clients führen Hugos eigene Schleife mit dem Modell des Profils aus."
+    },
+    "approvals": {
+      "title": "Wann ein Aufruf auf eine Person wartet",
+      "p1": "Jeder Toolaufruf wird als Lesen, Schreiben oder Destruktiv eingestuft. Destruktive Aufrufe warten standardmäßig auf Freigabe, und bei Bindungen im Modus Lesen und Schreiben mit Freigabe wartet auch jeder Schreibzugriff.",
+      "p2": "Geben Sie frei, um den Aufruf auszuführen, oder lehnen Sie ab, um ihn zu verweigern. Der Agent wird in beiden Fällen informiert, und die Entscheidung wird mit Ihrer Notiz protokolliert."
+    },
+    "conversations": {
+      "title": "Konversationen von jeder Schnittstelle",
+      "p1": "Dashboard-Chat, A2A-Kontexte, MCP-Delegierung und OpenAI-kompatible Sitzungen werden hier alle zu Konversationen, sodass der Verlauf jeder Schnittstelle an einem Ort liegt."
+    },
+    "resources": {
+      "title": "Ressourcen, Secrets und Bindungen",
+      "p1": "Eine Ressource ist ein konfiguriertes System: sein Konnektor, seine Einstellungen und die verwendeten Secrets. Die Secrets bleiben in Hugo verschlüsselt; Agenten sehen sie nie.",
+      "p2": "Eine Ressource bewirkt nichts, bis ein Profil sie bindet. Die Bindung legt den Alias fest, den der Agent sieht, und was er tun darf."
+    },
+    "secrets": {
+      "title": "Wie Secrets geschützt werden",
+      "p1": "Werte werden mit AES-256-GCM unter dem Hauptschlüssel verschlüsselt und an ihren Mandanten gebunden. Ressourcen und Modellendpunkte verweisen über Slots auf Secrets.",
+      "p2": "Niemand sieht einen Wert wieder, außer über Anzeigen. Dafür sind die Berechtigung Anzeigen, eine Begründung und eine erneute Passwortprüfung nötig, und es wird immer protokolliert."
+    },
+    "models": {
+      "title": "Wann Hugo ein Modell benötigt",
+      "p1": "MCP-Clients wie Claude Code bringen ihr eigenes Modell mit; Hugo liefert nur Tools und Anweisungen. Chat, A2A und der OpenAI-kompatible Endpunkt führen Hugos eigene Schleife aus und benötigen ein Inferenzmodell im Profil."
+    },
+    "knowledge": {
+      "title": "Wofür Wissensnotizen gedacht sind",
+      "p1": "Notizen sind Fakten, die ein Operator einem Teammitglied erzählen würde. Hugo bettet sie ein und ruft für jeden Schritt die relevanten in den Kontext ab."
+    },
+    "toolInvocations": {
+      "title": "Ein Eintrag pro Toolaufruf",
+      "p1": "Jeder Toolaufruf von jeder Schnittstelle durchläuft dieselbe Pipeline: Einstufung, Zugriffsmodus der Bindung, Freigabe falls nötig, Konnektor und Secret-Bereinigung. Jeder einzelne wird hier erfasst."
+    },
+    "connectors": {
+      "title": "Konnektoren und Ressourcen",
+      "p1": "Ein Konnektor ist Code, der mit einer Familie von Systemen kommunizieren kann. Eine Ressource ist eine konfigurierte Instanz eines Konnektors mit eigenen Einstellungen und Secrets."
+    },
+    "analytics": {
+      "title": "Woher diese Zahlen stammen",
+      "p1": "Analysen fassen Toolaufrufe, Chat-Schritte und Modellaufrufe auf dem Server zusammen, nach Zeit gruppiert und auf diesen Mandanten beschränkt."
+    },
+    "sessions": {
+      "title": "Sitzungen und Tokens",
+      "p1": "Eine Anmeldung oder der Austausch eines Zugangsschlüssels stellt ein Sitzungstoken aus. Der Widerruf einer Sitzung beendet sie sofort, wo immer sie verwendet wird."
+    },
+    "plugins": {
+      "title": "Konnektor-Plugins",
+      "p1": "Plugins fügen Konnektortypen aus dem Plugin-Verzeichnis hinzu, ohne Hugo neu zu erstellen. Sie werden nur geladen, wenn Connectors.EnablePlugins aktiviert ist."
+    }
+  },
+  "nav": {
+    "primary": "Hauptnavigation",
+    "collapseSidebar": "Navigation umschalten",
+    "setup": "Einrichtungsassistent",
+    "skipToContent": "Zum Inhalt springen",
+    "tour": "Geführte Tour",
+    "version": "Version {{version}}",
+    "approvalsPending_one": "{{count}} Freigabe wartet auf eine Person",
+    "approvalsPending_other": "{{count}} Freigaben warten auf eine Person",
+    "environment": {
+      "local": "Lokal",
+      "remote": "Remote"
+    },
+    "sections": {
+      "start": "Start",
+      "agents": "Agenten",
+      "connect": "Verbinden",
+      "configure": "Konfigurieren",
+      "observe": "Beobachten",
+      "develop": "Entwickeln",
+      "administer": "Verwaltung"
+    },
+    "hubs": {
+      "home": {
+        "label": "Startseite",
+        "tip": "Was Hugo tut, was Aufmerksamkeit braucht und häufige nächste Schritte."
+      },
+      "chat": {
+        "label": "Chat",
+        "tip": "Mit Agent Smith sprechen; Toolaufrufe und Freigaben erscheinen direkt."
+      },
+      "profiles": {
+        "label": "Agentenprofile",
+        "tip": "Personas mit gebundenen Ressourcen und Zugriffsmodi, erreichbar über jede Schnittstelle."
+      },
+      "approvals": {
+        "label": "Freigaben",
+        "tip": "Riskante Toolaufrufe, die darauf warten, dass eine Person sie freigibt oder ablehnt."
+      },
+      "conversations": {
+        "label": "Konversationen",
+        "tip": "Jede Konversation im Mandanten, aus Chat, A2A, MCP und OpenAI-Clients."
+      },
+      "resources": {
+        "label": "Ressourcen",
+        "tip": "Konfigurierte Verbindungen zu Ihren Systemen: Hosts, Buckets, Datenbanken, Protokolldienste."
+      },
+      "secrets": {
+        "label": "Secrets",
+        "tip": "Verschlüsselte Zugangsdaten, die Ressourcen und Modellendpunkte verwenden."
+      },
+      "connectors": {
+        "label": "Konnektoren",
+        "tip": "Die Arten von Systemen, die Hugo erreichen kann, ihre Tools und Standardanweisungen."
+      },
+      "models": {
+        "label": "Modellendpunkte",
+        "tip": "Inferenz- und Embedding-Modelle für Hugos eigene Agentenschleife."
+      },
+      "prompts": {
+        "label": "Prompt-Vorlagen",
+        "tip": "Jede Anweisungsvorlage: Personas, Sicherheitsregeln und Konnektor-Anweisungen."
+      },
+      "knowledge": {
+        "label": "Wissen",
+        "tip": "Notizen über Ihren Stack, die Hugo in den Kontext abruft."
+      },
+      "toolInvocations": {
+        "label": "Toolaufrufe",
+        "tip": "Jede Aktion, die ein Agent ausgeführt hat, mit Wirkung, Entscheidung und Ergebnis."
+      },
+      "requests": {
+        "label": "Anfrageverlauf",
+        "tip": "Jede vom Server verarbeitete API-Anfrage, mit Headern und Inhalten."
+      },
+      "analytics": {
+        "label": "Analysen",
+        "tip": "Nutzungs-, Kosten-, Latenz- und Freigabetrends im Zeitverlauf."
+      },
+      "audit": {
+        "label": "Audit",
+        "tip": "Sicherheitsereignisse: Anmeldungen, Ablehnungen, Secret-Anzeigen, Konfigurationsänderungen."
+      },
+      "explorer": {
+        "label": "API-Explorer",
+        "tip": "Jede REST-Route aus dem aktuellen OpenAPI-Dokument ausprobieren."
+      },
+      "mcpExplorer": {
+        "label": "MCP-Explorer",
+        "tip": "Als MCP-Client verbinden, Tools auflisten und aufrufen."
+      },
+      "a2aExplorer": {
+        "label": "A2A-Explorer",
+        "tip": "Agentenkarten abrufen und über A2A mit Profilen sprechen."
+      },
+      "tenants": {
+        "label": "Mandanten",
+        "tip": "Isolierte Mandanten auf diesem Server. Nur für Systemadministratoren."
+      },
+      "users": {
+        "label": "Benutzer",
+        "tip": "Personen, die sich bei diesem Mandanten anmelden."
+      },
+      "credentials": {
+        "label": "Zugangsschlüssel",
+        "tip": "Zugangsschlüssel für Harnesses, SDKs und Automatisierung."
+      },
+      "rbac": {
+        "label": "Rollen und Berechtigungen",
+        "tip": "Rollen, Berechtigungen und deren Inhaber."
+      },
+      "sessions": {
+        "label": "Sitzungen",
+        "tip": "Aktive Anmeldesitzungen und Tokens; beliebige davon widerrufen."
+      },
+      "settings": {
+        "label": "Einstellungen",
+        "tip": "Serverkonfiguration, Neustart und Serverinformationen."
+      },
+      "plugins": {
+        "label": "Plugins",
+        "tip": "Aus dem Plugin-Verzeichnis geladene Konnektor-Plugins."
+      }
+    },
+    "items": {
+      "home": {
+        "label": "Startseite",
+        "tip": "Was Hugo tut, was Aufmerksamkeit braucht und häufige nächste Schritte."
+      },
+      "chat": {
+        "label": "Chat",
+        "tip": "Mit Agent Smith sprechen; Toolaufrufe und Freigaben erscheinen direkt."
+      },
+      "profiles": {
+        "label": "Agentenprofile",
+        "tip": "Personas mit gebundenen Ressourcen und Zugriffsmodi."
+      },
+      "approvals": {
+        "label": "Freigaben",
+        "tip": "Riskante Toolaufrufe, die auf eine Person warten."
+      },
+      "conversations": {
+        "label": "Konversationen",
+        "tip": "Jede Konversation im Mandanten."
+      },
+      "resources": {
+        "label": "Ressourcen",
+        "tip": "Konfigurierte Verbindungen zu Ihren Systemen."
+      },
+      "secrets": {
+        "label": "Geheimnisse",
+        "tip": "Verschlüsselte Zugangsdaten."
+      },
+      "connectors": {
+        "label": "Konnektoren",
+        "tip": "Dienstfamilien, die Hugo erreichen kann."
+      },
+      "models": {
+        "label": "Modellendpunkte",
+        "tip": "Inferenz- und Embedding-Modelle."
+      },
+      "promptTemplates": {
+        "label": "Prompt-Vorlagen",
+        "tip": "Anweisungsvorlagen und ihre Ebenen."
+      },
+      "knowledge": {
+        "label": "Wissen",
+        "tip": "Notizen, die Hugo in den Kontext abruft."
+      },
+      "toolInvocations": {
+        "label": "Toolaufrufe",
+        "tip": "Jede Aktion, die ein Agent ausgeführt hat."
+      },
+      "requests": {
+        "label": "Anfrageverlauf",
+        "tip": "Jede vom Server verarbeitete API-Anfrage."
+      },
+      "analytics": {
+        "label": "Analysen",
+        "tip": "Nutzungs- und Latenztrends."
+      },
+      "audit": {
+        "label": "Audit",
+        "tip": "Sicherheitsereignisse."
+      },
+      "explorer": {
+        "label": "API-Explorer",
+        "tip": "REST-Routen live ausprobieren."
+      },
+      "mcpExplorer": {
+        "label": "MCP-Explorer",
+        "tip": "MCP als Client ausprobieren."
+      },
+      "a2aExplorer": {
+        "label": "A2A-Explorer",
+        "tip": "A2A als Agent ausprobieren."
+      },
+      "tenants": {
+        "label": "Mandanten",
+        "tip": "Isolierte Mandanten auf diesem Server."
+      },
+      "users": {
+        "label": "Benutzer",
+        "tip": "Personen, die sich anmelden."
+      },
+      "credentials": {
+        "label": "Zugangsschlüssel",
+        "tip": "Zugangsschlüssel für die Automatisierung."
+      },
+      "roles": {
+        "label": "Rollen",
+        "tip": "Rollen und die Berechtigungen, die sie gewähren."
+      },
+      "assignments": {
+        "label": "Zuweisungen",
+        "tip": "Wer welche Rolle hat, und wo."
+      },
+      "sessions": {
+        "label": "Sitzungen",
+        "tip": "Aktive Sitzungen und Tokens."
+      },
+      "settings": {
+        "label": "Einstellungen",
+        "tip": "Serverkonfiguration."
+      },
+      "serverInfo": {
+        "label": "Serverinfo",
+        "tip": "Endpunkte, Version und Ihre Identität."
+      },
+      "plugins": {
+        "label": "Plugins",
+        "tip": "Konnektor-Plugins."
+      }
+    }
+  },
+  "tour": {
+    "title": "Geführte Tour",
+    "skip": "Tour überspringen",
+    "done": "Fertig",
+    "steps": {
+      "sidebar": {
+        "title": "Navigation",
+        "body": "Alles ist nach Aufgaben gruppiert: Chat starten, Agenten aufbauen, Systeme verbinden, Prompts konfigurieren, Aktivität beobachten, die APIs ausprobieren und den Mandanten verwalten."
+      },
+      "topbar": {
+        "title": "Kontext und Steuerung",
+        "body": "Hier finden Sie Server, Mandant, Ihre Identität und Rolle, Live-Status, ausstehende Freigaben, Mandantensperre, Sprache, Design und Abmelden."
+      },
+      "kpis": {
+        "title": "Kommandozentrale",
+        "body": "Anfragen, Toolaufrufe, Fehler, wartende Freigaben, fehlerhafte Ressourcen und heute verbrauchte Tokens. Klicken Sie auf eine Kachel, um Details zu sehen."
+      },
+      "chat": {
+        "title": "Mit Agent Smith chatten",
+        "body": "Stellen Sie Fragen zu Ihrem Stack. Jeder Toolaufruf erscheint direkt mit seiner Wirkung, und riskante warten auf Ihre Freigabe."
+      },
+      "connect": {
+        "title": "Ihre Systeme verbinden",
+        "body": "Fügen Sie Ressourcen (SSH-Hosts, Buckets, Datenbanken, Protokolldienste) mit ihren Secrets hinzu und testen Sie jede Verbindung vor dem Speichern."
+      },
+      "profiles": {
+        "title": "Agentenprofile zusammenstellen",
+        "body": "Binden Sie Ressourcen mit einem Zugriffsmodus pro Ressource an ein Profil. Mit dem Profil sprechen MCP, A2A, Chat und die APIs."
+      },
+      "approvals": {
+        "title": "Riskante Aktionen freigeben",
+        "body": "Schreibende und destruktive Aufrufe, die eine Person benötigen, warten hier und im Chat, bis jemand sie freigibt oder ablehnt."
+      },
+      "observe": {
+        "title": "Alles sehen, was passiert ist",
+        "body": "Toolaufrufe, Anfrageverlauf, Analysen und Audit zeigen jede Aktion von jeder Schnittstelle."
+      }
+    }
+  },
+  "wizard": {
+    "title": "Hugo einrichten",
+    "stepOf": "Schritt {{step}} von {{total}}",
+    "skip": "Einrichtung überspringen",
+    "skipStep": "Schritt überspringen",
+    "start": "Starten",
+    "saveModel": "Endpunkt speichern",
+    "saveResource": "Ressource speichern",
+    "bind": "An Profil binden",
+    "finish": "Chat öffnen",
+    "modelSaved": "Modellendpunkt gespeichert.",
+    "bound": "{{alias}} ist jetzt an {{profile}} gebunden.",
+    "nothingToBind": "Im vorherigen Schritt wurde keine Ressource erstellt, daher gibt es noch nichts zu binden. Sie können Ressourcen später auf der Profilseite binden.",
+    "apiKeyHint": "Wird als verschlüsseltes Secret gespeichert; der Endpunkt verweist darauf.",
+    "welcomeItem1": "Ein Modell verbinden, damit Agent Smith denken kann (Ollama, OpenAI, Anthropic und andere).",
+    "welcomeItem2": "Eine erste Ressource hinzufügen, etwa einen SSH-Host oder eine Datenbank, mit ihren Zugangsdaten.",
+    "welcomeItem3": "Sie an das Hugo-Standardprofil binden und Claude Code über MCP verbinden.",
+    "steps": {
+      "welcome": "Willkommen",
+      "inference": "Inferenzmodell",
+      "embedding": "Embeddings",
+      "resource": "Erste Ressource",
+      "bind": "Binden",
+      "connect": "Verbinden"
+    },
+    "bodies": {
+      "welcome": "Hugo verwaltet den Zugriff auf Ihre Systeme und das Urteilsvermögen, wie er genutzt wird. Dieser Assistent bringt Sie in wenigen Minuten von einem leeren Mandanten zu einem funktionierenden Chat.",
+      "inference": "Chat, A2A und der OpenAI-kompatible Endpunkt führen Hugos eigene Agentenschleife aus, die ein Inferenzmodell benötigt. MCP-Clients bringen ihr eigenes Modell mit, daher können Sie dies überspringen, wenn Sie nur MCP verwenden.",
+      "embedding": "Optional. Ein Embedding-Modell lässt Hugo die relevanten Tools auswählen, wenn ein Profil viele hat, und ermöglicht später Wissensnotizen.",
+      "resource": "Wählen Sie einen Konnektor, füllen Sie die Einstellungen aus, wählen oder erstellen Sie das benötigte Secret und testen Sie die Verbindung vor dem Speichern.",
+      "bind": "Verknüpfen Sie die neue Ressource mit dem Hugo-Standardprofil und legen Sie fest, was der Agent damit tun darf.",
+      "connect": "Fügen Sie Hugo mit dieser Konfiguration zu Claude Code (oder einem beliebigen MCP-Client) hinzu und beginnen Sie dann, mit Agent Smith zu chatten."
+    }
+  }
+}
