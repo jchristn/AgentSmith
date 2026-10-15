@@ -68,7 +68,7 @@ namespace Hugo.Server.Services
 
         #region Private-Members
 
-        private static readonly Regex _ApprovalId = new Regex("apr_[A-Za-z0-9]+", RegexOptions.Compiled);
+        private static readonly Regex _ApprovalId = new Regex("apr_[A-Za-z0-9_-]+", RegexOptions.Compiled);
         private readonly ServerContext _Context;
         private readonly IModelGateway _Gateway;
         private readonly ModelEndpointService _Models;
