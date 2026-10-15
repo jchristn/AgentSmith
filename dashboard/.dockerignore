@@ -1,0 +1,7 @@
+node_modules
+dist
+test-results
+playwright-report
+i18n-missing
+.vite
+*.local
