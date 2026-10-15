@@ -79,7 +79,7 @@ Every HTTP request follows the same path through Watson's hooks:
 2. **Authentication** (`AuthenticationService.AuthenticateRequestAsync`) resolves exactly one scheme into a `RequestContext`: principal type and ID, tenant, admin flags, session, credential. Failures answer 401 before any route runs. [SECURITY.md](SECURITY.md) describes the schemes.
 3. **Routing.** Each route was registered through `RouteRegistrar` as anonymous, scoped, or handler-authorized, and each registration recorded its resource type and operation in the `OperationScopeMap`, the single list of what every route, MCP tool, and A2A method requires. Before the handler runs, the wrapper checks that a tenant named in the path exists, blocks users who must change their password, and (for scoped routes) asks the authorization service for a decision. A denial becomes 403 with the required permission, or 404 when the target is in another tenant. The same wrapper maps domain exceptions to the JSON error shape and maps an unreachable or saturated database to 503 with `Retry-After`.
 4. **The handler** calls services. Services always take the tenant from the request context, never from the body.
-5. **Post-routing** captures the request into request history (bounded bodies, scrubbed, skipped for secret reveals) and records metrics.
+5. **Post-routing** captures the request into request history (bounded bodies, scrubbed, skipped for secret reveals, and no response body for reads of request history itself) and records metrics.
 
 ### The tool invocation pipeline
 

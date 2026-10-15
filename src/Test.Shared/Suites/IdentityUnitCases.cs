@@ -212,6 +212,10 @@ namespace Test.Shared.Suites
             Assert.True(RequestHistoryCaptureService.IsSecretRoute("/v1.0/api/tenants/ten_1/credentials"), "Credential route not detected.");
             Assert.True(RequestHistoryCaptureService.IsSecretRoute("/v1.0/api/users/me/password"), "Password route not detected.");
             Assert.True(!RequestHistoryCaptureService.IsSecretRoute("/v1.0/api/tenants/ten_1/roles"), "Role route redacted.");
+            Assert.True(RequestHistoryCaptureService.IsHistoryRoute("/v1.0/api/request-history"), "History list route not detected.");
+            Assert.True(RequestHistoryCaptureService.IsHistoryRoute("/v1.0/api/request-history/req_1"), "History detail route not detected.");
+            Assert.True(!RequestHistoryCaptureService.IsHistoryRoute("/v1.0/api/health"), "Health route treated as history.");
+            Assert.True(!RequestHistoryCaptureService.IsHistoryRoute(null), "Null path treated as history.");
             return Task.CompletedTask;
         }
 
