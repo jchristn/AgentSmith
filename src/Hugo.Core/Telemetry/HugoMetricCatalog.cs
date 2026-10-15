@@ -118,6 +118,33 @@ namespace Hugo.Core.Telemetry
         /// <summary>Background job duration.</summary>
         public static readonly MetricDescriptor BackgroundJobDuration = new MetricDescriptor("hugo.background.job.duration", MetricKindEnum.Histogram, "s", "job", "Duration of one background job run", "server", "Background", "hugo-overview", TelemetryBuckets.Request);
 
+        /// <summary>Tool invocations.</summary>
+        public static readonly MetricDescriptor ToolInvocations = new MetricDescriptor("hugo.tool.invocations", MetricKindEnum.Counter, "{call}", "connector, tool, effect, decision, status, surface", "Tool calls through the invocation pipeline by connector, tool, classified effect, decision (Allowed, Denied, ApprovalRequired, Approved, Rejected, Expired, Cancelled), execution status, and surface", "server", "Tools and Connectors", "hugo-tools");
+
+        /// <summary>Tool execution duration.</summary>
+        public static readonly MetricDescriptor ToolDuration = new MetricDescriptor("hugo.tool.duration", MetricKindEnum.Histogram, "s", "connector, tool", "Tool execution time, excluding approval waits", "server", "Tools and Connectors", "hugo-tools", TelemetryBuckets.Request);
+
+        /// <summary>Tool output size.</summary>
+        public static readonly MetricDescriptor ToolOutputBytes = new MetricDescriptor("hugo.tool.output.bytes", MetricKindEnum.Histogram, "By", "connector", "Tool output returned to the caller, after scrubbing and limits", "server", "Tools and Connectors", "hugo-tools", TelemetryBuckets.Bytes);
+
+        /// <summary>Approvals decided.</summary>
+        public static readonly MetricDescriptor Approvals = new MetricDescriptor("hugo.approvals", MetricKindEnum.Counter, "{approval}", "outcome", "Approvals by outcome (requested, approved, rejected, expired, cancelled)", "server", "Tools and Connectors", "hugo-tools");
+
+        /// <summary>Approval wait.</summary>
+        public static readonly MetricDescriptor ApprovalWait = new MetricDescriptor("hugo.approval.wait", MetricKindEnum.Histogram, "s", "effect", "Time from an approval request to its decision or expiry", "server", "Tools and Connectors", "hugo-tools", TelemetryBuckets.Run);
+
+        /// <summary>Instruction compile duration.</summary>
+        public static readonly MetricDescriptor InstructionsCompileDuration = new MetricDescriptor("hugo.instructions.compile.duration", MetricKindEnum.Histogram, "s", "cached", "Time to compile a profile's instructions (cached is true when served from the compile cache)", "server", "Agent and Chat", "hugo-agent", TelemetryBuckets.Fast);
+
+        /// <summary>Connector model requests.</summary>
+        public static readonly MetricDescriptor ConnectorModelRequests = new MetricDescriptor("hugo.model.connector.requests", MetricKindEnum.Counter, "{request}", "provider, purpose, outcome", "Model calls made by connector tools through the calling profile's inference endpoint (IConnectorModel), by purpose and outcome (ok, error, budget_exhausted)", "server", "Models", "hugo-models");
+
+        /// <summary>Connector model tokens.</summary>
+        public static readonly MetricDescriptor ConnectorModelTokens = new MetricDescriptor("hugo.model.connector.tokens", MetricKindEnum.Counter, "{token}", "provider, purpose, direction", "Tokens used by connector model calls, by purpose and direction (input, output)", "server", "Models", "hugo-models");
+
+        /// <summary>Model endpoint health checks.</summary>
+        public static readonly MetricDescriptor ModelHealthChecks = new MetricDescriptor("hugo.model.health.checks", MetricKindEnum.Counter, "{check}", "provider, kind, outcome", "Model endpoint validations and health sweep checks by outcome (healthy, unhealthy)", "server", "Models", "hugo-models");
+
         #endregion
 
         #region Private-Members
@@ -157,7 +184,16 @@ namespace Hugo.Core.Telemetry
             SecretOperations,
             SecretRedactions,
             BackgroundJobs,
-            BackgroundJobDuration
+            BackgroundJobDuration,
+            ToolInvocations,
+            ToolDuration,
+            ToolOutputBytes,
+            Approvals,
+            ApprovalWait,
+            InstructionsCompileDuration,
+            ConnectorModelRequests,
+            ConnectorModelTokens,
+            ModelHealthChecks
         };
 
         #endregion

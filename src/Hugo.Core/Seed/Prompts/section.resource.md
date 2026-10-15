@@ -14,9 +14,17 @@ This resource is read-only for you. Write and Destructive calls will be rejected
 {{#if this.approvalRequired}}
 Write and Destructive calls on this resource wait for human approval.
 {{/if}}
+{{#if this.destructiveApproval}}
+Write calls run directly on this resource; Destructive calls wait for human approval.
+{{/if}}
 
 {{this.instructions}}
 {{#if this.notes}}
 
 Operator notes: {{this.notes}}
+{{/if}}
+{{#if this.knowledge}}
+
+Known context for {{this.alias}}:
+{{this.knowledge}}
 {{/if}}

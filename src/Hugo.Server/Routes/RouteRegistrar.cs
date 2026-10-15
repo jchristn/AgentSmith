@@ -399,6 +399,10 @@ namespace Hugo.Server.Routes
             {
                 await RouteHelpers.ErrorAsync(context, 409, e.Code, e.Message).ConfigureAwait(false);
             }
+            catch (ForbiddenException e)
+            {
+                await RouteHelpers.ErrorAsync(context, 403, e.Code, e.Message).ConfigureAwait(false);
+            }
             catch (ArgumentException e)
             {
                 await RouteHelpers.ErrorAsync(context, 400, "BadRequest", e.Message).ConfigureAwait(false);
