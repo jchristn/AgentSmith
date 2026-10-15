@@ -10,3 +10,5 @@ include:
   - storage/compose.yaml
   - sql/compose.yaml
   - aws/compose.yaml
+  - redis/compose.yaml
+  - observability/compose.yaml
