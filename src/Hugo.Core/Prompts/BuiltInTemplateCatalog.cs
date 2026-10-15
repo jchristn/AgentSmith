@@ -138,6 +138,7 @@ namespace Hugo.Core.Prompts
                     ? "Use the " + d.Family + "_* tools with the resource argument set to this resource. " + d.Description
                     : d.DefaultInstructions;
                 Register(d.DefaultInstructionsKey, content, d.Type, "Default instructions for " + (String.IsNullOrEmpty(d.DisplayName) ? d.Type : d.DisplayName) + " resources.");
+                Register(d.CompactInstructionsKey, CompactContent(connector), d.Type, "Compact instructions for " + (String.IsNullOrEmpty(d.DisplayName) ? d.Type : d.DisplayName) + " resources, used when a profile has many resources.");
             }
         }
 
@@ -162,5 +163,16 @@ namespace Hugo.Core.Prompts
         }
 
         #endregion
+
+        private static string CompactContent(IConnector connector)
+        {
+            ConnectorDescriptor d = connector.Descriptor;
+            if (!String.IsNullOrWhiteSpace(d.CompactInstructions)) return d.CompactInstructions;
+            Assembly assembly = connector.GetType().Assembly;
+            string suffix = "connector." + d.Type + ".compact.md";
+            string? name = assembly.GetManifestResourceNames().FirstOrDefault(n => n.EndsWith(suffix, StringComparison.OrdinalIgnoreCase));
+            if (name != null) return EmbeddedText.Read(assembly, suffix);
+            return "Use the " + d.Family + "_* tools with the resource argument set to this resource. Call hugo_describe_resource for full guidance before anything beyond simple reads.";
+        }
     }
 }

@@ -1,0 +1,1 @@
+Papertrail log search. Always bound logs_search by time; start narrow (system or group, short window) and widen. Use logs_volume to find when a problem started and logs_list_systems to find sources. Summarize patterns instead of pasting many lines; page with the returned cursor.

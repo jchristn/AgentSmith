@@ -52,6 +52,22 @@ namespace Hugo.Core.Instructions
         }
 
         /// <summary>
+        /// Profiles with <see cref="InstructionDetailEnum.Auto"/> use compact connector instructions when they have more
+        /// bindings than this (Instructions.CompactBindingThreshold). Default 3, minimum 0 (always compact), maximum 1000.
+        /// </summary>
+        public int CompactBindingThreshold
+        {
+            get
+            {
+                return _CompactBindingThreshold;
+            }
+            set
+            {
+                _CompactBindingThreshold = Math.Clamp(value, 0, 1000);
+            }
+        }
+
+        /// <summary>
         /// Maximum cached compilations. Default 1024, minimum 0 (no cache), maximum 100000.
         /// </summary>
         public int MaxCacheEntries
@@ -85,6 +101,7 @@ namespace Hugo.Core.Instructions
         private readonly ConcurrentDictionary<string, long> _Generations = new ConcurrentDictionary<string, long>(StringComparer.Ordinal);
         private long _GlobalGeneration = 0;
         private int _MaxKnowledgeChars = 2000;
+        private int _CompactBindingThreshold = 3;
         private int _MaxCacheEntries = 1024;
 
         #endregion
@@ -270,6 +287,9 @@ namespace Hugo.Core.Instructions
 
             List<object?> bindings = new List<object?>();
             Dictionary<string, object?> byFamily = TemplateContext.NewMap();
+            bool compact = profile.InstructionDetail == InstructionDetailEnum.Compact
+                || (profile.InstructionDetail == InstructionDetailEnum.Auto && bound.Count > _CompactBindingThreshold);
+            context.Set("compactInstructions", compact);
             foreach (BoundResource item in bound)
             {
                 Dictionary<string, object?> map = TemplateContext.NewMap();
@@ -302,7 +322,8 @@ namespace Hugo.Core.Instructions
                 map["tools"] = tools;
                 map["toolList"] = String.Join(", ", usable);
                 map["knowledge"] = await KnowledgeAsync(item, token).ConfigureAwait(false);
-                map["instructions"] = ConnectorInstructions(item, map, context, templates, sources, warnings);
+                map["compact"] = compact;
+                map["instructions"] = ConnectorInstructions(item, map, context, templates, sources, warnings, compact);
                 bindings.Add(map);
                 if (!byFamily.TryGetValue(item.Family, out object? list) || list is not List<object?> familyList)
                 {
@@ -316,9 +337,10 @@ namespace Hugo.Core.Instructions
             return context;
         }
 
-        private string ConnectorInstructions(BoundResource item, Dictionary<string, object?> map, TemplateContext context, Dictionary<string, ResolvedPromptTemplate> templates, List<SegmentSource> sources, List<string> warnings)
+        private string ConnectorInstructions(BoundResource item, Dictionary<string, object?> map, TemplateContext context, Dictionary<string, ResolvedPromptTemplate> templates, List<SegmentSource> sources, List<string> warnings, bool compact)
         {
             string key = item.Connector.Descriptor.DefaultInstructionsKey;
+            if (compact && templates.ContainsKey(item.Connector.Descriptor.CompactInstructionsKey)) key = item.Connector.Descriptor.CompactInstructionsKey;
             string bindingText = Clean(item.Binding.InstructionText ?? String.Empty).Trim();
             string connectorText = String.Empty;
             if (item.Binding.InstructionMode != InstructionModeEnum.Replace || bindingText.Length == 0)

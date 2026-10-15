@@ -285,6 +285,7 @@ namespace Hugo.Server.Services
             if (request.ExposeMcp.HasValue) profile.ExposeMcp = request.ExposeMcp.Value;
             if (request.ExposeOpenAI.HasValue) profile.ExposeOpenAI = request.ExposeOpenAI.Value;
             if (request.ExposeManagementTools.HasValue) profile.ExposeManagementTools = request.ExposeManagementTools.Value;
+            if (request.InstructionDetail.HasValue) profile.InstructionDetail = request.InstructionDetail.Value;
             if (request.InstructionsAppend != null) profile.InstructionsAppend = String.IsNullOrWhiteSpace(request.InstructionsAppend) ? null : Limit(request.InstructionsAppend, 65536, "instructionsAppend");
             if (request.Visibility.HasValue) profile.Visibility = request.Visibility.Value;
             if (request.Active.HasValue) profile.Active = request.Active.Value;

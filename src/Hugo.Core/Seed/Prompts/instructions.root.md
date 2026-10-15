@@ -14,6 +14,9 @@
 
 {{#if profile.hasBindings}}
 You have access to {{profile.bindingCount}} resource{{#unless profile.singleBinding}}s{{/unless}}:
+{{#if compactInstructions}}
+The guidance for each resource below is abbreviated. Before anything beyond simple reads on a resource, call hugo_describe_resource with that resource to get its full instructions and limits.
+{{/if}}
 {{#each bindings}}
 
 {{> section.resource}}

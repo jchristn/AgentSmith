@@ -97,6 +97,11 @@ namespace Hugo.Core.Requests
         public bool? ExposeManagementTools { get; set; } = null;
 
         /// <summary>
+        /// Connector guidance detail: Auto, Full, or Compact. Null leaves it unchanged.
+        /// </summary>
+        public InstructionDetailEnum? InstructionDetail { get; set; } = null;
+
+        /// <summary>
         /// Profile append text.
         /// </summary>
         public string? InstructionsAppend { get; set; } = null;

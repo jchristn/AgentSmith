@@ -27,6 +27,19 @@ namespace Hugo.Core.Database.Ado
             }
         }
 
+        /// <summary>
+        /// Number of migrations this build defines. Versions need not be contiguous: migrations are tracked as a set, so
+        /// parallel branches can claim distinct version numbers.
+        /// </summary>
+        public static int MigrationCount
+        {
+            get
+            {
+                SqlDialect dialect = new Hugo.Core.Database.Sqlite.Queries.SqliteDialect();
+                return Build(new TableCatalog(null, null, dialect), dialect).Count;
+            }
+        }
+
         #endregion
 
         #region Private-Members
@@ -87,6 +100,10 @@ namespace Hugo.Core.Database.Ado
             SchemaBuilder v6 = new SchemaBuilder(catalog, dialect);
             v6.BuildVersion6();
             migrations.Add(new SchemaMigration(6, "Model endpoints", v6._Statements, v6._Columns));
+
+            SchemaBuilder v8 = new SchemaBuilder(catalog, dialect);
+            v8.BuildVersion8();
+            migrations.Add(new SchemaMigration(8, "Agent profile instruction detail (compact connector instructions)", v8._Statements, v8._Columns));
 
             return migrations;
         }
@@ -772,6 +789,11 @@ namespace Hugo.Core.Database.Ado
             // Prompt template layers (D-015, D-039): the hash of the content of the layer below at the time this row was
             // last synchronized, so "the default changed since you customized this" can be detected.
             _Columns.Add(new SchemaColumnAddition("prompt_templates", "base_hash", "VARCHAR(128)"));
+        }
+
+        private void BuildVersion8()
+        {
+            _Columns.Add(new SchemaColumnAddition("agent_profiles", "instruction_detail", "VARCHAR(16)"));
         }
 
         private void BuildVersion6()

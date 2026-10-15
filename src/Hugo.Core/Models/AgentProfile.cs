@@ -214,6 +214,11 @@ namespace Hugo.Core.Models
         public string? InstructionsAppend { get; set; } = null;
 
         /// <summary>
+        /// Connector guidance detail in compiled instructions. Default <see cref="InstructionDetailEnum.Auto"/>.
+        /// </summary>
+        public InstructionDetailEnum InstructionDetail { get; set; } = InstructionDetailEnum.Auto;
+
+        /// <summary>
         /// Whether this is the tenant's default profile.
         /// </summary>
         public bool IsDefault { get; set; } = false;

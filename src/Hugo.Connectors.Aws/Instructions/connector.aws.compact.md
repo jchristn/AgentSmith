@@ -1,0 +1,1 @@
+AWS account. Confirm the account and region with aws_caller_identity first. Use CloudWatch metrics and Logs Insights with explicit time windows. Instance stop and reboot are Destructive, terminate always needs approval, and scaling an ECS service to zero is Destructive. Only the services allowed on this resource can be called.

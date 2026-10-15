@@ -61,7 +61,7 @@ namespace Test.Shared.Suites
                 Assert.True(await first.PingAsync(token).ConfigureAwait(false), "Ping failed after first initialization.");
                 firstVersion = first.SchemaVersion;
                 Assert.Equal(SchemaBuilder.LatestVersion, firstVersion, "Schema version after first initialization");
-                Assert.Equal(SchemaBuilder.LatestVersion, first.MigrationsApplied, "Migrations applied on a new database");
+                Assert.Equal(SchemaBuilder.MigrationCount, first.MigrationsApplied, "Migrations applied on a new database");
             }
             using (DatabaseDriverBase second = await DatabaseDriverFactory.CreateAndInitializeAsync(settings, token).ConfigureAwait(false))
             {
