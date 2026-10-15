@@ -15,7 +15,13 @@ export default function LanguageSelector({ compact = false, className = '' }) {
   return (
     <label className={`topbar-lang ${className}`} {...tip(t('tips.topbar.language'))}>
       {!compact && <span>{t('common.language.label')}</span>}
-      <select aria-label={t('common.language.label')} {...tip(t('tips.topbar.language'))} value={current} onChange={(e) => setActiveLocale(e.target.value)} data-testid="language-select">
+      <select
+        aria-label={t('common.language.label')}
+        {...tip(t('tips.topbar.language'))}
+        value={current}
+        onChange={(e) => setActiveLocale(e.target.value)}
+        data-testid="language-select"
+      >
         {selectableLocales(current).map((l) => (
           <option key={l.code} value={l.code} lang={l.code} dir={l.dir} data-beta={l.beta ? 'true' : undefined}>
             {getLocaleLabel(l.code)}

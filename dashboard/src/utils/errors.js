@@ -59,7 +59,18 @@ export function isMissingEndpoint(err) {
 }
 
 /** Field codes the server attaches to 400 ValidationFailed (P9.17); `Invalid` has no translation of its own. */
-export const FIELD_CODES = ['OutOfRange', 'NotAnInteger', 'NotABoolean', 'NotAllowedValue', 'TooLong', 'UnknownSetting', 'PathRequired', 'OverriddenByEnvironment', 'SettingsFileReadOnly', 'ExpiryInPast'];
+export const FIELD_CODES = [
+  'OutOfRange',
+  'NotAnInteger',
+  'NotABoolean',
+  'NotAllowedValue',
+  'TooLong',
+  'UnknownSetting',
+  'PathRequired',
+  'OverriddenByEnvironment',
+  'SettingsFileReadOnly',
+  'ExpiryInPast'
+];
 
 /**
  * Per-field messages from a validation error: each field's machine code (fieldCodes) translated, falling back to

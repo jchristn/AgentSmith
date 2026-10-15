@@ -206,7 +206,9 @@ class ApiClient {
 
   /** Turn tenant lockdown on (every non-Read call denied, pending approvals cancelled) or off. */
   setLockdown(on, reason) {
-    return on ? this._request('POST', '/v1.0/api/tenant/lockdown', { body: { reason: reason || undefined } }) : this._request('DELETE', '/v1.0/api/tenant/lockdown');
+    return on
+      ? this._request('POST', '/v1.0/api/tenant/lockdown', { body: { reason: reason || undefined } })
+      : this._request('DELETE', '/v1.0/api/tenant/lockdown');
   }
 
   /**

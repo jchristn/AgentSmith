@@ -24,7 +24,14 @@ export default function ToolActivityRow({ tool, defaultOpen = false }) {
 
   return (
     <div className={`tool-row tool-${status}`} data-testid="tool-row" data-status={status}>
-      <button type="button" className="tool-row-head" aria-expanded={open} aria-controls={panelId} onClick={() => setOpen((v) => !v)} {...tip(t('tips.toolActivity.toggle'))}>
+      <button
+        type="button"
+        className="tool-row-head"
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => setOpen((v) => !v)}
+        {...tip(t('tips.toolActivity.toggle'))}
+      >
         {open ? <ChevronDownIcon size={14} /> : <ChevronRightIcon size={14} />}
         <TerminalIcon size={14} />
         <code className="tool-name">{tool.toolName || '-'}</code>
@@ -50,7 +57,11 @@ export default function ToolActivityRow({ tool, defaultOpen = false }) {
           <div className="section-title">{t('components.toolActivity.arguments')}</div>
           <CodeBlock value={tool.arguments} prettyJson emptyText={t('components.toolActivity.noArguments')} />
           <div className="section-title">{tool.error ? t('components.toolActivity.error') : t('components.toolActivity.output')}</div>
-          {tool.error ? <div className="error-banner">{typeof tool.error === 'string' ? tool.error : tool.error.message || JSON.stringify(tool.error)}</div> : <CodeBlock value={tool.outputPreview} emptyText={t('components.toolActivity.noOutput')} />}
+          {tool.error ? (
+            <div className="error-banner">{typeof tool.error === 'string' ? tool.error : tool.error.message || JSON.stringify(tool.error)}</div>
+          ) : (
+            <CodeBlock value={tool.outputPreview} emptyText={t('components.toolActivity.noOutput')} />
+          )}
           {tool.outputTruncated && <div className="field-hint">{t('components.toolActivity.truncated')}</div>}
         </div>
       )}

@@ -81,8 +81,23 @@ export default function Login() {
         {label}
       </label>
       <div className="password-wrap">
-        <input id={id} {...tip(tipText)} type={reveal ? 'text' : 'password'} value={value} onChange={(e) => setter(e.target.value)} required disabled={loading} autoComplete={autoComplete} />
-        <button type="button" className="icon-button" onClick={() => setReveal((v) => !v)} aria-label={reveal ? t('common.actions.hide') : t('common.actions.reveal')} {...tip(t(reveal ? 'tips.form.hide' : 'tips.form.reveal'))}>
+        <input
+          id={id}
+          {...tip(tipText)}
+          type={reveal ? 'text' : 'password'}
+          value={value}
+          onChange={(e) => setter(e.target.value)}
+          required
+          disabled={loading}
+          autoComplete={autoComplete}
+        />
+        <button
+          type="button"
+          className="icon-button"
+          onClick={() => setReveal((v) => !v)}
+          aria-label={reveal ? t('common.actions.hide') : t('common.actions.reveal')}
+          {...tip(t(reveal ? 'tips.form.hide' : 'tips.form.reveal'))}
+        >
           {reveal ? <EyeOffIcon /> : <EyeIcon />}
         </button>
       </div>
@@ -102,10 +117,24 @@ export default function Login() {
         </div>
 
         <div className="login-tabs" role="tablist">
-          <button type="button" role="tab" aria-selected={tab === 'password'} className={`login-tab ${tab === 'password' ? 'active' : ''}`} onClick={() => setTab('password')} {...tip(t('tips.login.passwordTab'))}>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={tab === 'password'}
+            className={`login-tab ${tab === 'password' ? 'active' : ''}`}
+            onClick={() => setTab('password')}
+            {...tip(t('tips.login.passwordTab'))}
+          >
             {t('login.tabs.password')}
           </button>
-          <button type="button" role="tab" aria-selected={tab === 'key'} className={`login-tab ${tab === 'key' ? 'active' : ''}`} onClick={() => setTab('key')} {...tip(t('tips.login.keyTab'))}>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={tab === 'key'}
+            className={`login-tab ${tab === 'key' ? 'active' : ''}`}
+            onClick={() => setTab('key')}
+            {...tip(t('tips.login.keyTab'))}
+          >
             {t('login.tabs.accessKey')}
           </button>
         </div>
@@ -115,7 +144,15 @@ export default function Login() {
             <label htmlFor="serverUrl" {...tip(t('tips.login.serverUrl'))}>
               {t('login.serverUrl')}
             </label>
-            <input id="serverUrl" {...tip(t('tips.login.serverUrl'))} type="url" value={serverUrl} onChange={(e) => setServerUrl(e.target.value)} required disabled={loading} />
+            <input
+              id="serverUrl"
+              {...tip(t('tips.login.serverUrl'))}
+              type="url"
+              value={serverUrl}
+              onChange={(e) => setServerUrl(e.target.value)}
+              required
+              disabled={loading}
+            />
           </div>
           {tab === 'password' ? (
             <>
@@ -123,14 +160,30 @@ export default function Login() {
                 <label htmlFor="email" {...tip(t('tips.login.email'))}>
                   {t('login.email')}
                 </label>
-                <input id="email" {...tip(t('tips.login.email'))} type="email" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={loading} autoComplete="username" placeholder={DEV_DEFAULTS.email} />
+                <input
+                  id="email"
+                  {...tip(t('tips.login.email'))}
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={loading}
+                  autoComplete="username"
+                  placeholder={DEV_DEFAULTS.email}
+                />
               </div>
               {multipleTenants ? (
                 <div className="field">
                   <label htmlFor="tenantSelect" {...tip(t('tips.login.tenantSelect'))}>
                     {t('login.tenant')}
                   </label>
-                  <select id="tenantSelect" value={tenantId} onChange={(e) => setTenantId(e.target.value)} disabled={loading} {...tip(t('tips.login.tenantSelect'))}>
+                  <select
+                    id="tenantSelect"
+                    value={tenantId}
+                    onChange={(e) => setTenantId(e.target.value)}
+                    disabled={loading}
+                    {...tip(t('tips.login.tenantSelect'))}
+                  >
                     {tenants.map((tn) => (
                       <option key={tn.id} value={tn.id}>
                         {tn.name}
@@ -147,7 +200,15 @@ export default function Login() {
                   <label htmlFor="tenantId" {...tip(t('tips.login.tenantId'))}>
                     {t('login.tenantId')}
                   </label>
-                  <input id="tenantId" {...tip(t('tips.login.tenantId'))} type="text" value={tenantId} onChange={(e) => setTenantId(e.target.value)} disabled={loading} placeholder={DEV_DEFAULTS.tenantId} />
+                  <input
+                    id="tenantId"
+                    {...tip(t('tips.login.tenantId'))}
+                    type="text"
+                    value={tenantId}
+                    onChange={(e) => setTenantId(e.target.value)}
+                    disabled={loading}
+                    placeholder={DEV_DEFAULTS.tenantId}
+                  />
                 </div>
               )}
               {secretInput('password', password, setPassword, t('login.password'), 'current-password', t('tips.login.password'))}
@@ -158,7 +219,17 @@ export default function Login() {
                 <label htmlFor="accessKey" {...tip(t('tips.login.accessKey'))}>
                   {t('login.accessKey')}
                 </label>
-                <input id="accessKey" {...tip(t('tips.login.accessKey'))} type="text" value={accessKey} onChange={(e) => setAccessKey(e.target.value)} required disabled={loading} autoComplete="username" placeholder="access_..." />
+                <input
+                  id="accessKey"
+                  {...tip(t('tips.login.accessKey'))}
+                  type="text"
+                  value={accessKey}
+                  onChange={(e) => setAccessKey(e.target.value)}
+                  required
+                  disabled={loading}
+                  autoComplete="username"
+                  placeholder="access_..."
+                />
               </div>
               {secretInput('secretKey', secretKey, setSecretKey, t('login.secretKey'), 'current-password', t('tips.login.secretKey'))}
             </>
@@ -193,7 +264,13 @@ export default function Login() {
 
         <div className="login-lang">
           <LanguageSelector />
-          <button type="button" className="icon-button" onClick={toggleTheme} aria-label={theme === 'dark' ? t('common.theme.switchToLight') : t('common.theme.switchToDark')} {...tip(t(theme === 'dark' ? 'tips.topbar.themeLight' : 'tips.topbar.themeDark'))}>
+          <button
+            type="button"
+            className="icon-button"
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? t('common.theme.switchToLight') : t('common.theme.switchToDark')}
+            {...tip(t(theme === 'dark' ? 'tips.topbar.themeLight' : 'tips.topbar.themeDark'))}
+          >
             {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
           </button>
         </div>

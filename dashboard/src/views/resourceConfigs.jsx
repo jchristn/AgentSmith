@@ -41,11 +41,29 @@ export const tenantsConfig = {
     idCol('tenants', t),
     col('tenants', t, 'description', (r) => r.description || '-'),
     col('tenants', t, 'region', (r) => r.region || '-', { defaultHidden: true }),
-    col('tenants', t, 'lockdown', (r) => (r.lockdown ? <Badge tone="danger" tip={t('tips.badges.lockdown')}>{t('common.generic.lockdown')}</Badge> : '-'), { csv: (r) => (r.lockdown ? 'true' : 'false') }),
+    col(
+      'tenants',
+      t,
+      'lockdown',
+      (r) =>
+        r.lockdown ? (
+          <Badge tone="danger" tip={t('tips.badges.lockdown')}>
+            {t('common.generic.lockdown')}
+          </Badge>
+        ) : (
+          '-'
+        ),
+      { csv: (r) => (r.lockdown ? 'true' : 'false') }
+    ),
     activeCol('tenants', t),
     createdCol('tenants', t, i18n)
   ],
-  fields: (_d, { t }) => [field('tenants', t, 'name', 'text', { required: true }), field('tenants', t, 'description', 'textarea'), field('tenants', t, 'region', 'text'), field('tenants', t, 'active', 'checkbox')],
+  fields: (_d, { t }) => [
+    field('tenants', t, 'name', 'text', { required: true }),
+    field('tenants', t, 'description', 'textarea'),
+    field('tenants', t, 'region', 'text'),
+    field('tenants', t, 'active', 'checkbox')
+  ],
   validate: (d, t) => (!d.name ? { name: t('common.errors.required') } : null),
   toBody: (d) => ({ name: d.name, description: d.description, region: d.region || null, active: !!d.active })
 };
@@ -59,9 +77,18 @@ export const usersConfig = {
   toForm: (r) => ({ ...r, password: '' }),
   columns: ({ t, i18n }) => [
     col('users', t, 'email', (r) => <strong>{r.email}</strong>, { pinned: true }),
-    col('users', t, 'name', (r) => [r.firstName, r.lastName].filter(Boolean).join(' ') || '-', { csv: (r) => [r.firstName, r.lastName].filter(Boolean).join(' ') }),
+    col('users', t, 'name', (r) => [r.firstName, r.lastName].filter(Boolean).join(' ') || '-', {
+      csv: (r) => [r.firstName, r.lastName].filter(Boolean).join(' ')
+    }),
     idCol('users', t),
-    col('users', t, 'role', (r) => <Badge tone={r.isAdmin || r.isTenantAdmin ? 'info' : 'neutral'} tip={t(r.isAdmin ? 'tips.badges.systemAdmin' : r.isTenantAdmin ? 'tips.badges.tenantAdmin' : 'tips.badges.user')}>{t(r.isAdmin ? 'roles.systemAdmin' : r.isTenantAdmin ? 'roles.tenantAdmin' : 'roles.user')}</Badge>),
+    col('users', t, 'role', (r) => (
+      <Badge
+        tone={r.isAdmin || r.isTenantAdmin ? 'info' : 'neutral'}
+        tip={t(r.isAdmin ? 'tips.badges.systemAdmin' : r.isTenantAdmin ? 'tips.badges.tenantAdmin' : 'tips.badges.user')}
+      >
+        {t(r.isAdmin ? 'roles.systemAdmin' : r.isTenantAdmin ? 'roles.tenantAdmin' : 'roles.user')}
+      </Badge>
+    )),
     activeCol('users', t),
     createdCol('users', t, i18n)
   ],
@@ -82,7 +109,15 @@ export const usersConfig = {
     return e;
   },
   toBody: (d) => {
-    const body = { email: d.email, firstName: d.firstName, lastName: d.lastName, isAdmin: !!d.isAdmin, isTenantAdmin: !!d.isTenantAdmin, mustChangePassword: !!d.mustChangePassword, active: !!d.active };
+    const body = {
+      email: d.email,
+      firstName: d.firstName,
+      lastName: d.lastName,
+      isAdmin: !!d.isAdmin,
+      isTenantAdmin: !!d.isTenantAdmin,
+      mustChangePassword: !!d.mustChangePassword,
+      active: !!d.active
+    };
     if (d.password) body.password = d.password;
     return body;
   },
@@ -90,7 +125,14 @@ export const usersConfig = {
     {
       label: ctx.t('resources.users.actions.permissions'),
       tip: actionTip(ctx.t, 'users', 'permissions'),
-      onClick: () => ctx.setExtraModal(<EffectivePermissionsModal load={() => ctx.apiClient.getUserPermissions(ctx.tenantId, r.id)} title={r.email} onClose={() => ctx.setExtraModal(null)} />)
+      onClick: () =>
+        ctx.setExtraModal(
+          <EffectivePermissionsModal
+            load={() => ctx.apiClient.getUserPermissions(ctx.tenantId, r.id)}
+            title={r.email}
+            onClose={() => ctx.setExtraModal(null)}
+          />
+        )
     },
     {
       label: ctx.t('resources.users.actions.resetPassword'),
@@ -132,14 +174,39 @@ export const credentialsConfig = {
     users: Object.fromEntries((await safeList(apiClient.listUsers(tenantId, { pageNumber: 1, pageSize: 1000 }))).map((u) => [u.id, u.email])),
     profiles: Object.fromEntries((await safeList(apiClient.listProfiles({ pageNumber: 1, pageSize: 1000 }))).map((p) => [p.id, p.displayName || p.name]))
   }),
-  blank: (ctx) => ({ name: '', userId: ctx?.principal?.userId || '', authMode: 'Hybrid', agentProfileId: '', lockToProfile: false, expiresUtc: null, active: true }),
+  blank: (ctx) => ({
+    name: '',
+    userId: ctx?.principal?.userId || '',
+    authMode: 'Hybrid',
+    agentProfileId: '',
+    lockToProfile: false,
+    expiresUtc: null,
+    active: true
+  }),
   columns: ({ t, i18n, lookups }) => [
     nameCol('credentials', t),
     col('credentials', t, 'accessKey', (r) => <CopyableId value={r.accessKey} max={28} />, { cellClass: 'cell-id' }),
     col('credentials', t, 'secretKeyLast4', (r) => (r.secretKeyLast4 ? <code>****{r.secretKeyLast4}</code> : '-')),
-    col('credentials', t, 'userId', (r) => <NamedId id={r.userId || r.ownerUserId} name={lookups?.users?.[r.userId || r.ownerUserId]} />, { csv: (r) => lookups?.users?.[r.userId || r.ownerUserId] || r.userId }),
-    col('credentials', t, 'agentProfileId', (r) => (r.agentProfileId ? <NamedId id={r.agentProfileId} name={lookups?.profiles?.[r.agentProfileId]} /> : '-'), { csv: (r) => lookups?.profiles?.[r.agentProfileId] || r.agentProfileId || '' }),
-    col('credentials', t, 'lockToProfile', (r) => (r.lockToProfile ? <Badge tone="info" tip={t('tips.badges.locked')}>{t('common.generic.locked')}</Badge> : '-'), { defaultHidden: true }),
+    col('credentials', t, 'userId', (r) => <NamedId id={r.userId || r.ownerUserId} name={lookups?.users?.[r.userId || r.ownerUserId]} />, {
+      csv: (r) => lookups?.users?.[r.userId || r.ownerUserId] || r.userId
+    }),
+    col('credentials', t, 'agentProfileId', (r) => (r.agentProfileId ? <NamedId id={r.agentProfileId} name={lookups?.profiles?.[r.agentProfileId]} /> : '-'), {
+      csv: (r) => lookups?.profiles?.[r.agentProfileId] || r.agentProfileId || ''
+    }),
+    col(
+      'credentials',
+      t,
+      'lockToProfile',
+      (r) =>
+        r.lockToProfile ? (
+          <Badge tone="info" tip={t('tips.badges.locked')}>
+            {t('common.generic.locked')}
+          </Badge>
+        ) : (
+          '-'
+        ),
+      { defaultHidden: true }
+    ),
     col('credentials', t, 'lastUsedUtc', (r) => (r.lastUsedUtc ? formatRelativeTime(r.lastUsedUtc, i18n.language) : t('common.generic.never'))),
     col('credentials', t, 'expiresUtc', (r) => (r.expiresUtc ? formatDateTime(r.expiresUtc, i18n.language) : t('common.generic.never'))),
     activeCol('credentials', t),
@@ -164,12 +231,25 @@ export const credentialsConfig = {
     if (!d.userId) e.userId = t('common.errors.required');
     return e;
   },
-  toBody: (d) => ({ name: d.name, userId: d.userId, authMode: d.authMode, agentProfileId: d.agentProfileId || null, lockToProfile: !!(d.agentProfileId && d.lockToProfile), expiresUtc: d.expiresUtc || null, active: !!d.active }),
+  toBody: (d) => ({
+    name: d.name,
+    userId: d.userId,
+    authMode: d.authMode,
+    agentProfileId: d.agentProfileId || null,
+    lockToProfile: !!(d.agentProfileId && d.lockToProfile),
+    expiresUtc: d.expiresUtc || null,
+    active: !!d.active
+  }),
   afterCreate: (result, ctx) => {
     if (result?.secretKey) {
       const accessKey = result.accessKey || result.credential?.accessKey;
       ctx.setExtraModal(
-        <SecretOnceModal accessKey={accessKey} secretKey={result.secretKey} snippet={mcpConfigSnippet({ serverUrl: ctx.apiClient?.baseUrl, accessKey, secretKey: result.secretKey })} onClose={() => ctx.setExtraModal(null)} />
+        <SecretOnceModal
+          accessKey={accessKey}
+          secretKey={result.secretKey}
+          snippet={mcpConfigSnippet({ serverUrl: ctx.apiClient?.baseUrl, accessKey, secretKey: result.secretKey })}
+          onClose={() => ctx.setExtraModal(null)}
+        />
       );
     }
   },
@@ -181,7 +261,14 @@ export const credentialsConfig = {
         try {
           const result = await ctx.apiClient.rotateCredential(ctx.tenantId, r.id);
           const accessKey = result?.accessKey || r.accessKey;
-          ctx.setExtraModal(<SecretOnceModal accessKey={accessKey} secretKey={result?.secretKey} snippet={mcpConfigSnippet({ serverUrl: ctx.apiClient?.baseUrl, accessKey, secretKey: result?.secretKey })} onClose={() => ctx.setExtraModal(null)} />);
+          ctx.setExtraModal(
+            <SecretOnceModal
+              accessKey={accessKey}
+              secretKey={result?.secretKey}
+              snippet={mcpConfigSnippet({ serverUrl: ctx.apiClient?.baseUrl, accessKey, secretKey: result?.secretKey })}
+              onClose={() => ctx.setExtraModal(null)}
+            />
+          );
           ctx.reload();
         } catch (e) {
           ctx.addToast({ type: 'error', message: errorMessage(ctx.t, e) });
@@ -191,7 +278,14 @@ export const credentialsConfig = {
     {
       label: ctx.t('resources.users.actions.permissions'),
       tip: actionTip(ctx.t, 'credentials', 'permissions'),
-      onClick: () => ctx.setExtraModal(<EffectivePermissionsModal load={() => ctx.apiClient.getCredentialPermissions(ctx.tenantId, r.id)} title={r.name} onClose={() => ctx.setExtraModal(null)} />)
+      onClick: () =>
+        ctx.setExtraModal(
+          <EffectivePermissionsModal
+            load={() => ctx.apiClient.getCredentialPermissions(ctx.tenantId, r.id)}
+            title={r.name}
+            onClose={() => ctx.setExtraModal(null)}
+          />
+        )
     },
     {
       label: ctx.t('resources.credentials.actions.scopes'),
@@ -208,8 +302,19 @@ export const rolesConfig = {
   api: tenantApi('listRoles', 'createRole', 'updateRole', 'deleteRole'),
   isEditable: notBuiltIn,
   blank: () => ({ name: '', description: '', active: true }),
-  columns: ({ t, i18n }) => [nameCol('roles', t), col('roles', t, 'description', (r) => r.description || '-'), builtInCol('roles', t), activeCol('roles', t), idCol('roles', t), createdCol('roles', t, i18n)],
-  fields: (_d, { t }) => [field('roles', t, 'name', 'text', { required: true }), field('roles', t, 'description', 'textarea'), field('roles', t, 'active', 'checkbox')],
+  columns: ({ t, i18n }) => [
+    nameCol('roles', t),
+    col('roles', t, 'description', (r) => r.description || '-'),
+    builtInCol('roles', t),
+    activeCol('roles', t),
+    idCol('roles', t),
+    createdCol('roles', t, i18n)
+  ],
+  fields: (_d, { t }) => [
+    field('roles', t, 'name', 'text', { required: true }),
+    field('roles', t, 'description', 'textarea'),
+    field('roles', t, 'active', 'checkbox')
+  ],
   validate: (d, t) => (!d.name ? { name: t('common.errors.required') } : null),
   toBody: (d) => ({ name: d.name, description: d.description, active: !!d.active }),
   rowActions: (r, ctx) => [
@@ -276,8 +381,15 @@ function assignmentConfig(id, principalKey, api, loadPrincipals, principalLabel,
     loadLookups: async (ctx) => ({ principals: Object.fromEntries((await loadPrincipals(ctx)).map((p) => [p.id, principalLabel(p)])) }),
     blank: () => ({ [principalKey]: '', roleId: '', resourceScope: 'Tenant', resourceId: '', inheritsToChildren: true, active: true }),
     columns: ({ t, i18n, lookups }) => [
-      col(id, t, principalKey, (r) => <NamedId id={r[principalKey]} name={lookups?.principals?.[r[principalKey]]} />, { pinned: true, csv: (r) => lookups?.principals?.[r[principalKey]] || r[principalKey] }),
-      col(id, t, 'roleName', (r) => <Badge tone="info" tip={t('tips.badges.role', { role: r.roleName || r.roleId || '-' })}>{r.roleName || r.roleId || '-'}</Badge>),
+      col(id, t, principalKey, (r) => <NamedId id={r[principalKey]} name={lookups?.principals?.[r[principalKey]]} />, {
+        pinned: true,
+        csv: (r) => lookups?.principals?.[r[principalKey]] || r[principalKey]
+      }),
+      col(id, t, 'roleName', (r) => (
+        <Badge tone="info" tip={t('tips.badges.role', { role: r.roleName || r.roleId || '-' })}>
+          {r.roleName || r.roleId || '-'}
+        </Badge>
+      )),
       col(id, t, 'resourceScope', (r) => enumLabel(t, 'resourceScope', r.resourceScope)),
       col(id, t, 'resourceId', (r) => (r.resourceId ? <CopyableId value={r.resourceId} /> : '-')),
       activeCol(id, t),
@@ -346,7 +458,13 @@ export const promptTemplatesConfig = {
   ],
   fields: () => [],
   headerActions: ({ t, navigate }) => (
-    <button type="button" className="button-primary" onClick={() => navigate(pathFor('promptTemplates', 'new'))} data-testid="add-template" {...tip(t('tips.resources.promptTemplates.add'))}>
+    <button
+      type="button"
+      className="button-primary"
+      onClick={() => navigate(pathFor('promptTemplates', 'new'))}
+      data-testid="add-template"
+      {...tip(t('tips.resources.promptTemplates.add'))}
+    >
       {t('resources.promptTemplates.add')}
     </button>
   ),
@@ -395,20 +513,53 @@ export const auditConfig = {
   isEditable: () => false,
   canDelete: () => true,
   columns: ({ t, i18n }) => [
-    col('audit', t, 'createdUtc', (r) => <span {...tip(formatDateTime(r.createdUtc, i18n.language))}>{formatRelativeTime(r.createdUtc, i18n.language)}</span>, { sortable: true, pinned: true }),
+    col('audit', t, 'createdUtc', (r) => <span {...tip(formatDateTime(r.createdUtc, i18n.language))}>{formatRelativeTime(r.createdUtc, i18n.language)}</span>, {
+      sortable: true,
+      pinned: true
+    }),
     col('audit', t, 'eventType', (r) => (
-      <Badge tone={/Denied|Failure|Mismatch/.test(r.eventType) ? 'danger' : /Bypass|Revealed|Lockdown/.test(r.eventType) ? 'warning' : 'neutral'} tip={enumTip(t, 'auditEventType', r.eventType)}>
+      <Badge
+        tone={/Denied|Failure|Mismatch/.test(r.eventType) ? 'danger' : /Bypass|Revealed|Lockdown/.test(r.eventType) ? 'warning' : 'neutral'}
+        tip={enumTip(t, 'auditEventType', r.eventType)}
+      >
         {t(`enums.auditEventType.${r.eventType}`, { defaultValue: r.eventType })}
       </Badge>
     )),
     col('audit', t, 'principalName', (r) => r.principalName || r.principalId || '-'),
-    col('audit', t, 'resource', (r) => [r.resourceType && enumLabel(t, 'resourceType', r.resourceType), r.operation && enumLabel(t, 'operationType', r.operation)].filter(Boolean).join(' / ') || '-', { csv: (r) => [r.resourceType, r.operation].filter(Boolean).join('/') }),
+    col(
+      'audit',
+      t,
+      'resource',
+      (r) =>
+        [r.resourceType && enumLabel(t, 'resourceType', r.resourceType), r.operation && enumLabel(t, 'operationType', r.operation)]
+          .filter(Boolean)
+          .join(' / ') || '-',
+      { csv: (r) => [r.resourceType, r.operation].filter(Boolean).join('/') }
+    ),
     col('audit', t, 'reason', (r) => r.reason || r.description || '-'),
     col('audit', t, 'sourceIp', (r) => r.sourceIp || '-', { defaultHidden: true }),
     col('audit', t, 'id', (r) => <CopyableId value={r.id} />, { cellClass: 'cell-id', defaultHidden: true })
   ],
   fields: (_d, { t }) =>
-    ['eventType', 'principalType', 'principalName', 'principalId', 'resourceType', 'resourceId', 'operation', 'method', 'path', 'authResult', 'authorizationResult', 'reason', 'bypassReason', 'statusCode', 'sourceIp', 'requestId', 'createdUtc'].map((name) => ({
+    [
+      'eventType',
+      'principalType',
+      'principalName',
+      'principalId',
+      'resourceType',
+      'resourceId',
+      'operation',
+      'method',
+      'path',
+      'authResult',
+      'authorizationResult',
+      'reason',
+      'bypassReason',
+      'statusCode',
+      'sourceIp',
+      'requestId',
+      'createdUtc'
+    ].map((name) => ({
       name,
       type: name === 'reason' ? 'textarea' : 'text',
       label: t(`resources.audit.fields.${name}`),

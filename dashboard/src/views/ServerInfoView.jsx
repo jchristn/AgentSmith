@@ -38,7 +38,10 @@ export default function ServerInfoView() {
   const load = useCallback(() => {
     if (!apiClient) return;
     apiClient.getServerInfo().then(setInfo).catch(setError);
-    apiClient.healthCheck().then(setHealth).catch(() => setHealth(null));
+    apiClient
+      .healthCheck()
+      .then(setHealth)
+      .catch(() => setHealth(null));
   }, [apiClient]);
   useEffect(load, [load]);
 
@@ -59,8 +62,18 @@ export default function ServerInfoView() {
           <Row label={t('views.serverInfo.rest')} tip={t('tips.views.serverInfo.rest')} value={<code>{restUrl}</code>} copy={restUrl} />
           <Row label={t('views.serverInfo.mcp')} tip={t('tips.views.serverInfo.mcp')} value={mcpUrl ? <code>{mcpUrl}</code> : null} copy={mcpUrl} />
           <Row label={t('views.serverInfo.a2a')} tip={t('tips.views.serverInfo.a2a')} value={a2aUrl ? <code>{a2aUrl}</code> : null} copy={a2aUrl} />
-          <Row label={t('views.serverInfo.openai')} tip={t('tips.views.serverInfo.openai')} value={openAiUrl ? <code>{openAiUrl}</code> : null} copy={openAiUrl} />
-          <Row label={t('views.serverInfo.openapi')} tip={t('tips.views.serverInfo.openapi')} value={<code>{info?.openApiUrl || `${serverUrl}/openapi.json`}</code>} copy={info?.openApiUrl || `${serverUrl}/openapi.json`} />
+          <Row
+            label={t('views.serverInfo.openai')}
+            tip={t('tips.views.serverInfo.openai')}
+            value={openAiUrl ? <code>{openAiUrl}</code> : null}
+            copy={openAiUrl}
+          />
+          <Row
+            label={t('views.serverInfo.openapi')}
+            tip={t('tips.views.serverInfo.openapi')}
+            value={<code>{info?.openApiUrl || `${serverUrl}/openapi.json`}</code>}
+            copy={info?.openApiUrl || `${serverUrl}/openapi.json`}
+          />
         </section>
         <section className="panel">
           <h2 className="section-title">{t('views.serverInfo.server')}</h2>
@@ -68,18 +81,54 @@ export default function ServerInfoView() {
           <Row label={t('views.serverInfo.dashboardVersion')} tip={t('tips.views.serverInfo.dashboardVersion')} value={APP_VERSION} />
           <Row label={t('views.serverInfo.node')} tip={t('tips.views.serverInfo.node')} value={info?.nodeId || health?.node || null} />
           <Row label={t('views.serverInfo.database')} tip={t('tips.views.serverInfo.database')} value={info?.databaseType} />
-          <Row label={t('views.serverInfo.health')} tip={t('tips.views.serverInfo.health')} value={health ? <Badge tone={health.status === 'healthy' ? 'success' : 'warning'} tip={t(health.status === 'healthy' ? 'tips.topbar.health.healthy' : 'tips.topbar.health.unhealthy')}>{t(health.status === 'healthy' ? 'topbar.health.healthy' : 'topbar.health.unhealthy')}</Badge> : <Badge tone="danger">{t('topbar.health.unhealthy')}</Badge>} />
-          <Row label={t('views.serverInfo.connectors')} tip={t('tips.views.serverInfo.connectors')} value={Array.isArray(info?.connectors) ? info.connectors.length : info?.connectorCount} />
+          <Row
+            label={t('views.serverInfo.health')}
+            tip={t('tips.views.serverInfo.health')}
+            value={
+              health ? (
+                <Badge
+                  tone={health.status === 'healthy' ? 'success' : 'warning'}
+                  tip={t(health.status === 'healthy' ? 'tips.topbar.health.healthy' : 'tips.topbar.health.unhealthy')}
+                >
+                  {t(health.status === 'healthy' ? 'topbar.health.healthy' : 'topbar.health.unhealthy')}
+                </Badge>
+              ) : (
+                <Badge tone="danger">{t('topbar.health.unhealthy')}</Badge>
+              )
+            }
+          />
+          <Row
+            label={t('views.serverInfo.connectors')}
+            tip={t('tips.views.serverInfo.connectors')}
+            value={Array.isArray(info?.connectors) ? info.connectors.length : info?.connectorCount}
+          />
           <Row label={t('views.serverInfo.routes')} tip={t('tips.views.serverInfo.routes')} value={info?.operationScopeCount ?? info?.routeCount} />
-          <Row label={t('views.serverInfo.serverTime')} tip={t('tips.views.serverInfo.serverTime')} value={health?.utc ? formatDateTime(health.utc, i18n.language, { dateStyle: 'medium', timeStyle: 'medium' }) : null} />
+          <Row
+            label={t('views.serverInfo.serverTime')}
+            tip={t('tips.views.serverInfo.serverTime')}
+            value={health?.utc ? formatDateTime(health.utc, i18n.language, { dateStyle: 'medium', timeStyle: 'medium' }) : null}
+          />
         </section>
         <section className="panel">
           <h2 className="section-title">{t('views.serverInfo.principal')}</h2>
           <Row label={t('views.serverInfo.principalName')} tip={t('tips.views.serverInfo.principalName')} value={principal?.principalName} />
-          <Row label={t('views.serverInfo.principalType')} tip={t('tips.views.serverInfo.principalType')} value={principal?.principalType ? enumLabel(t, 'principalType', principal.principalType) : null} />
+          <Row
+            label={t('views.serverInfo.principalType')}
+            tip={t('tips.views.serverInfo.principalType')}
+            value={principal?.principalType ? enumLabel(t, 'principalType', principal.principalType) : null}
+          />
           <Row label={t('views.serverInfo.role')} tip={t('tips.views.serverInfo.role')} value={t(roleKey(principal))} />
-          <Row label={t('views.serverInfo.tenant')} tip={t('tips.views.serverInfo.tenant')} value={principal?.tenantId ? <code>{principal.tenantId}</code> : null} copy={principal?.tenantId} />
-          <Row label={t('views.serverInfo.expires')} tip={t('tips.views.serverInfo.expires')} value={principal?.expiresUtc ? formatDateTime(principal.expiresUtc, i18n.language) : null} />
+          <Row
+            label={t('views.serverInfo.tenant')}
+            tip={t('tips.views.serverInfo.tenant')}
+            value={principal?.tenantId ? <code>{principal.tenantId}</code> : null}
+            copy={principal?.tenantId}
+          />
+          <Row
+            label={t('views.serverInfo.expires')}
+            tip={t('tips.views.serverInfo.expires')}
+            value={principal?.expiresUtc ? formatDateTime(principal.expiresUtc, i18n.language) : null}
+          />
         </section>
         {flags && (
           <section className="panel">

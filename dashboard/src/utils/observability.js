@@ -19,7 +19,10 @@ function valid(url) {
  */
 export function observabilityServices(info, settings) {
   const found = {};
-  const fromInfo = { ...(info && typeof info === 'object' ? info : {}), ...(info?.observability && typeof info.observability === 'object' ? info.observability : {}) };
+  const fromInfo = {
+    ...(info && typeof info === 'object' ? info : {}),
+    ...(info?.observability && typeof info.observability === 'object' ? info.observability : {})
+  };
   for (const id of OBSERVABILITY_IDS) {
     const url = fromInfo[`${id}Url`];
     if (valid(url)) found[id] = url.trim();

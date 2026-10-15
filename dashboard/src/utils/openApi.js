@@ -141,19 +141,12 @@ export function buildCodeSnippets({ method, url, headers, body }) {
   const curl = curlLines.join(' \\\n');
 
   const fetchHeaders = JSON.stringify(Object.fromEntries(headerEntries), null, 2);
-  const fetchLines = [
-    `await fetch('${url}', {`,
-    `  method: '${method}',`,
-    `  headers: ${fetchHeaders.replace(/\n/g, '\n  ')},`
-  ];
+  const fetchLines = [`await fetch('${url}', {`, `  method: '${method}',`, `  headers: ${fetchHeaders.replace(/\n/g, '\n  ')},`];
   if (hasBody) fetchLines.push(`  body: ${JSON.stringify(String(body))}`);
   fetchLines.push('});');
   const fetchSnippet = fetchLines.join('\n');
 
-  const csLines = [
-    'using var client = new HttpClient();',
-    `var request = new HttpRequestMessage(new HttpMethod("${method}"), "${url}");`
-  ];
+  const csLines = ['using var client = new HttpClient();', `var request = new HttpRequestMessage(new HttpMethod("${method}"), "${url}");`];
   for (const [k, v] of headerEntries) {
     if (k.toLowerCase() === 'content-type') continue;
     csLines.push(`request.Headers.TryAddWithoutValidation("${k}", "${v}");`);

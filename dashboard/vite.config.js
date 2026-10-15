@@ -37,6 +37,8 @@ export default defineConfig({
           if (/node_modules\/(react|react-dom|react-router|react-router-dom|scheduler)\//.test(id)) return 'vendor';
           if (/node_modules\/(i18next|react-i18next|i18next-browser-languagedetector)\//.test(id)) return 'i18n';
           if (/node_modules\/(marked|dompurify)\//.test(id)) return 'markdown';
+          // English is bundled (the fallback); other locales are lazy chunks of their own.
+          if (id.endsWith('/src/i18n/locales/en.json')) return 'locale-en';
           if (id.includes('/src/views/')) return 'views';
           return undefined;
         }

@@ -54,11 +54,23 @@ export default function ColumnPicker({ columns, hidden, onToggle }) {
       </button>
       {open &&
         createPortal(
-          <div ref={menuRef} className="column-picker" style={{ top: pos.top, left: pos.left, maxHeight: `calc(100vh - ${Math.round(pos.top) + 12}px)`, overflowY: 'auto' }} role="dialog" aria-label={t('components.table.selectColumns')}>
+          <div
+            ref={menuRef}
+            className="column-picker"
+            style={{ top: pos.top, left: pos.left, maxHeight: `calc(100vh - ${Math.round(pos.top) + 12}px)`, overflowY: 'auto' }}
+            role="dialog"
+            aria-label={t('components.table.selectColumns')}
+          >
             <div className="column-picker-title">{t('components.table.selectColumns')}</div>
             {options.map((c) => (
               <label key={c.key} className="column-picker-item" {...tip(columnTip(c))}>
-                <input type="checkbox" checked={c.pinned || !hidden.includes(c.key)} disabled={!!c.pinned} onChange={() => onToggle(c.key)} {...tip(columnTip(c))} />
+                <input
+                  type="checkbox"
+                  checked={c.pinned || !hidden.includes(c.key)}
+                  disabled={!!c.pinned}
+                  onChange={() => onToggle(c.key)}
+                  {...tip(columnTip(c))}
+                />
                 <span>{c.label}</span>
                 {c.pinned && <span className="text-muted column-picker-pinned">{t('components.table.pinned')}</span>}
               </label>

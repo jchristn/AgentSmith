@@ -15,7 +15,18 @@ import AssignmentsView from '../AssignmentsView';
 import SettingsView from '../SettingsView';
 import ServerInfoView from '../ServerInfoView';
 import { tenantsConfig, usersConfig, credentialsConfig, promptTemplatesConfig, auditConfig } from '../resourceConfigs';
-import { profilesConfig, approvalsConfig, conversationsConfig, resourcesConfig, secretsConfig, modelsConfig, knowledgeConfig, toolInvocationsConfig, sessionsConfig, pluginsConfig } from '../hugoConfigs';
+import {
+  profilesConfig,
+  approvalsConfig,
+  conversationsConfig,
+  resourcesConfig,
+  secretsConfig,
+  modelsConfig,
+  knowledgeConfig,
+  toolInvocationsConfig,
+  sessionsConfig,
+  pluginsConfig
+} from '../hugoConfigs';
 
 /** A record page rendered from a declarative configuration. */
 function recordView(config, name) {

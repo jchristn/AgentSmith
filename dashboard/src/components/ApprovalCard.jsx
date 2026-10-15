@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import CodeBlock from './CodeBlock';
+import MarkdownView from './MarkdownView';
 import { EffectBadge, EnumBadge } from './StatusBadge';
 import { tip } from './Tooltip';
 import { ShieldCheckIcon } from './Icons';
@@ -20,14 +21,19 @@ export default function ApprovalCard({ approval, onApprove, onReject, busy = fal
   const noteId = `approval-note-${approval.id}`;
 
   return (
-    <section className={`approval-card ${pending ? 'pending' : 'decided'} ${compact ? 'compact' : ''}`} data-testid="approval-card" data-status={approval.status || 'Pending'} aria-label={t('components.approvalCard.title')}>
+    <section
+      className={`approval-card ${pending ? 'pending' : 'decided'} ${compact ? 'compact' : ''}`}
+      data-testid="approval-card"
+      data-status={approval.status || 'Pending'}
+      aria-label={t('components.approvalCard.title')}
+    >
       <header className="approval-card-head">
         <ShieldCheckIcon size={16} />
         <strong>{t('components.approvalCard.title')}</strong>
         <EffectBadge effect={approval.effect} />
         <EnumBadge group="approvalStatus" value={approval.status || 'Pending'} tone={approvalStatusTone(approval.status || 'Pending')} />
       </header>
-      {approval.summary && <p className="approval-summary">{approval.summary}</p>}
+      {approval.summary && <MarkdownView text={approval.summary} className="approval-summary" />}
       {approval.resourceAlias && (
         <div className="approval-meta">
           <span className="text-muted">{t('components.approvalCard.resource')}</span> <code>{approval.resourceAlias}</code>
@@ -41,17 +47,41 @@ export default function ApprovalCard({ approval, onApprove, onReject, busy = fal
       )}
       {approval.effectReason && <div className="field-hint">{t('components.approvalCard.reason', { reason: approval.effectReason })}</div>}
       {approval.command && <CodeBlock value={approval.command} />}
-      {approval.expiresUtc && pending && <div className="field-hint">{t('components.approvalCard.expires', { time: formatDateTime(approval.expiresUtc, i18n.language) })}</div>}
+      {approval.expiresUtc && pending && (
+        <div className="field-hint">{t('components.approvalCard.expires', { time: formatDateTime(approval.expiresUtc, i18n.language) })}</div>
+      )}
       {pending && (onApprove || onReject) ? (
         <div className="approval-actions">
           <label htmlFor={noteId} className="sr-only">
             {t('components.approvalCard.note')}
           </label>
-          <input id={noteId} type="text" value={note} placeholder={t('components.approvalCard.notePlaceholder')} onChange={(e) => setNote(e.target.value)} disabled={busy} {...tip(t('tips.approvalCard.note'))} />
-          <button type="button" className="button-danger button-sm" onClick={() => onReject?.(note)} disabled={busy} data-testid="approval-reject" {...tip(t('tips.approvalCard.reject'))}>
+          <input
+            id={noteId}
+            type="text"
+            value={note}
+            placeholder={t('components.approvalCard.notePlaceholder')}
+            onChange={(e) => setNote(e.target.value)}
+            disabled={busy}
+            {...tip(t('tips.approvalCard.note'))}
+          />
+          <button
+            type="button"
+            className="button-danger button-sm"
+            onClick={() => onReject?.(note)}
+            disabled={busy}
+            data-testid="approval-reject"
+            {...tip(t('tips.approvalCard.reject'))}
+          >
             {t('components.approvalCard.reject')}
           </button>
-          <button type="button" className="button-primary button-sm" onClick={() => onApprove?.(note)} disabled={busy} data-testid="approval-approve" {...tip(t('tips.approvalCard.approve'))}>
+          <button
+            type="button"
+            className="button-primary button-sm"
+            onClick={() => onApprove?.(note)}
+            disabled={busy}
+            data-testid="approval-approve"
+            {...tip(t('tips.approvalCard.approve'))}
+          >
             {t('components.approvalCard.approve')}
           </button>
         </div>

@@ -62,7 +62,11 @@ export default function HubView({ hubKey, apiClient }) {
           <div className="page-header-subtitle">{t(`nav.hubs.${hub.key}.tip`)}</div>
         </div>
       </header>
-      {tabs.length > 0 ? <UrlTabs tabs={tabs} label={title} /> : <EmptyState title={t('common.states.forbiddenTitle')} body={t('common.states.forbiddenBody')} />}
+      {tabs.length > 0 ? (
+        <UrlTabs tabs={tabs} label={title} />
+      ) : (
+        <EmptyState title={t('common.states.forbiddenTitle')} body={t('common.states.forbiddenBody')} />
+      )}
     </div>
   );
 }

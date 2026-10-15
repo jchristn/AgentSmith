@@ -37,7 +37,15 @@ export const SAMPLE_TEMPLATE_CONTEXT = {
   tenant: { name: 'Default' },
   caller: { displayName: 'anderson@hugo.local', principalType: 'User' },
   surface: 'Chat',
-  resource: { alias: 'prod-db', name: 'prod-db', connectorType: 'postgresql', environment: 'prod', accessMode: 'ReadOnly', endpoint: 'db.example.com:5432', notes: 'Primary database for checkout.' },
+  resource: {
+    alias: 'prod-db',
+    name: 'prod-db',
+    connectorType: 'postgresql',
+    environment: 'prod',
+    accessMode: 'ReadOnly',
+    endpoint: 'db.example.com:5432',
+    notes: 'Primary database for checkout.'
+  },
   binding: { accessMode: 'ReadOnly', requireApprovalForDestructive: true },
   now: '2026-10-14T12:00:00Z'
 };
@@ -51,7 +59,18 @@ export const SAMPLE_TEMPLATE_CONTEXT = {
  * render(content, context) => Promise<{ rendered, missingVariables }> (server preview; local fallback when absent or
  * failing), baseline ({ label, text }) for the Diff tab.
  */
-export default function PromptEditor({ value = '', onChange, readOnly = false, id = 'prompt-editor', label, rows = 18, variables = HUGO_TEMPLATE_VARIABLES, render, baseline, initialContext = SAMPLE_TEMPLATE_CONTEXT }) {
+export default function PromptEditor({
+  value = '',
+  onChange,
+  readOnly = false,
+  id = 'prompt-editor',
+  label,
+  rows = 18,
+  variables = HUGO_TEMPLATE_VARIABLES,
+  render,
+  baseline,
+  initialContext = SAMPLE_TEMPLATE_CONTEXT
+}) {
   const { t } = useTranslation();
   const textRef = useRef(null);
   const [tab, setTab] = useState('preview');
@@ -127,14 +146,32 @@ export default function PromptEditor({ value = '', onChange, readOnly = false, i
           <label htmlFor={id} className="section-title" {...tip(t('tips.promptEditor.content'))}>
             {label || t('components.promptEditor.content')}
           </label>
-          <textarea ref={textRef} id={id} {...tip(t('tips.promptEditor.content'))} className="monospace template-textarea" spellCheck={false} value={value} readOnly={readOnly} onChange={(e) => onChange?.(e.target.value)} rows={rows} />
+          <textarea
+            ref={textRef}
+            id={id}
+            {...tip(t('tips.promptEditor.content'))}
+            className="monospace template-textarea"
+            spellCheck={false}
+            value={value}
+            readOnly={readOnly}
+            onChange={(e) => onChange?.(e.target.value)}
+            rows={rows}
+          />
           <div className="field-hint">{t('components.promptEditor.syntaxHint')}</div>
         </section>
         <aside className="panel editor-side" aria-label={t('components.promptEditor.variables')}>
           <h3 className="section-title">{t('components.promptEditor.palette')}</h3>
           <div className="variable-palette">
             {variables.map((v) => (
-              <button key={v} type="button" className="chip-button monospace" disabled={readOnly} onClick={() => insert(v)} data-variable={v} {...tip(t('tips.promptEditor.insert', { variable: v }))}>
+              <button
+                key={v}
+                type="button"
+                className="chip-button monospace"
+                disabled={readOnly}
+                onClick={() => insert(v)}
+                data-variable={v}
+                {...tip(t('tips.promptEditor.insert', { variable: v }))}
+              >
                 {v}
               </button>
             ))}
@@ -161,7 +198,15 @@ export default function PromptEditor({ value = '', onChange, readOnly = false, i
               <label htmlFor={`${id}-context`} {...tip(t('tips.promptEditor.sampleContext'))}>
                 {t('components.promptEditor.sampleContext')}
               </label>
-              <textarea id={`${id}-context`} {...tip(t('tips.promptEditor.sampleContext'))} className="monospace" rows={14} spellCheck={false} value={contextText} onChange={(e) => setContextText(e.target.value)} />
+              <textarea
+                id={`${id}-context`}
+                {...tip(t('tips.promptEditor.sampleContext'))}
+                className="monospace"
+                rows={14}
+                spellCheck={false}
+                value={contextText}
+                onChange={(e) => setContextText(e.target.value)}
+              />
             </div>
             <div>
               <div className="section-title">
@@ -170,12 +215,20 @@ export default function PromptEditor({ value = '', onChange, readOnly = false, i
                   ({t(usedServer ? 'components.promptEditor.serverRender' : 'components.promptEditor.localRender')})
                 </span>
               </div>
-              {previewError ? <div className="error-banner">{previewError}</div> : <CodeBlock value={preview.rendered} emptyText={t('components.promptEditor.previewEmpty')} />}
-              {preview.missingVariables?.length > 0 && <div className="warning-banner">{t('components.promptEditor.missing', { list: preview.missingVariables.join(', ') })}</div>}
+              {previewError ? (
+                <div className="error-banner">{previewError}</div>
+              ) : (
+                <CodeBlock value={preview.rendered} emptyText={t('components.promptEditor.previewEmpty')} />
+              )}
+              {preview.missingVariables?.length > 0 && (
+                <div className="warning-banner">{t('components.promptEditor.missing', { list: preview.missingVariables.join(', ') })}</div>
+              )}
             </div>
           </div>
         )}
-        {tab === 'diff' && baseline && <DiffViewer before={baseline.text} after={value} beforeLabel={baseline.label} afterLabel={t('components.promptEditor.current')} />}
+        {tab === 'diff' && baseline && (
+          <DiffViewer before={baseline.text} after={value} beforeLabel={baseline.label} afterLabel={t('components.promptEditor.current')} />
+        )}
       </div>
     </div>
   );

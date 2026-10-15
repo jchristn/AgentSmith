@@ -98,10 +98,7 @@ export default function RequestHistoryView({ apiClient }) {
         tenantId: f.tenantId || undefined
       };
 
-      Promise.all([
-        apiClient.getRequestHistory(listQuery),
-        apiClient.getRequestHistorySummary(summaryQuery).catch(() => null)
-      ])
+      Promise.all([apiClient.getRequestHistory(listQuery), apiClient.getRequestHistorySummary(summaryQuery).catch(() => null)])
         .then(([list, sum]) => {
           setItems(list?.items || []);
           setPage({ pageNumber: list?.pageNumber || pageNumber, pageSize: list?.pageSize || pageSize, totalCount: list?.totalCount || 0 });
@@ -179,21 +176,72 @@ export default function RequestHistoryView({ apiClient }) {
   );
 
   const filterFields = [
-    { key: 'method', label: t('components.filters.method'), tip: t('tips.filters.method'), type: 'select', options: [{ value: '', label: t('common.generic.any') }, ...HTTP_METHODS.map((m) => ({ value: m, label: m }))] },
-    { key: 'statusCode', label: t('components.filters.status'), tip: t('tips.filters.statusCode'), type: 'text', placeholder: t('components.filters.statusPlaceholder') },
-    { key: 'pathContains', label: t('components.filters.path'), tip: t('tips.filters.pathContains'), type: 'text', placeholder: t('components.filters.pathPlaceholder') },
+    {
+      key: 'method',
+      label: t('components.filters.method'),
+      tip: t('tips.filters.method'),
+      type: 'select',
+      options: [{ value: '', label: t('common.generic.any') }, ...HTTP_METHODS.map((m) => ({ value: m, label: m }))]
+    },
+    {
+      key: 'statusCode',
+      label: t('components.filters.status'),
+      tip: t('tips.filters.statusCode'),
+      type: 'text',
+      placeholder: t('components.filters.statusPlaceholder')
+    },
+    {
+      key: 'pathContains',
+      label: t('components.filters.path'),
+      tip: t('tips.filters.pathContains'),
+      type: 'text',
+      placeholder: t('components.filters.pathPlaceholder')
+    },
     { key: 'fromUtc', label: t('components.filters.from'), tip: t('tips.filters.fromUtc'), type: 'datetime' },
     { key: 'toUtc', label: t('components.filters.to'), tip: t('tips.filters.toUtc'), type: 'datetime' },
-    ...(caps.isSystemAdmin ? [{ key: 'tenantId', label: t('components.filters.tenant'), tip: t('tips.filters.tenantId'), type: 'text', placeholder: 'default' }] : [])
+    ...(caps.isSystemAdmin
+      ? [{ key: 'tenantId', label: t('components.filters.tenant'), tip: t('tips.filters.tenantId'), type: 'text', placeholder: 'default' }]
+      : [])
   ];
 
   const columns = [
-    { key: 'createdUtc', pinned: true, tip: t('tips.views.requests.columns.time'), label: t('views.requests.columns.time'), render: (r) => <span {...tip(formatDateTime(r.createdUtc, i18n.language))}>{formatRelativeTime(r.createdUtc, i18n.language)}</span> },
+    {
+      key: 'createdUtc',
+      pinned: true,
+      tip: t('tips.views.requests.columns.time'),
+      label: t('views.requests.columns.time'),
+      render: (r) => <span {...tip(formatDateTime(r.createdUtc, i18n.language))}>{formatRelativeTime(r.createdUtc, i18n.language)}</span>
+    },
     { key: 'method', tip: t('tips.views.requests.columns.method'), label: t('views.requests.columns.method'), render: (r) => <MethodPill method={r.method} /> },
-    { key: 'path', tip: t('tips.views.requests.columns.path'), label: t('views.requests.columns.path'), render: (r) => <code className="monospace" {...tip(r.path)}>{truncate(r.path, 48)}</code> },
-    { key: 'statusCode', tip: t('tips.views.requests.columns.status'), label: t('views.requests.columns.status'), render: (r) => <StatusBadge code={r.statusCode} /> },
-    { key: 'durationMs', tip: t('tips.views.requests.columns.duration'), label: t('views.requests.columns.duration'), cellClass: 'right', render: (r) => formatDuration(r.durationMs, i18n.language) },
-    { key: 'principalName', tip: t('tips.views.requests.columns.principal'), label: t('views.requests.columns.principal'), render: (r) => r.principalName || '-' },
+    {
+      key: 'path',
+      tip: t('tips.views.requests.columns.path'),
+      label: t('views.requests.columns.path'),
+      render: (r) => (
+        <code className="monospace" {...tip(r.path)}>
+          {truncate(r.path, 48)}
+        </code>
+      )
+    },
+    {
+      key: 'statusCode',
+      tip: t('tips.views.requests.columns.status'),
+      label: t('views.requests.columns.status'),
+      render: (r) => <StatusBadge code={r.statusCode} />
+    },
+    {
+      key: 'durationMs',
+      tip: t('tips.views.requests.columns.duration'),
+      label: t('views.requests.columns.duration'),
+      cellClass: 'right',
+      render: (r) => formatDuration(r.durationMs, i18n.language)
+    },
+    {
+      key: 'principalName',
+      tip: t('tips.views.requests.columns.principal'),
+      label: t('views.requests.columns.principal'),
+      render: (r) => r.principalName || '-'
+    },
     {
       key: 'actions',
       label: t('common.generic.actions'),
@@ -221,7 +269,17 @@ export default function RequestHistoryView({ apiClient }) {
       <PageHeader
         title={t('views.requests.title')}
         subtitle={t('views.requests.subtitle')}
-        actions={grafana && <GrafanaLink size="md" href={dashboardUrl(grafana, 'http')} label={t('views.requests.grafana')} tipText={t('tips.views.requests.grafana')} testId="requests-grafana" />}
+        actions={
+          grafana && (
+            <GrafanaLink
+              size="md"
+              href={dashboardUrl(grafana, 'http')}
+              label={t('views.requests.grafana')}
+              tipText={t('tips.views.requests.grafana')}
+              testId="requests-grafana"
+            />
+          )
+        }
       />
       <Explainer topic="requests" />
 
@@ -244,7 +302,14 @@ export default function RequestHistoryView({ apiClient }) {
           loading={chartLoading}
           title={t('views.home.requestActivity')}
           exportName="request-history-activity"
-          exportFilters={{ method: filters.method, status: filters.statusCode, path: filters.pathContains, from: toUtcIso(filters.fromUtc), to: toUtcIso(filters.toUtc), tenant: filters.tenantId }}
+          exportFilters={{
+            method: filters.method,
+            status: filters.statusCode,
+            path: filters.pathContains,
+            from: toUtcIso(filters.fromUtc),
+            to: toUtcIso(filters.toUtc),
+            tenant: filters.tenantId
+          }}
         />
       </div>
 

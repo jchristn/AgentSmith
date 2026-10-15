@@ -6,7 +6,13 @@ import ApiClient, { ApiError, normalizeEnumeration, parseSseEvent, parseSseFrame
 
 function jsonResponse(status, body, headers = {}) {
   const text = body === undefined ? '' : JSON.stringify(body);
-  return { ok: status >= 200 && status < 300, status, statusText: 'x', headers: new Headers({ 'content-type': 'application/json', ...headers }), text: async () => text };
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    statusText: 'x',
+    headers: new Headers({ 'content-type': 'application/json', ...headers }),
+    text: async () => text
+  };
 }
 
 function sseResponse(frames) {
@@ -80,13 +86,29 @@ describe('requests', () => {
 
 describe('normalized shapes', () => {
   it('normalizes enumeration results, page results, Hugo pages, and arrays', () => {
-    expect(normalizeEnumeration({ objects: [1, 2], totalRecords: 30, skip: 25, maxResults: 25 }, 2, 25)).toMatchObject({ items: [1, 2], pageNumber: 2, pageSize: 25, totalCount: 30 });
-    expect(normalizeEnumeration({ items: [1], pageNumber: 3, pageSize: 10, totalCount: 21, totalPages: 3 })).toMatchObject({ items: [1], pageNumber: 3, totalCount: 21, endOfResults: true });
+    expect(normalizeEnumeration({ objects: [1, 2], totalRecords: 30, skip: 25, maxResults: 25 }, 2, 25)).toMatchObject({
+      items: [1, 2],
+      pageNumber: 2,
+      pageSize: 25,
+      totalCount: 30
+    });
+    expect(normalizeEnumeration({ items: [1], pageNumber: 3, pageSize: 10, totalCount: 21, totalPages: 3 })).toMatchObject({
+      items: [1],
+      pageNumber: 3,
+      totalCount: 21,
+      endOfResults: true
+    });
     expect(normalizeEnumeration([1, 2, 3]).totalCount).toBe(3);
   });
 
   it('reads the Hugo error body with field details and the request ID header', () => {
-    const e = new ApiError(400, { error: 'ValidationFailed', message: 'bad', requestId: 'req_1', traceId: 'tr', details: [{ field: 'port', code: 'OutOfRange', message: 'too big' }] });
+    const e = new ApiError(400, {
+      error: 'ValidationFailed',
+      message: 'bad',
+      requestId: 'req_1',
+      traceId: 'tr',
+      details: [{ field: 'port', code: 'OutOfRange', message: 'too big' }]
+    });
     expect(e.code).toBe('ValidationFailed');
     expect(e.requestId).toBe('req_1');
     expect(e.traceId).toBe('tr');
@@ -106,7 +128,13 @@ describe('server-sent events', () => {
   });
 
   it('streams a chat turn across chunk boundaries and CRLF line endings', async () => {
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(sseResponse(['event: turn.started\r\ndata: {}\r\n\r\nevent: assistant.del', 'ta\ndata: {"text":"Mr. "}\n\nevent: assistant.delta\ndata: {"text":"Anderson"}\n\n', 'event: turn.completed\ndata: {"outputTokens":3}\n\n']));
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      sseResponse([
+        'event: turn.started\r\ndata: {}\r\n\r\nevent: assistant.del',
+        'ta\ndata: {"text":"Mr. "}\n\nevent: assistant.delta\ndata: {"text":"Anderson"}\n\n',
+        'event: turn.completed\ndata: {"outputTokens":3}\n\n'
+      ])
+    );
     const events = [];
     await new Promise((resolve) => {
       new ApiClient('http://h', 't').streamMessage('cnv_1', { content: 'hi' }, { onEvent: (e) => events.push(e), onEnd: resolve });

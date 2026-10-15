@@ -80,7 +80,11 @@ export default function McpExplorerView() {
     sessionRef.current = null;
     setSession(null);
     try {
-      const initResult = await send('initialize', { protocolVersion: PROTOCOL_VERSION, capabilities: {}, clientInfo: { name: 'hugo-dashboard', version: APP_VERSION } });
+      const initResult = await send('initialize', {
+        protocolVersion: PROTOCOL_VERSION,
+        capabilities: {},
+        clientInfo: { name: 'hugo-dashboard', version: APP_VERSION }
+      });
       setInit(initResult);
       await send('notifications/initialized', undefined, { notification: true });
       const list = await send('tools/list', {});
@@ -127,11 +131,25 @@ export default function McpExplorerView() {
       <div className="panel explorer-connect">
         <FormField
           id="mcp-profile"
-          field={{ name: 'profile', type: 'select', label: t('views.mcpExplorer.profile'), tip: t('tips.views.mcpExplorer.profile'), noneLabel: t('views.mcpExplorer.defaultProfile'), options: profiles.map((p) => ({ value: p.name, label: p.displayName || p.name })) }}
+          field={{
+            name: 'profile',
+            type: 'select',
+            label: t('views.mcpExplorer.profile'),
+            tip: t('tips.views.mcpExplorer.profile'),
+            noneLabel: t('views.mcpExplorer.defaultProfile'),
+            options: profiles.map((p) => ({ value: p.name, label: p.displayName || p.name }))
+          }}
           value={profile}
           onChange={(v) => setProfile(v || '')}
         />
-        <button type="button" className="button-primary" onClick={connect} disabled={busy} data-testid="mcp-connect" {...tip(t('tips.views.mcpExplorer.connect'))}>
+        <button
+          type="button"
+          className="button-primary"
+          onClick={connect}
+          disabled={busy}
+          data-testid="mcp-connect"
+          {...tip(t('tips.views.mcpExplorer.connect'))}
+        >
           <RefreshIcon size={14} /> {session || init ? t('views.mcpExplorer.reconnect') : t('views.mcpExplorer.connect')}
         </button>
         {session && (
@@ -140,7 +158,14 @@ export default function McpExplorerView() {
           </span>
         )}
       </div>
-      {missing && <UnavailableState feature={t('views.mcpExplorer.title')} purpose={t('views.mcpExplorer.purpose')} endpoint={profile ? `/mcp/${profile}` : '/mcp'} onRetry={connect} />}
+      {missing && (
+        <UnavailableState
+          feature={t('views.mcpExplorer.title')}
+          purpose={t('views.mcpExplorer.purpose')}
+          endpoint={profile ? `/mcp/${profile}` : '/mcp'}
+          onRetry={connect}
+        />
+      )}
       {error && <ErrorPresenter error={error} title={errorMessage(t, error) ? t('views.mcpExplorer.failed') : undefined} />}
       {init && (
         <div className="explorer-layout">
@@ -188,13 +213,22 @@ export default function McpExplorerView() {
                 {selected.description && <p className="field-hint">{selected.description}</p>}
                 <SchemaForm schema={descriptors} values={values} onChange={setValues} idPrefix="mcp-arg" />
                 <div className="panel-actions">
-                  <button type="button" className="button-primary" onClick={call} disabled={busy} data-testid="mcp-call" {...tip(t('tips.views.mcpExplorer.call'))}>
+                  <button
+                    type="button"
+                    className="button-primary"
+                    onClick={call}
+                    disabled={busy}
+                    data-testid="mcp-call"
+                    {...tip(t('tips.views.mcpExplorer.call'))}
+                  >
                     <PlayIcon size={14} /> {t('views.mcpExplorer.call')}
                   </button>
                 </div>
                 {result && (
                   <>
-                    <div className={result.isError ? 'error-banner' : 'success-banner'}>{result.isError ? t('views.mcpExplorer.toolError') : t('views.mcpExplorer.toolOk')}</div>
+                    <div className={result.isError ? 'error-banner' : 'success-banner'}>
+                      {result.isError ? t('views.mcpExplorer.toolError') : t('views.mcpExplorer.toolOk')}
+                    </div>
                     {resultText && <CodeBlock value={resultText} />}
                     <CodeBlock value={result} prettyJson />
                   </>

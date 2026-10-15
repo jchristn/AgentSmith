@@ -14,8 +14,12 @@ function FileSummary({ info }) {
   if (!info) return null;
   let text = '';
   if (info.kind === 'pem') text = t('components.secretField.file.pem', { type: info.type });
-  else if (info.kind === 'serviceAccount') text = t('components.secretField.file.serviceAccount', { project: info.projectId || '-', email: info.clientEmail || '-' });
-  else if (info.kind === 'kubeconfig') text = info.contexts.length ? t('components.secretField.file.kubeconfig', { contexts: formatList(info.contexts, i18n.language) }) : t('components.secretField.file.kubeconfigNone');
+  else if (info.kind === 'serviceAccount')
+    text = t('components.secretField.file.serviceAccount', { project: info.projectId || '-', email: info.clientEmail || '-' });
+  else if (info.kind === 'kubeconfig')
+    text = info.contexts.length
+      ? t('components.secretField.file.kubeconfig', { contexts: formatList(info.contexts, i18n.language) })
+      : t('components.secretField.file.kubeconfigNone');
   else if (info.kind === 'invalidJson') text = t('components.secretField.file.invalidJson');
   return (
     <div className={`field-hint ${info.kind === 'invalidJson' ? 'text-danger' : ''}`} data-testid="secret-file-summary">
@@ -73,11 +77,23 @@ export function SecretValuesForm({ kind, values = {}, onChange, errors = {}, dis
                 : undefined
             }
           >
-            <FormField id={id} field={field} value={values[f.name] ?? ''} error={errors[f.name]} disabled={disabled} onChange={(v) => onChange({ ...values, [f.name]: v })} />
+            <FormField
+              id={id}
+              field={field}
+              value={values[f.name] ?? ''}
+              error={errors[f.name]}
+              disabled={disabled}
+              onChange={(v) => onChange({ ...values, [f.name]: v })}
+            />
             {f.file && !disabled && (
               <label className="button-secondary button-sm file-pick" {...tip(t('tips.secretField.import'))}>
                 <UploadIcon size={14} /> {t('components.secretField.import')}
-                <input type="file" className="sr-only" aria-label={t('components.secretField.importNamed', { field: label })} onChange={(e) => readFile(f.name, e.target.files?.[0])} />
+                <input
+                  type="file"
+                  className="sr-only"
+                  aria-label={t('components.secretField.importNamed', { field: label })}
+                  onChange={(e) => readFile(f.name, e.target.files?.[0])}
+                />
               </label>
             )}
             {f.file && <FileSummary info={fileInfo[f.name]} />}
@@ -143,7 +159,13 @@ export default function SecretSlotPicker({ slot, value, secrets = [], onChange, 
         onChange={(v) => onChange({ secretId: v, secretFieldName: null })}
       />
       {!disabled && createSecret && !creating && (
-        <button type="button" className="button-ghost button-sm" onClick={() => setCreating(true)} data-testid={`create-secret-${slot?.name}`} {...tip(t('tips.secretField.createInline'))}>
+        <button
+          type="button"
+          className="button-ghost button-sm"
+          onClick={() => setCreating(true)}
+          data-testid={`create-secret-${slot?.name}`}
+          {...tip(t('tips.secretField.createInline'))}
+        >
           <PlusIcon size={14} /> {t('components.secretField.createInline')}
         </button>
       )}
@@ -151,17 +173,42 @@ export default function SecretSlotPicker({ slot, value, secrets = [], onChange, 
         <div className="inline-panel" data-testid="inline-secret">
           {draftErrors._form && <div className="error-banner">{draftErrors._form}</div>}
           <div className="form-grid">
-            <FormField id={`${idPrefix}-new-name`} field={{ name: 'name', type: 'text', label: t('resources.secrets.fields.name'), required: true, tip: t('tips.resources.secrets.name') }} value={draft.name} error={draftErrors.name} onChange={(v) => setDraft((d) => ({ ...d, name: v }))} />
+            <FormField
+              id={`${idPrefix}-new-name`}
+              field={{ name: 'name', type: 'text', label: t('resources.secrets.fields.name'), required: true, tip: t('tips.resources.secrets.name') }}
+              value={draft.name}
+              error={draftErrors.name}
+              onChange={(v) => setDraft((d) => ({ ...d, name: v }))}
+            />
             <FormField
               id={`${idPrefix}-new-kind`}
-              field={{ name: 'kind', type: 'select', label: t('resources.secrets.fields.kind'), required: true, tip: t('tips.resources.secrets.kind'), options: enumOptions(t, 'secretKind', accepted || undefined) }}
+              field={{
+                name: 'kind',
+                type: 'select',
+                label: t('resources.secrets.fields.kind'),
+                required: true,
+                tip: t('tips.resources.secrets.kind'),
+                options: enumOptions(t, 'secretKind', accepted || undefined)
+              }}
               value={draft.kind}
               onChange={(v) => setDraft((d) => ({ ...d, kind: v, values: {} }))}
             />
           </div>
-          <SecretValuesForm kind={draft.kind} values={draft.values} errors={draftErrors} idPrefix={`${idPrefix}-new`} onChange={(v) => setDraft((d) => ({ ...d, values: v }))} />
+          <SecretValuesForm
+            kind={draft.kind}
+            values={draft.values}
+            errors={draftErrors}
+            idPrefix={`${idPrefix}-new`}
+            onChange={(v) => setDraft((d) => ({ ...d, values: v }))}
+          />
           <div className="inline-panel-actions">
-            <button type="button" className="button-secondary button-sm" onClick={() => setCreating(false)} disabled={busy} {...tip(t('tips.modal.cancelForm'))}>
+            <button
+              type="button"
+              className="button-secondary button-sm"
+              onClick={() => setCreating(false)}
+              disabled={busy}
+              {...tip(t('tips.modal.cancelForm'))}
+            >
               {t('common.actions.cancel')}
             </button>
             <button type="button" className="button-primary button-sm" onClick={save} disabled={busy} {...tip(t('tips.secretField.saveInline'))}>

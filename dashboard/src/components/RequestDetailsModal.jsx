@@ -77,16 +77,10 @@ export default function RequestDetailsModal({ open, onClose, apiClient, requestI
               <DetailItem label={f('duration')}>{formatDuration(entry.durationMs, i18n.language)}</DetailItem>
               <DetailItem label={f('sourceIp')}>{entry.sourceIp || '-'}</DetailItem>
               <DetailItem label={f('principal')}>{entry.principalName || '-'}</DetailItem>
-              <DetailItem label={f('tenant')}>
-                {entry.tenantId ? <CopyableId value={entry.tenantId} /> : '-'}
-              </DetailItem>
-              <DetailItem label={f('user')}>
-                {entry.userId ? <CopyableId value={entry.userId} /> : '-'}
-              </DetailItem>
+              <DetailItem label={f('tenant')}>{entry.tenantId ? <CopyableId value={entry.tenantId} /> : '-'}</DetailItem>
+              <DetailItem label={f('user')}>{entry.userId ? <CopyableId value={entry.userId} /> : '-'}</DetailItem>
               <DetailItem label={f('createdUtc')}>{formatDateTime(entry.createdUtc, i18n.language)}</DetailItem>
-              <DetailItem label={f('completedUtc')}>
-                {entry.completedUtc ? formatDateTime(entry.completedUtc, i18n.language) : '-'}
-              </DetailItem>
+              <DetailItem label={f('completedUtc')}>{entry.completedUtc ? formatDateTime(entry.completedUtc, i18n.language) : '-'}</DetailItem>
               <DetailItem label={f('path')} span>
                 <code className="monospace">{entry.path}</code>
               </DetailItem>
@@ -106,9 +100,7 @@ export default function RequestDetailsModal({ open, onClose, apiClient, requestI
                 title={t('components.requestDetails.requestBody')}
                 meta={
                   entry.requestBodyTruncated ? (
-                    <span className="pill pill-warning">
-                      {t('components.requestDetails.truncated', { bytes: formatBytes(entry.requestBodyBytes) })}
-                    </span>
+                    <span className="pill pill-warning">{t('components.requestDetails.truncated', { bytes: formatBytes(entry.requestBodyBytes) })}</span>
                   ) : null
                 }
               >
@@ -125,9 +117,7 @@ export default function RequestDetailsModal({ open, onClose, apiClient, requestI
                 title={t('components.requestDetails.responseBody')}
                 meta={
                   entry.responseBodyTruncated ? (
-                    <span className="pill pill-warning">
-                      {t('components.requestDetails.truncated', { bytes: formatBytes(entry.responseBodyBytes) })}
-                    </span>
+                    <span className="pill pill-warning">{t('components.requestDetails.truncated', { bytes: formatBytes(entry.responseBodyBytes) })}</span>
                   ) : null
                 }
               >

@@ -58,7 +58,8 @@ export function toLocalInput(iso) {
 /** Remove server-generated fields so a record can be duplicated. */
 export function stripForDuplicate(record, extraKeys = []) {
   const out = { ...(record || {}) };
-  for (const k of ['id', 'createdUtc', 'lastUpdateUtc', 'isProtected', 'isBuiltIn', 'builtInKey', 'currentVersion', 'configVersion', ...extraKeys]) delete out[k];
+  for (const k of ['id', 'createdUtc', 'lastUpdateUtc', 'isProtected', 'isBuiltIn', 'builtInKey', 'currentVersion', 'configVersion', ...extraKeys])
+    delete out[k];
   if (typeof out.name === 'string') out.name = `${out.name}-copy`;
   if (typeof out.tenantId !== 'undefined') delete out.tenantId;
   const stripChildIds = (v) => (Array.isArray(v) ? v.map((c) => (c && typeof c === 'object' ? stripChild(c) : c)) : v);

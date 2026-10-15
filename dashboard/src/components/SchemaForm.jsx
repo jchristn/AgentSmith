@@ -41,7 +41,12 @@ export default function SchemaForm({ schema, values = {}, onChange, errors = {},
       case 'StringList':
         return { ...base, type: 'stringList', rows: 3, hint };
       case 'Enum':
-        return { ...base, type: 'select', options: d.allowedValues.map((v) => ({ value: v, label: optionalText(t, `connectors.${connectorType}.settings.${d.key}.values.${v}`) || v })), hint };
+        return {
+          ...base,
+          type: 'select',
+          options: d.allowedValues.map((v) => ({ value: v, label: optionalText(t, `connectors.${connectorType}.settings.${d.key}.values.${v}`) || v })),
+          hint
+        };
       default:
         return { ...base, type: 'text', placeholder: d.defaultValue ?? undefined, hint };
     }

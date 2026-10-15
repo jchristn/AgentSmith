@@ -106,10 +106,24 @@ export default function TryToolModal({ resource, onClose }) {
           <button type="button" className="button-secondary" onClick={onClose} disabled={busy} {...tip(t('tips.modal.close'))}>
             {t('common.actions.close')}
           </button>
-          <button type="button" className="button-secondary" onClick={() => run('dry')} disabled={busy || !toolName} data-testid="dry-run" {...tip(t('tips.views.resources.tryTool.dryRun'))}>
+          <button
+            type="button"
+            className="button-secondary"
+            onClick={() => run('dry')}
+            disabled={busy || !toolName}
+            data-testid="dry-run"
+            {...tip(t('tips.views.resources.tryTool.dryRun'))}
+          >
             {t('views.resources.tryTool.dryRun')}
           </button>
-          <button type="button" className="button-primary" onClick={() => run('execute')} disabled={busy || !toolName || !dryRun} data-testid="execute-tool" {...tip(t('tips.views.resources.tryTool.execute'))}>
+          <button
+            type="button"
+            className="button-primary"
+            onClick={() => run('execute')}
+            disabled={busy || !toolName || !dryRun}
+            data-testid="execute-tool"
+            {...tip(t('tips.views.resources.tryTool.execute'))}
+          >
             {t('views.resources.tryTool.execute')}
           </button>
         </>
@@ -119,13 +133,27 @@ export default function TryToolModal({ resource, onClose }) {
       <div className="form-grid">
         <FormField
           id="try-profile"
-          field={{ name: 'profile', type: 'select', required: true, label: t('views.resources.tryTool.profile'), tip: t('tips.views.resources.tryTool.profile'), options: profiles.map((p) => ({ value: p.id, label: p.displayName || p.name })) }}
+          field={{
+            name: 'profile',
+            type: 'select',
+            required: true,
+            label: t('views.resources.tryTool.profile'),
+            tip: t('tips.views.resources.tryTool.profile'),
+            options: profiles.map((p) => ({ value: p.id, label: p.displayName || p.name }))
+          }}
           value={profileId}
           onChange={setProfileId}
         />
         <FormField
           id="try-tool-name"
-          field={{ name: 'tool', type: 'select', required: true, label: t('views.resources.tryTool.tool'), tip: t('tips.views.resources.tryTool.tool'), options: tools.map((x) => ({ value: x.name, label: x.title || x.name })) }}
+          field={{
+            name: 'tool',
+            type: 'select',
+            required: true,
+            label: t('views.resources.tryTool.tool'),
+            tip: t('tips.views.resources.tryTool.tool'),
+            options: tools.map((x) => ({ value: x.name, label: x.title || x.name }))
+          }}
           value={toolName}
           onChange={(v) => {
             setToolName(v);
@@ -136,7 +164,13 @@ export default function TryToolModal({ resource, onClose }) {
       </div>
       {profileId && bindings.length === 0 && <div className="warning-banner">{t('views.resources.tryTool.notBound')}</div>}
       {tool?.description && <p className="field-hint">{tool.description}</p>}
-      <FormField id="try-args" field={{ name: 'arguments', type: 'json', rows: 8, label: t('views.resources.tryTool.arguments'), tip: t('tips.views.resources.tryTool.arguments') }} value={args} onChange={(v) => setArgs(v)} error={parsedArgs ? null : t('common.errors.invalidJson')} />
+      <FormField
+        id="try-args"
+        field={{ name: 'arguments', type: 'json', rows: 8, label: t('views.resources.tryTool.arguments'), tip: t('tips.views.resources.tryTool.arguments') }}
+        value={args}
+        onChange={(v) => setArgs(v)}
+        error={parsedArgs ? null : t('common.errors.invalidJson')}
+      />
       {error && <ErrorPresenter error={error} />}
       {dryRun && (
         <div className="panel" data-testid="dry-run-result">

@@ -15,8 +15,34 @@ import { ENUMS } from '../utils/constants';
 // A settings schema as Hugo.Connectors.Abstractions serializes it (camelCase, string enums).
 const SSH_SCHEMA = {
   settings: [
-    { key: 'host', label: 'Host', help: 'Hostname or IP', kind: 'String', required: true, defaultValue: null, minimum: null, maximum: null, allowedValues: [], pattern: '^[A-Za-z0-9.-]+$', group: 'Connection', showInSummary: true },
-    { key: 'port', label: 'Port', help: '', kind: 'Integer', required: true, defaultValue: '22', minimum: 1, maximum: 65535, allowedValues: [], pattern: null, group: 'Connection', showInSummary: true },
+    {
+      key: 'host',
+      label: 'Host',
+      help: 'Hostname or IP',
+      kind: 'String',
+      required: true,
+      defaultValue: null,
+      minimum: null,
+      maximum: null,
+      allowedValues: [],
+      pattern: '^[A-Za-z0-9.-]+$',
+      group: 'Connection',
+      showInSummary: true
+    },
+    {
+      key: 'port',
+      label: 'Port',
+      help: '',
+      kind: 'Integer',
+      required: true,
+      defaultValue: '22',
+      minimum: 1,
+      maximum: 65535,
+      allowedValues: [],
+      pattern: null,
+      group: 'Connection',
+      showInSummary: true
+    },
     { key: 'username', label: 'User', kind: 'String', required: true, group: 'Authentication' },
     { key: 'strictHostKey', label: 'Verify host key', kind: 'Boolean', defaultValue: 'true', group: 'Authentication' },
     { key: 'allowedPaths', label: 'Allowed paths', kind: 'StringList', defaultValue: '/var/log,/etc', group: 'Limits' },
@@ -76,12 +102,21 @@ describe('secret kinds', () => {
   });
   it('describes imported files without exposing key material', () => {
     expect(describeSecretFile('privateKey', '-----BEGIN OPENSSH PRIVATE KEY-----\nabc')).toEqual({ kind: 'pem', type: 'OPENSSH PRIVATE KEY' });
-    expect(describeSecretFile('json', '{"project_id":"p","client_email":"a@b","private_key":"x"}')).toEqual({ kind: 'serviceAccount', projectId: 'p', clientEmail: 'a@b' });
+    expect(describeSecretFile('json', '{"project_id":"p","client_email":"a@b","private_key":"x"}')).toEqual({
+      kind: 'serviceAccount',
+      projectId: 'p',
+      clientEmail: 'a@b'
+    });
     expect(describeSecretFile('json', '{')).toEqual({ kind: 'invalidJson' });
-    expect(describeSecretFile('kubeconfig', 'apiVersion: v1\ncontexts:\n- context:\n    cluster: c\n  name: prod\n- name: dev\ncurrent-context: prod\n').contexts).toEqual(['prod', 'dev']);
+    expect(
+      describeSecretFile('kubeconfig', 'apiVersion: v1\ncontexts:\n- context:\n    cluster: c\n  name: prod\n- name: dev\ncurrent-context: prod\n').contexts
+    ).toEqual(['prod', 'dev']);
   });
   it('filters secrets by the kinds a slot accepts', () => {
-    const secrets = [{ id: 'a', kind: 'Password' }, { id: 'b', kind: 'PrivateKey' }];
+    const secrets = [
+      { id: 'a', kind: 'Password' },
+      { id: 'b', kind: 'PrivateKey' }
+    ];
     expect(secretsForSlot(secrets, { acceptedKinds: ['PrivateKey'] }).map((s) => s.id)).toEqual(['b']);
     expect(secretsForSlot(secrets, { acceptedKinds: [] })).toHaveLength(2);
   });
@@ -94,13 +129,25 @@ describe('chat stream reducer (D-022 events)', () => {
     expect(s.streaming).toBe(true);
     s = applyChatEvent(s, ev('turn.started', { messageId: 'msg_2' }));
     s = applyChatEvent(s, ev('assistant.thinking', { text: 'Check logs.' }), 1100);
-    s = applyChatEvent(s, ev('tool.proposed', { invocationId: 't1', toolName: 'papertrail_search', resourceAlias: 'papertrail', effect: 'Read', arguments: { q: 'checkout' } }));
+    s = applyChatEvent(
+      s,
+      ev('tool.proposed', { invocationId: 't1', toolName: 'papertrail_search', resourceAlias: 'papertrail', effect: 'Read', arguments: { q: 'checkout' } })
+    );
     s = applyChatEvent(s, ev('tool.started', { invocationId: 't1' }));
     s = applyChatEvent(s, ev('tool.completed', { invocationId: 't1', status: 'Succeeded', durationMs: 120, outputPreview: '3 errors' }));
     s = applyChatEvent(s, ev('assistant.delta', { text: 'Mr. Anderson, ' }), 1200);
     s = applyChatEvent(s, ev('assistant.delta', { delta: 'the database is busy.' }));
     s = applyChatEvent(s, ev('tool.proposed', { invocationId: 't2', toolName: 'ssh_exec', resourceAlias: 'web-01', effect: 'Destructive' }));
-    s = applyChatEvent(s, ev('approval.required', { approvalId: 'apr_1', invocationId: 't2', summary: 'Restart nginx on web-01', effect: 'Destructive', command: 'sudo systemctl restart nginx' }));
+    s = applyChatEvent(
+      s,
+      ev('approval.required', {
+        approvalId: 'apr_1',
+        invocationId: 't2',
+        summary: 'Restart nginx on web-01',
+        effect: 'Destructive',
+        command: 'sudo systemctl restart nginx'
+      })
+    );
     expect(pendingApprovals(s).map((a) => a.id)).toEqual(['apr_1']);
     s = applyChatEvent(s, ev('approval.resolved', { approvalId: 'apr_1', status: 'Approved', decidedBy: 'anderson' }));
     s = applyChatEvent(s, ev('tool.completed', { invocationId: 't2', status: 'Succeeded', durationMs: 900 }));
@@ -182,7 +229,13 @@ describe('event stream client', () => {
     const poll = vi.fn();
     let handlers;
     let connects = 0;
-    const s = createEventStream({ connect: (h) => ((handlers = h), connects++, { abort() {} }), poll, pollMs: 100, setTimer: t.setTimer, clearTimer: t.clearTimer });
+    const s = createEventStream({
+      connect: (h) => ((handlers = h), connects++, { abort() {} }),
+      poll,
+      pollMs: 100,
+      setTimer: t.setTimer,
+      clearTimer: t.clearTimer
+    });
     s.start();
     handlers.onEnd({ status: 404 });
     expect(s.mode).toBe('polling');
@@ -196,7 +249,13 @@ describe('event stream client', () => {
     const t = fakeTimers();
     let connects = 0;
     let handlers;
-    const s = createEventStream({ connect: (h) => ((handlers = h), connects++, { abort() {} }), poll: () => {}, pollMs: 100, setTimer: t.setTimer, clearTimer: t.clearTimer });
+    const s = createEventStream({
+      connect: (h) => ((handlers = h), connects++, { abort() {} }),
+      poll: () => {},
+      pollMs: 100,
+      setTimer: t.setTimer,
+      clearTimer: t.clearTimer
+    });
     s.start();
     handlers.onEnd({ status: 0 });
     const retry = t.timers.find((x) => x.ms === 2000);
@@ -208,7 +267,9 @@ describe('event stream client', () => {
 
 describe('templates', () => {
   it('extracts variables', () => {
-    expect(extractVariables('Hi {{user.name}} {{x | default: "y"}} {{#if task}}{{task}}{{else}}none{{/if}} {{#each items}}{{this.a}}{{/each}} {{> footer}}')).toEqual(['items', 'task', 'user.name', 'x']);
+    expect(
+      extractVariables('Hi {{user.name}} {{x | default: "y"}} {{#if task}}{{task}}{{else}}none{{/if}} {{#each items}}{{this.a}}{{/each}} {{> footer}}')
+    ).toEqual(['items', 'task', 'user.name', 'x']);
     expect(extractVariables('{{{{raw}}}}{{notAVar}}{{{{/raw}}}}{{real}}')).toEqual(['real']);
   });
   it('renders substitutions, defaults, conditionals, loops, includes, and raw blocks locally', () => {
@@ -235,18 +296,38 @@ describe('JSON-RPC helpers', () => {
     expect(rpcRequest('notifications/initialized', undefined, { notification: true })).toEqual({ jsonrpc: '2.0', method: 'notifications/initialized' });
   });
   it('reads JSON and SSE responses', async () => {
-    const json = await readRpcResponse(new Response(JSON.stringify({ jsonrpc: '2.0', id: 1, result: { ok: true } }), { headers: { 'content-type': 'application/json' } }));
+    const json = await readRpcResponse(
+      new Response(JSON.stringify({ jsonrpc: '2.0', id: 1, result: { ok: true } }), { headers: { 'content-type': 'application/json' } })
+    );
     expect(responseFor(json, 1).result).toEqual({ ok: true });
-    const sse = await readRpcResponse(new Response('event: message\ndata: {"jsonrpc":"2.0","id":2,"result":{"x":1}}\n\n', { headers: { 'content-type': 'text/event-stream' } }));
+    const sse = await readRpcResponse(
+      new Response('event: message\ndata: {"jsonrpc":"2.0","id":2,"result":{"x":1}}\n\n', { headers: { 'content-type': 'text/event-stream' } })
+    );
     expect(responseFor(sse, 2).result).toEqual({ x: 1 });
   });
   it('groups tools by family and converts input schemas to form descriptors', () => {
-    expect(groupToolsByFamily([{ name: 'sql_query' }, { name: 'hugo_whoami' }, { name: 'sql_list_tables' }, { name: 'gh__search' }]).map((g) => [g.family, g.tools.length])).toEqual([
+    expect(
+      groupToolsByFamily([{ name: 'sql_query' }, { name: 'hugo_whoami' }, { name: 'sql_list_tables' }, { name: 'gh__search' }]).map((g) => [
+        g.family,
+        g.tools.length
+      ])
+    ).toEqual([
       ['sql', 2],
       ['hugo', 1],
       ['gh', 1]
     ]);
-    const d = jsonSchemaToDescriptors({ type: 'object', required: ['resource', 'sql'], properties: { resource: { type: 'string', enum: ['prod-db'] }, sql: { type: 'string', description: 'Query' }, limit: { type: 'integer', minimum: 1 }, params: { type: 'object' }, tags: { type: 'array', items: { type: 'string' } }, dry: { type: 'boolean', default: false } } });
+    const d = jsonSchemaToDescriptors({
+      type: 'object',
+      required: ['resource', 'sql'],
+      properties: {
+        resource: { type: 'string', enum: ['prod-db'] },
+        sql: { type: 'string', description: 'Query' },
+        limit: { type: 'integer', minimum: 1 },
+        params: { type: 'object' },
+        tags: { type: 'array', items: { type: 'string' } },
+        dry: { type: 'boolean', default: false }
+      }
+    });
     expect(d.map((x) => [x.key, x.kind, x.required])).toEqual([
       ['resource', 'Enum', true],
       ['sql', 'String', true],
@@ -255,7 +336,14 @@ describe('JSON-RPC helpers', () => {
       ['tags', 'StringList', false],
       ['dry', 'Boolean', false]
     ]);
-    expect(argumentsFromValues(d, { resource: 'prod-db', sql: 'select 1', limit: '5', params: '{"a":1}', tags: ['x'], dry: true })).toEqual({ resource: 'prod-db', sql: 'select 1', limit: 5, params: { a: 1 }, tags: ['x'], dry: true });
+    expect(argumentsFromValues(d, { resource: 'prod-db', sql: 'select 1', limit: '5', params: '{"a":1}', tags: ['x'], dry: true })).toEqual({
+      resource: 'prod-db',
+      sql: 'select 1',
+      limit: 5,
+      params: { a: 1 },
+      tags: ['x'],
+      dry: true
+    });
     expect(() => argumentsFromValues(d, { params: '{' })).toThrow(SyntaxError);
   });
 });
@@ -264,7 +352,11 @@ describe('analytics helpers', () => {
   it('fills gaps in bucketed responses', () => {
     const fromUtc = '2026-01-01T00:00:00.000Z';
     const toUtc = '2026-01-01T01:00:00.000Z';
-    const out = normalizeSeries({ bucketSeconds: 900, buckets: [{ timestampUtc: '2026-01-01T00:15:00Z', inputTokens: 5 }] }, ['inputTokens', 'outputTokens'], { fromUtc, toUtc, bucketMinutes: 15 });
+    const out = normalizeSeries({ bucketSeconds: 900, buckets: [{ timestampUtc: '2026-01-01T00:15:00Z', inputTokens: 5 }] }, ['inputTokens', 'outputTokens'], {
+      fromUtc,
+      toUtc,
+      bucketMinutes: 15
+    });
     expect(out.times).toHaveLength(4);
     expect(out.series[0].values).toEqual([0, 5, 0, 0]);
     expect(normalizeSeries({ buckets: [] }, ['p50'], { fromUtc, toUtc, bucketMinutes: 30, nullGaps: true }).series[0].values).toEqual([null, null]);

@@ -115,7 +115,10 @@ export default function Dashboard() {
   }, [stream, refreshApprovals, setLockdown]);
 
   const events = useMemo(() => ({ mode, on: stream ? stream.on : () => () => {} }), [mode, stream]);
-  const approvals = useMemo(() => ({ pending: pendingApprovals, approvalsPending: pendingApprovals, reviewsPending: null, refresh: refreshApprovals }), [pendingApprovals, refreshApprovals]);
+  const approvals = useMemo(
+    () => ({ pending: pendingApprovals, approvalsPending: pendingApprovals, reviewsPending: null, refresh: refreshApprovals }),
+    [pendingApprovals, refreshApprovals]
+  );
 
   useEffect(() => {
     if (!apiClient) return undefined;

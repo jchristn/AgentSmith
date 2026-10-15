@@ -29,7 +29,13 @@ export default function FieldWarnings({ warnings, onDismiss = null, compact = fa
         <div className="field-warnings-head">
           <strong>{t('components.fieldWarnings.title', { count: list.length })}</strong>
           {onDismiss && (
-            <button type="button" className="button-ghost button-sm" onClick={onDismiss} data-testid={`${testId}-dismiss`} {...tip(t('tips.fieldWarnings.dismiss'))}>
+            <button
+              type="button"
+              className="button-ghost button-sm"
+              onClick={onDismiss}
+              data-testid={`${testId}-dismiss`}
+              {...tip(t('tips.fieldWarnings.dismiss'))}
+            >
               {t('components.fieldWarnings.dismiss')}
             </button>
           )}

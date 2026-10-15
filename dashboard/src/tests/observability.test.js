@@ -2,7 +2,18 @@
 // and loki).
 
 import { describe, it, expect } from 'vitest';
-import { grafanaConfig, exploreUrl, traceUrl, recordTimeRange, dashboardUrl, sectionDashboardLinks, DASHBOARD_SECTIONS, DEFAULT_DASHBOARDS, DEFAULT_DATASOURCES, RANGE_MARGIN_MS } from '../utils/grafana';
+import {
+  grafanaConfig,
+  exploreUrl,
+  traceUrl,
+  recordTimeRange,
+  dashboardUrl,
+  sectionDashboardLinks,
+  DASHBOARD_SECTIONS,
+  DEFAULT_DASHBOARDS,
+  DEFAULT_DATASOURCES,
+  RANGE_MARGIN_MS
+} from '../utils/grafana';
 import { observabilityCards, reachabilityState, loopbackUrl } from '../utils/observability';
 
 const INFO = {
@@ -58,7 +69,9 @@ describe('Explore and dashboard links', () => {
   });
   it('builds dashboard links with time ranges and variables', () => {
     expect(dashboardUrl(c, 'overview')).toBe('http://127.0.0.1:3000/d/hugo-overview?orgId=1');
-    expect(dashboardUrl(c, 'tools', { from: CALL.createdUtc, vars: { connector: 'ssh' } })).toBe(`http://127.0.0.1:3000/d/hugo-tools?orgId=1&from=${T0}&var-connector=ssh`);
+    expect(dashboardUrl(c, 'tools', { from: CALL.createdUtc, vars: { connector: 'ssh' } })).toBe(
+      `http://127.0.0.1:3000/d/hugo-tools?orgId=1&from=${T0}&var-connector=ssh`
+    );
     expect(dashboardUrl(c, 'nope')).toBeNull();
     expect(exploreUrl(null, 'x', [], {})).toBeNull();
   });

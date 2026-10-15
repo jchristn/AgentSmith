@@ -30,7 +30,12 @@ function labelIndices(count) {
 }
 
 function axisTime(iso, bucketSeconds, spanMs, locale) {
-  const opts = bucketSeconds && bucketSeconds >= 86400 ? { month: 'short', day: 'numeric' } : spanMs > 26 * 3600 * 1000 ? { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' } : { hour: '2-digit', minute: '2-digit' };
+  const opts =
+    bucketSeconds && bucketSeconds >= 86400
+      ? { month: 'short', day: 'numeric' }
+      : spanMs > 26 * 3600 * 1000
+        ? { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }
+        : { hour: '2-digit', minute: '2-digit' };
   return formatDateTime(iso, locale, opts);
 }
 
@@ -49,7 +54,20 @@ function segments(points) {
   return out;
 }
 
-export default function TimeSeriesChart({ id, title, help, titleTip, kind = 'line', times = [], series = [], format, bucketSeconds, legendTip, testId, exportInfo }) {
+export default function TimeSeriesChart({
+  id,
+  title,
+  help,
+  titleTip,
+  kind = 'line',
+  times = [],
+  series = [],
+  format,
+  bucketSeconds,
+  legendTip,
+  testId,
+  exportInfo
+}) {
   const { t, i18n } = useTranslation();
   const bodyRef = useRef(null);
   const svgRef = useRef(null);
@@ -78,10 +96,7 @@ export default function TimeSeriesChart({ id, title, help, titleTip, kind = 'lin
 
   const shown = visible.filter((s) => !s.hidden);
   const labeled = series.map((s) => ({ ...s, label: name(s) }));
-  const hoveredRows =
-    hover !== null
-      ? shown.map((s) => ({ key: s.key, label: name(s), color: s.color, value: s.values[hover.index] }))
-      : [];
+  const hoveredRows = hover !== null ? shown.map((s) => ({ key: s.key, label: name(s), color: s.color, value: s.values[hover.index] })) : [];
 
   return (
     <section className="chart-card" aria-labelledby={`chart-${id}-title`} data-testid={testId}>
@@ -99,8 +114,22 @@ export default function TimeSeriesChart({ id, title, help, titleTip, kind = 'lin
               testId={`export-${id}`}
               fileName={(ext) => exportFileName(exportInfo.name || id, exportInfo.range, exportInfo.filters, ext)}
               csv={() => seriesCsv(times, labeled)}
-              json={() => seriesJson({ chart: exportInfo.name || id, title, range: exportInfo.window, filters: exportInfo.filters, times, series: labeled, unit: exportInfo.unit })}
-              svg={() => (svgRef.current ? buildChartSvg(svgRef.current, { title, lines: exportInfo.lines || [], legend: shown.map((s) => ({ label: name(s), color: s.color })) }) : '')}
+              json={() =>
+                seriesJson({
+                  chart: exportInfo.name || id,
+                  title,
+                  range: exportInfo.window,
+                  filters: exportInfo.filters,
+                  times,
+                  series: labeled,
+                  unit: exportInfo.unit
+                })
+              }
+              svg={() =>
+                svgRef.current
+                  ? buildChartSvg(svgRef.current, { title, lines: exportInfo.lines || [], legend: shown.map((s) => ({ label: name(s), color: s.color })) })
+                  : ''
+              }
             />
           </div>
         )}
@@ -108,7 +137,15 @@ export default function TimeSeriesChart({ id, title, help, titleTip, kind = 'lin
       {series.length > 1 && (
         <div className="chart-legend" role="group" aria-label={t('views.analytics.legend', { chart: title })}>
           {visible.map((s) => (
-            <button key={s.key} type="button" className="chart-legend-toggle" aria-pressed={!s.hidden} onClick={() => toggle(s.key)} {...tip(legendTip ? legendTip(s) : '')} data-series={s.key}>
+            <button
+              key={s.key}
+              type="button"
+              className="chart-legend-toggle"
+              aria-pressed={!s.hidden}
+              onClick={() => toggle(s.key)}
+              {...tip(legendTip ? legendTip(s) : '')}
+              data-series={s.key}
+            >
               <span className="chart-swatch" style={{ background: s.color }} aria-hidden="true" />
               {name(s)}
             </button>
@@ -144,7 +181,18 @@ export default function TimeSeriesChart({ id, title, help, titleTip, kind = 'lin
                         const bottom = y(base);
                         base += v;
                         const h = Math.max(1, bottom - top - (base > v ? 2 : 0));
-                        return <rect key={s.key} x={xCenter(i) - barW / 2} y={top} width={barW} height={h} rx={2} fill={s.color} opacity={hover && hover.index !== i ? 0.75 : 1} />;
+                        return (
+                          <rect
+                            key={s.key}
+                            x={xCenter(i) - barW / 2}
+                            y={top}
+                            width={barW}
+                            height={h}
+                            rx={2}
+                            fill={s.color}
+                            opacity={hover && hover.index !== i ? 0.75 : 1}
+                          />
+                        );
                       })}
                     </g>
                   );
@@ -159,10 +207,20 @@ export default function TimeSeriesChart({ id, title, help, titleTip, kind = 'lin
                         seg.length === 1 ? (
                           <circle key={k} cx={seg[0][0]} cy={seg[0][1]} r={3} fill={s.color} />
                         ) : (
-                          <path key={k} d={seg.map((p, j) => `${j ? 'L' : 'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ')} fill="none" stroke={s.color} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+                          <path
+                            key={k}
+                            d={seg.map((p, j) => `${j ? 'L' : 'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ')}
+                            fill="none"
+                            stroke={s.color}
+                            strokeWidth={2}
+                            strokeLinejoin="round"
+                            strokeLinecap="round"
+                          />
                         )
                       )}
-                      {hover && points[hover.index] && <circle cx={points[hover.index][0]} cy={points[hover.index][1]} r={4} fill={s.color} stroke="var(--color-surface)" strokeWidth={2} />}
+                      {hover && points[hover.index] && (
+                        <circle cx={points[hover.index][0]} cy={points[hover.index][1]} r={4} fill={s.color} stroke="var(--color-surface)" strokeWidth={2} />
+                      )}
                     </g>
                   );
                 })}

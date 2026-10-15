@@ -4,13 +4,7 @@ import { formatNumber } from '../i18n/formatters';
 import { PAGE_SIZE_OPTIONS } from '../utils/constants';
 import AutoRefreshSelect from './AutoRefreshSelect';
 import { tip } from './Tooltip';
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronsLeftIcon,
-  ChevronsRightIcon,
-  RefreshIcon
-} from './Icons';
+import { ChevronLeftIcon, ChevronRightIcon, ChevronsLeftIcon, ChevronsRightIcon, RefreshIcon } from './Icons';
 
 /**
  * Above-table control bar: total count, visible range, page size, first/prev/jump/next/last, and refresh.
@@ -54,29 +48,19 @@ export default function TablePagination({
     <div className="table-pagination" role="group" aria-label={t('components.table.pageSize')}>
       <div className="table-pagination-summary">
         <span>
-          <strong>{formatNumber(totalRecords)}</strong>{' '}
-          {t('components.table.records', { count: totalRecords })}
+          <strong>{formatNumber(totalRecords)}</strong> {t('components.table.records', { count: totalRecords })}
         </span>
-        {totalRecords > 0 && (
-          <span className="text-muted">{t('components.table.showing', { from, to })}</span>
-        )}
+        {totalRecords > 0 && <span className="text-muted">{t('components.table.showing', { from, to })}</span>}
         {leftSlot}
       </div>
 
       <div className="table-pagination-controls">
         {rightSlot}
-        {onAutoRefreshChange && (
-          <AutoRefreshSelect value={autoRefreshSeconds ?? 0} onChange={onAutoRefreshChange} />
-        )}
+        {onAutoRefreshChange && <AutoRefreshSelect value={autoRefreshSeconds ?? 0} onChange={onAutoRefreshChange} />}
         {onPageSizeChange && (
           <label className="table-pagination-size" {...tip(t('tips.table.pageSize'))}>
             <span>{t('components.table.pageSize')}</span>
-            <select
-              value={pageSize}
-              disabled={disabled}
-              {...tip(t('tips.table.pageSize'))}
-              onChange={(e) => onPageSizeChange(Number(e.target.value))}
-            >
+            <select value={pageSize} disabled={disabled} {...tip(t('tips.table.pageSize'))} onChange={(e) => onPageSizeChange(Number(e.target.value))}>
               {pageSizeOptions.map((s) => (
                 <option key={s} value={s}>
                   {s}

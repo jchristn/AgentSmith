@@ -20,7 +20,9 @@ export function mcpConfigSnippet({ serverUrl, accessKey, profile } = {}) {
 /** The claude CLI command that registers the same server. */
 export function claudeCliSnippet({ serverUrl, accessKey, profile } = {}) {
   const url = `${base(serverUrl)}/mcp${profile ? `/${encodeURIComponent(profile)}` : ''}`;
-  const headers = accessKey ? `--header "x-access-key: ${accessKey}" --header "x-secret-key: $HUGO_SECRET_KEY"` : '--header "Authorization: Bearer $HUGO_TOKEN"';
+  const headers = accessKey
+    ? `--header "x-access-key: ${accessKey}" --header "x-secret-key: $HUGO_SECRET_KEY"`
+    : '--header "Authorization: Bearer $HUGO_TOKEN"';
   return `claude mcp add --transport http hugo ${url} ${headers}`;
 }
 

@@ -109,12 +109,26 @@ export default function RevealSecretModal({ secret, onClose, visibleSeconds = RE
             {t('common.actions.close')}
           </button>
           {step === 'reason' && (
-            <button type="button" className="button-danger" onClick={reveal} disabled={busy} data-testid="reveal-submit" {...tip(t('tips.views.secrets.reveal.submit'))}>
+            <button
+              type="button"
+              className="button-danger"
+              onClick={reveal}
+              disabled={busy}
+              data-testid="reveal-submit"
+              {...tip(t('tips.views.secrets.reveal.submit'))}
+            >
               {t('views.secrets.reveal.submit')}
             </button>
           )}
           {step === 'reauth' && (
-            <button type="button" className="button-primary" onClick={reauthenticate} disabled={busy} data-testid="reauth-submit" {...tip(t('tips.views.secrets.reveal.reauth'))}>
+            <button
+              type="button"
+              className="button-primary"
+              onClick={reauthenticate}
+              disabled={busy}
+              data-testid="reauth-submit"
+              {...tip(t('tips.views.secrets.reveal.reauth'))}
+            >
               {t('views.secrets.reveal.reauthSubmit')}
             </button>
           )}
@@ -133,12 +147,37 @@ export default function RevealSecretModal({ secret, onClose, visibleSeconds = RE
         </div>
       )}
       {step === 'reason' && (
-        <FormField id="reveal-reason" field={{ name: 'reason', type: 'textarea', rows: 2, label: t('views.secrets.reveal.reason'), required: true, tip: t('tips.views.secrets.reveal.reason') }} value={reason} onChange={setReason} disabled={busy} />
+        <FormField
+          id="reveal-reason"
+          field={{
+            name: 'reason',
+            type: 'textarea',
+            rows: 2,
+            label: t('views.secrets.reveal.reason'),
+            required: true,
+            tip: t('tips.views.secrets.reveal.reason')
+          }}
+          value={reason}
+          onChange={setReason}
+          disabled={busy}
+        />
       )}
       {step === 'reauth' && (
         <>
           <p>{t('views.secrets.reveal.reauthBody')}</p>
-          <FormField id="reveal-password" field={{ name: 'password', type: 'password', label: t('views.secrets.reveal.password'), required: true, tip: t('tips.views.secrets.reveal.password') }} value={password} onChange={setPassword} disabled={busy} />
+          <FormField
+            id="reveal-password"
+            field={{
+              name: 'password',
+              type: 'password',
+              label: t('views.secrets.reveal.password'),
+              required: true,
+              tip: t('tips.views.secrets.reveal.password')
+            }}
+            value={password}
+            onChange={setPassword}
+            disabled={busy}
+          />
         </>
       )}
       {step === 'shown' && values && (

@@ -47,7 +47,14 @@ export default function ValuesModal({ title, kind, onSubmit, onClose }) {
           <button type="button" className="button-secondary" onClick={onClose} disabled={busy} {...tip(t('tips.modal.cancelForm'))}>
             {t('common.actions.cancel')}
           </button>
-          <button type="button" className="button-primary" onClick={submit} disabled={busy} data-testid="values-save" {...tip(t('tips.resources.secrets.saveValue'))}>
+          <button
+            type="button"
+            className="button-primary"
+            onClick={submit}
+            disabled={busy}
+            data-testid="values-save"
+            {...tip(t('tips.resources.secrets.saveValue'))}
+          >
             {t('common.actions.save')}
           </button>
         </>

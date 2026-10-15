@@ -24,7 +24,10 @@ export function chartMax(series, kind) {
   const len = series[0]?.values.length || 0;
   for (let i = 0; i < len; i++) {
     if (kind === 'stacked') {
-      max = Math.max(max, series.reduce((sum, s) => sum + (s.hidden ? 0 : s.values[i] || 0), 0));
+      max = Math.max(
+        max,
+        series.reduce((sum, s) => sum + (s.hidden ? 0 : s.values[i] || 0), 0)
+      );
     } else {
       for (const s of series) if (!s.hidden && s.values[i] !== null && s.values[i] !== undefined) max = Math.max(max, s.values[i]);
     }
@@ -49,7 +52,11 @@ export function normalizeSeries(response, metrics, { fromUtc, toUtc, bucketMinut
   if (Array.isArray(response?.times) && Array.isArray(response?.series)) {
     return {
       times: response.times,
-      series: metrics.map((m) => ({ key: m, metric: m, values: (response.series.find((s) => s.key === m || s.metric === m)?.values || []).map((v) => (v === undefined ? null : v)) }))
+      series: metrics.map((m) => ({
+        key: m,
+        metric: m,
+        values: (response.series.find((s) => s.key === m || s.metric === m)?.values || []).map((v) => (v === undefined ? null : v))
+      }))
     };
   }
   const buckets = Array.isArray(response?.buckets) ? response.buckets : Array.isArray(response) ? response : [];

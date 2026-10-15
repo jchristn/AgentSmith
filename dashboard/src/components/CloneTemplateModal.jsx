@@ -80,7 +80,14 @@ export default function CloneTemplateModal({ template, onClose, onCloned }) {
           <button type="button" className="button-secondary" onClick={onClose} disabled={busy} {...tip(t('tips.modal.cancelForm'))}>
             {t('common.actions.cancel')}
           </button>
-          <button type="button" className="button-primary" onClick={submit} disabled={busy} data-testid="clone-confirm" {...tip(t('tips.views.templateEditor.cloneConfirm'))}>
+          <button
+            type="button"
+            className="button-primary"
+            onClick={submit}
+            disabled={busy}
+            data-testid="clone-confirm"
+            {...tip(t('tips.views.templateEditor.cloneConfirm'))}
+          >
             {busy ? t('common.generic.saving') : t('common.actions.clone')}
           </button>
         </>
@@ -89,7 +96,14 @@ export default function CloneTemplateModal({ template, onClose, onCloned }) {
       <p className="text-muted">{t('views.templateEditor.cloneDialog.body')}</p>
       <FormField
         id="clone-name"
-        field={{ name: 'name', type: 'text', label: t('views.templateEditor.cloneDialog.name'), required: true, tip: t('tips.views.templateEditor.cloneName'), hint: t('views.templateEditor.cloneDialog.hint') }}
+        field={{
+          name: 'name',
+          type: 'text',
+          label: t('views.templateEditor.cloneDialog.name'),
+          required: true,
+          tip: t('tips.views.templateEditor.cloneName'),
+          hint: t('views.templateEditor.cloneDialog.hint')
+        }}
         value={name}
         onChange={(v) => {
           touched.current = true;

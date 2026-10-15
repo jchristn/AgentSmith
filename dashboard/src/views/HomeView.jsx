@@ -124,8 +124,22 @@ export default function HomeView() {
       )}
 
       <div className="kpi-grid" data-tour="kpis">
-        <KpiCard label={t('views.home.kpis.requests')} tip={t('tips.views.home.kpis.requests')} value={num(data?.requests, (v) => v.totalCount ?? v.total)} note={t('views.home.kpis.last24h')} onClick={() => navigate(pathFor('requests'))} testId="kpi-requests" />
-        <KpiCard label={t('views.home.kpis.toolCalls')} tip={t('tips.views.home.kpis.toolCalls')} value={num(data?.tools, (v) => (v.totals || v).total ?? (v.totals || v).count)} note={t('views.home.kpis.last24h')} onClick={() => navigate(pathFor('toolInvocations'))} testId="kpi-tool-calls" />
+        <KpiCard
+          label={t('views.home.kpis.requests')}
+          tip={t('tips.views.home.kpis.requests')}
+          value={num(data?.requests, (v) => v.totalCount ?? v.total)}
+          note={t('views.home.kpis.last24h')}
+          onClick={() => navigate(pathFor('requests'))}
+          testId="kpi-requests"
+        />
+        <KpiCard
+          label={t('views.home.kpis.toolCalls')}
+          tip={t('tips.views.home.kpis.toolCalls')}
+          value={num(data?.tools, (v) => (v.totals || v).total ?? (v.totals || v).count)}
+          note={t('views.home.kpis.last24h')}
+          onClick={() => navigate(pathFor('toolInvocations'))}
+          testId="kpi-tool-calls"
+        />
         <KpiCard
           label={t('views.home.kpis.failures')}
           tip={t('tips.views.home.kpis.failures')}
@@ -135,13 +149,39 @@ export default function HomeView() {
           onClick={() => navigate(pathFor('toolInvocations', null, { status: 'Failed' }))}
           testId="kpi-failures"
         />
-        <KpiCard label={t('views.home.kpis.approvals')} tip={t('tips.views.home.kpis.approvals')} value={pending === null || pending === undefined ? '-' : formatNumber(pending, {}, lng)} tone={pending > 0 ? 'warning' : undefined} onClick={() => navigate(pathFor('approvals'))} testId="kpi-approvals" />
-        <KpiCard label={t('views.home.kpis.unhealthy')} tip={t('tips.views.home.kpis.unhealthy')} value={num(data?.unhealthy, (v) => v.totalCount)} tone={data?.unhealthy?.ok && data.unhealthy.value.totalCount > 0 ? 'danger' : undefined} onClick={() => navigate(pathFor('resources', null, { health: 'Unhealthy' }))} testId="kpi-unhealthy" />
-        <KpiCard label={t('views.home.kpis.tokens')} tip={t('tips.views.home.kpis.tokens')} value={tokensToday === null ? '-' : formatNumber(tokensToday, { notation: 'compact' }, lng)} note={t('views.home.kpis.today')} onClick={() => navigate(pathFor('analytics'))} testId="kpi-tokens" />
+        <KpiCard
+          label={t('views.home.kpis.approvals')}
+          tip={t('tips.views.home.kpis.approvals')}
+          value={pending === null || pending === undefined ? '-' : formatNumber(pending, {}, lng)}
+          tone={pending > 0 ? 'warning' : undefined}
+          onClick={() => navigate(pathFor('approvals'))}
+          testId="kpi-approvals"
+        />
+        <KpiCard
+          label={t('views.home.kpis.unhealthy')}
+          tip={t('tips.views.home.kpis.unhealthy')}
+          value={num(data?.unhealthy, (v) => v.totalCount)}
+          tone={data?.unhealthy?.ok && data.unhealthy.value.totalCount > 0 ? 'danger' : undefined}
+          onClick={() => navigate(pathFor('resources', null, { health: 'Unhealthy' }))}
+          testId="kpi-unhealthy"
+        />
+        <KpiCard
+          label={t('views.home.kpis.tokens')}
+          tip={t('tips.views.home.kpis.tokens')}
+          value={tokensToday === null ? '-' : formatNumber(tokensToday, { notation: 'compact' }, lng)}
+          note={t('views.home.kpis.today')}
+          onClick={() => navigate(pathFor('analytics'))}
+          testId="kpi-tokens"
+        />
       </div>
       {grafana && (
         <div className="grafana-links">
-          <GrafanaLink href={dashboardUrl(grafana, 'overview')} label={t('views.home.kpisGrafana')} tipText={t('tips.views.home.kpisGrafana')} testId="kpis-grafana" />
+          <GrafanaLink
+            href={dashboardUrl(grafana, 'overview')}
+            label={t('views.home.kpisGrafana')}
+            tipText={t('tips.views.home.kpisGrafana')}
+            testId="kpis-grafana"
+          />
         </div>
       )}
 
@@ -180,7 +220,8 @@ export default function HomeView() {
                   >
                     <code>{r.toolName}</code>
                   </a>{' '}
-                  <EffectBadge effect={r.effect} /> <span className="text-muted">{r.resourceAlias || ''}</span> <span className="text-muted">{formatRelativeTime(r.createdUtc, lng)}</span>
+                  <EffectBadge effect={r.effect} /> <span className="text-muted">{r.resourceAlias || ''}</span>{' '}
+                  <span className="text-muted">{formatRelativeTime(r.createdUtc, lng)}</span>
                   {r.errorMessage && <div className="field-hint">{r.errorMessage}</div>}
                 </li>
               ))}

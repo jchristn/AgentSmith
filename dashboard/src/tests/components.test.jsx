@@ -41,8 +41,14 @@ function withAuth(ui, apiClient = {}) {
 describe('ChatPanel', () => {
   function transcript() {
     let s = beginTurn(initialChatState(), 'Restart nginx');
-    s = applyChatEvent(s, { event: 'tool.proposed', data: { invocationId: 't1', toolName: 'ssh_exec', resourceAlias: 'web-01', effect: 'Destructive', arguments: { command: 'systemctl restart nginx' } } });
-    s = applyChatEvent(s, { event: 'approval.required', data: { approvalId: 'apr_1', invocationId: 't1', summary: 'Restart nginx on web-01', effect: 'Destructive', command: 'sudo systemctl restart nginx' } });
+    s = applyChatEvent(s, {
+      event: 'tool.proposed',
+      data: { invocationId: 't1', toolName: 'ssh_exec', resourceAlias: 'web-01', effect: 'Destructive', arguments: { command: 'systemctl restart nginx' } }
+    });
+    s = applyChatEvent(s, {
+      event: 'approval.required',
+      data: { approvalId: 'apr_1', invocationId: 't1', summary: 'Restart nginx on web-01', effect: 'Destructive', command: 'sudo systemctl restart nginx' }
+    });
     s = applyChatEvent(s, { event: 'assistant.delta', data: { text: 'Waiting for your approval, **Mr. Anderson**.' } });
     return s;
   }
@@ -90,7 +96,20 @@ describe('ChatPanel', () => {
 
 describe('ToolActivityRow and badges', () => {
   it('shows tool, resource, effect, status, and duration, and expands to arguments and output', () => {
-    render(<ToolActivityRow tool={{ id: 't', toolName: 'sql_query', resourceAlias: 'prod-db', effect: 'Read', status: 'Succeeded', durationMs: 42, arguments: { sql: 'select 1' }, outputPreview: '1 row' }} />);
+    render(
+      <ToolActivityRow
+        tool={{
+          id: 't',
+          toolName: 'sql_query',
+          resourceAlias: 'prod-db',
+          effect: 'Read',
+          status: 'Succeeded',
+          durationMs: 42,
+          arguments: { sql: 'select 1' },
+          outputPreview: '1 row'
+        }}
+      />
+    );
     expect(screen.getByText('sql_query')).toBeTruthy();
     expect(screen.getByText('prod-db')).toBeTruthy();
     expect(screen.queryByText('1 row')).toBeNull();
@@ -115,7 +134,15 @@ describe('ToolActivityRow and badges', () => {
 });
 
 describe('ApprovalCard', () => {
-  const approval = { id: 'apr_1', summary: 'Drop table orders', effect: 'Destructive', effectReason: 'DROP statement', command: 'DROP TABLE orders', resourceAlias: 'prod-db', status: 'Pending' };
+  const approval = {
+    id: 'apr_1',
+    summary: 'Drop table orders',
+    effect: 'Destructive',
+    effectReason: 'DROP statement',
+    command: 'DROP TABLE orders',
+    resourceAlias: 'prod-db',
+    status: 'Pending'
+  };
   it('approves and rejects with a note', () => {
     const onApprove = vi.fn();
     const onReject = vi.fn();
@@ -146,7 +173,14 @@ describe('SchemaForm', () => {
   };
   it('renders one control per kind in group fieldsets and reports changes', () => {
     const onChange = vi.fn();
-    render(<SchemaForm schema={schema} values={{ host: '', port: 22, tls: false, mode: 'a', paths: [], notes: '' }} onChange={onChange} errors={{ host: 'Required' }} />);
+    render(
+      <SchemaForm
+        schema={schema}
+        values={{ host: '', port: 22, tls: false, mode: 'a', paths: [], notes: '' }}
+        onChange={onChange}
+        errors={{ host: 'Required' }}
+      />
+    );
     expect([...document.querySelectorAll('legend')].map((l) => l.textContent)).toEqual(['Connection', 'Security', 'General']);
     expect(document.querySelector('#setting-port').getAttribute('type')).toBe('number');
     expect(document.querySelector('#setting-port').getAttribute('max')).toBe('65535');
@@ -192,7 +226,19 @@ describe('secret fields', () => {
   it('lists only accepted kinds and creates a secret inline', async () => {
     const onChange = vi.fn();
     const createSecret = vi.fn().mockResolvedValue({ id: 'sec_new', kind: 'PrivateKey' });
-    render(withAuth(<SecretSlotPicker slot={{ name: 'privateKey', label: 'SSH key', acceptedKinds: ['PrivateKey'], required: true }} secrets={[{ id: 'sec_pw', name: 'pw', kind: 'Password' }, { id: 'sec_key', name: 'key', kind: 'PrivateKey' }]} onChange={onChange} createSecret={createSecret} />));
+    render(
+      withAuth(
+        <SecretSlotPicker
+          slot={{ name: 'privateKey', label: 'SSH key', acceptedKinds: ['PrivateKey'], required: true }}
+          secrets={[
+            { id: 'sec_pw', name: 'pw', kind: 'Password' },
+            { id: 'sec_key', name: 'key', kind: 'PrivateKey' }
+          ]}
+          onChange={onChange}
+          createSecret={createSecret}
+        />
+      )
+    );
     const options = [...document.querySelectorAll('#slot-privateKey option')].map((o) => o.value);
     expect(options).toEqual(['', 'sec_key']);
     fireEvent.click(screen.getByTestId('create-secret-privateKey'));
@@ -207,7 +253,10 @@ describe('secret fields', () => {
 describe('secret reveal flow (P8.32)', () => {
   it('asks for a reason, re-authenticates when required, shows values, and hides them after the timeout', async () => {
     const apiClient = {
-      revealSecret: vi.fn().mockRejectedValueOnce(new ApiError(403, { error: 'ReauthenticationRequired', message: 'Re-authenticate first' })).mockResolvedValueOnce({ values: { password: 'swordfish' } }),
+      revealSecret: vi
+        .fn()
+        .mockRejectedValueOnce(new ApiError(403, { error: 'ReauthenticationRequired', message: 'Re-authenticate first' }))
+        .mockResolvedValueOnce({ values: { password: 'swordfish' } }),
       reauthenticate: vi.fn().mockResolvedValue({})
     };
     render(withAuth(<RevealSecretModal secret={{ id: 'sec_1', name: 'db' }} onClose={() => {}} visibleSeconds={2} />, apiClient));
@@ -246,8 +295,14 @@ describe('states and forms', () => {
     expect(text).toContain('req_9');
   });
   it('validates a forced password change', () => {
-    expect(validatePasswordChange({ currentPassword: '', newPassword: 'short', confirmPassword: 'x' })).toEqual({ currentPassword: 'common.errors.required', newPassword: 'components.passwordChange.tooShort', confirmPassword: 'components.passwordChange.mismatch' });
-    expect(validatePasswordChange({ currentPassword: 'password', newPassword: 'password', confirmPassword: 'password' }).newPassword).toBe('components.passwordChange.sameAsCurrent');
+    expect(validatePasswordChange({ currentPassword: '', newPassword: 'short', confirmPassword: 'x' })).toEqual({
+      currentPassword: 'common.errors.required',
+      newPassword: 'components.passwordChange.tooShort',
+      confirmPassword: 'components.passwordChange.mismatch'
+    });
+    expect(validatePasswordChange({ currentPassword: 'password', newPassword: 'password', confirmPassword: 'password' }).newPassword).toBe(
+      'components.passwordChange.sameAsCurrent'
+    );
     expect(validatePasswordChange({ currentPassword: 'password', newPassword: 'a-long-passphrase', confirmPassword: 'a-long-passphrase' })).toEqual({});
   });
 });

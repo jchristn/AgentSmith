@@ -23,7 +23,14 @@ function ChatMessage({ message, onApprove, onReject, approvalBusy }) {
       )}
       <div className="chat-message-body">
         {message.parts.map((part, i) => {
-          if (part.kind === 'text') return isUser ? <p key={i} className="chat-user-text">{part.text}</p> : <MarkdownView key={i} text={part.text} />;
+          if (part.kind === 'text')
+            return isUser ? (
+              <p key={i} className="chat-user-text">
+                {part.text}
+              </p>
+            ) : (
+              <MarkdownView key={i} text={part.text} />
+            );
           if (part.kind === 'tool') return <ToolActivityRow key={part.tool.id || i} tool={part.tool} />;
           if (part.kind === 'approval')
             return (
@@ -48,9 +55,20 @@ function ChatMessage({ message, onApprove, onReject, approvalBusy }) {
       </div>
       {!isUser && message.status === 'done' && (usage.timeToFirstTokenMs != null || usage.outputTokens != null) && (
         <div className="chat-usage text-muted" data-testid="chat-usage">
-          {usage.timeToFirstTokenMs != null && <span {...tip(t('tips.chat.ttft'))}>{t('components.chat.ttft', { value: formatDuration(usage.timeToFirstTokenMs, i18n.language) })}</span>}
-          {usage.durationMs != null && <span {...tip(t('tips.chat.duration'))}>{t('components.chat.duration', { value: formatDuration(usage.durationMs, i18n.language) })}</span>}
-          {usage.outputTokens != null && <span {...tip(t('tips.chat.tokens'))}>{t('components.chat.tokens', { input: formatNumber(usage.inputTokens ?? 0, {}, i18n.language), output: formatNumber(usage.outputTokens, {}, i18n.language) })}</span>}
+          {usage.timeToFirstTokenMs != null && (
+            <span {...tip(t('tips.chat.ttft'))}>{t('components.chat.ttft', { value: formatDuration(usage.timeToFirstTokenMs, i18n.language) })}</span>
+          )}
+          {usage.durationMs != null && (
+            <span {...tip(t('tips.chat.duration'))}>{t('components.chat.duration', { value: formatDuration(usage.durationMs, i18n.language) })}</span>
+          )}
+          {usage.outputTokens != null && (
+            <span {...tip(t('tips.chat.tokens'))}>
+              {t('components.chat.tokens', {
+                input: formatNumber(usage.inputTokens ?? 0, {}, i18n.language),
+                output: formatNumber(usage.outputTokens, {}, i18n.language)
+              })}
+            </span>
+          )}
         </div>
       )}
     </article>
@@ -64,7 +82,20 @@ function ChatMessage({ message, onApprove, onReject, approvalBusy }) {
  * Props: messages (from utils/chatStream), streaming, draft, onDraftChange, onSend(text), onStop(), onApprove(id,
  * note), onReject(id, note), approvalBusy (approval id being decided), disabled, disabledReason, emptyHint.
  */
-export default function ChatPanel({ messages = [], streaming = false, draft = '', onDraftChange, onSend, onStop, onApprove, onReject, approvalBusy = null, disabled = false, disabledReason, emptyHint }) {
+export default function ChatPanel({
+  messages = [],
+  streaming = false,
+  draft = '',
+  onDraftChange,
+  onSend,
+  onStop,
+  onApprove,
+  onReject,
+  approvalBusy = null,
+  disabled = false,
+  disabledReason,
+  emptyHint
+}) {
   const { t } = useTranslation();
   const endRef = useRef(null);
 

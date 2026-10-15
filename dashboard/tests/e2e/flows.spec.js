@@ -18,7 +18,12 @@ test('creates a secret with kind-specific fields and reveals it with a reason an
   let reveals = 0;
   await page.route('**/v1.0/api/secrets/*/reveal', (route) => {
     reveals += 1;
-    if (reveals === 1) return route.fulfill({ status: 403, contentType: 'application/json', body: JSON.stringify({ error: 'ReauthenticationRequired', message: 'Re-authenticate first.' }) });
+    if (reveals === 1)
+      return route.fulfill({
+        status: 403,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'ReauthenticationRequired', message: 'Re-authenticate first.' })
+      });
     return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ values: { password: 'swordfish' } }) });
   });
   await login(page, { expect });
@@ -73,7 +78,11 @@ test('adds a resource from the connector schema, tests the connection, and creat
   expect(test1.body).toMatchObject({ connectorType: 'ssh', settings: { host: 'web-02.example.com', port: 22, username: 'ops' } });
   await page.getByTestId('save-button').click();
   const create = requests.find((r) => r.method === 'POST' && r.path === '/v1.0/api/resources');
-  expect(create.body).toMatchObject({ name: 'web-02', connectorType: 'ssh', settings: { host: 'web-02.example.com', port: 22, username: 'ops', allowedPaths: ['/var/log'], shell: 'bash', useSudo: false } });
+  expect(create.body).toMatchObject({
+    name: 'web-02',
+    connectorType: 'ssh',
+    settings: { host: 'web-02.example.com', port: 22, username: 'ops', allowedPaths: ['/var/log'], shell: 'bash', useSudo: false }
+  });
   expect(create.body.secretBindings).toEqual([{ slotName: 'privateKey', secretId: expect.any(String), secretFieldName: null }]);
   expect(create.body._connector).toBeUndefined();
 });
@@ -136,7 +145,9 @@ test('chats with Agent Smith: streams a turn, shows the tool row, and approves i
   await reply.getByTestId('approval-approve').click();
   await expect(reply.getByTestId('approval-card')).toHaveAttribute('data-status', 'Approved');
   expect(requests.some((r) => r.method === 'POST' && r.path === '/v1.0/api/approvals/apr_0099/approve')).toBe(true);
-  expect(requests.find((r) => r.method === 'POST' && r.path === '/v1.0/api/conversations/cnv_0001/messages').body).toEqual({ content: 'Restart nginx on web-01' });
+  expect(requests.find((r) => r.method === 'POST' && r.path === '/v1.0/api/conversations/cnv_0001/messages').body).toEqual({
+    content: 'Restart nginx on web-01'
+  });
 });
 
 test('starts a new conversation on the first message and keeps drafts', async ({ page }) => {
@@ -239,14 +250,24 @@ test('settings mark environment overrides read-only and restart behind a confirm
 test('the setup wizard opens for a fresh tenant and walks the Hugo steps', async ({ page }) => {
   const requests = [];
   await installMocks(page, { onRequest: (r) => requests.push(r) });
-  await page.route(/\/v1\.0\/api\/(model-endpoints|resources)\?/, (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ items: [], pageNumber: 1, pageSize: 1, totalCount: 0, totalPages: 0 }) }));
+  await page.route(/\/v1\.0\/api\/(model-endpoints|resources)\?/, (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ items: [], pageNumber: 1, pageSize: 1, totalCount: 0, totalPages: 0 })
+    })
+  );
   await login(page, { expect });
   const wizard = page.getByTestId('setup-wizard');
   await expect(wizard).toBeVisible();
   await page.getByTestId('wizard-primary').click();
   await wizard.locator('#wiz-inference-model').fill('llama3.1');
   await page.getByTestId('wizard-primary').click();
-  expect(requests.find((r) => r.method === 'POST' && r.path === '/v1.0/api/model-endpoints').body).toMatchObject({ kind: 'Inference', provider: 'Ollama', model: 'llama3.1' });
+  expect(requests.find((r) => r.method === 'POST' && r.path === '/v1.0/api/model-endpoints').body).toMatchObject({
+    kind: 'Inference',
+    provider: 'Ollama',
+    model: 'llama3.1'
+  });
   await page.getByTestId('wizard-skip-step').click();
   await expect(wizard.locator('[data-step="resource"]')).toBeVisible();
   await page.getByTestId('wizard-skip-step').click();

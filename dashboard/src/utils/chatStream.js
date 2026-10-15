@@ -33,7 +33,13 @@ export function fromStoredMessages(items = []) {
         parts,
         thinking: m.thinkingContent || '',
         status: 'done',
-        usage: { inputTokens: m.inputTokens ?? null, outputTokens: m.outputTokens ?? null, timeToFirstTokenMs: m.timeToFirstTokenMs ?? null, durationMs: m.durationMs ?? null, finishReason: m.finishReason || null },
+        usage: {
+          inputTokens: m.inputTokens ?? null,
+          outputTokens: m.outputTokens ?? null,
+          timeToFirstTokenMs: m.timeToFirstTokenMs ?? null,
+          durationMs: m.durationMs ?? null,
+          finishReason: m.finishReason || null
+        },
         createdUtc: m.createdUtc || null
       };
     });
@@ -97,7 +103,10 @@ function updateTool(message, id, patch) {
 
 /** Add the operator's message and open the assistant reply (called when Send is pressed). */
 export function beginTurn(state, text, now = Date.now()) {
-  const messages = [...state.messages, { id: `user-${state.messages.length}`, role: 'user', parts: [{ kind: 'text', text }], thinking: '', status: 'done', usage: {} }];
+  const messages = [
+    ...state.messages,
+    { id: `user-${state.messages.length}`, role: 'user', parts: [{ kind: 'text', text }], thinking: '', status: 'done', usage: {} }
+  ];
   messages.push({ id: `assistant-${messages.length}`, role: 'assistant', parts: [], thinking: '', status: 'streaming', usage: {} });
   return { ...state, messages, streaming: true, error: null, startedAt: now, firstTokenAt: null };
 }
@@ -150,7 +159,13 @@ export function applyChatEvent(state, evt, now = Date.now()) {
           m.parts.push({ kind: 'tool', tool });
           return m;
         }
-        const patch = { status: tool.status, durationMs: tool.durationMs, outputPreview: tool.outputPreview, outputTruncated: tool.outputTruncated, error: tool.error };
+        const patch = {
+          status: tool.status,
+          durationMs: tool.durationMs,
+          outputPreview: tool.outputPreview,
+          outputTruncated: tool.outputTruncated,
+          error: tool.error
+        };
         return updateTool(m, tool.id, patch);
       });
     }
@@ -165,7 +180,11 @@ export function applyChatEvent(state, evt, now = Date.now()) {
       const resolved = normalizeApproval(data);
       const messages = state.messages.map((m) => ({
         ...m,
-        parts: m.parts.map((p) => (p.kind === 'approval' && p.approval.id === resolved.id ? { ...p, approval: { ...p.approval, status: resolved.status, note: resolved.note, decidedBy: resolved.decidedBy } } : p))
+        parts: m.parts.map((p) =>
+          p.kind === 'approval' && p.approval.id === resolved.id
+            ? { ...p, approval: { ...p.approval, status: resolved.status, note: resolved.note, decidedBy: resolved.decidedBy } }
+            : p
+        )
       }));
       return { ...state, messages };
     }

@@ -55,7 +55,16 @@ function TextFilter({ filter, value, onChange, tipText, t }) {
   return (
     <label className="filter-text" {...tip(tipText)}>
       <span className="sr-only">{label}</span>
-      <input type="search" className="filter-search" value={text} placeholder={filter.placeholder ? filter.placeholder(t) : label} aria-label={label} data-filter={filter.name} {...tip(tipText)} onChange={(e) => setText(e.target.value)} />
+      <input
+        type="search"
+        className="filter-search"
+        value={text}
+        placeholder={filter.placeholder ? filter.placeholder(t) : label}
+        aria-label={label}
+        data-filter={filter.name}
+        {...tip(tipText)}
+        onChange={(e) => setText(e.target.value)}
+      />
     </label>
   );
 }
@@ -271,17 +280,36 @@ export default function ResourceView({ config }) {
         <ActionMenu
           label={r.name || r.email || r.id}
           items={[
-            { label: t('common.actions.view'), tip: t(config.detailPath ? 'tips.actions.openDetail' : 'tips.actions.view'), onClick: () => (config.detailPath ? navigate(config.detailPath(r)) : open('view', config.toForm ? config.toForm(r) : { ...r })) },
-            { label: t('common.actions.edit'), tip: t('tips.actions.edit'), hidden: !config.api.update || !isEditable(r), onClick: () => open('edit', config.toForm ? config.toForm(r) : { ...r }) },
+            {
+              label: t('common.actions.view'),
+              tip: t(config.detailPath ? 'tips.actions.openDetail' : 'tips.actions.view'),
+              onClick: () => (config.detailPath ? navigate(config.detailPath(r)) : open('view', config.toForm ? config.toForm(r) : { ...r }))
+            },
+            {
+              label: t('common.actions.edit'),
+              tip: t('tips.actions.edit'),
+              hidden: !config.api.update || !isEditable(r),
+              onClick: () => open('edit', config.toForm ? config.toForm(r) : { ...r })
+            },
             {
               label: t('common.actions.duplicate'),
               tip: t('tips.actions.duplicate'),
               hidden: !canManage || config.canDuplicate === false || !config.api.create,
-              onClick: () => open('create', config.toDuplicate ? config.toDuplicate(r) : stripForDuplicate(config.toForm ? config.toForm(r) : r, config.duplicateStrip || []))
+              onClick: () =>
+                open(
+                  'create',
+                  config.toDuplicate ? config.toDuplicate(r) : stripForDuplicate(config.toForm ? config.toForm(r) : r, config.duplicateStrip || [])
+                )
             },
             ...((config.rowActions && config.rowActions(r, { ...ctx, reload: () => load(page.pageNumber), setExtraModal, setJsonValue })) || []),
             { label: t('common.actions.viewJson'), tip: t('tips.actions.viewJson'), onClick: () => setJsonValue(r) },
-            { label: t('common.actions.delete'), tip: t('tips.actions.delete'), danger: true, hidden: !config.api.remove || !canDelete(r), onClick: () => askDelete(r) }
+            {
+              label: t('common.actions.delete'),
+              tip: t('tips.actions.delete'),
+              danger: true,
+              hidden: !config.api.remove || !canDelete(r),
+              onClick: () => askDelete(r)
+            }
           ]}
         />
       )
@@ -318,24 +346,43 @@ export default function ResourceView({ config }) {
       )}
       {(config.filters || []).map((f) =>
         f.type === 'text' ? (
-          <TextFilter key={f.name} filter={f} value={filters[f.name]} t={t} tipText={filterTip(f)} onChange={(v) => setFilters((prev) => ({ ...prev, [f.name]: v }))} />
+          <TextFilter
+            key={f.name}
+            filter={f}
+            value={filters[f.name]}
+            t={t}
+            tipText={filterTip(f)}
+            onChange={(v) => setFilters((prev) => ({ ...prev, [f.name]: v }))}
+          />
         ) : f.type === 'datetime' ? (
           <label key={f.name} className="filter-date" {...tip(filterTip(f))}>
             <span>{f.label(t)}</span>
-            <input {...tip(filterTip(f))} type="datetime-local" value={toLocalInput(filters[f.name])} onChange={(e) => setFilters((prev) => ({ ...prev, [f.name]: toUtcIso(e.target.value) || '' }))} />
+            <input
+              {...tip(filterTip(f))}
+              type="datetime-local"
+              value={toLocalInput(filters[f.name])}
+              onChange={(e) => setFilters((prev) => ({ ...prev, [f.name]: toUtcIso(e.target.value) || '' }))}
+            />
           </label>
         ) : (
-        <label key={f.name} className="filter-select" {...tip(filterTip(f))}>
-          <span className="sr-only">{f.label(t)}</span>
-          <select {...tip(filterTip(f))} aria-label={f.label(t)} value={filters[f.name] || ''} onChange={(e) => setFilters((prev) => ({ ...prev, [f.name]: e.target.value }))}>
-            <option value="">{f.label(t)}: {t('common.generic.all')}</option>
-            {filterOptions(f).map((o) => (
-              <option key={o} value={o}>
-                {f.optionLabel ? f.optionLabel(o, t, lookups) : t(`enums.${f.enumGroup || f.name}.${o}`, { defaultValue: o })}
+          <label key={f.name} className="filter-select" {...tip(filterTip(f))}>
+            <span className="sr-only">{f.label(t)}</span>
+            <select
+              {...tip(filterTip(f))}
+              aria-label={f.label(t)}
+              value={filters[f.name] || ''}
+              onChange={(e) => setFilters((prev) => ({ ...prev, [f.name]: e.target.value }))}
+            >
+              <option value="">
+                {f.label(t)}: {t('common.generic.all')}
               </option>
-            ))}
-          </select>
-        </label>
+              {filterOptions(f).map((o) => (
+                <option key={o} value={o}>
+                  {f.optionLabel ? f.optionLabel(o, t, lookups) : t(`enums.${f.enumGroup || f.name}.${o}`, { defaultValue: o })}
+                </option>
+              ))}
+            </select>
+          </label>
         )
       )}
       {(search || filtersChanged) && (
@@ -363,7 +410,13 @@ export default function ResourceView({ config }) {
           <>
             {config.headerActions && config.headerActions({ ...ctx, reload: () => load(page.pageNumber), setExtraModal })}
             {config.api.create && canManage && !missing && (
-              <button type="button" className="button-primary" onClick={() => open('create', config.blank ? config.blank(ctx) : {})} data-testid="add-button" {...tip(addTip)}>
+              <button
+                type="button"
+                className="button-primary"
+                onClick={() => open('create', config.blank ? config.blank(ctx) : {})}
+                data-testid="add-button"
+                {...tip(addTip)}
+              >
                 <PlusIcon /> {t(`${prefix}.add`)}
               </button>
             )}
@@ -380,7 +433,12 @@ export default function ResourceView({ config }) {
 
       {missing ? (
         <div className="table-frame">
-          <UnavailableState feature={t(`${prefix}.title`)} purpose={optionalText(t, `${prefix}.purpose`)} endpoint={config.endpoint} onRetry={() => load(page.pageNumber)} />
+          <UnavailableState
+            feature={t(`${prefix}.title`)}
+            purpose={optionalText(t, `${prefix}.purpose`)}
+            endpoint={config.endpoint}
+            onRetry={() => load(page.pageNumber)}
+          />
         </div>
       ) : noData ? (
         <div className="table-frame">
@@ -388,7 +446,8 @@ export default function ResourceView({ config }) {
             title={t(`${prefix}.emptyTitle`)}
             body={t(`${prefix}.emptyBody`)}
             action={
-              config.api.create && canManage && (
+              config.api.create &&
+              canManage && (
                 <button type="button" className="button-primary" onClick={() => open('create', config.blank ? config.blank(ctx) : {})} {...tip(addTip)}>
                   <PlusIcon /> {t(`${prefix}.add`)}
                 </button>
@@ -428,9 +487,9 @@ export default function ResourceView({ config }) {
             config.bulkActions ? (
               config.bulkActions(selected, { ...ctx, reload: () => load(page.pageNumber), setExtraModal, clearSelection: () => setSelected([]) })
             ) : (
-            <button type="button" className="button-danger button-sm" onClick={() => setBulkOpen(true)} {...tip(t('tips.table.bulkDelete'))}>
-              <TrashIcon size={14} /> {t('components.table.bulkDelete')}
-            </button>
+              <button type="button" className="button-danger button-sm" onClick={() => setBulkOpen(true)} {...tip(t('tips.table.bulkDelete'))}>
+                <TrashIcon size={14} /> {t('components.table.bulkDelete')}
+              </button>
             )
           }
         />
@@ -449,7 +508,12 @@ export default function ResourceView({ config }) {
                 {t('common.actions.viewJson')}
               </button>
               {config.api.update && isEditable(editing.data) && (
-                <button type="button" className="button-secondary" onClick={() => setEditing((e) => ({ ...e, mode: 'edit' }))} {...tip(t('tips.actions.switchToEdit'))}>
+                <button
+                  type="button"
+                  className="button-secondary"
+                  onClick={() => setEditing((e) => ({ ...e, mode: 'edit' }))}
+                  {...tip(t('tips.actions.switchToEdit'))}
+                >
                   {t('common.actions.edit')}
                 </button>
               )}
@@ -472,7 +536,14 @@ export default function ResourceView({ config }) {
                   {t('common.actions.next')}
                 </button>
               )}
-              <button type="button" className="button-primary" onClick={save} disabled={busy} data-testid="save-button" {...tip(t(editing?.mode === 'edit' ? 'tips.modal.saveEdit' : 'tips.modal.saveCreate'))}>
+              <button
+                type="button"
+                className="button-primary"
+                onClick={save}
+                disabled={busy}
+                data-testid="save-button"
+                {...tip(t(editing?.mode === 'edit' ? 'tips.modal.saveEdit' : 'tips.modal.saveCreate'))}
+              >
                 {busy ? t('common.generic.saving') : t('common.actions.save')}
               </button>
             </>
@@ -487,13 +558,28 @@ export default function ResourceView({ config }) {
             {steps && (
               <div className="stepper" role="tablist" aria-label={t('components.form.steps')}>
                 {steps.map((s, i) => (
-                  <button key={s} type="button" role="tab" aria-selected={step === i} className={`stepper-step ${step === i ? 'active' : ''}`} onClick={() => setStep(i)} {...tip(t(`tips.resources.${config.id}.steps.${s}`))}>
+                  <button
+                    key={s}
+                    type="button"
+                    role="tab"
+                    aria-selected={step === i}
+                    className={`stepper-step ${step === i ? 'active' : ''}`}
+                    onClick={() => setStep(i)}
+                    {...tip(t(`tips.resources.${config.id}.steps.${s}`))}
+                  >
                     <span className="stepper-index">{i + 1}</span> {t(`${prefix}.steps.${s}`)}
                   </button>
                 ))}
               </div>
             )}
-            <FormFields fields={fields} data={editing.data} errors={fieldErrors} disabled={editing.mode === 'view'} onChange={(d) => setEditing((e) => ({ ...e, data: d }))} idPrefix={config.id} />
+            <FormFields
+              fields={fields}
+              data={editing.data}
+              errors={fieldErrors}
+              disabled={editing.mode === 'view'}
+              onChange={(d) => setEditing((e) => ({ ...e, data: d }))}
+              idPrefix={config.id}
+            />
           </>
         )}
       </Modal>
@@ -502,7 +588,11 @@ export default function ResourceView({ config }) {
         open={!!deleteTarget}
         danger
         title={t(`${prefix}.deleteTitle`)}
-        message={deletePreview && deletePreview.id === deleteTarget?.id && deletePreview.message ? deletePreview.message : t('common.confirm.deleteNamed', { name: deleteTarget?.name || deleteTarget?.email || deleteTarget?.id })}
+        message={
+          deletePreview && deletePreview.id === deleteTarget?.id && deletePreview.message
+            ? deletePreview.message
+            : t('common.confirm.deleteNamed', { name: deleteTarget?.name || deleteTarget?.email || deleteTarget?.id })
+        }
         details={deletePreview && deletePreview.id === deleteTarget?.id ? deletePreview.details : null}
         confirmLabel={t('common.actions.delete')}
         confirmTip={t('tips.confirm.delete')}

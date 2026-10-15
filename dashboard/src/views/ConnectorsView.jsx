@@ -22,7 +22,11 @@ export function filterConnectors(connectors, { category, search }) {
   return (connectors || []).filter((c) => {
     if (category && (c.category || 'Other') !== category) return false;
     if (!q) return true;
-    return [c.type, c.family, c.displayName, c.description].some((v) => String(v || '').toLowerCase().includes(q));
+    return [c.type, c.family, c.displayName, c.description].some((v) =>
+      String(v || '')
+        .toLowerCase()
+        .includes(q)
+    );
   });
 }
 
@@ -76,10 +80,23 @@ export default function ConnectorsView() {
       ) : (
         <>
           <div className="filter-inline connector-filters">
-            <input type="search" className="filter-search" value={search} placeholder={t('views.connectors.search')} aria-label={t('views.connectors.search')} onChange={(e) => setSearch(e.target.value)} {...tip(t('tips.views.connectors.search'))} />
+            <input
+              type="search"
+              className="filter-search"
+              value={search}
+              placeholder={t('views.connectors.search')}
+              aria-label={t('views.connectors.search')}
+              onChange={(e) => setSearch(e.target.value)}
+              {...tip(t('tips.views.connectors.search'))}
+            />
             <label className="filter-select" {...tip(t('tips.views.connectors.category'))}>
               <span className="sr-only">{t('views.connectors.category')}</span>
-              <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label={t('views.connectors.category')} {...tip(t('tips.views.connectors.category'))}>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                aria-label={t('views.connectors.category')}
+                {...tip(t('tips.views.connectors.category'))}
+              >
                 <option value="">
                   {t('views.connectors.category')}: {t('common.generic.all')}
                 </option>
@@ -97,7 +114,14 @@ export default function ConnectorsView() {
           ) : (
             <div className="card-grid" data-testid="connector-grid">
               {visible.map((c) => (
-                <button key={c.type} type="button" className="connector-card" onClick={() => navigate(pathFor('connectors', c.type))} data-connector={c.type} {...tip(t('tips.views.connectors.card', { name: c.displayName || c.type }))}>
+                <button
+                  key={c.type}
+                  type="button"
+                  className="connector-card"
+                  onClick={() => navigate(pathFor('connectors', c.type))}
+                  data-connector={c.type}
+                  {...tip(t('tips.views.connectors.card', { name: c.displayName || c.type }))}
+                >
                   <div className="connector-card-head">
                     <PlugIcon size={18} />
                     <strong>{c.displayName || c.type}</strong>

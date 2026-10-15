@@ -102,7 +102,12 @@ export default function SetupWizard() {
     if (Object.keys(problems).length) return;
     setBusy(true);
     try {
-      const r = await apiClient.createResource({ name: resource.name, environment: resource.environment || null, visibility: 'Tenant', ...resourceConnectorBody(resource, resource._connector) });
+      const r = await apiClient.createResource({
+        name: resource.name,
+        environment: resource.environment || null,
+        visibility: 'Tenant',
+        ...resourceConnectorBody(resource, resource._connector)
+      });
       setCreated((c) => ({ ...c, resource: r }));
       addToast({ type: 'success', message: t('common.toasts.created') });
       next();
@@ -120,7 +125,14 @@ export default function SetupWizard() {
     }
     setBusy(true);
     try {
-      await apiClient.createBinding(created.profile.id, { resourceId: created.resource.id, alias: created.resource.name, accessMode, requireApprovalForDestructive: true, instructionMode: 'Inherit', enabled: true });
+      await apiClient.createBinding(created.profile.id, {
+        resourceId: created.resource.id,
+        alias: created.resource.name,
+        accessMode,
+        requireApprovalForDestructive: true,
+        instructionMode: 'Inherit',
+        enabled: true
+      });
       addToast({ type: 'success', message: t('wizard.bound', { alias: created.resource.name, profile: created.profile.name }) });
       next();
     } catch (e) {
@@ -168,7 +180,14 @@ export default function SetupWizard() {
             </button>
           )}
           {(optional || current === 'inference') && (
-            <button type="button" className="button-secondary" onClick={next} disabled={busy} data-testid="wizard-skip-step" {...tip(t('tips.wizard.skipStep'))}>
+            <button
+              type="button"
+              className="button-secondary"
+              onClick={next}
+              disabled={busy}
+              data-testid="wizard-skip-step"
+              {...tip(t('tips.wizard.skipStep'))}
+            >
               {t('wizard.skipStep')}
             </button>
           )}
@@ -217,7 +236,13 @@ export default function SetupWizard() {
             <FormFields
               fields={[
                 { name: 'name', type: 'text', required: true, label: t('resources.resources.fields.name'), tip: t('tips.resources.resources.name') },
-                { name: 'environment', type: 'text', label: t('resources.resources.fields.environment'), tip: t('tips.resources.resources.environment'), placeholder: 'prod' }
+                {
+                  name: 'environment',
+                  type: 'text',
+                  label: t('resources.resources.fields.environment'),
+                  tip: t('tips.resources.resources.environment'),
+                  placeholder: 'prod'
+                }
               ]}
               data={resource}
               errors={errors}
@@ -230,7 +255,16 @@ export default function SetupWizard() {
         {current === 'bind' &&
           (created.resource && created.profile ? (
             <FormFields
-              fields={[{ name: 'accessMode', type: 'select', required: true, label: t('views.profile.bindings.fields.accessMode'), tip: t('tips.resources.bindings.accessMode'), options: enumOptions(t, 'accessMode') }]}
+              fields={[
+                {
+                  name: 'accessMode',
+                  type: 'select',
+                  required: true,
+                  label: t('views.profile.bindings.fields.accessMode'),
+                  tip: t('tips.resources.bindings.accessMode'),
+                  options: enumOptions(t, 'accessMode')
+                }
+              ]}
               data={{ accessMode }}
               idPrefix="wiz-bind"
               onChange={(d) => setAccessMode(d.accessMode)}

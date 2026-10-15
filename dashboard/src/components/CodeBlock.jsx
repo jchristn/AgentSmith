@@ -23,7 +23,12 @@ function format(value, prettyJson) {
 export default function CodeBlock({ value, prettyJson = false, emptyText = '-' }) {
   const { t } = useTranslation();
   const text = format(value, prettyJson);
-  if (!text) return <div className="text-muted" style={{ fontSize: 'var(--font-size-sm)' }}>{emptyText}</div>;
+  if (!text)
+    return (
+      <div className="text-muted" style={{ fontSize: 'var(--font-size-sm)' }}>
+        {emptyText}
+      </div>
+    );
   return (
     <div className="code-block">
       <div className="code-block-toolbar">

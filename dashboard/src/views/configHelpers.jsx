@@ -32,14 +32,36 @@ export function col(id, t, key, render, extra = {}) {
 export const idCol = (id, t) => col(id, t, 'id', (r) => <CopyableId value={r.id} />, { cellClass: 'cell-id', defaultHidden: true });
 export const nameCol = (id, t) => col(id, t, 'name', (r) => <strong>{r.name}</strong>, { sortable: true, pinned: true });
 export const createdCol = (id, t, i18n) =>
-  col(id, t, 'createdUtc', (r) => <span {...tip(formatDateTime(r.createdUtc, i18n.language))}>{formatRelativeTime(r.createdUtc, i18n.language)}</span>, { sortable: true });
+  col(id, t, 'createdUtc', (r) => <span {...tip(formatDateTime(r.createdUtc, i18n.language))}>{formatRelativeTime(r.createdUtc, i18n.language)}</span>, {
+    sortable: true
+  });
 export const activeCol = (id, t) =>
-  col(id, t, 'active', (r) => <ActiveBadge active={r.active} activeLabel={t('common.generic.active')} inactiveLabel={t('common.generic.inactive')} tip={t(r.active ? 'tips.badges.active' : 'tips.badges.inactive')} />);
+  col(id, t, 'active', (r) => (
+    <ActiveBadge
+      active={r.active}
+      activeLabel={t('common.generic.active')}
+      inactiveLabel={t('common.generic.inactive')}
+      tip={t(r.active ? 'tips.badges.active' : 'tips.badges.inactive')}
+    />
+  ));
 export const builtInCol = (id, t) =>
   col(id, t, 'isBuiltIn', (r) =>
-    r.isBuiltIn ? <Badge tone="info" tip={t('tips.badges.builtIn')}>{t('common.generic.builtIn')}</Badge> : <Badge tip={t('tips.badges.custom')}>{t('common.generic.custom')}</Badge>
+    r.isBuiltIn ? (
+      <Badge tone="info" tip={t('tips.badges.builtIn')}>
+        {t('common.generic.builtIn')}
+      </Badge>
+    ) : (
+      <Badge tip={t('tips.badges.custom')}>{t('common.generic.custom')}</Badge>
+    )
   );
-export const enumBadge = (t, group, value, tone = 'neutral') => (value ? <Badge tone={tone} tip={enumTip(t, group, value)}>{enumLabel(t, group, value)}</Badge> : '-');
+export const enumBadge = (t, group, value, tone = 'neutral') =>
+  value ? (
+    <Badge tone={tone} tip={enumTip(t, group, value)}>
+      {enumLabel(t, group, value)}
+    </Badge>
+  ) : (
+    '-'
+  );
 export const actionTip = (t, id, name) => t(`tips.resources.${id}.actions.${name}`);
 
 export const notBuiltIn = (r) => !r?.isBuiltIn;

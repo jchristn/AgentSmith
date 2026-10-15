@@ -79,7 +79,12 @@ export default function ConnectorDetailView({ recordId }) {
           </>
         }
       />
-      <Tabs label={connector.displayName || connector.type} active={tab} onChange={setTab} tabs={TABS.map((id) => ({ id, label: t(`views.connectors.tabs.${id}`), tip: t(`tips.views.connectors.tabs.${id}`) }))} />
+      <Tabs
+        label={connector.displayName || connector.type}
+        active={tab}
+        onChange={setTab}
+        tabs={TABS.map((id) => ({ id, label: t(`views.connectors.tabs.${id}`), tip: t(`tips.views.connectors.tabs.${id}`) }))}
+      />
       {tab === 'overview' && (
         <div className="panel">
           <dl className="kv-grid">
@@ -114,7 +119,8 @@ export default function ConnectorDetailView({ recordId }) {
             <ul className="plain-list" data-testid="connector-slots">
               {slots.map((s) => (
                 <li key={s.name}>
-                  <strong>{s.label || s.name}</strong> <code>{s.name}</code> {s.required && <span className="pill pill-warning">{t('common.generic.required')}</span>}{' '}
+                  <strong>{s.label || s.name}</strong> <code>{s.name}</code>{' '}
+                  {s.required && <span className="pill pill-warning">{t('common.generic.required')}</span>}{' '}
                   <span className="text-muted">{(s.acceptedKinds || []).map((k) => enumLabel(t, 'secretKind', k)).join(', ')}</span>
                   {s.help && <div className="field-hint">{s.help}</div>}
                 </li>
@@ -148,7 +154,13 @@ export default function ConnectorDetailView({ recordId }) {
                     <td>{enumLabel(t, 'settingValueKind', s.kind)}</td>
                     <td>{s.required ? t('common.boolean.yes') : t('common.boolean.no')}</td>
                     <td>{s.defaultValue ?? '-'}</td>
-                    <td>{s.allowedValues.length ? s.allowedValues.join(', ') : s.minimum !== null || s.maximum !== null ? `${s.minimum ?? '-'} .. ${s.maximum ?? '-'}` : '-'}</td>
+                    <td>
+                      {s.allowedValues.length
+                        ? s.allowedValues.join(', ')
+                        : s.minimum !== null || s.maximum !== null
+                          ? `${s.minimum ?? '-'} .. ${s.maximum ?? '-'}`
+                          : '-'}
+                    </td>
                     <td>{s.group}</td>
                   </tr>
                 ))}
@@ -166,9 +178,15 @@ export default function ConnectorDetailView({ recordId }) {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th scope="col" {...tip(t('tips.views.profile.tools.name'))}>{t('views.profile.tools.name')}</th>
-                    <th scope="col" {...tip(t('tips.views.profile.tools.effect'))}>{t('views.profile.tools.effect')}</th>
-                    <th scope="col" {...tip(t('tips.views.profile.tools.description'))}>{t('views.profile.tools.description')}</th>
+                    <th scope="col" {...tip(t('tips.views.profile.tools.name'))}>
+                      {t('views.profile.tools.name')}
+                    </th>
+                    <th scope="col" {...tip(t('tips.views.profile.tools.effect'))}>
+                      {t('views.profile.tools.effect')}
+                    </th>
+                    <th scope="col" {...tip(t('tips.views.profile.tools.description'))}>
+                      {t('views.profile.tools.description')}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -194,11 +212,20 @@ export default function ConnectorDetailView({ recordId }) {
         <div data-testid="connector-instructions">
           <div className="info-banner">
             <span>{t('views.connectors.instructionsBody', { key: connector.defaultInstructionsKey || `connector.${connector.type}.instructions` })}</span>
-            <button type="button" className="button-primary button-sm" onClick={() => navigate(pathFor('promptTemplates', null, { search: connector.defaultInstructionsKey || connector.type }))} {...tip(t('tips.views.connectors.editInstructions'))}>
+            <button
+              type="button"
+              className="button-primary button-sm"
+              onClick={() => navigate(pathFor('promptTemplates', null, { search: connector.defaultInstructionsKey || connector.type }))}
+              {...tip(t('tips.views.connectors.editInstructions'))}
+            >
               {t('views.connectors.editInstructions')}
             </button>
           </div>
-          {connector.defaultInstructions ? <PromptEditor value={connector.defaultInstructions} readOnly id="connector-instructions" label={t('views.connectors.builtInInstructions')} /> : <CodeBlock value="" emptyText={t('views.connectors.noInstructions')} />}
+          {connector.defaultInstructions ? (
+            <PromptEditor value={connector.defaultInstructions} readOnly id="connector-instructions" label={t('views.connectors.builtInInstructions')} />
+          ) : (
+            <CodeBlock value="" emptyText={t('views.connectors.noInstructions')} />
+          )}
         </div>
       )}
       <JsonViewerModal open={jsonOpen} value={connector} onClose={() => setJsonOpen(false)} />

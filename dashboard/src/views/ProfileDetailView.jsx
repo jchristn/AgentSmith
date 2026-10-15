@@ -29,7 +29,17 @@ const TABS = ['general', 'bindings', 'instructions', 'tools', 'connect'];
 
 /** Blank binding for the add binding modal. */
 export function blankBinding() {
-  return { resourceId: '', alias: '', accessMode: 'ReadOnly', requireApprovalForDestructive: true, instructionMode: 'Inherit', instructionText: '', maxOutputBytes: null, maxRows: null, enabled: true };
+  return {
+    resourceId: '',
+    alias: '',
+    accessMode: 'ReadOnly',
+    requireApprovalForDestructive: true,
+    instructionMode: 'Inherit',
+    instructionText: '',
+    maxOutputBytes: null,
+    maxRows: null,
+    enabled: true
+  };
 }
 
 /** Validate a binding: a resource, a unique alias (letters, digits, dot, dash, underscore), and an access mode. */
@@ -120,9 +130,15 @@ function ToolRulesModal({ profileId, binding, tools, onClose }) {
           <table className="data-table">
             <thead>
               <tr>
-                <th scope="col" {...tip(t('tips.views.profile.tools.name'))}>{t('views.profile.tools.name')}</th>
-                <th scope="col" {...tip(t('tips.views.profile.tools.effect'))}>{t('views.profile.tools.effect')}</th>
-                <th scope="col" {...tip(t('tips.views.profile.toolRules.rule'))}>{t('views.profile.toolRules.rule')}</th>
+                <th scope="col" {...tip(t('tips.views.profile.tools.name'))}>
+                  {t('views.profile.tools.name')}
+                </th>
+                <th scope="col" {...tip(t('tips.views.profile.tools.effect'))}>
+                  {t('views.profile.tools.effect')}
+                </th>
+                <th scope="col" {...tip(t('tips.views.profile.toolRules.rule'))}>
+                  {t('views.profile.toolRules.rule')}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -135,7 +151,12 @@ function ToolRulesModal({ profileId, binding, tools, onClose }) {
                     <EffectBadge effect={tool.baseEffect || tool.effect} />
                   </td>
                   <td>
-                    <select value={rules[tool.name] || ''} onChange={(e) => setRules((r) => ({ ...r, [tool.name]: e.target.value }))} aria-label={t('views.profile.toolRules.ruleFor', { tool: tool.name })} {...tip(t('tips.views.profile.toolRules.rule'))}>
+                    <select
+                      value={rules[tool.name] || ''}
+                      onChange={(e) => setRules((r) => ({ ...r, [tool.name]: e.target.value }))}
+                      aria-label={t('views.profile.toolRules.ruleFor', { tool: tool.name })}
+                      {...tip(t('tips.views.profile.toolRules.rule'))}
+                    >
                       <option value="">{t('views.profile.toolRules.inherit')}</option>
                       {enumOptions(t, 'toolRule').map((o) => (
                         <option key={o.value} value={o.value}>
@@ -226,7 +247,10 @@ export default function ProfileDetailView({ recordId }) {
   useEffect(load, [load]);
   useEffect(loadBindings, [loadBindings]);
   useEffect(() => {
-    profilesConfig.loadOptions({ apiClient }).then(setOptions).catch(() => setOptions({}));
+    profilesConfig
+      .loadOptions({ apiClient })
+      .then(setOptions)
+      .catch(() => setOptions({}));
     apiClient
       .listResources({ pageNumber: 1, pageSize: 1000 })
       .then((r) => setResources(r.items || []))
@@ -292,7 +316,17 @@ export default function ProfileDetailView({ recordId }) {
     if (Object.keys(problems).length) return;
     setBusy(true);
     try {
-      const body = { resourceId: b.resourceId, alias: b.alias, accessMode: b.accessMode, requireApprovalForDestructive: !!b.requireApprovalForDestructive, instructionMode: b.instructionMode, instructionText: b.instructionMode === 'Inherit' ? null : b.instructionText, maxOutputBytes: b.maxOutputBytes ?? null, maxRows: b.maxRows ?? null, enabled: !!b.enabled };
+      const body = {
+        resourceId: b.resourceId,
+        alias: b.alias,
+        accessMode: b.accessMode,
+        requireApprovalForDestructive: !!b.requireApprovalForDestructive,
+        instructionMode: b.instructionMode,
+        instructionText: b.instructionMode === 'Inherit' ? null : b.instructionText,
+        maxOutputBytes: b.maxOutputBytes ?? null,
+        maxRows: b.maxRows ?? null,
+        enabled: !!b.enabled
+      };
       if (b.id) await apiClient.updateBinding(recordId, b.id, body);
       else await apiClient.createBinding(recordId, body);
       addToast({ type: 'success', message: t(b.id ? 'common.toasts.saved' : 'common.toasts.created') });
@@ -370,13 +404,26 @@ export default function ProfileDetailView({ recordId }) {
           <div className="panel-header">
             <p className="text-muted">{t('views.profile.bindings.body')}</p>
             {!isMissingEndpoint(bindingsError) && (
-              <button type="button" className="button-primary" onClick={() => { setBindingErrors({}); setEditingBinding(blankBinding()); }} data-testid="add-binding" {...tip(t('tips.views.profile.bindings.add'))}>
+              <button
+                type="button"
+                className="button-primary"
+                onClick={() => {
+                  setBindingErrors({});
+                  setEditingBinding(blankBinding());
+                }}
+                data-testid="add-binding"
+                {...tip(t('tips.views.profile.bindings.add'))}
+              >
                 <PlusIcon size={14} /> {t('views.profile.bindings.add')}
               </button>
             )}
           </div>
           {isMissingEndpoint(bindingsError) ? (
-            <UnavailableState feature={t('views.profile.tabs.bindings')} purpose={t('views.profile.bindings.purpose')} endpoint="/v1.0/api/agent-profiles/{id}/bindings" />
+            <UnavailableState
+              feature={t('views.profile.tabs.bindings')}
+              purpose={t('views.profile.bindings.purpose')}
+              endpoint="/v1.0/api/agent-profiles/{id}/bindings"
+            />
           ) : bindingsError ? (
             <ErrorPresenter error={bindingsError} onRetry={loadBindings} />
           ) : bindings === null ? (
@@ -386,7 +433,12 @@ export default function ProfileDetailView({ recordId }) {
               title={t('views.profile.bindings.emptyTitle')}
               body={t('views.profile.bindings.emptyBody')}
               action={
-                <button type="button" className="button-secondary" onClick={() => navigate(pathFor('resources'))} {...tip(t('tips.views.profile.bindings.goResources'))}>
+                <button
+                  type="button"
+                  className="button-secondary"
+                  onClick={() => navigate(pathFor('resources'))}
+                  {...tip(t('tips.views.profile.bindings.goResources'))}
+                >
                   {t('views.profile.bindings.goResources')}
                 </button>
               }
@@ -408,7 +460,11 @@ export default function ProfileDetailView({ recordId }) {
                 </thead>
                 <tbody>
                   {bindings.map((b) => (
-                    <tr key={b.id} className="clickable" onClick={(e) => !e.target.closest('[data-ignore-row-click], button, a, select, input') && setEditingBinding({ ...blankBinding(), ...b })}>
+                    <tr
+                      key={b.id}
+                      className="clickable"
+                      onClick={(e) => !e.target.closest('[data-ignore-row-click], button, a, select, input') && setEditingBinding({ ...blankBinding(), ...b })}
+                    >
                       <td>
                         <code>{b.alias}</code>
                       </td>
@@ -416,8 +472,16 @@ export default function ProfileDetailView({ recordId }) {
                       <td>
                         <EnumBadge group="accessMode" value={b.accessMode} tone={accessModeTone(b.accessMode)} />
                       </td>
-                      <td>{b.accessMode === 'ReadWriteWithApproval' || (b.accessMode === 'ReadWrite' && b.requireApprovalForDestructive !== false) ? <Badge tone="warning">{t('views.profile.bindings.approvalOn')}</Badge> : '-'}</td>
-                      <td>{b.enabled === false ? <Badge>{t('common.generic.disabled')}</Badge> : <Badge tone="success">{t('common.generic.enabled')}</Badge>}</td>
+                      <td>
+                        {b.accessMode === 'ReadWriteWithApproval' || (b.accessMode === 'ReadWrite' && b.requireApprovalForDestructive !== false) ? (
+                          <Badge tone="warning">{t('views.profile.bindings.approvalOn')}</Badge>
+                        ) : (
+                          '-'
+                        )}
+                      </td>
+                      <td>
+                        {b.enabled === false ? <Badge>{t('common.generic.disabled')}</Badge> : <Badge tone="success">{t('common.generic.enabled')}</Badge>}
+                      </td>
                       <td className="actions-cell">
                         <RowActions
                           label={b.alias}
@@ -443,13 +507,24 @@ export default function ProfileDetailView({ recordId }) {
             <p className="text-muted">{t('views.profile.instructions.body')}</p>
             <FormField
               id="instructions-surface"
-              field={{ name: 'surface', type: 'select', required: true, label: t('views.profile.instructions.surface'), tip: t('tips.views.profile.instructions.surface'), options: enumOptions(t, 'surface') }}
+              field={{
+                name: 'surface',
+                type: 'select',
+                required: true,
+                label: t('views.profile.instructions.surface'),
+                tip: t('tips.views.profile.instructions.surface'),
+                options: enumOptions(t, 'surface')
+              }}
               value={surface}
               onChange={setSurface}
             />
           </div>
           {isMissingEndpoint(instructionsError) ? (
-            <UnavailableState feature={t('views.profile.tabs.instructions')} purpose={t('views.profile.instructions.purpose')} endpoint="/v1.0/api/agent-profiles/{id}/compiled-instructions" />
+            <UnavailableState
+              feature={t('views.profile.tabs.instructions')}
+              purpose={t('views.profile.instructions.purpose')}
+              endpoint="/v1.0/api/agent-profiles/{id}/compiled-instructions"
+            />
           ) : instructionsError ? (
             <ErrorPresenter error={instructionsError} />
           ) : !instructions ? (
@@ -463,7 +538,8 @@ export default function ProfileDetailView({ recordId }) {
                   <ol className="plain-list">
                     {instructions.sections.map((s, i) => (
                       <li key={i} {...tip(t('tips.views.profile.instructions.section'))}>
-                        <strong>{s.title || s.key}</strong> <span className="text-muted">{t(`enums.promptLayer.${s.layer}`, { defaultValue: s.layer || '' })}</span>
+                        <strong>{s.title || s.key}</strong>{' '}
+                        <span className="text-muted">{t(`enums.promptLayer.${s.layer}`, { defaultValue: s.layer || '' })}</span>
                         {s.templateKey && (
                           <div>
                             <code>{s.templateKey}</code>
@@ -483,7 +559,11 @@ export default function ProfileDetailView({ recordId }) {
         <div className="panel" data-testid="profile-tools">
           <p className="text-muted">{t('views.profile.tools.body')}</p>
           {isMissingEndpoint(toolsError) ? (
-            <UnavailableState feature={t('views.profile.tabs.tools')} purpose={t('views.profile.tools.purpose')} endpoint="/v1.0/api/agent-profiles/{id}/tools" />
+            <UnavailableState
+              feature={t('views.profile.tabs.tools')}
+              purpose={t('views.profile.tools.purpose')}
+              endpoint="/v1.0/api/agent-profiles/{id}/tools"
+            />
           ) : toolsError ? (
             <ErrorPresenter error={toolsError} />
           ) : tools === null ? (
@@ -495,9 +575,15 @@ export default function ProfileDetailView({ recordId }) {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th scope="col" {...tip(t('tips.views.profile.tools.name'))}>{t('views.profile.tools.name')}</th>
-                    <th scope="col" {...tip(t('tips.views.profile.tools.effect'))}>{t('views.profile.tools.effect')}</th>
-                    <th scope="col" {...tip(t('tips.views.profile.tools.description'))}>{t('views.profile.tools.description')}</th>
+                    <th scope="col" {...tip(t('tips.views.profile.tools.name'))}>
+                      {t('views.profile.tools.name')}
+                    </th>
+                    <th scope="col" {...tip(t('tips.views.profile.tools.effect'))}>
+                      {t('views.profile.tools.effect')}
+                    </th>
+                    <th scope="col" {...tip(t('tips.views.profile.tools.description'))}>
+                      {t('views.profile.tools.description')}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -522,9 +608,22 @@ export default function ProfileDetailView({ recordId }) {
 
       {tab === 'connect' && (
         <div className="connect-grid" data-testid="profile-connect">
-          <Snippet title={t('views.profile.connect.claudeCode')} body={t('views.profile.connect.claudeCodeBody')} value={mcpConfigSnippet({ serverUrl, profile: mcpProfile })} testId="snippet-mcp" />
-          <Snippet title={t('views.profile.connect.claudeCli')} body={t('views.profile.connect.claudeCliBody')} value={claudeCliSnippet({ serverUrl, profile: mcpProfile })} />
-          <Snippet title={t('views.profile.connect.stdio')} body={t('views.profile.connect.stdioBody')} value={stdioSnippet({ serverUrl, profile: mcpProfile })} />
+          <Snippet
+            title={t('views.profile.connect.claudeCode')}
+            body={t('views.profile.connect.claudeCodeBody')}
+            value={mcpConfigSnippet({ serverUrl, profile: mcpProfile })}
+            testId="snippet-mcp"
+          />
+          <Snippet
+            title={t('views.profile.connect.claudeCli')}
+            body={t('views.profile.connect.claudeCliBody')}
+            value={claudeCliSnippet({ serverUrl, profile: mcpProfile })}
+          />
+          <Snippet
+            title={t('views.profile.connect.stdio')}
+            body={t('views.profile.connect.stdioBody')}
+            value={stdioSnippet({ serverUrl, profile: mcpProfile })}
+          />
           <section className="panel snippet">
             <h3 className="section-title">{t('views.profile.connect.a2a')}</h3>
             <p className="field-hint">{profile.exposeA2a === false ? t('views.profile.connect.a2aOff') : t('views.profile.connect.a2aBody')}</p>
@@ -536,7 +635,9 @@ export default function ProfileDetailView({ recordId }) {
           </section>
           <section className="panel snippet">
             <h3 className="section-title">{t('views.profile.connect.openai')}</h3>
-            <p className="field-hint">{profile.exposeOpenai === false ? t('views.profile.connect.openaiOff') : t('views.profile.connect.openaiBody', { model: profile.name })}</p>
+            <p className="field-hint">
+              {profile.exposeOpenai === false ? t('views.profile.connect.openaiOff') : t('views.profile.connect.openaiBody', { model: profile.name })}
+            </p>
             <div className="secret-row">
               <code>{openAiBaseUrl({ serverUrl })}</code>
               <CopyButton value={openAiBaseUrl({ serverUrl })} tipText={t('tips.views.profile.connect.copyOpenai')} />
@@ -545,7 +646,12 @@ export default function ProfileDetailView({ recordId }) {
           <section className="panel snippet">
             <h3 className="section-title">{t('views.profile.connect.credential')}</h3>
             <p className="field-hint">{t('views.profile.connect.credentialBody')}</p>
-            <button type="button" className="button-primary" onClick={() => navigate(pathFor('credentials'))} {...tip(t('tips.views.profile.connect.credential'))}>
+            <button
+              type="button"
+              className="button-primary"
+              onClick={() => navigate(pathFor('credentials'))}
+              {...tip(t('tips.views.profile.connect.credential'))}
+            >
               {t('views.profile.connect.credentialAction')}
             </button>
           </section>
@@ -563,7 +669,14 @@ export default function ProfileDetailView({ recordId }) {
             <button type="button" className="button-secondary" onClick={() => setEditingBinding(null)} disabled={busy} {...tip(t('tips.modal.cancelForm'))}>
               {t('common.actions.cancel')}
             </button>
-            <button type="button" className="button-primary" onClick={saveBinding} disabled={busy} data-testid="binding-save" {...tip(t('tips.modal.saveCreate'))}>
+            <button
+              type="button"
+              className="button-primary"
+              onClick={saveBinding}
+              disabled={busy}
+              data-testid="binding-save"
+              {...tip(t('tips.modal.saveCreate'))}
+            >
               {t('common.actions.save')}
             </button>
           </>

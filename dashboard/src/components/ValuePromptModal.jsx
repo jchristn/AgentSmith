@@ -46,7 +46,14 @@ export default function ValuePromptModal({ title, label, tip: fieldTip, saveTip,
         </>
       }
     >
-      <FormField id="value-prompt" field={{ name: 'value', type: secret ? 'password' : multiline ? 'textarea' : 'text', label, required: true, tip: fieldTip }} value={value} onChange={setValue} error={error} disabled={busy} />
+      <FormField
+        id="value-prompt"
+        field={{ name: 'value', type: secret ? 'password' : multiline ? 'textarea' : 'text', label, required: true, tip: fieldTip }}
+        value={value}
+        onChange={setValue}
+        error={error}
+        disabled={busy}
+      />
     </Modal>
   );
 }

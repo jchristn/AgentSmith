@@ -52,18 +52,34 @@ export default function Topbar({ onToggleSidebar, health, mode }) {
     <header className="dashboard-header" data-tour="topbar">
       <div className="topbar">
         <div className="topbar-left">
-          <button type="button" className="icon-button" onClick={onToggleSidebar} aria-label={t('nav.collapseSidebar')} {...tip(t('tips.topbar.toggleSidebar'))}>
+          <button
+            type="button"
+            className="icon-button"
+            onClick={onToggleSidebar}
+            aria-label={t('nav.collapseSidebar')}
+            {...tip(t('tips.topbar.toggleSidebar'))}
+          >
             <MenuIcon />
           </button>
           <span className="topbar-chip topbar-server" {...tip(t('tips.topbar.server', { url: serverUrl }))}>
-            <span className={`health-dot ${healthState}`} role="img" aria-label={t(`topbar.health.${healthState}`)} {...tip(t(`tips.topbar.health.${healthState}`))} />
+            <span
+              className={`health-dot ${healthState}`}
+              role="img"
+              aria-label={t(`topbar.health.${healthState}`)}
+              {...tip(t(`tips.topbar.health.${healthState}`))}
+            />
             <code className="topbar-truncate">{serverUrl}</code>
             <CopyButton value={serverUrl} title={t('topbar.copyServer')} tipText={t('tips.topbar.copyServer')} />
           </span>
           {isSystemAdmin && tenants.length > 0 ? (
             <label className="topbar-chip topbar-tenant" {...tip(t('tips.topbar.switchTenant'))}>
               <span className="text-muted">{t('topbar.tenant')}</span>
-              <select value={tenantId} onChange={(e) => setTenantId(e.target.value)} aria-label={t('topbar.switchTenant')} {...tip(t('tips.topbar.switchTenant'))}>
+              <select
+                value={tenantId}
+                onChange={(e) => setTenantId(e.target.value)}
+                aria-label={t('topbar.switchTenant')}
+                {...tip(t('tips.topbar.switchTenant'))}
+              >
                 {tenants.map((tn) => (
                   <option key={tn.id} value={tn.id}>
                     {tn.name}
@@ -85,7 +101,11 @@ export default function Topbar({ onToggleSidebar, health, mode }) {
           <span className="topbar-chip role topbar-hide-mobile" {...tip(t('tips.topbar.role'))}>
             {t(roleKey(principal))}
           </span>
-          <span className={`topbar-chip live-chip ${live ? 'on' : ''}`} data-testid="live-chip" {...tip(t(live ? 'tips.topbar.liveOn' : 'tips.topbar.liveOff'))}>
+          <span
+            className={`topbar-chip live-chip ${live ? 'on' : ''}`}
+            data-testid="live-chip"
+            {...tip(t(live ? 'tips.topbar.liveOn' : 'tips.topbar.liveOff'))}
+          >
             <RefreshIcon size={12} />
             <span className="topbar-hide-narrow">{live ? t('topbar.live') : t('topbar.polling')}</span>
           </span>
@@ -119,7 +139,14 @@ export default function Topbar({ onToggleSidebar, health, mode }) {
             </button>
           )}
           <LanguageSelector compact />
-          <a className="icon-button" href={GITHUB_URL} target="_blank" rel="noopener noreferrer" aria-label={t('common.actions.openGithub')} {...tip(t('tips.topbar.github'))}>
+          <a
+            className="icon-button"
+            href={GITHUB_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={t('common.actions.openGithub')}
+            {...tip(t('tips.topbar.github'))}
+          >
             <GithubIcon />
           </a>
           <button
@@ -132,7 +159,14 @@ export default function Topbar({ onToggleSidebar, health, mode }) {
           >
             {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
           </button>
-          <button type="button" className="icon-button" onClick={logout} aria-label={t('common.actions.logout')} {...tip(t('tips.topbar.logout'))} data-testid="logout">
+          <button
+            type="button"
+            className="icon-button"
+            onClick={logout}
+            aria-label={t('common.actions.logout')}
+            {...tip(t('tips.topbar.logout'))}
+            data-testid="logout"
+          >
             <LogoutIcon />
           </button>
         </div>

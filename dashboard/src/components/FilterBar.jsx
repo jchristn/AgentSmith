@@ -20,7 +20,9 @@ export default function FilterBar({ fields = [], values = {}, onChange, onApply,
     >
       {fields.map((f) => (
         <div className="field" key={f.key}>
-          <label htmlFor={`filter-${f.key}`} {...tip(f.tip)}>{f.label}</label>
+          <label htmlFor={`filter-${f.key}`} {...tip(f.tip)}>
+            {f.label}
+          </label>
           {f.type === 'select' ? (
             <select id={`filter-${f.key}`} {...tip(f.tip)} value={values[f.key] ?? ''} onChange={(e) => set(f.key, e.target.value)}>
               {f.options.map((o) => (

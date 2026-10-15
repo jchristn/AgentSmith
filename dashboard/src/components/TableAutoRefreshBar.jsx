@@ -9,30 +9,20 @@ import { formatNumber } from '../i18n/formatters';
  * auto-refresh selector + manual refresh on the right. Keeps every table page
  * consistent even when it does not use server pagination.
  */
-export default function TableAutoRefreshBar({
-  totalRecords,
-  autoRefreshSeconds,
-  onAutoRefreshChange,
-  onRefresh,
-  disabled = false,
-  leftSlot = null
-}) {
+export default function TableAutoRefreshBar({ totalRecords, autoRefreshSeconds, onAutoRefreshChange, onRefresh, disabled = false, leftSlot = null }) {
   const { t } = useTranslation();
   return (
     <div className="table-toolbar">
       <div className="table-pagination-summary">
         {typeof totalRecords === 'number' && (
           <span>
-            <strong>{formatNumber(totalRecords)}</strong>{' '}
-            {t('components.table.records', { count: totalRecords })}
+            <strong>{formatNumber(totalRecords)}</strong> {t('components.table.records', { count: totalRecords })}
           </span>
         )}
         {leftSlot}
       </div>
       <div className="table-pagination-controls">
-        {onAutoRefreshChange && (
-          <AutoRefreshSelect value={autoRefreshSeconds ?? 0} onChange={onAutoRefreshChange} />
-        )}
+        {onAutoRefreshChange && <AutoRefreshSelect value={autoRefreshSeconds ?? 0} onChange={onAutoRefreshChange} />}
         {onRefresh && (
           <button
             type="button"

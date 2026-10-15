@@ -42,7 +42,13 @@ export default function Explainer({ topic, diagram = null }) {
 
   if (hidden) {
     return (
-      <button type="button" className="button-ghost button-sm explainer-reopen" onClick={() => toggle(false)} data-testid={`explainer-open-${topic}`} {...tip(t('tips.explainer.reopen', { topic: title }))}>
+      <button
+        type="button"
+        className="button-ghost button-sm explainer-reopen"
+        onClick={() => toggle(false)}
+        data-testid={`explainer-open-${topic}`}
+        {...tip(t('tips.explainer.reopen', { topic: title }))}
+      >
         <InfoIcon size={14} /> {t('components.explainer.about', { topic: title })}
       </button>
     );
@@ -61,7 +67,14 @@ export default function Explainer({ topic, diagram = null }) {
         ))}
       </div>
       <div className="explainer-actions">
-        <button type="button" className="icon-button" onClick={() => toggle(true)} aria-label={t('components.explainer.dismiss')} data-testid={`explainer-dismiss-${topic}`} {...tip(t('tips.explainer.dismiss'))}>
+        <button
+          type="button"
+          className="icon-button"
+          onClick={() => toggle(true)}
+          aria-label={t('components.explainer.dismiss')}
+          data-testid={`explainer-dismiss-${topic}`}
+          {...tip(t('tips.explainer.dismiss'))}
+        >
           <XIcon size={16} />
         </button>
       </div>
@@ -81,13 +94,21 @@ export function ProfileRelationDiagram() {
   return (
     <div className="relation-diagram" role="img" aria-label={t('explainers.diagram.label')} data-testid="relation-diagram">
       {node('secret')}
-      <span className="relation-arrow" aria-hidden="true">→</span>
+      <span className="relation-arrow" aria-hidden="true">
+        →
+      </span>
       {node('resource')}
-      <span className="relation-arrow" aria-hidden="true">→</span>
+      <span className="relation-arrow" aria-hidden="true">
+        →
+      </span>
       {node('binding')}
-      <span className="relation-arrow" aria-hidden="true">→</span>
+      <span className="relation-arrow" aria-hidden="true">
+        →
+      </span>
       {node('profile', true)}
-      <span className="relation-arrow" aria-hidden="true">←</span>
+      <span className="relation-arrow" aria-hidden="true">
+        ←
+      </span>
       {node('surfaces')}
     </div>
   );

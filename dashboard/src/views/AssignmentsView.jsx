@@ -10,7 +10,9 @@ export default function AssignmentsView() {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   // ?view=credentials (or a credentialId) opens the credential scope tab, for links from the Credentials page.
-  const [tab, setTab] = useState(() => (searchParams.get('view') === 'credentials' || searchParams.get('credentialId') ? 'credentialAssignments' : 'userAssignments'));
+  const [tab, setTab] = useState(() =>
+    searchParams.get('view') === 'credentials' || searchParams.get('credentialId') ? 'credentialAssignments' : 'userAssignments'
+  );
   return (
     <div>
       <Tabs
@@ -22,7 +24,11 @@ export default function AssignmentsView() {
           { id: 'credentialAssignments', label: t('resources.credentialAssignments.title'), tip: t('tips.nav.subtabs.credentialAssignments') }
         ]}
       />
-      {tab === 'userAssignments' ? <ResourceView key="userAssignments" config={userAssignmentsConfig} /> : <ResourceView key="credentialAssignments" config={credentialAssignmentsConfig} />}
+      {tab === 'userAssignments' ? (
+        <ResourceView key="userAssignments" config={userAssignmentsConfig} />
+      ) : (
+        <ResourceView key="credentialAssignments" config={credentialAssignmentsConfig} />
+      )}
     </div>
   );
 }

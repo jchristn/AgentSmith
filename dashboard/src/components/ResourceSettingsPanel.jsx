@@ -49,7 +49,8 @@ export function resourceConnectorBody(data, connector) {
 /** Normalize a stored resource's slot bindings (array or map) into { slotName: { secretId, secretFieldName } }. */
 export function slotBindingsToForm(bindings) {
   if (!bindings) return {};
-  if (Array.isArray(bindings)) return Object.fromEntries(bindings.map((b) => [b.slotName, { secretId: b.secretId, secretFieldName: b.secretFieldName || null }]));
+  if (Array.isArray(bindings))
+    return Object.fromEntries(bindings.map((b) => [b.slotName, { secretId: b.secretId, secretFieldName: b.secretFieldName || null }]));
   return bindings;
 }
 
@@ -93,7 +94,13 @@ export default function ResourceSettingsPanel({ data, onChange, errors = {}, dis
 
   const choose = (type) => {
     const next = (connectors || []).find((c) => c.type === type);
-    onChange({ ...data, connectorType: type, _connector: next || null, settings: initialValues(normalizeSchema(next?.settingsSchema), {}), secretBindings: {} });
+    onChange({
+      ...data,
+      connectorType: type,
+      _connector: next || null,
+      settings: initialValues(normalizeSchema(next?.settingsSchema), {}),
+      secretBindings: {}
+    });
     setTest(null);
   };
 
@@ -108,7 +115,8 @@ export default function ResourceSettingsPanel({ data, onChange, errors = {}, dis
     setTest(null);
     try {
       const body = { ...resourceConnectorBody(data, connector), name: data.name || undefined, endpoint: data.endpoint || undefined };
-      const result = data.id && mode !== 'create' ? await apiClient.testResourceSettings({ ...body, resourceId: data.id }) : await apiClient.testResourceSettings(body);
+      const result =
+        data.id && mode !== 'create' ? await apiClient.testResourceSettings({ ...body, resourceId: data.id }) : await apiClient.testResourceSettings(body);
       setTest({ ok: result?.success ?? result?.ok ?? true, result });
     } catch (e) {
       setTest({ ok: false, error: errorMessage(t, e) });
@@ -135,7 +143,13 @@ export default function ResourceSettingsPanel({ data, onChange, errors = {}, dis
         error={errors.connectorType}
         disabled
         renderControl={() => (
-          <select id="resource-connectorType" value={data.connectorType || ''} disabled={disabled || mode === 'edit'} onChange={(e) => choose(e.target.value)} {...tip(t('tips.resources.resources.connectorType'))}>
+          <select
+            id="resource-connectorType"
+            value={data.connectorType || ''}
+            disabled={disabled || mode === 'edit'}
+            onChange={(e) => choose(e.target.value)}
+            {...tip(t('tips.resources.resources.connectorType'))}
+          >
             <option value="">{t('views.resources.form.chooseConnector')}</option>
             {Object.entries(grouped).map(([cat, list]) => (
               <optgroup key={cat} label={enumLabel(t, 'connectorCategory', cat)}>
@@ -157,7 +171,15 @@ export default function ResourceSettingsPanel({ data, onChange, errors = {}, dis
       {connector && (
         <>
           <h4 className="form-section-title">{t('views.resources.form.settings')}</h4>
-          <SchemaForm schema={schema} values={data.settings || {}} errors={settingErrors} disabled={disabled} connectorType={connector.type} idPrefix="resource-setting" onChange={(settings) => onChange({ ...data, settings })} />
+          <SchemaForm
+            schema={schema}
+            values={data.settings || {}}
+            errors={settingErrors}
+            disabled={disabled}
+            connectorType={connector.type}
+            idPrefix="resource-setting"
+            onChange={(settings) => onChange({ ...data, settings })}
+          />
           {(connector.secretSlots || []).length > 0 && (
             <>
               <h4 className="form-section-title">{t('views.resources.form.secrets')}</h4>
@@ -184,7 +206,14 @@ export default function ResourceSettingsPanel({ data, onChange, errors = {}, dis
           )}
           {!disabled && (
             <div className="test-connection">
-              <button type="button" className="button-secondary" onClick={runTest} disabled={testing} data-testid="test-connection" {...tip(t('tips.views.resources.form.test'))}>
+              <button
+                type="button"
+                className="button-secondary"
+                onClick={runTest}
+                disabled={testing}
+                data-testid="test-connection"
+                {...tip(t('tips.views.resources.form.test'))}
+              >
                 {testing ? t('views.resources.form.testing') : t('views.resources.form.test')}
               </button>
               {test && (

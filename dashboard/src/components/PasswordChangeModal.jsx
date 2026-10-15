@@ -38,7 +38,10 @@ export default function PasswordChangeModal({ open }) {
     if (Object.keys(problems).length) return;
     setBusy(true);
     try {
-      await apiClient.changePassword(principal?.userId || principal?.principalId || 'me', { currentPassword: form.currentPassword, newPassword: form.newPassword });
+      await apiClient.changePassword(principal?.userId || principal?.principalId || 'me', {
+        currentPassword: form.currentPassword,
+        newPassword: form.newPassword
+      });
       addToast({ type: 'success', message: t('components.passwordChange.changed') });
       passwordChanged();
     } catch (e) {

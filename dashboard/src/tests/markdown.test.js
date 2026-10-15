@@ -59,7 +59,9 @@ describe('renderMarkdown', () => {
   });
 
   it('removes event handler attributes such as onerror and onclick', () => {
-    const el = dom(renderMarkdown('<img src="x" onerror="alert(1)"> <a href="https://example.com" onclick="alert(2)">x</a> <div onmouseover="alert(3)">y</div>'));
+    const el = dom(
+      renderMarkdown('<img src="x" onerror="alert(1)"> <a href="https://example.com" onclick="alert(2)">x</a> <div onmouseover="alert(3)">y</div>')
+    );
     for (const node of el.querySelectorAll('*')) {
       for (const attr of node.attributes) expect(attr.name.startsWith('on')).toBe(false);
     }
@@ -67,7 +69,11 @@ describe('renderMarkdown', () => {
   });
 
   it('removes javascript:, vbscript:, and data: URLs from links', () => {
-    const el = dom(renderMarkdown('[a](javascript:alert(1)) <a href="JaVaScRiPt:alert(2)">b</a> <a href="vbscript:msgbox(1)">c</a> <a href="data:text/html,<script>alert(3)</script>">d</a>'));
+    const el = dom(
+      renderMarkdown(
+        '[a](javascript:alert(1)) <a href="JaVaScRiPt:alert(2)">b</a> <a href="vbscript:msgbox(1)">c</a> <a href="data:text/html,<script>alert(3)</script>">d</a>'
+      )
+    );
     for (const a of el.querySelectorAll('a')) {
       const href = a.getAttribute('href') || '';
       expect(href).not.toMatch(/^\s*(javascript|vbscript|data):/i);
@@ -76,7 +82,11 @@ describe('renderMarkdown', () => {
   });
 
   it('removes iframes, forms, styles, inline style attributes, and SVG', () => {
-    const el = dom(renderMarkdown('<iframe src="https://example.com"></iframe><form action="/x"><input name="a"></form><style>body{display:none}</style><p style="position:fixed">p</p><svg><script>alert(1)</script></svg>'));
+    const el = dom(
+      renderMarkdown(
+        '<iframe src="https://example.com"></iframe><form action="/x"><input name="a"></form><style>body{display:none}</style><p style="position:fixed">p</p><svg><script>alert(1)</script></svg>'
+      )
+    );
     expect(el.querySelector('iframe, form, input, style, svg, script')).toBeNull();
     expect(el.querySelector('p').hasAttribute('style')).toBe(false);
   });

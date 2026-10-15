@@ -26,12 +26,17 @@ import { downloadText } from '../utils/exporters';
 import { field, section, col, idCol, nameCol, createdCol, actionTip, safeList, hugoApi, timeCell } from './configHelpers';
 import { useGrafana } from '../hooks/useServerInfo';
 
+/** Surfaces a profile is exposed on, as translated surface labels (chat is always available). */
+const exposure = (t, r) => [r.exposeMcp && 'Mcp', r.exposeA2a && 'A2A', r.exposeOpenai && 'OpenAI'].filter(Boolean).map((s) => t(`enums.surface.${s}`));
 const lookupMap = (items, label) => Object.fromEntries((items || []).map((x) => [x.id, label(x)]));
 const profileLabel = (p) => p.displayName || p.name;
 
 /** Profiles and resources by ID, for showing names in place of IDs. */
 async function profileAndResourceLookups({ apiClient }) {
-  const [profiles, resources] = await Promise.all([safeList(apiClient.listProfiles({ pageNumber: 1, pageSize: 1000 })), safeList(apiClient.listResources({ pageNumber: 1, pageSize: 1000 }))]);
+  const [profiles, resources] = await Promise.all([
+    safeList(apiClient.listProfiles({ pageNumber: 1, pageSize: 1000 })),
+    safeList(apiClient.listResources({ pageNumber: 1, pageSize: 1000 }))
+  ]);
   return { profiles: lookupMap(profiles, profileLabel), resources: lookupMap(resources, (r) => r.name), profileList: profiles, resourceList: resources };
 }
 
@@ -70,31 +75,49 @@ export const profilesConfig = {
   canDelete: (r) => !r?.isDefault,
   detailPath: (r) => pathFor('profiles', r.id),
   columns: ({ t, i18n, lookups }) => [
-    col('profiles', t, 'name', (r) => (
-      <span>
-        <strong>{r.displayName || r.name}</strong>
-        {r.isDefault && (
-          <>
-            {' '}
-            <Badge tone="info" tip={t('tips.badges.defaultProfile')}>
-              {t('common.generic.default')}
-            </Badge>
-          </>
-        )}
-      </span>
-    ), { sortable: true, pinned: true }),
+    col(
+      'profiles',
+      t,
+      'name',
+      (r) => (
+        <span>
+          <strong>{r.displayName || r.name}</strong>
+          {r.isDefault && (
+            <>
+              {' '}
+              <Badge tone="info" tip={t('tips.badges.defaultProfile')}>
+                {t('common.generic.default')}
+              </Badge>
+            </>
+          )}
+        </span>
+      ),
+      { sortable: true, pinned: true }
+    ),
     col('profiles', t, 'personaName', (r) => r.personaName || '-'),
     col('profiles', t, 'visibility', (r) => <EnumBadge group="visibility" value={r.visibility} />),
-    col('profiles', t, 'inferenceEndpointId', (r) => (r.inferenceEndpointId ? <NamedId id={r.inferenceEndpointId} name={lookups?.models?.[r.inferenceEndpointId]} /> : <span className="text-muted">{t('resources.profiles.noModel')}</span>), {
-      csv: (r) => lookups?.models?.[r.inferenceEndpointId] || r.inferenceEndpointId || ''
-    }),
+    col(
+      'profiles',
+      t,
+      'inferenceEndpointId',
+      (r) =>
+        r.inferenceEndpointId ? (
+          <NamedId id={r.inferenceEndpointId} name={lookups?.models?.[r.inferenceEndpointId]} />
+        ) : (
+          <span className="text-muted">{t('resources.profiles.noModel')}</span>
+        ),
+      {
+        csv: (r) => lookups?.models?.[r.inferenceEndpointId] || r.inferenceEndpointId || ''
+      }
+    ),
     col('profiles', t, 'bindingCount', (r) => formatNumber(r.bindingCount ?? 0, {}, i18n.language), { cellClass: 'right' }),
-    col('profiles', t, 'exposure', (r) => [r.exposeMcp && 'MCP', r.exposeA2a && 'A2A', r.exposeOpenai && 'OpenAI'].filter(Boolean).join(' / ') || '-', { csv: (r) => [r.exposeMcp && 'MCP', r.exposeA2a && 'A2A', r.exposeOpenai && 'OpenAI'].filter(Boolean).join(' ') }),
+    col('profiles', t, 'exposure', (r) => exposure(t, r).join(' / ') || '-', { csv: (r) => exposure(t, r).join(' ') }),
     idCol('profiles', t),
     createdCol('profiles', t, i18n)
   ],
   fields: (_d, { t, options }) => {
-    const models = (kind) => (options.models || []).filter((m) => !m.kind || m.kind === kind).map((m) => ({ value: m.id, label: `${m.name} (${m.model || m.provider})` }));
+    const models = (kind) =>
+      (options.models || []).filter((m) => !m.kind || m.kind === kind).map((m) => ({ value: m.id, label: `${m.name} (${m.model || m.provider})` }));
     return [
       section('profiles', t, 'identity'),
       field('profiles', t, 'name', 'text', { required: true }),
@@ -181,14 +204,21 @@ export const approvalsConfig = {
   filters: [
     { name: 'status', label: (t) => t('resources.approvals.fields.status'), options: ENUMS.approvalStatus, enumGroup: 'approvalStatus' },
     { name: 'effect', label: (t) => t('resources.approvals.fields.effect'), options: ENUMS.effect, enumGroup: 'effect' },
-    { name: 'agentProfileId', label: (t) => t('resources.approvals.fields.agentProfileId'), options: (lookups) => Object.keys(lookups.profiles || {}), optionLabel: (v, _t, lookups) => lookups?.profiles?.[v] || v },
+    {
+      name: 'agentProfileId',
+      label: (t) => t('resources.approvals.fields.agentProfileId'),
+      options: (lookups) => Object.keys(lookups.profiles || {}),
+      optionLabel: (v, _t, lookups) => lookups?.profiles?.[v] || v
+    },
     { name: 'fromUtc', type: 'datetime', label: (t) => t('resources.approvals.fields.fromUtc') }
   ],
   columns: ({ t, i18n, lookups }) => [
     col('approvals', t, 'summary', (r) => <span className="cell-wrap">{r.summary || '-'}</span>, { pinned: true }),
     col('approvals', t, 'effect', (r) => <EffectBadge effect={r.effect} />, { csv: (r) => r.effect }),
     col('approvals', t, 'status', (r) => <EnumBadge group="approvalStatus" value={r.status} tone={approvalStatusTone(r.status)} />, { csv: (r) => r.status }),
-    col('approvals', t, 'agentProfileId', (r) => <NamedId id={r.agentProfileId} name={lookups?.profiles?.[r.agentProfileId]} />, { csv: (r) => lookups?.profiles?.[r.agentProfileId] || r.agentProfileId }),
+    col('approvals', t, 'agentProfileId', (r) => <NamedId id={r.agentProfileId} name={lookups?.profiles?.[r.agentProfileId]} />, {
+      csv: (r) => lookups?.profiles?.[r.agentProfileId] || r.agentProfileId
+    }),
     col('approvals', t, 'requestedBy', (r) => r.requestedByName || r.requestedByPrincipalId || '-'),
     col('approvals', t, 'createdUtc', (r) => timeCell(r.createdUtc, i18n), { sortable: true }),
     col('approvals', t, 'expiresUtc', (r) => timeCell(r.expiresUtc, i18n)),
@@ -202,8 +232,18 @@ export const approvalsConfig = {
     field('approvals', t, 'decisionNote', 'textarea', { readOnly: true })
   ],
   rowActions: (r, ctx) => [
-    { label: ctx.t('resources.approvals.actions.decide'), tip: actionTip(ctx.t, 'approvals', 'decide'), hidden: r.status !== 'Pending', onClick: () => ctx.setExtraModal(<ApprovalDecideModal approval={r} onClose={() => ctx.setExtraModal(null)} onDecided={ctx.reload} />) },
-    { label: ctx.t('resources.approvals.actions.invocation'), tip: actionTip(ctx.t, 'approvals', 'invocation'), hidden: !r.toolInvocationId, onClick: () => ctx.navigate(pathFor('toolInvocations', null, { search: r.toolInvocationId })) }
+    {
+      label: ctx.t('resources.approvals.actions.decide'),
+      tip: actionTip(ctx.t, 'approvals', 'decide'),
+      hidden: r.status !== 'Pending',
+      onClick: () => ctx.setExtraModal(<ApprovalDecideModal approval={r} onClose={() => ctx.setExtraModal(null)} onDecided={ctx.reload} />)
+    },
+    {
+      label: ctx.t('resources.approvals.actions.invocation'),
+      tip: actionTip(ctx.t, 'approvals', 'invocation'),
+      hidden: !r.toolInvocationId,
+      onClick: () => ctx.navigate(pathFor('toolInvocations', null, { search: r.toolInvocationId }))
+    }
   ],
   bulkActions: (selected, ctx) => (
     <button
@@ -239,18 +279,28 @@ export const conversationsConfig = {
   loadLookups: profileAndResourceLookups,
   filters: [
     { name: 'source', label: (t) => t('resources.conversations.fields.source'), options: ENUMS.conversationSource, enumGroup: 'conversationSource' },
-    { name: 'agentProfileId', label: (t) => t('resources.conversations.fields.agentProfileId'), options: (lookups) => Object.keys(lookups.profiles || {}), optionLabel: (v, _t, lookups) => lookups?.profiles?.[v] || v },
+    {
+      name: 'agentProfileId',
+      label: (t) => t('resources.conversations.fields.agentProfileId'),
+      options: (lookups) => Object.keys(lookups.profiles || {}),
+      optionLabel: (v, _t, lookups) => lookups?.profiles?.[v] || v
+    },
     { name: 'userId', type: 'text', label: (t) => t('resources.conversations.fields.userId') },
     { name: 'fromUtc', type: 'datetime', label: (t) => t('resources.conversations.fields.fromUtc') }
   ],
   detailPath: (r) => pathFor('chat', r.id),
   columns: ({ t, i18n, lookups }) => [
     col('conversations', t, 'title', (r) => <strong>{r.title || t('views.chat.untitled')}</strong>, { pinned: true }),
-    col('conversations', t, 'agentProfileId', (r) => <NamedId id={r.agentProfileId} name={lookups?.profiles?.[r.agentProfileId]} />, { csv: (r) => lookups?.profiles?.[r.agentProfileId] || r.agentProfileId }),
+    col('conversations', t, 'agentProfileId', (r) => <NamedId id={r.agentProfileId} name={lookups?.profiles?.[r.agentProfileId]} />, {
+      csv: (r) => lookups?.profiles?.[r.agentProfileId] || r.agentProfileId
+    }),
     col('conversations', t, 'userId', (r) => r.userName || r.userId || r.credentialId || '-'),
     col('conversations', t, 'source', (r) => <EnumBadge group="conversationSource" value={r.source} />, { csv: (r) => r.source }),
     col('conversations', t, 'messageCount', (r) => formatNumber(r.messageCount ?? 0, {}, i18n.language), { cellClass: 'right' }),
-    col('conversations', t, 'tokens', (r) => formatNumber((r.totalInputTokens || 0) + (r.totalOutputTokens || 0), {}, i18n.language), { cellClass: 'right', defaultHidden: true }),
+    col('conversations', t, 'tokens', (r) => formatNumber((r.totalInputTokens || 0) + (r.totalOutputTokens || 0), {}, i18n.language), {
+      cellClass: 'right',
+      defaultHidden: true
+    }),
     col('conversations', t, 'lastMessageUtc', (r) => timeCell(r.lastMessageUtc, i18n), { sortable: true }),
     idCol('conversations', t)
   ],
@@ -283,22 +333,52 @@ export const resourcesConfig = {
   formSize: 'xlarge',
   loadLookups: async ({ apiClient }) => {
     const connectors = await safeList(apiClient.listConnectors({ pageNumber: 1, pageSize: 1000 }));
-    return { connectors: lookupMap(connectors.map((c) => ({ ...c, id: c.type })), (c) => c.displayName || c.type) };
+    return {
+      connectors: lookupMap(
+        connectors.map((c) => ({ ...c, id: c.type })),
+        (c) => c.displayName || c.type
+      )
+    };
   },
   filters: [
-    { name: 'connectorType', label: (t) => t('resources.resources.fields.connectorType'), options: (lookups) => Object.keys(lookups.connectors || {}), optionLabel: (v, _t, lookups) => lookups?.connectors?.[v] || v },
+    {
+      name: 'connectorType',
+      label: (t) => t('resources.resources.fields.connectorType'),
+      options: (lookups) => Object.keys(lookups.connectors || {}),
+      optionLabel: (v, _t, lookups) => lookups?.connectors?.[v] || v
+    },
     { name: 'environment', type: 'text', label: (t) => t('resources.resources.fields.environment') },
     { name: 'health', label: (t) => t('resources.resources.columns.health'), options: ENUMS.healthStatus, enumGroup: 'healthStatus' }
   ],
-  blank: () => ({ name: '', displayName: '', description: '', environment: '', visibility: 'Tenant', notes: '', endpoint: '', defaultAccessModeCeiling: '', connectorType: '', settings: {}, secretBindings: {} }),
+  blank: () => ({
+    name: '',
+    displayName: '',
+    description: '',
+    environment: '',
+    visibility: 'Tenant',
+    notes: '',
+    endpoint: '',
+    defaultAccessModeCeiling: '',
+    connectorType: '',
+    settings: {},
+    secretBindings: {}
+  }),
   toForm: (r) => ({ ...r, settings: { ...(r.settings || {}) }, secretBindings: slotBindingsToForm(r.secretBindings) }),
   duplicateStrip: ['lastTestUtc', 'lastTestResult', 'lastTestMessage'],
   columns: ({ t, i18n, lookups }) => [
     nameCol('resources', t),
-    col('resources', t, 'connectorType', (r) => <Badge tone="info">{lookups?.connectors?.[r.connectorType] || r.connectorType}</Badge>, { csv: (r) => r.connectorType }),
+    col('resources', t, 'connectorType', (r) => <Badge tone="info">{lookups?.connectors?.[r.connectorType] || r.connectorType}</Badge>, {
+      csv: (r) => r.connectorType
+    }),
     col('resources', t, 'environment', (r) => (r.environment ? <Badge>{r.environment}</Badge> : '-')),
     col('resources', t, 'endpoint', (r) => (r.endpoint ? <code className="cell-wrap">{r.endpoint}</code> : '-')),
-    col('resources', t, 'health', (r) => <EnumBadge group="healthStatus" value={r.healthStatus || r.lastTestResult || 'Unknown'} tone={healthTone(r.healthStatus || r.lastTestResult)} />, { csv: (r) => r.healthStatus || r.lastTestResult || '' }),
+    col(
+      'resources',
+      t,
+      'health',
+      (r) => <EnumBadge group="healthStatus" value={r.healthStatus || r.lastTestResult || 'Unknown'} tone={healthTone(r.healthStatus || r.lastTestResult)} />,
+      { csv: (r) => r.healthStatus || r.lastTestResult || '' }
+    ),
     col('resources', t, 'lastTestUtc', (r) => timeCell(r.lastTestUtc, i18n, t('common.generic.never'))),
     col('resources', t, 'visibility', (r) => <EnumBadge group="visibility" value={r.visibility} />, { defaultHidden: true }),
     idCol('resources', t),
@@ -318,7 +398,9 @@ export const resourcesConfig = {
     {
       name: 'connector',
       type: 'custom',
-      render: (data, { disabled, onChange, errors }) => <ResourceSettingsPanel data={data} onChange={onChange} errors={errors} disabled={disabled} mode={mode} />
+      render: (data, { disabled, onChange, errors }) => (
+        <ResourceSettingsPanel data={data} onChange={onChange} errors={errors} disabled={disabled} mode={mode} />
+      )
     }
   ],
   validate: (d, t) => {
@@ -339,9 +421,39 @@ export const resourcesConfig = {
     ...resourceConnectorBody(d, d._connector)
   }),
   rowActions: (r, ctx) => [
-    { label: ctx.t('resources.resources.actions.test'), tip: actionTip(ctx.t, 'resources', 'test'), onClick: () => ctx.setExtraModal(<ResultModal title={ctx.t('resources.resources.actions.testTitle', { name: r.name })} load={() => ctx.apiClient.testResource(r.id)} onClose={() => { ctx.setExtraModal(null); ctx.reload(); }} />) },
-    { label: ctx.t('resources.resources.actions.tryTool'), tip: actionTip(ctx.t, 'resources', 'tryTool'), onClick: () => ctx.setExtraModal(<TryToolModal resource={r} onClose={() => ctx.setExtraModal(null)} />) },
-    { label: ctx.t('resources.resources.actions.referrers'), tip: actionTip(ctx.t, 'resources', 'referrers'), onClick: () => ctx.setExtraModal(<ResultModal title={ctx.t('resources.resources.actions.referrersTitle', { name: r.name })} load={() => ctx.apiClient.getResourceReferrers(r.id)} renderResult={(x) => <ReferrerList t={ctx.t} result={x} />} onClose={() => ctx.setExtraModal(null)} />) }
+    {
+      label: ctx.t('resources.resources.actions.test'),
+      tip: actionTip(ctx.t, 'resources', 'test'),
+      onClick: () =>
+        ctx.setExtraModal(
+          <ResultModal
+            title={ctx.t('resources.resources.actions.testTitle', { name: r.name })}
+            load={() => ctx.apiClient.testResource(r.id)}
+            onClose={() => {
+              ctx.setExtraModal(null);
+              ctx.reload();
+            }}
+          />
+        )
+    },
+    {
+      label: ctx.t('resources.resources.actions.tryTool'),
+      tip: actionTip(ctx.t, 'resources', 'tryTool'),
+      onClick: () => ctx.setExtraModal(<TryToolModal resource={r} onClose={() => ctx.setExtraModal(null)} />)
+    },
+    {
+      label: ctx.t('resources.resources.actions.referrers'),
+      tip: actionTip(ctx.t, 'resources', 'referrers'),
+      onClick: () =>
+        ctx.setExtraModal(
+          <ResultModal
+            title={ctx.t('resources.resources.actions.referrersTitle', { name: r.name })}
+            load={() => ctx.apiClient.getResourceReferrers(r.id)}
+            renderResult={(x) => <ReferrerList t={ctx.t} result={x} />}
+            onClose={() => ctx.setExtraModal(null)}
+          />
+        )
+    }
   ],
   deletePreview: async (r, { apiClient, t }) => {
     const refs = await apiClient.getResourceReferrers(r.id).catch(() => null);
@@ -379,7 +491,12 @@ export const secretsConfig = {
   id: 'secrets',
   explainer: 'secrets',
   endpoint: '/v1.0/api/secrets',
-  api: { list: (c, _t, p) => c.listSecrets(p), create: (c, _t, b) => c.createSecret(b), update: (c, _t, id, b) => c.updateSecret(id, b), remove: (c, _t, id) => c.deleteSecret(id) },
+  api: {
+    list: (c, _t, p) => c.listSecrets(p),
+    create: (c, _t, b) => c.createSecret(b),
+    update: (c, _t, id, b) => c.updateSecret(id, b),
+    remove: (c, _t, id) => c.deleteSecret(id)
+  },
   filters: [{ name: 'kind', label: (t) => t('resources.secrets.fields.kind'), options: ENUMS.secretKind, enumGroup: 'secretKind' }],
   blank: () => ({ name: '', description: '', kind: 'Password', values: {}, expiresUtc: null }),
   toForm: (r) => ({ ...r, kind: r.kind || r.secretKind, values: {} }),
@@ -406,7 +523,16 @@ export const secretsConfig = {
           {
             name: 'values',
             type: 'custom',
-            render: (data, { disabled, onChange, errors }) => <SecretValuesForm kind={data.kind} values={data.values || {}} errors={errors} disabled={disabled} idPrefix="secret-create" onChange={(values) => onChange({ ...data, values })} />
+            render: (data, { disabled, onChange, errors }) => (
+              <SecretValuesForm
+                kind={data.kind}
+                values={data.values || {}}
+                errors={errors}
+                disabled={disabled}
+                idPrefix="secret-create"
+                onChange={(values) => onChange({ ...data, values })}
+              />
+            )
           }
         ]
       : [])
@@ -418,7 +544,10 @@ export const secretsConfig = {
     if (d.expiresUtc && new Date(d.expiresUtc).getTime() <= Date.now()) e.expiresUtc = t('resources.secrets.errors.expiryPast');
     return e;
   },
-  toBody: (d, mode) => (mode === 'edit' ? { name: d.name, description: d.description || null, expiresUtc: d.expiresUtc || null } : { name: d.name, description: d.description || null, kind: d.kind, expiresUtc: d.expiresUtc || null, values: secretValuesBody(d.kind, d.values) }),
+  toBody: (d, mode) =>
+    mode === 'edit'
+      ? { name: d.name, description: d.description || null, expiresUtc: d.expiresUtc || null }
+      : { name: d.name, description: d.description || null, kind: d.kind, expiresUtc: d.expiresUtc || null, values: secretValuesBody(d.kind, d.values) },
   rowActions: (r, ctx) => [
     {
       label: ctx.t('resources.secrets.actions.replaceValues'),
@@ -437,8 +566,34 @@ export const secretsConfig = {
           />
         )
     },
-    { label: ctx.t('resources.secrets.actions.reveal'), tip: actionTip(ctx.t, 'secrets', 'reveal'), danger: true, onClick: () => ctx.setExtraModal(<RevealSecretModal secret={r} onClose={() => { ctx.setExtraModal(null); ctx.reload(); }} />) },
-    { label: ctx.t('resources.secrets.actions.referrers'), tip: actionTip(ctx.t, 'secrets', 'referrers'), onClick: () => ctx.setExtraModal(<ResultModal title={ctx.t('resources.secrets.actions.referrersTitle', { name: r.name })} load={() => ctx.apiClient.getSecretReferrers(r.id)} renderResult={(x) => <ReferrerList t={ctx.t} result={x} />} onClose={() => ctx.setExtraModal(null)} />) }
+    {
+      label: ctx.t('resources.secrets.actions.reveal'),
+      tip: actionTip(ctx.t, 'secrets', 'reveal'),
+      danger: true,
+      onClick: () =>
+        ctx.setExtraModal(
+          <RevealSecretModal
+            secret={r}
+            onClose={() => {
+              ctx.setExtraModal(null);
+              ctx.reload();
+            }}
+          />
+        )
+    },
+    {
+      label: ctx.t('resources.secrets.actions.referrers'),
+      tip: actionTip(ctx.t, 'secrets', 'referrers'),
+      onClick: () =>
+        ctx.setExtraModal(
+          <ResultModal
+            title={ctx.t('resources.secrets.actions.referrersTitle', { name: r.name })}
+            load={() => ctx.apiClient.getSecretReferrers(r.id)}
+            renderResult={(x) => <ReferrerList t={ctx.t} result={x} />}
+            onClose={() => ctx.setExtraModal(null)}
+          />
+        )
+    }
   ],
   deletePreview: async (r, { apiClient, t }) => {
     const refs = await apiClient.getSecretReferrers(r.id).catch(() => null);
@@ -480,14 +635,34 @@ export const modelsConfig = {
     { name: 'provider', label: (t) => t('resources.models.fields.provider'), options: ENUMS.modelProvider, enumGroup: 'modelProvider' },
     { name: 'healthStatus', label: (t) => t('resources.models.columns.healthStatus'), options: ENUMS.healthStatus, enumGroup: 'healthStatus' }
   ],
-  blank: () => ({ name: '', kind: 'Inference', provider: 'Ollama', baseUrl: 'http://127.0.0.1:11434', model: '', apiKeySecretId: '', region: '', deploymentName: '', apiVersion: '', contextWindowTokens: null, maxOutputTokens: null, supportsTools: true, supportsStreaming: true, embeddingDimensions: null, maxConcurrency: 4, timeoutSeconds: 120, maxRetries: 2 }),
+  blank: () => ({
+    name: '',
+    kind: 'Inference',
+    provider: 'Ollama',
+    baseUrl: 'http://127.0.0.1:11434',
+    model: '',
+    apiKeySecretId: '',
+    region: '',
+    deploymentName: '',
+    apiVersion: '',
+    contextWindowTokens: null,
+    maxOutputTokens: null,
+    supportsTools: true,
+    supportsStreaming: true,
+    embeddingDimensions: null,
+    maxConcurrency: 4,
+    timeoutSeconds: 120,
+    maxRetries: 2
+  }),
   columns: ({ t, i18n }) => [
     nameCol('models', t),
     col('models', t, 'kind', (r) => <EnumBadge group="modelKind" value={r.kind} tone="info" />, { csv: (r) => r.kind }),
     col('models', t, 'provider', (r) => <EnumBadge group="modelProvider" value={r.provider} />, { csv: (r) => r.provider }),
     col('models', t, 'model', (r) => <code>{r.model || '-'}</code>),
     col('models', t, 'baseUrl', (r) => (r.baseUrl ? <CopyableId value={r.baseUrl} max={36} /> : '-'), { defaultHidden: true }),
-    col('models', t, 'healthStatus', (r) => <EnumBadge group="healthStatus" value={r.healthStatus || 'Unknown'} tone={healthTone(r.healthStatus)} />, { csv: (r) => r.healthStatus }),
+    col('models', t, 'healthStatus', (r) => <EnumBadge group="healthStatus" value={r.healthStatus || 'Unknown'} tone={healthTone(r.healthStatus)} />, {
+      csv: (r) => r.healthStatus
+    }),
     col('models', t, 'lastHealthUtc', (r) => timeCell(r.lastHealthUtc, i18n, t('common.generic.never'))),
     idCol('models', t)
   ],
@@ -503,7 +678,12 @@ export const modelsConfig = {
       type: 'custom',
       render: (data, { disabled, onChange }) => (
         <SecretSlotPicker
-          slot={{ name: 'apiKey', label: t('resources.models.fields.apiKeySecretId'), help: t('tips.resources.models.apiKeySecretId'), acceptedKinds: ['ApiToken', 'AccessKeyPair', 'ServiceAccountJson', 'Generic'] }}
+          slot={{
+            name: 'apiKey',
+            label: t('resources.models.fields.apiKeySecretId'),
+            help: t('tips.resources.models.apiKeySecretId'),
+            acceptedKinds: ['ApiToken', 'AccessKeyPair', 'ServiceAccountJson', 'Generic']
+          }}
           secrets={options.secrets || []}
           value={{ secretId: data.apiKeySecretId }}
           disabled={disabled}
@@ -534,8 +714,34 @@ export const modelsConfig = {
     return e;
   },
   rowActions: (r, ctx) => [
-    { label: ctx.t('resources.models.actions.validate'), tip: actionTip(ctx.t, 'models', 'validate'), onClick: () => ctx.setExtraModal(<ResultModal title={ctx.t('resources.models.actions.validateTitle', { name: r.name })} load={() => ctx.apiClient.validateModelEndpoint(r.id)} onClose={() => { ctx.setExtraModal(null); ctx.reload(); }} />) },
-    { label: ctx.t('resources.models.actions.listModels'), tip: actionTip(ctx.t, 'models', 'listModels'), onClick: () => ctx.setExtraModal(<ResultModal title={ctx.t('resources.models.actions.listModelsTitle', { name: r.name })} load={() => ctx.apiClient.listProviderModels(r.id)} renderResult={(x) => <CodeBlock value={x} prettyJson />} onClose={() => ctx.setExtraModal(null)} />) }
+    {
+      label: ctx.t('resources.models.actions.validate'),
+      tip: actionTip(ctx.t, 'models', 'validate'),
+      onClick: () =>
+        ctx.setExtraModal(
+          <ResultModal
+            title={ctx.t('resources.models.actions.validateTitle', { name: r.name })}
+            load={() => ctx.apiClient.validateModelEndpoint(r.id)}
+            onClose={() => {
+              ctx.setExtraModal(null);
+              ctx.reload();
+            }}
+          />
+        )
+    },
+    {
+      label: ctx.t('resources.models.actions.listModels'),
+      tip: actionTip(ctx.t, 'models', 'listModels'),
+      onClick: () =>
+        ctx.setExtraModal(
+          <ResultModal
+            title={ctx.t('resources.models.actions.listModelsTitle', { name: r.name })}
+            load={() => ctx.apiClient.listProviderModels(r.id)}
+            renderResult={(x) => <CodeBlock value={x} prettyJson />}
+            onClose={() => ctx.setExtraModal(null)}
+          />
+        )
+    }
   ],
   viewExtra: (r, { t, i18n }) =>
     r.lastHealthMessage ? (
@@ -557,14 +763,19 @@ export const knowledgeConfig = {
   blank: () => ({ title: '', content: '', agentProfileId: '', resourceId: '' }),
   columns: ({ t, i18n, lookups }) => [
     col('knowledge', t, 'title', (r) => <strong>{r.title}</strong>, { pinned: true, sortable: true }),
-    col('knowledge', t, 'agentProfileId', (r) => (r.agentProfileId ? <NamedId id={r.agentProfileId} name={lookups?.profiles?.[r.agentProfileId]} /> : t('resources.knowledge.allProfiles'))),
+    col('knowledge', t, 'agentProfileId', (r) =>
+      r.agentProfileId ? <NamedId id={r.agentProfileId} name={lookups?.profiles?.[r.agentProfileId]} /> : t('resources.knowledge.allProfiles')
+    ),
     col('knowledge', t, 'resourceId', (r) => (r.resourceId ? <NamedId id={r.resourceId} name={lookups?.resources?.[r.resourceId]} /> : '-')),
     col('knowledge', t, 'lastUpdateUtc', (r) => timeCell(r.lastUpdateUtc || r.createdUtc, i18n)),
     idCol('knowledge', t)
   ],
   fields: (_d, { t, options }) => [
     field('knowledge', t, 'title', 'text', { required: true }),
-    field('knowledge', t, 'agentProfileId', 'select', { noneLabel: t('resources.knowledge.allProfiles'), options: (options.profileList || []).map((p) => ({ value: p.id, label: profileLabel(p) })) }),
+    field('knowledge', t, 'agentProfileId', 'select', {
+      noneLabel: t('resources.knowledge.allProfiles'),
+      options: (options.profileList || []).map((p) => ({ value: p.id, label: profileLabel(p) }))
+    }),
     field('knowledge', t, 'resourceId', 'select', { options: (options.resourceList || []).map((r) => ({ value: r.id, label: r.name })) }),
     field('knowledge', t, 'content', 'textarea', { rows: 10, required: true })
   ],
@@ -592,8 +803,18 @@ export const toolInvocationsConfig = {
     { name: 'effect', label: (t) => t('resources.toolInvocations.fields.effect'), options: ENUMS.effect, enumGroup: 'effect' },
     { name: 'decision', label: (t) => t('resources.toolInvocations.fields.decision'), options: ENUMS.toolDecision, enumGroup: 'toolDecision' },
     { name: 'status', label: (t) => t('resources.toolInvocations.fields.status'), options: ENUMS.toolStatus, enumGroup: 'toolStatus' },
-    { name: 'agentProfileId', label: (t) => t('resources.toolInvocations.fields.agentProfileId'), options: (lookups) => Object.keys(lookups.profiles || {}), optionLabel: (v, _t, lookups) => lookups?.profiles?.[v] || v },
-    { name: 'resourceId', label: (t) => t('resources.toolInvocations.fields.resourceId'), options: (lookups) => Object.keys(lookups.resources || {}), optionLabel: (v, _t, lookups) => lookups?.resources?.[v] || v },
+    {
+      name: 'agentProfileId',
+      label: (t) => t('resources.toolInvocations.fields.agentProfileId'),
+      options: (lookups) => Object.keys(lookups.profiles || {}),
+      optionLabel: (v, _t, lookups) => lookups?.profiles?.[v] || v
+    },
+    {
+      name: 'resourceId',
+      label: (t) => t('resources.toolInvocations.fields.resourceId'),
+      options: (lookups) => Object.keys(lookups.resources || {}),
+      optionLabel: (v, _t, lookups) => lookups?.resources?.[v] || v
+    },
     { name: 'toolName', type: 'text', label: (t) => t('resources.toolInvocations.fields.toolName') },
     { name: 'principalId', type: 'text', label: (t) => t('resources.toolInvocations.fields.principalId') },
     { name: 'fromUtc', type: 'datetime', label: (t) => t('resources.toolInvocations.fields.fromUtc') },
@@ -603,9 +824,13 @@ export const toolInvocationsConfig = {
   columns: ({ t, i18n, lookups }) => [
     col('toolInvocations', t, 'createdUtc', (r) => timeCell(r.createdUtc, i18n), { sortable: true, pinned: true }),
     col('toolInvocations', t, 'toolName', (r) => <code>{r.toolName}</code>),
-    col('toolInvocations', t, 'resourceId', (r) => <NamedId id={r.resourceId} name={r.resourceAlias || lookups?.resources?.[r.resourceId]} />, { csv: (r) => r.resourceAlias || lookups?.resources?.[r.resourceId] || r.resourceId }),
+    col('toolInvocations', t, 'resourceId', (r) => <NamedId id={r.resourceId} name={r.resourceAlias || lookups?.resources?.[r.resourceId]} />, {
+      csv: (r) => r.resourceAlias || lookups?.resources?.[r.resourceId] || r.resourceId
+    }),
     col('toolInvocations', t, 'effect', (r) => <EffectBadge effect={r.effect} />, { csv: (r) => r.effect }),
-    col('toolInvocations', t, 'decision', (r) => <EnumBadge group="toolDecision" value={r.decision} tone={toolDecisionTone(r.decision)} />, { csv: (r) => r.decision }),
+    col('toolInvocations', t, 'decision', (r) => <EnumBadge group="toolDecision" value={r.decision} tone={toolDecisionTone(r.decision)} />, {
+      csv: (r) => r.decision
+    }),
     col('toolInvocations', t, 'status', (r) => <EnumBadge group="toolStatus" value={r.status} tone={toolStatusTone(r.status)} />, { csv: (r) => r.status }),
     col('toolInvocations', t, 'durationMs', (r) => formatDuration(r.durationMs, i18n.language), { cellClass: 'right' }),
     col('toolInvocations', t, 'surface', (r) => <EnumBadge group="surface" value={r.surface} />, { csv: (r) => r.surface }),
@@ -673,7 +898,12 @@ function ToolInvocationDetail({ t, r }) {
           )}
         </dd>
       </dl>
-      {r.errorMessage && <div className="error-banner">{r.errorCode ? `${r.errorCode}: ` : ''}{r.errorMessage}</div>}
+      {r.errorMessage && (
+        <div className="error-banner">
+          {r.errorCode ? `${r.errorCode}: ` : ''}
+          {r.errorMessage}
+        </div>
+      )}
       <div className="section-title">{t('resources.toolInvocations.fields.argumentsRedacted')}</div>
       <CodeBlock value={r.argumentsRedacted ?? r.arguments} prettyJson />
       <div className="section-title">{t('resources.toolInvocations.fields.outputPreview')}</div>
@@ -697,16 +927,27 @@ export const sessionsConfig = {
   columns: ({ t, i18n }) => [
     col('sessions', t, 'principalName', (r) => <strong>{r.principalName || r.userId || r.credentialId || r.administratorId || '-'}</strong>, { pinned: true }),
     col('sessions', t, 'principalType', (r) => <EnumBadge group="principalType" value={r.principalType} />, { csv: (r) => r.principalType }),
-    col('sessions', t, 'authScheme', (r) => r.authScheme || '-'),
+    col('sessions', t, 'authScheme', (r) => (r.authScheme ? <EnumBadge group="authScheme" value={r.authScheme} /> : '-'), { csv: (r) => r.authScheme || '' }),
     col('sessions', t, 'sourceIp', (r) => (r.sourceIp ? <code>{r.sourceIp}</code> : '-')),
     col('sessions', t, 'issuedUtc', (r) => timeCell(r.issuedUtc || r.createdUtc, i18n), { sortable: true }),
     col('sessions', t, 'lastUsedUtc', (r) => timeCell(r.lastUsedUtc, i18n)),
     col('sessions', t, 'expiresUtc', (r) => timeCell(r.expiresUtc, i18n)),
-    col('sessions', t, 'revokedUtc', (r) => (r.revokedUtc ? <Badge tone="danger">{t('resources.sessions.revoked')}</Badge> : <Badge tone="success">{t('common.generic.active')}</Badge>), { csv: (r) => (r.revokedUtc ? 'revoked' : 'active') }),
+    col(
+      'sessions',
+      t,
+      'revokedUtc',
+      (r) => (r.revokedUtc ? <Badge tone="danger">{t('resources.sessions.revoked')}</Badge> : <Badge tone="success">{t('common.generic.active')}</Badge>),
+      { csv: (r) => (r.revokedUtc ? 'revoked' : 'active') }
+    ),
     col('sessions', t, 'userAgent', (r) => <span className="cell-wrap">{r.userAgent || '-'}</span>, { defaultHidden: true }),
     idCol('sessions', t)
   ],
-  fields: (_d, { t }) => [field('sessions', t, 'principalName', 'text', { readOnly: true }), field('sessions', t, 'authScheme', 'text', { readOnly: true }), field('sessions', t, 'sourceIp', 'text', { readOnly: true }), field('sessions', t, 'userAgent', 'textarea', { readOnly: true })],
+  fields: (_d, { t }) => [
+    field('sessions', t, 'principalName', 'text', { readOnly: true }),
+    field('sessions', t, 'authScheme', 'text', { readOnly: true }),
+    field('sessions', t, 'sourceIp', 'text', { readOnly: true }),
+    field('sessions', t, 'userAgent', 'textarea', { readOnly: true })
+  ],
   canDelete: (r) => !r.revokedUtc,
   canDuplicate: false
 };
@@ -723,12 +964,22 @@ export const pluginsConfig = {
     nameCol('plugins', t),
     col('plugins', t, 'version', (r) => <code>{r.version || '-'}</code>),
     col('plugins', t, 'connectorTypes', (r) => (r.connectorTypes || []).join(', ') || '-', { csv: (r) => (r.connectorTypes || []).join(' ') }),
-    col('plugins', t, 'enabled', (r) => (r.enabled ? <Badge tone="success">{t('common.generic.enabled')}</Badge> : <Badge>{t('common.generic.disabled')}</Badge>), { csv: (r) => String(!!r.enabled) }),
+    col(
+      'plugins',
+      t,
+      'enabled',
+      (r) => (r.enabled ? <Badge tone="success">{t('common.generic.enabled')}</Badge> : <Badge>{t('common.generic.disabled')}</Badge>),
+      { csv: (r) => String(!!r.enabled) }
+    ),
     col('plugins', t, 'loadError', (r) => (r.loadError ? <span className="text-danger cell-wrap">{r.loadError}</span> : '-')),
     col('plugins', t, 'sha256', (r) => (r.sha256 ? <CopyableId value={r.sha256} max={16} /> : '-'), { defaultHidden: true }),
     idCol('plugins', t)
   ],
-  fields: (_d, { t }) => [field('plugins', t, 'name', 'text', { readOnly: true }), field('plugins', t, 'version', 'text', { readOnly: true }), field('plugins', t, 'enabled', 'checkbox')],
+  fields: (_d, { t }) => [
+    field('plugins', t, 'name', 'text', { readOnly: true }),
+    field('plugins', t, 'version', 'text', { readOnly: true }),
+    field('plugins', t, 'enabled', 'checkbox')
+  ],
   toBody: (d) => ({ enabled: !!d.enabled }),
   canDuplicate: false,
   rowActions: (r, ctx) => [
@@ -747,4 +998,3 @@ export const pluginsConfig = {
     }
   ]
 };
-

@@ -13,7 +13,26 @@ import DOMPurify from 'dompurify';
 /** Schemes a link or image may use. Relative URLs and fragments are allowed too. */
 const SAFE_URL = /^(?:(?:https?|mailto):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i;
 
-const FORBID_TAGS = ['style', 'script', 'form', 'input', 'button', 'textarea', 'select', 'option', 'iframe', 'frame', 'frameset', 'object', 'embed', 'base', 'link', 'meta', 'dialog', 'template'];
+const FORBID_TAGS = [
+  'style',
+  'script',
+  'form',
+  'input',
+  'button',
+  'textarea',
+  'select',
+  'option',
+  'iframe',
+  'frame',
+  'frameset',
+  'object',
+  'embed',
+  'base',
+  'link',
+  'meta',
+  'dialog',
+  'template'
+];
 
 const escapeHtml = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -80,6 +99,9 @@ export function sanitizeHtml(html, { linkTip, headerTip } = {}) {
 export function renderMarkdown(text, options = {}) {
   if (!text) return '';
   // Wide tables scroll inside their own frame instead of stretching the card.
-  const html = marked.parse(String(text), { async: false }).replace(/<table>/g, '<div class="markdown-table"><table>').replace(/<\/table>/g, '</table></div>');
+  const html = marked
+    .parse(String(text), { async: false })
+    .replace(/<table>/g, '<div class="markdown-table"><table>')
+    .replace(/<\/table>/g, '</table></div>');
   return sanitizeHtml(html, options);
 }

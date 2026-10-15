@@ -50,7 +50,11 @@ test('shows the default credentials hint for a local server and fills them in', 
 
 test('reports bad credentials without leaving the login page', async ({ page }) => {
   await installMocks(page);
-  await page.route('**/v1.0/token', (route) => (route.request().method() === 'POST' ? route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ error: 'InvalidCredentials', message: 'bad' }) }) : route.fallback()));
+  await page.route('**/v1.0/token', (route) =>
+    route.request().method() === 'POST'
+      ? route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ error: 'InvalidCredentials', message: 'bad' }) })
+      : route.fallback()
+  );
   await page.goto('/');
   await page.locator('#email').fill('admin@hugo.local');
   await page.locator('#password').fill('wrong');
@@ -61,7 +65,20 @@ test('reports bad credentials without leaving the login page', async ({ page }) 
 
 test('forces a password change for a seeded account', async ({ page }) => {
   await installMocks(page);
-  await page.route('**/v1.0/token/details', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ principalType: 'User', principalName: 'anderson@hugo.local', tenantId: 'default', userId: 'usr_0002', isTenantAdmin: true, mustChangePassword: true }) }));
+  await page.route('**/v1.0/token/details', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        principalType: 'User',
+        principalName: 'anderson@hugo.local',
+        tenantId: 'default',
+        userId: 'usr_0002',
+        isTenantAdmin: true,
+        mustChangePassword: true
+      })
+    })
+  );
   await login(page, { expect });
   const dialog = page.getByTestId('password-change');
   await expect(dialog).toBeVisible();
@@ -96,7 +113,21 @@ test('groups the sidebar as plan section 18.2 and highlights every route', async
 test('every Hugo page explains itself when the server does not expose its route yet', async ({ page }) => {
   await installMocks(page, { missing: Object.keys(CAPABILITY_PREFIXES) });
   await login(page, { expect });
-  const pages = ['chat', 'profiles', 'approvals', 'conversations', 'resources', 'secrets', 'connectors', 'models', 'knowledge', 'toolInvocations', 'analytics', 'sessions', 'plugins'];
+  const pages = [
+    'chat',
+    'profiles',
+    'approvals',
+    'conversations',
+    'resources',
+    'secrets',
+    'connectors',
+    'models',
+    'knowledge',
+    'toolInvocations',
+    'analytics',
+    'sessions',
+    'plugins'
+  ];
   for (const id of pages) {
     await page.goto(pathFor(id));
     const state = page.getByTestId('unavailable-state');

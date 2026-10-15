@@ -52,7 +52,13 @@ export default function DataTable({
           <tr>
             {selectable && (
               <th scope="col" className="select-cell" {...tip(t('tips.table.selectAll'))}>
-                <input type="checkbox" checked={allSelected} onChange={toggleAll} aria-label={t('components.table.selectAll')} {...tip(t('tips.table.selectAll'))} />
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={toggleAll}
+                  aria-label={t('components.table.selectAll')}
+                  {...tip(t('tips.table.selectAll'))}
+                />
               </th>
             )}
             {columns.map((col) => {
@@ -67,9 +73,16 @@ export default function DataTable({
                   aria-sort={active ? (sortDir === 'asc' ? 'ascending' : 'descending') : sortable ? 'none' : undefined}
                 >
                   {sortable ? (
-                    <button type="button" className="th-sort" onClick={() => onSort(col.key)} {...tip(t(col.serverSort === false ? 'tips.table.sortPageOnly' : 'tips.table.sortServer', { tip: col.tip || col.label }))}>
+                    <button
+                      type="button"
+                      className="th-sort"
+                      onClick={() => onSort(col.key)}
+                      {...tip(t(col.serverSort === false ? 'tips.table.sortPageOnly' : 'tips.table.sortServer', { tip: col.tip || col.label }))}
+                    >
                       {col.label}
-                      <span className="sort-indicator" aria-hidden="true">{active ? (sortDir === 'asc' ? '▲' : '▼') : '⇅'}</span>
+                      <span className="sort-indicator" aria-hidden="true">
+                        {active ? (sortDir === 'asc' ? '▲' : '▼') : '⇅'}
+                      </span>
                     </button>
                   ) : (
                     col.label
@@ -93,12 +106,18 @@ export default function DataTable({
                 <tr key={id} className={onRowClick ? 'clickable' : ''} onClick={(e) => handleRowClick(e, item)}>
                   {selectable && (
                     <td className="select-cell" data-ignore-row-click>
-                      <input type="checkbox" checked={selected.includes(id)} onChange={() => toggleOne(id)} aria-label={t('components.table.selectRow')} {...tip(t('tips.table.selectRow'))} />
+                      <input
+                        type="checkbox"
+                        checked={selected.includes(id)}
+                        onChange={() => toggleOne(id)}
+                        aria-label={t('components.table.selectRow')}
+                        {...tip(t('tips.table.selectRow'))}
+                      />
                     </td>
                   )}
                   {columns.map((col) => (
                     <td key={col.key} className={col.cellClass || ''}>
-                      {col.render ? col.render(item) : item[col.key] ?? '-'}
+                      {col.render ? col.render(item) : (item[col.key] ?? '-')}
                     </td>
                   ))}
                 </tr>

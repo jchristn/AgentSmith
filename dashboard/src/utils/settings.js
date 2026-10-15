@@ -11,7 +11,16 @@ function flatten(obj, prefix, out) {
     const key = k.charAt(0).toUpperCase() + k.slice(1);
     const path = prefix ? `${prefix}.${key}` : key;
     if (v && typeof v === 'object' && !Array.isArray(v)) flatten(v, path, out);
-    else out.push({ path, value: v, type: Array.isArray(v) ? 'list' : inferType(v), source: 'File', applyMode: 'RestartRequired', editable: true, group: prefix ? prefix.split('.')[0] : 'General' });
+    else
+      out.push({
+        path,
+        value: v,
+        type: Array.isArray(v) ? 'list' : inferType(v),
+        source: 'File',
+        applyMode: 'RestartRequired',
+        editable: true,
+        group: prefix ? prefix.split('.')[0] : 'General'
+      });
   }
 }
 
@@ -106,7 +115,8 @@ export function validateSetting(field, value) {
     return null;
   }
   if (field.type === 'boolean') return typeof value === 'boolean' || value === 'true' || value === 'false' ? null : { key: 'boolean', params: {} };
-  if (Array.isArray(field.options) && field.options.length && !field.options.includes(value)) return { key: 'allowed', params: { values: field.options.join(', ') } };
+  if (Array.isArray(field.options) && field.options.length && !field.options.includes(value))
+    return { key: 'allowed', params: { values: field.options.join(', ') } };
   return null;
 }
 

@@ -97,7 +97,15 @@ export default function A2aExplorerView() {
     setEvents([]);
     setResult(null);
     try {
-      const params = { message: { kind: 'message', role: 'user', messageId: `msg-${Date.now()}`, parts: [{ kind: 'text', text: message }], ...(contextId ? { contextId } : {}) } };
+      const params = {
+        message: {
+          kind: 'message',
+          role: 'user',
+          messageId: `msg-${Date.now()}`,
+          parts: [{ kind: 'text', text: message }],
+          ...(contextId ? { contextId } : {})
+        }
+      };
       const res = await rpc(stream ? 'SendStreamingMessage' : 'SendMessage', params, stream ? (m) => setEvents((list) => [...list, m]) : undefined);
       setResult(res);
       if (res?.contextId) setContextId(res.contextId);
@@ -124,7 +132,10 @@ export default function A2aExplorerView() {
   };
 
   const cardUrl = a2aCardUrl({ serverUrl, tenantId, profile });
-  const streamedText = events.map((e) => a2aText(e.result)).filter(Boolean).join('\n');
+  const streamedText = events
+    .map((e) => a2aText(e.result))
+    .filter(Boolean)
+    .join('\n');
 
   return (
     <div>
@@ -132,7 +143,14 @@ export default function A2aExplorerView() {
       <div className="panel explorer-connect">
         <FormField
           id="a2a-profile"
-          field={{ name: 'profile', type: 'select', required: true, label: t('views.a2aExplorer.profile'), tip: t('tips.views.a2aExplorer.profile'), options: (profiles.length ? profiles : [{ name: profile }]).filter((p) => p.name).map((p) => ({ value: p.name, label: p.displayName || p.name })) }}
+          field={{
+            name: 'profile',
+            type: 'select',
+            required: true,
+            label: t('views.a2aExplorer.profile'),
+            tip: t('tips.views.a2aExplorer.profile'),
+            options: (profiles.length ? profiles : [{ name: profile }]).filter((p) => p.name).map((p) => ({ value: p.name, label: p.displayName || p.name }))
+          }}
           value={profile}
           onChange={(v) => {
             setProfile(v);
@@ -140,10 +158,24 @@ export default function A2aExplorerView() {
             setContextId('');
           }}
         />
-        <button type="button" className="button-secondary" onClick={fetchCard} disabled={busy || !profile} data-testid="a2a-card" {...tip(t('tips.views.a2aExplorer.fetchCard'))}>
+        <button
+          type="button"
+          className="button-secondary"
+          onClick={fetchCard}
+          disabled={busy || !profile}
+          data-testid="a2a-card"
+          {...tip(t('tips.views.a2aExplorer.fetchCard'))}
+        >
           <RefreshIcon size={14} /> {t('views.a2aExplorer.fetchCard')}
         </button>
-        <button type="button" className="button-secondary" onClick={listTasks} disabled={busy || !profile} data-testid="a2a-tasks" {...tip(t('tips.views.a2aExplorer.listTasks'))}>
+        <button
+          type="button"
+          className="button-secondary"
+          onClick={listTasks}
+          disabled={busy || !profile}
+          data-testid="a2a-tasks"
+          {...tip(t('tips.views.a2aExplorer.listTasks'))}
+        >
           <ListIcon size={14} /> {t('views.a2aExplorer.listTasks')}
         </button>
       </div>
@@ -151,7 +183,14 @@ export default function A2aExplorerView() {
         <code>{cardUrl}</code>
         <CopyButton value={cardUrl} tipText={t('tips.views.profile.connect.copyCard')} />
       </div>
-      {missing && <UnavailableState feature={t('views.a2aExplorer.title')} purpose={t('views.a2aExplorer.purpose')} endpoint={`/v1.0/a2a/${tenantId}/${profile}`} onRetry={fetchCard} />}
+      {missing && (
+        <UnavailableState
+          feature={t('views.a2aExplorer.title')}
+          purpose={t('views.a2aExplorer.purpose')}
+          endpoint={`/v1.0/a2a/${tenantId}/${profile}`}
+          onRetry={fetchCard}
+        />
+      )}
       {error && <ErrorPresenter error={error} />}
       {card && (
         <div className="panel" data-testid="a2a-card-body">
@@ -161,17 +200,30 @@ export default function A2aExplorerView() {
         </div>
       )}
       <div className="panel">
-        <FormField id="a2a-message" field={{ name: 'message', type: 'textarea', rows: 4, label: t('views.a2aExplorer.message'), tip: t('tips.views.a2aExplorer.message') }} value={message} onChange={setMessage} />
+        <FormField
+          id="a2a-message"
+          field={{ name: 'message', type: 'textarea', rows: 4, label: t('views.a2aExplorer.message'), tip: t('tips.views.a2aExplorer.message') }}
+          value={message}
+          onChange={setMessage}
+        />
         <div className="panel-actions">
           <label className="field-checkbox" {...tip(t('tips.views.a2aExplorer.stream'))}>
-            <input type="checkbox" checked={stream} onChange={(e) => setStream(e.target.checked)} {...tip(t('tips.views.a2aExplorer.stream'))} /> {t('views.a2aExplorer.stream')}
+            <input type="checkbox" checked={stream} onChange={(e) => setStream(e.target.checked)} {...tip(t('tips.views.a2aExplorer.stream'))} />{' '}
+            {t('views.a2aExplorer.stream')}
           </label>
           {contextId && (
             <span className="text-muted" {...tip(t('tips.views.a2aExplorer.context'))}>
               {t('views.a2aExplorer.context', { id: contextId })}
             </span>
           )}
-          <button type="button" className="button-primary" onClick={sendMessage} disabled={busy || !message.trim() || !profile} data-testid="a2a-send" {...tip(t('tips.views.a2aExplorer.send'))}>
+          <button
+            type="button"
+            className="button-primary"
+            onClick={sendMessage}
+            disabled={busy || !message.trim() || !profile}
+            data-testid="a2a-send"
+            {...tip(t('tips.views.a2aExplorer.send'))}
+          >
             <SendIcon size={14} /> {t('views.a2aExplorer.send')}
           </button>
         </div>

@@ -1,6 +1,17 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { normalizeBuckets } from '../utils/chart';
-import { REQUEST_RANGES, requestRangeToParams, PAGE_SIZE_OPTIONS, LARGE_PAGE_SIZE_OPTIONS, DEFAULT_PAGE_SIZE, defaultServerUrl, STORAGE_KEYS, GITHUB_URL, APP_VERSION, effectTone } from '../utils/constants';
+import {
+  REQUEST_RANGES,
+  requestRangeToParams,
+  PAGE_SIZE_OPTIONS,
+  LARGE_PAGE_SIZE_OPTIONS,
+  DEFAULT_PAGE_SIZE,
+  defaultServerUrl,
+  STORAGE_KEYS,
+  GITHUB_URL,
+  APP_VERSION,
+  effectTone
+} from '../utils/constants';
 import { diffLines } from '../utils/diff';
 import { buildListParams, sortLocal, toUtcIso, stripForDuplicate } from '../utils/query';
 import { flattenOpenApiSpec, resolvePath, buildUrl, isDestructive } from '../utils/openApi';
@@ -72,7 +83,13 @@ describe('diffLines', () => {
 
 describe('query helpers', () => {
   it('maps server-sortable keys to ordering and drops empty filters', () => {
-    expect(buildListParams({ pageNumber: 2, pageSize: 50, sortKey: 'name', sortDir: 'desc', search: 'x', filters: { a: '', b: 'v' } })).toEqual({ pageNumber: 2, pageSize: 50, ordering: 'NameDescending', search: 'x', b: 'v' });
+    expect(buildListParams({ pageNumber: 2, pageSize: 50, sortKey: 'name', sortDir: 'desc', search: 'x', filters: { a: '', b: 'v' } })).toEqual({
+      pageNumber: 2,
+      pageSize: 50,
+      ordering: 'NameDescending',
+      search: 'x',
+      b: 'v'
+    });
   });
   it('sorts locally with nulls last', () => {
     expect(sortLocal([{ v: 2 }, { v: null }, { v: 1 }], 'v', 'asc').map((x) => x.v)).toEqual([1, 2, null]);
@@ -136,7 +153,11 @@ describe('navigation (plan section 18.2)', () => {
     expect(hubForPath('/dashboard/profiles/prf_1').key).toBe('profiles');
     expect(hubForPath('/dashboard/nowhere')).toBeNull();
     expect(HUBS.length).toBe(25);
-    for (const r of LEGACY_REDIRECTS) expect(HUBS.some((h) => h.slug === r.from), r.from).toBe(false);
+    for (const r of LEGACY_REDIRECTS)
+      expect(
+        HUBS.some((h) => h.slug === r.from),
+        r.from
+      ).toBe(false);
   });
   it('gates administrator pages', () => {
     const admin = { isAdmin: true };
@@ -155,12 +176,18 @@ describe('connection snippets', () => {
   it('builds an MCP config with access key headers and no secret in the text', () => {
     const text = mcpConfigSnippet({ serverUrl: 'http://127.0.0.1:8800/', accessKey: 'access_x', profile: 'Hugo' });
     const parsed = JSON.parse(text);
-    expect(parsed.mcpServers.hugo).toEqual({ type: 'http', url: 'http://127.0.0.1:8800/mcp/Hugo', headers: { 'x-access-key': 'access_x', 'x-secret-key': '${HUGO_SECRET_KEY}' } });
+    expect(parsed.mcpServers.hugo).toEqual({
+      type: 'http',
+      url: 'http://127.0.0.1:8800/mcp/Hugo',
+      headers: { 'x-access-key': 'access_x', 'x-secret-key': '${HUGO_SECRET_KEY}' }
+    });
     expect(JSON.parse(mcpConfigSnippet({})).mcpServers.hugo.headers.Authorization).toBe('Bearer ${HUGO_TOKEN}');
   });
   it('builds CLI, A2A, and OpenAI URLs', () => {
     expect(claudeCliSnippet({ serverUrl: 'http://h:8800' })).toContain('claude mcp add --transport http hugo http://h:8800/mcp');
-    expect(a2aCardUrl({ serverUrl: 'http://h:8800', tenantId: 'default', profile: 'Hugo' })).toBe('http://h:8800/v1.0/a2a/default/Hugo/.well-known/agent-card.json');
+    expect(a2aCardUrl({ serverUrl: 'http://h:8800', tenantId: 'default', profile: 'Hugo' })).toBe(
+      'http://h:8800/v1.0/a2a/default/Hugo/.well-known/agent-card.json'
+    );
     expect(openAiBaseUrl({ serverUrl: 'http://h:8800/' })).toBe('http://h:8800/v1.0/openai/v1');
   });
 });

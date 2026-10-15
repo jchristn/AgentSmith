@@ -147,10 +147,23 @@ export default function ActivityChart({
               title={title || t('views.home.requestActivity')}
               testId={`export-${exportName}`}
               fileName={(ext) => exportFileName(exportName, rangeId, { tenant: tenantId, ...exportFilters }, ext)}
-              csv={() => toCsv(['bucket_start_utc', 'bucket_end_utc', 'success', 'failure', 'total', 'average_duration_ms'], buckets.map((b) => [b.bucketStartUtc, b.bucketEndUtc, b.successCount, b.failureCount, b.successCount + b.failureCount, b.averageDurationMs]))}
+              csv={() =>
+                toCsv(
+                  ['bucket_start_utc', 'bucket_end_utc', 'success', 'failure', 'total', 'average_duration_ms'],
+                  buckets.map((b) => [b.bucketStartUtc, b.bucketEndUtc, b.successCount, b.failureCount, b.successCount + b.failureCount, b.averageDurationMs])
+                )
+              }
               json={() =>
                 JSON.stringify(
-                  { chart: exportName, title: title || t('views.home.requestActivity'), range: rangeId, filters: { tenant: tenantId || null, ...exportFilters }, exportedUtc: new Date().toISOString(), totals: { total: summary?.totalCount ?? 0, success: summary?.totalSuccess ?? 0, failure: summary?.totalFailure ?? 0 }, buckets },
+                  {
+                    chart: exportName,
+                    title: title || t('views.home.requestActivity'),
+                    range: rangeId,
+                    filters: { tenant: tenantId || null, ...exportFilters },
+                    exportedUtc: new Date().toISOString(),
+                    totals: { total: summary?.totalCount ?? 0, success: summary?.totalSuccess ?? 0, failure: summary?.totalFailure ?? 0 },
+                    buckets
+                  },
                   null,
                   2
                 )
@@ -159,7 +172,12 @@ export default function ActivityChart({
                 svgRef.current
                   ? buildChartSvg(svgRef.current, {
                       title: title || t('views.home.requestActivity'),
-                      lines: [`${t(`components.chart.ranges.${rangeId}`)}: ${buckets[0]?.bucketStartUtc} / ${buckets[buckets.length - 1]?.bucketEndUtc}`, ...Object.entries({ tenant: tenantId, ...exportFilters }).filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`)],
+                      lines: [
+                        `${t(`components.chart.ranges.${rangeId}`)}: ${buckets[0]?.bucketStartUtc} / ${buckets[buckets.length - 1]?.bucketEndUtc}`,
+                        ...Object.entries({ tenant: tenantId, ...exportFilters })
+                          .filter(([, v]) => v)
+                          .map(([k, v]) => `${k}: ${v}`)
+                      ],
                       legend: [
                         { label: t('components.chart.success'), color: 'var(--color-success)' },
                         { label: t('components.chart.failure'), color: 'var(--color-danger)' }
@@ -173,112 +191,97 @@ export default function ActivityChart({
       </div>
 
       <div className="chart-body" ref={bodyRef}>
-      {buckets.length === 0 ? (
-        <div className="chart-empty" style={{ minHeight: Math.round(H / 2) }}>{t('components.chart.noData')}</div>
-      ) : (
-        <div className="chart-canvas">
-          <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} width={W} height={H} preserveAspectRatio="xMidYMid meet" role="img" aria-label={title || t('views.home.requestActivity')}>
-            {/* Y grid + labels */}
-            {ticks.map((tick) => {
-              const y = PAD_TOP + PLOT_H - (tick / axisMax) * PLOT_H;
-              return (
-                <g key={tick}>
-                  <line
-                    className="chart-grid-line"
-                    x1={PAD_LEFT}
-                    y1={y}
-                    x2={W - PAD_RIGHT}
-                    y2={y}
-                    strokeDasharray={tick === 0 ? '0' : '4 4'}
-                  />
-                  <text className="chart-svg-text" x={PAD_LEFT - 8} y={y + 4} textAnchor="end">
-                    {formatNumber(tick)}
+        {buckets.length === 0 ? (
+          <div className="chart-empty" style={{ minHeight: Math.round(H / 2) }}>
+            {t('components.chart.noData')}
+          </div>
+        ) : (
+          <div className="chart-canvas">
+            <svg
+              ref={svgRef}
+              viewBox={`0 0 ${W} ${H}`}
+              width={W}
+              height={H}
+              preserveAspectRatio="xMidYMid meet"
+              role="img"
+              aria-label={title || t('views.home.requestActivity')}
+            >
+              {/* Y grid + labels */}
+              {ticks.map((tick) => {
+                const y = PAD_TOP + PLOT_H - (tick / axisMax) * PLOT_H;
+                return (
+                  <g key={tick}>
+                    <line className="chart-grid-line" x1={PAD_LEFT} y1={y} x2={W - PAD_RIGHT} y2={y} strokeDasharray={tick === 0 ? '0' : '4 4'} />
+                    <text className="chart-svg-text" x={PAD_LEFT - 8} y={y + 4} textAnchor="end">
+                      {formatNumber(tick)}
+                    </text>
+                  </g>
+                );
+              })}
+
+              {/* Bars */}
+              {buckets.map((b, i) => {
+                const total = b.successCount + b.failureCount;
+                const failH = (b.failureCount / axisMax) * PLOT_H;
+                const succH = (b.successCount / axisMax) * PLOT_H;
+                const x = PAD_LEFT + i * groupW + (groupW - barW) / 2;
+                const failY = PAD_TOP + PLOT_H - failH;
+                const succY = PAD_TOP + PLOT_H - failH - succH;
+                const active = hover?.index === i;
+                return (
+                  <g
+                    key={i}
+                    onMouseMove={(e) => setHover({ index: i, x: e.clientX, y: e.clientY })}
+                    onMouseLeave={() => setHover(null)}
+                    onClick={() => onBucketClick?.(b)}
+                    style={{ cursor: onBucketClick ? 'pointer' : 'default' }}
+                  >
+                    <rect x={PAD_LEFT + i * groupW} y={PAD_TOP} width={groupW} height={PLOT_H + PAD_BOTTOM} fill="transparent" />
+                    {b.failureCount > 0 && <rect x={x} y={failY} width={barW} height={failH} rx={2} fill="var(--color-danger)" opacity={active ? 1 : 0.9} />}
+                    {b.successCount > 0 && <rect x={x} y={succY} width={barW} height={succH} rx={2} fill="var(--color-success)" opacity={active ? 1 : 0.88} />}
+                    {total === 0 && <rect x={x} y={PAD_TOP + PLOT_H - 1} width={barW} height={1} fill="var(--color-border)" />}
+                  </g>
+                );
+              })}
+
+              {/* X labels */}
+              {buckets.map((b, i) =>
+                labelIdx.has(i) ? (
+                  <text key={`x${i}`} className="chart-svg-text" x={PAD_LEFT + i * groupW + groupW / 2} y={H - PAD_BOTTOM + 20} textAnchor="middle">
+                    {formatAxisTick(b.bucketStartUtc, rangeId, i18n.language)}
                   </text>
-                </g>
-              );
-            })}
+                ) : null
+              )}
+            </svg>
 
-            {/* Bars */}
-            {buckets.map((b, i) => {
-              const total = b.successCount + b.failureCount;
-              const failH = (b.failureCount / axisMax) * PLOT_H;
-              const succH = (b.successCount / axisMax) * PLOT_H;
-              const x = PAD_LEFT + i * groupW + (groupW - barW) / 2;
-              const failY = PAD_TOP + PLOT_H - failH;
-              const succY = PAD_TOP + PLOT_H - failH - succH;
-              const active = hover?.index === i;
-              return (
-                <g
-                  key={i}
-                  onMouseMove={(e) => setHover({ index: i, x: e.clientX, y: e.clientY })}
-                  onMouseLeave={() => setHover(null)}
-                  onClick={() => onBucketClick?.(b)}
-                  style={{ cursor: onBucketClick ? 'pointer' : 'default' }}
-                >
-                  <rect
-                    x={PAD_LEFT + i * groupW}
-                    y={PAD_TOP}
-                    width={groupW}
-                    height={PLOT_H + PAD_BOTTOM}
-                    fill="transparent"
-                  />
-                  {b.failureCount > 0 && (
-                    <rect x={x} y={failY} width={barW} height={failH} rx={2} fill="var(--color-danger)" opacity={active ? 1 : 0.9} />
-                  )}
-                  {b.successCount > 0 && (
-                    <rect x={x} y={succY} width={barW} height={succH} rx={2} fill="var(--color-success)" opacity={active ? 1 : 0.88} />
-                  )}
-                  {total === 0 && <rect x={x} y={PAD_TOP + PLOT_H - 1} width={barW} height={1} fill="var(--color-border)" />}
-                </g>
-              );
-            })}
-
-            {/* X labels */}
-            {buckets.map((b, i) =>
-              labelIdx.has(i) ? (
-                <text
-                  key={`x${i}`}
-                  className="chart-svg-text"
-                  x={PAD_LEFT + i * groupW + groupW / 2}
-                  y={H - PAD_BOTTOM + 20}
-                  textAnchor="middle"
-                >
-                  {formatAxisTick(b.bucketStartUtc, rangeId, i18n.language)}
-                </text>
-              ) : null
+            {hovered && (
+              <ChartTooltip
+                pos={{ x: hover.x, y: hover.y }}
+                content={
+                  <>
+                    <div className="chart-tooltip-title">{formatDateTime(hovered.bucketStartUtc, i18n.language)}</div>
+                    <div className="chart-tooltip-row">
+                      <span>{t('components.chart.total')}</span>
+                      <span>{formatNumber(hovered.successCount + hovered.failureCount)}</span>
+                    </div>
+                    <div className="chart-tooltip-row" style={{ color: 'var(--color-success)' }}>
+                      <span>{t('components.chart.success')}</span>
+                      <span>{formatNumber(hovered.successCount)}</span>
+                    </div>
+                    <div className="chart-tooltip-row" style={{ color: 'var(--color-danger)' }}>
+                      <span>{t('components.chart.failure')}</span>
+                      <span>{formatNumber(hovered.failureCount)}</span>
+                    </div>
+                    <div className="chart-tooltip-row">
+                      <span>{t('components.chart.avgDuration')}</span>
+                      <span>{formatDuration(hovered.averageDurationMs, i18n.language)}</span>
+                    </div>
+                  </>
+                }
+              />
             )}
-          </svg>
-
-          {hovered && (
-            <ChartTooltip
-              pos={{ x: hover.x, y: hover.y }}
-              content={
-                <>
-                  <div className="chart-tooltip-title">
-                    {formatDateTime(hovered.bucketStartUtc, i18n.language)}
-                  </div>
-                  <div className="chart-tooltip-row">
-                    <span>{t('components.chart.total')}</span>
-                    <span>{formatNumber(hovered.successCount + hovered.failureCount)}</span>
-                  </div>
-                  <div className="chart-tooltip-row" style={{ color: 'var(--color-success)' }}>
-                    <span>{t('components.chart.success')}</span>
-                    <span>{formatNumber(hovered.successCount)}</span>
-                  </div>
-                  <div className="chart-tooltip-row" style={{ color: 'var(--color-danger)' }}>
-                    <span>{t('components.chart.failure')}</span>
-                    <span>{formatNumber(hovered.failureCount)}</span>
-                  </div>
-                  <div className="chart-tooltip-row">
-                    <span>{t('components.chart.avgDuration')}</span>
-                    <span>{formatDuration(hovered.averageDurationMs, i18n.language)}</span>
-                  </div>
-                </>
-              }
-            />
-          )}
-        </div>
-      )}
+          </div>
+        )}
       </div>
     </div>
   );

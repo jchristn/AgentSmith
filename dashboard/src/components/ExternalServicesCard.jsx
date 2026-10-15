@@ -75,7 +75,11 @@ export default function ExternalServicesCard() {
                     </Badge>
                   </span>
                   {s.version && (
-                    <span className="text-muted" data-testid={`observability-version-${s.id}`} {...tip(t('tips.views.home.observabilityVersion', { service: name }))}>
+                    <span
+                      className="text-muted"
+                      data-testid={`observability-version-${s.id}`}
+                      {...tip(t('tips.views.home.observabilityVersion', { service: name }))}
+                    >
                       {t('views.home.observabilityVersion', { version: s.version })}
                     </span>
                   )}

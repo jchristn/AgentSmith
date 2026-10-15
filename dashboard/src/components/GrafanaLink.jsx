@@ -8,7 +8,14 @@ import { tip } from './Tooltip';
 export default function GrafanaLink({ href, label, tipText, testId, size = 'sm' }) {
   if (!href) return null;
   return (
-    <a className={`button button-secondary${size === 'sm' ? ' button-sm' : ''}`} href={href} target="_blank" rel="noopener noreferrer" data-testid={testId} {...tip(tipText)}>
+    <a
+      className={`button button-secondary${size === 'sm' ? ' button-sm' : ''}`}
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      data-testid={testId}
+      {...tip(tipText)}
+    >
       <LinkIcon size={14} /> {label}
     </a>
   );

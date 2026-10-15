@@ -1,12 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import {
-  flattenOpenApiSpec,
-  groupOperations,
-  getParameterDefault,
-  getRequestBodyTemplate,
-  resolvePath,
-  buildUrl
-} from '../utils/openApi';
+import { flattenOpenApiSpec, groupOperations, getParameterDefault, getRequestBodyTemplate, resolvePath, buildUrl } from '../utils/openApi';
 import { STORAGE_KEYS } from '../utils/constants';
 
 const HISTORY_LIMIT = 12;
@@ -125,7 +118,15 @@ export default function useApiExplorer(apiClient) {
           const { value, done } = await reader.read();
           if (done) break;
           text += decoder.decode(value, { stream: true });
-          setResponse({ status: raw.status, ok: raw.ok, durationMs: performance.now() - start, size: text.length, headers: respHeaders, body: text, streaming: true });
+          setResponse({
+            status: raw.status,
+            ok: raw.ok,
+            durationMs: performance.now() - start,
+            size: text.length,
+            headers: respHeaders,
+            body: text,
+            streaming: true
+          });
         }
       } else {
         text = await raw.text();

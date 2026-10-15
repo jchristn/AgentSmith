@@ -258,10 +258,10 @@ export default function ChatView({ recordId }) {
   }
 
   const pending = pendingApprovals(state);
-  const totals = state.messages.reduce(
-    (acc, m) => ({ input: acc.input + (m.usage?.inputTokens || 0), output: acc.output + (m.usage?.outputTokens || 0) }),
-    { input: conversation?.totalInputTokens || 0, output: conversation?.totalOutputTokens || 0 }
-  );
+  const totals = state.messages.reduce((acc, m) => ({ input: acc.input + (m.usage?.inputTokens || 0), output: acc.output + (m.usage?.outputTokens || 0) }), {
+    input: conversation?.totalInputTokens || 0,
+    output: conversation?.totalOutputTokens || 0
+  });
 
   return (
     <div className="chat-view">
@@ -278,7 +278,13 @@ export default function ChatView({ recordId }) {
             <button type="button" className="button-secondary" onClick={toggleDrawer} aria-pressed={drawerOpen} {...tip(t('tips.views.chat.drawer'))}>
               <InfoIcon size={14} /> {t('views.chat.context')}
             </button>
-            <button type="button" className="button-primary" onClick={() => navigate(pathFor('chat'))} data-testid="new-conversation" {...tip(t('tips.views.chat.new'))}>
+            <button
+              type="button"
+              className="button-primary"
+              onClick={() => navigate(pathFor('chat'))}
+              data-testid="new-conversation"
+              {...tip(t('tips.views.chat.new'))}
+            >
               <PlusIcon size={14} /> {t('views.chat.new')}
             </button>
           </>
@@ -287,7 +293,15 @@ export default function ChatView({ recordId }) {
       {profilesError && !chatMissing && <ErrorPresenter error={profilesError} />}
       <div className={`chat-layout ${drawerOpen ? 'with-drawer' : ''}`}>
         <aside className="chat-list panel" aria-label={t('views.chat.conversations')}>
-          <input type="search" className="filter-search" value={search} placeholder={t('views.chat.search')} aria-label={t('views.chat.search')} onChange={(e) => setSearch(e.target.value)} {...tip(t('tips.views.chat.search'))} />
+          <input
+            type="search"
+            className="filter-search"
+            value={search}
+            placeholder={t('views.chat.search')}
+            aria-label={t('views.chat.search')}
+            onChange={(e) => setSearch(e.target.value)}
+            {...tip(t('tips.views.chat.search'))}
+          />
           {listError && <ErrorPresenter error={listError} onRetry={loadConversations} />}
           {conversations.length === 0 ? (
             <div className="text-muted chat-list-empty">{t('views.chat.noConversations')}</div>
@@ -318,10 +332,17 @@ export default function ChatView({ recordId }) {
           <div className="chat-toolbar">
             <label className="filter-select" {...tip(t('tips.views.chat.profile'))}>
               <span>{t('views.chat.profile')}</span>
-              <select value={profileId} onChange={(e) => {
-                setProfileId(e.target.value);
-                localStorage.setItem(STORAGE_KEYS.chatProfile, e.target.value);
-              }} disabled={!!recordId || state.streaming} aria-label={t('views.chat.profile')} data-testid="chat-profile" {...tip(t('tips.views.chat.profile'))}>
+              <select
+                value={profileId}
+                onChange={(e) => {
+                  setProfileId(e.target.value);
+                  localStorage.setItem(STORAGE_KEYS.chatProfile, e.target.value);
+                }}
+                disabled={!!recordId || state.streaming}
+                aria-label={t('views.chat.profile')}
+                data-testid="chat-profile"
+                {...tip(t('tips.views.chat.profile'))}
+              >
                 {(profiles || []).map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.displayName || p.name}
@@ -401,12 +422,23 @@ export default function ChatView({ recordId }) {
               </ul>
             )}
             <h3 className="section-title">{t('views.chat.usage')}</h3>
-            <div {...tip(t('tips.chat.tokens'))}>{t('components.chat.tokens', { input: formatNumber(totals.input, {}, i18n.language), output: formatNumber(totals.output, {}, i18n.language) })}</div>
+            <div {...tip(t('tips.chat.tokens'))}>
+              {t('components.chat.tokens', { input: formatNumber(totals.input, {}, i18n.language), output: formatNumber(totals.output, {}, i18n.language) })}
+            </div>
             <h3 className="section-title">{t('views.chat.pending')}</h3>
             {pending.length === 0 ? (
               <div className="text-muted">{t('views.chat.noPending')}</div>
             ) : (
-              pending.map((a) => <ApprovalCard key={a.id} approval={a} compact busy={approvalBusy === a.id} onApprove={(note) => decide(a.id, true, note)} onReject={(note) => decide(a.id, false, note)} />)
+              pending.map((a) => (
+                <ApprovalCard
+                  key={a.id}
+                  approval={a}
+                  compact
+                  busy={approvalBusy === a.id}
+                  onApprove={(note) => decide(a.id, true, note)}
+                  onReject={(note) => decide(a.id, false, note)}
+                />
+              ))
             )}
           </aside>
         )}

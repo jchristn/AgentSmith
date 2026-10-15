@@ -19,7 +19,9 @@ function ParamInputs({ params, location, values, onChange, requiredLabel }) {
     <div className="modal-form">
       {list.map((p) => (
         <div className="field" key={p.name}>
-          <label {...tip(t(`tips.views.explorer.${location}Param`, { name: p.name, type: p.schema?.type || 'string', description: p.description || '' }).trim())}>
+          <label
+            {...tip(t(`tips.views.explorer.${location}Param`, { name: p.name, type: p.schema?.type || 'string', description: p.description || '' }).trim())}
+          >
             {p.name}
             {p.required ? ` (${requiredLabel})` : ''}
           </label>
@@ -110,7 +112,11 @@ export default function ApiExplorerView({ apiClient }) {
                     <MethodPill method={ex.operation.method} />
                     <code className="monospace">{ex.operation.path}</code>
                   </div>
-                  {ex.operation.summary && <p className="text-muted" style={{ fontSize: 'var(--font-size-sm)' }}>{ex.operation.summary}</p>}
+                  {ex.operation.summary && (
+                    <p className="text-muted" style={{ fontSize: 'var(--font-size-sm)' }}>
+                      {ex.operation.summary}
+                    </p>
+                  )}
 
                   <h3 style={{ marginTop: 'var(--spacing-md)' }}>{t('views.explorer.resolvedUrl')}</h3>
                   <div className="explorer-url">
@@ -121,13 +127,25 @@ export default function ApiExplorerView({ apiClient }) {
                   {ex.operation.parameters.some((p) => p.in === 'path') && (
                     <>
                       <h3 style={{ marginTop: 'var(--spacing-md)' }}>{t('views.explorer.pathParams')}</h3>
-                      <ParamInputs params={ex.operation.parameters} location="path" values={ex.pathParams} onChange={ex.setPathParams} requiredLabel={t('views.explorer.required')} />
+                      <ParamInputs
+                        params={ex.operation.parameters}
+                        location="path"
+                        values={ex.pathParams}
+                        onChange={ex.setPathParams}
+                        requiredLabel={t('views.explorer.required')}
+                      />
                     </>
                   )}
                   {ex.operation.parameters.some((p) => p.in === 'query') && (
                     <>
                       <h3 style={{ marginTop: 'var(--spacing-md)' }}>{t('views.explorer.queryParams')}</h3>
-                      <ParamInputs params={ex.operation.parameters} location="query" values={ex.queryParams} onChange={ex.setQueryParams} requiredLabel={t('views.explorer.required')} />
+                      <ParamInputs
+                        params={ex.operation.parameters}
+                        location="query"
+                        values={ex.queryParams}
+                        onChange={ex.setQueryParams}
+                        requiredLabel={t('views.explorer.required')}
+                      />
                     </>
                   )}
 
@@ -136,12 +154,25 @@ export default function ApiExplorerView({ apiClient }) {
                     {Object.entries(ex.headers).map(([k, v]) => (
                       <div className="explorer-kv-row" key={k}>
                         <input value={k} readOnly aria-label={t('views.explorer.headerName')} {...tip(t('tips.views.explorer.headerName'))} />
-                        <input value={v} aria-label={t('views.explorer.headerValue', { name: k })} {...tip(t('tips.views.explorer.headerValue'))} onChange={(e) => ex.setHeaders({ ...ex.headers, [k]: e.target.value })} />
-                        <button type="button" className="button-ghost button-sm" aria-label={t('views.explorer.removeHeader', { name: k })} {...tip(t('tips.views.explorer.removeHeader'))} onClick={() => {
-                          const next = { ...ex.headers };
-                          delete next[k];
-                          ex.setHeaders(next);
-                        }}>×</button>
+                        <input
+                          value={v}
+                          aria-label={t('views.explorer.headerValue', { name: k })}
+                          {...tip(t('tips.views.explorer.headerValue'))}
+                          onChange={(e) => ex.setHeaders({ ...ex.headers, [k]: e.target.value })}
+                        />
+                        <button
+                          type="button"
+                          className="button-ghost button-sm"
+                          aria-label={t('views.explorer.removeHeader', { name: k })}
+                          {...tip(t('tips.views.explorer.removeHeader'))}
+                          onClick={() => {
+                            const next = { ...ex.headers };
+                            delete next[k];
+                            ex.setHeaders(next);
+                          }}
+                        >
+                          ×
+                        </button>
                       </div>
                     ))}
                     <button
@@ -157,12 +188,25 @@ export default function ApiExplorerView({ apiClient }) {
                   {bodyAllowed && (
                     <>
                       <h3 style={{ marginTop: 'var(--spacing-md)' }}>{t('views.explorer.body')}</h3>
-                      <textarea rows={8} value={ex.body} aria-label={t('views.explorer.body')} {...tip(t('tips.views.explorer.body'))} onChange={(e) => ex.setBody(e.target.value)} />
+                      <textarea
+                        rows={8}
+                        value={ex.body}
+                        aria-label={t('views.explorer.body')}
+                        {...tip(t('tips.views.explorer.body'))}
+                        onChange={(e) => ex.setBody(e.target.value)}
+                      />
                     </>
                   )}
 
                   <div style={{ marginTop: 'var(--spacing-md)' }}>
-                    <button type="button" className="button-primary" onClick={requestExecution} disabled={ex.running} data-testid="explorer-execute" {...tip(t('tips.views.explorer.execute'))}>
+                    <button
+                      type="button"
+                      className="button-primary"
+                      onClick={requestExecution}
+                      disabled={ex.running}
+                      data-testid="explorer-execute"
+                      {...tip(t('tips.views.explorer.execute'))}
+                    >
                       {ex.running ? t('views.explorer.executing') : t('views.explorer.execute')}
                     </button>
                     {ex.running && (
@@ -179,7 +223,11 @@ export default function ApiExplorerView({ apiClient }) {
                   <div className="explorer-panel">
                     <h3>{t('views.explorer.response')}</h3>
                     <div className="flex items-center gap-md" style={{ marginBottom: 'var(--spacing-sm)' }}>
-                      {typeof ex.response.status === 'number' ? <StatusBadge code={ex.response.status} /> : <span className="pill pill-danger">{ex.response.status}</span>}
+                      {typeof ex.response.status === 'number' ? (
+                        <StatusBadge code={ex.response.status} />
+                      ) : (
+                        <span className="pill pill-danger">{ex.response.status}</span>
+                      )}
                       <span className="text-muted">{formatDuration(ex.response.durationMs, i18n.language)}</span>
                       <span className="text-muted">{formatBytes(ex.response.size || 0)}</span>
                     </div>
@@ -195,7 +243,13 @@ export default function ApiExplorerView({ apiClient }) {
                   <h3>{t('views.explorer.snippets')}</h3>
                   <div className="snippet-tabs">
                     {['curl', 'fetch', 'csharp'].map((s) => (
-                      <button key={s} type="button" className={`snippet-tab ${snippetTab === s ? 'active' : ''}`} onClick={() => setSnippetTab(s)} {...tip(t(`tips.views.explorer.snippets.${s}`))}>
+                      <button
+                        key={s}
+                        type="button"
+                        className={`snippet-tab ${snippetTab === s ? 'active' : ''}`}
+                        onClick={() => setSnippetTab(s)}
+                        {...tip(t(`tips.views.explorer.snippets.${s}`))}
+                      >
                         {s === 'csharp' ? 'C#' : s}
                       </button>
                     ))}
@@ -214,7 +268,9 @@ export default function ApiExplorerView({ apiClient }) {
                     )}
                   </div>
                   {ex.history.length === 0 ? (
-                    <p className="text-muted" style={{ fontSize: 'var(--font-size-sm)' }}>{t('views.explorer.historyEmpty')}</p>
+                    <p className="text-muted" style={{ fontSize: 'var(--font-size-sm)' }}>
+                      {t('views.explorer.historyEmpty')}
+                    </p>
                   ) : (
                     ex.history.map((h, i) => (
                       <div className="explorer-history-item" key={i}>
@@ -224,10 +280,20 @@ export default function ApiExplorerView({ apiClient }) {
                           {typeof h.status === 'number' && <StatusBadge code={h.status} />}
                         </span>
                         <span className="flex items-center gap-sm">
-                          <button type="button" className="button-ghost button-sm" onClick={() => ex.loadFromHistory(h)} {...tip(t('tips.views.explorer.loadHistory'))}>
+                          <button
+                            type="button"
+                            className="button-ghost button-sm"
+                            onClick={() => ex.loadFromHistory(h)}
+                            {...tip(t('tips.views.explorer.loadHistory'))}
+                          >
                             {t('views.explorer.loadHistory')}
                           </button>
-                          <button type="button" className="button-ghost button-sm" onClick={() => ex.deleteHistory(i)} {...tip(t('tips.views.explorer.deleteHistory'))}>
+                          <button
+                            type="button"
+                            className="button-ghost button-sm"
+                            onClick={() => ex.deleteHistory(i)}
+                            {...tip(t('tips.views.explorer.deleteHistory'))}
+                          >
                             {t('views.explorer.deleteHistory')}
                           </button>
                         </span>

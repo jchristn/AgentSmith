@@ -35,11 +35,21 @@ export default function EffectivePermissionsModal({ load, title, onClose }) {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th scope="col" {...tip(t('tips.permissions.source'))}>{t('components.permissions.source')}</th>
-                    <th scope="col" {...tip(t('tips.permissions.type'))}>{t('components.permissions.type')}</th>
-                    <th scope="col" {...tip(t('tips.permissions.resources'))}>{t('components.permissions.resources')}</th>
-                    <th scope="col" {...tip(t('tips.permissions.operations'))}>{t('components.permissions.operations')}</th>
-                    <th scope="col" {...tip(t('tips.permissions.scope'))}>{t('components.permissions.scope')}</th>
+                    <th scope="col" {...tip(t('tips.permissions.source'))}>
+                      {t('components.permissions.source')}
+                    </th>
+                    <th scope="col" {...tip(t('tips.permissions.type'))}>
+                      {t('components.permissions.type')}
+                    </th>
+                    <th scope="col" {...tip(t('tips.permissions.resources'))}>
+                      {t('components.permissions.resources')}
+                    </th>
+                    <th scope="col" {...tip(t('tips.permissions.operations'))}>
+                      {t('components.permissions.operations')}
+                    </th>
+                    <th scope="col" {...tip(t('tips.permissions.scope'))}>
+                      {t('components.permissions.scope')}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -47,11 +57,17 @@ export default function EffectivePermissionsModal({ load, title, onClose }) {
                     <tr key={i}>
                       <td>{g.source || '-'}</td>
                       <td>
-                        <Badge tone={g.permissionType === 'Deny' ? 'danger' : 'success'} tip={enumTip(t, 'permissionType', g.permissionType || 'Permit')}>{enumLabel(t, 'permissionType', g.permissionType || 'Permit')}</Badge>
+                        <Badge tone={g.permissionType === 'Deny' ? 'danger' : 'success'} tip={enumTip(t, 'permissionType', g.permissionType || 'Permit')}>
+                          {enumLabel(t, 'permissionType', g.permissionType || 'Permit')}
+                        </Badge>
                       </td>
                       <td>{enumList(t, 'resourceType', g.resourceTypes)}</td>
                       <td>{enumList(t, 'operationType', g.operations || g.operationTypes)}</td>
-                      <td>{g.scope === 'Resource' ? `${enumLabel(t, 'resourceScope', g.scope)}: ${g.resourceId}` : enumLabel(t, 'resourceScope', g.scope || 'Tenant')}</td>
+                      <td>
+                        {g.scope === 'Resource'
+                          ? `${enumLabel(t, 'resourceScope', g.scope)}: ${g.resourceId}`
+                          : enumLabel(t, 'resourceScope', g.scope || 'Tenant')}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

@@ -55,7 +55,9 @@ export default function ResultModal({ title, load, onClose, renderResult }) {
             <div className={ok ? 'success-banner' : 'error-banner'} data-testid="result-outcome">
               <strong>{ok ? t('components.result.succeeded') : t('components.result.failed')}</strong>
               {result?.message && <span> {result.message}</span>}
-              {result?.latencyMs != null && <span className="text-muted"> {t('components.result.latency', { value: formatDuration(result.latencyMs, i18n.language) })}</span>}
+              {result?.latencyMs != null && (
+                <span className="text-muted"> {t('components.result.latency', { value: formatDuration(result.latencyMs, i18n.language) })}</span>
+              )}
             </div>
             <CodeBlock value={result} prettyJson />
           </>

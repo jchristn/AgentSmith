@@ -137,8 +137,23 @@ export default function PromptTemplateEditorView({ recordId }) {
       readOnly,
       hint: isNew || readOnly ? undefined : t('views.templateEditor.renameHint')
     },
-    { name: 'kind', type: 'select', label: t('resources.promptTemplates.fields.kind'), tip: resourceTip(t, 'promptTemplates', 'kind'), required: true, options: enumOptions(t, 'promptTemplateKind'), readOnly },
-    { name: 'description', type: 'text', label: t('resources.promptTemplates.fields.description'), tip: resourceTip(t, 'promptTemplates', 'description'), readOnly, span: 'full' }
+    {
+      name: 'kind',
+      type: 'select',
+      label: t('resources.promptTemplates.fields.kind'),
+      tip: resourceTip(t, 'promptTemplates', 'kind'),
+      required: true,
+      options: enumOptions(t, 'promptTemplateKind'),
+      readOnly
+    },
+    {
+      name: 'description',
+      type: 'text',
+      label: t('resources.promptTemplates.fields.description'),
+      tip: resourceTip(t, 'promptTemplates', 'description'),
+      readOnly,
+      span: 'full'
+    }
   ];
 
   return (
@@ -150,7 +165,10 @@ export default function PromptTemplateEditorView({ recordId }) {
             t('views.templateEditor.subtitle')
           ) : (
             <span className="inline-meta">
-              <Badge tone={readOnly ? 'info' : 'neutral'} tip={t(readOnly ? 'tips.badges.builtIn' : 'tips.badges.custom')}>{readOnly ? t('common.generic.builtIn') : t('common.generic.custom')}</Badge> v{template?.currentVersion ?? 1}
+              <Badge tone={readOnly ? 'info' : 'neutral'} tip={t(readOnly ? 'tips.badges.builtIn' : 'tips.badges.custom')}>
+                {readOnly ? t('common.generic.builtIn') : t('common.generic.custom')}
+              </Badge>{' '}
+              v{template?.currentVersion ?? 1}
             </span>
           )
         }
@@ -177,7 +195,14 @@ export default function PromptTemplateEditorView({ recordId }) {
               </button>
             )}
             {!readOnly && (
-              <button type="button" className="button-primary" onClick={save} disabled={busy} data-testid="template-save" {...tip(t(isNew ? 'tips.views.templateEditor.create' : 'tips.views.templateEditor.save'))}>
+              <button
+                type="button"
+                className="button-primary"
+                onClick={save}
+                disabled={busy}
+                data-testid="template-save"
+                {...tip(t(isNew ? 'tips.views.templateEditor.create' : 'tips.views.templateEditor.save'))}
+              >
                 {busy ? t('common.generic.saving') : t('common.actions.save')}
               </button>
             )}
@@ -213,7 +238,12 @@ export default function PromptTemplateEditorView({ recordId }) {
             <label htmlFor="tpl-note" {...tip(t('tips.views.templateEditor.changeNote'))}>
               {t('views.templateEditor.changeNote')}
             </label>
-            <input id="tpl-note" {...tip(t('tips.views.templateEditor.changeNote'))} value={form.changeNote} onChange={(e) => setForm({ ...form, changeNote: e.target.value })} />
+            <input
+              id="tpl-note"
+              {...tip(t('tips.views.templateEditor.changeNote'))}
+              value={form.changeNote}
+              onChange={(e) => setForm({ ...form, changeNote: e.target.value })}
+            />
           </div>
         </div>
       )}
@@ -221,54 +251,90 @@ export default function PromptTemplateEditorView({ recordId }) {
       <h2 className="section-title">{t('views.templateEditor.versions', { count: versions.length })}</h2>
       <div className="panel">
         {versions.length === 0 ? (
-            <div className="text-muted">{t('views.templateEditor.noVersions')}</div>
-          ) : (
-            <div className="table-scroll">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th scope="col" {...tip(t('tips.views.templateEditor.columns.version'))}>{t('views.templateEditor.version')}</th>
-                    <th scope="col" {...tip(t('tips.views.templateEditor.columns.note'))}>{t('views.templateEditor.note')}</th>
-                    <th scope="col" {...tip(t('tips.views.templateEditor.columns.author'))}>{t('views.templateEditor.author')}</th>
-                    <th scope="col" {...tip(t('tips.views.templateEditor.columns.saved'))}>{t('resources.promptTemplates.columns.lastUpdateUtc')}</th>
-                    <th scope="col" className="right" {...tip(t('tips.table.actionsColumn'))}>
-                      {t('common.generic.actions')}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[...versions].sort((a, b) => b.version - a.version).map((v) => (
+          <div className="text-muted">{t('views.templateEditor.noVersions')}</div>
+        ) : (
+          <div className="table-scroll">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th scope="col" {...tip(t('tips.views.templateEditor.columns.version'))}>
+                    {t('views.templateEditor.version')}
+                  </th>
+                  <th scope="col" {...tip(t('tips.views.templateEditor.columns.note'))}>
+                    {t('views.templateEditor.note')}
+                  </th>
+                  <th scope="col" {...tip(t('tips.views.templateEditor.columns.author'))}>
+                    {t('views.templateEditor.author')}
+                  </th>
+                  <th scope="col" {...tip(t('tips.views.templateEditor.columns.saved'))}>
+                    {t('resources.promptTemplates.columns.lastUpdateUtc')}
+                  </th>
+                  <th scope="col" className="right" {...tip(t('tips.table.actionsColumn'))}>
+                    {t('common.generic.actions')}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...versions]
+                  .sort((a, b) => b.version - a.version)
+                  .map((v) => (
                     <tr key={v.id || v.version}>
                       <td>v{v.version}</td>
                       <td>{v.changeNote || '-'}</td>
                       <td>{v.createdBy || '-'}</td>
                       <td>{formatDateTime(v.createdUtc, i18n.language)}</td>
                       <td className="actions-cell">
-                        <button type="button" className="button-ghost button-sm" onClick={() => setDiffVersion(v)} {...tip(t('tips.views.templateEditor.diff'))}>
+                        <button
+                          type="button"
+                          className="button-ghost button-sm"
+                          onClick={() => setDiffVersion(v)}
+                          {...tip(t('tips.views.templateEditor.diff'))}
+                        >
                           {t('views.templateEditor.diff')}
                         </button>
                         {!readOnly && v.version !== template?.currentVersion && (
-                          <button type="button" className="button-ghost button-sm" onClick={() => setConfirm({ type: 'restore', version: v.version })} {...tip(t('tips.views.templateEditor.restore'))}>
+                          <button
+                            type="button"
+                            className="button-ghost button-sm"
+                            onClick={() => setConfirm({ type: 'restore', version: v.version })}
+                            {...tip(t('tips.views.templateEditor.restore'))}
+                          >
                             {t('views.templateEditor.restore')}
                           </button>
                         )}
                       </td>
                     </tr>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
-      <Modal open={!!diffVersion} size="xlarge" onClose={() => setDiffVersion(null)} title={t('views.templateEditor.diffTitle', { version: diffVersion?.version })}>
-        {diffVersion && <DiffViewer before={diffVersion.content} after={form.content} beforeLabel={`v${diffVersion.version}`} afterLabel={t('views.templateEditor.current')} />}
+      <Modal
+        open={!!diffVersion}
+        size="xlarge"
+        onClose={() => setDiffVersion(null)}
+        title={t('views.templateEditor.diffTitle', { version: diffVersion?.version })}
+      >
+        {diffVersion && (
+          <DiffViewer
+            before={diffVersion.content}
+            after={form.content}
+            beforeLabel={`v${diffVersion.version}`}
+            afterLabel={t('views.templateEditor.current')}
+          />
+        )}
       </Modal>
       <ConfirmModal
         open={!!confirm}
         danger={confirm?.type === 'delete'}
         title={t(`views.templateEditor.confirm.${confirm?.type || 'reset'}Title`)}
-        message={confirm?.type === 'delete' ? deleteInfo?.message || t('resources.promptTemplates.deleteUnbound', { name: form.name }) : t(`views.templateEditor.confirm.${confirm?.type || 'reset'}Message`, { version: confirm?.version, name: form.name })}
+        message={
+          confirm?.type === 'delete'
+            ? deleteInfo?.message || t('resources.promptTemplates.deleteUnbound', { name: form.name })
+            : t(`views.templateEditor.confirm.${confirm?.type || 'reset'}Message`, { version: confirm?.version, name: form.name })
+        }
         details={confirm?.type === 'delete' ? deleteInfo?.details : null}
         onConfirm={runConfirmed}
         onCancel={() => setConfirm(null)}

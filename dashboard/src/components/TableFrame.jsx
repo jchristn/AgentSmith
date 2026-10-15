@@ -58,7 +58,12 @@ export default function TableFrame({
             <>
               {rightSlot}
               {items && items.length > 0 && (
-                <ExportMenu title={t('components.export.tableTitle', { table: tableId })} testId={`export-table-${tableId}`} fileName={(ext) => exportFileName(tableId || 'table', `page-${pageNumber || 1}`, {}, ext)} csv={() => tableCsv(visibleColumns, items)} />
+                <ExportMenu
+                  title={t('components.export.tableTitle', { table: tableId })}
+                  testId={`export-table-${tableId}`}
+                  fileName={(ext) => exportFileName(tableId || 'table', `page-${pageNumber || 1}`, {}, ext)}
+                  csv={() => tableCsv(visibleColumns, items)}
+                />
               )}
               <ColumnPicker columns={columns} hidden={hidden} onToggle={toggle} />
             </>

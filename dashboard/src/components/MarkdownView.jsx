@@ -12,13 +12,28 @@ import { renderMarkdown } from '../utils/markdown';
 export default function MarkdownView({ text, rawToggle = false, emptyText = '-', testId, className = '' }) {
   const { t } = useTranslation();
   const [raw, setRaw] = useState(false);
-  const html = useMemo(() => renderMarkdown(text, { linkTip: (href) => t('tips.markdown.link', { href }), headerTip: (name) => t('tips.markdown.column', { name }) }), [text, t]);
-  if (!text) return <div className="text-muted" style={{ fontSize: 'var(--font-size-sm)' }}>{emptyText}</div>;
+  const html = useMemo(
+    () => renderMarkdown(text, { linkTip: (href) => t('tips.markdown.link', { href }), headerTip: (name) => t('tips.markdown.column', { name }) }),
+    [text, t]
+  );
+  if (!text)
+    return (
+      <div className="text-muted" style={{ fontSize: 'var(--font-size-sm)' }}>
+        {emptyText}
+      </div>
+    );
   return (
     <div className={`markdown-view ${className}`.trim()} data-testid={testId}>
       {rawToggle && (
         <div className="markdown-toolbar">
-          <button type="button" className="button-secondary button-sm" aria-pressed={raw} onClick={() => setRaw(!raw)} data-testid="markdown-raw-toggle" {...tip(raw ? t('tips.markdown.showRendered') : t('tips.markdown.showRaw'))}>
+          <button
+            type="button"
+            className="button-secondary button-sm"
+            aria-pressed={raw}
+            onClick={() => setRaw(!raw)}
+            data-testid="markdown-raw-toggle"
+            {...tip(raw ? t('tips.markdown.showRendered') : t('tips.markdown.showRaw'))}
+          >
             {raw ? t('views.markdown.showRendered') : t('views.markdown.showRaw')}
           </button>
           {!raw && <CopyButton value={text} tipText={t('tips.markdown.copy')} />}

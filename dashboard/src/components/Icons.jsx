@@ -249,7 +249,8 @@ export function PlusIcon({ size = 16 }) {
 export function ColumnsIcon({ size = 18 }) {
   return (
     <svg {...base(size)}>
-      <rect x="3" y="4" width="18" height="16" rx="2" /><path d="M9 4v16M15 4v16" />
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M9 4v16M15 4v16" />
     </svg>
   );
 }
@@ -257,7 +258,8 @@ export function ColumnsIcon({ size = 18 }) {
 export function SendIcon({ size = 18 }) {
   return (
     <svg {...base(size)} className="icon-mirror">
-      <path d="M22 2 11 13" /><path d="M22 2 15 22l-4-9-9-4 20-7z" />
+      <path d="M22 2 11 13" />
+      <path d="M22 2 15 22l-4-9-9-4 20-7z" />
     </svg>
   );
 }
@@ -265,7 +267,8 @@ export function SendIcon({ size = 18 }) {
 export function RunsIcon({ size = 18 }) {
   return (
     <svg {...base(size)}>
-      <path d="M4 6h16M4 12h10M4 18h7" /><circle cx="18" cy="16" r="3" />
+      <path d="M4 6h16M4 12h10M4 18h7" />
+      <circle cx="18" cy="16" r="3" />
     </svg>
   );
 }
@@ -273,7 +276,8 @@ export function RunsIcon({ size = 18 }) {
 export function QueueIcon({ size = 18 }) {
   return (
     <svg {...base(size)}>
-      <path d="m12 3 9 5-9 5-9-5 9-5z" /><path d="m3 13 9 5 9-5" />
+      <path d="m12 3 9 5-9 5-9-5 9-5z" />
+      <path d="m3 13 9 5 9-5" />
     </svg>
   );
 }
@@ -281,7 +285,9 @@ export function QueueIcon({ size = 18 }) {
 export function CpuIcon({ size = 18 }) {
   return (
     <svg {...base(size)}>
-      <rect x="5" y="5" width="14" height="14" rx="2" /><rect x="9" y="9" width="6" height="6" /><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3" />
+      <rect x="5" y="5" width="14" height="14" rx="2" />
+      <rect x="9" y="9" width="6" height="6" />
+      <path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3" />
     </svg>
   );
 }
@@ -289,7 +295,8 @@ export function CpuIcon({ size = 18 }) {
 export function BotIcon({ size = 18 }) {
   return (
     <svg {...base(size)}>
-      <rect x="4" y="8" width="16" height="12" rx="3" /><path d="M12 4v4M9 13h.01M15 13h.01M9 17h6" />
+      <rect x="4" y="8" width="16" height="12" rx="3" />
+      <path d="M12 4v4M9 13h.01M15 13h.01M9 17h6" />
     </svg>
   );
 }
@@ -297,7 +304,8 @@ export function BotIcon({ size = 18 }) {
 export function BoxIcon({ size = 18 }) {
   return (
     <svg {...base(size)}>
-      <path d="m21 8-9-5-9 5v8l9 5 9-5V8z" /><path d="m3 8 9 5 9-5M12 13v8" />
+      <path d="m21 8-9-5-9 5v8l9 5 9-5V8z" />
+      <path d="m3 8 9 5 9-5M12 13v8" />
     </svg>
   );
 }
@@ -313,7 +321,8 @@ export function TerminalIcon({ size = 18 }) {
 export function FileTextIcon({ size = 18 }) {
   return (
     <svg {...base(size)}>
-      <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><path d="M14 3v6h6M8 13h8M8 17h6" />
+      <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+      <path d="M14 3v6h6M8 13h8M8 17h6" />
     </svg>
   );
 }
@@ -329,7 +338,9 @@ export function PlugIcon({ size = 18 }) {
 export function VaultIcon({ size = 18 }) {
   return (
     <svg {...base(size)}>
-      <rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 9V7M12 17v-2" />
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 9V7M12 17v-2" />
     </svg>
   );
 }
@@ -345,7 +356,8 @@ export function FolderIcon({ size = 18 }) {
 export function FileCodeIcon({ size = 18 }) {
   return (
     <svg {...base(size)}>
-      <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><path d="m10 13-2 2 2 2M14 13l2 2-2 2" />
+      <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+      <path d="m10 13-2 2 2 2M14 13l2 2-2 2" />
     </svg>
   );
 }
@@ -361,7 +373,8 @@ export function ShieldIcon({ size = 18 }) {
 export function ShieldCheckIcon({ size = 18 }) {
   return (
     <svg {...base(size)}>
-      <path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3z" /><path d="m9 12 2 2 4-4" />
+      <path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3z" />
+      <path d="m9 12 2 2 4-4" />
     </svg>
   );
 }
@@ -369,7 +382,8 @@ export function ShieldCheckIcon({ size = 18 }) {
 export function LinkIcon({ size = 18 }) {
   return (
     <svg {...base(size)}>
-      <path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1" /><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1" />
+      <path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1" />
+      <path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1" />
     </svg>
   );
 }
@@ -377,7 +391,8 @@ export function LinkIcon({ size = 18 }) {
 export function WandIcon({ size = 18 }) {
   return (
     <svg {...base(size)}>
-      <path d="m15 4 5 5L9 20H4v-5L15 4z" /><path d="M13 6l5 5" />
+      <path d="m15 4 5 5L9 20H4v-5L15 4z" />
+      <path d="M13 6l5 5" />
     </svg>
   );
 }
@@ -385,7 +400,8 @@ export function WandIcon({ size = 18 }) {
 export function HelpIcon({ size = 18 }) {
   return (
     <svg {...base(size)}>
-      <circle cx="12" cy="12" r="9" /><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5V14M12 17h.01" />
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5V14M12 17h.01" />
     </svg>
   );
 }
@@ -417,7 +433,8 @@ export function DownloadIcon({ size = 18 }) {
 export function RetryIcon({ size = 18 }) {
   return (
     <svg {...base(size)}>
-      <path d="M3 12a9 9 0 1 0 3-6.7" /><path d="M3 4v5h5" />
+      <path d="M3 12a9 9 0 1 0 3-6.7" />
+      <path d="M3 4v5h5" />
     </svg>
   );
 }
@@ -425,7 +442,8 @@ export function RetryIcon({ size = 18 }) {
 export function TagIcon({ size = 18 }) {
   return (
     <svg {...base(size)}>
-      <path d="M3 12V4h8l10 10-8 8L3 12z" /><circle cx="7.5" cy="7.5" r="1.5" />
+      <path d="M3 12V4h8l10 10-8 8L3 12z" />
+      <circle cx="7.5" cy="7.5" r="1.5" />
     </svg>
   );
 }
@@ -433,7 +451,10 @@ export function TagIcon({ size = 18 }) {
 export function SlidersIcon({ size = 18 }) {
   return (
     <svg {...base(size)}>
-      <path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0" /><circle cx="16" cy="6" r="2" /><circle cx="10" cy="12" r="2" /><circle cx="18" cy="18" r="2" />
+      <path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0" />
+      <circle cx="16" cy="6" r="2" />
+      <circle cx="10" cy="12" r="2" />
+      <circle cx="18" cy="18" r="2" />
     </svg>
   );
 }
@@ -449,7 +470,10 @@ export function ChartIcon({ size = 18 }) {
 export function PoolIcon({ size = 18 }) {
   return (
     <svg {...base(size)}>
-      <circle cx="7" cy="7" r="3" /><circle cx="17" cy="7" r="3" /><circle cx="7" cy="17" r="3" /><circle cx="17" cy="17" r="3" />
+      <circle cx="7" cy="7" r="3" />
+      <circle cx="17" cy="7" r="3" />
+      <circle cx="7" cy="17" r="3" />
+      <circle cx="17" cy="17" r="3" />
     </svg>
   );
 }

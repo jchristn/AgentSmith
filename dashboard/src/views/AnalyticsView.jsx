@@ -43,7 +43,12 @@ export default function AnalyticsView() {
     setRange(params);
     setLoading(true);
     const query = { ...params, agentProfileId: profileId || undefined };
-    const calls = { overview: apiClient.getAnalyticsOverview(query), tokens: apiClient.getAnalyticsTokens(query), tools: apiClient.getAnalyticsTools(query), models: apiClient.getAnalyticsModels(query) };
+    const calls = {
+      overview: apiClient.getAnalyticsOverview(query),
+      tokens: apiClient.getAnalyticsTokens(query),
+      tools: apiClient.getAnalyticsTools(query),
+      models: apiClient.getAnalyticsModels(query)
+    };
     Promise.allSettled(Object.values(calls)).then((results) => {
       const next = {};
       const errs = {};
@@ -71,7 +76,10 @@ export default function AnalyticsView() {
   const byConnector = data.tools?.byConnector || [];
 
   const panel = (key, content) => {
-    if (isMissingEndpoint(errors[key])) return <UnavailableState feature={t(`views.analytics.panels.${key}`)} purpose={t(`views.analytics.purposes.${key}`)} endpoint={`/v1.0/api/analytics/${key}`} />;
+    if (isMissingEndpoint(errors[key]))
+      return (
+        <UnavailableState feature={t(`views.analytics.panels.${key}`)} purpose={t(`views.analytics.purposes.${key}`)} endpoint={`/v1.0/api/analytics/${key}`} />
+      );
     if (errors[key]) return <ErrorPresenter error={errors[key]} onRetry={load} />;
     return content;
   };
@@ -84,7 +92,12 @@ export default function AnalyticsView() {
         <RangeTabs ranges={RANGES} value={rangeId} onChange={setRangeId} onRefresh={load} loading={loading} />
         <label className="filter-select" {...tip(t('tips.views.analytics.profile'))}>
           <span className="sr-only">{t('views.analytics.profile')}</span>
-          <select value={profileId} onChange={(e) => setProfileId(e.target.value)} aria-label={t('views.analytics.profile')} {...tip(t('tips.views.analytics.profile'))}>
+          <select
+            value={profileId}
+            onChange={(e) => setProfileId(e.target.value)}
+            aria-label={t('views.analytics.profile')}
+            {...tip(t('tips.views.analytics.profile'))}
+          >
             <option value="">
               {t('views.analytics.profile')}: {t('common.generic.all')}
             </option>
@@ -106,12 +119,37 @@ export default function AnalyticsView() {
             'overview',
             <div className="kpi-grid" data-testid="analytics-kpis">
               <KpiCard label={t('views.analytics.kpis.turns')} value={formatNumber(totals.turns ?? 0, {}, lng)} tip={t('tips.views.analytics.kpis.turns')} />
-              <KpiCard label={t('views.analytics.kpis.toolCalls')} value={formatNumber(totals.toolCalls ?? 0, {}, lng)} tip={t('tips.views.analytics.kpis.toolCalls')} />
-              <KpiCard label={t('views.analytics.kpis.failures')} value={formatNumber(totals.toolFailures ?? totals.failures ?? 0, {}, lng)} tone={(totals.toolFailures ?? totals.failures) > 0 ? 'danger' : undefined} tip={t('tips.views.analytics.kpis.failures')} />
-              <KpiCard label={t('views.analytics.kpis.tokens')} value={formatNumber((totals.inputTokens ?? 0) + (totals.outputTokens ?? 0), { notation: 'compact' }, lng)} tip={t('tips.views.analytics.kpis.tokens')} />
-              <KpiCard label={t('views.analytics.kpis.approvals')} value={formatNumber(totals.approvals ?? 0, {}, lng)} tip={t('tips.views.analytics.kpis.approvals')} />
-              <KpiCard label={t('views.analytics.kpis.turnaround')} value={totals.approvalTurnaroundMsP50 != null ? formatDuration(totals.approvalTurnaroundMsP50, lng) : '-'} tip={t('tips.views.analytics.kpis.turnaround')} />
-              <KpiCard label={t('views.analytics.kpis.approvalRate')} value={totals.approvalRate != null ? formatPercent(totals.approvalRate, lng) : '-'} tip={t('tips.views.analytics.kpis.approvalRate')} />
+              <KpiCard
+                label={t('views.analytics.kpis.toolCalls')}
+                value={formatNumber(totals.toolCalls ?? 0, {}, lng)}
+                tip={t('tips.views.analytics.kpis.toolCalls')}
+              />
+              <KpiCard
+                label={t('views.analytics.kpis.failures')}
+                value={formatNumber(totals.toolFailures ?? totals.failures ?? 0, {}, lng)}
+                tone={(totals.toolFailures ?? totals.failures) > 0 ? 'danger' : undefined}
+                tip={t('tips.views.analytics.kpis.failures')}
+              />
+              <KpiCard
+                label={t('views.analytics.kpis.tokens')}
+                value={formatNumber((totals.inputTokens ?? 0) + (totals.outputTokens ?? 0), { notation: 'compact' }, lng)}
+                tip={t('tips.views.analytics.kpis.tokens')}
+              />
+              <KpiCard
+                label={t('views.analytics.kpis.approvals')}
+                value={formatNumber(totals.approvals ?? 0, {}, lng)}
+                tip={t('tips.views.analytics.kpis.approvals')}
+              />
+              <KpiCard
+                label={t('views.analytics.kpis.turnaround')}
+                value={totals.approvalTurnaroundMsP50 != null ? formatDuration(totals.approvalTurnaroundMsP50, lng) : '-'}
+                tip={t('tips.views.analytics.kpis.turnaround')}
+              />
+              <KpiCard
+                label={t('views.analytics.kpis.approvalRate')}
+                value={totals.approvalRate != null ? formatPercent(totals.approvalRate, lng) : '-'}
+                tip={t('tips.views.analytics.kpis.approvalRate')}
+              />
             </div>
           )}
           <section className="analytics-section">
@@ -150,10 +188,18 @@ export default function AnalyticsView() {
                     <table className="data-table" data-testid="tools-by-connector">
                       <thead>
                         <tr>
-                          <th scope="col" {...tip(t('tips.views.analytics.columns.connector'))}>{t('views.analytics.columns.connector')}</th>
-                          <th scope="col" className="right" {...tip(t('tips.views.analytics.columns.calls'))}>{t('views.analytics.columns.calls')}</th>
-                          <th scope="col" className="right" {...tip(t('tips.views.analytics.columns.failures'))}>{t('views.analytics.columns.failures')}</th>
-                          <th scope="col" className="right" {...tip(t('tips.views.analytics.columns.p95'))}>{t('views.analytics.columns.p95')}</th>
+                          <th scope="col" {...tip(t('tips.views.analytics.columns.connector'))}>
+                            {t('views.analytics.columns.connector')}
+                          </th>
+                          <th scope="col" className="right" {...tip(t('tips.views.analytics.columns.calls'))}>
+                            {t('views.analytics.columns.calls')}
+                          </th>
+                          <th scope="col" className="right" {...tip(t('tips.views.analytics.columns.failures'))}>
+                            {t('views.analytics.columns.failures')}
+                          </th>
+                          <th scope="col" className="right" {...tip(t('tips.views.analytics.columns.p95'))}>
+                            {t('views.analytics.columns.p95')}
+                          </th>
                         </tr>
                       </thead>
                       <tbody>

@@ -67,7 +67,16 @@ export default function Modal({ open, onClose, title, headerMeta, children, foot
 
   return createPortal(
     <div className="modal-backdrop" onClick={blocking ? undefined : onClose}>
-      <div ref={dialogRef} className={`modal ${sizeClass}`} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} onClick={(e) => e.stopPropagation()} data-testid={testId}>
+      <div
+        ref={dialogRef}
+        className={`modal ${sizeClass}`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        onClick={(e) => e.stopPropagation()}
+        data-testid={testId}
+      >
         <div className="modal-header">
           <div>
             <div className="modal-title" id={titleId}>

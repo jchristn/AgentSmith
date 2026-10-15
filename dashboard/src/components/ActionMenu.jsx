@@ -82,13 +82,7 @@ export default function ActionMenu({ items = [], label = '' }) {
       </button>
       {open &&
         createPortal(
-          <div
-            ref={menuRef}
-            className="action-menu-dropdown"
-            role="menu"
-            style={{ top: pos.top, left: pos.left }}
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div ref={menuRef} className="action-menu-dropdown" role="menu" style={{ top: pos.top, left: pos.left }} onClick={(e) => e.stopPropagation()}>
             {visible.map((it, i) => (
               <button
                 key={i}

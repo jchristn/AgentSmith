@@ -46,7 +46,10 @@ export function ToastProvider({ children }) {
     setTasks((prev) => prev.filter((task) => task.id !== id));
   }, []);
 
-  const value = useMemo(() => ({ addToast, removeToast, startProgress, updateProgress, endProgress }), [addToast, removeToast, startProgress, updateProgress, endProgress]);
+  const value = useMemo(
+    () => ({ addToast, removeToast, startProgress, updateProgress, endProgress }),
+    [addToast, removeToast, startProgress, updateProgress, endProgress]
+  );
 
   return (
     <ToastContext.Provider value={value}>
@@ -59,7 +62,9 @@ export function ToastProvider({ children }) {
               {task.total > 0 && (
                 <>
                   <progress max={task.total} value={task.done} aria-label={task.label} />
-                  <div className="toast-progress-count">{t('components.progress.count', { done: formatNumber(task.done, {}, i18n.language), total: formatNumber(task.total, {}, i18n.language) })}</div>
+                  <div className="toast-progress-count">
+                    {t('components.progress.count', { done: formatNumber(task.done, {}, i18n.language), total: formatNumber(task.total, {}, i18n.language) })}
+                  </div>
                 </>
               )}
             </div>
