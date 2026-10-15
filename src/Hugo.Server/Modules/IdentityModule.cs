@@ -92,6 +92,7 @@ namespace Hugo.Server.Modules
             new SettingsRoutes(context, context.Get<SettingsService>()).Register(routes);
             new ServerInfoRoutes(context, context.Get<RequestHistoryCaptureService>()).Register(routes);
             new ObservabilityRoutes(context.Get<ObservabilityService>()).Register(routes);
+            new EventRoutes(context, context.Get<EventHub>()).Register(routes);
         }
 
         /// <inheritdoc />

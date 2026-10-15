@@ -65,6 +65,7 @@ namespace Hugo.Server.Routes
         {
             SettingsSaveResponse response = await _Settings.UpdateAsync(RouteHelpers.RequiredBody<SettingsUpdateRequest>(context), RouteHelpers.Context(context).PrincipalName, context.Token).ConfigureAwait(false);
             await _Context.Audit.WriteAsync(RouteHelpers.Context(context), AuditEventTypeEnum.SettingsChanged, "Settings", null, "Changed: " + String.Join(", ", response.AppliedLive) + (response.PendingRestart.Count > 0 ? "; pending restart: " + String.Join(", ", response.PendingRestart) : String.Empty), null, context.Token).ConfigureAwait(false);
+            _Context.TryGet<EventHub>()?.Publish("settings.changed", null, response);
             await RouteHelpers.JsonAsync(context, 200, response).ConfigureAwait(false);
         }
 
@@ -72,8 +73,10 @@ namespace Hugo.Server.Routes
         {
             await _Context.Audit.WriteAsync(RouteHelpers.Context(context), AuditEventTypeEnum.RestartRequested, "Settings", null, "Restart requested.", null, context.Token).ConfigureAwait(false);
             _Context.Logging.Warn("[Settings] restart requested by " + RouteHelpers.Context(context).PrincipalName);
-            await RouteHelpers.JsonAsync(context, 202, new RestartResponse { Restarting = true, Node = _Context.NodeId }).ConfigureAwait(false);
+            _Context.TryGet<EventHub>()?.Publish("server.restarting", null, new { node = _Context.NodeId });
+            // The exit code is recorded now; the shutdown signal follows after a delay so this response is delivered.
             RestartCoordinator.RequestRestart(750);
+            await RouteHelpers.JsonAsync(context, 202, new RestartResponse { Restarting = true, Node = _Context.NodeId }).ConfigureAwait(false);
         }
 
         private async Task TestDatabaseAsync(HttpContextBase context)

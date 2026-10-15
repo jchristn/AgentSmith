@@ -147,6 +147,7 @@ namespace Hugo.Server
             settings.Telemetry.PropagateContext = true;
             _Server = new Webserver(settings, DefaultRouteAsync);
             context.Register(_Server);
+            if (context.TryGet<EventHub>() == null) context.Register(new EventHub());
 
             _Routes = new RouteRegistrar(_Server, context.Authorization, context.Database, context.Scopes, context.Logging);
             _Routes.DatabaseRetryAfterSeconds = () => context.Settings.Rest.DatabaseRetryAfterSeconds;

@@ -48,6 +48,7 @@ namespace Test.Shared.Suites
                 cases.Add(new TestCaseDescriptor(id, "token-lifecycle", "Token details, refresh, logout, tenant lookup, and conflicting schemes (" + provider + ")", ct => TokenLifecycleAsync(provider, ct)));
                 cases.Add(new TestCaseDescriptor(id, "rate-limit", "Token routes answer 429 after the per-minute limit (" + provider + ")", ct => RateLimitAsync(provider, ct)));
                 cases.Add(new TestCaseDescriptor(id, "sessions", "Sessions are listed per tenant and revoking one ends its token (" + provider + ")", ct => SessionsAsync(provider, ct)));
+                cases.Add(new TestCaseDescriptor(id, "events", "The event stream delivers tenant events to that tenant only, with heartbeats (" + provider + ")", ct => EventsAsync(provider, ct)));
                 cases.Add(new TestCaseDescriptor(id, "restart", "Restart requests are accepted from administrators only (" + provider + ")", ct => RestartAsync(provider, ct)));
                 suites.Add(new TestSuiteDescriptor(id, "Foundation over HTTP (" + provider + ")", cases));
             }
@@ -336,6 +337,60 @@ namespace Test.Shared.Suites
                     Assert.Equal(401, (await HttpTestHelpers.SendAsync(anderson, System.Net.Http.HttpMethod.Get, "/v1.0/token/details", null, token).ConfigureAwait(false)).StatusCode, "Revoked session");
                 }
             }
+        }
+
+        private static async Task EventsAsync(DatabaseTypeEnum provider, CancellationToken token)
+        {
+            await using (TestServerHost host = await TestServerHost.StartAsync(provider, null, token).ConfigureAwait(false))
+            {
+                host.Server.Context.Get<EventHub>().HeartbeatSeconds = 1;
+                Tenant other = await HttpTestHelpers.SendAsync<Tenant>(host.AdminClient, System.Net.Http.HttpMethod.Post, "/v1.0/api/tenants", new Hugo.Core.Requests.TenantRequest { Name = "Events Other" }, 201, token).ConfigureAwait(false);
+                await HttpTestHelpers.SendAsync<User>(host.AdminClient, System.Net.Http.HttpMethod.Post, "/v1.0/api/tenants/" + other.Id + "/users", new Hugo.Core.Requests.UserRequest { Email = "events@other.local", Password = "password123", IsTenantAdmin = true }, 201, token).ConfigureAwait(false);
+
+                using (HttpClient anderson = await host.ActivateSeededUserAsync("anderson@hugo.local", token).ConfigureAwait(false))
+                using (HttpClient stranger = await host.UserClientAsync("events@other.local", "password123", other.Id, token).ConfigureAwait(false))
+                using (CancellationTokenSource timeout = CancellationTokenSource.CreateLinkedTokenSource(token))
+                {
+                    timeout.CancelAfter(TimeSpan.FromSeconds(30));
+                    using (HttpResponseMessage own = await anderson.GetAsync("/v1.0/api/events", HttpCompletionOption.ResponseHeadersRead, timeout.Token).ConfigureAwait(false))
+                    using (HttpResponseMessage foreign = await stranger.GetAsync("/v1.0/api/events", HttpCompletionOption.ResponseHeadersRead, timeout.Token).ConfigureAwait(false))
+                    {
+                        Assert.Equal(200, (int)own.StatusCode, "Stream status");
+                        Assert.Equal("text/event-stream", own.Content.Headers.ContentType?.MediaType, "Content type");
+                        using (System.IO.StreamReader ownReader = new System.IO.StreamReader(await own.Content.ReadAsStreamAsync(timeout.Token).ConfigureAwait(false)))
+                        using (System.IO.StreamReader foreignReader = new System.IO.StreamReader(await foreign.Content.ReadAsStreamAsync(timeout.Token).ConfigureAwait(false)))
+                        {
+                            Assert.True(await ReadUntilAsync(ownReader, "event: stream.opened", timeout.Token).ConfigureAwait(false), "Own stream did not open.");
+                            Assert.True(await ReadUntilAsync(foreignReader, "event: stream.opened", timeout.Token).ConfigureAwait(false), "Foreign stream did not open.");
+                            await HttpTestHelpers.SendAsync<Secret>(anderson, System.Net.Http.HttpMethod.Post, "/v1.0/api/tenants/" + host.TenantId + "/secrets", new { name = "evented", kind = "ApiToken", values = new { token = "evented-token-value" } }, 201, timeout.Token).ConfigureAwait(false);
+                            List<string> ownLines = await ReadLinesUntilAsync(ownReader, "secret.created", timeout.Token).ConfigureAwait(false);
+                            Assert.True(ownLines.Any(l => l.Contains("secret.created", StringComparison.Ordinal)), "secret.created not delivered.");
+                            Assert.True(ownLines.All(l => !l.Contains("evented-token-value", StringComparison.Ordinal)), "The event carried the secret value.");
+                            List<string> foreignLines = await ReadLinesUntilAsync(foreignReader, "event: heartbeat", timeout.Token).ConfigureAwait(false);
+                            await ReadLinesUntilAsync(foreignReader, "event: heartbeat", timeout.Token).ConfigureAwait(false);
+                            Assert.True(foreignLines.All(l => !l.Contains("secret.created", StringComparison.Ordinal)), "Another tenant received the event.");
+                        }
+                    }
+                }
+            }
+        }
+
+        private static async Task<bool> ReadUntilAsync(System.IO.StreamReader reader, string marker, CancellationToken token)
+        {
+            return (await ReadLinesUntilAsync(reader, marker, token).ConfigureAwait(false)).Any(l => l.Contains(marker, StringComparison.Ordinal));
+        }
+
+        private static async Task<List<string>> ReadLinesUntilAsync(System.IO.StreamReader reader, string marker, CancellationToken token)
+        {
+            List<string> lines = new List<string>();
+            while (!token.IsCancellationRequested)
+            {
+                string? line = await reader.ReadLineAsync(token).ConfigureAwait(false);
+                if (line == null) break;
+                lines.Add(line);
+                if (line.Contains(marker, StringComparison.Ordinal)) break;
+            }
+            return lines;
         }
 
         private static async Task RestartAsync(DatabaseTypeEnum provider, CancellationToken token)

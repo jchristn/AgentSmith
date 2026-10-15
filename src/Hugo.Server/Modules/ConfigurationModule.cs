@@ -78,6 +78,7 @@ namespace Hugo.Server.Modules
 
         private void OnRotationProgress(object? sender, MasterKeyRotationStatus status)
         {
+            _Context?.TryGet<Hugo.Server.Services.EventHub>()?.Publish("masterkey.rotation", null, status);
             _Context?.Logging.Info("[Secrets] master key rotation to version " + status.TargetKeyVersion + ": " + status.Completed + " of " + status.Total + " re-encrypted, " + status.Failed + " failed" + (status.Running ? String.Empty : " (finished)"));
         }
 

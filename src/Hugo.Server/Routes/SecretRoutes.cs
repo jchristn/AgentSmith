@@ -99,6 +99,7 @@ namespace Hugo.Server.Routes
             SecretRequest request = RouteHelpers.RequiredBody<SecretRequest>(http);
             Secret created = await _Secrets.CreateAsync(RouteHelpers.Tenant(http), ctx.PrincipalType == PrincipalTypeEnum.User ? ctx.UserId : ctx.User?.Id, request, http.Token).ConfigureAwait(false);
             await ConfigurationSupport.AuditAsync(_Server, http, AuditEventTypeEnum.SecretCreated, "Secret", created.Id, "Created " + created.Kind + " secret " + created.Name + " with fields " + String.Join(", ", created.Fields) + ".").ConfigureAwait(false);
+            Publish("secret.created", created);
             await RouteHelpers.JsonAsync(http, 201, created).ConfigureAwait(false);
         }
 
@@ -121,6 +122,7 @@ namespace Hugo.Server.Routes
             SecretRequest request = RouteHelpers.RequiredBody<SecretRequest>(http);
             Secret updated = await _Secrets.UpdateMetadataAsync(RouteHelpers.Tenant(http), RouteHelpers.Param(http, "id")!, request, http.Token).ConfigureAwait(false);
             await ConfigurationSupport.AuditAsync(_Server, http, AuditEventTypeEnum.SecretUpdated, "Secret", updated.Id, "Updated metadata of secret " + updated.Name + ".").ConfigureAwait(false);
+            Publish("secret.updated", updated);
             await RouteHelpers.JsonAsync(http, 200, updated).ConfigureAwait(false);
         }
 
@@ -130,6 +132,7 @@ namespace Hugo.Server.Routes
             SecretValueUpdate result = await _Secrets.UpdateValuesAsync(RouteHelpers.Tenant(http), RouteHelpers.Param(http, "id")!, request, http.Token).ConfigureAwait(false);
             string changed = result.ChangedFields.Count == 0 ? "no fields" : "fields " + String.Join(", ", result.ChangedFields);
             await ConfigurationSupport.AuditAsync(_Server, http, AuditEventTypeEnum.SecretUpdated, "Secret", result.Secret.Id, "Updated values of secret " + result.Secret.Name + " (" + changed + ").").ConfigureAwait(false);
+            Publish("secret.updated", result.Secret);
             await RouteHelpers.JsonAsync(http, 200, result.Secret).ConfigureAwait(false);
         }
 
@@ -217,7 +220,13 @@ namespace Hugo.Server.Routes
         {
             Secret deleted = await _Secrets.DeleteAsync(RouteHelpers.Tenant(http), RouteHelpers.Param(http, "id")!, http.Token).ConfigureAwait(false);
             await ConfigurationSupport.AuditAsync(_Server, http, AuditEventTypeEnum.SecretDeleted, "Secret", deleted.Id, "Deleted secret " + deleted.Name + ".").ConfigureAwait(false);
+            Publish("secret.deleted", deleted);
             await RouteHelpers.NoContentAsync(http).ConfigureAwait(false);
+        }
+
+        private void Publish(string type, Secret secret)
+        {
+            _Server.TryGet<EventHub>()?.Publish(type, secret.TenantId, new { id = secret.Id, name = secret.Name, kind = secret.Kind.ToString(), fields = secret.Fields });
         }
 
         #endregion
