@@ -40,3 +40,4 @@ user-testing/
 
 # Agent worktrees
 .claude/
+!LICENSE.md

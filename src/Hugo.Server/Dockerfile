@@ -5,7 +5,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /source
 COPY src/ ./src/
-COPY README.md LICENSE ./
+COPY README.md LICENSE.md ./
 COPY assets/icon.png ./assets/icon.png
 RUN dotnet publish src/Hugo.Server/Hugo.Server.csproj -c Release -f net10.0 -o /out /p:UseAppHost=false
 

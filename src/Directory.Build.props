@@ -11,7 +11,7 @@
     <Product>Hugo</Product>
     <RepositoryUrl>https://github.com/jchristn/AgentSmith</RepositoryUrl>
     <PackageProjectUrl>https://github.com/jchristn/AgentSmith</PackageProjectUrl>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
     <IncludeSymbols>true</IncludeSymbols>
@@ -28,7 +28,7 @@
 
   <ItemGroup Condition="$(MSBuildProjectName.StartsWith('Hugo.'))">
     <None Include="$(MSBuildThisFileDirectory)..\README.md" Pack="true" PackagePath="\" Visible="false" />
-    <None Include="$(MSBuildThisFileDirectory)..\LICENSE" Pack="true" PackagePath="\" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)..\LICENSE.md" Pack="true" PackagePath="\" Visible="false" />
     <None Include="$(MSBuildThisFileDirectory)..\assets\icon.png" Pack="true" PackagePath="\" Visible="false" />
   </ItemGroup>
 
