@@ -10462,7 +10462,7 @@ Response (200):
 
 ## MCP endpoint
 
-These are the HTTP routes behind Hugo's MCP server. The server speaks Streamable HTTP: `POST` carries JSON-RPC requests, `GET` opens the optional server-to-client event stream of a session, and `DELETE` ends a session. Authentication uses the REST schemes, and failures are HTTP errors with a JSON-RPC body (401 with `WWW-Authenticate: Bearer realm="hugo"`, 403 for a profile the caller may not use or one not exposed over MCP, 404 for an unknown profile or an expired session). Tools, prompts, resources, sessions, and the approval flow are documented in [MCP_API.md](MCP_API.md).
+Behind `/mcp` sits Hugo's MCP server, which speaks Streamable HTTP: `POST` carries JSON-RPC requests, `GET` opens the optional server-to-client event stream of a session, and `DELETE` ends a session. Authentication uses the REST schemes, and failures are HTTP errors with a JSON-RPC body (401 with `WWW-Authenticate: Bearer realm="hugo"`, 403 for a profile the caller may not use or one not exposed over MCP, 404 for an unknown profile or an expired session). Tools, prompts, resources, sessions, and the approval flow are documented in [MCP_API.md](MCP_API.md).
 
 | Method | Path | Summary |
 |---|---|---|
@@ -10641,7 +10641,7 @@ Response: 200 with an empty body.
 
 ## A2A endpoint
 
-These are the HTTP routes behind Hugo's A2A 1.0 agents. The agent card is anonymous so other agents can discover a profile; the tenant catalog and the JSON-RPC endpoint need a REST credential. JSON-RPC errors come back with HTTP 200 (or 404 for an unknown agent), following the A2A JSON-RPC binding. Methods, task states, and the approval behavior are documented in [A2A_API.md](A2A_API.md).
+Each A2A-exposed profile is an A2A 1.0 agent with three HTTP routes. The agent card is anonymous so other agents can discover a profile; the tenant catalog and the JSON-RPC endpoint need a REST credential. JSON-RPC errors come back with HTTP 200 (or 404 for an unknown agent), following the A2A JSON-RPC binding. Methods, task states, and the approval behavior are documented in [A2A_API.md](A2A_API.md).
 
 | Method | Path | Summary |
 |---|---|---|

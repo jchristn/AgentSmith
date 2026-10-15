@@ -2,7 +2,7 @@
 
 Hugo is an MCP server. Point Claude Code, Cursor, Codex, or any other MCP client at it and the client's model gets a curated set of tools over your infrastructure, together with instructions that explain each resource and what it may do there. The model drives; Hugo holds the credentials, classifies every call as Read, Write, or Destructive, enforces the access mode of the binding, routes risky calls to a human, scrubs secrets from what comes back, and records everything.
 
-This document covers the whole MCP surface of `0.1.0-alpha`: the endpoint and its transports, authentication and profile resolution, sessions, the `initialize` answer, how the tool list is built for each caller, every Hugo tool (meta, delegation, and management), the connector tools by family, the prompts, the resources, the approval flow, and the errors. The 111 connector tools of the infrastructure families are documented one by one in [docs/MCP_CONNECTOR_TOOLS.md](docs/MCP_CONNECTOR_TOOLS.md); the seven tools for external MCP servers and remote A2A agents are documented here. Client setup recipes are in [docs/MCP_CLIENTS.md](docs/MCP_CLIENTS.md).
+What follows is the whole MCP surface of `0.1.0-alpha`: the endpoint and its transports, authentication and profile resolution, sessions, the `initialize` answer, how the tool list is built for each caller, every Hugo tool (meta, delegation, and management), the connector tools by family, the prompts, the resources, the approval flow, and the errors. The 111 connector tools of the infrastructure families are documented one by one in [docs/MCP_CONNECTOR_TOOLS.md](docs/MCP_CONNECTOR_TOOLS.md); the seven tools for external MCP servers and remote A2A agents are documented here. Client setup recipes are in [docs/MCP_CLIENTS.md](docs/MCP_CLIENTS.md).
 
 Every example below was recorded against a running server. IDs differ on yours.
 
@@ -188,7 +188,7 @@ Calling a tool that does not exist at all is the one JSON-RPC error a tool call 
 
 ## Meta tools
 
-These seven tools exist on every profile. They are Hugo talking about itself, and they are what a model reaches for when it is unsure what it is connected to.
+Seven tools exist on every profile. They are Hugo talking about itself, and they are what a model reaches for when it is unsure what it is connected to.
 
 ### hugo_whoami
 
