@@ -86,7 +86,7 @@ These rules keep the plan honest:
 | 1 | Core foundation: settings, data layer, identity, RBAC, sessions, audit, history, telemetry base | M1 | In progress | 0 / 44 |
 | 2 | Secrets vault | M1 | Not started | 0 / 12 |
 | 3 | Connector framework and tool invocation pipeline | M1 | In progress | 4 / 24 |
-| 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | In progress | 13 / 30 |
+| 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | In progress | 20 / 30 |
 | 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | In progress | 0 / 20 |
 | 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | Not started | 0 / 24 |
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Not started | 0 / 22 |
@@ -115,8 +115,12 @@ Milestones:
 - In flight 2026-10-14 (parallel agents, one git worktree each, merged by the coordinator):
   1. Backend foundation fork from Garrison: Phase 1 and Phase 2.
   2. Dashboard foundation fork from Garrison: P0.10 and the Phase 8 shell, shared components, and admin pages.
-  3. SSH connector: P4.3 to P4.9.
   5. SQL connectors: P0.15 and P4.15 to P4.19.
+- Follow-ups recorded from connector work (fold into the named tasks):
+  - P3.13: the pipeline applies binding-level command deny patterns (the invocation context has no binding policy).
+  - P3.8: audit every `LearnSetting` call (pinned host keys, D-028) as `HostKeyPinned`.
+  - P4.29: document OpenSSH `PerSourcePenalties`; repeated auth failures from Hugo's single IP can temporarily lock it out of a host.
+  - SSH `jumpResourceName` (reuse another resource as bastion) needs a related-resource resolver; the jump settings cover the case today.
 - Next after the merges: Phase 3 pipeline (resources, invocation service, approvals), Phase 5 profiles and instructions, Phase 6 runtime, Phase 7 protocols.
 - Decisions D-001 through D-037 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
 - Before P0.1, confirm the open questions in [section 23](#23-risks-and-open-questions) that are marked "before Phase 0".
@@ -1767,13 +1771,13 @@ Testbed first
 - [ ] P4.2 `Test.Shared` testbed fixture (`HUGO_TESTBED=1`), resource factory helpers per connector.
 
 SSH
-- [ ] P4.3 `Hugo.Connectors.Ssh` descriptor, settings schema, secret slots, validation.
-- [ ] P4.4 Connection management: password and key auth, passphrase, jump host chaining, keepalive, host key verification with TOFU pinning and audit (D-028).
-- [ ] P4.5 Command classifier with default read-only and destructive tables, pipeline segment analysis, sudo handling. *Accept:* table test with at least 150 cases.
-- [ ] P4.6 Tools `ssh_exec`, `ssh_system_info`, `ssh_service_status`, `ssh_service_control`.
-- [ ] P4.7 Tools `ssh_read_file`, `ssh_tail_file`, `ssh_list_directory`, `ssh_write_file` (SFTP).
-- [ ] P4.8 Default instructions `connector.ssh.instructions` and approval summary template.
-- [ ] P4.9 SSH testbed suite (including bastion, host key mismatch, timeout, output truncation).
+- [x] P4.3 `Hugo.Connectors.Ssh` descriptor, settings schema, secret slots, validation.  | claude 2026-10-14 SshConnector on SSH.NET 2026.0.0; plan 9.1 settings plus jumpHost/jumpPort/jumpUsername/jumpHostKeyFingerprint, keepAliveSeconds, destructiveCommandPatterns, maxFileWriteBytes; slots password, privateKey, jumpPassword, jumpPrivateKey
+- [x] P4.4 Connection management: password and key auth, passphrase, jump host chaining, keepalive, host key verification with TOFU pinning and audit (D-028).  | claude 2026-10-14 pooled sessions, password and key (passphrase) auth, bastion via local port forward (jump settings instead of jumpResourceName), TOFU host key pinning via LearnSetting in SHA256: format for target and bastion
+- [x] P4.5 Command classifier with default read-only and destructive tables, pipeline segment analysis, sudo handling. *Accept:* table test with at least 150 cases.  | claude 2026-10-14 SshCommandClassifier with its own shell parser; heredocs, functions, curl|sh and unparseable input are Destructive; 266-row table test
+- [x] P4.6 Tools `ssh_exec`, `ssh_system_info`, `ssh_service_status`, `ssh_service_control`.  | claude 2026-10-14 ssh_exec (bounded ring buffers, remote process killed on timeout or cancel), ssh_system_info, ssh_service_status, ssh_service_control
+- [x] P4.7 Tools `ssh_read_file`, `ssh_tail_file`, `ssh_list_directory`, `ssh_write_file` (SFTP).  | claude 2026-10-14 ssh_read_file, ssh_tail_file, ssh_list_directory, ssh_write_file (overwrite=true is Destructive, otherwise already_exists)
+- [x] P4.8 Default instructions `connector.ssh.instructions` and approval summary template.  | claude 2026-10-14 connector.ssh.instructions.md embedded
+- [x] P4.9 SSH testbed suite (including bastion, host key mismatch, timeout, output truncation).  | claude 2026-10-14 docker/testbed/ssh (linuxserver openssh 10.3_p1-r1-ls237, target 28022, bastion 28023, PerSourcePenalties off for auth-failure tests); connectors.ssh 297 passed, testbed.ssh 31/31
 
 Object storage
 - [x] P4.10 `Hugo.Connectors.Storage`: `s3`, `azure-blob`, `gcs` descriptors, settings, slots, and the Blobject client factory.  | claude 2026-10-14 s3, azure-blob, gcs on Blobject 6.1.2 with pooled clients; forcePathStyle and useInstanceRole omitted (Blobject cannot do either; anonymous without keys; session tokens rejected)
