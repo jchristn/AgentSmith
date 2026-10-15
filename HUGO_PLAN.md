@@ -86,7 +86,7 @@ These rules keep the plan honest:
 | 1 | Core foundation: settings, data layer, identity, RBAC, sessions, audit, history, telemetry base | M1 | In progress | 38 / 44 |
 | 2 | Secrets vault | M1 | In progress | 11 / 12 |
 | 3 | Connector framework and tool invocation pipeline | M1 | In progress | 4 / 26 |
-| 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | In progress | 25 / 37 |
+| 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | In progress | 32 / 37 |
 | 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | In progress | 0 / 21 |
 | 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | In progress | 10 / 24 |
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Not started | 0 / 22 |
@@ -121,6 +121,7 @@ Milestones:
   - Package alignment: Hugo.Core must use the same Microsoft.Data.Sqlite (10.0.13) and Npgsql (10.0.3) versions as the SQL connectors.
   - PolyPrompt: verify the forced final answer (`tool_choice: none` with no tools) against real OpenAI (P6.22); list provider models through PolyPrompt model clients (P6.5).
   - Server must implement IAgentToolCatalog, IAgentToolExecutor, IAgentEventSink, IConversationStore (Hugo.Core.Agent) and set AgentRuntime.IdFactory to PrettyId.
+  - Knowledge contract follow-ups from the SQL intelligence work: compare-and-swap put (expected version) for append races, `FinishReason` on `ConnectorModelResponse`, a JSON-mode hint, reason and reviewed fields on entries, `ToolArguments.GetDouble`, a crawl cache persistence hook, and a per-invocation model-call budget (`sql_generate_context` can make up to 51 calls; invocation timeouts for RequiresModel tools need to be longer than 120 seconds).
   - SSH `jumpResourceName` (reuse another resource as bastion) needs a related-resource resolver; the jump settings cover the case today.
 - Next after the merges: Phase 3 pipeline (resources, invocation service, approvals), Phase 5 profiles and instructions, Phase 6 runtime, Phase 7 protocols.
 - Decisions D-001 through D-040 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
@@ -1836,13 +1837,13 @@ Wrap-up
 - [ ] P4.28 Health sweep background job: periodic `TestConnectionAsync` per active resource (configurable, off by default for expensive connectors), `hugo_resource_health` gauge.
 - [ ] P4.29 `docs/CONNECTORS.md` sections for every wave 1 connector (settings, slots, tools, effects, least-privilege setup guidance for the upstream credential).
 Database intelligence (D-038)
-- [ ] P4.31 Port Tablix `SchemaProjection` and `DatabaseIntelligenceBuilder` into `Hugo.Connectors.Sql/Intelligence` (attribution in `VENDORED.md`); full crawl cache with refresh.
-- [ ] P4.32 Paged compact indexes for `sql_list_tables` (search, schema filter, cursor) and a new `sql_list_relationships` (declared plus inferred candidates with confidence and evidence).
-- [ ] P4.33 `sql_get_intelligence` (entities, metrics, filters, freshness, context quality and gaps) and `sql_get_agent_pack`.
-- [ ] P4.34 Durable context tools: `sql_get_context`, `sql_update_context` (`UpdatesKnowledge`), `sql_generate_context` (`RequiresModel`; database and per-table, batch with concurrency cap; no rows persisted).
-- [ ] P4.35 `sql_ask`: ambiguity detection with clarification, NL2SQL planning from context and intelligence, Read-only validation of generated SQL, guarded execution, verification envelope.
-- [ ] P4.36 Default SQL instructions rewritten around the intelligence workflow (agent pack first, then context, relationships, and queries; record discoveries with `sql_update_context`).
-- [ ] P4.37 Suites: intelligence and inferred relationships on the shop schema (all four engines in the testbed), context round trip through the knowledge store, generation and NL2SQL with the stub LLM, ambiguity cases, verification statuses.
+- [x] P4.31 Port Tablix `SchemaProjection` and `DatabaseIntelligenceBuilder` into `Hugo.Connectors.Sql/Intelligence` (attribution in `VENDORED.md`); full crawl cache with refresh.  | claude 2026-10-14 Intelligence/ port of DatabaseIntelligenceBuilder and SchemaProjection (Tablix 450bc76, VENDORED.md); one shared crawl cache, refresh:true recrawls
+- [x] P4.32 Paged compact indexes for `sql_list_tables` (search, schema filter, cursor) and a new `sql_list_relationships` (declared plus inferred candidates with confidence and evidence).  | claude 2026-10-14 sql_list_tables paged index (search, schema, cursor, pageSize); sql_list_relationships with declared plus inferred candidates, confidence and evidence
+- [x] P4.33 `sql_get_intelligence` (entities, metrics, filters, freshness, context quality and gaps) and `sql_get_agent_pack`.  | claude 2026-10-14 sql_get_intelligence and bounded sql_get_agent_pack
+- [x] P4.34 Durable context tools: `sql_get_context`, `sql_update_context` (`UpdatesKnowledge`), `sql_generate_context` (`RequiresModel`; database and per-table, batch with concurrency cap; no rows persisted).  | claude 2026-10-14 sql_get_context, sql_update_context, sql_generate_context (both UpdatesKnowledge; generation also RequiresModel); secrets, PII, raw rows refused; Operator entries append-only; masked samples in prompts only
+- [x] P4.35 `sql_ask`: ambiguity detection with clarification, NL2SQL planning from context and intelligence, Read-only validation of generated SQL, guarded execution, verification envelope.  | claude 2026-10-14 sql_ask: ambiguity check (fixed Tablix status-term bug), relevant-table selection, single Read statement required, one retry, verification envelope (Verified, Partial, Blocked, Ambiguous)
+- [x] P4.36 Default SQL instructions rewritten around the intelligence workflow (agent pack first, then context, relationships, and queries; record discoveries with `sql_update_context`).  | claude 2026-10-14 four instruction files rewritten around agent pack, context, relationships, sql_ask, recording discoveries
+- [x] P4.37 Suites: intelligence and inferred relationships on the shop schema (all four engines in the testbed), context round trip through the knowledge store, generation and NL2SQL with the stub LLM, ambiguity cases, verification statuses.  | claude 2026-10-14 connectors.sql 329/329; testbed.sql 91/91 incl. 30 intelligence cases on PostgreSQL, MySQL, SQL Server; legacy_accounts/legacy_invoices seed proves name-based inference
 - [ ] P4.30 CI starts the wave 1 testbed and runs the testbed suites on SQLite and PostgreSQL.
 
 ### Phase 5: Agent profiles, bindings, prompt templates, instruction composition (M1)
