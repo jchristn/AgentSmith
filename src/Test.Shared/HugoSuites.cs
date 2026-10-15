@@ -41,6 +41,8 @@ namespace Test.Shared
                 suites.AddRange(RedisSuites.Build());
                 suites.AddRange(HttpSuites.Build());
                 suites.AddRange(ObservabilitySuites.Build());
+                suites.AddRange(KubernetesSuites.Build());
+                suites.AddRange(DockerSuites.Build());
                 return suites;
             }
         }

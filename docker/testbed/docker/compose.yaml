@@ -1,0 +1,68 @@
+# Hugo Docker host testbed: Docker-in-Docker with fixture containers.
+#
+#   docker compose -f docker/testbed/docker/compose.yaml up -d --wait
+#   HUGO_TESTBED=1 dotnet run --project src/Test.Automated -f net10.0 -- --suites testbed.docker
+#   docker compose -f docker/testbed/docker/compose.yaml down -v
+#
+# Daemon: tcp://127.0.0.1:28375 (plain TCP without TLS, loopback only; override with HUGO_TESTBED_DOCKER_PORT).
+# The dind container is privileged (risk R-6 in HUGO_PLAN.md); CI runners that forbid privileged containers
+# skip the testbed.docker suite.
+#
+# The init step pulls busybox inside the daemon and starts these fixtures (label hugo.testbed=fixture):
+#   hugo-fixture-web      running, prints a numbered log line every second, env FIXTURE_TOKEN holds a fake secret
+#   hugo-fixture-stopped  created and exited with code 3 after printing one line
+# The suites create and remove their own short-lived containers for start, stop, restart, kill, remove, and exec.
+
+name: hugo-testbed-docker
+
+services:
+  dind:
+    image: docker:29.8.2-dind
+    privileged: true
+    environment:
+      DOCKER_TLS_CERTDIR: ""
+    command: ["--host=tcp://0.0.0.0:2375", "--host=unix:///var/run/docker.sock", "--tls=false"]
+    ports:
+      - "127.0.0.1:${HUGO_TESTBED_DOCKER_PORT:-28375}:2375"
+    volumes:
+      - dind-data:/var/lib/docker
+    healthcheck:
+      test: ["CMD", "docker", "-H", "unix:///var/run/docker.sock", "info", "--format", "{{.ID}}"]
+      interval: 5s
+      timeout: 4s
+      retries: 2
+      start_period: 60s
+      start_interval: 1s
+    restart: "no"
+
+  dind-init:
+    image: docker:29.8.2-cli
+    depends_on:
+      dind:
+        condition: service_healthy
+    environment:
+      DOCKER_HOST: tcp://dind:2375
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >
+        set -e;
+        docker pull busybox:1.37.0;
+        docker rm -f hugo-fixture-web hugo-fixture-stopped >/dev/null 2>&1 || true;
+        docker run -d --name hugo-fixture-web --label hugo.testbed=fixture
+        -e FIXTURE_TOKEN=hugo-fixture-secret-token -e FIXTURE_MODE=web
+        busybox:1.37.0 sh -c 'i=0; while true; do echo "hugo-fixture log line $$i"; i=$$((i+1)); sleep 1; done';
+        docker run --name hugo-fixture-stopped --label hugo.testbed=fixture
+        busybox:1.37.0 sh -c 'echo stopped fixture says goodbye; exit 3' || true;
+        touch /tmp/seeded;
+        exec sleep infinity
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/seeded"]
+      interval: 5s
+      timeout: 4s
+      retries: 2
+      start_period: 120s
+      start_interval: 1s
+    restart: "no"
+
+volumes:
+  dind-data:

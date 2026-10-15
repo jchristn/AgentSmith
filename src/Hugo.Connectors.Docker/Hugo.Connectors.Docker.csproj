@@ -12,5 +12,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Instructions\**\*.md" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Docker.DotNet.Enhanced" Version="4.3.3" />
+    <PackageReference Include="Docker.DotNet.Enhanced.X509" Version="4.3.3" />
+  </ItemGroup>
 
 </Project>

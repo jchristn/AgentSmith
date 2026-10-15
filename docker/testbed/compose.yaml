@@ -12,3 +12,5 @@ include:
   - aws/compose.yaml
   - redis/compose.yaml
   - observability/compose.yaml
+  - kubernetes/compose.yaml
+  - docker/compose.yaml

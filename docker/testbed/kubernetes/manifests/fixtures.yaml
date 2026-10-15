@@ -1,0 +1,161 @@
+# Fixture workloads for the Hugo Kubernetes suites (testbed.kubernetes).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hugo-test
+  labels:
+    hugo.testbed: fixture
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hugo-other
+  labels:
+    hugo.testbed: fixture
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hugo-config
+  namespace: hugo-test
+data:
+  greeting: hello from the hugo testbed
+  mode: fixture
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: hugo-secret
+  namespace: hugo-test
+type: Opaque
+stringData:
+  password: hugo-k8s-fixture-secret-value
+  apiKey: hugo-k8s-fixture-api-key
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: other-config
+  namespace: hugo-other
+data:
+  owner: someone else
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: hugo-test
+  labels:
+    app: web
+  annotations:
+    kubernetes.io/change-cause: initial fixture rollout
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      terminationGracePeriodSeconds: 1
+      containers:
+        - name: web
+          image: busybox:1.37.0
+          command: ["sh", "-c", "echo web fixture starting; mkdir -p /www; echo hugo > /www/index.html; exec httpd -f -p 8080 -h /www"]
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            periodSeconds: 2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  namespace: hugo-test
+spec:
+  selector:
+    app: web
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: crasher
+  namespace: hugo-test
+  labels:
+    app: crasher
+spec:
+  restartPolicy: Always
+  terminationGracePeriodSeconds: 1
+  containers:
+    - name: crasher
+      image: busybox:1.37.0
+      command: ["sh", "-c", "echo crasher-marker starting; echo crasher-marker about to fail >&2; sleep 2; exit 1"]
+---
+apiVersion: testbed.hugo.dev/v1
+kind: Widget
+metadata:
+  name: blue-widget
+  namespace: hugo-test
+spec:
+  color: blue
+  size: 3
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hugo-reader
+  namespace: hugo-test
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: hugo-reader-token
+  namespace: hugo-test
+  annotations:
+    kubernetes.io/service-account.name: hugo-reader
+type: kubernetes.io/service-account-token
+---
+# The read-only Role from docs/connectors/kubernetes-rbac.md, bound to hugo-reader in hugo-test.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: hugo-read-only
+  namespace: hugo-test
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "services", "endpoints", "configmaps", "events", "persistentvolumeclaims", "replicationcontrollers", "serviceaccounts"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets", "statefulsets", "daemonsets", "controllerrevisions"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["batch"]
+    resources: ["jobs", "cronjobs"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["events.k8s.io"]
+    resources: ["events"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["metrics.k8s.io"]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: hugo-read-only
+  namespace: hugo-test
+subjects:
+  - kind: ServiceAccount
+    name: hugo-reader
+    namespace: hugo-test
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: hugo-read-only
