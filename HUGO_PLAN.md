@@ -95,7 +95,7 @@ These rules keep the plan honest:
 | 10 | Docker, testbed, and observability stack | M1 | In progress | 6 / 24 |
 | 11 | Documentation and Postman | M1 | Not started | 0 / 18 |
 | 12 | MVP verification (milestone M1) | M1 | Not started | 0 / 14 |
-| 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | In progress | 6 / 38 |
+| 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | In progress | 17 / 38 |
 | 14 | Knowledge, runbooks, and operator conveniences | M2 | Not started | 0 / 12 |
 | 15 | Benchmarking | M3 | Not started | 0 / 16 |
 | 16 | Hardening, simulated user testing, and 1.0 release | M4 | Not started | 0 / 18 |
@@ -2076,13 +2076,13 @@ Quality
 ### Phase 13: Connectors wave 2 (M2)
 
 Testbed
-- [ ] P13.1 Testbed additions: Redis 7, LocalStack, k3s, Docker-in-Docker, OpenSearch, plus seed data. Nightly CI workflow for wave 2.
+- [~] P13.1 Testbed additions: Redis 7, LocalStack, k3s, Docker-in-Docker, OpenSearch, plus seed data. Nightly CI workflow for wave 2.  | claude 2026-10-14 testbeds for redis, observability, aws added and included; Kubernetes, Docker, MCP and A2A targets pending
 
 Redis
-- [ ] P13.2 `redis` descriptor, settings, slot, connection (standalone, sentinel, cluster, TLS).
-- [ ] P13.3 Command classification table. *Accept:* every command in the Redis 7 command list classified, unknown means Destructive.
-- [ ] P13.4 Tools in section 9.2.
-- [ ] P13.5 Instructions and suites.
+- [x] P13.2 `redis` descriptor, settings, slot, connection (standalone, sentinel, cluster, TLS).  | claude 2026-10-14 RedisConnector on StackExchange.Redis 3.4.5 (RESP2 pinned): standalone, Sentinel, Cluster, TLS; one pooled multiplexer per resource
+- [x] P13.3 Command classification table. *Accept:* every command in the Redis 7 command list classified, unknown means Destructive.  | claude 2026-10-14 247 commands and 400+ subcommand entries classified; unknown Destructive; blocking, subscribe, transaction commands rejected; KEYS denied by default
+- [x] P13.4 Tools in section 9.2.  | claude 2026-10-14 13 tools per 9.2; tools redact the resource secret from CONFIG output
+- [x] P13.5 Instructions and suites.  | claude 2026-10-14 instructions; connectors.redis 417 (392-row classifier), testbed.redis 25 on redis 7.4.8
 
 AWS
 - [x] P13.6 `aws` descriptor, auth (key pair, assume role with external ID, instance role), service allow list, endpoint override.  | claude 2026-10-14 AwsConnector (type aws): key pair or ambient chain, STS assume role through endpoint override with refresh, allowedServices enforced at classify and execute
@@ -2104,15 +2104,15 @@ Docker hosts
 - [ ] P13.18 Instructions and suites (dind).
 
 HTTP
-- [ ] P13.19 `http` descriptor, auth types including OAuth2 client credentials with token caching, allow lists, effect overrides.
-- [ ] P13.20 `http_request` and `http_health_check` (TLS expiry, redirects).
-- [ ] P13.21 Instructions and suites (Watson stub server).
+- [x] P13.19 `http` descriptor, auth types including OAuth2 client credentials with token caching, allow lists, effect overrides.  | claude 2026-10-14 HttpConnector: None, Basic, Bearer, ApiKeyHeader, OAuth2 client credentials with token cache; HttpClient, redirects re-checked per hop, credentials never leave the base origin
+- [x] P13.20 `http_request` and `http_health_check` (TLS expiry, redirects).  | claude 2026-10-14 http_request classified by method with prefix overrides, allow lists and traversal rejection; http_health_check with TLS expiry and redirect chain
+- [x] P13.21 Instructions and suites (Watson stub server).  | claude 2026-10-14 instructions; connectors.http 135 against an in-process stub with runtime TLS
 
 Observability backends
-- [ ] P13.22 `prometheus` connector and tools.
-- [ ] P13.23 `loki` connector and tools (tenant header).
-- [ ] P13.24 `elasticsearch` connector (Elasticsearch and OpenSearch flavors) and tools with index allow list.
-- [ ] P13.25 Instructions and suites (Hugo's own Prometheus and Loki, OpenSearch testbed).
+- [x] P13.22 `prometheus` connector and tools.  | claude 2026-10-14 PrometheusConnector, 7 tools, step auto-raised under a points cap
+- [x] P13.23 `loki` connector and tools (tenant header).  | claude 2026-10-14 LokiConnector, tenant header, stream selector required
+- [x] P13.24 `elasticsearch` connector (Elasticsearch and OpenSearch flavors) and tools with index allow list.  | claude 2026-10-14 ElasticsearchConnector with Elasticsearch and OpenSearch flavors and index allow list
+- [x] P13.25 Instructions and suites (Hugo's own Prometheus and Loki, OpenSearch testbed).  | claude 2026-10-14 instructions; connectors.observability 117, testbed.observability 23 (Prometheus 3.7.0, Loki 3.5.5, OpenSearch 2.19.3)
 
 External MCP and remote A2A
 - [ ] P13.26 `mcp` connector: HTTP transport via Voltaic client, discovery, prefixing, schema passthrough, annotation-based effects, periodic refresh.
