@@ -1,0 +1,186 @@
+{{- if ne (int .Values.server.replicas) 1 }}
+{{- fail "server.replicas must be 1: approvals and the event hub are in-process (D-045, D-027)" }}
+{{- end }}
+{{- $ns := include "hugo.namespace" . }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hugo-server-settings
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+data:
+  hugo.json: |
+{{ .Files.Get "files/hugo.json" | indent 4 }}
+---
+{{ include "hugo.pvc" (dict "root" . "name" "hugo-data" "app" "hugo-server" "storage" .Values.persistence.size "storageClassName" .Values.persistence.storageClassName) }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hugo-server
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+automountServiceAccountToken: false
+---
+# One replica with the Recreate strategy (D-045): the event hub and approval wake-ups are in-process (D-027).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hugo-server
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+    app.kubernetes.io/name: hugo-server
+    app.kubernetes.io/component: server
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hugo-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hugo-server
+        app.kubernetes.io/component: server
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8800"
+        prometheus.io/path: /metrics
+        # Restart the pod when the settings change (Kustomize does it by renaming the generated ConfigMap).
+        checksum/settings: {{ .Files.Get "files/hugo.json" | sha256sum }}
+    spec:
+      serviceAccountName: hugo-server
+      automountServiceAccountToken: false
+      {{- with .Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      terminationGracePeriodSeconds: 30
+      {{- with .Values.server.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.server.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.server.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.server.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- include "hugo.topologySpread" (dict "constraints" . "app" "hugo-server") | nindent 8 }}
+      {{- end }}
+      {{- if ne .Values.database.mode "sqlite" }}
+      initContainers:
+        {{- include "hugo.waitForDatabase" . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: server
+          image: {{ include "hugo.image" (dict "root" . "name" "hugo-server") }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8800
+          env:
+            - name: HUGO_SETTINGS_FILE
+              value: /app/config/hugo.json
+            - name: HUGO_SETTINGS_READONLY
+              value: "true"
+            - name: HUGO_REST_HOSTNAME
+              value: 0.0.0.0
+            - name: HUGO_NODE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: HUGO_MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.name }}
+                  key: master-key
+            - name: HUGO_AUTH_SIGNING_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.name }}
+                  key: signing-key
+            {{- include "hugo.databaseEnv" . | nindent 12 }}
+            {{- if .Values.server.externalBaseUrl }}
+            - name: HUGO_EXTERNAL_BASE_URL
+              value: {{ .Values.server.externalBaseUrl }}
+            {{- end }}
+            {{- include "hugo.observabilityEnv" . | nindent 12 }}
+            {{- with .Values.server.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+            - name: settings
+              mountPath: /app/config
+              readOnly: true
+            - name: data
+              mountPath: /app/data
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            {{- toYaml .Values.server.resources | nindent 12 }}
+          securityContext:
+            {{- include "hugo.restrictedContainer" . | nindent 12 }}
+          startupProbe:
+            exec:
+              command: ["curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8800/v1.0/api/health/live"]
+            periodSeconds: 5
+            timeoutSeconds: 4
+            failureThreshold: 60
+            successThreshold: 1
+          readinessProbe:
+            exec:
+              command: ["curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8800/v1.0/api/health"]
+            periodSeconds: 5
+            timeoutSeconds: 4
+            failureThreshold: 2
+            successThreshold: 2
+          livenessProbe:
+            exec:
+              command: ["curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8800/v1.0/api/health/live"]
+            periodSeconds: 5
+            timeoutSeconds: 4
+            failureThreshold: 2
+            successThreshold: 1
+      volumes:
+        - name: settings
+          configMap:
+            name: hugo-server-settings
+        - name: data
+          persistentVolumeClaim:
+            claimName: hugo-data
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hugo-server
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+    app.kubernetes.io/name: hugo-server
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: hugo-server
+  ports:
+    - name: http
+      port: 8800
+      targetPort: http

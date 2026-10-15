@@ -1,0 +1,15 @@
+apiVersion: v2
+name: hugo
+description: Hugo, the multi-tenant super agent server (server, dashboard, optional PostgreSQL and observability stack).
+type: application
+version: 0.1.0-alpha
+appVersion: "0.1.0-alpha"
+home: https://github.com/jchristn/AgentSmith
+sources:
+  - https://github.com/jchristn/AgentSmith
+keywords:
+  - agents
+  - mcp
+  - a2a
+maintainers:
+  - name: Joel Christner

@@ -1,0 +1,32 @@
+# Same objects as k8s/overlays/production:
+#   helm install hugo k8s/helm/hugo -n hugo -f k8s/helm/hugo/values-production.yaml
+# Create Secret hugo-db (host, port, database, username, password) and Secret hugo-tls first, and replace
+# hugo.example.com.
+database:
+  mode: external
+  external:
+    secretName: hugo-db
+server:
+  externalBaseUrl: https://hugo.example.com
+  resources:
+    requests: { cpu: 500m, memory: 512Mi }
+    limits: { cpu: "4", memory: 2Gi }
+  topologySpreadConstraints:
+    - { maxSkew: 1, topologyKey: topology.kubernetes.io/zone, whenUnsatisfiable: ScheduleAnyway }
+dashboard:
+  replicas: 2
+  resources:
+    requests: { cpu: 50m, memory: 64Mi }
+    limits: { cpu: "1", memory: 256Mi }
+  topologySpreadConstraints:
+    - { maxSkew: 1, topologyKey: kubernetes.io/hostname, whenUnsatisfiable: ScheduleAnyway }
+    - { maxSkew: 1, topologyKey: topology.kubernetes.io/zone, whenUnsatisfiable: ScheduleAnyway }
+pdb:
+  enabled: true
+ingress:
+  enabled: true
+  className: nginx
+  host: hugo.example.com
+  tls:
+    - hosts: [hugo.example.com]
+      secretName: hugo-tls

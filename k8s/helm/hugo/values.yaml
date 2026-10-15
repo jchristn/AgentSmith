@@ -1,0 +1,141 @@
+# Hugo Helm values. The chart renders the same objects as the Kustomize base and components (k8s/base,
+# k8s/components); k8s/tests/check-render.sh renders both and compares them. Files under files/ mirror
+# k8s/base/config and k8s/components/observability; keep them in sync (k8s/scripts/sync-mirrors.sh).
+#
+# Install (create the Secret first, docs/KUBERNETES.md "Secrets come first"):
+#   k8s/scripts/generate-secrets.sh
+#   helm install hugo k8s/helm/hugo -n hugo -f k8s/helm/hugo/values-k3s.yaml
+
+# Namespace for every object. Empty uses the release namespace (helm -n). The chart does not create it; use
+# --create-namespace or generate-secrets, which creates it.
+namespaceOverride: ""
+
+image:
+  registry: jchristn77
+  # Image tag for hugo-server and hugo-dashboard. Pin a release tag; never deploy latest.
+  tag: v0.1.0
+  # Always re-pulls the tag on every pod start, so an update picks up a re-pushed tag. Use IfNotPresent for images
+  # imported into the nodes (values-k3s.yaml, values-minikube.yaml).
+  pullPolicy: Always
+  pullSecrets: []
+
+# Secret with keys master-key, signing-key, db-password, and grafana-admin-password, created by
+# k8s/scripts/generate-secrets.sh or your secret manager. Never put the values in a values file.
+secrets:
+  name: hugo-secrets
+
+# The /app/data volume (SQLite database, logs, plugins).
+persistence:
+  size: 5Gi
+  # Empty uses the cluster's default storage class.
+  storageClassName: ""
+
+server:
+  # Always 1 (D-045): approvals and the event hub are in-process. The chart refuses any other value.
+  replicas: 1
+  resources:
+    requests: { cpu: 100m, memory: 256Mi }
+    limits: { cpu: "2", memory: 1Gi }
+  # HUGO_EXTERNAL_BASE_URL: the URL A2A agent cards and links advertise, for example https://hugo.example.com.
+  # Empty uses the Host header of each request.
+  externalBaseUrl: ""
+  # Extra container environment, appended as is.
+  extraEnv: []
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  # labelSelector defaults to the server pod.
+  topologySpreadConstraints: []
+
+dashboard:
+  replicas: 1
+  # HUGO_API_UPSTREAM, where the dashboard's nginx proxies /v1.0, /mcp, and /openapi.json. Empty uses the server
+  # Service's fully qualified name in the release namespace.
+  apiUpstream: ""
+  resources:
+    requests: { cpu: 25m, memory: 32Mi }
+    limits: { cpu: 500m, memory: 128Mi }
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  # labelSelector defaults to the dashboard pods.
+  topologySpreadConstraints: []
+
+database:
+  # sqlite: SQLite on the data volume (the default, like the Kustomize base).
+  # embedded: an in-cluster PostgreSQL StatefulSet (like components/postgres); password db-password in secrets.name.
+  # external: an existing PostgreSQL from the Secret external.secretName with keys host, port, database, username,
+  #           password (like overlays/production).
+  mode: sqlite
+  # Image of the PostgreSQL StatefulSet and of the wait-for-database init container (pg_isready).
+  image: postgres:16.4-alpine
+  embedded:
+    storage: 5Gi
+    storageClassName: ""
+    resources:
+      requests: { cpu: 100m, memory: 128Mi }
+      limits: { cpu: "2", memory: 1Gi }
+  external:
+    secretName: hugo-db
+
+ingress:
+  enabled: false
+  # nginx (ingress-nginx, the minikube addon) or traefik (k3s). Any other class works with your own annotations.
+  className: nginx
+  host: hugo.local
+  # With className nginx, add the Server-Sent Events settings of components/ingress (buffering off, one-hour reads,
+  # 64m bodies). Your annotations below are added after them and win on conflict.
+  nginxStreamingAnnotations: true
+  annotations: {}
+  tls: []
+
+networkPolicies:
+  enabled: true
+
+# Disruption budgets (overlays/production). The server budget is maxUnavailable 1 because it runs one replica.
+pdb:
+  enabled: false
+  dashboardMinAvailable: 1
+
+# Prometheus, Tempo, Loki, Alloy, and Grafana with the Hugo dashboards (components/observability).
+observability:
+  enabled: false
+  # Browser-facing URLs shown on the dashboard's external services card. The defaults match
+  # k8s/scripts/port-forward.sh; set them to your ingress hosts when you expose the services another way.
+  urls:
+    grafana: http://127.0.0.1:3000
+    prometheus: http://127.0.0.1:9090
+    tempo: http://127.0.0.1:3200
+    loki: http://127.0.0.1:3100
+  grafana:
+    image: grafana/grafana-oss:12.1.1
+    # GF_SERVER_ROOT_URL. Empty uses urls.grafana.
+    rootUrl: ""
+    resources:
+      requests: { cpu: 50m, memory: 192Mi }
+      limits: { cpu: "2", memory: 768Mi }
+  prometheus:
+    image: prom/prometheus:v3.5.4
+    retention: 7d
+    retentionSize: 1GB
+    storage: 2Gi
+    resources:
+      requests: { cpu: 50m, memory: 128Mi }
+      limits: { cpu: "1", memory: 512Mi }
+  loki:
+    image: grafana/loki:3.5.5
+    storage: 2Gi
+    resources:
+      requests: { cpu: 50m, memory: 128Mi }
+      limits: { cpu: "1", memory: 512Mi }
+  tempo:
+    image: grafana/tempo:2.6.1
+    storage: 2Gi
+    resources:
+      requests: { cpu: 50m, memory: 128Mi }
+      limits: { cpu: "1", memory: 512Mi }
+  alloy:
+    image: grafana/alloy:v1.10.2
+    resources:
+      requests: { cpu: 25m, memory: 64Mi }
+      limits: { cpu: 500m, memory: 384Mi }

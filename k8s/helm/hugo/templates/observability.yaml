@@ -1,0 +1,579 @@
+{{- if .Values.observability.enabled }}
+{{- $ns := include "hugo.namespace" . }}
+{{- $o := .Values.observability }}
+{{- $root := . }}
+# The same stack as k8s/components/observability; the configuration files come from files/observability.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hugo-prometheus
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hugo-alloy
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hugo-observability
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: hugo-prometheus
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: hugo-prometheus
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: hugo-prometheus
+subjects:
+  - kind: ServiceAccount
+    name: hugo-prometheus
+    namespace: {{ $ns }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: hugo-alloy
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: hugo-alloy
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: hugo-alloy
+subjects:
+  - kind: ServiceAccount
+    name: hugo-alloy
+    namespace: {{ $ns }}
+{{- range $cm := list (list "hugo-prometheus-config" "prometheus.yaml" "prometheus.yaml") (list "hugo-loki-config" "loki.yaml" "loki.yaml") (list "hugo-tempo-config" "tempo.yaml" "tempo.yaml") (list "hugo-alloy-config" "config.alloy" "config.alloy") (list "hugo-grafana-config" "grafana.ini" "grafana.ini") (list "hugo-grafana-datasources" "datasources.yaml" "grafana-datasources.yaml") (list "hugo-grafana-dashboard-provider" "dashboards.yaml" "grafana-dashboards.yaml") }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ index $cm 0 }}
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" $root | nindent 4 }}
+data:
+  {{ index $cm 1 }}: |
+{{ $root.Files.Get (printf "files/observability/%s" (index $cm 2)) | indent 4 }}
+{{- end }}
+{{- range $path, $_ := .Files.Glob "files/observability/dashboards/*.json" }}
+{{- $file := base $path }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hugo-grafana-dashboard-{{ $file | trimPrefix "hugo-" | trimSuffix ".json" }}
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" $root | nindent 4 }}
+data:
+  {{ $file }}: |
+{{ $root.Files.Get $path | indent 4 }}
+{{- end }}
+---
+{{ include "hugo.pvc" (dict "root" . "name" "hugo-prometheus" "app" "hugo-prometheus" "storage" $o.prometheus.storage) }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hugo-prometheus
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+    app.kubernetes.io/name: hugo-prometheus
+    app.kubernetes.io/component: observability
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hugo-prometheus
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hugo-prometheus
+        app.kubernetes.io/component: observability
+      annotations:
+        checksum/config: {{ .Files.Get "files/observability/prometheus.yaml" | sha256sum }}
+    spec:
+      serviceAccountName: hugo-prometheus
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: prometheus
+          image: {{ $o.prometheus.image }}
+          imagePullPolicy: IfNotPresent
+          args:
+            - --config.file=/etc/prometheus/prometheus.yaml
+            - --storage.tsdb.path=/prometheus
+            - --storage.tsdb.retention.time={{ $o.prometheus.retention }}
+            - --storage.tsdb.retention.size={{ $o.prometheus.retentionSize }}
+            - --enable-feature=exemplar-storage
+          ports:
+            - name: http
+              containerPort: 9090
+          volumeMounts:
+            - name: config
+              mountPath: /etc/prometheus
+              readOnly: true
+            - name: data
+              mountPath: /prometheus
+          resources:
+            {{- toYaml $o.prometheus.resources | nindent 12 }}
+          securityContext:
+            {{- include "hugo.restrictedContainer" . | nindent 12 }}
+          {{- include "hugo.httpProbes" (dict "ready" "/-/ready" "live" "/-/healthy") | nindent 10 }}
+      volumes:
+        - name: config
+          configMap:
+            name: hugo-prometheus-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: hugo-prometheus
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hugo-prometheus
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+    app.kubernetes.io/name: hugo-prometheus
+spec:
+  selector:
+    app.kubernetes.io/name: hugo-prometheus
+  ports:
+    - name: http
+      port: 9090
+      targetPort: http
+---
+{{ include "hugo.pvc" (dict "root" . "name" "hugo-loki" "app" "hugo-loki" "storage" $o.loki.storage) }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hugo-loki
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+    app.kubernetes.io/name: hugo-loki
+    app.kubernetes.io/component: observability
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hugo-loki
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hugo-loki
+        app.kubernetes.io/component: observability
+      annotations:
+        checksum/config: {{ .Files.Get "files/observability/loki.yaml" | sha256sum }}
+    spec:
+      serviceAccountName: hugo-observability
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: loki
+          image: {{ $o.loki.image }}
+          imagePullPolicy: IfNotPresent
+          args:
+            - -config.file=/etc/loki/loki.yaml
+          ports:
+            - name: http
+              containerPort: 3100
+          volumeMounts:
+            - name: config
+              mountPath: /etc/loki
+              readOnly: true
+            - name: data
+              mountPath: /loki
+          resources:
+            {{- toYaml $o.loki.resources | nindent 12 }}
+          securityContext:
+            {{- include "hugo.restrictedContainer" . | nindent 12 }}
+          {{- include "hugo.httpProbes" (dict "ready" "/ready") | nindent 10 }}
+      volumes:
+        - name: config
+          configMap:
+            name: hugo-loki-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: hugo-loki
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hugo-loki
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+    app.kubernetes.io/name: hugo-loki
+spec:
+  selector:
+    app.kubernetes.io/name: hugo-loki
+  ports:
+    - name: http
+      port: 3100
+      targetPort: http
+---
+{{ include "hugo.pvc" (dict "root" . "name" "hugo-tempo" "app" "hugo-tempo" "storage" $o.tempo.storage) }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hugo-tempo
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+    app.kubernetes.io/name: hugo-tempo
+    app.kubernetes.io/component: observability
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hugo-tempo
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hugo-tempo
+        app.kubernetes.io/component: observability
+      annotations:
+        checksum/config: {{ .Files.Get "files/observability/tempo.yaml" | sha256sum }}
+    spec:
+      serviceAccountName: hugo-observability
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: tempo
+          image: {{ $o.tempo.image }}
+          imagePullPolicy: IfNotPresent
+          args:
+            - -config.file=/etc/tempo/tempo.yaml
+          ports:
+            - name: http
+              containerPort: 3200
+            - name: otlp-grpc
+              containerPort: 4317
+            - name: otlp-http
+              containerPort: 4318
+          volumeMounts:
+            - name: config
+              mountPath: /etc/tempo
+              readOnly: true
+            - name: data
+              mountPath: /var/tempo
+          resources:
+            {{- toYaml $o.tempo.resources | nindent 12 }}
+          securityContext:
+            {{- include "hugo.restrictedContainer" . | nindent 12 }}
+          {{- include "hugo.httpProbes" (dict "ready" "/ready") | nindent 10 }}
+      volumes:
+        - name: config
+          configMap:
+            name: hugo-tempo-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: hugo-tempo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hugo-tempo
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+    app.kubernetes.io/name: hugo-tempo
+spec:
+  selector:
+    app.kubernetes.io/name: hugo-tempo
+  ports:
+    - name: http
+      port: 3200
+      targetPort: http
+    - name: otlp-grpc
+      port: 4317
+      targetPort: otlp-grpc
+    - name: otlp-http
+      port: 4318
+      targetPort: otlp-http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hugo-alloy
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+    app.kubernetes.io/name: hugo-alloy
+    app.kubernetes.io/component: observability
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hugo-alloy
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hugo-alloy
+        app.kubernetes.io/component: observability
+      annotations:
+        checksum/config: {{ .Files.Get "files/observability/config.alloy" | sha256sum }}
+    spec:
+      serviceAccountName: hugo-alloy
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 473
+        runAsGroup: 473
+        fsGroup: 473
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: alloy
+          image: {{ $o.alloy.image }}
+          imagePullPolicy: IfNotPresent
+          args:
+            - run
+            - /etc/alloy/config.alloy
+            - --server.http.listen-addr=0.0.0.0:12345
+            - --storage.path=/var/lib/alloy/data
+            - --stability.level=public-preview
+            - --disable-reporting
+          ports:
+            - name: http
+              containerPort: 12345
+            - name: otlp-grpc
+              containerPort: 4317
+            - name: otlp-http
+              containerPort: 4318
+          volumeMounts:
+            - name: config
+              mountPath: /etc/alloy
+              readOnly: true
+            - name: data
+              mountPath: /var/lib/alloy/data
+          resources:
+            {{- toYaml $o.alloy.resources | nindent 12 }}
+          securityContext:
+            {{- include "hugo.restrictedContainer" . | nindent 12 }}
+          {{- include "hugo.httpProbes" (dict "ready" "/-/ready" "live" "/-/healthy") | nindent 10 }}
+      volumes:
+        - name: config
+          configMap:
+            name: hugo-alloy-config
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hugo-alloy
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+    app.kubernetes.io/name: hugo-alloy
+spec:
+  selector:
+    app.kubernetes.io/name: hugo-alloy
+  ports:
+    - name: otlp-grpc
+      port: 4317
+      targetPort: otlp-grpc
+    - name: otlp-http
+      port: 4318
+      targetPort: otlp-http
+    - name: http
+      port: 12345
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hugo-grafana
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+    app.kubernetes.io/name: hugo-grafana
+    app.kubernetes.io/component: observability
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hugo-grafana
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hugo-grafana
+        app.kubernetes.io/component: observability
+      annotations:
+        checksum/config: {{ printf "%s%s%s" (.Files.Get "files/observability/grafana.ini") (.Files.Get "files/observability/grafana-datasources.yaml") (.Files.Get "files/observability/grafana-dashboards.yaml") | sha256sum }}
+    spec:
+      serviceAccountName: hugo-observability
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 472
+        runAsGroup: 472
+        fsGroup: 472
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: grafana
+          image: {{ $o.grafana.image }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              value: admin
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.name }}
+                  key: grafana-admin-password
+            - name: GF_SERVER_ROOT_URL
+              value: {{ default $o.urls.grafana $o.grafana.rootUrl }}
+            - name: GF_USERS_ALLOW_SIGN_UP
+              value: "false"
+            - name: GF_ANALYTICS_REPORTING_ENABLED
+              value: "false"
+            - name: GF_ANALYTICS_CHECK_FOR_UPDATES
+              value: "false"
+            - name: GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES
+              value: "false"
+            - name: GF_NEWS_NEWS_FEED_ENABLED
+              value: "false"
+            - name: GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH
+              value: /etc/grafana/dashboards/hugo/hugo-overview.json
+            - name: GF_LOG_LEVEL
+              value: warn
+            - name: GF_PLUGINS_PREINSTALL_DISABLED
+              value: "true"
+          volumeMounts:
+            - name: config
+              mountPath: /etc/grafana/grafana.ini
+              subPath: grafana.ini
+              readOnly: true
+            - name: datasources
+              mountPath: /etc/grafana/provisioning/datasources
+              readOnly: true
+            - name: dashboard-provider
+              mountPath: /etc/grafana/provisioning/dashboards
+              readOnly: true
+            - name: dashboards
+              mountPath: /etc/grafana/dashboards/hugo
+              readOnly: true
+            - name: data
+              mountPath: /var/lib/grafana
+          resources:
+            {{- toYaml $o.grafana.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          {{- include "hugo.httpProbes" (dict "ready" "/api/health" "live" "/api/health") | nindent 10 }}
+      volumes:
+        - name: config
+          configMap:
+            name: hugo-grafana-config
+        - name: datasources
+          configMap:
+            name: hugo-grafana-datasources
+        - name: dashboard-provider
+          configMap:
+            name: hugo-grafana-dashboard-provider
+        - name: dashboards
+          projected:
+            sources:
+              {{- range $path, $_ := .Files.Glob "files/observability/dashboards/*.json" }}
+              - configMap:
+                  name: hugo-grafana-dashboard-{{ base $path | trimPrefix "hugo-" | trimSuffix ".json" }}
+              {{- end }}
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hugo-grafana
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+    app.kubernetes.io/name: hugo-grafana
+spec:
+  selector:
+    app.kubernetes.io/name: hugo-grafana
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http
+{{- end }}

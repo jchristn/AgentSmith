@@ -40,6 +40,17 @@ Every host port binds to `127.0.0.1` and can be changed in `docker/.env`. See [`
 
 MCP clients such as Claude Code connect to `http://127.0.0.1:8800/mcp` (or `/mcp/<profile>`) with an access key or a bearer token; see [`docs/MCP_CLIENTS.md`](docs/MCP_CLIENTS.md) for HTTP and stdio configuration.
 
+## Kubernetes and minikube
+
+The same images deploy to Kubernetes with `k8s/` (Kustomize base, postgres, observability, and ingress components, k3s and production overlays, a Helm chart, and scripts) and to a laptop with `minikube/`:
+
+```bash
+minikube/scripts/start.sh && minikube/scripts/deploy.sh --with observability && minikube/scripts/port-forward.sh
+k8s/scripts/deploy.sh k3s --with postgres,observability      # any cluster in your current kubectl context
+```
+
+Hugo runs one server replica everywhere. See [`docs/KUBERNETES.md`](docs/KUBERNETES.md) for secrets, updates, factory reset, and backups.
+
 ## Developing Hugo
 
 Building, testing, and the connector testbed are covered in [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md). Those instructions are for working on Hugo's source; they are not a way to deploy it.

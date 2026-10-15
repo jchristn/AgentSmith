@@ -1,0 +1,30 @@
+# Prometheus, Loki, Tempo, and Alloy accept traffic only from pods in this namespace (the server exporting traces,
+# Grafana querying, Alloy pushing logs). Grafana accepts its HTTP port from anywhere so an Ingress can reach it.
+# kubectl port-forward is not subject to these policies.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: hugo-observability-internal
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app.kubernetes.io/name
+        operator: In
+        values: ["hugo-prometheus", "hugo-loki", "hugo-tempo", "hugo-alloy"]
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - podSelector: {}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: hugo-grafana
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hugo-grafana
+  policyTypes: ["Ingress"]
+  ingress:
+    - ports:
+        - port: 3000

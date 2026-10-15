@@ -1,0 +1,106 @@
+# External PostgreSQL from Secret hugo-db (create it before deploying):
+#   kubectl -n hugo create secret generic hugo-db --from-literal=host=db.example.com --from-literal=port=5432 \
+#     --from-literal=database=hugo --from-literal=username=hugo --from-literal=password='...'
+# The init container waits until the database accepts connections. The server stays at one replica (D-045).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hugo-server
+spec:
+  template:
+    spec:
+      # Topology hint: a soft zone spread, so a small cluster still schedules the pod. With one replica it only
+      # matters when you later run more (after D-045 is lifted); it is here so the hint is not forgotten then.
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: hugo-server
+      initContainers:
+        - name: wait-for-database
+          image: postgres:16.4-alpine
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              echo "waiting for PostgreSQL at ${HUGO_DB_HOST}:${HUGO_DB_PORT}"
+              until pg_isready -h "${HUGO_DB_HOST}" -p "${HUGO_DB_PORT}" -U "${HUGO_DB_USERNAME}" -d "${HUGO_DB_DATABASE}"; do sleep 2; done
+              echo "PostgreSQL is ready"
+          env:
+            - name: HUGO_DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: hugo-db
+                  key: host
+            - name: HUGO_DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: hugo-db
+                  key: port
+            - name: HUGO_DB_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: hugo-db
+                  key: database
+            - name: HUGO_DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: hugo-db
+                  key: username
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+          securityContext:
+            runAsUser: 70
+            runAsGroup: 70
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+      containers:
+        - name: server
+          env:
+            - name: HUGO_DB_TYPE
+              value: Postgresql
+            - name: HUGO_DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: hugo-db
+                  key: host
+            - name: HUGO_DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: hugo-db
+                  key: port
+            - name: HUGO_DB_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: hugo-db
+                  key: database
+            - name: HUGO_DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: hugo-db
+                  key: username
+            - name: HUGO_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: hugo-db
+                  key: password
+            # What A2A agent cards and links advertise. Match the Ingress host.
+            - name: HUGO_EXTERNAL_BASE_URL
+              value: https://hugo.example.com
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: "4"
+              memory: 2Gi

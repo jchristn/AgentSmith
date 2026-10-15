@@ -1,0 +1,26 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: hugo
+
+# Production: an external PostgreSQL (Secret hugo-db with keys host, port, database, username, password), resource
+# requests and limits sized for a shared cluster, disruption budgets, soft topology spread, two dashboard replicas,
+# and an ingress-nginx Ingress with TLS (Secret hugo-tls). The server stays at one replica (D-045).
+# Replace hugo.example.com in ingress-tls.yaml and server.yaml. Pin image tags; never deploy latest.
+#
+# To run PostgreSQL in the cluster instead of an external one, use overlays/k3s with --with postgres as a starting
+# point, or add components/postgres to a copy of this overlay and drop the database part of server.yaml.
+resources:
+  - ../../base
+  - pdb.yaml
+
+components:
+  - ../../components/ingress
+
+patches:
+  - path: server.yaml
+  - path: dashboard.yaml
+  - path: ingress-tls.yaml
+    target:
+      kind: Ingress
+      name: hugo

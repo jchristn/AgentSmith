@@ -1,0 +1,23 @@
+# Use the image already in minikube's runtime (minikube image load, or a previous pull) and pull from Docker Hub only
+# when it is missing. minikube/scripts/update.sh refreshes the image first, then restarts the pods.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hugo-server
+spec:
+  template:
+    spec:
+      containers:
+        - name: server
+          imagePullPolicy: IfNotPresent
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hugo-dashboard
+spec:
+  template:
+    spec:
+      containers:
+        - name: dashboard
+          imagePullPolicy: IfNotPresent

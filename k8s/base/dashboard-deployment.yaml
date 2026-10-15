@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hugo-dashboard
+  labels:
+    app.kubernetes.io/name: hugo-dashboard
+    app.kubernetes.io/component: dashboard
+spec:
+  # The dashboard is stateless (nginx serving the console and proxying the API), so unlike the server it may run
+  # several replicas; overlays/production runs two.
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hugo-dashboard
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hugo-dashboard
+        app.kubernetes.io/component: dashboard
+    spec:
+      serviceAccountName: hugo-dashboard
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: dashboard
+          image: jchristn77/hugo-dashboard
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 80
+          env:
+            # Empty means the browser calls the API on the dashboard origin; nginx proxies /v1.0, /mcp, and
+            # /openapi.json to the server with buffering off, so Server-Sent Events stream through.
+            - name: HUGO_API_URL
+              value: ""
+            # nginx resolves the upstream itself and does not apply DNS search domains, so the name is fully
+            # qualified. Change the namespace part if you deploy into a namespace other than hugo.
+            - name: HUGO_API_UPSTREAM
+              value: http://hugo-server.hugo.svc.cluster.local:8800
+          resources:
+            requests:
+              cpu: 25m
+              memory: 32Mi
+            limits:
+              cpu: 500m
+              memory: 128Mi
+          # The stock nginx image starts as root, writes its upstream include and config.js at start, and runs its
+          # workers as the nginx user, so the root filesystem stays writable and only the capabilities nginx needs for
+          # that are kept.
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+              add: ["CHOWN", "SETGID", "SETUID", "NET_BIND_SERVICE"]
+          readinessProbe:
+            exec:
+              command: ["curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1/health"]
+            periodSeconds: 5
+            timeoutSeconds: 4
+            failureThreshold: 2
+            successThreshold: 2
+          livenessProbe:
+            exec:
+              command: ["curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1/health"]
+            periodSeconds: 5
+            timeoutSeconds: 4
+            failureThreshold: 2
+            successThreshold: 1

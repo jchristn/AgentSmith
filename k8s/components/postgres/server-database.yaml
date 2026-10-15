@@ -1,0 +1,57 @@
+# Points the server at hugo-postgres and orders startup: the init container waits until PostgreSQL accepts
+# connections (pg_isready), the Kubernetes form of depends_on with condition service_healthy.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hugo-server
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: wait-for-database
+          image: postgres:16.4-alpine
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              echo "waiting for PostgreSQL at ${HUGO_DB_HOST}:${HUGO_DB_PORT}"
+              until pg_isready -h "${HUGO_DB_HOST}" -p "${HUGO_DB_PORT}" -U hugo -d hugo; do sleep 2; done
+              echo "PostgreSQL is ready"
+          env:
+            - name: HUGO_DB_HOST
+              value: hugo-postgres
+            - name: HUGO_DB_PORT
+              value: "5432"
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+          securityContext:
+            runAsUser: 70
+            runAsGroup: 70
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+      containers:
+        - name: server
+          env:
+            - name: HUGO_DB_TYPE
+              value: Postgresql
+            - name: HUGO_DB_HOST
+              value: hugo-postgres
+            - name: HUGO_DB_PORT
+              value: "5432"
+            - name: HUGO_DB_DATABASE
+              value: hugo
+            - name: HUGO_DB_USERNAME
+              value: hugo
+            - name: HUGO_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: hugo-secrets
+                  key: db-password

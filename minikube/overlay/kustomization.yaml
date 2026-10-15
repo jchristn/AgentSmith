@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: hugo
+
+# minikube: SQLite on minikube's "standard" storage class (hostpath inside the minikube node), the ingress addon
+# (ingress-nginx) serving http://hugo.local, and IfNotPresent pulls so images loaded with minikube image load are
+# used as they are. minikube/scripts/deploy.sh applies this overlay; with --with postgres,observability it wraps it
+# with k8s/components/postgres and k8s/components/observability.
+resources:
+  - ../../k8s/base
+
+components:
+  - ../../k8s/components/ingress
+
+patches:
+  - path: local-images.yaml
+  - path: storage.yaml

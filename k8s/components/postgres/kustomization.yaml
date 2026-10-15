@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+# In-cluster PostgreSQL 16 for installs that want PostgreSQL instead of SQLite on the data volume. A StatefulSet with
+# its own 5 GiB claim, a Service, a NetworkPolicy that admits only the Hugo server, and a server patch that sets
+# HUGO_DB_TYPE=Postgresql and waits for the database to report ready before the server starts.
+# The password is db-password in Secret hugo-secrets (k8s/scripts/generate-secrets.sh). Production clusters with a
+# managed database use overlays/production instead.
+
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: hugo
+    includeSelectors: false
+
+resources:
+  - postgres.yaml
+
+patches:
+  - path: server-database.yaml

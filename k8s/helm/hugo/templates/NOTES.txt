@@ -1,0 +1,17 @@
+Hugo is deploying in namespace {{ include "hugo.namespace" . }} (one server replica, D-045).
+
+Wait for it:
+  kubectl -n {{ include "hugo.namespace" . }} rollout status deployment/hugo-server --timeout=600s
+
+Reach it on this machine:
+  k8s/scripts/port-forward.sh
+  Dashboard http://127.0.0.1:8801   REST, MCP (/mcp), and A2A http://127.0.0.1:8800
+{{- if .Values.observability.enabled }}
+  Grafana http://127.0.0.1:3000 (user admin, password grafana-admin-password in Secret {{ .Values.secrets.name }})
+{{- end }}
+{{- if .Values.ingress.enabled }}
+  Ingress: http{{ if .Values.ingress.tls }}s{{ end }}://{{ .Values.ingress.host }}
+{{- end }}
+
+Sign in to tenant "default" as anderson@hugo.local (or admin@hugo.local) with password "password" and change it
+when asked. Back up Secret {{ .Values.secrets.name }} together with the data: the master key decrypts stored credentials.

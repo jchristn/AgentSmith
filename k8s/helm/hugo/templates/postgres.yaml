@@ -1,0 +1,104 @@
+{{- if eq .Values.database.mode "embedded" }}
+{{- $ns := include "hugo.namespace" . }}
+{{- $db := .Values.database }}
+# In-cluster PostgreSQL, the same as k8s/components/postgres.
+apiVersion: v1
+kind: Service
+metadata:
+  name: hugo-postgres
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+    app.kubernetes.io/name: hugo-postgres
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: hugo-postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: hugo-postgres
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+    app.kubernetes.io/name: hugo-postgres
+    app.kubernetes.io/component: database
+spec:
+  serviceName: hugo-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hugo-postgres
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hugo-postgres
+        app.kubernetes.io/component: database
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 70
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: postgres
+          image: {{ $db.image }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: postgres
+              containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: hugo
+            - name: POSTGRES_USER
+              value: hugo
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.name }}
+                  key: db-password
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          resources:
+            {{- toYaml $db.embedded.resources | nindent 12 }}
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-h", "127.0.0.1", "-p", "5432", "-U", "hugo", "-d", "hugo"]
+            periodSeconds: 5
+            timeoutSeconds: 4
+            failureThreshold: 2
+            successThreshold: 2
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-h", "127.0.0.1", "-p", "5432", "-U", "hugo", "-d", "hugo"]
+            periodSeconds: 5
+            timeoutSeconds: 4
+            failureThreshold: 2
+            successThreshold: 1
+          startupProbe:
+            exec:
+              command: ["pg_isready", "-h", "127.0.0.1", "-p", "5432", "-U", "hugo", "-d", "hugo"]
+            periodSeconds: 5
+            timeoutSeconds: 4
+            failureThreshold: 24
+            successThreshold: 1
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        {{- if $db.embedded.storageClassName }}
+        storageClassName: {{ $db.embedded.storageClassName }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ $db.embedded.storage }}
+{{- end }}

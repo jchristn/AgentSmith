@@ -1,0 +1,8 @@
+# minikube's default storage class: a hostpath provisioner inside the minikube node. Data survives pod restarts
+# and minikube stop/start, and is removed with the PVC (factory-reset) or the profile (teardown).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hugo-data
+spec:
+  storageClassName: standard
