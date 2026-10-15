@@ -1,12 +1,20 @@
-// Chart helpers and normalization for GET /v1.0/api/analytics/* (plan section 14.2: bucketed, tenant scoped, with
-// server-side gap fill). The dashboard accepts `{ bucketSeconds, buckets: [{ timestampUtc, <metric>: number }] }` and
-// also `{ times, series: [{ key, values }] }`, and still fills gaps itself so a sparse answer draws correctly.
+// Chart helpers for GET /v1.0/api/analytics/{overview,tokens,tools,models} (plan section 14.2): reports bucketed by
+// minute, hour, or day, tenant scoped, with every bucket in the window filled by the server
+// (src/Hugo.Core/Responses/AnalyticsReport.cs).
 
 /** Chart series colors (theme variables, so light and dark both work). */
 export const SERIES_COLORS = ['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)', 'var(--chart-5)', 'var(--chart-6)'];
 
-/** Fixed colors for effects: Read neutral, Write amber, Destructive red (plan section 18.4). */
-export const EFFECT_COLORS = { Read: 'var(--chart-neutral)', Write: 'var(--color-warning)', Destructive: 'var(--color-danger)' };
+/** Analytics interval (minute, hour, day) per chart range preset, chosen to stay well under the server's bucket limit. */
+export const ANALYTICS_INTERVALS = { hour: 'minute', day: 'hour', week: 'hour', month: 'day' };
+
+/** Seconds per analytics interval. */
+export const INTERVAL_SECONDS = { minute: 60, hour: 3600, day: 86400 };
+
+/** The analytics query for a range preset and its window: { fromUtc, toUtc, interval }. */
+export function analyticsQuery(rangeId, range) {
+  return { fromUtc: range?.fromUtc, toUtc: range?.toUtc, interval: ANALYTICS_INTERVALS[rangeId] || 'hour' };
+}
 
 /** Round axis ticks from zero to at least `max`. */
 export function niceTicks(max, count = 4) {
@@ -35,54 +43,25 @@ export function chartMax(series, kind) {
   return max;
 }
 
-/** Bucket start times from `fromMs` to `toMs` every `bucketMs` (the client-side gap fill). */
-export function bucketTimes(fromMs, toMs, bucketMs) {
-  const out = [];
-  if (!(bucketMs > 0) || !(toMs > fromMs)) return out;
-  const start = Math.floor(fromMs / bucketMs) * bucketMs;
-  for (let t = start; t < toMs && out.length < 2000; t += bucketMs) out.push(new Date(t).toISOString());
-  return out;
-}
-
 /**
- * Normalize an analytics response into { times, series: [{ key, metric, values }] } for the given metrics.
- * Missing buckets become 0 for counters (or null when `nullGaps` is set, for averages and percentiles).
+ * Chart series from an analytics report's buckets ([{ startUtc, <metric>: number }]): { times, series: [{ key,
+ * metric, values }] }. The server fills every bucket in the window, so the times are the buckets' start times. A
+ * missing value is 0 for counters, or null when `nullGaps` is set (averages, where an empty bucket has no value).
  */
-export function normalizeSeries(response, metrics, { fromUtc, toUtc, bucketMinutes, nullGaps = false } = {}) {
-  if (Array.isArray(response?.times) && Array.isArray(response?.series)) {
-    return {
-      times: response.times,
-      series: metrics.map((m) => ({
-        key: m,
-        metric: m,
-        values: (response.series.find((s) => s.key === m || s.metric === m)?.values || []).map((v) => (v === undefined ? null : v))
-      }))
-    };
-  }
-  const buckets = Array.isArray(response?.buckets) ? response.buckets : Array.isArray(response) ? response : [];
-  const bucketMs = (response?.bucketSeconds ? response.bucketSeconds * 1000 : 0) || (bucketMinutes || 0) * 60000;
-  const byTime = new Map();
-  for (const b of buckets) {
-    const ts = b.timestampUtc || b.bucketStartUtc || b.time || b.t;
-    if (!ts) continue;
-    const ms = Date.parse(ts);
-    if (Number.isFinite(ms)) byTime.set(bucketMs ? Math.floor(ms / bucketMs) * bucketMs : ms, b);
-  }
-  let times;
-  if (bucketMs && fromUtc && toUtc) times = bucketTimes(Date.parse(fromUtc), Date.parse(toUtc), bucketMs);
-  else times = [...byTime.keys()].sort((a, b) => a - b).map((ms) => new Date(ms).toISOString());
-  const series = metrics.map((m) => ({
-    key: m,
-    metric: m,
-    values: times.map((iso) => {
-      const ms = Date.parse(iso);
-      const b = byTime.get(bucketMs ? Math.floor(ms / bucketMs) * bucketMs : ms);
-      const v = b ? Number(b[m]) : NaN;
-      if (Number.isFinite(v)) return v;
-      return nullGaps ? null : 0;
-    })
-  }));
-  return { times, series };
+export function reportSeries(report, metrics, { nullGaps = false } = {}) {
+  const buckets = Array.isArray(report?.buckets) ? report.buckets : [];
+  return {
+    times: buckets.map((b) => b.startUtc),
+    series: metrics.map((m) => ({
+      key: m,
+      metric: m,
+      values: buckets.map((b) => {
+        const v = b?.[m];
+        if (v === null || v === undefined || !Number.isFinite(Number(v))) return nullGaps ? null : 0;
+        return Number(v);
+      })
+    }))
+  };
 }
 
 /** Sum of a series' values (nulls skipped). */

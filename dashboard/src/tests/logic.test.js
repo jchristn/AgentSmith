@@ -1,5 +1,5 @@
 // Pure logic behind the shared components: connector settings schemas, secret kinds, the chat stream reducer, the
-// event stream client, template rendering, JSON-RPC helpers, and analytics gap fill.
+// event stream client, template rendering, JSON-RPC helpers, and analytics report series.
 
 import { describe, it, expect, vi } from 'vitest';
 import { normalizeSchema, groupSchema, initialValues, validateSchemaValues, toSubmitValues, kindOf, schemaSummary } from '../utils/schemaForm';
@@ -8,7 +8,7 @@ import { initialChatState, beginTurn, applyChatEvent, endTurn, fromStoredMessage
 import { createEventStream } from '../utils/eventStream';
 import { extractVariables, renderTemplateLocal, insertAtCursor } from '../utils/templates';
 import { rpcRequest, readRpcResponse, responseFor, groupToolsByFamily, jsonSchemaToDescriptors, argumentsFromValues } from '../utils/jsonRpc';
-import { normalizeSeries, bucketTimes, chartMax, niceTicks } from '../utils/analytics';
+import { reportSeries, analyticsQuery, chartMax, niceTicks } from '../utils/analytics';
 import { registerModal, isModalOpen } from '../utils/modalState';
 import { ENUMS } from '../utils/constants';
 
@@ -349,19 +349,20 @@ describe('JSON-RPC helpers', () => {
 });
 
 describe('analytics helpers', () => {
-  it('fills gaps in bucketed responses', () => {
-    const fromUtc = '2026-01-01T00:00:00.000Z';
-    const toUtc = '2026-01-01T01:00:00.000Z';
-    const out = normalizeSeries({ bucketSeconds: 900, buckets: [{ timestampUtc: '2026-01-01T00:15:00Z', inputTokens: 5 }] }, ['inputTokens', 'outputTokens'], {
-      fromUtc,
-      toUtc,
-      bucketMinutes: 15
-    });
-    expect(out.times).toHaveLength(4);
-    expect(out.series[0].values).toEqual([0, 5, 0, 0]);
-    expect(normalizeSeries({ buckets: [] }, ['p50'], { fromUtc, toUtc, bucketMinutes: 30, nullGaps: true }).series[0].values).toEqual([null, null]);
-    expect(normalizeSeries({ times: ['t'], series: [{ key: 'a', values: [1] }] }, ['a']).series[0].values).toEqual([1]);
-    expect(bucketTimes(0, 0, 10)).toEqual([]);
+  it('reads series from the server-filled report buckets', () => {
+    const report = {
+      buckets: [
+        { startUtc: '2026-01-01T00:00:00Z', inputTokens: 0, avgTurnDurationMs: null },
+        { startUtc: '2026-01-01T01:00:00Z', inputTokens: 5, avgTurnDurationMs: 1200 }
+      ]
+    };
+    const out = reportSeries(report, ['inputTokens', 'outputTokens']);
+    expect(out.times).toEqual(['2026-01-01T00:00:00Z', '2026-01-01T01:00:00Z']);
+    expect(out.series[0].values).toEqual([0, 5]);
+    expect(out.series[1].values).toEqual([0, 0]);
+    expect(reportSeries(report, ['avgTurnDurationMs'], { nullGaps: true }).series[0].values).toEqual([null, 1200]);
+    expect(reportSeries(null, ['a'])).toEqual({ times: [], series: [{ key: 'a', metric: 'a', values: [] }] });
+    expect(analyticsQuery('hour', { fromUtc: 'f', toUtc: 't' }).interval).toBe('minute');
   });
   it('computes chart maxima and ticks', () => {
     expect(chartMax([{ values: [1, 2] }, { values: [3, 1] }], 'stacked')).toBe(4);

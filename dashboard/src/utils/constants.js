@@ -134,7 +134,8 @@ export const ENUMS = {
     'PluginLoaded',
     'HostKeyPinned',
     'HostKeyMismatch',
-    'SettingLearned'
+    'SettingLearned',
+    'CredentialBypassChanged'
   ],
   // Connector contract (src/Hugo.Connectors.Abstractions).
   secretKind: ['Password', 'PrivateKey', 'ApiToken', 'AccessKeyPair', 'ServiceAccountJson', 'Kubeconfig', 'ConnectionString', 'Certificate', 'Generic'],
@@ -154,6 +155,7 @@ export const ENUMS = {
   modelKind: ['Inference', 'Embedding'],
   modelProvider: ['Ollama', 'OpenAI', 'OpenAICompatible', 'Anthropic', 'Gemini', 'AzureOpenAI', 'Bedrock', 'VertexAI', 'VoyageAI'],
   healthStatus: ['Healthy', 'Degraded', 'Unhealthy', 'Unknown'],
+  modelHealthSource: ['Sweep', 'Validate'],
   promptLayer: ['BuiltIn', 'Global', 'Tenant'],
   knowledgeSource: ['Operator', 'Generated', 'Agent', 'Derived'],
   promptTemplateKind: ['System', 'Task', 'Fragment', 'ToolDescription', 'ConfigFile', 'Other']

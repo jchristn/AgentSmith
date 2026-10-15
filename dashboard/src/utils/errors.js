@@ -11,12 +11,17 @@ const GENERIC_CODES = new Set([
   'Conflict',
   'InUse',
   'ValidationFailed',
+  // 400 for an unknown list filter value; the server's message names the allowed values.
+  'ValidationError',
   'InvalidBody',
   'SettingsInvalid',
   'Duplicate',
   'Http400',
   'Http404',
-  'Http409'
+  'Http409',
+  // 502 from GET /model-endpoints/{id}/models: the provider's own message says what went wrong.
+  'ProviderUnreachable',
+  'ProviderTimeout'
 ]);
 
 /**

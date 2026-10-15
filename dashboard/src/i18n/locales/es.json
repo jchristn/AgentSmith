@@ -157,7 +157,10 @@
     "PasswordChangeRequired": "Cambia tu contraseña antes de continuar.",
     "SystemAdminRequired": "Solo los administradores del sistema pueden hacer esto.",
     "SettingsInvalid": "La configuración del recurso no es válida.",
-    "Duplicate": "Ya existe un registro con ese nombre."
+    "Duplicate": "Ya existe un registro con ese nombre.",
+    "ProviderUnreachable": "No se pudo contactar con el proveedor del modelo.",
+    "ProviderTimeout": "El proveedor del modelo no respondió a tiempo.",
+    "BypassRequiresAdministrator": "Solo un administrador del tenant o del sistema con sesión iniciada puede cambiar el bypass del propietario de una credencial."
   },
   "enums": {
     "principalType": {
@@ -260,7 +263,8 @@
       "RestartRequested": "Reinicio solicitado",
       "KnowledgeChanged": "Conocimiento cambiado",
       "ModelEndpointChanged": "Endpoint de modelo cambiado",
-      "SettingLearned": "Ajuste aprendido"
+      "SettingLearned": "Ajuste aprendido",
+      "CredentialBypassChanged": "Bypass de credencial cambiado"
     },
     "secretKind": {
       "Password": "Contraseña",
@@ -400,6 +404,10 @@
       "Generated": "Generado",
       "Agent": "Agente",
       "Derived": "Derivado"
+    },
+    "modelHealthSource": {
+      "Sweep": "Revisión automática",
+      "Validate": "Validación"
     }
   },
   "login": {
@@ -857,7 +865,8 @@
         "active": "Activa",
         "id": "ID",
         "agentProfileId": "Perfil",
-        "lockToProfile": "Bloqueada"
+        "lockToProfile": "Bloqueada",
+        "inheritOwnerBypass": "Bypass del propietario"
       },
       "fields": {
         "name": "Nombre",
@@ -866,15 +875,21 @@
         "expiresUtc": "Caduca",
         "active": "Activa",
         "agentProfileId": "Perfil vinculado",
-        "lockToProfile": "Restringir a este perfil"
+        "lockToProfile": "Restringir a este perfil",
+        "inheritOwnerBypass": "Heredar el bypass de administrador del propietario",
+        "roleName": "Rol"
       },
       "hints": {
-        "userId": "Una clave de acceso nunca puede superar los permisos de su propietario."
+        "userId": "Una clave de acceso nunca puede superar los permisos de su propietario.",
+        "inheritOwnerBypass": "Desactivado por defecto. Si se activa, la credencial obtiene el bypass completo de administrador del sistema o del tenant de su propietario y omite las comprobaciones de roles. Solo los administradores pueden cambiarlo y cada cambio se audita.",
+        "roleName": "Una credencial sin rol no tiene acceso. Elige un rol aquí o añade una asignación de ámbito de credencial después de crearla."
       },
       "actions": {
         "rotate": "Rotar secreto",
         "scopes": "Asignaciones de ámbito"
-      }
+      },
+      "ownerBypass": "Bypass del propietario",
+      "ownerBypassWarning": "Esta credencial actuará con el bypass completo de administrador de su propietario y omitirá todas las comprobaciones de roles y permisos. Actívalo solo para automatizaciones de confianza; el cambio se audita."
     },
     "roles": {
       "title": "Roles",
@@ -1315,9 +1330,9 @@
       },
       "noProviderModels": "El proveedor no listó ningún modelo.",
       "history": {
-        "title": "Historial de validaciones (esta sesión)",
-        "note": "El servidor solo guarda la última comprobación de estado. Aquí se muestran las validaciones que ejecutes en esta sesión del navegador.",
-        "empty": "Aún no hay validaciones en esta sesión. Usa Validar para ejecutar una."
+        "title": "Historial de salud",
+        "note": "Comprobaciones de salud recientes, las más nuevas primero: validaciones ejecutadas por personas y la revisión de salud en segundo plano del servidor. El servidor guarda un número limitado por endpoint.",
+        "empty": "Todavía no hay comprobaciones de salud registradas. Usa Validar para ejecutar una."
       }
     },
     "knowledge": {
@@ -1435,7 +1450,9 @@
         "sourceIp": "IP de origen",
         "userAgent": "Cliente",
         "principalType": "Tipo de entidad",
-        "principalId": "ID de la entidad"
+        "principalId": "ID de la entidad",
+        "userId": "ID de usuario",
+        "credentialId": "ID de credencial"
       }
     },
     "conversations": {
@@ -1730,7 +1747,8 @@
           "UserSessionMinutes": "Duración de la sesión de usuario (minutos)",
           "AdminSessionMinutes": "Duración de la sesión de administrador (minutos)",
           "SessionAbsoluteMaxHours": "Límite absoluto de sesión (horas)",
-          "RateLimitPerMinute": "Intentos de inicio de sesión por minuto"
+          "RateLimitPerMinute": "Intentos de inicio de sesión por minuto",
+          "PasswordHashIterations": "Iteraciones del hash de contraseñas"
         },
         "Secrets": {
           "MasterKey": "Clave maestra (solo desarrollo)",
@@ -1752,7 +1770,7 @@
           "EnablePlugins": "Habilitar plugins de conectores",
           "PluginDirectory": "Directorio de plugins",
           "DefaultToolTimeoutSeconds": "Tiempo de espera predeterminado de herramientas (segundos)",
-          "HealthSweepMinutes": "Barrido de estado de recursos (minutos)"
+          "McpAllowStdio": "Permitir servidores MCP por stdio"
         },
         "Models": {
           "HealthIntervalSeconds": "Intervalo de comprobación de estado de modelos (segundos)"
@@ -1791,28 +1809,25 @@
       "dataTable": "Tabla de datos",
       "bucketStart": "Inicio del intervalo",
       "title": "Analítica",
-      "subtitle": "Uso de tokens, llamadas a herramientas por efecto y conector, latencia y errores de los modelos y tiempo de respuesta de las aprobaciones.",
+      "subtitle": "Conversaciones, turnos, tokens, llamadas a herramientas, aprobaciones y latencia del modelo a lo largo del tiempo.",
       "purpose": "La analítica convierte las invocaciones de herramientas, los turnos de chat y las llamadas a modelos en tendencias de uso y coste por perfil y modelo.",
-      "profile": "Perfil",
       "panels": {
         "overview": "Totales",
         "tokens": "Uso de tokens",
-        "tools": "Llamadas a herramientas por efecto",
+        "tools": "Llamadas a herramientas",
         "models": "Modelos",
-        "modelLatency": "Latencia de los modelos",
-        "modelErrors": "Errores de los modelos"
+        "modelLatency": "Latencia de los modelos"
       },
       "purposes": {
-        "overview": "Totales de turnos, llamadas a herramientas, errores, tokens y aprobaciones en el intervalo seleccionado.",
+        "overview": "Totales de conversaciones, turnos, tokens, llamadas a herramientas, fallos, aprobaciones y latencia en el rango seleccionado.",
         "tokens": "Tokens de entrada y salida a lo largo del tiempo, en todas las superficies que ejecutan el bucle propio de Hugo.",
-        "tools": "Llamadas a herramientas a lo largo del tiempo desglosadas por efecto, y llamadas, errores y latencia por conector.",
-        "models": "Percentiles de latencia y recuento de errores de cada endpoint de modelo."
+        "tools": "Llamadas a herramientas, fallos y aprobaciones a lo largo del tiempo, y llamadas por herramienta.",
+        "models": "Tiempo medio hasta el primer token y duración de los turnos a lo largo del tiempo, y turnos y tokens por endpoint de modelo."
       },
       "help": {
         "tokens": "Tokens de entrada y salida por intervalo de tiempo.",
-        "tools": "Llamadas a herramientas por intervalo de tiempo según el efecto: Lectura, Escritura y Destructivo.",
-        "modelLatency": "Tiempo de respuesta del modelo mediano (p50) y p95 por intervalo.",
-        "modelErrors": "Solicitudes a modelos que fallaron por intervalo."
+        "tools": "Llamadas a herramientas, llamadas fallidas o denegadas y llamadas que necesitaron aprobación por intervalo.",
+        "modelLatency": "Tiempo medio hasta el primer token y duración media de los turnos por intervalo."
       },
       "kpis": {
         "turns": "Turnos de chat",
@@ -1820,35 +1835,39 @@
         "failures": "Llamadas a herramientas fallidas",
         "tokens": "Tokens",
         "approvals": "Aprobaciones",
-        "turnaround": "Tiempo de respuesta de las aprobaciones",
-        "approvalRate": "Proporción aprobada"
+        "conversations": "Conversaciones",
+        "firstToken": "Tiempo hasta el primer token",
+        "turnDuration": "Duración del turno"
       },
       "metrics": {
         "inputTokens": "Tokens de entrada",
         "outputTokens": "Tokens de salida",
-        "latencyMsP50": "Mediana (p50)",
-        "latencyMsP95": "p95",
-        "errors": "Errores",
-        "Read": "Lectura",
-        "Write": "Escritura",
-        "Destructive": "Destructivo"
+        "toolCalls": "Llamadas a herramientas",
+        "toolErrors": "Fallidas o denegadas",
+        "approvals": "Necesitaron aprobación",
+        "avgTimeToFirstTokenMs": "Tiempo hasta el primer token",
+        "avgTurnDurationMs": "Duración del turno"
       },
       "columns": {
-        "connector": "Conector",
         "calls": "Llamadas",
-        "failures": "Errores",
-        "p95": "Duración p95"
+        "toolName": "Herramienta",
+        "connectorType": "Conector",
+        "errors": "Errores",
+        "denied": "Denegadas",
+        "approvals": "Aprobaciones",
+        "avgDurationMs": "Duración media",
+        "name": "Endpoint de modelo",
+        "provider": "Proveedor",
+        "turns": "Turnos",
+        "inputTokens": "Tokens de entrada",
+        "outputTokens": "Tokens de salida",
+        "avgTimeToFirstTokenMs": "Tiempo hasta el primer token",
+        "avgTurnDurationMs": "Duración del turno"
       },
-      "derived": {
-        "title": "A partir de invocaciones y aprobaciones",
-        "body": "Hasta que las rutas de analítica estén disponibles, estas cifras salen del resumen de invocaciones y de la lista de aprobaciones del rango elegido.",
-        "none": "Nada en este rango.",
-        "byEffect": "Llamadas por efecto",
-        "byDecision": "Llamadas por decisión",
-        "byStatus": "Llamadas por estado",
-        "byTool": "Herramientas más usadas",
-        "approvalsByStatus": "Aprobaciones por estado"
-      }
+      "noRows": "No hay nada registrado en este rango.",
+      "toolsTable": "Llamadas por herramienta",
+      "modelsTable": "Turnos por endpoint de modelo",
+      "unknownModel": "Sin endpoint de modelo"
     },
     "chat": {
       "title": "Chat",
@@ -2335,7 +2354,8 @@
       "principalType": "Muestra solo las sesiones de administradores, usuarios o credenciales.",
       "visibility": "Muestra solo los registros privados o los de todo el inquilino.",
       "activeLayer": "Muestra solo las plantillas cuyo texto viene de esta capa.",
-      "customized": "Muestra las plantillas según la capa personalizada o si su valor cambió desde entonces."
+      "customized": "Muestra las plantillas según la capa personalizada o si su valor cambió desde entonces.",
+      "credentialId": "Muestra solo las sesiones de una credencial. Pega un ID de credencial; la lista se actualiza cuando dejas de escribir."
     },
     "form": {
       "option": "Incluye {{option}} en {{field}}. Las opciones marcadas se guardan; las desmarcadas se omiten.",
@@ -2408,7 +2428,8 @@
       "defaultProfile": "El perfil predeterminado del inquilino: los llamantes que no indican ningún perfil reciben este.",
       "expiringSoon": "Este secreto caduca en menos de 14 días. Reemplace sus valores o amplíe la caducidad antes de que los recursos dejen de funcionar.",
       "lockdown": "Este inquilino está bloqueado: solo se permiten llamadas de lectura hasta que un administrador del inquilino levante el bloqueo.",
-      "locked": "Restringida a su perfil: la credencial solo puede actuar como el perfil vinculado, independientemente de lo que pida el llamante."
+      "locked": "Restringida a su perfil: la credencial solo puede actuar como el perfil vinculado, independientemente de lo que pida el llamante.",
+      "ownerBypass": "Esta credencial hereda el bypass de administrador de su propietario y omite las comprobaciones de roles."
     },
     "permissions": {
       "source": "El rol del que proviene esta concesión. Corrige el acceso cambiando ese rol o la asignación que lo concede.",
@@ -2528,13 +2549,18 @@
         "RestartRequested": "Alguien pidió reiniciar el servidor.",
         "KnowledgeChanged": "Un operador, agente o modelo escribió o eliminó conocimiento de un recurso.",
         "ModelEndpointChanged": "Se creó, cambió o eliminó un endpoint de modelo.",
-        "SettingLearned": "Un conector registró un ajuste en el primer uso, por ejemplo una clave de host SSH."
+        "SettingLearned": "Un conector registró un ajuste en el primer uso, por ejemplo una clave de host SSH.",
+        "CredentialBypassChanged": "Una credencial empezó o dejó de heredar el bypass de administrador de su propietario."
       },
       "knowledgeSource": {
         "Operator": "Escrito o editado por una persona en el panel o la API.",
         "Generated": "Redactado por un modelo con sql_generate_context. Revísalo antes de confiar en él.",
         "Agent": "Registrado por un agente durante su trabajo (sql_update_context). Sin verificar.",
         "Derived": "Calculado por Hugo a partir del rastreo, no escrito por una persona ni un modelo."
+      },
+      "modelHealthSource": {
+        "Sweep": "Registrada por la comprobación de salud en segundo plano que el servidor hace de cada endpoint.",
+        "Validate": "Registrada cuando alguien ejecutó Validar en este endpoint."
       }
     },
     "resources": {
@@ -2580,7 +2606,9 @@
           "scopes": "Abre las asignaciones de ámbito de credenciales filtradas por esta credencial."
         },
         "agentProfileId": "El perfil como el que actúa esta credencial de forma predeterminada. Los entornos de ejecución deben usar una credencial vinculada.",
-        "lockToProfile": "Si está activado, la credencial solo puede actuar como su perfil vinculado, independientemente de lo que solicite el llamante."
+        "lockToProfile": "Si está activado, la credencial solo puede actuar como su perfil vinculado, independientemente de lo que solicite el llamante.",
+        "inheritOwnerBypass": "Indica si esta credencial hereda el bypass de administrador del sistema o del tenant de su propietario. Solo los administradores pueden cambiarlo.",
+        "roleName": "Un rol integrado o personalizado que se concede a la credencial en el ámbito del tenant al crearla."
       },
       "roles": {
         "add": "Crea un rol personalizado, luego añádele permisos y asígnalo a usuarios o claves.",
@@ -2995,21 +3023,31 @@
         "events": "Cada evento transmitido tal como lo envió el servidor."
       },
       "analytics": {
-        "profile": "Limita todos los gráficos a un perfil de agente, o muestra todo el inquilino.",
         "kpis": {
           "turns": "Turnos de chat, A2A y compatibles con OpenAI que ejecutaron el bucle de agente propio de Hugo en el intervalo.",
           "toolCalls": "Llamadas a herramientas desde todas las superficies en el intervalo, incluidas las denegadas y rechazadas.",
-          "failures": "Llamadas a herramientas que terminaron como Fallida o Tiempo agotado en el intervalo.",
+          "failures": "Llamadas a herramientas del rango que fallaron, agotaron el tiempo o fueron denegadas, rechazadas o caducaron.",
           "tokens": "Tokens de entrada y salida usados por las llamadas a modelos de Hugo en el intervalo.",
           "approvals": "Aprobaciones solicitadas en el intervalo, sea cual sea su resultado.",
-          "turnaround": "Tiempo mediano desde que se solicita una aprobación hasta que una persona la decide.",
-          "approvalRate": "Proporción de aprobaciones decididas que se aprobaron en lugar de rechazarse."
+          "conversations": "Conversaciones que empezaron en el rango seleccionado, desde cualquier superficie.",
+          "firstToken": "Tiempo medio desde que empieza un turno hasta que el modelo envía su primer token, en los turnos terminados del rango.",
+          "turnDuration": "Tiempo medio que tardó un turno terminado de principio a fin, incluidas las llamadas al modelo y a herramientas."
         },
         "columns": {
-          "connector": "El tipo de conector al que fueron las llamadas.",
-          "calls": "Llamadas a herramientas a este conector en el intervalo.",
-          "failures": "Llamadas a este conector que fallaron o agotaron el tiempo de espera.",
-          "p95": "El 95 por ciento de las llamadas a este conector terminaron dentro de este tiempo."
+          "calls": "Llamadas a esta herramienta en el rango, desde cualquier superficie.",
+          "toolName": "La herramienta llamada, tal como la ven los agentes y los clientes.",
+          "connectorType": "El tipo de conector que ofrece esta herramienta, como SSH o PostgreSQL.",
+          "errors": "Llamadas a esta herramienta que fallaron o agotaron el tiempo.",
+          "denied": "Llamadas a esta herramienta denegadas, rechazadas por una persona o caducadas antes de una decisión.",
+          "approvals": "Llamadas a esta herramienta que necesitaron la aprobación previa de una persona.",
+          "avgDurationMs": "Tiempo medio de ejecución de las llamadas a esta herramienta que se ejecutaron, con o sin éxito.",
+          "name": "El endpoint de modelo que respondió a estos turnos, con el nombre de su modelo.",
+          "provider": "El proveedor detrás del endpoint de modelo, como Ollama o Anthropic.",
+          "turns": "Turnos terminados que este endpoint de modelo respondió en el rango.",
+          "inputTokens": "Tokens de prompt enviados a este endpoint de modelo en el rango.",
+          "outputTokens": "Tokens que este endpoint de modelo generó en el rango.",
+          "avgTimeToFirstTokenMs": "Tiempo medio hasta que este endpoint de modelo envió el primer token de un turno.",
+          "avgTurnDurationMs": "Duración media de los turnos que respondió este endpoint de modelo, de principio a fin."
         }
       },
       "chat": {
@@ -3145,7 +3183,7 @@
           "Telemetry": "Trazas y métricas exportadas a los Tempo y Prometheus incluidos.",
           "Agent": "Límites y comportamiento del bucle de agente propio de Hugo para el chat, A2A y los clientes OpenAI.",
           "Approvals": "Cuánto esperan las aprobaciones, cuánto se bloquean las llamadas MCP en ellas y si se permite la autoaprobación.",
-          "Connectors": "Plugins, tiempos de espera de herramientas y el barrido de estado de recursos en segundo plano.",
+          "Connectors": "Plugins, tiempos de espera de herramientas y si los recursos MCP pueden iniciar servidores MCP locales por stdio.",
           "Models": "Con qué frecuencia se comprueba el estado de los endpoints de modelo.",
           "Mcp": "El endpoint MCP: activado o desactivado, tiempos de espera de sesión y tamaño de los mensajes.",
           "A2A": "Si se puede acceder a los perfiles mediante A2A.",

@@ -157,7 +157,10 @@
     "PasswordChangeRequired": "Change your password before continuing.",
     "SystemAdminRequired": "Only system administrators can do this.",
     "SettingsInvalid": "The resource settings are invalid.",
-    "Duplicate": "A record with that name already exists."
+    "Duplicate": "A record with that name already exists.",
+    "ProviderUnreachable": "The model provider could not be reached.",
+    "ProviderTimeout": "The model provider did not answer in time.",
+    "BypassRequiresAdministrator": "Only a signed-in tenant or system administrator can change a credential's owner bypass."
   },
   "enums": {
     "principalType": {
@@ -260,7 +263,8 @@
       "RestartRequested": "Restart requested",
       "KnowledgeChanged": "Knowledge changed",
       "ModelEndpointChanged": "Model endpoint changed",
-      "SettingLearned": "Setting learned"
+      "SettingLearned": "Setting learned",
+      "CredentialBypassChanged": "Credential bypass changed"
     },
     "secretKind": {
       "Password": "Password",
@@ -400,6 +404,10 @@
       "Generated": "Generated",
       "Agent": "Agent",
       "Derived": "Derived"
+    },
+    "modelHealthSource": {
+      "Sweep": "Health sweep",
+      "Validate": "Validation"
     }
   },
   "login": {
@@ -858,7 +866,8 @@
         "active": "Active",
         "id": "ID",
         "agentProfileId": "Profile",
-        "lockToProfile": "Locked"
+        "lockToProfile": "Locked",
+        "inheritOwnerBypass": "Owner bypass"
       },
       "fields": {
         "name": "Name",
@@ -867,15 +876,21 @@
         "expiresUtc": "Expires",
         "active": "Active",
         "agentProfileId": "Bound profile",
-        "lockToProfile": "Lock to this profile"
+        "lockToProfile": "Lock to this profile",
+        "inheritOwnerBypass": "Carry the owner's administrator bypass",
+        "roleName": "Role"
       },
       "hints": {
-        "userId": "A credential can never exceed the permissions of its owner."
+        "userId": "A credential can never exceed the permissions of its owner.",
+        "inheritOwnerBypass": "Off by default. When on, the credential gets its owner's full system or tenant administrator bypass and skips role checks. Only administrators can change it, and every change is audited.",
+        "roleName": "A credential without a role gets no access. Pick a role here, or add a credential scope assignment after creating it."
       },
       "actions": {
         "rotate": "Rotate secret",
         "scopes": "Scope assignments"
-      }
+      },
+      "ownerBypass": "Owner bypass",
+      "ownerBypassWarning": "This credential will act with its owner's full administrator bypass and skip every role and permission check. Turn it on only for trusted automation; the change is audited."
     },
     "roles": {
       "title": "Roles",
@@ -1316,9 +1331,9 @@
       },
       "noProviderModels": "The provider listed no models.",
       "history": {
-        "title": "Validation history (this session)",
-        "note": "The server keeps only the last health check. Validations you run in this browser session are listed here.",
-        "empty": "No validations in this session yet. Use Validate to run one."
+        "title": "Health history",
+        "note": "Recent health checks, newest first: validations run by people and the server's background health sweep. The server keeps a limited number per endpoint.",
+        "empty": "No health checks recorded yet. Use Validate to run one."
       }
     },
     "knowledge": {
@@ -1436,7 +1451,9 @@
         "sourceIp": "Source IP",
         "userAgent": "Client",
         "principalType": "Principal type",
-        "principalId": "Principal ID"
+        "principalId": "Principal ID",
+        "userId": "User ID",
+        "credentialId": "Credential ID"
       }
     },
     "conversations": {
@@ -1740,8 +1757,9 @@
         "Connectors.EnablePlugins": "Enable connector plugins",
         "Connectors.PluginDirectory": "Plugin directory",
         "Connectors.DefaultToolTimeoutSeconds": "Default tool timeout (seconds)",
-        "Connectors.HealthSweepMinutes": "Resource health sweep (minutes)",
-        "Models.HealthIntervalSeconds": "Model health check interval (seconds)"
+        "Models.HealthIntervalSeconds": "Model health check interval (seconds)",
+        "Connectors.McpAllowStdio": "Allow stdio MCP servers",
+        "Auth.PasswordHashIterations": "Password hash iterations"
       }
     },
     "serverInfo": {
@@ -1776,28 +1794,25 @@
       "dataTable": "Data table",
       "bucketStart": "Bucket start",
       "title": "Analytics",
-      "subtitle": "Token usage, tool calls by effect and connector, model latency and errors, and approval turnaround.",
+      "subtitle": "Conversations, turns, tokens, tool calls, approvals, and model latency over time.",
       "purpose": "Analytics turns tool invocations, chat turns, and model calls into usage and cost trends per profile and model.",
-      "profile": "Profile",
       "panels": {
         "overview": "Totals",
         "tokens": "Token usage",
-        "tools": "Tool calls by effect",
+        "tools": "Tool calls",
         "models": "Models",
-        "modelLatency": "Model latency",
-        "modelErrors": "Model errors"
+        "modelLatency": "Model latency"
       },
       "purposes": {
-        "overview": "Totals for turns, tool calls, failures, tokens, and approvals in the selected range.",
+        "overview": "Totals for conversations, turns, tokens, tool calls, failures, approvals, and latency in the selected range.",
         "tokens": "Input and output tokens over time, across every surface that runs Hugo's own loop.",
-        "tools": "Tool calls over time split by effect, and calls, failures, and latency per connector.",
-        "models": "Latency percentiles and error counts for each model endpoint."
+        "tools": "Tool calls, failures, and approvals over time, and calls per tool.",
+        "models": "Average time to first token and turn duration over time, and turns and tokens per model endpoint."
       },
       "help": {
         "tokens": "Input and output tokens per time bucket.",
-        "tools": "Tool calls per time bucket by effect: Read, Write, and Destructive.",
-        "modelLatency": "Median (p50) and p95 model response time per bucket.",
-        "modelErrors": "Model requests that failed per bucket."
+        "tools": "Tool calls, failed or denied calls, and calls that needed approval per time bucket.",
+        "modelLatency": "Average time to first token and average turn duration per time bucket."
       },
       "kpis": {
         "turns": "Chat turns",
@@ -1805,35 +1820,39 @@
         "failures": "Failed tool calls",
         "tokens": "Tokens",
         "approvals": "Approvals",
-        "turnaround": "Approval turnaround",
-        "approvalRate": "Approved share"
+        "conversations": "Conversations",
+        "firstToken": "Time to first token",
+        "turnDuration": "Turn duration"
       },
       "metrics": {
         "inputTokens": "Input tokens",
         "outputTokens": "Output tokens",
-        "latencyMsP50": "Median (p50)",
-        "latencyMsP95": "p95",
-        "errors": "Errors",
-        "Read": "Read",
-        "Write": "Write",
-        "Destructive": "Destructive"
+        "toolCalls": "Tool calls",
+        "toolErrors": "Failed or denied",
+        "approvals": "Needed approval",
+        "avgTimeToFirstTokenMs": "Time to first token",
+        "avgTurnDurationMs": "Turn duration"
       },
       "columns": {
-        "connector": "Connector",
         "calls": "Calls",
-        "failures": "Failures",
-        "p95": "p95 duration"
+        "toolName": "Tool",
+        "connectorType": "Connector",
+        "errors": "Errors",
+        "denied": "Denied",
+        "approvals": "Approvals",
+        "avgDurationMs": "Average duration",
+        "name": "Model endpoint",
+        "provider": "Provider",
+        "turns": "Turns",
+        "inputTokens": "Input tokens",
+        "outputTokens": "Output tokens",
+        "avgTimeToFirstTokenMs": "Time to first token",
+        "avgTurnDurationMs": "Turn duration"
       },
-      "derived": {
-        "title": "From tool invocations and approvals",
-        "body": "Until the analytics routes are available, these figures come from the tool invocation summary and the approvals list for the selected range.",
-        "none": "Nothing in this range.",
-        "byEffect": "Tool calls by effect",
-        "byDecision": "Tool calls by decision",
-        "byStatus": "Tool calls by status",
-        "byTool": "Most used tools",
-        "approvalsByStatus": "Approvals by status"
-      }
+      "noRows": "Nothing recorded in this range.",
+      "toolsTable": "Calls per tool",
+      "modelsTable": "Turns per model endpoint",
+      "unknownModel": "No model endpoint"
     },
     "chat": {
       "title": "Chat",
@@ -2320,7 +2339,8 @@
       "principalType": "Show only sessions of administrators, users, or credentials.",
       "visibility": "Show only private or tenant-wide records.",
       "activeLayer": "Show only templates whose text comes from this layer.",
-      "customized": "Show templates by which layer was customized, or whose default changed since."
+      "customized": "Show templates by which layer was customized, or whose default changed since.",
+      "credentialId": "Show only sessions of one credential. Paste a credential ID; the list updates when you stop typing."
     },
     "form": {
       "option": "Include {{option}} in {{field}}. Checked options are saved; unchecked ones are left out.",
@@ -2393,7 +2413,8 @@
       "defaultProfile": "The tenant default profile: callers that name no profile get this one.",
       "expiringSoon": "This secret expires within 14 days. Replace its values or extend the expiry before resources stop working.",
       "lockdown": "This tenant is locked down: only read calls are allowed until a tenant administrator lifts it.",
-      "locked": "Locked to its profile: the credential can only act as the bound profile, whatever the caller asks for."
+      "locked": "Locked to its profile: the credential can only act as the bound profile, whatever the caller asks for.",
+      "ownerBypass": "This credential carries its owner's administrator bypass and skips role checks."
     },
     "permissions": {
       "source": "The role this grant comes from. Fix access by changing that role or the assignment that grants it.",
@@ -2513,13 +2534,18 @@
         "RestartRequested": "Someone asked the server to restart.",
         "KnowledgeChanged": "Resource knowledge was written or deleted by an operator, agent, or model.",
         "ModelEndpointChanged": "A model endpoint was created, changed, or deleted.",
-        "SettingLearned": "A connector recorded a setting on first use, for example an SSH host key."
+        "SettingLearned": "A connector recorded a setting on first use, for example an SSH host key.",
+        "CredentialBypassChanged": "A credential started or stopped carrying its owner's administrator bypass."
       },
       "knowledgeSource": {
         "Operator": "Written or edited by a person in the dashboard or API.",
         "Generated": "Drafted by a model with sql_generate_context. Review before relying on it.",
         "Agent": "Recorded by an agent during its work (sql_update_context). Unverified.",
         "Derived": "Computed by Hugo from the crawl, not written by a person or model."
+      },
+      "modelHealthSource": {
+        "Sweep": "Recorded by the server's background health check of every endpoint.",
+        "Validate": "Recorded when someone ran Validate on this endpoint."
       }
     },
     "resources": {
@@ -2565,7 +2591,9 @@
           "scopes": "Open the credential scope assignments filtered to this credential."
         },
         "agentProfileId": "The profile this credential acts as by default. Harnesses should use a bound credential.",
-        "lockToProfile": "When on, the credential can only act as its bound profile, whatever the caller requests."
+        "lockToProfile": "When on, the credential can only act as its bound profile, whatever the caller requests.",
+        "inheritOwnerBypass": "Whether this credential carries its owner's system or tenant administrator bypass. Only administrators can change it.",
+        "roleName": "A built-in or custom role granted to the credential at tenant scope when it is created."
       },
       "roles": {
         "add": "Create a custom role, then add permissions to it and assign it to users or keys.",
@@ -2981,21 +3009,31 @@
         "events": "Every streamed event as the server sent it."
       },
       "analytics": {
-        "profile": "Limit every chart to one agent profile, or show the whole tenant.",
         "kpis": {
           "turns": "Chat, A2A, and OpenAI-compatible turns that ran Hugo's own agent loop in the range.",
           "toolCalls": "Tool calls from every surface in the range, including denied and rejected ones.",
-          "failures": "Tool calls that ended Failed or TimedOut in the range.",
+          "failures": "Tool calls in the range that failed, timed out, or were denied, rejected, or expired.",
           "tokens": "Input plus output tokens used by Hugo's model calls in the range.",
           "approvals": "Approvals requested in the range, whatever their outcome.",
-          "turnaround": "Median time from an approval being requested to a person deciding it.",
-          "approvalRate": "Share of decided approvals that were approved rather than rejected."
+          "conversations": "Conversations that started in the selected range, from every surface.",
+          "firstToken": "Average time from a turn starting to the model sending its first token, across finished turns in the range.",
+          "turnDuration": "Average time a finished turn took from start to end, including model calls and tool calls."
         },
         "columns": {
-          "connector": "The connector type the calls went to.",
-          "calls": "Tool calls to this connector in the range.",
-          "failures": "Calls to this connector that failed or timed out.",
-          "p95": "95 percent of calls to this connector finished within this time."
+          "calls": "Calls to this tool in the range, from every surface.",
+          "toolName": "The tool that was called, as agents and clients see it.",
+          "connectorType": "The connector type that provides this tool, such as SSH or PostgreSQL.",
+          "errors": "Calls to this tool that failed or timed out.",
+          "denied": "Calls to this tool that were denied, rejected by a person, or expired before a decision.",
+          "approvals": "Calls to this tool that needed a person to approve them first.",
+          "avgDurationMs": "Average run time of the calls to this tool that ran, successful or not.",
+          "name": "The model endpoint that answered these turns, with its model name.",
+          "provider": "The provider behind the model endpoint, such as Ollama or Anthropic.",
+          "turns": "Finished turns this model endpoint answered in the range.",
+          "inputTokens": "Prompt tokens sent to this model endpoint in the range.",
+          "outputTokens": "Tokens this model endpoint generated in the range.",
+          "avgTimeToFirstTokenMs": "Average time until this model endpoint sent the first token of a turn.",
+          "avgTurnDurationMs": "Average duration of the turns this model endpoint answered, from start to end."
         }
       },
       "chat": {
@@ -3131,7 +3169,7 @@
           "Telemetry": "Traces and metrics exported to the bundled Tempo and Prometheus.",
           "Agent": "Limits and behavior of Hugo's own agent loop for chat, A2A, and OpenAI clients.",
           "Approvals": "How long approvals wait, how long MCP calls block on them, and whether self-approval is allowed.",
-          "Connectors": "Plugins, tool timeouts, and the background health sweep of resources.",
+          "Connectors": "Plugins, tool timeouts, and whether MCP resources may launch local MCP servers over stdio.",
           "Models": "How often model endpoints are health checked.",
           "Mcp": "The MCP endpoint: on or off, session timeouts, and message size.",
           "A2A": "Whether profiles can be reached over A2A.",

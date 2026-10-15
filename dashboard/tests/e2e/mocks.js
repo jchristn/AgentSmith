@@ -230,6 +230,7 @@ const FACTORIES = {
       authMode: 'Hybrid',
       agentProfileId: 'prf_0001',
       lockToProfile: i === 1,
+      inheritOwnerBypass: i === 2,
       lastUsedUtc: iso(i)
     }),
   roles: (i) =>
@@ -334,7 +335,8 @@ const FACTORIES = {
       exposeMcp: true,
       exposeA2A: true,
       exposeOpenAI: i === 1,
-      maxIterations: 12
+      maxIterations: 12,
+      bindingCount: i === 1 ? 2 : 0
     }),
   'model-endpoints': (i) =>
     record('mdl', i, {
@@ -399,9 +401,11 @@ const FACTORIES = {
   sessions: (i) =>
     record('ses', i, {
       tenantId: TENANT,
-      principalType: 'User',
+      principalType: i === 3 ? 'Credential' : 'User',
       userId: i === 1 ? 'usr_0001' : 'usr_0002',
-      authScheme: i === 1 ? 'BearerToken' : 'PasswordHeaders',
+      credentialId: i === 3 ? 'cred_0001' : null,
+      principalName: i === 3 ? 'claude-code-1' : i === 1 ? 'admin@hugo.local' : 'anderson@hugo.local',
+      authScheme: i === 1 ? 'BearerToken' : i === 3 ? 'AccessKeySecret' : 'PasswordHeaders',
       sourceIp: '127.0.0.1',
       lastUsedUtc: iso(i),
       expiresUtc: iso(-60),
@@ -455,12 +459,121 @@ function enumerateRows(rows, url) {
   };
 }
 
+/** Resource health from the last connection test, as the server's health filter sees it. */
+const resourceHealthOf = (r) => (r.lastTestResult === true ? 'Healthy' : r.lastTestResult === false ? 'Unhealthy' : 'Unknown');
+
+/** List filters each flat route applies (plan section 18.3): query parameter to a row predicate. */
+const LIST_FILTERS = {
+  approvals: ['status', 'effect', 'agentProfileId', 'resourceId', 'principalId', 'toolName', 'fromUtc', 'toUtc'],
+  'tool-invocations': [
+    'effect',
+    'agentProfileId',
+    'resourceId',
+    'toolName',
+    'decision',
+    'status',
+    'surface',
+    'conversationId',
+    'principalId',
+    'fromUtc',
+    'toUtc'
+  ],
+  resources: ['connectorType', 'environment', 'health'],
+  secrets: ['kind'],
+  'model-endpoints': ['kind', 'provider', 'health'],
+  sessions: ['principalType', 'userId', 'credentialId']
+};
+
+function matches(collection, row, name, value) {
+  if (name === 'fromUtc') return Date.parse(row.createdUtc) >= Date.parse(value);
+  if (name === 'toUtc') return Date.parse(row.createdUtc) < Date.parse(value);
+  if (name === 'environment') return String(row.environment || '').toLowerCase() === value.toLowerCase();
+  if (name === 'health') return (collection === 'resources' ? resourceHealthOf(row) : row.healthStatus || 'Unknown') === value;
+  return row[name] === value;
+}
+
 function rows(collection, url) {
   const total = TOTALS[collection] ?? 6;
   let list = Array.from({ length: total }, (_, i) => FACTORIES[collection](i + 1));
-  const status = url.searchParams.get('status');
-  if (status && collection === 'approvals') list = list.filter((r) => r.status === status);
+  const params = { ...Object.fromEntries(url.searchParams) };
+  if (collection === 'tool-invocations' && !params.fromUtc && params.since) params.fromUtc = params.since;
+  for (const name of LIST_FILTERS[collection] || []) {
+    const value = params[name];
+    if (value) list = list.filter((r) => matches(collection, r, name, value));
+  }
   return list;
+}
+
+/** Recent health checks of a model endpoint, newest first (src/Hugo.Core/Models/ModelEndpointHealthRecord.cs). */
+function healthHistory(id, url) {
+  const max = Math.min(1000, Math.max(1, Number(url.searchParams.get('maxResults') || 50)));
+  return [
+    { source: 'Validate', status: 'Healthy', latencyMs: 210, message: 'Responded in 210 ms', checkedUtc: iso(5) },
+    { source: 'Sweep', status: 'Unhealthy', latencyMs: null, message: 'Connection refused', checkedUtc: iso(65) },
+    { source: 'Sweep', status: 'Healthy', latencyMs: 180, message: 'Responded in 180 ms', checkedUtc: iso(125) }
+  ]
+    .slice(0, max)
+    .map((r, i) => ({ id: `mhh_${pad(i + 1)}`, tenantId: TENANT, modelEndpointId: id, ...r }));
+}
+
+/** An analytics report (src/Hugo.Core/Responses/AnalyticsReport.cs): every bucket filled, with per-kind rows. */
+function analyticsReport(kind, url) {
+  const interval = url.searchParams.get('interval') || 'hour';
+  const step = { minute: 60000, hour: 3600000, day: 86400000 }[interval] || 3600000;
+  const buckets = Array.from({ length: 8 }, (_, i) => ({
+    startUtc: new Date(NOW - (7 - i) * step).toISOString(),
+    turns: 4 + i,
+    inputTokens: 1000 + i * 50,
+    outputTokens: 200 + i * 10,
+    toolCalls: 10 + i,
+    toolErrors: i % 2,
+    approvals: i % 3,
+    avgTimeToFirstTokenMs: i % 4 === 0 ? null : 400 + i * 10,
+    avgTurnDurationMs: i % 4 === 0 ? null : 2400 + i * 100
+  }));
+  return {
+    kind,
+    fromUtc: buckets[0].startUtc,
+    toUtc: iso(0),
+    interval,
+    conversations: 12,
+    approvalsRequested: 6,
+    totals: {
+      startUtc: buckets[0].startUtc,
+      turns: 42,
+      inputTokens: 52000,
+      outputTokens: 9100,
+      toolCalls: 180,
+      toolErrors: 7,
+      approvals: 6,
+      avgTimeToFirstTokenMs: 450,
+      avgTurnDurationMs: 2800
+    },
+    buckets,
+    tools:
+      kind === 'tools'
+        ? [
+            { toolName: 'ssh_exec', connectorType: 'ssh', calls: 90, errors: 3, denied: 1, approvals: 4, avgDurationMs: 1200 },
+            { toolName: 'sql_query', connectorType: 'postgresql', calls: 70, errors: 1, denied: 0, approvals: 2, avgDurationMs: 300 }
+          ]
+        : null,
+    models:
+      kind === 'models'
+        ? [
+            {
+              modelEndpointId: 'mdl_0001',
+              name: 'local-llm',
+              provider: 'Anthropic',
+              model: 'claude-sonnet',
+              turns: 42,
+              inputTokens: 52000,
+              outputTokens: 9100,
+              avgTimeToFirstTokenMs: 450,
+              avgTurnDurationMs: 2800
+            }
+          ]
+        : null
+  };
 }
 
 /** Garrison page result used by audit and request history. */
@@ -594,6 +707,18 @@ const SETTINGS = {
       path: 'Connectors.EnablePlugins',
       group: 'Connectors',
       description: 'Load connector plugins.',
+      type: 'bool',
+      value: 'false',
+      isSecret: false,
+      isSet: true,
+      source: 'File',
+      applyMode: 'RestartRequired',
+      editable: true
+    },
+    {
+      path: 'Connectors.McpAllowStdio',
+      group: 'Connectors',
+      description: 'Whether mcp resources may launch local MCP servers over stdio (each resource must also set allowStdio).',
       type: 'bool',
       value: 'false',
       isSecret: false,
@@ -827,7 +952,7 @@ const KNOWLEDGE = [
     tenantId: TENANT,
     resourceId: 'res_0002',
     scope: 'database',
-    key: '',
+    key: '_root',
     content: 'Shop database. Orders belong to customers.',
     source: 'Generated',
     updatedBy: 'Hugo profile',
@@ -1108,37 +1233,8 @@ export function respond(method, url, body) {
     };
   if (p === '/v1.0/api/tool-invocations/dry-run') return outcome(body, true);
   if (p === '/v1.0/api/tool-invocations' && method === 'POST') return outcome(body, false);
-  if (p.startsWith('/v1.0/api/analytics/')) {
-    const buckets = Array.from({ length: 8 }, (_, i) => ({
-      timestampUtc: iso(i * 180),
-      inputTokens: 1000 + i * 50,
-      outputTokens: 200 + i * 10,
-      Read: 10 + i,
-      Write: i % 3,
-      Destructive: i % 2,
-      latencyMsP50: 400 + i * 10,
-      latencyMsP95: 900 + i * 20,
-      errors: i % 2
-    }));
-    return {
-      bucketSeconds: 900,
-      buckets,
-      totals: {
-        turns: 42,
-        toolCalls: 180,
-        toolFailures: 7,
-        inputTokens: 52000,
-        outputTokens: 9100,
-        approvals: 6,
-        approvalTurnaroundMsP50: 45000,
-        approvalRate: 0.83
-      },
-      byConnector: [
-        { connectorType: 'ssh', count: 90, failures: 3, durationMsP95: 1200 },
-        { connectorType: 'postgresql', count: 70, failures: 1, durationMsP95: 300 }
-      ]
-    };
-  }
+  m = p.match(/^\/v1\.0\/api\/analytics\/(overview|tokens|tools|models)$/);
+  if (m) return analyticsReport(m[1], url);
   m = p.match(/^\/v1\.0\/api\/agent-profiles\/([^/]+)\/(bindings|tools|compiled-instructions|card)(?:\/([^/]+))?(?:\/(tool-rules))?$/);
   if (m) {
     if (m[2] === 'bindings' && !m[3]) return method === 'GET' ? BINDINGS : { ...BINDINGS[0], id: 'bnd_0099', ...(body || {}) };
@@ -1171,7 +1267,7 @@ export function respond(method, url, body) {
       return {
         ...KNOWLEDGE[0],
         scope: m[2],
-        key: m[3] === '_root' || !m[3] ? '' : decodeURIComponent(m[3]),
+        key: m[3] === '_root' || !m[3] ? '_root' : decodeURIComponent(m[3]),
         content: body?.content,
         source: 'Operator',
         version: 2
@@ -1179,9 +1275,11 @@ export function respond(method, url, body) {
     if (m[3]) return KNOWLEDGE.find((k) => k.scope === m[2]) || KNOWLEDGE[0];
     return m[2] ? KNOWLEDGE.filter((k) => k.scope === m[2]) : KNOWLEDGE;
   }
-  m = p.match(/^\/v1\.0\/api\/model-endpoints\/([^/]+)\/(validate|models)$/);
-  if (m)
+  m = p.match(/^\/v1\.0\/api\/model-endpoints\/([^/]+)\/(validate|models|health-history)$/);
+  if (m) {
+    if (m[2] === 'health-history') return healthHistory(m[1], url);
     return m[2] === 'validate' ? { success: true, kind: 'Inference', latencyMs: 210, model: 'claude-sonnet', problems: [] } : ['claude-sonnet', 'claude-haiku'];
+  }
   m = p.match(/^\/v1\.0\/api\/approvals\/([^/]+)\/(approve|reject|cancel)$/);
   if (m) return { ...FACTORIES.approvals(1), id: m[1], status: m[2] === 'approve' ? 'Approved' : m[2] === 'reject' ? 'Rejected' : 'Cancelled' };
   m = p.match(/^\/v1\.0\/api\/approvals\/([^/]+)$/);
