@@ -13,6 +13,7 @@
     <ProjectReference Include="..\Hugo.Connectors.Sql\Hugo.Connectors.Sql.csproj" />
     <ProjectReference Include="..\Hugo.Connectors.Logging\Hugo.Connectors.Logging.csproj" />
     <ProjectReference Include="..\Hugo.Connectors.Redis\Hugo.Connectors.Redis.csproj" />
+    <ProjectReference Include="..\Hugo.Connectors.Http\Hugo.Connectors.Http.csproj" />
   </ItemGroup>
 
   <ItemGroup>
