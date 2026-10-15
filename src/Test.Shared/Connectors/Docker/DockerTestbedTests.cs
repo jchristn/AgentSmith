@@ -241,7 +241,7 @@ namespace Test.Shared.Connectors.Docker
                     SshAssert.Contains(creates.Text, "1 event(s)", "event filter: " + creates.Text);
                     ToolResult tooLong = await Run(r, "docker_events", new { since = "30d", limit = 1 }, token).ConfigureAwait(false);
                     SshAssert.Error(tooLong, "invalid_argument", "a window over maxEventsWindowSeconds is refused");
-                    ToolResult future = await Run(r, "docker_events", new { since = "2h", until = "2999-01-01T00:00:00Z" }, token).ConfigureAwait(false);
+                    ToolResult future = await Run(r, "docker_events", new { since = "30m", until = "2999-01-01T00:00:00Z" }, token).ConfigureAwait(false);
                     SshAssert.Ok(future, "until clamped to now");
                     ToolResult bad = await Run(r, "docker_events", new { since = "yesterday-ish" }, token).ConfigureAwait(false);
                     SshAssert.Error(bad, "invalid_argument", "bad since");
