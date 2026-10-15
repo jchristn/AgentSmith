@@ -157,7 +157,7 @@ namespace Test.Shared.Connectors.Kubernetes
             SshAssert.True(d.DefaultInstructionsKey == "connector.kubernetes.instructions", "instructions key");
             SshAssert.Contains(d.DefaultInstructions, "k8s_describe", "instructions mention describe");
             SshAssert.Contains(d.DefaultInstructions, "previous: true", "instructions mention previous logs");
-            SshAssert.NotContains(d.DefaultInstructions, "—", "instructions (em-dash)");
+            SshAssert.NotContains(d.DefaultInstructions, "\u2014", "instructions (em-dash)");
             SshAssert.True(d.SecretSlots.Any(s => s.Name == "kubeconfig" && s.AcceptedKinds.Contains(SecretKindEnum.Kubeconfig)), "kubeconfig slot");
             SshAssert.True(d.SecretSlots.Any(s => s.Name == "serviceAccountToken" && s.AcceptedKinds.Contains(SecretKindEnum.ApiToken)), "token slot");
             SshAssert.True(d.SecretSlots.Any(s => s.Name == "certificateAuthority" && s.AcceptedKinds.Contains(SecretKindEnum.Certificate)), "CA slot");
@@ -230,7 +230,7 @@ namespace Test.Shared.Connectors.Kubernetes
                 }
                 foreach (string required in shape.Required ?? new List<string>())
                     SshAssert.True(shape.Properties!.ContainsKey(required), tool.Descriptor.Name + " required " + required);
-                SshAssert.NotContains(tool.Descriptor.InputSchemaJson + tool.Descriptor.Description, "—", tool.Descriptor.Name + " em-dash");
+                SshAssert.NotContains(tool.Descriptor.InputSchemaJson + tool.Descriptor.Description, "\u2014", tool.Descriptor.Name + " em-dash");
             }
             return Task.CompletedTask;
         }

@@ -9,3 +9,5 @@ include:
   - ssh/compose.yaml
   - storage/compose.yaml
   - sql/compose.yaml
+  - kubernetes/compose.yaml
+  - docker/compose.yaml
