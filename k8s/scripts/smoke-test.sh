@@ -5,8 +5,8 @@
 #   1. the server and dashboard pods are Ready, and the server runs exactly one replica;
 #   2. GET /v1.0/api/health answers 200 on the server, and through the dashboard's proxy;
 #   3. the dashboard serves the console (index.html) and /health;
-#   4. sign-in as the seeded tenant user works; on a fresh install the password change is enforced (other routes
-#      answer 403 PasswordChangeRequired) and then performed;
+#   4. sign-in as the seeded tenant user works, and the session can call the API right away (a pending password
+#      change is advisory and never blocks a route);
 #   5. GET /v1.0/api/connectors lists the connector catalog;
 #   6. the compiled instructions of the default profile Hugo introduce Agent Smith;
 #   7. with the observability component: Grafana is healthy and its Hugo folder holds the Hugo dashboards, and
@@ -15,8 +15,6 @@
 # Environment:
 #   HUGO_SMOKE_EMAIL          user to sign in as (default anderson@hugo.local, tenant default)
 #   HUGO_SMOKE_PASSWORD       that user's current password (default: password, the seeded value)
-#   HUGO_SMOKE_NEW_PASSWORD   password to set when the change is required; default a random one, printed once.
-#                             Remember it: after this test the user signs in with it.
 # Needs kubectl, curl, and python3.
 source "$(dirname "$0")/common.sh"
 need kubectl
@@ -72,7 +70,7 @@ curl -sf "${UI}/health" >/dev/null || die "GET /health on the dashboard"
 curl -sf "${UI}/" | grep -qi '<div id="root"' || die "the dashboard did not serve the console"
 pass "dashboard serves /health and the console"
 
-# 4. Sign in, and the forced password change.
+# 4. Sign in. The password change is advisory, so the session works at once.
 login() {
   curl -sf -X POST "${API}/v1.0/token" -H 'Content-Type: application/json' \
     -d "{\"tenantId\":\"${TENANT}\",\"email\":\"${EMAIL}\",\"password\":\"$1\"}" | json 'd["token"]'
@@ -80,20 +78,8 @@ login() {
 TOKEN="$(login "${PASSWORD}")" || die "sign-in as ${EMAIL} (set HUGO_SMOKE_PASSWORD to the current password)"
 pass "signed in as ${EMAIL}"
 CODE="$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer ${TOKEN}" "${API}/v1.0/api/connectors")"
-if [ "${CODE}" = "403" ]; then
-  NEW_PASSWORD="${HUGO_SMOKE_NEW_PASSWORD:-$(python3 -c 'import secrets; print("Hugo-" + secrets.token_urlsafe(12))')}"
-  curl -sf -X POST "${API}/v1.0/api/users/me/password" -H "Authorization: Bearer ${TOKEN}" -H 'Content-Type: application/json' \
-    -d "{\"currentPassword\":\"${PASSWORD}\",\"newPassword\":\"${NEW_PASSWORD}\"}" >/dev/null || die "password change"
-  TOKEN="$(login "${NEW_PASSWORD}")" || die "sign-in with the new password"
-  pass "password change was required (403) and is done"
-  if [ -z "${HUGO_SMOKE_NEW_PASSWORD:-}" ]; then
-    log "     ${EMAIL} now signs in with the generated password (shown once): ${NEW_PASSWORD}"
-  fi
-elif [ "${CODE}" = "200" ]; then
-  pass "password already changed earlier (no change required)"
-else
-  die "unexpected status ${CODE} from /v1.0/api/connectors after sign-in"
-fi
+[ "${CODE}" = "200" ] || die "unexpected status ${CODE} from /v1.0/api/connectors after sign-in"
+pass "the session calls the API without a forced password change"
 AUTH=(-H "Authorization: Bearer ${TOKEN}")
 
 # 5. Connectors.
