@@ -85,8 +85,8 @@ These rules keep the plan honest:
 | 0 | Repository bootstrap | M1 | In progress | 9 / 16 |
 | 1 | Core foundation: settings, data layer, identity, RBAC, sessions, audit, history, telemetry base | M1 | In progress | 0 / 44 |
 | 2 | Secrets vault | M1 | Not started | 0 / 12 |
-| 3 | Connector framework and tool invocation pipeline | M1 | In progress | 2 / 24 |
-| 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | In progress | 8 / 30 |
+| 3 | Connector framework and tool invocation pipeline | M1 | In progress | 4 / 24 |
+| 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | In progress | 13 / 30 |
 | 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | In progress | 0 / 20 |
 | 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | Not started | 0 / 24 |
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Not started | 0 / 22 |
@@ -116,11 +116,9 @@ Milestones:
   1. Backend foundation fork from Garrison: Phase 1 and Phase 2.
   2. Dashboard foundation fork from Garrison: P0.10 and the Phase 8 shell, shared components, and admin pages.
   3. SSH connector: P4.3 to P4.9.
-  4. Object storage connectors: P4.10 to P4.14.
   5. SQL connectors: P0.15 and P4.15 to P4.19.
-  6. Papertrail and SolarWinds Observability connectors: P4.20 to P4.27.
 - Next after the merges: Phase 3 pipeline (resources, invocation service, approvals), Phase 5 profiles and instructions, Phase 6 runtime, Phase 7 protocols.
-- Decisions D-001 through D-034 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
+- Decisions D-001 through D-036 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
 - Before P0.1, confirm the open questions in [section 23](#23-risks-and-open-questions) that are marked "before Phase 0".
 
 ---
@@ -241,6 +239,8 @@ This journey is the acceptance story for M1. Phase 12 replays it end to end.
 | D-032 | Hugo's foundation (data layer machinery, identity, RBAC, sessions, audit, request history, settings API, telemetry, secret cipher, template renderer, MCP proxy, A2A routes, dashboard shell) is forked from Garrison (`~/Code/Garrison`, commit `61923c6` or later) and renamed, with Garrison-specific domain (runs, nodes, harnesses, pipelines, deployments) removed. Provenance is recorded in `docs/PROVENANCE.md`. | User direction to borrow from existing projects; Garrison is the newest, most complete, requirement-compliant codebase with the same stack. Forking saves months and inherits its compliance work. | 6, 16, all of Phase 1 and 2 |
 | D-033 | Data access is written once against `System.Data.Common` (`Database/Ado`) and parameterized by an `SqlDialect` per provider (`Database/Sqlite/Queries/SqliteDialect.cs`, `Database/Postgresql/Queries/PostgresqlDialect.cs`), as in Garrison. Each provider folder still holds its driver, `Implementations/`, and `Queries/`. This refines D-007: SQL is still hand written and fully parameterized, but shared statements are not duplicated per provider. | Halves the data-layer code while keeping the BACKEND_ARCHITECTURE.md provider seams. | 7, 16 |
 | D-034 | Touchstone `0.2.1` (the current release Garrison uses) instead of `0.1.12` named in BACKEND_TEST_ARCHITECTURE.md. Same API surface for suites and runners. | Newer release, no contract change. | 20 |
+| D-035 | `storage_presign_url` signs URLs with the provider SDKs Blobject already references (SigV4 for S3, SAS for Azure, V4 for GCS), because Blobject's `GenerateUrl` returns unsigned URLs. The tool stays Write (it grants external access). | A presigned URL that is not signed is useless; the SDKs are already dependencies. | 9.1 |
+| D-036 | The connector contract gained `ConnectorErrorCodes` (standard codes), `RetryAfterSeconds` on `ToolResult` and `ConnectorException`, and a documented server-enforced test-connection timeout (the token passed to `TestConnectionAsync` is cancelled after `Connectors.TestTimeoutSeconds`, default 30). Additive; no connector changes required. | Requested independently by the logging and storage connector work. | 8.1 |
 
 ---
 
@@ -1735,8 +1735,8 @@ Tests and runners
 ### Phase 3: Connector framework and tool invocation pipeline (M1)
 
 - [x] P3.1 `Hugo.Connectors.Abstractions`: interfaces and supporting types in section 8.1, one per file, fully documented.  | claude 2026-10-14 Hugo.Connectors.Abstractions: IConnector, IConnectorTool, descriptors, schema, slots, contexts, ToolArguments, ToolResult, EffectClassification, OutputLimiter, TextTable, EmbeddedText; helper suite passes
-- [ ] P3.2 `ConnectorSettingsSchema` validation engine (required, ranges, enums, patterns, lists) with field-level errors and i18n keys.
-- [ ] P3.3 `ConnectorRegistry` and `ConnectorRegistrations.cs`. `GET /v1.0/api/connectors` and `/{type}`.
+- [x] P3.2 `ConnectorSettingsSchema` validation engine (required, ranges, enums, patterns, lists) with field-level errors and i18n keys.  | claude 2026-10-14 Hugo.Core/Connectors/ConnectorSettingsValidator (required, kinds, ranges, enums, patterns with timeout, unknown keys, slot kinds) plus ApplyDefaults; framework.settings suite
+- [~] P3.3 `ConnectorRegistry` and `ConnectorRegistrations.cs`. `GET /v1.0/api/connectors` and `/{type}`.  | claude 2026-10-14 Hugo.Core/Connectors/ConnectorRegistry with type/tool naming rules and family schema parity (verified with the logs family); ConnectorRegistrations and REST routes pending the server foundation
 - [ ] P3.4 Migration 3: `resources`, `resource_settings`, `resource_secret_bindings`, `connector_schema_cache`.
 - [ ] P3.5 `IResourceMethods` and implementations (both providers), including settings and slot child rows.
 - [ ] P3.6 `ResourceService`: create and update with schema validation, secret slot validation (kind and field), visibility, ceiling, duplicate, referrers.
@@ -1747,7 +1747,7 @@ Tests and runners
 - [ ] P3.11 `OutputLimiter` (bytes, rows, lines, with truncation metadata).
 - [ ] P3.12 Migration 4: `tool_invocations`, `approvals`.
 - [ ] P3.13 `ToolInvocationService` pipeline steps 1 to 12 (section 8.6), with lockdown support.
-- [ ] P3.14 Access mode matrix plus binding tool rules plus resource ceiling (pure function, exhaustively tested).
+- [x] P3.14 Access mode matrix plus binding tool rules plus resource ceiling (pure function, exhaustively tested).  | claude 2026-10-14 Hugo.Core/Safety/AccessPolicy: matrix, ceiling, tool rules, lockdown, classifier rejection, always-approve; framework.policy suite
 - [ ] P3.15 `ApprovalService`: create, decide, expire, cancel, wait handles (database-backed with in-process signal), events.
 - [ ] P3.16 Approval routes and the expiry background job.
 - [ ] P3.17 Tool invocation routes: list, get, summary, dry run, direct invoke (202 on approval).
@@ -1775,11 +1775,11 @@ SSH
 - [ ] P4.9 SSH testbed suite (including bastion, host key mismatch, timeout, output truncation).
 
 Object storage
-- [ ] P4.10 `Hugo.Connectors.Storage`: `s3`, `azure-blob`, `gcs` descriptors, settings, slots, and the Blobject client factory.
-- [ ] P4.11 Shared tools `storage_list`, `storage_get_metadata`, `storage_read`, `storage_stats`.
-- [ ] P4.12 Shared tools `storage_write` (overwrite detection), `storage_copy`, `storage_delete`, `storage_presign_url`, plus prefix restriction enforcement.
-- [ ] P4.13 Default instructions for `s3`, `azure-blob`, `gcs`.
-- [ ] P4.14 Storage testbed suites against MinIO or Less3, Azurite, fake-gcs-server.
+- [x] P4.10 `Hugo.Connectors.Storage`: `s3`, `azure-blob`, `gcs` descriptors, settings, slots, and the Blobject client factory.  | claude 2026-10-14 s3, azure-blob, gcs on Blobject 6.1.2 with pooled clients; forcePathStyle and useInstanceRole omitted (Blobject cannot do either; anonymous without keys; session tokens rejected)
+- [x] P4.11 Shared tools `storage_list`, `storage_get_metadata`, `storage_read`, `storage_stats`.  | claude 2026-10-14 storage_list (folders and continuation computed in-connector over Blobject flat listing), storage_get_metadata, storage_read (ranges), storage_stats (capped, per-folder totals)
+- [x] P4.12 Shared tools `storage_write` (overwrite detection), `storage_copy`, `storage_delete`, `storage_presign_url`, plus prefix restriction enforcement.  | claude 2026-10-14 storage_write and storage_copy refuse overwrite unless overwrite=true (then Destructive), storage_delete, storage_presign_url signed with provider SDKs (D-035); prefix restriction and dot-segment rejection at classify and execute
+- [x] P4.13 Default instructions for `s3`, `azure-blob`, `gcs`.  | claude 2026-10-14 connector.s3/azure-blob/gcs instructions embedded
+- [x] P4.14 Storage testbed suites against MinIO or Less3, Azurite, fake-gcs-server.  | claude 2026-10-14 docker/testbed/storage: pgsty/minio (official image gone), Azurite 3.35.0, fake-gcs-server 1.56.1 with timestamp-padding proxy; connectors.storage 28/28, testbed.storage 75/75 (run on alternate MinIO port; 28900 was taken by an unrelated local process)
 
 SQL
 - [ ] P4.15 `Hugo.Connectors.Sql` descriptors for `sqlite`, `mysql`, `sqlserver`, `postgresql`, plus settings, slots, and connection builders.

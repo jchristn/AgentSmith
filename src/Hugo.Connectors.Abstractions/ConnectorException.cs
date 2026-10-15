@@ -15,6 +15,11 @@ namespace Hugo.Connectors.Abstractions
         public string Code { get; }
 
         /// <summary>
+        /// Seconds the caller should wait before retrying, when known. Null otherwise.
+        /// </summary>
+        public double? RetryAfterSeconds { get; set; } = null;
+
+        /// <summary>
         /// Instantiate.
         /// </summary>
         /// <param name="code">Stable error code.</param>

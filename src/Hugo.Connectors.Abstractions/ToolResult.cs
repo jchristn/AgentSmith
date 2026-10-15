@@ -22,6 +22,12 @@ namespace Hugo.Connectors.Abstractions
         public string? ErrorCode { get; set; } = null;
 
         /// <summary>
+        /// Seconds the caller should wait before retrying, when the upstream said so (for example a 429 with
+        /// Retry-After). Null when unknown.
+        /// </summary>
+        public double? RetryAfterSeconds { get; set; } = null;
+
+        /// <summary>
         /// Text content. Never null.
         /// </summary>
         public string Text

@@ -30,7 +30,8 @@ namespace Hugo.Connectors.Abstractions
         Task<ConnectorValidationResult> ValidateAsync(ConnectorResourceContext resource, CancellationToken token = default);
 
         /// <summary>
-        /// Open a connection and run a cheap, read-only probe.
+        /// Open a connection and run a cheap, read-only probe. The server cancels <paramref name="token"/> after
+        /// its test timeout (default 30 seconds), so implementations must pass the token to every network call.
         /// </summary>
         /// <param name="resource">Resource to test.</param>
         /// <param name="token">Cancellation token.</param>

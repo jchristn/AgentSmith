@@ -17,11 +17,6 @@ namespace Hugo.Connectors.Logging
         /// </summary>
         public int StatusCode { get; }
 
-        /// <summary>
-        /// Seconds to wait before retrying, from <c>Retry-After</c> or <c>X-Rate-Limit-Reset</c>. Null when unknown.
-        /// </summary>
-        public int? RetryAfterSeconds { get; }
-
         #endregion
 
         #region Constructors-and-Factories
