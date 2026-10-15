@@ -63,7 +63,8 @@ namespace Hugo.Connectors.Redis.Tools
             Title = "Run a Redis command",
             Description = "Run one Redis command when no purpose-built redis_* tool fits. Each call is classified from a table of every Redis command: reads (GET, HGETALL, XINFO, CONFIG GET) are Read, "
                 + "writes (SET, HSET, EXPIRE) are Write, and deletes, flushes, CONFIG SET, SHUTDOWN, scripts (EVAL), and unknown commands are Destructive and need approval. "
-                + "KEYS is denied (use redis_scan); blocking commands (BLPOP, XREAD BLOCK), SUBSCRIBE, MONITOR, MULTI/EXEC, SELECT, and AUTH are rejected. Replies are capped by the row limit and maxValueBytes.",
+                + "Key deletes (DEL, UNLINK, GETDEL) and flushes always need a human approval, whatever the access mode. "
+                + "KEYS is denied unless the resource allows it (use redis_scan); blocking commands (BLPOP, XREAD BLOCK), SUBSCRIBE, MONITOR, MULTI/EXEC, SELECT, and AUTH are rejected. Replies are capped by the row limit and maxValueBytes.",
             InputSchemaJson = Schema,
             BaseEffect = EffectEnum.Read,
             ClassifiedPerCall = true,

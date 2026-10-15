@@ -19,7 +19,8 @@ namespace Test.Shared.Connectors.Redis
         public string Command { get; set; } = String.Empty;
 
         /// <summary>
-        /// Denied commands for this case. Defaults to the connector default (KEYS).
+        /// Effective denied commands for this case. Starts with the built-in KEYS; a <c>deny=</c> option adds to it, as
+        /// <c>deniedCommands</c> does, and <c>allowkeys</c> removes KEYS, as <c>allowKeysCommand</c> does.
         /// </summary>
         public List<string> Denied { get; set; } = new List<string> { "KEYS" };
 

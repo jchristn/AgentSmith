@@ -16,7 +16,7 @@ Values in the examples (hosts, keys, counts, timestamps) are illustrative. The r
 
 ## Effects and flags
 
-Each tool declares a base effect: Read, Write, or Destructive. Hugo compares the effect of each call with the binding's access mode before anything runs. Read is always allowed; Write is denied on a ReadOnly binding and needs approval on ReadWriteWithApproval; Destructive is denied on ReadOnly and needs approval on both writable modes unless the operator has opted out for ReadWrite. A few calls (terminating EC2 instances, flushing Redis, deleting a Kubernetes Namespace or Node) always need a human, opt-out or not.
+Each tool declares a base effect: Read, Write, or Destructive. Hugo compares the effect of each call with the binding's access mode before anything runs. Read is always allowed; Write is denied on a ReadOnly binding and needs approval on ReadWriteWithApproval; Destructive is denied on ReadOnly and needs approval on both writable modes unless the operator has opted out for ReadWrite. A few calls (terminating EC2 instances, deleting or flushing Redis keys, deleting a Kubernetes Namespace or Node) always need a human, opt-out or not.
 
 Four markers appear in the header line of each tool:
 
@@ -2126,7 +2126,7 @@ TTL of session:9f2c set to 60s.
 
 *Delete Redis keys.* Base effect **Destructive**. Connectors: `redis`.
 
-Delete up to 100 keys by exact name (UNLINK). Glob patterns are not expanded: find keys with redis_scan first and list them explicitly. Destructive: it requires approval, and deleted data cannot be recovered.
+Delete up to 100 keys by exact name (UNLINK). Glob patterns are not expanded: find keys with redis_scan first and list them explicitly. Destructive, and it always requires a human approval, whatever the binding's access mode; deleted data cannot be recovered.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -2157,9 +2157,9 @@ Deleted 2 of 2 keys.
 
 *Run a Redis command.* Base effect **Read**, classified per call. Connectors: `redis`.
 
-Run one Redis command when no purpose-built redis_* tool fits. Each call is classified from a table of every Redis command: reads (GET, HGETALL, XINFO, CONFIG GET) are Read, writes (SET, HSET, EXPIRE) are Write, and deletes, flushes, CONFIG SET, SHUTDOWN, scripts (EVAL), and unknown commands are Destructive and need approval. KEYS is denied (use redis_scan); blocking commands (BLPOP, XREAD BLOCK), SUBSCRIBE, MONITOR, MULTI/EXEC, SELECT, and AUTH are rejected. Replies are capped by the row limit and maxValueBytes.
+Run one Redis command when no purpose-built redis_* tool fits. Each call is classified from a table of every Redis command: reads (GET, HGETALL, XINFO, CONFIG GET) are Read, writes (SET, HSET, EXPIRE) are Write, and deletes, flushes, CONFIG SET, SHUTDOWN, scripts (EVAL), and unknown commands are Destructive and need approval. Key deletes (DEL, UNLINK, GETDEL) and flushes always need a human approval, whatever the access mode. KEYS is denied unless the resource allows it (use redis_scan); blocking commands (BLPOP, XREAD BLOCK), SUBSCRIBE, MONITOR, MULTI/EXEC, SELECT, and AUTH are rejected. Replies are capped by the row limit and maxValueBytes.
 
-**Effect rule.** Looked up in the command table. Reads such as `GET`, `HGETALL`, `XINFO`, and `CONFIG GET` are Read; writes such as `SET`, `HSET`, and `EXPIRE` are Write; deletes, `CONFIG SET`, `EVAL`, `FCALL`, and unknown commands are Destructive. `FLUSHALL`, `FLUSHDB`, `SHUTDOWN`, `SCRIPT FLUSH`, `FUNCTION FLUSH`, `DEBUG`, failovers, and `REPLICAOF` always need a human. Commands in `deniedCommands` (default `KEYS`), blocking commands, `SUBSCRIBE`, `MONITOR`, `MULTI`/`EXEC`, `SELECT`, and `AUTH` are rejected.
+**Effect rule.** Looked up in the command table. Reads such as `GET`, `HGETALL`, `XINFO`, and `CONFIG GET` are Read; writes such as `SET`, `HSET`, and `EXPIRE` are Write; deletes, `CONFIG SET`, `EVAL`, `FCALL`, and unknown commands are Destructive. `DEL`, `UNLINK`, `GETDEL`, `FLUSHALL`, `FLUSHDB`, `SHUTDOWN`, `SCRIPT FLUSH`, `FUNCTION FLUSH`, `DEBUG`, failovers, and `REPLICAOF` always need a human. `KEYS` (unless the resource sets `allowKeysCommand`), commands in `deniedCommands`, blocking commands, `SUBSCRIBE`, `MONITOR`, `MULTI`/`EXEC`, `SELECT`, and `AUTH` are rejected.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
