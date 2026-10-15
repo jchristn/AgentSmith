@@ -64,7 +64,7 @@ Annotation format: `  | <who> <YYYY-MM-DD> <short note, commit hash, or PR>`
 
 ```
 - [x] P1.14 Implement `SecretMethods` for Postgresql.  | claude 2026-10-14 audit records and request history with header child table
-- [~] P7.21 Kubernetes connector against k3s testbed.  | claude 2026-10-14 52 cli cases including a real process over stdin/stdout against a fake MCP server; verification against Hugo /mcp pending the MCP surface
+- [x] P7.21 Kubernetes connector against k3s testbed.  | claude 2026-10-14 verified end to end: Claude Code through hugo mcp stdio against the real /mcp
 ```
 
 These rules keep the plan honest:
@@ -89,7 +89,7 @@ These rules keep the plan honest:
 | 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | In progress | 33 / 37 |
 | 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | In progress | 19 / 21 |
 | 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | In progress | 12 / 24 |
-| 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | In progress | 1 / 22 |
+| 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | In progress | 13 / 22 |
 | 8 | Dashboard | M1 | In progress | 47 / 53 |
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | In progress | 14 / 15 |
 | 10 | Docker, testbed, and observability stack | M1 | In progress | 14 / 24 |
@@ -115,7 +115,6 @@ Milestones:
 - Execution started 2026-10-14. Phase 0 skeleton is committed: solution, connector contract (P3.1), CI workflow, assets. The foundation is being forked from Garrison (D-032).
 - In flight 2026-10-14 (parallel agents, one git worktree each, merged by the coordinator):
   1. Chat, conversations, A2A, OpenAI-compatible surface, delegation service: P6 remainder, P7.13 to P7.19, A2A part of P7.22.
-  2. MCP surface: P7.1 to P7.12, MCP part of P7.22.
   3. Dashboard wiring to the real routes and the live primary-journey test: P8.33, P8.34, P8.35, P8.38, P8.53.
 - Follow-ups recorded from connector work (fold into the named tasks):
   - P3.13: the pipeline applies binding-level command deny patterns (the invocation context has no binding policy).
@@ -131,10 +130,11 @@ Milestones:
   - Testbed defect: docker/testbed/storage/fixtures/hugo-testbed/{data,logs} are excluded by the data/ and logs/ .gitignore rules, so 33 storage testbed cases fail on a fresh clone. Add a .gitignore exception and commit the fixtures.
   - docs/connectors/redis-acl.md still says KEYS lives in the default deniedCommands; it is now a built-in denial.
   - Kubernetes testbed has one timing-sensitive crash-loop case (k8s_events or k8s_logs) that fails intermittently.
+  - Security review item from the MCP work: a credential inherits its owner's tenant-admin flag in AuthenticationService even when scoped to a narrower role; review whether credentials should carry the owner's bypass flags (P16.3).
   - Dynamic tools (D-044): add optional `IDynamicToolProvider` so external MCP tools appear as `<prefix>__<tool>`; fence remote instructions inside compiled instructions (P13.28).
   - SSH `jumpResourceName` (reuse another resource as bastion) needs a related-resource resolver; the jump settings cover the case today.
 - Next after the merges: Phase 3 pipeline (resources, invocation service, approvals), Phase 5 profiles and instructions, Phase 6 runtime, Phase 7 protocols.
-- Decisions D-001 through D-045 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
+- Decisions D-001 through D-046 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
 - Before P0.1, confirm the open questions in [section 23](#23-risks-and-open-questions) that are marked "before Phase 0".
 
 ---
@@ -266,6 +266,7 @@ This journey is the acceptance story for M1. Phase 12 replays it end to end.
 | D-043 | Compact connector instructions (user direction 2026-10-14 after reviewing the eight-binding snapshot). Every connector type ships `connector.<type>.compact` next to its full instructions, editable in the same layers. Profiles have `instructionDetail` (Auto, Full, Compact); Auto uses compact text when the profile has more than `Instructions.CompactBindingThreshold` bindings (default 3). Compact sections tell the agent to call `hugo_describe_resource` for the full instructions, which that tool and the `hugo://resources/{alias}` MCP resource always return. | Large multi-resource profiles were producing about 50 KB of instructions; compact text keeps them near 10 KB without losing access to full guidance. | 10 |
 | D-044 | External MCP servers and remote A2A agents are reached through fixed tools (`mcp_list_tools`, `mcp_call_tool`, `mcp_list_resources`, `mcp_read_resource`, `a2a_get_card`, `a2a_delegate`, `a2a_get_task`) rather than per-resource `<prefix>__<tool>` names, because the connector contract's tool list is static. A proposed optional `IDynamicToolProvider` interface would let the server expose remote tools as first-class tools later; tracked as a follow-up. An A2A agent asking for input returns a normal tool result, not a Hugo approval. | Works within the existing contract today; the dynamic interface is additive. | 9.2 |
 | D-045 | Deployment is container-only (user direction 2026-10-14). Hugo is deployed with Docker Compose (`docker/`), Kubernetes (`k8s/`: Kustomize base, components, k3s and production overlays, a Helm chart, and scripts), or minikube (`minikube/`: its own overlay and scripts). The README documents only these; build-and-test instructions live in `docs/DEVELOPMENT.md` and are explicitly not a deployment method. Native installers stay out of scope (D-026). Hugo runs as one replica on every runtime until the event hub and approval signals are shared across replicas (D-027); the manifests say so. This supersedes D-002. | The user wants one deployment model, containers, with Kubernetes and minikube as first-class targets. | 16, 17, 22 Phase 17 |
+| D-046 | MCP implementation details. MCP sessions live in memory (no database-backed cluster sessions); a restart drops them and clients reinitialize on 404, and a session is bound to principal, tenant, and profile. Problems with the profile itself (not found, locked, MCP not exposed, forbidden) are HTTP errors from the proxy with a JSON-RPC body, not tool errors. MCP tools are mapped through a separate protocol-operations list in `OperationScopeMap`. Hugo answers `initialize`, `server/discover`, `tools/list`, and `resources/list` itself; argument validation happens in the pipeline. | Single-replica deployment (D-045) makes in-memory sessions sufficient; the rest keeps existing route tests stable. | 14.3 |
 
 ---
 
@@ -1944,18 +1945,18 @@ Database intelligence (D-038)
 ### Phase 7: Protocol surfaces (M1)
 
 MCP
-- [ ] P7.1 Voltaic `McpHttpServer` on an internal loopback port, with the Watson proxy for `/mcp` and `/mcp/{profile}` (Garrison `McpClusterProxy` pattern: proxy secret, principal and claims headers, SSE passthrough).
-- [ ] P7.2 MCP authentication through the shared `AuthenticationService`, plus profile resolution.
-- [ ] P7.3 `initialize` instructions from `InstructionCompiler` (surface `Mcp`).
-- [ ] P7.4 Per-caller `tools/list` (D-017) with `resource` enums and visibility filtering.
-- [ ] P7.5 `tools/call` dispatch through `ToolInvocationService`, with tool errors and structured content.
-- [ ] P7.6 Meta tools (`hugo_whoami`, `hugo_get_instructions`, `hugo_list_resources`, `hugo_describe_resource`, `hugo_list_approvals`, `hugo_await_approval`, `ask_agent_smith`).
-- [ ] P7.7 MCP approval pending flow with progress notifications and the pending result.
-- [ ] P7.8 MCP prompts and resources (section 14.3).
-- [ ] P7.9 `McpToolAuthorizationRegistry` with fail-closed behavior for unmapped tools.
-- [ ] P7.10 Management tools behind `expose_management_tools` (minimum set: list and describe profiles, resources, bindings; create resource; update binding access mode).
-- [ ] P7.11 MCP suites with a real Voltaic client: instructions, per-caller tool lists for two profiles, ReadOnly hiding, calls, approval flow, foreign tenant isolation.
-- [ ] P7.12 Manual check with Claude Code: add Hugo as an HTTP MCP server with a profile-bound credential and run an investigation. *Accept:* transcript excerpt and screenshots in the annotation.
+- [x] P7.1 Voltaic `McpHttpServer` on an internal loopback port, with the Watson proxy for `/mcp` and `/mcp/{profile}` (Garrison `McpClusterProxy` pattern: proxy secret, principal and claims headers, SSE passthrough).  | claude 2026-10-14 POST/GET/DELETE /mcp and /mcp/{profileName} via Watson proxy (McpProxy) to loopback Voltaic server, Garrison framing fix included; sessions in memory (D-046)
+- [x] P7.2 MCP authentication through the shared `AuthenticationService`, plus profile resolution.  | claude 2026-10-14 same auth schemes as REST, 401 bearer challenge, D-018 resolution, credential lock, expose_mcp, Execute on profile
+- [x] P7.3 `initialize` instructions from `InstructionCompiler` (surface `Mcp`).  | claude 2026-10-14 initialize and server/discover return compiled instructions (surface Mcp)
+- [x] P7.4 Per-caller `tools/list` (D-017) with `resource` enums and visibility filtering.  | claude 2026-10-14 per-caller tools/list from ToolCatalogService (resource enums, ReadOnly hiding, RequiresModel hiding, unmapped never listed)
+- [x] P7.5 `tools/call` dispatch through `ToolInvocationService`, with tool errors and structured content.  | claude 2026-10-14 tools/call through ToolInvocationService; isError with stable code prefix; structuredContent
+- [x] P7.6 Meta tools (`hugo_whoami`, `hugo_get_instructions`, `hugo_list_resources`, `hugo_describe_resource`, `hugo_list_approvals`, `hugo_await_approval`, `ask_agent_smith`).  | claude 2026-10-14 meta tools; hugo_describe_resource and hugo://resources/{alias} return full instructions in compact mode (InstructionCompiler.DescribeResourceAsync); ask_agent_smith when delegation and inference endpoint exist
+- [x] P7.7 MCP approval pending flow with progress notifications and the pending result.  | claude 2026-10-14 approval wait with progress notifications (Mcp.ProgressIntervalSeconds), approval_pending result, hugo_await_approval returns the original result
+- [x] P7.8 MCP prompts and resources (section 14.3).  | claude 2026-10-14 prompts hugo_briefing, hugo_investigate, hugo_health_sweep; resources profile instructions, per-resource, pending approvals
+- [x] P7.9 `McpToolAuthorizationRegistry` with fail-closed behavior for unmapped tools.  | claude 2026-10-14 McpToolAuthorizationRegistry fail-closed; every listed tool mapped (protocol operations list in OperationScopeMap)
+- [x] P7.10 Management tools behind `expose_management_tools` (minimum set: list and describe profiles, resources, bindings; create resource; update binding access mode).  | claude 2026-10-14 seven hugo_admin_* tools behind expose_management_tools and an Admin-capable principal
+- [x] P7.11 MCP suites with a real Voltaic client: instructions, per-caller tool lists for two profiles, ReadOnly hiding, calls, approval flow, foreign tenant isolation.  | claude 2026-10-14 MCP suite with a real Voltaic client, 8 cases per provider incl. stateless 2026-07-28 and session-based clients; 2066 cases per provider pass
+- [x] P7.12 Manual check with Claude Code: add Hugo as an HTTP MCP server with a profile-bound credential and run an investigation. *Accept:* transcript excerpt and screenshots in the annotation.  | claude 2026-10-14 Claude Code 2.1.300 over HTTP (stateless) and over stdio via hugo mcp stdio: listed tables and counted rows on shop-db (customers 3, orders 5)
 
 A2A
 - [ ] P7.13 A2A routes copied from Garrison `A2ARoutes.cs` and adapted: card, tenant card list, JSON-RPC endpoint with 1.0 and legacy method names.
@@ -1969,7 +1970,7 @@ OpenAI-compatible and CLI
 - [ ] P7.19 OpenAI-compatible suites (official OpenAI client shape compatibility via raw JSON fixtures).
 - [x] P7.20 `Hugo.Cli` `hugo mcp stdio` relay, `login`, `whoami`, `profiles list`. Packaged as a .NET tool.  | claude 2026-10-14 hugo CLI: mcp stdio relay (renew on 401, new session on 404, Last-Event-ID resume), login (0600 credentials file), logout, whoami, profiles list; packs as Hugo.Cli tool
 - [ ] P7.21 CLI suite: stdio relay round trip with a real MCP client over stdio.
-- [ ] P7.22 Protocol telemetry (MCP and A2A metrics and spans).
+- [~] P7.22 Protocol telemetry (MCP and A2A metrics and spans).  | claude 2026-10-14 MCP part done (hugo_mcp_requests_total, mcp <method> spans); A2A part pending the chat/A2A merge
 
 ### Phase 8: Dashboard (M1)
 
