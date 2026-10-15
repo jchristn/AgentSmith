@@ -730,6 +730,11 @@ class ApiClient {
     return this._request('POST', `/v1.0/api/model-endpoints/${enc(id)}/validate`);
   }
 
+  /** Validate unsaved model endpoint settings (the form's Validate button); nothing is stored. */
+  validateModelEndpointDraft(body) {
+    return this._request('POST', '/v1.0/api/model-endpoints/validate', { body });
+  }
+
   /** The provider's model names (a bare array of strings), where the provider supports listing. */
   listProviderModels(id) {
     return this._request('GET', `/v1.0/api/model-endpoints/${enc(id)}/models`);

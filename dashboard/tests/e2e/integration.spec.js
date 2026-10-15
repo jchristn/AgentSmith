@@ -134,7 +134,9 @@ test('keeps the validation history of a model endpoint for the session', async (
   await page.goto(pathFor('models'));
   await page.locator('.data-table tbody tr').first().locator('[aria-haspopup="menu"]').first().click();
   await page.getByRole('menuitem', { name: 'Validate' }).click();
-  await expect(page.getByTestId('result-outcome')).toContainText('Succeeded');
+  // The result is laid out (outcome, model, latency, reply), not dumped as JSON.
+  await expect(page.getByTestId('model-validation-outcome')).toContainText('The model responded.');
+  await expect(page.getByTestId('model-validation').locator('.kv-grid')).toBeVisible();
   await page.getByTestId('result-modal').getByRole('button', { name: 'Close', exact: true }).last().click();
   await page.locator('.data-table tbody tr').first().click();
   await expect(page.getByTestId('model-health-history')).toContainText('Succeeded');

@@ -1275,7 +1275,8 @@
       "sections": {
         "endpoint": "Titik akhir",
         "capabilities": "Keupayaan",
-        "limits": "Had"
+        "limits": "Had",
+        "validation": "Pengesahan"
       },
       "columns": {
         "name": "Nama",
@@ -1321,6 +1322,23 @@
         "title": "Sejarah pengesahan (sesi ini)",
         "note": "Pelayan hanya menyimpan semakan kesihatan terakhir. Pengesahan yang anda jalankan dalam sesi pelayar ini disenaraikan di sini.",
         "empty": "Belum ada pengesahan dalam sesi ini. Gunakan Sahkan untuk menjalankannya."
+      },
+      "validation": {
+        "button": "Sahkan",
+        "running": "Mengesahkan...",
+        "succeeded": "Model telah membalas.",
+        "failed": "Model tidak membalas seperti dijangka.",
+        "respondedIn": "Masa pergi balik {{value}}.",
+        "model": "Model",
+        "kind": "Jenis",
+        "latency": "Kependaman",
+        "dimensions": "Dimensi embedding",
+        "statusCode": "Status HTTP pembekal",
+        "response": "Pratonton balasan",
+        "error": "Ralat",
+        "problems": "Masalah",
+        "hint": "Semak URL asas, nama model dan rahsia kunci API, kemudian sahkan semula.",
+        "needsModel": "Pilih pembekal dan model terlebih dahulu."
       }
     },
     "knowledge": {
@@ -2716,12 +2734,14 @@
         "sections": {
           "endpoint": "Pembekal dan model ini, dan cara untuk mencapainya.",
           "capabilities": "Apa yang boleh dilakukan oleh model dan berapa banyak teks yang dikendalikannya.",
-          "limits": "Keserentakan, had masa dan cubaan semula untuk panggilan ke titik akhir ini."
+          "limits": "Keserentakan, had masa dan cubaan semula untuk panggilan ke titik akhir ini.",
+          "validation": "Semak tetapan dengan pembekal sebelum menyimpan."
         },
         "actions": {
           "validate": "Hantar gesaan kecil (atau benamkan teks pendek) dan rekodkan kependaman serta hasilnya.",
           "listModels": "Tanya pembekal model yang ditawarkannya, jika pembekal menyokong penyenaraian."
-        }
+        },
+        "validateDraft": "Menghantar gesaan pendek (atau teks pendek untuk embedding) dengan tetapan ini sebelum menyimpan. Tiada apa-apa disimpan."
       },
       "resources": {
         "name": "Nama unik untuk sumber ini dalam penyewa. Pengikatan menggunakannya sebagai alias lalai yang dilihat oleh ejen.",

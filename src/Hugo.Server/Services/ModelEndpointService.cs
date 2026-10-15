@@ -51,7 +51,7 @@ namespace Hugo.Server.Services
 
         #region Private-Members
 
-        private static readonly Regex _NamePattern = new Regex("^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$", RegexOptions.CultureInvariant);
+        private static readonly Regex _NamePattern = new Regex("^[A-Za-z0-9][A-Za-z0-9_.:/@ -]{0,127}$", RegexOptions.CultureInvariant);
         private readonly DatabaseDriverBase _Database;
         private readonly SecretService _Secrets;
         private readonly IModelGateway _Gateway;
@@ -100,7 +100,7 @@ namespace Hugo.Server.Services
         public async Task<ModelEndpoint> CreateAsync(RequestContext ctx, string tenantId, ModelEndpointRequest request, CancellationToken token = default)
         {
             if (request == null) throw Invalid("body", "A request body is required.");
-            if (String.IsNullOrWhiteSpace(request.Name) || !_NamePattern.IsMatch(request.Name)) throw Invalid("name", "A name of 1 to 128 letters, digits, dots, hyphens, or underscores is required.");
+            if (String.IsNullOrWhiteSpace(request.Name) || !_NamePattern.IsMatch(request.Name)) throw Invalid("name", "A name of 1 to 128 characters is required: letters, digits, spaces, and . _ - : / @, starting with a letter or digit.");
             if (!request.Provider.HasValue) throw Invalid("provider", "A provider is required.");
             if (await _Database.ModelEndpoints.ReadByNameAsync(tenantId, request.Name, token).ConfigureAwait(false) != null) throw new ConflictException("Duplicate", "A model endpoint named '" + request.Name + "' already exists.");
             ModelEndpoint endpoint = new ModelEndpoint();
@@ -127,7 +127,7 @@ namespace Hugo.Server.Services
             ModelEndpoint endpoint = await ReadAsync(tenantId, id, token).ConfigureAwait(false);
             if (request.Name != null && request.Name != endpoint.Name)
             {
-                if (!_NamePattern.IsMatch(request.Name)) throw Invalid("name", "A name of 1 to 128 letters, digits, dots, hyphens, or underscores is required.");
+                if (!_NamePattern.IsMatch(request.Name)) throw Invalid("name", "A name of 1 to 128 characters is required: letters, digits, spaces, and . _ - : / @, starting with a letter or digit.");
                 if (await _Database.ModelEndpoints.ReadByNameAsync(tenantId, request.Name, token).ConfigureAwait(false) != null) throw new ConflictException("Duplicate", "A model endpoint named '" + request.Name + "' already exists.");
             }
             Apply(endpoint, request);
@@ -225,6 +225,36 @@ namespace Hugo.Server.Services
         {
             ModelEndpoint endpoint = await ReadAsync(tenantId, id, token).ConfigureAwait(false);
             return await CheckAsync(endpoint, token).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Validate unsaved endpoint settings (the create and edit forms' Validate button): the same definition checks
+        /// and secret resolution as a save, then a tiny prompt (or embedding). Nothing is stored and no health is
+        /// recorded.
+        /// </summary>
+        /// <param name="ctx">Caller.</param>
+        /// <param name="tenantId">Tenant identifier.</param>
+        /// <param name="request">Draft settings, as for create.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Validation result (errors scrubbed).</returns>
+        /// <exception cref="ValidationException">Thrown when the draft is incomplete or invalid.</exception>
+        public async Task<ModelValidationResult> ValidateDraftAsync(RequestContext ctx, string tenantId, ModelEndpointRequest request, CancellationToken token = default)
+        {
+            if (request == null) throw Invalid("body", "A request body is required.");
+            if (!request.Provider.HasValue) throw Invalid("provider", "A provider is required.");
+            ModelEndpoint endpoint = new ModelEndpoint();
+            endpoint.TenantId = tenantId;
+            endpoint.Name = "draft";
+            Apply(endpoint, request);
+            if (String.IsNullOrWhiteSpace(endpoint.Name)) endpoint.Name = "draft";
+            await ValidateDefinitionAsync(endpoint, token).ConfigureAwait(false);
+            ModelEndpointConfig config = await ToConfigAsync(endpoint, token).ConfigureAwait(false);
+            SecretScrubber scrubber = new SecretScrubber();
+            scrubber.AddKnownValue(config.ApiKey);
+            ModelValidationResult result = await _Gateway.ValidateAsync(config, token).ConfigureAwait(false);
+            if (result.Error != null) result.Error = scrubber.Scrub(result.Error);
+            if (result.ResponsePreview != null) result.ResponsePreview = scrubber.Scrub(result.ResponsePreview);
+            return result;
         }
 
         /// <summary>

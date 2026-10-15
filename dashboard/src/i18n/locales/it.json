@@ -1275,7 +1275,8 @@
       "sections": {
         "endpoint": "Endpoint",
         "capabilities": "Funzionalità",
-        "limits": "Limiti"
+        "limits": "Limiti",
+        "validation": "Convalida"
       },
       "columns": {
         "name": "Nome",
@@ -1321,6 +1322,23 @@
         "title": "Cronologia delle convalide (questa sessione)",
         "note": "Il server conserva solo l'ultimo controllo di integrità. Qui sono elencate le convalide eseguite in questa sessione del browser.",
         "empty": "Nessuna convalida in questa sessione. Usa Convalida per eseguirne una."
+      },
+      "validation": {
+        "button": "Convalida",
+        "running": "Convalida in corso...",
+        "succeeded": "Il modello ha risposto.",
+        "failed": "Il modello non ha risposto come previsto.",
+        "respondedIn": "Andata e ritorno {{value}}.",
+        "model": "Modello",
+        "kind": "Tipo",
+        "latency": "Latenza",
+        "dimensions": "Dimensioni dell’embedding",
+        "statusCode": "Stato HTTP del provider",
+        "response": "Anteprima della risposta",
+        "error": "Errore",
+        "problems": "Problemi",
+        "hint": "Controlla l’URL di base, il nome del modello e il segreto della chiave API, poi convalida di nuovo.",
+        "needsModel": "Scegli prima un provider e un modello."
       }
     },
     "knowledge": {
@@ -2716,12 +2734,14 @@
         "sections": {
           "endpoint": "Quale provider e modello è, e come raggiungerlo.",
           "capabilities": "Cosa può fare il modello e quanto testo gestisce.",
-          "limits": "Concorrenza, timeout e tentativi per le chiamate a questo endpoint."
+          "limits": "Concorrenza, timeout e tentativi per le chiamate a questo endpoint.",
+          "validation": "Verifica le impostazioni con il provider prima di salvare."
         },
         "actions": {
           "validate": "Invia un prompt minimo (o calcola l'embedding di un testo breve) e registra latenza e risultato.",
           "listModels": "Chiedi al provider quali modelli offre, se il provider supporta l'elenco."
-        }
+        },
+        "validateDraft": "Invia un breve prompt (o un breve testo da vettorizzare) con queste impostazioni prima di salvare. Non viene memorizzato nulla."
       },
       "resources": {
         "name": "Nome univoco di questa risorsa nel tenant. Le associazioni lo usano come alias predefinito visto dall'agente.",

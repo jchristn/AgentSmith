@@ -1275,7 +1275,8 @@
       "sections": {
         "endpoint": "Endpoint",
         "capabilities": "Capacidades",
-        "limits": "Límites"
+        "limits": "Límites",
+        "validation": "Validación"
       },
       "columns": {
         "name": "Nombre",
@@ -1321,6 +1322,23 @@
         "title": "Historial de validaciones (esta sesión)",
         "note": "El servidor solo guarda la última comprobación de estado. Aquí se muestran las validaciones que ejecutes en esta sesión del navegador.",
         "empty": "Aún no hay validaciones en esta sesión. Usa Validar para ejecutar una."
+      },
+      "validation": {
+        "button": "Validar",
+        "running": "Validando...",
+        "succeeded": "El modelo respondió.",
+        "failed": "El modelo no respondió como se esperaba.",
+        "respondedIn": "Ida y vuelta {{value}}.",
+        "model": "Modelo",
+        "kind": "Tipo",
+        "latency": "Latencia",
+        "dimensions": "Dimensiones del embedding",
+        "statusCode": "Estado HTTP del proveedor",
+        "response": "Vista previa de la respuesta",
+        "error": "Error",
+        "problems": "Problemas",
+        "hint": "Revise la URL base, el nombre del modelo y el secreto de la clave de API, y valide de nuevo.",
+        "needsModel": "Elija primero un proveedor y un modelo."
       }
     },
     "knowledge": {
@@ -2716,12 +2734,14 @@
         "sections": {
           "endpoint": "Qué proveedor y modelo es, y cómo acceder a él.",
           "capabilities": "Qué puede hacer el modelo y cuánto texto admite.",
-          "limits": "Simultaneidad, tiempos de espera y reintentos de las llamadas a este endpoint."
+          "limits": "Simultaneidad, tiempos de espera y reintentos de las llamadas a este endpoint.",
+          "validation": "Compruebe la configuración con el proveedor antes de guardar."
         },
         "actions": {
           "validate": "Envía un prompt mínimo (o genera el embedding de un texto corto) y registra la latencia y el resultado.",
           "listModels": "Pregunta al proveedor qué modelos ofrece, cuando el proveedor admite enumerarlos."
-        }
+        },
+        "validateDraft": "Envía un mensaje breve (o un texto corto para embedding) con esta configuración antes de guardar. No se guarda nada."
       },
       "resources": {
         "name": "Nombre único de este recurso en el inquilino. Los vínculos lo usan como alias predeterminado que ve el agente.",

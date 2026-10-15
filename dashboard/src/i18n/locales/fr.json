@@ -1275,7 +1275,8 @@
       "sections": {
         "endpoint": "Point de terminaison",
         "capabilities": "Capacités",
-        "limits": "Limites"
+        "limits": "Limites",
+        "validation": "Validation"
       },
       "columns": {
         "name": "Nom",
@@ -1321,6 +1322,23 @@
         "title": "Historique des validations (cette session)",
         "note": "Le serveur ne conserve que la dernière vérification d'état. Les validations lancées dans cette session du navigateur sont listées ici.",
         "empty": "Aucune validation dans cette session. Utilisez Valider pour en lancer une."
+      },
+      "validation": {
+        "button": "Valider",
+        "running": "Validation...",
+        "succeeded": "Le modèle a répondu.",
+        "failed": "Le modèle n’a pas répondu comme prévu.",
+        "respondedIn": "Aller-retour {{value}}.",
+        "model": "Modèle",
+        "kind": "Type",
+        "latency": "Latence",
+        "dimensions": "Dimensions de l’embedding",
+        "statusCode": "Statut HTTP du fournisseur",
+        "response": "Aperçu de la réponse",
+        "error": "Erreur",
+        "problems": "Problèmes",
+        "hint": "Vérifiez l’URL de base, le nom du modèle et le secret de la clé API, puis validez à nouveau.",
+        "needsModel": "Choisissez d’abord un fournisseur et un modèle."
       }
     },
     "knowledge": {
@@ -2716,12 +2734,14 @@
         "sections": {
           "endpoint": "Le fournisseur et le modèle concernés, et comment les atteindre.",
           "capabilities": "Ce que le modèle sait faire et la quantité de texte qu'il gère.",
-          "limits": "Concurrence, délais d'expiration et nouvelles tentatives pour les appels à ce point de terminaison."
+          "limits": "Concurrence, délais d'expiration et nouvelles tentatives pour les appels à ce point de terminaison.",
+          "validation": "Vérifiez les réglages auprès du fournisseur avant d’enregistrer."
         },
         "actions": {
           "validate": "Envoyer un très court prompt (ou vectoriser un court texte) et enregistrer la latence et le résultat.",
           "listModels": "Demander au fournisseur quels modèles il propose, lorsque le fournisseur prend en charge le listage."
-        }
+        },
+        "validateDraft": "Envoie une courte requête (ou un court texte à vectoriser) avec ces réglages avant l’enregistrement. Rien n’est enregistré."
       },
       "resources": {
         "name": "Nom unique de cette ressource dans le locataire. Les liaisons l'utilisent comme alias par défaut vu par l'agent.",

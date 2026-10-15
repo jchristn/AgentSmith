@@ -1276,7 +1276,8 @@
       "sections": {
         "endpoint": "Endpoint",
         "capabilities": "Capabilities",
-        "limits": "Limits"
+        "limits": "Limits",
+        "validation": "Validation"
       },
       "columns": {
         "name": "Name",
@@ -1322,6 +1323,23 @@
         "title": "Validation history (this session)",
         "note": "The server keeps only the last health check. Validations you run in this browser session are listed here.",
         "empty": "No validations in this session yet. Use Validate to run one."
+      },
+      "validation": {
+        "button": "Validate",
+        "running": "Validating...",
+        "succeeded": "The model responded.",
+        "failed": "The model did not respond as expected.",
+        "respondedIn": "Round trip {{value}}.",
+        "model": "Model",
+        "kind": "Kind",
+        "latency": "Latency",
+        "dimensions": "Embedding dimensions",
+        "statusCode": "Provider HTTP status",
+        "response": "Reply preview",
+        "error": "Error",
+        "problems": "Problems",
+        "hint": "Check the base URL, the model name, and the API key secret, then validate again.",
+        "needsModel": "Choose a provider and a model first."
       }
     },
     "knowledge": {
@@ -2701,12 +2719,14 @@
         "sections": {
           "endpoint": "Which provider and model this is, and how to reach it.",
           "capabilities": "What the model can do and how much text it handles.",
-          "limits": "Concurrency, timeouts, and retries for calls to this endpoint."
+          "limits": "Concurrency, timeouts, and retries for calls to this endpoint.",
+          "validation": "Check the settings against the provider before saving."
         },
         "actions": {
           "validate": "Send a tiny prompt (or embed a short text) and record the latency and result.",
           "listModels": "Ask the provider which models it offers, where the provider supports listing."
-        }
+        },
+        "validateDraft": "Send a tiny prompt (or embed a short string) with these settings before saving. Nothing is stored."
       },
       "resources": {
         "name": "Unique name for this resource in the tenant. Bindings use it as the default alias the agent sees.",

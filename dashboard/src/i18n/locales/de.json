@@ -1275,7 +1275,8 @@
       "sections": {
         "endpoint": "Endpunkt",
         "capabilities": "Fähigkeiten",
-        "limits": "Limits"
+        "limits": "Limits",
+        "validation": "Prüfung"
       },
       "columns": {
         "name": "Name",
@@ -1321,6 +1322,23 @@
         "title": "Validierungsverlauf (diese Sitzung)",
         "note": "Der Server speichert nur die letzte Zustandsprüfung. Validierungen, die Sie in dieser Browsersitzung ausführen, stehen hier.",
         "empty": "Noch keine Validierungen in dieser Sitzung. Starten Sie eine mit Validieren."
+      },
+      "validation": {
+        "button": "Prüfen",
+        "running": "Wird geprüft...",
+        "succeeded": "Das Modell hat geantwortet.",
+        "failed": "Das Modell hat nicht wie erwartet geantwortet.",
+        "respondedIn": "Antwortzeit {{value}}.",
+        "model": "Modell",
+        "kind": "Art",
+        "latency": "Latenz",
+        "dimensions": "Embedding-Dimensionen",
+        "statusCode": "HTTP-Status des Anbieters",
+        "response": "Vorschau der Antwort",
+        "error": "Fehler",
+        "problems": "Probleme",
+        "hint": "Prüfen Sie Basis-URL, Modellname und das Geheimnis des API-Schlüssels und prüfen Sie erneut.",
+        "needsModel": "Wählen Sie zuerst einen Anbieter und ein Modell."
       }
     },
     "knowledge": {
@@ -2716,12 +2734,14 @@
         "sections": {
           "endpoint": "Welcher Anbieter und welches Modell dies ist und wie es erreicht wird.",
           "capabilities": "Was das Modell kann und wie viel Text es verarbeitet.",
-          "limits": "Parallelität, Zeitlimits und Wiederholungen für Aufrufe an diesen Endpunkt."
+          "limits": "Parallelität, Zeitlimits und Wiederholungen für Aufrufe an diesen Endpunkt.",
+          "validation": "Einstellungen vor dem Speichern beim Anbieter prüfen."
         },
         "actions": {
           "validate": "Einen kleinen Prompt senden (oder einen kurzen Text einbetten) und Latenz und Ergebnis erfassen.",
           "listModels": "Den Anbieter fragen, welche Modelle er anbietet, sofern der Anbieter das Auflisten unterstützt."
-        }
+        },
+        "validateDraft": "Sendet vor dem Speichern einen kurzen Prompt (oder einen kurzen Text für ein Embedding) mit diesen Einstellungen. Es wird nichts gespeichert."
       },
       "resources": {
         "name": "Eindeutiger Name für diese Ressource im Mandanten. Bindungen verwenden ihn als Standard-Alias, den der Agent sieht.",

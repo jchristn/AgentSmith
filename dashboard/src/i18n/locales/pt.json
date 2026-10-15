@@ -1275,7 +1275,8 @@
       "sections": {
         "endpoint": "Endpoint",
         "capabilities": "Recursos do modelo",
-        "limits": "Limites"
+        "limits": "Limites",
+        "validation": "Validação"
       },
       "columns": {
         "name": "Nome",
@@ -1321,6 +1322,23 @@
         "title": "Histórico de validações (esta sessão)",
         "note": "O servidor guarda apenas a última verificação de integridade. As validações executadas nesta sessão do navegador aparecem aqui.",
         "empty": "Ainda não há validações nesta sessão. Use Validar para executar uma."
+      },
+      "validation": {
+        "button": "Validar",
+        "running": "Validando...",
+        "succeeded": "O modelo respondeu.",
+        "failed": "O modelo não respondeu como esperado.",
+        "respondedIn": "Ida e volta {{value}}.",
+        "model": "Modelo",
+        "kind": "Tipo",
+        "latency": "Latência",
+        "dimensions": "Dimensões do embedding",
+        "statusCode": "Status HTTP do provedor",
+        "response": "Prévia da resposta",
+        "error": "Erro",
+        "problems": "Problemas",
+        "hint": "Verifique a URL base, o nome do modelo e o segredo da chave de API e valide novamente.",
+        "needsModel": "Escolha primeiro um provedor e um modelo."
       }
     },
     "knowledge": {
@@ -2716,12 +2734,14 @@
         "sections": {
           "endpoint": "Qual provedor e modelo é este e como alcançá-lo.",
           "capabilities": "O que o modelo pode fazer e quanto texto ele processa.",
-          "limits": "Concorrência, tempos limite e novas tentativas para chamadas a este endpoint."
+          "limits": "Concorrência, tempos limite e novas tentativas para chamadas a este endpoint.",
+          "validation": "Verifique as configurações com o provedor antes de salvar."
         },
         "actions": {
           "validate": "Enviar um prompt mínimo (ou gerar o embedding de um texto curto) e registrar a latência e o resultado.",
           "listModels": "Perguntar ao provedor quais modelos ele oferece, quando o provedor permite listagem."
-        }
+        },
+        "validateDraft": "Envia um prompt curto (ou um texto curto para embedding) com estas configurações antes de salvar. Nada é armazenado."
       },
       "resources": {
         "name": "Nome exclusivo deste recurso no locatário. Os vínculos o usam como alias padrão visto pelo agente.",

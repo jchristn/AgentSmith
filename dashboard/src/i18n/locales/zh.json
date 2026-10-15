@@ -1275,7 +1275,8 @@
       "sections": {
         "endpoint": "端点",
         "capabilities": "能力",
-        "limits": "限制"
+        "limits": "限制",
+        "validation": "验证"
       },
       "columns": {
         "name": "名称",
@@ -1321,6 +1322,23 @@
         "title": "验证历史（本次会话）",
         "note": "服务器只保留最近一次健康检查。此处列出您在本浏览器会话中运行的验证。",
         "empty": "本次会话尚无验证。使用“验证”运行一次。"
+      },
+      "validation": {
+        "button": "验证",
+        "running": "正在验证...",
+        "succeeded": "模型已响应。",
+        "failed": "模型未按预期响应。",
+        "respondedIn": "往返用时 {{value}}。",
+        "model": "模型",
+        "kind": "类型",
+        "latency": "延迟",
+        "dimensions": "嵌入维度",
+        "statusCode": "提供方 HTTP 状态",
+        "response": "回复预览",
+        "error": "错误",
+        "problems": "问题",
+        "hint": "请检查基础 URL、模型名称和 API 密钥机密，然后重新验证。",
+        "needsModel": "请先选择提供方和模型。"
       }
     },
     "knowledge": {
@@ -2716,12 +2734,14 @@
         "sections": {
           "endpoint": "服务商和模型，以及如何访问。",
           "capabilities": "模型的能力以及可处理的文本量。",
-          "limits": "调用此端点的并发数、超时和重试。"
+          "limits": "调用此端点的并发数、超时和重试。",
+          "validation": "保存前先用提供方检查这些设置。"
         },
         "actions": {
           "validate": "发送一个简短提示（或嵌入一段短文本），并记录延迟和结果。",
           "listModels": "向服务商查询其提供的模型（如果服务商支持列出）。"
-        }
+        },
+        "validateDraft": "在保存前用这些设置发送一个简短提示（或嵌入一段短文本）。不会存储任何内容。"
       },
       "resources": {
         "name": "此资源在租户内的唯一名称。绑定将其用作智能体看到的默认别名。",
