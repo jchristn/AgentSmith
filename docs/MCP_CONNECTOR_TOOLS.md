@@ -1379,9 +1379,9 @@ Connector reference: [CONNECTORS.md](CONNECTORS.md#log-services).
 
 *Search logs.* Base effect **Read**. Connectors: `papertrail`, `solarwinds-observability`.
 
-Search log events in a bounded time window and return them as compact lines (timestamp host program: message), oldest first, plus a nextCursor for older events. Always bound the window: start with 15m to 1h around the incident and widen only if needed. Windows longer than the resource's maxTimeRangeHours are rejected with time_range_exceeded. Summarize patterns instead of pasting many lines.
+Search log events in a bounded time window and return them as compact lines (timestamp host program: message), plus a nextCursor when more events match. Papertrail pages backward from the end of the window: each page holds the newest events not yet returned, listed oldest first, and the cursor fetches older ones. SolarWinds Observability lists events in the order the API uses for providerOptions.direction (backward by default, starting from the newest), and the cursor fetches the next page in that direction. Always bound the window: start with 15m to 1h around the incident and widen only if needed. Windows longer than the resource's maxTimeRangeHours are rejected with time_range_exceeded. Summarize patterns instead of pasting many lines.
 
-**Note.** On a call with `cursor`, the original window, query, and `providerOptions` are replayed and new values for them are ignored.
+**Note.** A call with `cursor` replays the original window, query, and `providerOptions`. Sending `query`, `startTime`, `endTime`, or `providerOptions` with a cursor returns `invalid_argument` rather than being ignored; only `limit` may change.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -1390,11 +1390,11 @@ Search log events in a bounded time window and return them as compact lines (tim
 | `startTime` | string | no | Window start: ISO-8601 timestamp (UTC when no offset) or a duration before now such as 15m, 2h, 1d. Default 1h. |
 | `endTime` | string | no | Window end: ISO-8601 timestamp, 'now', or a duration before now. Default now. |
 | `limit` | integer | no | Maximum events to return. Capped by the resource's maxEvents. Default 100. Range: min 1, max 10000. |
-| `cursor` | string | no | nextCursor from a previous logs_search call on the same resource. Fetches the next page of older events and reuses the original window, query, and filters. |
+| `cursor` | string | no | nextCursor from a previous logs_search call on the same resource. Fetches the next page with the original window, query, and filters: older events on Papertrail, the next page in the search direction on SolarWinds Observability. Only limit may be sent with it; query, startTime, endTime, or providerOptions alongside a cursor return invalid_argument. |
 | `providerOptions` | object | no | Provider-specific filters. Papertrail accepts system and group. SolarWinds Observability accepts group, entityId, and direction. Unsupported keys return invalid_argument. |
-| `providerOptions.system` | string | no | Papertrail only: system ID or name (see logs_list_systems). Defaults to the resource's defaultSystem. |
-| `providerOptions.group` | string | no | Papertrail: group ID or name (see logs_list_groups). SolarWinds Observability: log group name. Defaults to the resource's defaultGroup. |
-| `providerOptions.entityId` | string | no | SolarWinds Observability only: entity ID (see swo_list_entities). |
+| `providerOptions.system` | string | no | Papertrail only: system ID or name. Defaults to the resource's defaultSystem. |
+| `providerOptions.group` | string | no | Papertrail: group ID or name. SolarWinds Observability: log group name. Defaults to the resource's defaultGroup. |
+| `providerOptions.entityId` | string | no | SolarWinds Observability only: ID of the entity whose logs to search. |
 | `providerOptions.direction` | string | no | SolarWinds Observability only: search direction. Default backward. One of `backward`, `forward`, `tail`. |
 
 **Output.** Text lines plus structured JSON {provider, kind, query, startTime, endTime, count, omitted, nextCursor, events[{id, timestamp, host, program, severity, message}]}.
@@ -1433,11 +1433,11 @@ Return the newest log events for an optional query, newest last, plus a nextCurs
 | `resource` | string | yes | Alias of the bound resource. Added by Hugo; the allowed values are the caller's bindings for this family. |
 | `query` | string | no | Search expression in the provider's syntax. Omit for every event. |
 | `limit` | integer | no | Maximum events to return. Capped by the resource's maxEvents. Default 50. Range: min 1, max 10000. |
-| `cursor` | string | no | nextCursor from a previous logs_tail call. Returns only events newer than that call, with the original query and filters. |
+| `cursor` | string | no | nextCursor from a previous logs_tail call. Returns only events newer than that call, with the original query and filters. Only limit may be sent with it; query or providerOptions alongside a cursor return invalid_argument. |
 | `providerOptions` | object | no | Provider-specific filters. Papertrail accepts system and group. SolarWinds Observability accepts group, entityId, and direction. Unsupported keys return invalid_argument. |
-| `providerOptions.system` | string | no | Papertrail only: system ID or name (see logs_list_systems). Defaults to the resource's defaultSystem. |
-| `providerOptions.group` | string | no | Papertrail: group ID or name (see logs_list_groups). SolarWinds Observability: log group name. Defaults to the resource's defaultGroup. |
-| `providerOptions.entityId` | string | no | SolarWinds Observability only: entity ID (see swo_list_entities). |
+| `providerOptions.system` | string | no | Papertrail only: system ID or name. Defaults to the resource's defaultSystem. |
+| `providerOptions.group` | string | no | Papertrail: group ID or name. SolarWinds Observability: log group name. Defaults to the resource's defaultGroup. |
+| `providerOptions.entityId` | string | no | SolarWinds Observability only: ID of the entity whose logs to search. |
 | `providerOptions.direction` | string | no | SolarWinds Observability only: search direction. Default backward. One of `backward`, `forward`, `tail`. |
 
 **Output.** Text lines plus structured JSON {provider, kind, query, count, omitted, nextCursor, events[...]}.
@@ -1477,12 +1477,12 @@ Count matching log events in equal time buckets across a window, to find when a 
 | `buckets` | integer | no | Number of equal time buckets. Default 12. Range: min 1, max 120. |
 | `maxScanEvents` | integer | no | Maximum events scanned while counting. When reached, counts before the scanned range are reported as incomplete. Default 10000. Range: min 100, max 100000. |
 | `providerOptions` | object | no | Provider-specific filters. Papertrail accepts system and group. SolarWinds Observability accepts group, entityId, and direction. Unsupported keys return invalid_argument. |
-| `providerOptions.system` | string | no | Papertrail only: system ID or name (see logs_list_systems). Defaults to the resource's defaultSystem. |
-| `providerOptions.group` | string | no | Papertrail: group ID or name (see logs_list_groups). SolarWinds Observability: log group name. Defaults to the resource's defaultGroup. |
-| `providerOptions.entityId` | string | no | SolarWinds Observability only: entity ID (see swo_list_entities). |
+| `providerOptions.system` | string | no | Papertrail only: system ID or name. Defaults to the resource's defaultSystem. |
+| `providerOptions.group` | string | no | Papertrail: group ID or name. SolarWinds Observability: log group name. Defaults to the resource's defaultGroup. |
+| `providerOptions.entityId` | string | no | SolarWinds Observability only: ID of the entity whose logs to search. |
 | `providerOptions.direction` | string | no | SolarWinds Observability only: search direction. Default backward. One of `backward`, `forward`, `tail`. |
 
-**Output.** Table of bucketStart, bucketEnd, count, complete plus structured JSON {provider, query, startTime, endTime, total, scanned, complete, buckets[]}.
+**Output.** Table of bucketStart, bucketEnd, count, complete plus structured JSON {provider, query, startTime, endTime, bucketSeconds, total, pages, complete, scannedFrom, buckets[{start, end, count, complete}]}.
 
 Example arguments:
 

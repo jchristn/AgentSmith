@@ -4,7 +4,7 @@ This resource is a Papertrail account: centralized syslog and application logs f
 
 ### Tools
 
-- `logs_search`: events in a time window, oldest first, with a `nextCursor` for older events. Use for "what happened between X and Y".
+- `logs_search`: events in a time window. The first page holds the newest matches, listed oldest first, and `nextCursor` fetches older ones. Use for "what happened between X and Y".
 - `logs_tail`: the newest events right now. Call it again with its `nextCursor` to see only what arrived since.
 - `logs_volume`: event counts in equal time buckets. Use it to find when a problem started, spiked, or stopped before reading any lines.
 - `logs_list_systems`: senders, with the time each one last logged. A stale `lastEventAt` means that sender went quiet.
@@ -18,7 +18,7 @@ Use `providerOptions.system` (system name or ID) or `providerOptions.group` (gro
 1. Always bound searches by time. Start with a short window around the reported time (15m to 1h). Relative values such as `15m`, `2h`, and `1d` work for `startTime` and `endTime`.
 2. Start narrow, then widen: one system or group and a specific term (an error string, a request ID, a status code) first. Widen the window or drop filters only when nothing matches.
 3. To find onset, run `logs_volume` for the error term over a wider window (for example 6h in 24 buckets), find the first bucket that rises, then `logs_search` just that bucket.
-4. Page with `cursor` only when the first page is not enough to answer. Each page is limited by `maxEvents`.
+4. Page with `cursor` only when the first page is not enough to answer. Each page is limited by `maxEvents`. Send the cursor alone (you may change `limit`); a new query, window, or filter next to a cursor is refused.
 5. Compare with a healthy period when it helps: the same query an hour or a day earlier.
 
 ### Limits

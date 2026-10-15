@@ -356,7 +356,7 @@ The `papertrail` connector searches, tails, and counts events through the Papert
 | [`logs_list_groups`](MCP_CONNECTOR_TOOLS.md#logs_list_groups) | Read | List log groups |
 | [`logs_list_saved_searches`](MCP_CONNECTOR_TOOLS.md#logs_list_saved_searches) | Read | List saved log searches |
 
-Every Papertrail tool is Read. `logs_search` calls `events/search.json` and pages backward with `max_id`; its cursor carries the original window, query, and filters, so a cursor call ignores new values for them. A group name (rather than a numeric ID) costs one extra `groups.json` lookup. `logs_volume` pages through matching events (up to `maxScanEvents`, at most 100,000) and counts them into equal buckets; when it runs out of budget, the oldest buckets are marked incomplete. Use a specific query to keep the scan small.
+Every Papertrail tool is Read. `logs_search` calls `events/search.json` and pages backward with `max_id`; each page holds the newest events not yet returned, listed oldest first. Its cursor carries the original window, query, and filters, and a cursor call that also sends `query`, `startTime`, `endTime`, or `providerOptions` fails with `invalid_argument` instead of quietly ignoring them; only `limit` may change. A group name (rather than a numeric ID) costs one extra `groups.json` lookup. `logs_volume` pages through matching events (up to `maxScanEvents`, at most 100,000) and counts them into equal buckets; when it runs out of budget, the oldest buckets are marked incomplete. Use a specific query to keep the scan small.
 
 **Test connection** calls `systems.json` and reports how many systems the token can see. **Testbed:** an in-process stub (`PapertrailStub`) replays the recorded response shapes, including paging flags and 429 responses.
 
@@ -386,7 +386,7 @@ The `solarwinds-observability` connector searches and tails logs, lists and read
 | [`swo_get_entity`](MCP_CONNECTOR_TOOLS.md#swo_get_entity) | Read | Get SolarWinds Observability entity |
 | [`swo_query_metric`](MCP_CONNECTOR_TOOLS.md#swo_query_metric) | Read | Query SolarWinds Observability metric |
 
-Every tool is Read. `logs_search` calls `/v1/logs` and follows the API's `nextPage` token; `providerOptions` accepts `group`, `entityId`, and `direction`. `logs_tail` tracks the newest timestamp it has returned and asks for events since then. `swo_query_metric` calls `/v1/metrics/{name}/measurements`, scoped by `entityId` or a SolarWinds filter expression, and shows at most the last 60 points per grouping in text.
+Every tool is Read. `logs_search` calls `/v1/logs` and follows the API's `nextPage` token; as with Papertrail, a cursor call refuses new values for the query, window, or filters. `providerOptions` accepts `group`, `entityId`, and `direction`. `logs_tail` tracks the newest timestamp it has returned and asks for events since then. `swo_query_metric` calls `/v1/metrics/{name}/measurements`, scoped by `entityId` or a SolarWinds filter expression, and shows at most the last 60 points per grouping in text.
 
 **Test connection** calls `/v1/entities?pageSize=1` and reports the base URL and whether any entity is visible. **Testbed:** an in-process stub (`SwoStub`).
 
@@ -394,7 +394,7 @@ Every tool is Read. `logs_search` calls `/v1/logs` and follows the API's `nextPa
 
 - There is no `swo_list_alerts`. The public API (OpenAPI 1.0.19) has no alert listing; alerts appear to be reachable only through GraphQL, which is out of scope.
 - `logs_volume` and the `logs_list_*` tools are Papertrail only.
-- The API documents `direction` inconsistently, so the connector passes it through and otherwise relies on the API default. "Older events" on a cursor means "the next page in the API's direction".
+- The API documents `direction` inconsistently, so the connector passes it through and otherwise relies on the API default (backward). Events come back in the API's order for that direction, and a cursor fetches the next page in the same direction.
 - Rate limits, 429 behavior, and the maximum `pageSize` are undocumented. The connector caps pages with `maxEvents`.
 - The tail has no server-side "newer than" token. Events that share the last timestamp can repeat, and when more than `limit` events arrive between calls, the tail skips some.
 - The public API requires a full-access token; ingestion tokens are rejected. There is no read-only token to give Hugo.

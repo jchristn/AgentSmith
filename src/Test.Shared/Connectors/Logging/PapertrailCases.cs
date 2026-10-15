@@ -126,6 +126,32 @@ namespace Test.Shared.Connectors.Logging
                 }
             }));
 
+            cases.Add(new TestCaseDescriptor(suite, "cursor-rejects-new-arguments", "A cursor call refuses a new query, window, or providerOptions instead of ignoring them", async ct =>
+            {
+                using (PapertrailStub stub = new PapertrailStub())
+                {
+                    List<StubLogEvent> ev = stub.Events;
+                    PapertrailConnector c = new PapertrailConnector();
+                    ToolResult first = await LoggingTestHelper.RunAsync(c, "logs_search", Window(ev[100].Time, ev[199].Time, "\"limit\":30"), Context(stub), ct).ConfigureAwait(false);
+                    LoggingTestHelper.AssertOk(first, "first page");
+                    string? cursor = LoggingTestHelper.StructuredString(first, "nextCursor");
+                    LoggingTestHelper.Assert(cursor != null, "first page has a cursor");
+                    foreach (string extra in new[] { "\"query\":\"other\"", "\"startTime\":\"2h\"", "\"endTime\":\"now\"", "\"providerOptions\":{\"group\":\"x\"}" })
+                    {
+                        ToolResult conflict = await LoggingTestHelper.RunAsync(c, "logs_search", "{\"cursor\":\"" + cursor + "\"," + extra + "}", Context(stub), ct).ConfigureAwait(false);
+                        LoggingTestHelper.AssertError(conflict, "invalid_argument", "search cursor with " + extra);
+                    }
+                    ToolResult next = await LoggingTestHelper.RunAsync(c, "logs_search", "{\"cursor\":\"" + cursor + "\",\"limit\":10}", Context(stub), ct).ConfigureAwait(false);
+                    LoggingTestHelper.AssertOk(next, "limit may change with a cursor");
+
+                    ToolResult tail = await LoggingTestHelper.RunAsync(c, "logs_tail", "{\"limit\":5}", Context(stub), ct).ConfigureAwait(false);
+                    string? tailCursor = LoggingTestHelper.StructuredString(tail, "nextCursor");
+                    LoggingTestHelper.Assert(tailCursor != null, "tail cursor");
+                    ToolResult tailConflict = await LoggingTestHelper.RunAsync(c, "logs_tail", "{\"cursor\":\"" + tailCursor + "\",\"query\":\"other\"}", Context(stub), ct).ConfigureAwait(false);
+                    LoggingTestHelper.AssertError(tailConflict, "invalid_argument", "tail cursor with a new query");
+                }
+            }));
+
             cases.Add(new TestCaseDescriptor(suite, "limits-and-caps", "limit is capped by maxEvents; windows beyond maxTimeRangeHours are rejected before any request", async ct =>
             {
                 using (PapertrailStub stub = new PapertrailStub())

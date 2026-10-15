@@ -18,7 +18,7 @@ Scope log searches with `providerOptions.group` (log group name), `providerOptio
 2. Start narrow: find the entity first with `swo_list_entities`, then search its logs with `entityId` and a specific term. Widen the window or drop filters only when nothing matches.
 3. To see when a problem began, query a relevant metric (for example CPU, memory, latency, error rate) with `swo_query_metric` over a wider window, find where it changes, then search logs in that narrower window. `logs_volume` is not available for this provider.
 4. Check entity health and `lastSeen` before blaming an application: a host that stopped reporting explains missing logs.
-5. Page with `cursor` only when the first page cannot answer the question.
+5. Page with `cursor` only when the first page cannot answer the question. Send the cursor alone (you may change `limit`); a new query, window, or filter next to a cursor is refused.
 
 ### Limits
 
