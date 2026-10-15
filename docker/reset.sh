@@ -9,4 +9,4 @@ read -r -p "This deletes ALL Hugo data in this stack, including stored secrets. 
 docker compose --profile postgres down -v --remove-orphans
 docker compose up -d
 docker ps -a --filter "label=com.docker.compose.project=hugo"
-echo "Hugo was reset. Log in as anderson@hugo.local / password (tenant default) and change the password."
+echo "Hugo was reset. Log in as anderson@hugo.local / password (tenant default) and change the password when the dashboard prompts you."

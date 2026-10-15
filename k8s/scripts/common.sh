@@ -144,7 +144,7 @@ print_access() {
   if kc get service hugo-grafana >/dev/null 2>&1; then
     log "  Grafana http://127.0.0.1:3000 (user admin; password: kubectl -n ${HUGO_NAMESPACE} get secret hugo-secrets -o jsonpath='{.data.grafana-admin-password}' | base64 --decode)"
   fi
-  log "sign in to tenant default as anderson@hugo.local or admin@hugo.local with password 'password'; you must change it at first sign-in"
+  log "sign in to tenant default as anderson@hugo.local or admin@hugo.local with password 'password'; the dashboard prompts you to change it"
 }
 
 # Parses "--with a,b" style options shared by deploy, update, and factory-reset into WITH (and WITH_SET=1).

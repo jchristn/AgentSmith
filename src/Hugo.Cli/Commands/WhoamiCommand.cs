@@ -103,7 +103,7 @@ namespace Hugo.Cli.Commands
             }
 
             if (details.MustChangePassword)
-                console.StandardError.WriteLine("hugo: this account must change its password before it can use Hugo. Change it in the dashboard (or POST /v1.0/api/users/me/password).");
+                console.StandardError.WriteLine("hugo: this account still has its seeded or reset password, so Hugo asks you to change it. Change it in the dashboard (or POST /v1.0/api/users/me/password); nothing is blocked meanwhile.");
             return (int)CliExitCodeEnum.Success;
         }
 

@@ -142,7 +142,7 @@ namespace Hugo.Cli.Commands
             console.Out.WriteLine("Signed in to " + server + " as " + who + (entry.TenantId != null ? " (tenant " + entry.TenantId + ")" : String.Empty) + ".");
             console.Out.WriteLine("Session token saved to " + store.FilePath + (entry.ExpiresUtc != null ? "; it expires " + entry.ExpiresUtc.Value.ToUniversalTime().ToString("yyyy-MM-dd HH:mm") + " UTC." : "."));
             if (issued.MustChangePassword)
-                console.StandardError.WriteLine("hugo: this account must change its password before it can use Hugo. Change it in the dashboard (or POST /v1.0/api/users/me/password), then run 'hugo login' again.");
+                console.StandardError.WriteLine("hugo: this account still has its seeded or reset password, so Hugo asks you to change it. Change it in the dashboard (or POST /v1.0/api/users/me/password); nothing is blocked meanwhile.");
             return (int)CliExitCodeEnum.Success;
         }
 

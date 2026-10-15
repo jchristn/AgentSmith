@@ -196,7 +196,7 @@ With in-cluster PostgreSQL, use `pg_dump` from the StatefulSet instead (`kubectl
 
 ## Checking that it works
 
-`k8s/scripts/smoke-test.sh` (and `minikube/scripts/smoke-test.sh`) checks a deployment from your machine through its own temporary port-forwards, so it does not collide with `port-forward.sh`. It verifies that the server runs one replica with Recreate, that health answers on the server and through the dashboard, that the console loads, that `anderson@hugo.local` can sign in and is forced to change the password on a fresh install, that the connector catalog lists connectors, and that the compiled instructions of profile Hugo introduce Agent Smith. With observability it also checks that Grafana's Hugo folder holds every Hugo dashboard and that Prometheus is scraping the server.
+`k8s/scripts/smoke-test.sh` (and `minikube/scripts/smoke-test.sh`) checks a deployment from your machine through its own temporary port-forwards, so it does not collide with `port-forward.sh`. It verifies that the server runs one replica with Recreate, that health answers on the server and through the dashboard, that the console loads, that `anderson@hugo.local` can sign in (changing the seeded password when the server still flags it), that the connector catalog lists connectors, and that the compiled instructions of profile Hugo introduce Agent Smith. With observability it also checks that Grafana's Hugo folder holds every Hugo dashboard and that Prometheus is scraping the server.
 
 On a fresh install the test changes Mr. Anderson's password to a random one and prints it once; set `HUGO_SMOKE_NEW_PASSWORD` to choose it, and `HUGO_SMOKE_PASSWORD` to tell later runs the current one.
 

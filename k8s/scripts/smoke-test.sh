@@ -5,8 +5,8 @@
 #   1. the server and dashboard pods are Ready, and the server runs exactly one replica;
 #   2. GET /v1.0/api/health answers 200 on the server, and through the dashboard's proxy;
 #   3. the dashboard serves the console (index.html) and /health;
-#   4. sign-in as the seeded tenant user works; on a fresh install the password change is enforced (other routes
-#      answer 403 PasswordChangeRequired) and then performed;
+#   4. sign-in as the seeded tenant user works, and on a fresh install (mustChangePassword, advisory since D-048)
+#      the seeded password is changed;
 #   5. GET /v1.0/api/connectors lists the connector catalog;
 #   6. the compiled instructions of the default profile Hugo introduce Agent Smith;
 #   7. with the observability component: Grafana is healthy and its Hugo folder holds the Hugo dashboards, and
@@ -72,27 +72,31 @@ curl -sf "${UI}/health" >/dev/null || die "GET /health on the dashboard"
 curl -sf "${UI}/" | grep -qi '<div id="root"' || die "the dashboard did not serve the console"
 pass "dashboard serves /health and the console"
 
-# 4. Sign in, and the forced password change.
+# 4. Sign in, and change the seeded password (advisory since D-048; no route is blocked).
 login() {
   curl -sf -X POST "${API}/v1.0/token" -H 'Content-Type: application/json' \
     -d "{\"tenantId\":\"${TENANT}\",\"email\":\"${EMAIL}\",\"password\":\"$1\"}" | json 'd["token"]'
 }
+MUST_CHANGE="$(curl -sf -X POST "${API}/v1.0/token" -H 'Content-Type: application/json' \
+  -d "{\"tenantId\":\"${TENANT}\",\"email\":\"${EMAIL}\",\"password\":\"${PASSWORD}\"}" | json 'd.get("mustChangePassword", False)')" \
+  || die "sign-in as ${EMAIL} (set HUGO_SMOKE_PASSWORD to the current password)"
 TOKEN="$(login "${PASSWORD}")" || die "sign-in as ${EMAIL} (set HUGO_SMOKE_PASSWORD to the current password)"
 pass "signed in as ${EMAIL}"
 CODE="$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer ${TOKEN}" "${API}/v1.0/api/connectors")"
-if [ "${CODE}" = "403" ]; then
+if [ "${CODE}" != "200" ]; then
+  die "unexpected status ${CODE} from /v1.0/api/connectors after sign-in"
+fi
+if [ "${MUST_CHANGE}" = "True" ]; then
   NEW_PASSWORD="${HUGO_SMOKE_NEW_PASSWORD:-$(python3 -c 'import secrets; print("Hugo-" + secrets.token_urlsafe(12))')}"
   curl -sf -X POST "${API}/v1.0/api/users/me/password" -H "Authorization: Bearer ${TOKEN}" -H 'Content-Type: application/json' \
     -d "{\"currentPassword\":\"${PASSWORD}\",\"newPassword\":\"${NEW_PASSWORD}\"}" >/dev/null || die "password change"
   TOKEN="$(login "${NEW_PASSWORD}")" || die "sign-in with the new password"
-  pass "password change was required (403) and is done"
+  pass "seeded password changed"
   if [ -z "${HUGO_SMOKE_NEW_PASSWORD:-}" ]; then
     log "     ${EMAIL} now signs in with the generated password (shown once): ${NEW_PASSWORD}"
   fi
-elif [ "${CODE}" = "200" ]; then
-  pass "password already changed earlier (no change required)"
 else
-  die "unexpected status ${CODE} from /v1.0/api/connectors after sign-in"
+  pass "password already changed earlier (no change needed)"
 fi
 AUTH=(-H "Authorization: Bearer ${TOKEN}")
 
