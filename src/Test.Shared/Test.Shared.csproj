@@ -12,6 +12,8 @@
     <ProjectReference Include="..\Hugo.Connectors.Storage\Hugo.Connectors.Storage.csproj" />
     <ProjectReference Include="..\Hugo.Connectors.Sql\Hugo.Connectors.Sql.csproj" />
     <ProjectReference Include="..\Hugo.Connectors.Logging\Hugo.Connectors.Logging.csproj" />
+    <!-- Built first so the plugin loader suite can copy its output into a plugin directory; never referenced. -->
+    <ProjectReference Include="..\Test.Plugin\Test.Plugin.csproj" ReferenceOutputAssembly="false" Private="false" />
   </ItemGroup>
 
   <ItemGroup>

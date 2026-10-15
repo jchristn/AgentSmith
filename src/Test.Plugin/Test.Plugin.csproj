@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- A tiny connector plugin used by the plugin loader suite (P3.21). It references only the connector contract, as a
+       real plugin must; Test.Shared builds it without referencing its assembly and copies its output into a plugin
+       directory at test time. -->
+  <PropertyGroup>
+    <RootNamespace>Test.Plugin</RootNamespace>
+    <AssemblyName>Test.Plugin</AssemblyName>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hugo.Connectors.Abstractions\Hugo.Connectors.Abstractions.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+  </ItemGroup>
+
+</Project>

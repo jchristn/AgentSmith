@@ -338,13 +338,40 @@ namespace Hugo.Core.Instructions
                     {
                         warnings.Add("Connector instructions " + key + " for " + item.Binding.Alias + " failed to render (" + e.Message + "); the text is used as written.");
                     }
-                    connectorText = Mark(sources, resolved.Key, resolved.Layer, resolved.Version, item.Binding.Alias, content);
+                    connectorText = Mark(sources, resolved.Key, resolved.Layer, resolved.Version, item.Binding.Alias, NestHeadings(content));
                 }
             }
             if (bindingText.Length == 0 || item.Binding.InstructionMode == InstructionModeEnum.Inherit) return connectorText;
             string marked = Mark(sources, "binding.instructions", PromptLayerEnum.Tenant, 0, item.Binding.Alias, bindingText);
             if (item.Binding.InstructionMode == InstructionModeEnum.Replace) return marked;
             return connectorText.Length == 0 ? marked : connectorText + "\n\n" + marked;
+        }
+
+        private static string NestHeadings(string content)
+        {
+            // Connector instructions are written as standalone Markdown; inside a resource section (a level 2 heading)
+            // their headings shift so the highest one becomes level 3 and they read as subsections of that resource.
+            string[] lines = content.Split('\n');
+            int[] levels = new int[lines.Length];
+            int highest = 7;
+            bool fenced = false;
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (lines[i].StartsWith("```", StringComparison.Ordinal)) fenced = !fenced;
+                if (fenced || !lines[i].StartsWith("#", StringComparison.Ordinal)) continue;
+                int level = 0;
+                while (level < lines[i].Length && lines[i][level] == '#') level++;
+                if (level >= lines[i].Length || lines[i][level] != ' ') continue;
+                levels[i] = level;
+                highest = Math.Min(highest, level);
+            }
+            int shift = highest > 6 ? 0 : Math.Max(0, 3 - highest);
+            if (shift == 0) return content;
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (levels[i] > 0) lines[i] = new string('#', Math.Min(6, levels[i] + shift)) + lines[i].Substring(levels[i]);
+            }
+            return String.Join("\n", lines);
         }
 
         private async Task<string> KnowledgeAsync(BoundResource item, CancellationToken token)

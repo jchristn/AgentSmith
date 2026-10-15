@@ -42,6 +42,7 @@ namespace Test.Shared
                 suites.AddRange(Test.Shared.Integration.ModelAgentSuite.Build());
                 suites.AddRange(Test.Shared.Integration.IntegrationUnitSuite.Build());
                 suites.AddRange(Test.Shared.Integration.IntegrationDataSuite.Build());
+                suites.AddRange(Test.Shared.Integration.SnapshotPluginSuite.Build());
                 return suites;
             }
         }
