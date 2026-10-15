@@ -83,16 +83,16 @@ These rules keep the plan honest:
 | Phase | Name | Milestone | Status | Done / Total |
 |---|---|---|---|---|
 | 0 | Repository bootstrap | M1 | In progress | 9 / 16 |
-| 1 | Core foundation: settings, data layer, identity, RBAC, sessions, audit, history, telemetry base | M1 | Not started | 0 / 44 |
+| 1 | Core foundation: settings, data layer, identity, RBAC, sessions, audit, history, telemetry base | M1 | In progress | 0 / 44 |
 | 2 | Secrets vault | M1 | Not started | 0 / 12 |
-| 3 | Connector framework and tool invocation pipeline | M1 | In progress | 1 / 24 |
-| 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | Not started | 0 / 30 |
-| 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | Not started | 0 / 20 |
+| 3 | Connector framework and tool invocation pipeline | M1 | In progress | 2 / 24 |
+| 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | In progress | 8 / 30 |
+| 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | In progress | 0 / 20 |
 | 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | Not started | 0 / 24 |
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Not started | 0 / 22 |
 | 8 | Dashboard | M1 | Not started | 0 / 52 |
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | Not started | 0 / 15 |
-| 10 | Docker, testbed, and observability stack | M1 | Not started | 0 / 24 |
+| 10 | Docker, testbed, and observability stack | M1 | In progress | 0 / 24 |
 | 11 | Documentation and Postman | M1 | Not started | 0 / 18 |
 | 12 | MVP verification (milestone M1) | M1 | Not started | 0 / 14 |
 | 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | Not started | 0 / 38 |
@@ -1648,7 +1648,7 @@ Each phase lists its tasks in rough execution order. An italic *Accept:* note st
 - [x] P0.8 `DOCKERHUB_README.md` skeleton with explicit asset URLs.  | claude 2026-10-14 DOCKERHUB_README skeleton with raw.githubusercontent asset URLs
 - [x] P0.9 `assets/` logo and icon (placeholder art acceptable until P16).  | claude 2026-10-14 user-supplied assets/logo.png; generated assets/icon.png (512px), assets/logo.ico and assets/favicon.ico (16 to 256px, PNG-in-ICO)
 - [ ] P0.10 `dashboard/` scaffold: Vite 6 + React 19 + React Router 7, ESLint flat config, Prettier, Vitest, Playwright, i18n skeleton. *Accept:* `npm run lint`, `npm test`, and `npm run build` pass.
-- [ ] P0.11 `sdk/csharp`, `sdk/python`, `sdk/js` scaffolds with READMEs and empty harnesses.
+- [x] P0.11 `sdk/csharp`, `sdk/python`, `sdk/js` scaffolds with READMEs and empty harnesses.  | claude 2026-10-14 sdk/csharp, sdk/python, sdk/js scaffolds with READMEs; harnesses land in Phase 9
 - [~] P0.12 GitHub Actions `build-test.yaml`: restore, build, Touchstone on SQLite, Touchstone on PostgreSQL (service container), dashboard lint, unit, and i18n check, on every push and PR.  | claude 2026-10-14 build-test.yaml written (SQLite and PostgreSQL service container); first green run pending
 - [x] P0.13 Em-dash guard: a CI step fails if U+2014 appears in any tracked text file.  | claude 2026-10-14 scripts/check-em-dash.sh/.bat, wired into CI
 - [ ] P0.14 Create the `docker/` layout with placeholder `compose.yaml`, `update.bat`/`.sh`, `factory/reset.bat`/`.sh`.
@@ -1757,7 +1757,7 @@ Tests and runners
 - [ ] P3.21 A test plugin assembly built in CI and loaded by a suite. *Accept:* loads, registers, executes, and unloads.
 - [ ] P3.22 Pipeline suites: matrix, tool rules, ceiling, lockdown, approval approve, reject, expire, cancel, scrubbing, limits, timeouts, cancellation.
 - [ ] P3.23 Tenant lockdown routes and behavior.
-- [ ] P3.24 `docs/CONNECTOR_AUTHORING.md` draft from section 8.5, with the `echo` connector as the worked example.
+- [x] P3.24 `docs/CONNECTOR_AUTHORING.md` draft from section 8.5, with the `echo` connector as the worked example.  | claude 2026-10-14 docs/CONNECTOR_AUTHORING.md with contract walkthrough, effect rules, worked example, checklist
 
 ### Phase 4: Connectors wave 1 (M1)
 
@@ -1789,16 +1789,16 @@ SQL
 - [ ] P4.19 Tools `sql_activity`, `sql_table_sizes`, `sql_locks` per engine. Default instructions for all four. SQL testbed suites.
 
 Papertrail
-- [ ] P4.20 Verify the current Papertrail API (search, systems, groups, saved searches, auth header, paging, rate limits) and record the shapes in `docs/CONNECTORS.md`.
-- [ ] P4.21 `papertrail` connector and tools `logs_search`, `logs_tail`, `logs_list_systems`, `logs_list_groups`, `logs_list_saved_searches`, `logs_volume`.
-- [ ] P4.22 `PapertrailStub` in `Test.Shared` replaying the recorded shapes, plus suites (paging, rate limit 429 handling, time range caps).
-- [ ] P4.23 Default instructions `connector.papertrail.instructions`.
+- [x] P4.20 Verify the current Papertrail API (search, systems, groups, saved searches, auth header, paging, rate limits) and record the shapes in `docs/CONNECTORS.md`.  | claude 2026-10-14 Papertrail API verified; facts and sources in docs/connectors/logging-api-notes.md (fold into docs/CONNECTORS.md at P4.29)
+- [x] P4.21 `papertrail` connector and tools `logs_search`, `logs_tail`, `logs_list_systems`, `logs_list_groups`, `logs_list_saved_searches`, `logs_volume`.  | claude 2026-10-14 papertrail connector: logs_search, logs_tail, logs_volume, logs_list_systems, logs_list_groups, logs_list_saved_searches; shared HttpClient instead of RestWrapper (direct access to rate-limit headers)
+- [x] P4.22 `PapertrailStub` in `Test.Shared` replaying the recorded shapes, plus suites (paging, rate limit 429 handling, time range caps).  | claude 2026-10-14 PapertrailStub (HttpListener, 127.0.0.1) and suites: paging, time range cap, 429 with Retry-After, 401, timeout, cancellation
+- [x] P4.23 Default instructions `connector.papertrail.instructions`.  | claude 2026-10-14 connector.papertrail.instructions.md embedded
 
 SolarWinds Observability
-- [ ] P4.24 Verify the current SWO API (logs search, entities, metrics, alerts, data centers, auth) and record the shapes.
-- [ ] P4.25 `solarwinds-observability` connector and tools `logs_search`, `logs_tail`, `swo_list_entities`, `swo_get_entity`, `swo_query_metric`, `swo_list_alerts`.
-- [ ] P4.26 `SwoStub` plus suites. Default instructions.
-- [ ] P4.27 Shared `logs` family routing (one `logs_search` tool across providers, with `providerOptions`).
+- [x] P4.24 Verify the current SWO API (logs search, entities, metrics, alerts, data centers, auth) and record the shapes.  | claude 2026-10-14 SWO public API verified from OpenAPI spec 1.0.19; ambiguities (direction semantics, nextPage form, pageSize max, rate limits) recorded in the notes
+- [x] P4.25 `solarwinds-observability` connector and tools `logs_search`, `logs_tail`, `swo_list_entities`, `swo_get_entity`, `swo_query_metric`, `swo_list_alerts`.  | claude 2026-10-14 solarwinds-observability connector: logs_search, logs_tail, swo_list_entities, swo_get_entity, swo_query_metric; swo_list_alerts omitted because the public API has no alert listing
+- [x] P4.26 `SwoStub` plus suites. Default instructions.  | claude 2026-10-14 SwoStub, suites, connector.solarwinds-observability.instructions.md
+- [x] P4.27 Shared `logs` family routing (one `logs_search` tool across providers, with `providerOptions`).  | claude 2026-10-14 logs_search and logs_tail share one schema plus providerOptions; providers reject unsupported options. Registry-level parity check is a P3.3 follow-up
 
 Wrap-up
 - [ ] P4.28 Health sweep background job: periodic `TestConnectionAsync` per active resource (configurable, off by default for expensive connectors), `hugo_resource_health` gauge.
@@ -1820,7 +1820,7 @@ Wrap-up
 - [ ] P5.11 `InstructionCompiler` with source map, token estimate, and cache invalidation on every relevant change.
 - [ ] P5.12 Compiled instruction and caller tool-view routes (`compiled-instructions`, `tools`).
 - [ ] P5.13 Profile resolution service (D-018) used by every surface, with credential `lock_to_profile`.
-- [ ] P5.14 Write `persona.agent-smith` (Appendix A), `persona.neutral`, `system.safety`, `system.tool-usage`, the preambles, `section.resource`, and the A2A skill text.
+- [~] P5.14 Write `persona.agent-smith` (Appendix A), `persona.neutral`, `system.safety`, `system.tool-usage`, the preambles, `section.resource`, and the A2A skill text.  | claude 2026-10-14 Built-in templates drafted in src/Hugo.Core/Seed/Prompts (instructions.root, personas, safety, tool usage, preambles, section.resource, a2a skill); wiring in P5.3
 - [ ] P5.15 Review every wave 1 connector's default instructions against the compiled output for the joel scenario. *Accept:* snapshot committed and reviewed by the user.
 - [ ] P5.16 Tool visibility filter (section 11.3) shared by MCP, chat, and the tools route.
 - [ ] P5.17 Suites: layer resolution, reset at each layer, versions, append and replace, compiled snapshot, visibility, profile resolution order.
@@ -1975,10 +1975,10 @@ Quality
 - [ ] P10.6 `docker/update.bat` and `update.sh` per REPOSITORY_REQUIREMENTS.md.
 - [ ] P10.7 `docker/factory/compose.yaml`, seeded data, `reset.bat` and `reset.sh`.
 - [ ] P10.8 Factory demo content: demo resources pointing at the testbed, a profile with eight bindings (the joel scenario), and a demo credential.
-- [ ] P10.9 Prometheus config scraping `hugo-server:8800/metrics` on the internal network.
-- [ ] P10.10 Tempo config (OTLP gRPC and HTTP), pinned to 2.6.1.
-- [ ] P10.11 Loki config and Radiant log export.
-- [ ] P10.12 Grafana provisioning (datasources with UIDs `prometheus`, `tempo`, `loki`; dashboards provider folder `Hugo`).
+- [~] P10.9 Prometheus config scraping `hugo-server:8800/metrics` on the internal network.  | claude 2026-10-14 docker/observability/prometheus.yaml scrapes hugo-server:8800; verified when compose lands (P10.3)
+- [~] P10.10 Tempo config (OTLP gRPC and HTTP), pinned to 2.6.1.  | claude 2026-10-14 docker/observability/tempo.yaml from Garrison; Alloy OTLP receiver forwards to Tempo
+- [~] P10.11 Loki config and Radiant log export.  | claude 2026-10-14 docker/observability/loki.yaml and Alloy container log shipping
+- [~] P10.12 Grafana provisioning (datasources with UIDs `prometheus`, `tempo`, `loki`; dashboards provider folder `Hugo`).  | claude 2026-10-14 Grafana datasources (UIDs prometheus, tempo, loki) and Hugo dashboards provider
 - [ ] P10.13 Grafana dashboard: Overview.
 - [ ] P10.14 Grafana dashboard: HTTP.
 - [ ] P10.15 Grafana dashboard: Agent and Chat.
