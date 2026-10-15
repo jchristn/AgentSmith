@@ -10,7 +10,7 @@ This document is the build plan. Whoever does the work executes it, annotates it
 | Product version at plan creation | `0.1.0-alpha` (agents never change versions without explicit approval, see `VERSIONING.md`) |
 | License | MIT |
 | Primary language | C# (.NET 8 and .NET 10), React 19 dashboard |
-| Deployment target | Docker Compose (single node). Kubernetes assets are out of scope until after 1.0 |
+| Deployment target | Docker only: Docker Compose (`docker/`), Kubernetes (`k8s/`), and minikube (`minikube/`) (D-045). Running from source is for development, never deployment |
 | Application databases | SQLite and PostgreSQL only (D-003) |
 | Plan owner | Joel Christner |
 | Plan created | 2026-10-14 |
@@ -92,12 +92,13 @@ These rules keep the plan honest:
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | In progress | 1 / 22 |
 | 8 | Dashboard | M1 | In progress | 47 / 53 |
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | In progress | 14 / 15 |
-| 10 | Docker, testbed, and observability stack | M1 | In progress | 13 / 24 |
-| 11 | Documentation and Postman | M1 | Not started | 0 / 18 |
+| 10 | Docker, testbed, and observability stack | M1 | In progress | 14 / 24 |
+| 11 | Documentation and Postman | M1 | In progress | 0 / 18 |
 | 12 | MVP verification (milestone M1) | M1 | Not started | 0 / 14 |
 | 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | In progress | 30 / 38 |
 | 14 | Knowledge, runbooks, and operator conveniences | M2 | Not started | 0 / 12 |
 | 15 | Benchmarking | M3 | Not started | 0 / 16 |
+| 17 | Kubernetes and minikube | M2 | Not started | 0 / 16 |
 | 16 | Hardening, simulated user testing, and 1.0 release | M4 | Not started | 0 / 18 |
 
 Milestones:
@@ -105,7 +106,7 @@ Milestones:
 | Milestone | Definition | Phases |
 |---|---|---|
 | **M1: MVP** | One Hugo server in Docker on SQLite or PostgreSQL, multi-tenant with RBAC. The wave 1 connectors (SSH, S3, Azure Blob, GCS, SQLite, MySQL, SQL Server, PostgreSQL, Papertrail, SolarWinds Observability) work against the testbed. Agent profiles with editable default instructions, an encrypted secrets vault, approvals, and dashboard chat. MCP, A2A, REST, three SDKs, Postman, full documentation, and the observability stack. | 0 to 12 |
-| **M2: Full stack coverage** | Wave 2 connectors (Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP servers, remote A2A agents), resource actions (saved parameterized commands), knowledge notes with embeddings. | 13, 14 |
+| **M2: Full stack coverage** | Wave 2 connectors (Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP servers, remote A2A agents), resource actions (saved parameterized commands), knowledge notes with embeddings, and Kubernetes and minikube deployment. | 13, 14, 17 |
 | **M3: Measured** | Benchmark suite, CI gate, round 0 results. | 15 |
 | **M4: 1.0** | Security review, simulated user testing, upgrade path, release process. | 16 |
 
@@ -130,7 +131,7 @@ Milestones:
   - Dynamic tools (D-044): add optional `IDynamicToolProvider` so external MCP tools appear as `<prefix>__<tool>`; fence remote instructions inside compiled instructions (P13.28).
   - SSH `jumpResourceName` (reuse another resource as bastion) needs a related-resource resolver; the jump settings cover the case today.
 - Next after the merges: Phase 3 pipeline (resources, invocation service, approvals), Phase 5 profiles and instructions, Phase 6 runtime, Phase 7 protocols.
-- Decisions D-001 through D-044 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
+- Decisions D-001 through D-045 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
 - Before P0.1, confirm the open questions in [section 23](#23-risks-and-open-questions) that are marked "before Phase 0".
 
 ---
@@ -218,7 +219,7 @@ This journey is the acceptance story for M1. Phase 12 replays it end to end.
 | ID | Decision | Rationale | Affects |
 |---|---|---|---|
 | D-001 | The product is named Hugo. The default agent profile is named `Hugo`, its persona self-name is `Agent Smith`, and it addresses the operator as `Mr. Anderson`. All three are editable profile fields with these defaults. | User requirement. | 10, Appendix A |
-| D-002 | Delivery is Docker Compose on a single node for M1 through 1.0. Kubernetes manifests are out of scope until after 1.0. | User requirement ("It should run in docker"). Garrison shows the Kubernetes path if it is needed later. | 17 |
+| D-002 | (Superseded by D-045.) Delivery is Docker Compose on a single node for M1 through 1.0. Kubernetes manifests are out of scope until after 1.0. | User requirement ("It should run in docker"). Garrison shows the Kubernetes path if it is needed later. | 17 |
 | D-003 | Application database support is SQLite and PostgreSQL only. BACKEND_ARCHITECTURE.md requires `Mysql` and `SqlServer` provider folders; this is a deliberate, recorded divergence. `DatabaseTypeEnum` contains only `Sqlite` and `Postgresql`, provider folders exist only for those two, and the provider test matrix runs on both. The data layer keeps the provider seam, so adding a provider later means adding a folder. Note that this governs Hugo's own storage only. Hugo's SQL connectors still reach SQLite, MySQL, SQL Server, and PostgreSQL targets. | User requirement ("sqlite and postgres out of the box, others be damned"). | 5, 7, 16, 20 |
 | D-004 | Watson `7.3.1` is the only HTTP stack. Routes are registered through `server.Routes.PreAuthentication` and `server.Routes.PostAuthentication` (`Static`, `Parameter`) per BACKEND_ARCHITECTURE.md. `server.Get(...)`-style helpers are not used. | BACKEND_ARCHITECTURE.md. Version aligns with Voltaic 2.3.0. | 6, 14 |
 | D-005 | Voltaic `2.3.0` provides MCP (server and client). `McpHttpServer` runs on an internal loopback port, and the Watson listener proxies `/mcp` and `/mcp/{profile}` to it (pattern copied from Garrison `GarrisonMcpServer` and `McpClusterProxy`). One public port serves REST, MCP, and A2A. `tools/list` is answered per caller through `RegisterMethod("tools/list", ...)`, because Voltaic otherwise lists the same tools to every session. | Voltaic servers are standalone `HttpListener`s; Garrison already solved both problems. | 7, 14 |
@@ -261,6 +262,7 @@ This journey is the acceptance story for M1. Phase 12 replays it end to end.
 | D-042 | Integration details. Binding deny patterns apply only to per-call classified tools and match the primary argument (`x-hugo-primary`, else the first of command, sql, statement, query, script, expression, else the first required string); an invalid or timed-out pattern counts as a match. `allowKnowledgeUpdates` is enforced by the knowledge store, so a tool can still return a draft when writes are refused. Validation errors return 400 `SettingsInvalid` (not 422) to match the existing error shape. Tenant-layer template resets deactivate the override and keep history. The instruction compiler shifts connector instruction headings under each resource heading. Admin direct invoke (`/resources/{id}/invoke`) needs Execute on Resource and uses the resource ceiling as the access mode. | Recorded from the integration work. | 8.6, 10, 14 |
 | D-043 | Compact connector instructions (user direction 2026-10-14 after reviewing the eight-binding snapshot). Every connector type ships `connector.<type>.compact` next to its full instructions, editable in the same layers. Profiles have `instructionDetail` (Auto, Full, Compact); Auto uses compact text when the profile has more than `Instructions.CompactBindingThreshold` bindings (default 3). Compact sections tell the agent to call `hugo_describe_resource` for the full instructions, which that tool and the `hugo://resources/{alias}` MCP resource always return. | Large multi-resource profiles were producing about 50 KB of instructions; compact text keeps them near 10 KB without losing access to full guidance. | 10 |
 | D-044 | External MCP servers and remote A2A agents are reached through fixed tools (`mcp_list_tools`, `mcp_call_tool`, `mcp_list_resources`, `mcp_read_resource`, `a2a_get_card`, `a2a_delegate`, `a2a_get_task`) rather than per-resource `<prefix>__<tool>` names, because the connector contract's tool list is static. A proposed optional `IDynamicToolProvider` interface would let the server expose remote tools as first-class tools later; tracked as a follow-up. An A2A agent asking for input returns a normal tool result, not a Hugo approval. | Works within the existing contract today; the dynamic interface is additive. | 9.2 |
+| D-045 | Deployment is container-only (user direction 2026-10-14). Hugo is deployed with Docker Compose (`docker/`), Kubernetes (`k8s/`: Kustomize base, components, k3s and production overlays, a Helm chart, and scripts), or minikube (`minikube/`: its own overlay and scripts). The README documents only these; build-and-test instructions live in `docs/DEVELOPMENT.md` and are explicitly not a deployment method. Native installers stay out of scope (D-026). Hugo runs as one replica on every runtime until the event hub and approval signals are shared across replicas (D-027); the manifests say so. This supersedes D-002. | The user wants one deployment model, containers, with Kubernetes and minikube as first-class targets. | 16, 17, 22 Phase 17 |
 
 ---
 
@@ -1401,8 +1403,24 @@ Hugo/
     testbed/
       compose.yaml           # connector test targets (D-030)
       seed/                  # SQL seed scripts, sshd keys, bucket fixtures
+  k8s/
+    base/                    # Deployments, Services, ConfigMap, PVC, ServiceAccount, NetworkPolicy, kustomization.yaml
+    components/
+      postgres/              # StatefulSet, Service, Secret template
+      observability/         # Prometheus, Tempo, Loki, Alloy, Grafana with the Hugo dashboards
+      ingress/               # optional Ingress for dashboard and API
+    overlays/
+      k3s/
+      production/
+    helm/hugo/               # Helm chart mirroring the Kustomize base and components
+    scripts/                 # deploy, generate-secrets, port-forward, update, factory-reset, wait-rollout, smoke-test (.sh and .bat)
+    README.md
+  minikube/
+    overlay/                 # kustomization that layers minikube specifics on k8s/base and components
+    scripts/                 # start, deploy, port-forward, update, factory-reset, teardown, smoke-test (.sh and .bat)
+    README.md
   docs/
-    ARCHITECTURE.md, CONFIGURATION.md, CONNECTORS.md, CONNECTOR_AUTHORING.md, SECURITY.md, SAFETY_MODEL.md,
+    ARCHITECTURE.md, KUBERNETES.md, CONFIGURATION.md, CONNECTORS.md, CONNECTOR_AUTHORING.md, SECURITY.md, SAFETY_MODEL.md,
     PROMPTS.md, TELEMETRY.md, DOCKER.md, DEVELOPMENT.md, I18N.md, UPGRADING.md, TROUBLESHOOTING.md
   sdk/
     csharp/                  # Hugo.Sdk + test harness
@@ -1483,6 +1501,19 @@ First boot runs idempotently in `InitializeAsync`:
 - **Tenant and admins.** The `default` tenant. A system administrator `admin@hugo.local` (password `password`, `must_change_password = true`). A tenant user `anderson@hugo.local`, Thomas Anderson (password `password`, must change, `IsTenantAdmin`).
 - **Profile and roles.** The `Hugo` profile as the tenant default, the built-in roles, and the global prompt defaults from Built-in.
 - **Bootstrap credential.** No credentials are seeded in the plain profile. The factory profile seeds a demo credential `access_hugo_usertest_not_for_production` bound to `Hugo`, plus demo resources pointing at the testbed (`docker/factory/seed`).
+
+### 17.5 Kubernetes and minikube (D-045)
+
+`k8s/` and `minikube/` deploy the same images and the same configuration model as Docker Compose, adapted from Garrison's Kubernetes assets (`~/Code/Garrison/k8s`).
+
+- **Base.** One `hugo-server` Deployment and one `hugo-dashboard` Deployment, each with a Service. The settings file is a ConfigMap. Keys (`HUGO_MASTER_KEY`, `HUGO_AUTH_SIGNING_KEY`, database password, Grafana password) are a Secret created by `generate-secrets` and never committed. A PersistentVolumeClaim holds `/app/data`. Pods run non-root with a read-only root filesystem where the image allows. NetworkPolicies keep `/metrics` and the database internal.
+- **Replicas.** The server runs as one replica with the `Recreate` strategy, because the event hub and approval wake-ups are in-process (D-027). With PostgreSQL the database is ready for more, but scale-out waits until those signals are shared.
+- **Health.** Readiness, liveness, and startup probes use `curl` against `127.0.0.1` inside the container with `periodSeconds: 5` and `failureThreshold: 2`, the Kubernetes form of REPOSITORY_REQUIREMENTS.md items 11 and 12. Dependency ordering uses init containers that wait for PostgreSQL to report healthy.
+- **Components.** `postgres` (StatefulSet with a PVC) is optional; SQLite on the PVC is the default. `observability` deploys Prometheus, Tempo, Loki, Alloy, and Grafana with the same provisioning and dashboards as Compose (`assets/grafana`). `ingress` exposes the dashboard and API through the cluster's ingress controller.
+- **Overlays.** `k3s` targets a local or edge k3s cluster with its local-path storage class and Traefik ingress. `production` adds resource requests and limits, pod disruption budgets, and an external PostgreSQL option.
+- **Helm.** `k8s/helm/hugo` mirrors the base and components with values for image tags, persistence, database, observability, and ingress. A CI check renders both and compares the objects.
+- **minikube.** `minikube/` is its own directory so a developer or evaluator can stand up the whole product with one script: `start` (creates a minikube profile with the needed addons), `deploy` (loads or pulls images, applies the overlay, waits for rollout), `port-forward` (dashboard on 8801, API on 8800, Grafana on 3000), `update`, `factory-reset`, `teardown`, and `smoke-test`. Every script has `.sh` and `.bat` versions.
+- **Scripts.** The Kubernetes counterparts of `docker/update.bat` and `docker/factory/reset.bat` are `update` (pull images, rolling restart, report pod status, non-destructive) and `factory-reset` (delete PVCs and Secrets, redeploy).
 
 ### 17.4 Testbed
 
@@ -2043,11 +2074,11 @@ Quality
 - [ ] P10.21 `compose.docker-socket.yaml` override for the Docker connector, documented.
 - [ ] P10.22 Multi-arch image build scripts (`build-server`, `build-dashboard`, `build-all`, `.sh` and `.bat`).
 - [ ] P10.23 Image publication to Docker Hub (`jchristn/hugo-server`, `jchristn/hugo-dashboard`) when the user approves.
-- [ ] P10.24 `docs/DOCKER.md` (networking to targets, volumes, keys, Postgres profile, upgrade, factory reset).
+- [x] P10.24 `docs/DOCKER.md` (networking to targets, volumes, keys, Postgres profile, upgrade, factory reset).  | claude 2026-10-14 docs/DOCKER.md: services, first start and keys, configuration, PostgreSQL, reaching your own systems, Docker socket override, data and backups, update and reset, health
 
 ### Phase 11: Documentation and Postman (M1)
 
-- [ ] P11.1 `README.md`: what Hugo is, the Mr. Anderson journey, quick start (docker compose), connect Claude Code, architecture, connectors, safety model, links. Benchmarks section added in Phase 15.
+- [~] P11.1 `README.md`: what Hugo is, the Mr. Anderson journey, quick start (docker compose), connect Claude Code, architecture, connectors, safety model, links. Benchmarks section added in Phase 15.  | claude 2026-10-14 README rewritten: Docker is the only deployment (D-045), dashboard and service URLs, update and reset; logo uses a relative path (raw URLs break while the repository is private); developer instructions moved to docs/DEVELOPMENT.md
 - [ ] P11.2 `DOCKERHUB_README.md` from the README, with explicit asset URLs.
 - [ ] P11.3 `REST_API.md`: every route with method, path, parameters, bodies, status codes, auth, and examples.
 - [ ] P11.4 `MCP_API.md`: every tool with name, purpose, input schema, output shape, effect, and examples, plus prompts and resources, the approval flow, and client configuration for Claude Code and others.
@@ -2060,7 +2091,7 @@ Quality
 - [ ] P11.11 `docs/SECURITY.md` (tenancy, auth schemes, RBAC, built-in roles, secrets, reveal, master key handling and rotation).
 - [ ] P11.12 `docs/SAFETY_MODEL.md` (effects, access modes, approvals per surface, lockdown, least-privilege upstream guidance).
 - [ ] P11.13 `docs/TELEMETRY.md` (generated catalog plus dashboards).
-- [ ] P11.14 `docs/DEVELOPMENT.md` (build, test on both providers, testbed, stub LLM, adding a connector).
+- [~] P11.14 `docs/DEVELOPMENT.md` (build, test on both providers, testbed, stub LLM, adding a connector).  | claude 2026-10-14 docs/DEVELOPMENT.md: build, tests on both providers, testbed, rebuilding images, dashboard dev server as a development aid only
 - [ ] P11.15 `docs/I18N.md` (adding locales, extraction, pseudo-locales, glossary).
 - [ ] P11.16 `docs/TROUBLESHOOTING.md` and `docs/UPGRADING.md`.
 - [ ] P11.17 `CHANGELOG.md` for `0.1.0-alpha`.
@@ -2072,7 +2103,7 @@ Quality
 - [ ] P12.2 Dashboard unit, Playwright, i18n, and visual QA suites green.
 - [ ] P12.3 SDK harnesses green.
 - [ ] P12.4 Newman run of the full Postman collection against the factory stack, zero failures.
-- [ ] P12.5 Clean-machine Docker quick start following the README literally. *Accept:* time to first chat recorded, and every doc deviation fixed.
+- [ ] P12.5 Clean-machine Docker quick start following the README literally (Docker is the only documented deployment until Phase 17 adds Kubernetes and minikube). *Accept:* time to first chat recorded, and every doc deviation fixed.
 - [ ] P12.6 Primary journey (section 3.6) replayed end to end with a real model endpoint and the testbed. *Accept:* screenshots and transcript in the annotation.
 - [ ] P12.7 Claude Code over MCP with the joel scenario (eight bindings), confirming compiled instructions and the tool list.
 - [ ] P12.8 A2A interop: one external A2A client (Voltaic sample client or another agent framework) completes a task, including an approval.
@@ -2175,6 +2206,25 @@ Wrap-up
 - [ ] P15.15 Baselines (`baselines.json`) and the history table.
 - [ ] P15.16 Benchmark Definition of Done checklist confirmed.
 
+### Phase 17: Kubernetes and minikube (M2, D-045)
+
+- [ ] P17.1 `k8s/base`: server and dashboard Deployments (one server replica, Recreate strategy), Services, ConfigMap from `docker/hugo/hugo.json` adapted for Kubernetes, PVC for `/app/data`, ServiceAccount, security contexts, NetworkPolicies, kustomization. *Accept:* `kubectl kustomize k8s/base` renders and `kubeconform` validates it.
+- [ ] P17.2 Probes: readiness, liveness, and startup via `curl` to `127.0.0.1` in the container (`periodSeconds: 5`, `failureThreshold: 2`); init container waiting for PostgreSQL when that component is used.
+- [ ] P17.3 `k8s/scripts/generate-secrets.sh/.bat`: create the Secret with generated master key, signing key, database and Grafana passwords; print where to back them up; never write them into the repository.
+- [ ] P17.4 `k8s/components/postgres`: StatefulSet, Service, PVC, Secret wiring, `HUGO_DB_TYPE=Postgresql`.
+- [ ] P17.5 `k8s/components/observability`: Prometheus (scraping the server Service), Tempo, Loki, Alloy (pod logs through the Kubernetes API), Grafana with the Hugo dashboards from `assets/grafana`; datasource UIDs unchanged.
+- [ ] P17.6 `k8s/components/ingress`: Ingress for the dashboard and API (MCP and A2A included), with SSE-safe annotations (buffering off, long timeouts).
+- [ ] P17.7 `k8s/overlays/k3s`: local-path storage, Traefik ingress, image pull policy for locally imported images.
+- [ ] P17.8 `k8s/overlays/production`: requests and limits, PodDisruptionBudget, topology hints, external PostgreSQL option, TLS on ingress.
+- [ ] P17.9 `k8s/helm/hugo`: chart mirroring base and components; `values.yaml` documented; a CI check renders Helm and Kustomize and compares the objects.
+- [ ] P17.10 `k8s/scripts`: deploy, port-forward, update (pull, rolling restart, pod status; non-destructive), factory-reset (delete PVCs and Secrets, redeploy, typed confirmation), wait-rollout, smoke-test (health, login, password change, list connectors); `.sh` and `.bat` pairs.
+- [ ] P17.11 `minikube/overlay`: minikube storage class, NodePort or ingress addon, image loading from the local Docker daemon (`minikube image load`) or Docker Hub.
+- [ ] P17.12 `minikube/scripts`: start (profile with CPU and memory defaults and the ingress and metrics-server addons), deploy, port-forward (8800, 8801, 3000), update, factory-reset, teardown, smoke-test; `.sh` and `.bat` pairs.
+- [ ] P17.13 Live verification on minikube: deploy from a clean profile, smoke test passes, the primary journey works through the dashboard, Grafana shows data, update keeps data, factory reset clears it. *Accept:* transcript and screenshots in the annotation.
+- [ ] P17.14 Live verification on k3s (k3s in Docker is acceptable): the same checks with the k3s overlay, with and without the postgres and observability components.
+- [ ] P17.15 `docs/KUBERNETES.md` and `minikube/README.md`, plus `k8s/README.md`: choosing a runtime, secrets first, deploy, reach, update, reset, back up (PVC plus the Secret together), and the single-replica limit.
+- [ ] P17.16 README, DOCKERHUB_README, and the simulated user testing inventory list all three deployment paths; CI renders the manifests and Helm chart on every push.
+
 ### Phase 16: Hardening, simulated user testing, and 1.0 (M4)
 
 - [ ] P16.1 Threat model document (`docs/THREAT_MODEL.md`) covering prompt injection via tool output, credential exfiltration, SSRF through HTTP and MCP connectors, approval spoofing, tenant escape, and plugin trust.
@@ -2192,7 +2242,7 @@ Wrap-up
 - [ ] P16.13 Release workflow (`release.yaml`): images, SDK packages, CLI tool, GitHub Release notes.
 - [ ] P16.14 SDK publication (NuGet, PyPI, npm) when the user approves.
 - [ ] P16.15 Revisit INSTALLERS.md for the CLI (D-026) and decide on native installers.
-- [ ] P16.16 Kubernetes deployment assets decision (D-002 revisit).
+- [-] P16.16 Kubernetes deployment assets decision (D-002 revisit).  | claude 2026-10-14 superseded by D-045 and Phase 17: Kubernetes and minikube are planned for M2
 - [ ] P16.17 Version bump to `1.0.0` only on explicit user approval (VERSIONING.md).
 - [ ] P16.18 1.0 sign-off recorded in the Decision Log.
 
