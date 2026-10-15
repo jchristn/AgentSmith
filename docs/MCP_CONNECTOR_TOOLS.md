@@ -3204,13 +3204,11 @@ Set the replica count of a Deployment, StatefulSet, ReplicaSet, or a custom reso
 
 **Effect rule.** Write. `replicas: 0` is Destructive, because it stops the workload.
 
-**Note.** DaemonSets have no scale subresource and return `not_supported`, despite the `name` description.
-
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `resource` | string | yes | Alias of the bound resource. Added by Hugo; the allowed values are the caller's bindings for this family. |
 | `kind` | string | no | Kind with a scale subresource: Deployment (default), StatefulSet, ReplicaSet, or a custom resource that supports scale. Range: max length 253. |
-| `name` | string | yes | Name of the Deployment, StatefulSet, or DaemonSet. Range: min length 1, max length 253. |
+| `name` | string | yes | Name of the object to scale (a Deployment, StatefulSet, ReplicaSet, or custom resource with a scale subresource). DaemonSets run one pod per node and cannot be scaled. Range: min length 1, max length 253. |
 | `namespace` | string | no | Namespace. Defaults to the resource's default namespace. Range: max length 63. |
 | `apiVersion` | string | no | Optional apiVersion when a kind name exists in several API groups. Range: max length 253. |
 | `replicas` | integer | yes | Desired replica count. 0 stops the workload and is Destructive. Range: min 0, max 1000. |
@@ -3238,7 +3236,7 @@ deployment shop/checkout scaled from 2 to 4 replicas
 
 *Apply a manifest.* Base effect **Write**, classified per call. Connectors: `kubernetes`.
 
-Create or update objects with server-side apply (field manager 'hugo'). Works for every kind, including custom resources. Run with dryRun: true first to validate and preview. Write; Destructive when the manifest targets a destructive kind (RBAC, CRDs, namespaces, storage, webhooks), sets a field to null, uses force, or allows field removal. Applies that would silently remove fields are refused unless allowFieldRemoval is true.
+Create or update objects with server-side apply, as the field manager named by the resource's fieldManager setting (default hugo). Works for every kind, including custom resources. Run with dryRun: true first to validate and preview. Write; Destructive when the manifest targets a destructive kind (RBAC, CRDs, namespaces, storage, webhooks), sets a field to null, uses force, or allows field removal. Applies that would silently remove fields are refused unless allowFieldRemoval is true.
 
 **Effect rule.** `dryRun: true` is Read. Otherwise Write, and Destructive when a manifest object's kind is in the resource's `destructiveKinds`, a field is set to `null`, `force` is set, or `allowFieldRemoval` is set. An unparseable manifest is Destructive. A manifest namespace outside the allow list is rejected.
 

@@ -535,7 +535,7 @@ The `kubernetes` connector works with any conformant cluster through KubernetesC
 | `defaultNamespace` | String |  | pattern `^[a-z0-9]([-a-z0-9]*[a-z0-9])?$` | Namespace used when a call names none. Empty uses the first allowed namespace, else default. Must be in allowedNamespaces when that is set. |
 | `clusterScopedReads` | Boolean | `true` |  | Allow reading cluster-scoped kinds such as nodes, namespaces, and CRDs. Default true. Namespace objects outside allowedNamespaces stay hidden. |
 | `allowClusterScoped` | Boolean | `false` |  | Allow changes to cluster-scoped kinds: cordoning nodes, and applying or deleting namespaces, cluster roles, CRDs, and storage classes. Default false. |
-| `destructiveKinds` | StringList |  |  | Kinds whose apply is always Destructive, one per line. Empty uses the defaults: Namespace, Node, CustomResourceDefinition, APIService, ClusterRole, ClusterRoleBinding, Role, RoleBinding, ServiceAccount, PersistentVolume, PersistentVolumeClaim, StorageClass, NetworkPolicy, ResourceQuota, LimitRange, PriorityClass, MutatingWebhookConfiguration, ValidatingWebhookConfiguration, ValidatingAdmissionPolicy, ValidatingAdmissionPolicyBinding. |
+| `destructiveKinds` | StringList |  |  | Extra kinds whose apply is always Destructive, one per line. They are added to the built-in list, which always applies: Namespace, Node, CustomResourceDefinition, APIService, ClusterRole, ClusterRoleBinding, Role, RoleBinding, ServiceAccount, PersistentVolume, PersistentVolumeClaim, StorageClass, NetworkPolicy, ResourceQuota, LimitRange, PriorityClass, MutatingWebhookConfiguration, ValidatingWebhookConfiguration, ValidatingAdmissionPolicy, ValidatingAdmissionPolicyBinding. |
 | `fieldManager` | String | `hugo` |  | Field manager name for server-side apply and patches. Default hugo. |
 | `maxLogLines` | Integer | `500` | 1 to 100000 | Most lines k8s_logs returns. Default 500. |
 | `maxObjects` | Integer | `200` | 1 to 5000 | Most objects k8s_list returns in one call (page with continue). Default 200. |
@@ -568,6 +568,8 @@ The `kubernetes` connector works with any conformant cluster through KubernetesC
 
 **Effects.** Read tools stay Read. `k8s_rollout_restart` is Write. `k8s_scale` is Write, and Destructive when `replicas` is 0. `k8s_apply` is Read with `dryRun`, and otherwise Write, becoming Destructive when an object's kind is in `destructiveKinds`, when any field is set to `null`, or when `force` or `allowFieldRemoval` is set. Before applying, Hugo dry-runs every object and compares it with the live one; if any field would silently disappear and `allowFieldRemoval` is false, nothing is applied and the result lists the paths. `k8s_delete` is Destructive (Read with `dryRun`), and deleting a Namespace, Node, CustomResourceDefinition, PersistentVolume, or StorageClass always needs a human. `k8s_exec` and `k8s_cordon` are always Destructive.
 
+The built-in destructive kinds are the ones where one apply can hurt far more than the object itself, and `destructiveKinds` can add to them but never remove one. Namespace, Node, CustomResourceDefinition, and APIService sit underneath other workloads, and deleting or rewriting one cascades to everything inside or served by it. ClusterRole, ClusterRoleBinding, Role, RoleBinding, and ServiceAccount decide who can do what, so a small edit can hand out cluster-admin. PersistentVolume, PersistentVolumeClaim, and StorageClass hold or bind data, and a changed reclaim policy or a recreated claim can lose it. NetworkPolicy, ResourceQuota, LimitRange, and PriorityClass change what every pod in a namespace can reach, consume, or evict. The admission kinds (mutating and validating webhooks, ValidatingAdmissionPolicy and its binding) sit in front of every later API request and can block or rewrite all of them.
+
 Scope checks reject calls rather than classify them. A namespace outside `allowedNamespaces` is rejected, as is a manifest whose namespace differs from the `namespace` argument. Changing a cluster-scoped kind needs `allowClusterScoped`, and reading one needs `clusterScopedReads`.
 
 **Redaction.** `metadata.managedFields` is always stripped. Secret `data` and `stringData` come back as `<redacted: N bytes>`, including the copy in the last-applied annotation, and `k8s_list` and `k8s_describe` show Secret key names and sizes only.
@@ -580,7 +582,7 @@ Scope checks reject calls rather than classify them. A namespace outside `allowe
 
 **Testbed:** `docker/testbed/kubernetes` runs k3s v1.35.9 (privileged) with its API on port 28443, two namespaces, a deployment, a crash-looping pod, a Secret, and a custom resource. metrics-server is turned off on purpose, so the `k8s_top` failure path is exercised.
 
-**Known limitations.** `k8s_top` needs metrics-server and returns `not_supported` without it. `k8s_cordon` does not drain. `k8s_delete` takes one object per call; there is no selector delete. The `k8s_scale` schema mentions DaemonSets, which cannot be scaled and return `not_supported`.
+**Known limitations.** `k8s_top` needs metrics-server and returns `not_supported` without it. `k8s_cordon` does not drain. `k8s_delete` takes one object per call; there is no selector delete.
 
 ## Docker hosts
 

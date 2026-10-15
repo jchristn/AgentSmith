@@ -62,6 +62,7 @@ namespace Test.Shared.Connectors.Kubernetes
             Add(cases, "rollout-status-history", "k8s_rollout_status and k8s_rollout_history report the fixture deployment", RolloutStatusHistory);
             Add(cases, "apply-lifecycle", "k8s_apply dry run, create, unchanged, configure, field removal guard", ApplyLifecycle);
             Add(cases, "apply-crd-and-role", "k8s_apply handles custom resources and destructive kinds", ApplyCustomAndRole);
+            Add(cases, "apply-field-manager", "k8s_apply applies as the resource's fieldManager, so two managers conflict", ApplyFieldManager);
             Add(cases, "rollout-restart", "k8s_rollout_restart restarts a deployment and the rollout completes", RolloutRestart);
             Add(cases, "scale", "k8s_scale changes replicas and scaling to zero is Destructive", Scale);
             Add(cases, "delete", "k8s_delete dry run, delete, and not_found", Delete);
@@ -561,6 +562,28 @@ namespace Test.Shared.Connectors.Kubernetes
                 finally
                 {
                     await Run(r, "k8s_delete", new { kind = "Deployment", name = name }, CancellationToken.None).ConfigureAwait(false);
+                }
+            }
+        }
+
+        private static async Task ApplyFieldManager(CancellationToken token)
+        {
+            string name = "manager-" + _Run;
+            string manifest = "apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: " + name + "\ndata:\n  owner: ";
+            using (KubernetesTestResource first = Admin("tb-k8s-manager-a", new Dictionary<string, string> { { "fieldManager", "hugo-tb-a" } }))
+            using (KubernetesTestResource second = Admin("tb-k8s-manager-b", new Dictionary<string, string> { { "fieldManager", "hugo-tb-b" } }))
+            {
+                try
+                {
+                    SshAssert.Ok(await Run(first, "k8s_apply", new { manifest = manifest + "a\n" }, token).ConfigureAwait(false), "first manager creates");
+                    ToolResult conflict = await Run(second, "k8s_apply", new { manifest = manifest + "b\n" }, token).ConfigureAwait(false);
+                    SshAssert.Error(conflict, "invalid_argument", "a second field manager conflicts on a field the first one owns");
+                    SshAssert.Contains(conflict.Text, "hugo-tb-a", "the conflict names the configured manager");
+                    SshAssert.Ok(await Run(second, "k8s_apply", new { manifest = manifest + "b\n", force = true }, token).ConfigureAwait(false), "force takes the field over");
+                }
+                finally
+                {
+                    await Run(first, "k8s_delete", new { kind = "ConfigMap", name = name }, CancellationToken.None).ConfigureAwait(false);
                 }
             }
         }

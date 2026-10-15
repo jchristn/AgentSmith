@@ -55,7 +55,9 @@ namespace Hugo.Connectors.Kubernetes
         public bool ClusterScopedReads { get; set; } = true;
 
         /// <summary>
-        /// Kinds whose apply or delete is always Destructive (case-insensitive). Never null.
+        /// Kinds whose apply or delete is always Destructive (case-insensitive). Never null. <see cref="FromSettings"/>
+        /// always includes <see cref="DefaultDestructiveKinds"/> and adds the resource's <c>destructiveKinds</c> to them;
+        /// the setting can extend the list but never shrink it.
         /// </summary>
         public List<string> DestructiveKinds
         {
@@ -150,7 +152,12 @@ namespace Hugo.Connectors.Kubernetes
         }
 
         /// <summary>
-        /// Default destructive kinds: kinds whose apply or delete can break the cluster or widen access.
+        /// Default destructive kinds: kinds whose apply or delete can break the cluster or widen access. Namespace, Node,
+        /// CustomResourceDefinition, and APIService changes reach every workload (deleting one cascades to everything in
+        /// it or served by it). The RBAC kinds and ServiceAccount grant or revoke access. The storage kinds hold or bind
+        /// data, so a change can orphan or delete volumes. NetworkPolicy, ResourceQuota, LimitRange, and PriorityClass
+        /// change what runs and what it can reach across a namespace. Admission webhooks and policies can block or
+        /// rewrite every later API request.
         /// </summary>
         public static IReadOnlyList<string> DefaultDestructiveKinds { get; } = new List<string>
         {
@@ -211,12 +218,11 @@ namespace Hugo.Connectors.Kubernetes
             o.DefaultNamespace = Trimmed(settings.GetString(KubernetesSettingKeys.DefaultNamespace));
             o.AllowClusterScoped = settings.GetBool(KubernetesSettingKeys.AllowClusterScoped, false);
             o.ClusterScopedReads = settings.GetBool(KubernetesSettingKeys.ClusterScopedReads, true);
-            if (settings.Has(KubernetesSettingKeys.DestructiveKinds))
-            {
-                o.DestructiveKinds = settings.GetStringList(KubernetesSettingKeys.DestructiveKinds)
-                    .SelectMany(s => s.Split(new char[] { ',', ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-                    .ToList();
-            }
+            o.DestructiveKinds = DefaultDestructiveKinds
+                .Concat(settings.GetStringList(KubernetesSettingKeys.DestructiveKinds)
+                    .SelectMany(s => s.Split(new char[] { ',', ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
             o.MaxLogLines = settings.GetInt(KubernetesSettingKeys.MaxLogLines, 500, 1, 100000);
             o.RequestTimeoutSeconds = settings.GetInt(KubernetesSettingKeys.RequestTimeoutSeconds, 30, 1, 600);
             o.MaxObjects = settings.GetInt(KubernetesSettingKeys.MaxObjects, 200, 1, 5000);
