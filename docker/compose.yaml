@@ -125,7 +125,7 @@ services:
   # ------------------------------------------------------------------
   hugo-server:
     container_name: 'hugo-server'
-    image: 'jchristn77/hugo-server:v0.1.0-alpha'
+    image: 'jchristn77/hugo-server:v0.1.0'
     build:
       context: '..'
       dockerfile: 'src/Hugo.Server/Dockerfile'
@@ -173,7 +173,7 @@ services:
   # ------------------------------------------------------------------
   hugo-dashboard:
     container_name: 'hugo-dashboard'
-    image: 'jchristn77/hugo-dashboard:v0.1.0-alpha'
+    image: 'jchristn77/hugo-dashboard:v0.1.0'
     build:
       context: '../dashboard'
     restart: 'unless-stopped'
