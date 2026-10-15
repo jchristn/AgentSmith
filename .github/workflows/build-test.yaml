@@ -74,3 +74,36 @@ jobs:
           path: |
             dashboard/test-results/
             dashboard/playwright-report/
+
+  sdks:
+    runs-on: ubuntu-latest
+    needs: dotnet
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Start Hugo server
+        env:
+          HUGO_ADMIN_API_KEY: hugo-ci-admin-key-not-for-production
+          HUGO_MASTER_KEY: aHVnby1jaS1tYXN0ZXIta2V5LW5vdC1mb3ItcHJvZHVjdGlvbg==
+        run: |
+          dotnet run --project src/Hugo.Server -f net10.0 > server.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://127.0.0.1:8800/v1.0/api/health && break; sleep 2; done
+      - name: SDK harnesses and coverage check
+        env:
+          HUGO_ADMIN_API_KEY: hugo-ci-admin-key-not-for-production
+        run: sdk/scripts/run-harnesses.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sdk-server-log
+          path: server.log

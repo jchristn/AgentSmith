@@ -91,7 +91,7 @@ These rules keep the plan honest:
 | 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | In progress | 12 / 24 |
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | In progress | 1 / 22 |
 | 8 | Dashboard | M1 | In progress | 47 / 53 |
-| 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | Not started | 0 / 15 |
+| 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | In progress | 14 / 15 |
 | 10 | Docker, testbed, and observability stack | M1 | In progress | 13 / 24 |
 | 11 | Documentation and Postman | M1 | Not started | 0 / 18 |
 | 12 | MVP verification (milestone M1) | M1 | Not started | 0 / 14 |
@@ -116,7 +116,6 @@ Milestones:
   1. Chat, conversations, A2A, OpenAI-compatible surface, delegation service: P6 remainder, P7.13 to P7.19, A2A part of P7.22.
   2. MCP surface: P7.1 to P7.12, MCP part of P7.22.
   3. Dashboard wiring to the real routes and the live primary-journey test: P8.33, P8.34, P8.35, P8.38, P8.53.
-  6. SDKs in C#, Python, and JavaScript: Phase 9, now verifying domain routes against the server.
   7. Connector bug fixes from the documentation review (SSH command wrapper classification, Redis deny list, Kubernetes, AWS, logs, storage paging, SQL Server TLS, Elasticsearch aliases).
 - Follow-ups recorded from connector work (fold into the named tasks):
   - P3.13: the pipeline applies binding-level command deny patterns (the invocation context has no binding policy).
@@ -127,6 +126,7 @@ Milestones:
   - PolyPrompt: verify the forced final answer (`tool_choice: none` with no tools) against real OpenAI (P6.22); list provider models through PolyPrompt model clients (P6.5).
   - Server must implement IAgentToolCatalog, IAgentToolExecutor, IAgentEventSink, IConversationStore (Hugo.Core.Agent) and set AgentRuntime.IdFactory to PrettyId.
   - Knowledge contract follow-ups from the SQL intelligence work: compare-and-swap put (expected version) for append races, `FinishReason` on `ConnectorModelResponse`, a JSON-mode hint, reason and reviewed fields on entries, `ToolArguments.GetDouble`, a crawl cache persistence hook, and a per-invocation model-call budget (`sql_generate_context` can make up to 51 calls; invocation timeouts for RequiresModel tools need to be longer than 120 seconds).
+  - Server inconsistencies found by the SDK harnesses (fix after the Phase 7 merges): secret PUT requires kind and name instead of keeping omitted fields; RouteNotFound body lacks requestId; OpenAPI declares 200 for create routes that return 201; OpenAPI names `a2AUrl` where the server sends `a2aUrl`; SessionIssued audit records have statusCode 0; knowledge scope root stored as key "" but read as `_root`; template variable roots (`{{input.name}}`) documented only in an error message.
   - Dynamic tools (D-044): add optional `IDynamicToolProvider` so external MCP tools appear as `<prefix>__<tool>`; fence remote instructions inside compiled instructions (P13.28).
   - SSH `jumpResourceName` (reuse another resource as bastion) needs a related-resource resolver; the jump settings cover the case today.
 - Next after the merges: Phase 3 pipeline (resources, invocation service, approvals), Phase 5 profiles and instructions, Phase 6 runtime, Phase 7 protocols.
@@ -2002,21 +2002,21 @@ Quality
 
 ### Phase 9: SDKs (M1)
 
-- [ ] P9.1 C# SDK core: client, auth schemes (including signed requests), error type, pagination helpers.
-- [ ] P9.2 C# SDK resources: every REST area.
-- [ ] P9.3 C# SDK chat streaming (`IAsyncEnumerable<ChatEvent>`), tool invoke, approvals await.
-- [ ] P9.4 C# SDK test harness (Touchstone style, `127.0.0.1`, self-provisioned tenant). README.
-- [ ] P9.5 Python SDK core and auth.
-- [ ] P9.6 Python SDK resources.
-- [ ] P9.7 Python SDK streaming, tool invoke, approvals.
-- [ ] P9.8 Python test harness (pytest) and README.
-- [ ] P9.9 JS/TS SDK core and auth.
-- [ ] P9.10 JS/TS SDK resources.
-- [ ] P9.11 JS/TS SDK streaming, tool invoke, approvals.
-- [ ] P9.12 JS/TS test harness (Vitest) and README.
-- [ ] P9.13 CI job running all three harnesses against a server started in the job.
-- [ ] P9.14 SDK examples in `sdk/*/examples` mirroring the README quick start.
-- [ ] P9.15 Contract check: an SDK coverage script compares SDK methods against `/openapi.json` operations and fails on gaps.
+- [x] P9.1 C# SDK core: client, auth schemes (including signed requests), error type, pagination helpers.  | claude 2026-10-14 done in C#, Python, and JS/TS; verified against the live server (C# 56, Python 65, JS 55 passed; conversations skip until Phase 7 chat lands)
+- [x] P9.2 C# SDK resources: every REST area.  | claude 2026-10-14 done in C#, Python, and JS/TS; verified against the live server (C# 56, Python 65, JS 55 passed; conversations skip until Phase 7 chat lands)
+- [x] P9.3 C# SDK chat streaming (`IAsyncEnumerable<ChatEvent>`), tool invoke, approvals await.  | claude 2026-10-14 done in C#, Python, and JS/TS; verified against the live server (C# 56, Python 65, JS 55 passed; conversations skip until Phase 7 chat lands)
+- [x] P9.4 C# SDK test harness (Touchstone style, `127.0.0.1`, self-provisioned tenant). README.  | claude 2026-10-14 done in C#, Python, and JS/TS; verified against the live server (C# 56, Python 65, JS 55 passed; conversations skip until Phase 7 chat lands)
+- [x] P9.5 Python SDK core and auth.  | claude 2026-10-14 done in C#, Python, and JS/TS; verified against the live server (C# 56, Python 65, JS 55 passed; conversations skip until Phase 7 chat lands)
+- [x] P9.6 Python SDK resources.  | claude 2026-10-14 done in C#, Python, and JS/TS; verified against the live server (C# 56, Python 65, JS 55 passed; conversations skip until Phase 7 chat lands)
+- [x] P9.7 Python SDK streaming, tool invoke, approvals.  | claude 2026-10-14 done in C#, Python, and JS/TS; verified against the live server (C# 56, Python 65, JS 55 passed; conversations skip until Phase 7 chat lands)
+- [x] P9.8 Python test harness (pytest) and README.  | claude 2026-10-14 done in C#, Python, and JS/TS; verified against the live server (C# 56, Python 65, JS 55 passed; conversations skip until Phase 7 chat lands)
+- [x] P9.9 JS/TS SDK core and auth.  | claude 2026-10-14 done in C#, Python, and JS/TS; verified against the live server (C# 56, Python 65, JS 55 passed; conversations skip until Phase 7 chat lands)
+- [x] P9.10 JS/TS SDK resources.  | claude 2026-10-14 done in C#, Python, and JS/TS; verified against the live server (C# 56, Python 65, JS 55 passed; conversations skip until Phase 7 chat lands)
+- [x] P9.11 JS/TS SDK streaming, tool invoke, approvals.  | claude 2026-10-14 done in C#, Python, and JS/TS; verified against the live server (C# 56, Python 65, JS 55 passed; conversations skip until Phase 7 chat lands)
+- [x] P9.12 JS/TS test harness (Vitest) and README.  | claude 2026-10-14 done in C#, Python, and JS/TS; verified against the live server (C# 56, Python 65, JS 55 passed; conversations skip until Phase 7 chat lands)
+- [~] P9.13 CI job running all three harnesses against a server started in the job.  | claude 2026-10-14 sdks job added to build-test.yaml (starts the server, runs sdk/scripts/run-harnesses.sh); blocked with the rest of CI on GitHub billing
+- [x] P9.14 SDK examples in `sdk/*/examples` mirroring the README quick start.  | claude 2026-10-14 quick start examples in all three SDKs run end to end
+- [x] P9.15 Contract check: an SDK coverage script compares SDK methods against `/openapi.json` operations and fails on gaps.  | claude 2026-10-14 sdk/scripts/check_coverage.py: 181 operations covered, 21 excluded by design
 
 ### Phase 10: Docker, testbed, and observability stack (M1)
 
