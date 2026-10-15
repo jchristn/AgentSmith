@@ -145,6 +145,33 @@ namespace Hugo.Core.Telemetry
         /// <summary>Model endpoint health checks.</summary>
         public static readonly MetricDescriptor ModelHealthChecks = new MetricDescriptor("hugo.model.health.checks", MetricKindEnum.Counter, "{check}", "provider, kind, outcome", "Model endpoint validations and health sweep checks by outcome (healthy, unhealthy)", "server", "Models", "hugo-models");
 
+        /// <summary>Agent turns.</summary>
+        public static readonly MetricDescriptor AgentTurns = new MetricDescriptor("hugo.agent.turns", MetricKindEnum.Counter, "{turn}", "surface, outcome", "Agent loop turns by surface (chat, a2a, openai, mcp, rest) and outcome (completed, max_iterations, tool_call_limit, approval_pending, cancelled, error)", "server", "Agent and Chat", "hugo-agent");
+
+        /// <summary>Agent turn duration.</summary>
+        public static readonly MetricDescriptor AgentTurnDuration = new MetricDescriptor("hugo.agent.turn_duration", MetricKindEnum.Histogram, "s", "surface", "Agent turn duration, including tool calls and approval waits", "server", "Agent and Chat", "hugo-agent", TelemetryBuckets.Run);
+
+        /// <summary>Agent stage duration.</summary>
+        public static readonly MetricDescriptor AgentStageDuration = new MetricDescriptor("hugo.agent.stage_duration", MetricKindEnum.Histogram, "s", "stage", "Agent turn stage duration by stage (context_build, compaction, tool_retrieval, inference, tool, approval_wait, persist)", "server", "Agent and Chat", "hugo-agent", TelemetryBuckets.Request);
+
+        /// <summary>Agent iterations per turn.</summary>
+        public static readonly MetricDescriptor AgentIterations = new MetricDescriptor("hugo.agent.iterations", MetricKindEnum.Histogram, null, "", "Model iterations per agent turn", "server", "Agent and Chat", "hugo-agent", new double[] { 1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 64 });
+
+        /// <summary>Model requests.</summary>
+        public static readonly MetricDescriptor ModelRequests = new MetricDescriptor("hugo.model.requests", MetricKindEnum.Counter, "{request}", "provider, kind, outcome", "Inference and embedding requests by provider, kind (chat, embed), and outcome (ok, error, fallback)", "server", "Models", "hugo-models");
+
+        /// <summary>Model request duration.</summary>
+        public static readonly MetricDescriptor ModelRequestDuration = new MetricDescriptor("hugo.model.request_duration", MetricKindEnum.Histogram, "s", "provider, kind", "Model request duration, including retries", "server", "Models", "hugo-models", TelemetryBuckets.Run);
+
+        /// <summary>Model time to first token.</summary>
+        public static readonly MetricDescriptor ModelTimeToFirstToken = new MetricDescriptor("hugo.model.time_to_first_token", MetricKindEnum.Histogram, "s", "provider", "Time from a streaming model request to its first token", "server", "Models", "hugo-models", TelemetryBuckets.Request);
+
+        /// <summary>Model tokens.</summary>
+        public static readonly MetricDescriptor ModelTokens = new MetricDescriptor("hugo.model.tokens", MetricKindEnum.Counter, "{token}", "provider, direction", "Model tokens by provider and direction (input, output)", "server", "Models", "hugo-models");
+
+        /// <summary>A2A requests.</summary>
+        public static readonly MetricDescriptor A2ARequests = new MetricDescriptor("hugo.a2a.requests", MetricKindEnum.Counter, "{request}", "method, outcome", "A2A JSON-RPC requests by canonical method (SendMessage, SendStreamingMessage, GetTask, ListTasks, CancelTask, SubscribeToTask, GetExtendedAgentCard, unknown) and outcome (ok, error)", "server", "Protocols", "hugo-protocols");
+
         #endregion
 
         #region Private-Members
@@ -193,7 +220,16 @@ namespace Hugo.Core.Telemetry
             InstructionsCompileDuration,
             ConnectorModelRequests,
             ConnectorModelTokens,
-            ModelHealthChecks
+            ModelHealthChecks,
+            AgentTurns,
+            AgentTurnDuration,
+            AgentStageDuration,
+            AgentIterations,
+            ModelRequests,
+            ModelRequestDuration,
+            ModelTimeToFirstToken,
+            ModelTokens,
+            A2ARequests
         };
 
         #endregion

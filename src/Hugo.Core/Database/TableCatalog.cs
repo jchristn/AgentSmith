@@ -87,6 +87,11 @@ namespace Hugo.Core.Database
             "binding_tool_rules",
             "binding_deny_patterns",
             "model_endpoints",
+            "conversations",
+            "messages",
+            "message_tool_calls",
+            "a2a_tasks",
+            "a2a_task_artifacts",
         };
 
         private static readonly HashSet<string> _GlobalTables = new HashSet<string>(StringComparer.OrdinalIgnoreCase)

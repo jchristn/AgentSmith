@@ -3,13 +3,12 @@ namespace Hugo.Core.Agent
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Diagnostics.Metrics;
+    using Hugo.Core.Telemetry;
 
     /// <summary>
-    /// Agent and model metrics and spans (plan section 21) on the <c>Hugo</c> meter and activity source. When the
-    /// shared <c>HugoMetrics</c>/<c>HugoTracing</c> classes land in <c>Hugo.Core/Telemetry</c>, these instruments can
-    /// move there unchanged; listeners subscribe by name, so a second <see cref="Meter"/> named <c>Hugo</c> is
-    /// harmless. Label values are normalized to short lowercase tokens to keep cardinality bounded. Every method
+    /// Agent and model metrics and spans (plan section 21). Metrics are recorded through <see cref="HugoMetrics"/> with
+    /// the agent and model descriptors of <see cref="HugoMetricCatalog"/>; spans use the <c>Hugo</c> activity source.
+    /// Label values are normalized to short lowercase tokens to keep cardinality bounded. Every method
     /// swallows its own failures: telemetry never breaks a request (plan 6.4). Thread-safe.
     /// </summary>
     public static class AgentTelemetry
@@ -55,15 +54,6 @@ namespace Hugo.Core.Agent
 
         private static readonly string[] _Stages = new string[] { "context_build", "compaction", "tool_retrieval", "inference", "tool", "approval_wait", "persist" };
         private static readonly ActivitySource _ActivitySource = new ActivitySource("Hugo");
-        private static readonly Meter _Meter = new Meter("Hugo");
-        private static readonly Counter<long> _Turns = _Meter.CreateCounter<long>("hugo_agent_turns_total", null, "Agent turns by surface and outcome.");
-        private static readonly Histogram<double> _TurnDuration = _Meter.CreateHistogram<double>("hugo_agent_turn_duration_seconds", "s", "Agent turn duration.");
-        private static readonly Histogram<double> _StageDuration = _Meter.CreateHistogram<double>("hugo_agent_stage_duration_seconds", "s", "Agent turn stage duration.");
-        private static readonly Histogram<long> _Iterations = _Meter.CreateHistogram<long>("hugo_agent_iterations", null, "Model iterations per agent turn.");
-        private static readonly Counter<long> _ModelRequests = _Meter.CreateCounter<long>("hugo_model_requests_total", null, "Model requests by provider, kind, and outcome.");
-        private static readonly Histogram<double> _ModelDuration = _Meter.CreateHistogram<double>("hugo_model_request_duration_seconds", "s", "Model request duration.");
-        private static readonly Histogram<double> _ModelTtft = _Meter.CreateHistogram<double>("hugo_model_time_to_first_token_seconds", "s", "Model time to first token.");
-        private static readonly Counter<long> _ModelTokens = _Meter.CreateCounter<long>("hugo_model_tokens_total", null, "Model tokens by provider and direction.");
 
         #endregion
 
@@ -150,9 +140,9 @@ namespace Hugo.Core.Agent
             try
             {
                 string s = Label(surface);
-                _Turns.Add(1, new KeyValuePair<string, object?>("surface", s), new KeyValuePair<string, object?>("outcome", Label(outcome)));
-                _TurnDuration.Record(seconds, new KeyValuePair<string, object?>("surface", s));
-                _Iterations.Record(iterations);
+                HugoMetrics.Count(HugoMetricCatalog.AgentTurns, "surface", s, "outcome", Label(outcome));
+                HugoMetrics.Observe(HugoMetricCatalog.AgentTurnDuration, seconds, "surface", s);
+                HugoMetrics.Observe(HugoMetricCatalog.AgentIterations, iterations);
             }
             catch (Exception)
             {
@@ -168,7 +158,7 @@ namespace Hugo.Core.Agent
         {
             try
             {
-                _StageDuration.Record(seconds, new KeyValuePair<string, object?>("stage", Label(stage)));
+                HugoMetrics.Observe(HugoMetricCatalog.AgentStageDuration, seconds, "stage", Label(stage));
             }
             catch (Exception)
             {
@@ -188,8 +178,8 @@ namespace Hugo.Core.Agent
             {
                 string p = Label(provider);
                 string k = Label(kind);
-                _ModelRequests.Add(1, new KeyValuePair<string, object?>("provider", p), new KeyValuePair<string, object?>("kind", k), new KeyValuePair<string, object?>("outcome", Label(outcome)));
-                _ModelDuration.Record(seconds, new KeyValuePair<string, object?>("provider", p), new KeyValuePair<string, object?>("kind", k));
+                HugoMetrics.Count(HugoMetricCatalog.ModelRequests, "provider", p, "kind", k, "outcome", Label(outcome));
+                HugoMetrics.Observe(HugoMetricCatalog.ModelRequestDuration, seconds, "provider", p, "kind", k);
             }
             catch (Exception)
             {
@@ -205,7 +195,7 @@ namespace Hugo.Core.Agent
         {
             try
             {
-                _ModelTtft.Record(seconds, new KeyValuePair<string, object?>("provider", Label(provider)));
+                HugoMetrics.Observe(HugoMetricCatalog.ModelTimeToFirstToken, seconds, "provider", Label(provider));
             }
             catch (Exception)
             {
@@ -223,8 +213,8 @@ namespace Hugo.Core.Agent
             try
             {
                 string p = Label(provider);
-                if (inputTokens > 0) _ModelTokens.Add(inputTokens, new KeyValuePair<string, object?>("provider", p), new KeyValuePair<string, object?>("direction", "input"));
-                if (outputTokens > 0) _ModelTokens.Add(outputTokens, new KeyValuePair<string, object?>("provider", p), new KeyValuePair<string, object?>("direction", "output"));
+                if (inputTokens > 0) HugoMetrics.Count(HugoMetricCatalog.ModelTokens, inputTokens, HugoMetrics.Tags("provider", p, "direction", "input"));
+                if (outputTokens > 0) HugoMetrics.Count(HugoMetricCatalog.ModelTokens, outputTokens, HugoMetrics.Tags("provider", p, "direction", "output"));
             }
             catch (Exception)
             {

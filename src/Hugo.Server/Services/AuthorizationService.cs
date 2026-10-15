@@ -101,6 +101,7 @@ namespace Hugo.Server.Services
             ctx.ResourceType = resourceType;
             ctx.Operation = operation;
             ctx.AuthorizationResult = decision.Result;
+            HugoMetrics.Count(HugoMetricCatalog.AuthzRequests, "result", decision.Permitted && decision.BypassReason != null ? "Bypassed" : decision.Result.ToString());
 
             if (!decision.Permitted)
             {

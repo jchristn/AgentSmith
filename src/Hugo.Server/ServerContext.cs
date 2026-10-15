@@ -81,6 +81,12 @@ namespace Hugo.Server
         public string DefaultTenantId { get; set; } = Hugo.Core.Constants.DefaultTenantId;
 
         /// <summary>
+        /// Delegation to Hugo's own loop (P6.23), shared by MCP <c>ask_agent_smith</c> and the REST ask route. Null until
+        /// the agent module initializes.
+        /// </summary>
+        public IAgentDelegationService? AgentDelegation { get; set; } = null;
+
+        /// <summary>
         /// Node identifier of this server.
         /// </summary>
         public string NodeId

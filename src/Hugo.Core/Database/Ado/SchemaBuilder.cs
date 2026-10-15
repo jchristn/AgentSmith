@@ -101,6 +101,10 @@ namespace Hugo.Core.Database.Ado
             v6.BuildVersion6();
             migrations.Add(new SchemaMigration(6, "Model endpoints", v6._Statements, v6._Columns));
 
+            SchemaBuilder v7 = new SchemaBuilder(catalog, dialect);
+            v7.BuildVersion7();
+            migrations.Add(new SchemaMigration(7, "Conversations, messages, message tool calls, A2A tasks, and A2A task artifacts", v7._Statements, v7._Columns));
+
             SchemaBuilder v8 = new SchemaBuilder(catalog, dialect);
             v8.BuildVersion8();
             migrations.Add(new SchemaMigration(8, "Agent profile instruction detail (compact connector instructions)", v8._Statements, v8._Columns));
@@ -789,6 +793,104 @@ namespace Hugo.Core.Database.Ado
             // Prompt template layers (D-015, D-039): the hash of the content of the layer below at the time this row was
             // last synchronized, so "the default changed since you customized this" can be detected.
             _Columns.Add(new SchemaColumnAddition("prompt_templates", "base_hash", "VARCHAR(128)"));
+        }
+
+        private void BuildVersion7()
+        {
+            SqlDialect d = _Dialect;
+
+            // conversations (plan 7.5): one per dashboard chat, A2A context, OpenAI-compatible session, or delegated ask
+            Table("conversations",
+                Id(),
+                Ref("tenant_id", true),
+                Ref("user_id", false),
+                Ref("credential_id", false),
+                Ref("agent_profile_id", true),
+                "title VARCHAR(256)",
+                "source VARCHAR(32) NOT NULL",
+                "a2a_context_id VARCHAR(128)",
+                "external_key VARCHAR(256)",
+                "message_count " + d.TypeInt + " NOT NULL",
+                Timestamp("last_message_utc", false),
+                "total_input_tokens " + d.TypeBigInt + " NOT NULL",
+                "total_output_tokens " + d.TypeBigInt + " NOT NULL",
+                Timestamp("created_utc", true),
+                Timestamp("last_update_utc", true));
+            Index("conversations", "tenantupdated", false, "tenant_id", "last_update_utc");
+            Index("conversations", "user", false, "tenant_id", "user_id");
+            Index("conversations", "profile", false, "tenant_id", "agent_profile_id");
+            Index("conversations", "context", false, "tenant_id", "agent_profile_id", "a2a_context_id");
+            Index("conversations", "external", false, "tenant_id", "agent_profile_id", "external_key");
+
+            // messages: role is User, Assistant, Tool, Summary (compaction), or System; compacted rows stay for export
+            Table("messages",
+                Id(),
+                Ref("tenant_id", true),
+                Ref("conversation_id", true),
+                "turn_id VARCHAR(64)",
+                "sequence " + d.TypeBigInt + " NOT NULL",
+                "role VARCHAR(32) NOT NULL",
+                Text("content", true),
+                Text("thinking_content", false),
+                "tool_call_id VARCHAR(128)",
+                "tool_name VARCHAR(128)",
+                Ref("model_endpoint_id", false),
+                "input_tokens " + d.TypeBigInt + " NOT NULL",
+                "output_tokens " + d.TypeBigInt + " NOT NULL",
+                "time_to_first_token_ms " + d.TypeBigInt,
+                "duration_ms " + d.TypeBigInt,
+                "finish_reason VARCHAR(32)",
+                Bool("compacted"),
+                Timestamp("created_utc", true));
+            Index("messages", "sequence", true, "conversation_id", "sequence");
+            Index("messages", "tenantcreated", false, "tenant_id", "created_utc");
+
+            // message_tool_calls: the calls an assistant message requested (child of messages)
+            Table("message_tool_calls",
+                Id(),
+                Ref("message_id", true),
+                Ref("conversation_id", true),
+                Ref("tenant_id", true),
+                "ordinal " + d.TypeInt + " NOT NULL",
+                "call_id VARCHAR(128) NOT NULL",
+                "name VARCHAR(128) NOT NULL",
+                Text("arguments_json", true));
+            Index("message_tool_calls", "parent", false, "message_id");
+            Index("message_tool_calls", "conversation", false, "conversation_id");
+
+            // a2a_tasks (D-006, D-027): persisted with principal ownership
+            Table("a2a_tasks",
+                Id(),
+                Ref("tenant_id", true),
+                Ref("agent_profile_id", true),
+                "principal_type VARCHAR(32) NOT NULL",
+                Ref("principal_id", false),
+                Ref("conversation_id", true),
+                "context_id VARCHAR(128) NOT NULL",
+                "message_id VARCHAR(128)",
+                "state VARCHAR(32) NOT NULL",
+                Text("status_message", false),
+                Ref("pending_approval_id", false),
+                "input_tokens " + d.TypeBigInt + " NOT NULL",
+                "output_tokens " + d.TypeBigInt + " NOT NULL",
+                "tool_call_count " + d.TypeInt + " NOT NULL",
+                Timestamp("created_utc", true),
+                Timestamp("last_update_utc", true));
+            Index("a2a_tasks", "profile", false, "tenant_id", "agent_profile_id", "created_utc");
+            Index("a2a_tasks", "context", false, "tenant_id", "context_id");
+            Index("a2a_tasks", "state", false, "state");
+
+            // a2a_task_artifacts: content is unmanaged (plan 7.6)
+            Table("a2a_task_artifacts",
+                Id(),
+                Ref("task_id", true),
+                Ref("tenant_id", true),
+                "artifact_id VARCHAR(128) NOT NULL",
+                "name VARCHAR(256)",
+                "mime_type VARCHAR(128) NOT NULL",
+                Text("content", true),
+                Timestamp("created_utc", true));
+            Index("a2a_task_artifacts", "parent", false, "task_id");
         }
 
         private void BuildVersion8()

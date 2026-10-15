@@ -4,6 +4,7 @@ namespace Hugo.Server.Routes
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    using Hugo.Core.Enums;
 
     /// <summary>
     /// Single source of truth mapping every route and MCP tool to the permission it requires. Populated as routes
@@ -14,6 +15,7 @@ namespace Hugo.Server.Routes
         #region Private-Members
 
         private readonly ConcurrentDictionary<string, OperationScope> _Scopes = new ConcurrentDictionary<string, OperationScope>(StringComparer.OrdinalIgnoreCase);
+        private readonly ConcurrentDictionary<string, OperationScope> _ProtocolMethods = new ConcurrentDictionary<string, OperationScope>(StringComparer.Ordinal);
 
         #endregion
 
@@ -53,6 +55,53 @@ namespace Hugo.Server.Routes
         public List<OperationScope> All()
         {
             return _Scopes.Values.OrderBy(s => s.Path, StringComparer.Ordinal).ThenBy(s => s.Method, StringComparer.Ordinal).ToList();
+        }
+
+        /// <summary>
+        /// Map a protocol method that shares one HTTP route (for example the A2A JSON-RPC methods) to the resource type and
+        /// operation it requires. Protocol methods are kept apart from <see cref="All"/>, which lists HTTP routes only.
+        /// </summary>
+        /// <param name="protocol">Protocol, for example A2A.</param>
+        /// <param name="method">Method name, for example SendMessage.</param>
+        /// <param name="resourceType">Resource type.</param>
+        /// <param name="operation">Operation.</param>
+        /// <param name="summary">Summary.</param>
+        /// <exception cref="ArgumentNullException">Thrown when protocol or method is null or empty.</exception>
+        /// <exception cref="InvalidOperationException">Thrown when the method is mapped twice.</exception>
+        public void AddProtocolMethod(string protocol, string method, ResourceTypeEnum resourceType, OperationTypeEnum operation, string summary)
+        {
+            if (String.IsNullOrEmpty(protocol)) throw new ArgumentNullException(nameof(protocol));
+            if (String.IsNullOrEmpty(method)) throw new ArgumentNullException(nameof(method));
+            OperationScope scope = new OperationScope();
+            scope.Method = protocol;
+            scope.Path = method;
+            scope.ResourceType = resourceType;
+            scope.Operation = operation;
+            scope.Authorization = RouteAuthorizationEnum.Scoped;
+            scope.Tag = protocol;
+            scope.Summary = summary ?? String.Empty;
+            if (!_ProtocolMethods.TryAdd(protocol + " " + method, scope)) throw new InvalidOperationException("Protocol method mapped twice: " + protocol + " " + method);
+        }
+
+        /// <summary>
+        /// Find a protocol method's scope. A method without one fails closed.
+        /// </summary>
+        /// <param name="protocol">Protocol.</param>
+        /// <param name="method">Method.</param>
+        /// <returns>Scope, or null when unmapped.</returns>
+        public OperationScope? FindProtocolMethod(string protocol, string method)
+        {
+            _ProtocolMethods.TryGetValue(protocol + " " + method, out OperationScope? scope);
+            return scope;
+        }
+
+        /// <summary>
+        /// Every mapped protocol method, ordered by protocol and method.
+        /// </summary>
+        /// <returns>Scopes (Method holds the protocol, Path the method name).</returns>
+        public List<OperationScope> ProtocolMethods()
+        {
+            return _ProtocolMethods.Values.OrderBy(s => s.Method, StringComparer.Ordinal).ThenBy(s => s.Path, StringComparer.Ordinal).ToList();
         }
 
         #endregion

@@ -133,7 +133,8 @@ namespace Hugo.Server
             {
                 new IdentityModule(),
                 new ConfigurationModule(),
-                new IntegrationModule()
+                new IntegrationModule(),
+                new AgentModule()
             };
 
             WebserverSettings settings = new WebserverSettings();

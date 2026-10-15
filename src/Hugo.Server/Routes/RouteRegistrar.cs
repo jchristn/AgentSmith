@@ -177,9 +177,11 @@ namespace Hugo.Server.Routes
         /// <param name="tag">OpenAPI tag.</param>
         /// <param name="requestBody">Optional request body type.</param>
         /// <param name="response">Optional response type.</param>
-        public void Authenticated(HttpMethod method, string path, Func<HttpContextBase, Task> handler, string summary, string tag, Type? requestBody = null, Type? response = null)
+        /// <param name="resourceType">Resource type the handler checks (documented in the scope map), or null.</param>
+        /// <param name="operation">Operation the handler checks (documented in the scope map), or null.</param>
+        public void Authenticated(HttpMethod method, string path, Func<HttpContextBase, Task> handler, string summary, string tag, Type? requestBody = null, Type? response = null, ResourceTypeEnum? resourceType = null, OperationTypeEnum? operation = null)
         {
-            Record(method, path, null, null, RouteAuthorizationEnum.Handler, summary, tag);
+            Record(method, path, resourceType, operation, RouteAuthorizationEnum.Handler, summary, tag);
             Add(method, path, handler, Metadata(method, path, summary, tag, requestBody, response, true));
         }
 
