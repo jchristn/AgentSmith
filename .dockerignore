@@ -37,3 +37,6 @@ user-testing/
 *.md
 !src/**/README.md
 !README.md
+
+# Agent worktrees
+.claude/
