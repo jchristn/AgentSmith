@@ -92,7 +92,7 @@ These rules keep the plan honest:
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Not started | 0 / 22 |
 | 8 | Dashboard | M1 | Not started | 0 / 52 |
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | Not started | 0 / 15 |
-| 10 | Docker, testbed, and observability stack | M1 | In progress | 0 / 24 |
+| 10 | Docker, testbed, and observability stack | M1 | In progress | 1 / 24 |
 | 11 | Documentation and Postman | M1 | Not started | 0 / 18 |
 | 12 | MVP verification (milestone M1) | M1 | Not started | 0 / 14 |
 | 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | Not started | 0 / 38 |
@@ -118,7 +118,7 @@ Milestones:
   3. SSH connector: P4.3 to P4.9.
   5. SQL connectors: P0.15 and P4.15 to P4.19.
 - Next after the merges: Phase 3 pipeline (resources, invocation service, approvals), Phase 5 profiles and instructions, Phase 6 runtime, Phase 7 protocols.
-- Decisions D-001 through D-036 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
+- Decisions D-001 through D-037 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
 - Before P0.1, confirm the open questions in [section 23](#23-risks-and-open-questions) that are marked "before Phase 0".
 
 ---
@@ -241,6 +241,7 @@ This journey is the acceptance story for M1. Phase 12 replays it end to end.
 | D-034 | Touchstone `0.2.1` (the current release Garrison uses) instead of `0.1.12` named in BACKEND_TEST_ARCHITECTURE.md. Same API surface for suites and runners. | Newer release, no contract change. | 20 |
 | D-035 | `storage_presign_url` signs URLs with the provider SDKs Blobject already references (SigV4 for S3, SAS for Azure, V4 for GCS), because Blobject's `GenerateUrl` returns unsigned URLs. The tool stays Write (it grants external access). | A presigned URL that is not signed is useless; the SDKs are already dependencies. | 9.1 |
 | D-036 | The connector contract gained `ConnectorErrorCodes` (standard codes), `RetryAfterSeconds` on `ToolResult` and `ConnectorException`, and a documented server-enforced test-connection timeout (the token passed to `TestConnectionAsync` is cancelled after `Connectors.TestTimeoutSeconds`, default 30). Additive; no connector changes required. | Requested independently by the logging and storage connector work. | 8.1 |
+| D-037 | Third-party images that do not ship `curl` (Prometheus, Tempo, Loki, Alloy, Grafana) use `wget` or a TCP probe in their healthchecks, with `interval: 5s`, `retries: 2`, and `timeout` no greater than the interval. Hugo's own images install `curl` and use it, as REPOSITORY_REQUIREMENTS.md item 11 specifies. Images publish under the `jchristn77` Docker Hub namespace (`jchristn77/hugo-server`, `jchristn77/hugo-dashboard`), the namespace Garrison uses. | Adding curl to upstream images would mean maintaining forks of them. | 17 |
 
 ---
 
@@ -1969,11 +1970,11 @@ Quality
 
 - [ ] P10.1 `Hugo.Server` Dockerfile (multi-stage, `mcr.microsoft.com/dotnet/aspnet` runtime, `curl` installed, non-root user, `/app/data` and `/app/config` volumes).
 - [ ] P10.2 Dashboard Dockerfile and `nginx.conf` (P8.52 output) wired into compose.
-- [ ] P10.3 `docker/compose.yaml` with the section 17.1 services, pinned images, healthchecks, `depends_on` conditions, volumes, and the `postgres` profile.
+- [~] P10.3 `docker/compose.yaml` with the section 17.1 services, pinned images, healthchecks, `depends_on` conditions, volumes, and the `postgres` profile.  | claude 2026-10-14 docker/compose.yaml: server, dashboard, Prometheus, Tempo, Loki, Alloy, Grafana (default on), postgres profile; pinned images; healthchecks; depends_on healthy. Verification waits on the server image (P10.1) and docker/hugo/hugo.json (P10.4)
 - [ ] P10.4 `docker/hugo/hugo.json` default settings (SQLite) and a `hugo.postgres.json` variant.
-- [ ] P10.5 `.env.example`, plus `docker/start.sh`/`.bat` generating missing keys into `.env`.
-- [ ] P10.6 `docker/update.bat` and `update.sh` per REPOSITORY_REQUIREMENTS.md.
-- [ ] P10.7 `docker/factory/compose.yaml`, seeded data, `reset.bat` and `reset.sh`.
+- [~] P10.5 `.env.example`, plus `docker/start.sh`/`.bat` generating missing keys into `.env`.  | claude 2026-10-14 docker/.env.example and start.sh/.bat generating HUGO_MASTER_KEY and HUGO_AUTH_SIGNING_KEY; compose falls back to labeled development keys
+- [x] P10.6 `docker/update.bat` and `update.sh` per REPOSITORY_REQUIREMENTS.md.  | claude 2026-10-14 docker/update.sh and update.bat: pull, down, up -d, ps -a (non-destructive)
+- [~] P10.7 `docker/factory/compose.yaml`, seeded data, `reset.bat` and `reset.sh`.  | claude 2026-10-14 factory/reset.sh and reset.bat (typed RESET confirmation, down -v, up); factory seed and factory compose come with P10.8
 - [ ] P10.8 Factory demo content: demo resources pointing at the testbed, a profile with eight bindings (the joel scenario), and a demo credential.
 - [~] P10.9 Prometheus config scraping `hugo-server:8800/metrics` on the internal network.  | claude 2026-10-14 docker/observability/prometheus.yaml scrapes hugo-server:8800; verified when compose lands (P10.3)
 - [~] P10.10 Tempo config (OTLP gRPC and HTTP), pinned to 2.6.1.  | claude 2026-10-14 docker/observability/tempo.yaml from Garrison; Alloy OTLP receiver forwards to Tempo
@@ -2168,7 +2169,7 @@ Questions marked "before Phase 0" should be answered before work starts. The pla
 
 | ID | Question | Default if unanswered | When |
 |---|---|---|---|
-| Q-1 | GitHub repository owner and visibility, and Docker Hub namespace? | Answered 2026-10-14: `https://github.com/jchristn/AgentSmith` (private). Docker Hub `jchristn/hugo-server` and `jchristn/hugo-dashboard` until the user says otherwise. | Answered |
+| Q-1 | GitHub repository owner and visibility, and Docker Hub namespace? | Answered 2026-10-14: `https://github.com/jchristn/AgentSmith` (private). Docker Hub `jchristn77/hugo-server` and `jchristn77/hugo-dashboard` (D-037). | Answered |
 | Q-2 | Should self-approval be allowed by default (single operator approving their own agent)? | Yes (`Approvals.AllowSelfApproval = true`), and tenants can turn it off. | Before Phase 3 |
 | Q-3 | Is the tongue-in-cheek persona on by default for every new tenant, or only the default tenant? | Every new tenant gets the `Hugo` profile with the Agent Smith persona; `persona.neutral` is one click away. | Before Phase 5 |
 | Q-4 | Which inference provider should the factory profile and docs lead with: local Ollama or a hosted API? | Ollama for the factory demo (no keys needed), with Anthropic and OpenAI documented. | Before Phase 6 |
