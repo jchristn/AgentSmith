@@ -95,7 +95,7 @@ These rules keep the plan honest:
 | 10 | Docker, testbed, and observability stack | M1 | In progress | 6 / 24 |
 | 11 | Documentation and Postman | M1 | Not started | 0 / 18 |
 | 12 | MVP verification (milestone M1) | M1 | Not started | 0 / 14 |
-| 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | Not started | 0 / 38 |
+| 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | In progress | 6 / 38 |
 | 14 | Knowledge, runbooks, and operator conveniences | M2 | Not started | 0 / 12 |
 | 15 | Benchmarking | M3 | Not started | 0 / 16 |
 | 16 | Hardening, simulated user testing, and 1.0 release | M4 | Not started | 0 / 18 |
@@ -2085,12 +2085,12 @@ Redis
 - [ ] P13.5 Instructions and suites.
 
 AWS
-- [ ] P13.6 `aws` descriptor, auth (key pair, assume role with external ID, instance role), service allow list, endpoint override.
-- [ ] P13.7 EC2 and Auto Scaling read tools, and instance actions with the terminate-always-approves rule.
-- [ ] P13.8 CloudWatch metrics and alarms, and CloudWatch Logs Insights and tail.
-- [ ] P13.9 ECS, RDS, Lambda tools.
-- [ ] P13.10 ELBv2, Route 53, SQS, SNS, STS tools.
-- [ ] P13.11 Instructions and suites (LocalStack plus recorded stubs for gaps).
+- [x] P13.6 `aws` descriptor, auth (key pair, assume role with external ID, instance role), service allow list, endpoint override.  | claude 2026-10-14 AwsConnector (type aws): key pair or ambient chain, STS assume role through endpoint override with refresh, allowedServices enforced at classify and execute
+- [x] P13.7 EC2 and Auto Scaling read tools, and instance actions with the terminate-always-approves rule.  | claude 2026-10-14 EC2 describe, instance actions (terminate always approves), plus aws_autoscaling_describe_groups
+- [x] P13.8 CloudWatch metrics and alarms, and CloudWatch Logs Insights and tail.  | claude 2026-10-14 CloudWatch metric data and alarms, Logs Insights and tail
+- [x] P13.9 ECS, RDS, Lambda tools.  | claude 2026-10-14 ECS describe and update (desiredCount 0 is Destructive), RDS describe, Lambda list and invoke
+- [x] P13.10 ELBv2, Route 53, SQS, SNS, STS tools.  | claude 2026-10-14 ELBv2 target health, Route 53 records, SQS attributes, SNS topics
+- [x] P13.11 Instructions and suites (LocalStack plus recorded stubs for gaps).  | claude 2026-10-14 instructions embedded; connectors.aws 25, stubs 26 (ECS, RDS, ELBv2, Auto Scaling via wire-protocol stub), testbed.aws 22 on LocalStack 4.14.0
 
 Kubernetes
 - [ ] P13.12 `kubernetes` descriptor, kubeconfig and token auth, namespace allow list.
@@ -2127,7 +2127,7 @@ Wrap-up
 - [ ] P13.33 `docs/CONNECTORS.md`, `MCP_API.md`, and Postman updated for wave 2.
 - [ ] P13.34 Factory demo profile extended with wave 2 resources.
 - [ ] P13.35 Tool retrieval verified on a profile with more than 100 tools (latency and selection quality noted).
-- [ ] P13.36 Least-privilege guides: IAM policy examples (read-only and operator), Kubernetes RBAC manifests, a Redis ACL example.
+- [~] P13.36 Least-privilege guides: IAM policy examples (read-only and operator), Kubernetes RBAC manifests, a Redis ACL example.  | claude 2026-10-14 AWS part done: docs/connectors/aws-iam-policies.md (read-only, tag-scoped operator, external-ID trust); Kubernetes RBAC and Redis ACL pending
 - [ ] P13.37 Grafana Tools and Connectors dashboard updated for wave 2 labels.
 - [ ] P13.38 M2 connector sign-off by the user.
 
