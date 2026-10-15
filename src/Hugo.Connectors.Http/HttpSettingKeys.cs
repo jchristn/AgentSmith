@@ -12,6 +12,9 @@ namespace Hugo.Connectors.Http
         /// <summary>Headers sent with every request, one <c>Name: value</c> per line.</summary>
         public const string DefaultHeaders = "defaultHeaders";
 
+        /// <summary>Path Test Connection probes; when set, only a 2xx or 3xx answer passes.</summary>
+        public const string HealthPath = "healthPath";
+
         /// <summary>Authentication type (see <see cref="HttpAuthTypeEnum"/>).</summary>
         public const string AuthType = "authType";
 

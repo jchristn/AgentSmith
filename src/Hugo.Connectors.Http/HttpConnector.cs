@@ -139,6 +139,12 @@ namespace Hugo.Connectors.Http
                 }
             }
 
+            if (parsed.HealthPath != null)
+            {
+                HttpPathCheck healthCheck = HttpPathGuard.Check(parsed.HealthPath, parsed.AllowedPathPrefixes);
+                if (!healthCheck.Allowed) result.Add(HttpSettingKeys.HealthPath, "invalid_value", "healthPath must be a path under one of the allowed path prefixes, for example /health.");
+            }
+
             ValidateRange(s, result, HttpSettingKeys.TimeoutSeconds, 1, 600);
             ValidateRange(s, result, HttpSettingKeys.MaxResponseBytes, 1024, 64 * 1024 * 1024);
             ValidateRange(s, result, HttpSettingKeys.MaxRequestBytes, 1, 64 * 1024 * 1024);
@@ -162,7 +168,11 @@ namespace Hugo.Connectors.Http
                 {
                     HttpAuthenticator auth = new HttpAuthenticator(resource, options, Options.TokenCache);
                     HttpSender sender = new HttpSender(options, auth, null, resource.Logger);
-                    string probePath = options.AllowedPathPrefixes.FirstOrDefault() ?? "/";
+                    // With healthPath set, the test is a health check: only a 2xx or 3xx answer passes. Without it, the
+                    // test probes the first allowed prefix and passes whenever the server answers (reachability), and a
+                    // 4xx answer is called out in the message and details instead of being reported as healthy.
+                    bool healthChecked = options.HealthPath != null;
+                    string probePath = options.HealthPath ?? options.AllowedPathPrefixes.FirstOrDefault() ?? "/";
                     HttpPathCheck check = HttpPathGuard.Check(probePath, options.AllowedPathPrefixes);
                     HttpOutgoingRequest request = new HttpOutgoingRequest
                     {
@@ -178,11 +188,17 @@ namespace Hugo.Connectors.Http
                         health = ConnectorHealthResult.Fail(ConnectorErrorCodes.AuthFailed, exchange.FinalUrl + " answered " + statusText + ". Check the authType and the bound secret.", ms);
                     else if (exchange.StatusCode >= 500)
                         health = ConnectorHealthResult.Fail(ConnectorErrorCodes.UpstreamError, exchange.FinalUrl + " answered " + statusText + ".", ms);
+                    else if (exchange.StatusCode >= 400 && healthChecked)
+                        health = ConnectorHealthResult.Fail(ConnectorErrorCodes.UpstreamError, "The health path " + exchange.FinalUrl + " answered " + statusText + "; healthPath must answer 2xx or 3xx.", ms);
+                    else if (exchange.StatusCode >= 400)
+                        health = ConnectorHealthResult.Ok("The server is reachable, but " + exchange.FinalUrl + " answered " + statusText + ", so this is not a health check. Set healthPath to a path that answers 2xx (for example /health) to check health.", ms);
                     else
-                        health = ConnectorHealthResult.Ok("Reached " + exchange.FinalUrl + " (" + statusText + ").", ms);
+                        health = ConnectorHealthResult.Ok((healthChecked ? "Healthy: " : "Reached ") + exchange.FinalUrl + " (" + statusText + ").", ms);
                     health.Details["status"] = exchange.StatusCode.ToString(CultureInfo.InvariantCulture);
                     health.Details["url"] = exchange.FinalUrl;
                     health.Details["authType"] = options.AuthType.ToString();
+                    health.Details["healthChecked"] = healthChecked ? "true" : "false";
+                    health.Details["reachableOnly"] = !healthChecked && exchange.StatusCode >= 400 ? "true" : "false";
                     return health;
                 }
                 catch (OperationCanceledException) when (!token.IsCancellationRequested)
@@ -260,6 +276,11 @@ namespace Hugo.Connectors.Http
                 Group = "Connection",
                 ShowInSummary = true,
                 Help = "Absolute http or https URL every request path is relative to, for example https://api.example.com/v1. No query string or credentials."
+            });
+            schema.Add(new SettingDescriptor(HttpSettingKeys.HealthPath, SettingValueKindEnum.String, "Health path")
+            {
+                Group = "Connection",
+                Help = "Path Test Connection probes, relative to the base URL, for example /health. When set, the test passes only on a 2xx or 3xx answer. When empty, the test probes the first allowed path prefix and only checks that the server answers: a 4xx answer still passes as reachable and is flagged in the result."
             });
             schema.Add(new SettingDescriptor(HttpSettingKeys.DefaultHeaders, SettingValueKindEnum.StringList, "Default headers")
             {

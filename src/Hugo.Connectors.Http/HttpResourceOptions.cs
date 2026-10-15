@@ -60,6 +60,12 @@ namespace Hugo.Connectors.Http
         public HashSet<string> AllowedMethods { get; set; } = new HashSet<string>(DefaultMethods, StringComparer.Ordinal);
 
         /// <summary>
+        /// Path Test Connection probes, relative to the base URL, or null to probe the first allowed path prefix and
+        /// report reachability only.
+        /// </summary>
+        public string? HealthPath { get; set; } = null;
+
+        /// <summary>
         /// Normalized allowed path prefixes. Never null; default <c>/</c>.
         /// </summary>
         public List<string> AllowedPathPrefixes { get; set; } = new List<string> { "/" };
@@ -142,6 +148,9 @@ namespace Hugo.Connectors.Http
 
             List<string> methods = SplitTokens(settings.GetStringList(HttpSettingKeys.AllowedMethods)).Select(m => m.ToUpperInvariant()).Where(HttpRequestClassifier.IsMethodToken).ToList();
             if (methods.Any()) o.AllowedMethods = new HashSet<string>(methods, StringComparer.Ordinal);
+
+            string? healthPath = settings.GetString(HttpSettingKeys.HealthPath);
+            o.HealthPath = String.IsNullOrWhiteSpace(healthPath) ? null : healthPath.Trim();
 
             List<string> prefixes = new List<string>();
             foreach (string p in settings.GetStringList(HttpSettingKeys.AllowedPathPrefixes))

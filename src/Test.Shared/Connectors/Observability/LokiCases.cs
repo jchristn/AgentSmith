@@ -33,6 +33,7 @@ namespace Test.Shared.Connectors.Observability
         {
             List<TestCaseDescriptor> cases = new List<TestCaseDescriptor>();
             Add(cases, "test-connection", "TestConnectionAsync lists labels with the tenant header", TestConnection);
+            Add(cases, "test-connection-empty", "TestConnectionAsync succeeds when Loki has no lines yet (labels without a data field)", TestConnectionEmpty);
             Add(cases, "tenant-header", "The tenant header is sent; a missing tenant maps to auth_failed", TenantHeader);
             Add(cases, "selector-guard", "Queries without a stream selector are rejected before any request", SelectorGuard);
             Add(cases, "range-lines", "loki_query_range renders a stream legend and lines newest first", RangeLines);
@@ -84,6 +85,17 @@ namespace Test.Shared.Connectors.Observability
             {
                 ConnectorHealthResult h = await new LokiConnector().TestConnectionAsync(ObsTestHelper.Resource("loki", ObsTestHelper.Settings(stub, Tenant())), token).ConfigureAwait(false);
                 ObsTestHelper.Assert(h.Success && h.Details["labels"] == "3" && h.Details["tenant"] == "tenant-a", "health: " + h.Message);
+            }
+        }
+
+        private static async Task TestConnectionEmpty(CancellationToken token)
+        {
+            using (ObservabilityStub stub = Stub(new LokiStubRoutes { RequiredTenant = "tenant-a", Empty = true }))
+            {
+                ConnectorHealthResult h = await new LokiConnector().TestConnectionAsync(ObsTestHelper.Resource("loki", ObsTestHelper.Settings(stub, Tenant())), token).ConfigureAwait(false);
+                ObsTestHelper.Assert(h.Success && h.Details["labels"] == "0", "health on an empty Loki: " + h.Message);
+                ToolResult labels = await Run(stub, "loki_labels", "{}", token).ConfigureAwait(false);
+                ObsTestHelper.Ok(labels, "loki_labels on an empty Loki");
             }
         }
 

@@ -43,9 +43,10 @@ namespace Hugo.Connectors.Observability
         /// <param name="path">Path.</param>
         /// <param name="query">Query parameters.</param>
         /// <param name="token">Cancellation token.</param>
-        /// <returns>Envelope with non-null data.</returns>
-        /// <exception cref="ConnectorException">Thrown when the API reports an error or returns no data.</exception>
-        public async Task<PromResponse<T>> GetAsync<T>(string path, IList<KeyValuePair<string, string?>>? query, CancellationToken token) where T : class
+        /// <returns>Envelope with non-null data. A success without a data field (Loki answers labels that way before it
+        /// has stored any lines) yields empty data.</returns>
+        /// <exception cref="ConnectorException">Thrown when the API reports an error.</exception>
+        public async Task<PromResponse<T>> GetAsync<T>(string path, IList<KeyValuePair<string, string?>>? query, CancellationToken token) where T : class, new()
         {
             string body = await Transport.GetAsync(path, query, token).ConfigureAwait(false);
             PromResponse<T> response = ObservabilityJson.DeserializeUpstream<PromResponse<T>>(body, Transport.Provider);
@@ -54,7 +55,7 @@ namespace Hugo.Connectors.Observability
                 string message = String.IsNullOrEmpty(response.Error) ? "unknown error" : response.Error;
                 throw new ConnectorException(ConnectorErrorCodes.InvalidArgument, Transport.Provider + " reported an error" + (String.IsNullOrEmpty(response.ErrorType) ? String.Empty : " (" + response.ErrorType + ")") + ": " + message);
             }
-            if (response.Data == null) throw new ConnectorException(ConnectorErrorCodes.UpstreamError, Transport.Provider + " returned no data.");
+            if (response.Data == null) response.Data = new T();
             return response;
         }
 

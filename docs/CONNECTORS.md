@@ -635,6 +635,7 @@ The `http` connector turns any HTTP or REST API under one base URL into two tool
 | Key | Kind | Default | Range or values | Meaning |
 |---|---|---|---|---|
 | `baseUrl` | String, required |  | pattern `^https?://` | Absolute http or https URL every request path is relative to, for example https://api.example.com/v1. No query string or credentials. |
+| `healthPath` | String |  |  | Path Test Connection probes, relative to the base URL, for example /health. When set, the test passes only on a 2xx or 3xx answer. When empty, the test probes the first allowed path prefix and only checks that the server answers: a 4xx answer still passes as reachable and is flagged in the result. |
 | `defaultHeaders` | StringList |  |  | Headers sent with every request, one 'Name: value' per line, for example 'Accept: application/json'. Authorization, cookies, and the API key header are not allowed here; use authType and a secret. |
 | `timeoutSeconds` | Integer | `30` | 1 to 600 | Longest time one request may take, including redirects. Default 30, minimum 1, maximum 600. The binding's timeout applies when shorter. |
 | `followRedirects` | Boolean | `true` |  | Follow redirects to the same host name (any port), never from https to http, and only inside the base path and the allowed path prefixes. Credentials go only to the resource's own origin (same scheme, host, and port): a hop to another port, or from http to https, is followed without them. Default true. |
