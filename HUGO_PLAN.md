@@ -83,13 +83,13 @@ These rules keep the plan honest:
 | Phase | Name | Milestone | Status | Done / Total |
 |---|---|---|---|---|
 | 0 | Repository bootstrap | M1 | In progress | 11 / 16 |
-| 1 | Core foundation: settings, data layer, identity, RBAC, sessions, audit, history, telemetry base | M1 | In progress | 38 / 44 |
+| 1 | Core foundation: settings, data layer, identity, RBAC, sessions, audit, history, telemetry base | M1 | In progress | 39 / 44 |
 | 2 | Secrets vault | M1 | In progress | 11 / 12 |
 | 3 | Connector framework and tool invocation pipeline | M1 | Complete | 26 / 26 |
 | 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | In progress | 33 / 37 |
 | 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | In progress | 19 / 21 |
-| 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | In progress | 12 / 24 |
-| 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | In progress | 13 / 22 |
+| 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | In progress | 23 / 24 |
+| 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | In progress | 21 / 22 |
 | 8 | Dashboard | M1 | In progress | 47 / 53 |
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | In progress | 14 / 15 |
 | 10 | Docker, testbed, and observability stack | M1 | In progress | 14 / 24 |
@@ -114,7 +114,6 @@ Milestones:
 
 - Execution started 2026-10-14. Phase 0 skeleton is committed: solution, connector contract (P3.1), CI workflow, assets. The foundation is being forked from Garrison (D-032).
 - In flight 2026-10-14 (parallel agents, one git worktree each, merged by the coordinator):
-  1. Chat, conversations, A2A, OpenAI-compatible surface, delegation service: P6 remainder, P7.13 to P7.19, A2A part of P7.22.
   3. Dashboard wiring to the real routes and the live primary-journey test: P8.33, P8.34, P8.35, P8.38, P8.53.
 - Follow-ups recorded from connector work (fold into the named tasks):
   - P3.13: the pipeline applies binding-level command deny patterns (the invocation context has no binding policy).
@@ -134,7 +133,7 @@ Milestones:
   - Dynamic tools (D-044): add optional `IDynamicToolProvider` so external MCP tools appear as `<prefix>__<tool>`; fence remote instructions inside compiled instructions (P13.28).
   - SSH `jumpResourceName` (reuse another resource as bastion) needs a related-resource resolver; the jump settings cover the case today.
 - Next after the merges: Phase 3 pipeline (resources, invocation service, approvals), Phase 5 profiles and instructions, Phase 6 runtime, Phase 7 protocols.
-- Decisions D-001 through D-046 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
+- Decisions D-001 through D-047 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
 - Before P0.1, confirm the open questions in [section 23](#23-risks-and-open-questions) that are marked "before Phase 0".
 
 ---
@@ -267,6 +266,7 @@ This journey is the acceptance story for M1. Phase 12 replays it end to end.
 | D-044 | External MCP servers and remote A2A agents are reached through fixed tools (`mcp_list_tools`, `mcp_call_tool`, `mcp_list_resources`, `mcp_read_resource`, `a2a_get_card`, `a2a_delegate`, `a2a_get_task`) rather than per-resource `<prefix>__<tool>` names, because the connector contract's tool list is static. A proposed optional `IDynamicToolProvider` interface would let the server expose remote tools as first-class tools later; tracked as a follow-up. An A2A agent asking for input returns a normal tool result, not a Hugo approval. | Works within the existing contract today; the dynamic interface is additive. | 9.2 |
 | D-045 | Deployment is container-only (user direction 2026-10-14). Hugo is deployed with Docker Compose (`docker/`), Kubernetes (`k8s/`: Kustomize base, components, k3s and production overlays, a Helm chart, and scripts), or minikube (`minikube/`: its own overlay and scripts). The README documents only these; build-and-test instructions live in `docs/DEVELOPMENT.md` and are explicitly not a deployment method. Native installers stay out of scope (D-026). Hugo runs as one replica on every runtime until the event hub and approval signals are shared across replicas (D-027); the manifests say so. This supersedes D-002. | The user wants one deployment model, containers, with Kubernetes and minikube as first-class targets. | 16, 17, 22 Phase 17 |
 | D-046 | MCP implementation details. MCP sessions live in memory (no database-backed cluster sessions); a restart drops them and clients reinitialize on 404, and a session is bound to principal, tenant, and profile. Problems with the profile itself (not found, locked, MCP not exposed, forbidden) are HTTP errors from the proxy with a JSON-RPC body, not tool errors. MCP tools are mapped through a separate protocol-operations list in `OperationScopeMap`. Hugo answers `initialize`, `server/discover`, `tools/list`, and `resources/list` itself; argument validation happens in the pipeline. | Single-replica deployment (D-045) makes in-memory sessions sufficient; the rest keeps existing route tests stable. | 14.3 |
+| D-047 | Agent-loop surface details. Hugo's own loop (chat, A2A, OpenAI-compatible) never offers the `hugo_*` meta tools or `ask_agent_smith` to its model, which prevents recursion. When a turn ends with an approval still pending, the next turn in that conversation begins with a system note carrying the decision and result. Failed or cancelled turns end with an assistant message stating the finish reason. A2A tasks run in the background (blocking sends wait up to 300 seconds), disconnects do not cancel them, and A2A send needs Execute on AgentProfile while get, list, and subscribe need Read on Conversation. `message_tool_calls.arguments_json` (scrubbed model tool arguments) joins the section 7.6 unmanaged JSON list, and `conversations.external_key` stores the OpenAI `user` key. | Recorded from the Phase 6 and 7 work. | 7.6, 13, 14.4, 14.5 |
 
 ---
 
@@ -1781,7 +1781,7 @@ Request history and background services
 - [x] P1.35 Event hub (in-process publish and subscribe) and `GET /v1.0/api/events` SSE with tenant filtering and heartbeats.  | claude 2026-10-14 event hub and GET /v1.0/api/events with tenant filter and heartbeats
 
 Telemetry base
-- [~] P1.36 `HugoMetrics`, `HugoTracing`, `LabelGuard`, and the metric catalog doc generator (`docs/TELEMETRY.md` table generated from the catalog, checked in CI).  | claude 2026-10-14 HugoMetrics, tracing, LabelGuard, generated docs/TELEMETRY.md with test; CI wiring pending
+- [x] P1.36 `HugoMetrics`, `HugoTracing`, `LabelGuard`, and the metric catalog doc generator (`docs/TELEMETRY.md` table generated from the catalog, checked in CI).  | claude 2026-10-14 metric catalog complete incl. agent, model, MCP, A2A families; docs/TELEMETRY.md regenerated
 - [~] P1.37 Radiant host wiring (OTLP, Prometheus scrape toggle, Loki logs), best-effort initialization.  | claude 2026-10-14 Radiant OTLP and Prometheus; Loki log export pending
 - [x] P1.38 Watson telemetry settings on, `traceparent` propagation, and `x-request-id` on responses.  | claude 2026-10-14 Watson telemetry on, x-request-id
 - [x] P1.39 Auth and authz metrics from AUTHENTICATION.md (`hugo_auth_requests_total`, `hugo_authz_requests_total`, denials by reason).  | claude 2026-10-14 auth and authz metrics, denials by reason
@@ -1917,30 +1917,30 @@ Database intelligence (D-038)
 
 ### Phase 6: Model endpoints and agent runtime (M1)
 
-- [~] P6.1 Migration 6: `model_endpoints`, `conversations`, `messages`, `a2a_tasks`, `a2a_task_artifacts`.  | claude 2026-10-14 migration 6: model_endpoints; conversations and messages pending (Phase 7 chat work)
-- [~] P6.2 `I*Methods` and implementations for model endpoints, conversations, messages (both providers).  | claude 2026-10-14 model endpoint methods; conversation and message methods pending
+- [x] P6.1 Migration 6: `model_endpoints`, `conversations`, `messages`, `a2a_tasks`, `a2a_task_artifacts`.  | claude 2026-10-14 migrations 6 (model_endpoints) and 7 (conversations, messages, message_tool_calls, a2a_tasks, a2a_task_artifacts)
+- [x] P6.2 `I*Methods` and implementations for model endpoints, conversations, messages (both providers).  | claude 2026-10-14 model endpoint, conversation, message, A2A task methods on both providers
 - [x] P6.3 `ModelClientFactory` (PolyPrompt) for all nine providers, API keys via secret references.  | claude 2026-10-14 Hugo.Core/Inference/ModelClientFactory: nine providers via PolyPrompt 3.2.0; keys supplied per call, never logged
 - [x] P6.4 Endpoint gate (concurrency), retry with backoff, circuit breaker, fallback endpoint.  | claude 2026-10-14 EndpointGate, RetryPolicy (429/5xx jitter, Retry-After captured by an HTTP handler under PolyPrompt), CircuitBreaker, fallback endpoint in ModelGateway
 - [x] P6.5 Model endpoint routes, validate, provider model list.  | claude 2026-10-14 model endpoint routes, validate, provider model list
 - [x] P6.6 Model health sweep job and metrics.  | claude 2026-10-14 model health sweep and metric
 - [x] P6.7 Deterministic LLM stub (`Test.Shared/Stubs/StubLlm`, OpenAI-compatible and Ollama-compatible) that scripts tool calls from a fixture, for tests and benchmarks.  | claude 2026-10-14 Test.Shared/Agent/StubLlm: OpenAI-compatible chat (stream and non-stream, tool calls) and feature-hashing embeddings, scripted, configurable latency; no Ollama mode
 - [x] P6.8 `AgentRuntime.RunTurnAsync`: context build, tool definitions, streaming loop, think-block parsing, parallel reads, forced final answer.  | claude 2026-10-14 AgentRuntime.RunTurnAsync: streaming loop, think parsing, parallel calls only for KnownEffect Read tools, forced final answer
-- [~] P6.9 Tool output wrapping as data, and the prompt-injection posture text in the persona.  | claude 2026-10-14 tool outputs wrapped as <tool_output> data and cannot close their block; persona text lands with the instruction compiler (P5.14)
+- [x] P6.9 Tool output wrapping as data, and the prompt-injection posture text in the persona.  | claude 2026-10-14 tool outputs wrapped as data; persona forbids following instructions in tool output
 - [x] P6.10 Context compaction with persisted summary messages.  | claude 2026-10-14 compaction summarized through the model and persisted as a Summary message rendered into the system prompt
 - [x] P6.11 Tool retrieval by embeddings over the threshold (falls back to all tools when no embedding endpoint exists).  | claude 2026-10-14 embedding tool retrieval with cached vectors and fallback to all tools
-- [~] P6.12 Approval waits inside turns (events, resume on decision, expiry handling).  | claude 2026-10-14 approval events and blocking waits via IAgentApprovalListener; expiry belongs to the executor (P3.15)
-- [x] P6.13 Cancellation (client abort and cancel route), with in-flight tool cancellation.  | claude 2026-10-14 cancellation stops the loop, cancels in-flight tools, closes unfinished calls
-- [~] P6.14 SSE writer and event types (D-022), with heartbeat and `retry` hints.  | claude 2026-10-14 typed events done (D-022 names); SSE writer, heartbeat, retry hints remain in the server
-- [ ] P6.15 Conversation routes: CRUD, messages (SSE and JSON modes), cancel, export.
-- [ ] P6.16 Auto titles (a short model call after the first exchange, skipped when no endpoint is configured).
-- [~] P6.17 Token accounting per message and conversation, plus analytics aggregation queries.  | claude 2026-10-14 per-message and per-turn token accounting; aggregation queries remain
-- [ ] P6.18 Analytics routes (overview, tokens, tools, models), bucketed and gap-filled.
+- [x] P6.12 Approval waits inside turns (events, resume on decision, expiry handling).  | claude 2026-10-14 approval waits mid-turn for chat and A2A; pending approvals reported to the next turn as a system note when a turn ends first
+- [x] P6.13 Cancellation (client abort and cancel route), with in-flight tool cancellation.  | claude 2026-10-14 cancel route stops a running turn
+- [x] P6.14 SSE writer and event types (D-022), with heartbeat and `retry` hints.  | claude 2026-10-14 SSE writer: D-022 events, heartbeats, retry hint, stream.closed
+- [x] P6.15 Conversation routes: CRUD, messages (SSE and JSON modes), cancel, export.  | claude 2026-10-14 conversation routes incl. SSE and JSON message modes, cancel, export md/json
+- [x] P6.16 Auto titles (a short model call after the first exchange, skipped when no endpoint is configured).  | claude 2026-10-14 auto titles
+- [x] P6.17 Token accounting per message and conversation, plus analytics aggregation queries.  | claude 2026-10-14 token accounting per message and conversation
+- [x] P6.18 Analytics routes (overview, tokens, tools, models), bucketed and gap-filled.  | claude 2026-10-14 analytics overview, tokens, tools, models with gap-filled buckets (bucketing in process for portability)
 - [x] P6.19 Agent metrics and spans (stages per section 21).  | claude 2026-10-14 AgentTelemetry on meter and source Hugo with section 21 names; folds into HugoMetrics when the foundation lands
 - [x] P6.20 Per-conversation Padlock and the concurrent turn rejection (409) path.  | claude 2026-10-14 keyed SemaphoreSlim lock (not Padlock); AgentTurnConflictException maps to 409
 - [x] P6.21 Agent suites with the stub LLM: multi-tool turn, approval approve and reject mid-turn, max iterations, compaction, cancellation, fallback endpoint, tool retrieval.  | claude 2026-10-14 agent.units 11, agent.inference 9, agent.runtime 16, passing on net8.0 and net10.0
-- [ ] P6.22 A live smoke script (`scripts/smoke-chat.sh`) against a real local Ollama, documented, not in CI.
-- [ ] P6.23 `ask_agent_smith` service entry point shared by MCP and REST.
-- [ ] P6.24 Conversation visibility rules and suites (own vs tenant admin).
+- [~] P6.22 A live smoke script (`scripts/smoke-chat.sh`) against a real local Ollama, documented, not in CI.  | claude 2026-10-14 scripts/smoke-chat.sh written; run against the stub LLM only (no local Ollama available)
+- [x] P6.23 `ask_agent_smith` service entry point shared by MCP and REST.  | claude 2026-10-14 IAgentDelegationService implementation, POST /v1.0/api/agent-profiles/{id}/ask, ask_agent_smith on MCP
+- [x] P6.24 Conversation visibility rules and suites (own vs tenant admin).  | claude 2026-10-14 users see their own conversations, tenant admins all; owners may delete their own
 
 ### Phase 7: Protocol surfaces (M1)
 
@@ -1959,18 +1959,18 @@ MCP
 - [x] P7.12 Manual check with Claude Code: add Hugo as an HTTP MCP server with a profile-bound credential and run an investigation. *Accept:* transcript excerpt and screenshots in the annotation.  | claude 2026-10-14 Claude Code 2.1.300 over HTTP (stateless) and over stdio via hugo mcp stdio: listed tables and counted rows on shop-db (customers 3, orders 5)
 
 A2A
-- [ ] P7.13 A2A routes copied from Garrison `A2ARoutes.cs` and adapted: card, tenant card list, JSON-RPC endpoint with 1.0 and legacy method names.
-- [ ] P7.14 A2A task persistence with ownership, state mapping, artifacts, `SubscribeToTask` SSE.
-- [ ] P7.15 A2A approval mapping to `input-required` and automatic resume.
-- [ ] P7.16 Agent card rendering (`a2a.skill-description` template, one skill per family, external base URL).
-- [ ] P7.17 A2A suites with the Voltaic `A2AClient`: card, send, stream, get, list, cancel, ownership refusal.
+- [x] P7.13 A2A routes copied from Garrison `A2ARoutes.cs` and adapted: card, tenant card list, JSON-RPC endpoint with 1.0 and legacy method names.  | claude 2026-10-14 A2A routes: anonymous card, tenant card list, JSON-RPC with 1.0 and legacy names
+- [x] P7.14 A2A task persistence with ownership, state mapping, artifacts, `SubscribeToTask` SSE.  | claude 2026-10-14 tasks persisted with principal ownership, background execution, SubscribeToTask SSE, stale tasks failed at startup
+- [x] P7.15 A2A approval mapping to `input-required` and automatic resume.  | claude 2026-10-14 input-required on approval waits with automatic resume; messages to a task awaiting approval refused with -32007
+- [x] P7.16 Agent card rendering (`a2a.skill-description` template, one skill per family, external base URL).  | claude 2026-10-14 agent card from a2a.skill-description, external base URL, expose_a2a
+- [x] P7.17 A2A suites with the Voltaic `A2AClient`: card, send, stream, get, list, cancel, ownership refusal.  | claude 2026-10-14 A2A suites with Voltaic A2AClient on both providers
 
 OpenAI-compatible and CLI
-- [ ] P7.18 `/v1.0/openai/v1/chat/completions` (stream and non-stream) and `/models`.
-- [ ] P7.19 OpenAI-compatible suites (official OpenAI client shape compatibility via raw JSON fixtures).
+- [x] P7.18 `/v1.0/openai/v1/chat/completions` (stream and non-stream) and `/models`.  | claude 2026-10-14 /v1.0/openai/v1/chat/completions (stream and non-stream) and /models; client tools rejected; continuity via user or x-hugo-conversation
+- [x] P7.19 OpenAI-compatible suites (official OpenAI client shape compatibility via raw JSON fixtures).  | claude 2026-10-14 OpenAI suites from raw JSON fixtures
 - [x] P7.20 `Hugo.Cli` `hugo mcp stdio` relay, `login`, `whoami`, `profiles list`. Packaged as a .NET tool.  | claude 2026-10-14 hugo CLI: mcp stdio relay (renew on 401, new session on 404, Last-Event-ID resume), login (0600 credentials file), logout, whoami, profiles list; packs as Hugo.Cli tool
 - [ ] P7.21 CLI suite: stdio relay round trip with a real MCP client over stdio.
-- [~] P7.22 Protocol telemetry (MCP and A2A metrics and spans).  | claude 2026-10-14 MCP part done (hugo_mcp_requests_total, mcp <method> spans); A2A part pending the chat/A2A merge
+- [x] P7.22 Protocol telemetry (MCP and A2A metrics and spans).  | claude 2026-10-14 hugo_mcp_requests_total and hugo_a2a_requests_total with spans; agent and model families in the catalog; hugo_authz_requests_total now recorded
 
 ### Phase 8: Dashboard (M1)
 
