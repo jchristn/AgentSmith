@@ -100,6 +100,9 @@ namespace Hugo.Core.Database.Ado
             if (!String.IsNullOrEmpty(f.ResourceId)) clauses.Add("resource_id = @resource_id");
             if (!String.IsNullOrEmpty(f.PrincipalId)) clauses.Add("requested_by_principal_id = @principal_id");
             if (!String.IsNullOrEmpty(f.ToolName)) clauses.Add("tool_name = @tool_name");
+            if (f.Effect.HasValue) clauses.Add("effect = @effect");
+            if (f.SinceUtc.HasValue) clauses.Add("created_utc >= @since");
+            if (f.UntilUtc.HasValue) clauses.Add("created_utc < @until");
             string where = " WHERE " + String.Join(" AND ", clauses);
             Action<DbCommand> bind = command =>
             {
@@ -110,6 +113,9 @@ namespace Hugo.Core.Database.Ado
                 if (!String.IsNullOrEmpty(f.ResourceId)) AdoDatabaseDriver.Add(command, "resource_id", f.ResourceId);
                 if (!String.IsNullOrEmpty(f.PrincipalId)) AdoDatabaseDriver.Add(command, "principal_id", f.PrincipalId);
                 if (!String.IsNullOrEmpty(f.ToolName)) AdoDatabaseDriver.Add(command, "tool_name", f.ToolName);
+                if (f.Effect.HasValue) AdoDatabaseDriver.Add(command, "effect", f.Effect.Value.ToString());
+                if (f.SinceUtc.HasValue) AdoDatabaseDriver.Add(command, "since", f.SinceUtc.Value);
+                if (f.UntilUtc.HasValue) AdoDatabaseDriver.Add(command, "until", f.UntilUtc.Value);
             };
             object? countValue = await _Driver.ScalarAsync("SELECT COUNT(*) FROM " + _Table + where + ";", bind, token).ConfigureAwait(false);
             long total = countValue == null ? 0 : Convert.ToInt64(countValue, CultureInfo.InvariantCulture);

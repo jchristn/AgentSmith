@@ -133,6 +133,9 @@ namespace Hugo.Core
         /// <summary>Model endpoint identifier prefix.</summary>
         public const string ModelEndpointIdPrefix = "mep_";
 
+        /// <summary>Model endpoint health check record identifier prefix.</summary>
+        public const string ModelHealthCheckIdPrefix = "mhc_";
+
         /// <summary>Conversation identifier prefix.</summary>
         public const string ConversationIdPrefix = "cnv_";
 
@@ -157,6 +160,12 @@ namespace Hugo.Core
         /// Resource knowledge version identifier prefix.
         /// </summary>
         public const string ResourceKnowledgeVersionIdPrefix = "rkv_";
+
+        /// <summary>
+        /// Key of a knowledge scope's root entry, as stored and as sent over the API. Inputs accept this value or an
+        /// empty key; connectors see the root as the empty key (the connector contract).
+        /// </summary>
+        public const string KnowledgeRootKey = "_root";
 
         /// <summary>
         /// Connector schema cache entry identifier prefix.

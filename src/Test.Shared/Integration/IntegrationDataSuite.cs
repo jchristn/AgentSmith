@@ -103,8 +103,13 @@ namespace Test.Shared.Integration
                 EnumerationQuery query = new EnumerationQuery();
                 query.Search = "r";
                 await db.Resources.CreateAsync(NewResource(tenant.Id, "r2"), token).ConfigureAwait(false);
-                EnumerationResult<Resource> page = await db.Resources.EnumerateAsync(tenant.Id, query, "echo", token).ConfigureAwait(false);
+                EnumerationResult<Resource> page = await db.Resources.EnumerateAsync(tenant.Id, query, new ResourceFilter { ConnectorType = "echo" }, token).ConfigureAwait(false);
                 Assert.True(page.TotalRecords == 2 && page.Objects.All(r => r.Settings.Count > 0), "enumerate with children");
+                EnumerationResult<Resource> unhealthy = await db.Resources.EnumerateAsync(tenant.Id, new EnumerationQuery(), new ResourceFilter { Health = ModelHealthStatusEnum.Unhealthy }, token).ConfigureAwait(false);
+                Assert.True(unhealthy.TotalRecords == 1 && unhealthy.Objects[0].Id == resource.Id, "health filter Unhealthy (last test failed)");
+                EnumerationResult<Resource> unknown = await db.Resources.EnumerateAsync(tenant.Id, new EnumerationQuery(), new ResourceFilter { Health = ModelHealthStatusEnum.Unknown }, token).ConfigureAwait(false);
+                Assert.True(unknown.TotalRecords == 1 && unknown.Objects[0].Id != resource.Id, "health filter Unknown (never tested)");
+                Assert.Equal(0L, (await db.Resources.EnumerateAsync(tenant.Id, new EnumerationQuery(), new ResourceFilter { Health = ModelHealthStatusEnum.Healthy }, token).ConfigureAwait(false)).TotalRecords, "health filter Healthy");
 
                 AgentProfile profile = new AgentProfile { TenantId = tenant.Id, Name = "p" };
                 await db.AgentProfiles.CreateAsync(profile, token).ConfigureAwait(false);

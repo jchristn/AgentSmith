@@ -122,6 +122,7 @@ namespace Hugo.Core.Database.Ado
             Approvals = new AdoApprovalMethods(this);
             ResourceKnowledge = new AdoResourceKnowledgeMethods(this);
             ModelEndpoints = new AdoModelEndpointMethods(this);
+            ModelEndpointHealth = new AdoModelEndpointHealthMethods(this);
             Plugins = new AdoPluginMethods(this);
             SchemaCache = new AdoConnectorSchemaCacheMethods(this);
             Conversations = new AdoConversationMethods(this);

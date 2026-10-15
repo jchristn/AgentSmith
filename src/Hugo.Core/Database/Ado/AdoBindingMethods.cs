@@ -134,6 +134,20 @@ namespace Hugo.Core.Database.Ado
             }, token).ConfigureAwait(false);
         }
 
+        /// <inheritdoc />
+        public async Task<Dictionary<string, int>> CountByProfileAsync(string tenantId, CancellationToken token = default)
+        {
+            if (String.IsNullOrEmpty(tenantId)) throw new ArgumentNullException(nameof(tenantId));
+            List<KeyValuePair<string, int>> rows = await _Driver.QueryAsync(
+                "SELECT agent_profile_id, COUNT(*) AS binding_count FROM " + _Table + " WHERE tenant_id = @tenant_id GROUP BY agent_profile_id;",
+                command => AdoDatabaseDriver.Add(command, "tenant_id", tenantId),
+                reader => new KeyValuePair<string, int>(AdoConverters.Str(reader, "agent_profile_id"), AdoConverters.Int(reader, "binding_count")),
+                token).ConfigureAwait(false);
+            Dictionary<string, int> counts = new Dictionary<string, int>(StringComparer.Ordinal);
+            foreach (KeyValuePair<string, int> row in rows) counts[row.Key] = row.Value;
+            return counts;
+        }
+
         #endregion
 
         #region Private-Methods

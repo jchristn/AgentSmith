@@ -156,6 +156,11 @@ namespace Hugo.Core.Database
         public IModelEndpointMethods ModelEndpoints { get; protected set; } = null!;
 
         /// <summary>
+        /// Model endpoint health history (bounded per endpoint).
+        /// </summary>
+        public IModelEndpointHealthMethods ModelEndpointHealth { get; protected set; } = null!;
+
+        /// <summary>
         /// Connector plugin records.
         /// </summary>
         public IPluginMethods Plugins { get; protected set; } = null!;

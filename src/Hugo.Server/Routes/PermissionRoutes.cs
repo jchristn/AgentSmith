@@ -45,7 +45,7 @@ namespace Hugo.Server.Routes
         public void Register(RouteRegistrar routes)
         {
             routes.Scoped(HttpMethod.GET, "/v1.0/api/tenants/{tenantId}/permissions", ResourceTypeEnum.Permission, OperationTypeEnum.Read, ListAsync, "List permissions, including built-ins", "Permissions", null, typeof(EnumerationResult<Permission>));
-            routes.Scoped(HttpMethod.POST, "/v1.0/api/tenants/{tenantId}/permissions", ResourceTypeEnum.Permission, OperationTypeEnum.Create, CreateAsync, "Create a permission", "Permissions", typeof(PermissionRequest), typeof(Permission));
+            routes.Scoped(HttpMethod.POST, "/v1.0/api/tenants/{tenantId}/permissions", ResourceTypeEnum.Permission, OperationTypeEnum.Create, CreateAsync, "Create a permission", "Permissions", typeof(PermissionRequest), typeof(Permission), statuses: new[] { 201 });
             routes.Scoped(HttpMethod.GET, "/v1.0/api/tenants/{tenantId}/permissions/{id}", ResourceTypeEnum.Permission, OperationTypeEnum.Read, ReadAsync, "Read a permission", "Permissions", null, typeof(Permission));
             routes.Scoped(HttpMethod.PUT, "/v1.0/api/tenants/{tenantId}/permissions/{id}", ResourceTypeEnum.Permission, OperationTypeEnum.Update, UpdateAsync, "Update a permission", "Permissions", typeof(PermissionRequest), typeof(Permission));
             routes.Scoped(HttpMethod.DELETE, "/v1.0/api/tenants/{tenantId}/permissions/{id}", ResourceTypeEnum.Permission, OperationTypeEnum.Delete, DeleteAsync, "Delete a permission", "Permissions");

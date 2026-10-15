@@ -2,6 +2,7 @@ namespace Hugo.Server.Routes
 {
     using System;
     using System.Threading.Tasks;
+    using Hugo.Connectors.Abstractions;
     using Hugo.Core.Enumeration;
     using Hugo.Core.Enums;
     using Hugo.Core.Models;
@@ -56,10 +57,10 @@ namespace Hugo.Server.Routes
         public void Register(RouteRegistrar routes)
         {
             if (routes == null) throw new ArgumentNullException(nameof(routes));
-            routes.Scoped(HttpMethod.GET, _Base, ResourceTypeEnum.ToolInvocation, OperationTypeEnum.Read, ListAsync, "List tool invocations (filters: agentProfileId, resourceId, toolName, decision, status, surface, conversationId, principalId, since)", "Tool Invocations", null, typeof(EnumerationResult<ToolInvocation>));
+            routes.Scoped(HttpMethod.GET, _Base, ResourceTypeEnum.ToolInvocation, OperationTypeEnum.Read, ListAsync, "List tool invocations (filters: agentProfileId, resourceId, toolName, decision, status, surface, effect, conversationId, principalId, fromUtc (or since), toUtc)", "Tool Invocations", null, typeof(EnumerationResult<ToolInvocation>));
             routes.Scoped(HttpMethod.GET, _Base + "/summary", ResourceTypeEnum.ToolInvocation, OperationTypeEnum.Read, SummaryAsync, "Counts by decision, status, effect, and tool (optional since)", "Tool Invocations", null, typeof(ToolInvocationSummary));
             routes.Authenticated(HttpMethod.POST, _Base + "/dry-run", DryRunAsync, "Run resolution, authorization, validation, classification, and rules only, and return the decision (nothing is recorded or executed)", "Tool Invocations", typeof(ToolCallRequest), typeof(ToolInvocationOutcome));
-            routes.Authenticated(HttpMethod.POST, _Base, InvokeAsync, "Invoke a tool as a profile through the full pipeline; 202 with the approval while approval is pending", "Tool Invocations", typeof(ToolCallRequest), typeof(ToolInvocationOutcome));
+            routes.Authenticated(HttpMethod.POST, _Base, InvokeAsync, "Invoke a tool as a profile through the full pipeline; 202 with the approval while approval is pending", "Tool Invocations", typeof(ToolCallRequest), typeof(ToolInvocationOutcome), statuses: new[] { 200, 202 });
             routes.Scoped(HttpMethod.GET, _Base + "/{id}", ResourceTypeEnum.ToolInvocation, OperationTypeEnum.Read, ReadAsync, "Read a tool invocation", "Tool Invocations", null, typeof(ToolInvocation));
         }
 
@@ -78,7 +79,9 @@ namespace Hugo.Server.Routes
             filter.Decision = RouteHelpers.QueryEnum<InvocationDecisionEnum>(http, "decision");
             filter.Status = RouteHelpers.QueryEnum<InvocationStatusEnum>(http, "status");
             filter.Surface = RouteHelpers.QueryEnum<InvocationSurfaceEnum>(http, "surface");
-            filter.SinceUtc = RouteHelpers.QueryDate(http, "since");
+            filter.SinceUtc = RouteHelpers.QueryDate(http, "fromUtc") ?? RouteHelpers.QueryDate(http, "since");
+            filter.UntilUtc = RouteHelpers.QueryDate(http, "toUtc");
+            filter.Effect = RouteHelpers.QueryEnum<EffectEnum>(http, "effect");
             EnumerationResult<ToolInvocation> page = await _Server.Database.ToolInvocations.EnumerateAsync(RouteHelpers.Tenant(http), RouteHelpers.Enumeration(http), filter, http.Token).ConfigureAwait(false);
             await RouteHelpers.JsonAsync(http, 200, page).ConfigureAwait(false);
         }

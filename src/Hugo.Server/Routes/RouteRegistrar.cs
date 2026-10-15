@@ -1,6 +1,7 @@
 namespace Hugo.Server.Routes
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text.Json;
@@ -58,6 +59,19 @@ namespace Hugo.Server.Routes
             }
         }
 
+        /// <summary>
+        /// Success responses a route sent with a status its OpenAPI metadata does not declare, as "METHOD path status".
+        /// Empty when every route answered as documented. Routes that declare no status (streams and proxies) are not
+        /// checked. Used by the route contract tests.
+        /// </summary>
+        public List<string> UndeclaredStatuses
+        {
+            get
+            {
+                return _UndeclaredStatuses.Keys.OrderBy(k => k, StringComparer.Ordinal).ToList();
+            }
+        }
+
         #endregion
 
         #region Private-Members
@@ -82,6 +96,7 @@ namespace Hugo.Server.Routes
         private readonly LoggingModule _Logging;
         private readonly string _Header = "[Routes] ";
         private Func<int> _DatabaseRetryAfterSeconds = () => 2;
+        private readonly ConcurrentDictionary<string, byte> _UndeclaredStatuses = new ConcurrentDictionary<string, byte>(StringComparer.Ordinal);
 
         #endregion
 
@@ -119,11 +134,13 @@ namespace Hugo.Server.Routes
         /// <param name="tag">OpenAPI tag.</param>
         /// <param name="requestBody">Optional request body type.</param>
         /// <param name="response">Optional response type.</param>
-        public void Anonymous(HttpMethod method, string path, Func<HttpContextBase, Task> handler, string summary, string tag, Type? requestBody = null, Type? response = null)
+        /// <param name="statuses">Success status codes the handler sends, documented in OpenAPI. Null means 200 when a response type is given, 204 for a DELETE without one, and none otherwise.</param>
+        public void Anonymous(HttpMethod method, string path, Func<HttpContextBase, Task> handler, string summary, string tag, Type? requestBody = null, Type? response = null, int[]? statuses = null)
         {
-            Record(method, path, null, null, RouteAuthorizationEnum.Anonymous, summary, tag);
-            Func<HttpContextBase, Task> wrapped = context => InvokeAsync(context, handler);
-            OpenApiRouteMetadata metadata = Metadata(method, path, summary, tag, requestBody, response, false);
+            List<int> declared = Declared(method, response, statuses);
+            Record(method, path, null, null, RouteAuthorizationEnum.Anonymous, summary, tag, declared);
+            Func<HttpContextBase, Task> wrapped = context => ObservedAsync(context, method, path, declared, handler);
+            OpenApiRouteMetadata metadata = Metadata(method, path, summary, tag, requestBody, response, false, declared);
             if (path.Contains('{')) _Server.Routes.PreAuthentication.Parameter.Add(method, path, wrapped, null, openApiMetadata: metadata);
             else _Server.Routes.PreAuthentication.Static.Add(method, path, wrapped, null, openApiMetadata: metadata);
         }
@@ -142,9 +159,11 @@ namespace Hugo.Server.Routes
         /// <param name="response">Optional response type.</param>
         /// <param name="resourceParameter">Path parameter holding the target resource identifier. Default id.</param>
         /// <param name="queryParameters">Optional query parameters described in OpenAPI; when present, a 400 response is documented too.</param>
-        public void Scoped(HttpMethod method, string path, ResourceTypeEnum resourceType, OperationTypeEnum operation, Func<HttpContextBase, Task> handler, string summary, string tag, Type? requestBody = null, Type? response = null, string resourceParameter = "id", List<OpenApiParameterMetadata>? queryParameters = null)
+        /// <param name="statuses">Success status codes the handler sends, documented in OpenAPI. Null means 200 when a response type is given, 204 for a DELETE without one, and none otherwise.</param>
+        public void Scoped(HttpMethod method, string path, ResourceTypeEnum resourceType, OperationTypeEnum operation, Func<HttpContextBase, Task> handler, string summary, string tag, Type? requestBody = null, Type? response = null, string resourceParameter = "id", List<OpenApiParameterMetadata>? queryParameters = null, int[]? statuses = null)
         {
-            Record(method, path, resourceType, operation, RouteAuthorizationEnum.Scoped, summary, tag);
+            List<int> declared = Declared(method, response, statuses);
+            Record(method, path, resourceType, operation, RouteAuthorizationEnum.Scoped, summary, tag, declared);
             Func<HttpContextBase, Task> authorized = async context =>
             {
                 RequestContext ctx = RouteHelpers.Context(context);
@@ -158,13 +177,13 @@ namespace Hugo.Server.Routes
                 }
                 await handler(context).ConfigureAwait(false);
             };
-            OpenApiRouteMetadata metadata = Metadata(method, path, summary, tag, requestBody, response, true);
+            OpenApiRouteMetadata metadata = Metadata(method, path, summary, tag, requestBody, response, true, declared);
             if (queryParameters != null && queryParameters.Count > 0)
             {
                 foreach (OpenApiParameterMetadata parameter in queryParameters) metadata.WithParameter(parameter);
                 metadata.WithResponse(400, OpenApiResponseMetadata.Json("Invalid query parameters.", OpenApiSchemaFactory.For(typeof(ErrorResponse))));
             }
-            Add(method, path, authorized, metadata);
+            Add(method, path, authorized, metadata, declared);
         }
 
         /// <summary>
@@ -179,10 +198,12 @@ namespace Hugo.Server.Routes
         /// <param name="response">Optional response type.</param>
         /// <param name="resourceType">Resource type the handler checks (documented in the scope map), or null.</param>
         /// <param name="operation">Operation the handler checks (documented in the scope map), or null.</param>
-        public void Authenticated(HttpMethod method, string path, Func<HttpContextBase, Task> handler, string summary, string tag, Type? requestBody = null, Type? response = null, ResourceTypeEnum? resourceType = null, OperationTypeEnum? operation = null)
+        /// <param name="statuses">Success status codes the handler sends, documented in OpenAPI. Null means 200 when a response type is given, 204 for a DELETE without one, and none otherwise.</param>
+        public void Authenticated(HttpMethod method, string path, Func<HttpContextBase, Task> handler, string summary, string tag, Type? requestBody = null, Type? response = null, ResourceTypeEnum? resourceType = null, OperationTypeEnum? operation = null, int[]? statuses = null)
         {
-            Record(method, path, resourceType, operation, RouteAuthorizationEnum.Handler, summary, tag);
-            Add(method, path, handler, Metadata(method, path, summary, tag, requestBody, response, true));
+            List<int> declared = Declared(method, response, statuses);
+            Record(method, path, resourceType, operation, RouteAuthorizationEnum.Handler, summary, tag, declared);
+            Add(method, path, handler, Metadata(method, path, summary, tag, requestBody, response, true, declared), declared);
         }
 
         /// <summary>
@@ -277,7 +298,7 @@ namespace Hugo.Server.Routes
 
         #region Private-Methods
 
-        private void Add(HttpMethod method, string path, Func<HttpContextBase, Task> handler, OpenApiRouteMetadata metadata)
+        private void Add(HttpMethod method, string path, Func<HttpContextBase, Task> handler, OpenApiRouteMetadata metadata, List<int> declared)
         {
             // Every authenticated route under /tenants/{tenantId} checks here, once, that the tenant exists. Users who must
             // change their password reach only the password change, token, and identity routes (P1.16).
@@ -308,12 +329,12 @@ namespace Hugo.Server.Routes
             }
             // The tenant check and the authorization decision read the database, so they run inside the same exception
             // mapping as the handler (G-25).
-            Func<HttpContextBase, Task> wrapped = context => InvokeAsync(context, inner);
+            Func<HttpContextBase, Task> wrapped = context => ObservedAsync(context, method, path, declared, inner);
             if (path.Contains('{')) _Server.Routes.PostAuthentication.Parameter.Add(method, path, wrapped, null, openApiMetadata: metadata);
             else _Server.Routes.PostAuthentication.Static.Add(method, path, wrapped, null, openApiMetadata: metadata);
         }
 
-        private void Record(HttpMethod method, string path, ResourceTypeEnum? resourceType, OperationTypeEnum? operation, RouteAuthorizationEnum authorization, string summary, string tag)
+        private void Record(HttpMethod method, string path, ResourceTypeEnum? resourceType, OperationTypeEnum? operation, RouteAuthorizationEnum authorization, string summary, string tag, List<int> statuses)
         {
             OperationScope scope = new OperationScope();
             scope.Method = method.ToString();
@@ -323,10 +344,19 @@ namespace Hugo.Server.Routes
             scope.Authorization = authorization;
             scope.Summary = summary;
             scope.Tag = tag;
+            scope.SuccessStatuses = statuses;
             _Scopes.Add(scope);
         }
 
-        private static OpenApiRouteMetadata Metadata(HttpMethod method, string path, string summary, string tag, Type? requestBody, Type? response, bool secured)
+        private static List<int> Declared(HttpMethod method, Type? response, int[]? statuses)
+        {
+            if (statuses != null && statuses.Length > 0) return statuses.Distinct().OrderBy(s => s).ToList();
+            if (response != null) return new List<int> { 200 };
+            if (method == HttpMethod.DELETE) return new List<int> { 204 };
+            return new List<int>();
+        }
+
+        private static OpenApiRouteMetadata Metadata(HttpMethod method, string path, string summary, string tag, Type? requestBody, Type? response, bool secured, List<int> statuses)
         {
             OpenApiRouteMetadata metadata = OpenApiRouteMetadata.Create(summary, tag);
             foreach (Match match in _ParameterPattern.Matches(path))
@@ -334,14 +364,25 @@ namespace Hugo.Server.Routes
                 metadata.WithParameter(OpenApiParameterMetadata.Path(match.Groups[1].Value, match.Groups[1].Value + " path parameter.", OpenApiSchemaMetadata.String()));
             }
             if (requestBody != null) metadata.WithRequestBody(OpenApiRequestBodyMetadata.Json(OpenApiSchemaFactory.For(requestBody), requestBody.Name, true));
-            if (response != null) metadata.WithResponse(200, OpenApiResponseMetadata.Json("Success.", OpenApiSchemaFactory.For(response)));
-            else if (method == HttpMethod.DELETE) metadata.WithResponse(204, OpenApiResponseMetadata.NoContent());
+            foreach (int status in statuses)
+            {
+                if (status == 204) metadata.WithResponse(204, OpenApiResponseMetadata.NoContent());
+                else if (response != null) metadata.WithResponse(status, OpenApiResponseMetadata.Json(StatusDescription(status), OpenApiSchemaFactory.For(response)));
+                else metadata.WithResponse(status, OpenApiResponseMetadata.Create(StatusDescription(status)));
+            }
             if (secured)
             {
                 metadata.WithResponse(401, OpenApiResponseMetadata.Unauthorized());
                 metadata.WithResponse(403, OpenApiResponseMetadata.Forbidden());
             }
             return metadata;
+        }
+
+        private static string StatusDescription(int status)
+        {
+            if (status == 201) return "Created.";
+            if (status == 202) return "Accepted; the work continues in the background or waits for an approval.";
+            return "Success.";
         }
 
         private async Task<bool> TenantMissingAsync(HttpContextBase context)
@@ -368,6 +409,16 @@ namespace Hugo.Server.Routes
                 error.TenantId = tenantId;
             }
             await RouteHelpers.JsonAsync(context, status, error).ConfigureAwait(false);
+        }
+
+        private async Task ObservedAsync(HttpContextBase context, HttpMethod method, string path, List<int> declared, Func<HttpContextBase, Task> handler)
+        {
+            await InvokeAsync(context, handler).ConfigureAwait(false);
+            int status = context.Response.StatusCode;
+            if (declared.Count > 0 && status >= 200 && status < 300 && !declared.Contains(status))
+            {
+                _UndeclaredStatuses[method.ToString() + " " + path + " " + status.ToString(System.Globalization.CultureInfo.InvariantCulture)] = 0;
+            }
         }
 
         private async Task InvokeAsync(HttpContextBase context, Func<HttpContextBase, Task> handler)
@@ -404,6 +455,10 @@ namespace Hugo.Server.Routes
             catch (ForbiddenException e)
             {
                 await RouteHelpers.ErrorAsync(context, 403, e.Code, e.Message).ConfigureAwait(false);
+            }
+            catch (UpstreamException e)
+            {
+                await RouteHelpers.ErrorAsync(context, e.StatusCode, e.Code, e.Message).ConfigureAwait(false);
             }
             catch (ArgumentException e)
             {

@@ -50,7 +50,7 @@ namespace Hugo.Server.Routes
         public void Register(RouteRegistrar routes)
         {
             routes.Authenticated(HttpMethod.GET, "/v1.0/api/tenants", ListAsync, "List tenants visible to the caller", "Tenants", null, typeof(EnumerationResult<Tenant>));
-            routes.Scoped(HttpMethod.POST, "/v1.0/api/tenants", ResourceTypeEnum.Tenant, OperationTypeEnum.Create, CreateAsync, "Create a tenant", "Tenants", typeof(TenantRequest), typeof(Tenant));
+            routes.Scoped(HttpMethod.POST, "/v1.0/api/tenants", ResourceTypeEnum.Tenant, OperationTypeEnum.Create, CreateAsync, "Create a tenant", "Tenants", typeof(TenantRequest), typeof(Tenant), statuses: new[] { 201 });
             routes.Scoped(HttpMethod.GET, "/v1.0/api/tenants/{tenantId}", ResourceTypeEnum.Tenant, OperationTypeEnum.Read, ReadAsync, "Read a tenant", "Tenants", null, typeof(Tenant), "tenantId");
             routes.Scoped(HttpMethod.PUT, "/v1.0/api/tenants/{tenantId}", ResourceTypeEnum.Tenant, OperationTypeEnum.Update, UpdateAsync, "Update a tenant", "Tenants", typeof(TenantRequest), typeof(Tenant), "tenantId");
             routes.Scoped(HttpMethod.DELETE, "/v1.0/api/tenants/{tenantId}", ResourceTypeEnum.Tenant, OperationTypeEnum.Delete, DeleteAsync, "Delete a tenant and everything it owns", "Tenants", null, null, "tenantId");

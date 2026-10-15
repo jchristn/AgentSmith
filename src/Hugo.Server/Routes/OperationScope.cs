@@ -1,6 +1,7 @@
 namespace Hugo.Server.Routes
 {
     using System;
+    using System.Collections.Generic;
     using Hugo.Core.Enums;
 
     /// <summary>
@@ -42,5 +43,11 @@ namespace Hugo.Server.Routes
         /// Summary.
         /// </summary>
         public string Summary { get; set; } = String.Empty;
+
+        /// <summary>
+        /// Success status codes the route declares in OpenAPI (for example 200, 201, 202, or 204). Empty when the route
+        /// declares none (streams and proxies).
+        /// </summary>
+        public List<int> SuccessStatuses { get; set; } = new List<int>();
     }
 }

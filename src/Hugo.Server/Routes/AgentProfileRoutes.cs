@@ -66,16 +66,16 @@ namespace Hugo.Server.Routes
         {
             if (routes == null) throw new ArgumentNullException(nameof(routes));
             routes.Scoped(HttpMethod.GET, _Base, ResourceTypeEnum.AgentProfile, OperationTypeEnum.Read, ListAsync, "List agent profiles", "Agent Profiles", null, typeof(EnumerationResult<AgentProfile>));
-            routes.Scoped(HttpMethod.POST, _Base, ResourceTypeEnum.AgentProfile, OperationTypeEnum.Create, CreateAsync, "Create an agent profile", "Agent Profiles", typeof(AgentProfileRequest), typeof(AgentProfile));
+            routes.Scoped(HttpMethod.POST, _Base, ResourceTypeEnum.AgentProfile, OperationTypeEnum.Create, CreateAsync, "Create an agent profile", "Agent Profiles", typeof(AgentProfileRequest), typeof(AgentProfile), statuses: new[] { 201 });
             routes.Scoped(HttpMethod.GET, _Base + "/{id}", ResourceTypeEnum.AgentProfile, OperationTypeEnum.Read, ReadAsync, "Read an agent profile", "Agent Profiles", null, typeof(AgentProfile));
             routes.Scoped(HttpMethod.PUT, _Base + "/{id}", ResourceTypeEnum.AgentProfile, OperationTypeEnum.Update, UpdateAsync, "Update an agent profile", "Agent Profiles", typeof(AgentProfileRequest), typeof(AgentProfile));
             routes.Scoped(HttpMethod.DELETE, _Base + "/{id}", ResourceTypeEnum.AgentProfile, OperationTypeEnum.Delete, DeleteAsync, "Delete an agent profile and its bindings (never its resources)", "Agent Profiles");
-            routes.Scoped(HttpMethod.POST, _Base + "/{id}/duplicate", ResourceTypeEnum.AgentProfile, OperationTypeEnum.Create, DuplicateAsync, "Copy an agent profile with its bindings", "Agent Profiles", typeof(CloneRequest), typeof(AgentProfile));
+            routes.Scoped(HttpMethod.POST, _Base + "/{id}/duplicate", ResourceTypeEnum.AgentProfile, OperationTypeEnum.Create, DuplicateAsync, "Copy an agent profile with its bindings", "Agent Profiles", typeof(CloneRequest), typeof(AgentProfile), statuses: new[] { 201 });
             routes.Scoped(HttpMethod.GET, _Base + "/{id}/compiled-instructions", ResourceTypeEnum.AgentProfile, OperationTypeEnum.Read, CompiledAsync, "Compiled instructions as the caller would receive them (surface=Chat|Mcp|A2A|OpenAI), with source map and token estimate", "Agent Profiles", null, typeof(CompiledInstructions));
             routes.Scoped(HttpMethod.GET, _Base + "/{id}/tools", ResourceTypeEnum.AgentProfile, OperationTypeEnum.Read, ToolsAsync, "Tools as the caller would see them, with the resource enum per tool", "Agent Profiles", null, typeof(CallerToolCatalog));
             routes.Scoped(HttpMethod.GET, _Base + "/{id}/card", ResourceTypeEnum.AgentProfile, OperationTypeEnum.Read, CardAsync, "Preview of the A2A agent card", "Agent Profiles", null, typeof(AgentCardPreview));
             routes.Scoped(HttpMethod.GET, _Base + "/{id}/bindings", ResourceTypeEnum.Binding, OperationTypeEnum.Read, BindingsAsync, "List a profile's bindings", "Bindings", null, typeof(List<Binding>));
-            routes.Scoped(HttpMethod.POST, _Base + "/{id}/bindings", ResourceTypeEnum.Binding, OperationTypeEnum.Create, CreateBindingAsync, "Bind a resource to a profile", "Bindings", typeof(BindingRequest), typeof(Binding));
+            routes.Scoped(HttpMethod.POST, _Base + "/{id}/bindings", ResourceTypeEnum.Binding, OperationTypeEnum.Create, CreateBindingAsync, "Bind a resource to a profile", "Bindings", typeof(BindingRequest), typeof(Binding), statuses: new[] { 201 });
             routes.Scoped(HttpMethod.GET, _Base + "/{id}/bindings/{bindingId}", ResourceTypeEnum.Binding, OperationTypeEnum.Read, ReadBindingAsync, "Read a binding", "Bindings", null, typeof(Binding), "bindingId");
             routes.Scoped(HttpMethod.PUT, _Base + "/{id}/bindings/{bindingId}", ResourceTypeEnum.Binding, OperationTypeEnum.Update, UpdateBindingAsync, "Update a binding (access mode, approval policy, instruction override, limits, tool rules, deny patterns)", "Bindings", typeof(BindingRequest), typeof(Binding), "bindingId");
             routes.Scoped(HttpMethod.DELETE, _Base + "/{id}/bindings/{bindingId}", ResourceTypeEnum.Binding, OperationTypeEnum.Delete, DeleteBindingAsync, "Remove a binding", "Bindings", null, null, "bindingId");
@@ -100,7 +100,9 @@ namespace Hugo.Server.Routes
 
         private async Task ReadAsync(HttpContextBase http)
         {
-            await RouteHelpers.JsonAsync(http, 200, await _Profiles.ReadAsync(RouteHelpers.Context(http), RouteHelpers.Tenant(http), Id(http), http.Token).ConfigureAwait(false)).ConfigureAwait(false);
+            AgentProfile profile = await _Profiles.ReadAsync(RouteHelpers.Context(http), RouteHelpers.Tenant(http), Id(http), http.Token).ConfigureAwait(false);
+            profile.BindingCount = (await _Server.Database.Bindings.ListByProfileAsync(profile.TenantId, profile.Id, http.Token).ConfigureAwait(false)).Count;
+            await RouteHelpers.JsonAsync(http, 200, profile).ConfigureAwait(false);
         }
 
         private async Task UpdateAsync(HttpContextBase http)

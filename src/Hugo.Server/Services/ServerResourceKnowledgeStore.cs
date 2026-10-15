@@ -104,7 +104,7 @@ namespace Hugo.Server.Services
             record.TenantId = _TenantId;
             record.ResourceId = _ResourceId;
             record.Scope = entry.Scope ?? String.Empty;
-            record.Key = entry.Key ?? String.Empty;
+            record.Key = ResourceKnowledge.NormalizeKey(entry.Key);
             record.Content = content;
             record.Source = entry.Source;
             record.UpdatedBy = String.IsNullOrEmpty(entry.UpdatedBy) ? _Writer : _Writer + " (" + entry.UpdatedBy + ")";
@@ -133,14 +133,14 @@ namespace Hugo.Server.Services
 
         private static string Describe(string scope, string key)
         {
-            return String.IsNullOrEmpty(key) ? scope + " (root)" : scope + "/" + key;
+            return ResourceKnowledge.IsRootKey(key) ? scope + " (root)" : scope + "/" + key;
         }
 
         private static ResourceKnowledgeEntry ToEntry(ResourceKnowledge stored)
         {
             ResourceKnowledgeEntry entry = new ResourceKnowledgeEntry();
             entry.Scope = stored.Scope;
-            entry.Key = stored.Key;
+            entry.Key = ResourceKnowledge.IsRootKey(stored.Key) ? String.Empty : stored.Key; // connectors address the root with the empty key
             entry.Content = stored.Content;
             entry.Source = stored.Source;
             entry.UpdatedBy = stored.UpdatedBy ?? String.Empty;

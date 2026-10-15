@@ -63,7 +63,7 @@ namespace Hugo.Server.Routes
         {
             _Routes = routes ?? throw new ArgumentNullException(nameof(routes));
             routes.Scoped(HttpMethod.GET, _Base, ResourceTypeEnum.Conversation, OperationTypeEnum.Read, ListAsync, "List the caller's conversations (tenant administrators see all; filters: agentProfileId, source, search)", "Conversations", null, typeof(EnumerationResult<Conversation>), "none");
-            routes.Scoped(HttpMethod.POST, _Base, ResourceTypeEnum.Conversation, OperationTypeEnum.Create, CreateAsync, "Start a conversation with an agent profile (default profile per D-018 when none is given)", "Conversations", typeof(ConversationRequest), typeof(Conversation), "none");
+            routes.Scoped(HttpMethod.POST, _Base, ResourceTypeEnum.Conversation, OperationTypeEnum.Create, CreateAsync, "Start a conversation with an agent profile (default profile per D-018 when none is given)", "Conversations", typeof(ConversationRequest), typeof(Conversation), "none", statuses: new[] { 201 });
             routes.Scoped(HttpMethod.GET, _Base + "/{id}", ResourceTypeEnum.Conversation, OperationTypeEnum.Read, ReadAsync, "Read a conversation", "Conversations", null, typeof(Conversation));
             routes.Scoped(HttpMethod.PUT, _Base + "/{id}", ResourceTypeEnum.Conversation, OperationTypeEnum.Update, UpdateAsync, "Rename a conversation", "Conversations", typeof(ConversationRequest), typeof(Conversation));
             routes.Authenticated(HttpMethod.DELETE, _Base + "/{id}", DeleteAsync, "Delete a conversation and its messages (its owner, or Delete on Conversation)", "Conversations", null, null, ResourceTypeEnum.Conversation, OperationTypeEnum.Delete);

@@ -7,6 +7,7 @@ namespace Hugo.Core.Database.Interfaces
     using Hugo.Connectors.Abstractions;
     using Hugo.Core.Enumeration;
     using Hugo.Core.Models;
+    using Hugo.Core.Requests;
 
     /// <summary>
     /// Resource data access (resources, resource_settings, resource_secret_bindings). Every read and write is tenant
@@ -64,10 +65,10 @@ namespace Hugo.Core.Database.Interfaces
         /// </summary>
         /// <param name="tenantId">Tenant identifier.</param>
         /// <param name="query">Paging, search (name), and ordering.</param>
-        /// <param name="connectorType">Optional connector type filter.</param>
+        /// <param name="filter">Optional filters (connector type, environment, health), or null.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Page.</returns>
-        Task<EnumerationResult<Resource>> EnumerateAsync(string tenantId, EnumerationQuery query, string? connectorType = null, CancellationToken token = default);
+        Task<EnumerationResult<Resource>> EnumerateAsync(string tenantId, EnumerationQuery query, ResourceFilter? filter = null, CancellationToken token = default);
 
         /// <summary>
         /// Every resource in a tenant, with children.

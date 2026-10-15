@@ -192,6 +192,8 @@ namespace Hugo.Server.Services
             int before = page.Objects.Count;
             page.Objects = page.Objects.Where(p => ResourceVisibility.CanSee(p, ctx)).ToList();
             page.TotalRecords -= before - page.Objects.Count;
+            Dictionary<string, int> counts = await _Database.Bindings.CountByProfileAsync(tenantId, token).ConfigureAwait(false);
+            foreach (AgentProfile profile in page.Objects) profile.BindingCount = counts.TryGetValue(profile.Id, out int count) ? count : 0;
             return page;
         }
 

@@ -4,6 +4,7 @@ namespace Hugo.Server.Routes
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Hugo.Connectors.Abstractions;
     using Hugo.Core.Enumeration;
     using Hugo.Core.Enums;
     using Hugo.Core.Models;
@@ -89,10 +90,10 @@ namespace Hugo.Server.Routes
         private void RegisterAt(RouteRegistrar routes, string basePath)
         {
             routes.Scoped(HttpMethod.GET, basePath, ResourceTypeEnum.Secret, OperationTypeEnum.Read, ListAsync, "List secrets (metadata and field names only)", "Secrets", null, typeof(EnumerationResult<Secret>));
-            routes.Scoped(HttpMethod.POST, basePath, ResourceTypeEnum.Secret, OperationTypeEnum.Create, CreateAsync, "Create a secret with its field values; returns metadata only", "Secrets", typeof(SecretRequest), typeof(Secret));
+            routes.Scoped(HttpMethod.POST, basePath, ResourceTypeEnum.Secret, OperationTypeEnum.Create, CreateAsync, "Create a secret with its field values; returns metadata only", "Secrets", typeof(SecretRequest), typeof(Secret), statuses: new[] { 201 });
             routes.Scoped(HttpMethod.POST, basePath + "/parse", ResourceTypeEnum.Secret, OperationTypeEnum.Create, ParseAsync, "Describe an uploaded SSH key, GCP service account JSON, kubeconfig, or PEM certificate without storing it", "Secrets", typeof(SecretImportRequest), typeof(SecretImportResult));
             routes.Scoped(HttpMethod.GET, basePath + "/{id}", ResourceTypeEnum.Secret, OperationTypeEnum.Read, ReadAsync, "Read secret metadata, field names, fingerprint, and referrers (never values)", "Secrets", null, typeof(Secret));
-            routes.Scoped(HttpMethod.PUT, basePath + "/{id}", ResourceTypeEnum.Secret, OperationTypeEnum.Update, UpdateAsync, "Update secret name, description, and expiry", "Secrets", typeof(SecretRequest), typeof(Secret));
+            routes.Scoped(HttpMethod.PUT, basePath + "/{id}", ResourceTypeEnum.Secret, OperationTypeEnum.Update, UpdateAsync, "Update secret name, description, and expiry (omitted name, kind, and description keep stored values; the expiry is replaced)", "Secrets", typeof(SecretRequest), typeof(Secret));
             routes.Scoped(HttpMethod.PUT, basePath + "/{id}/values", ResourceTypeEnum.Secret, OperationTypeEnum.Update, ValuesAsync, "Replace the supplied field values (omitted fields and the mask placeholder keep stored values)", "Secrets", typeof(SecretValueRequest), typeof(Secret));
             routes.Scoped(HttpMethod.GET, basePath + "/{id}/referrers", ResourceTypeEnum.Secret, OperationTypeEnum.Read, ReferrersAsync, "Resources and model endpoints that use the secret", "Secrets", null, typeof(List<SecretReferrer>));
             routes.Scoped(HttpMethod.POST, basePath + "/{id}/reveal", ResourceTypeEnum.Secret, OperationTypeEnum.Reveal, RevealAsync, "Reveal plaintext values (Reveal permission, reason, and re-authentication within Secrets.RevealReauthMinutes required; audited; never captured in request history)", "Secrets", typeof(SecretRevealRequest), typeof(SecretRevealResponse));
@@ -101,7 +102,9 @@ namespace Hugo.Server.Routes
 
         private async Task ListAsync(HttpContextBase http)
         {
-            await RouteHelpers.JsonAsync(http, 200, await _Server.Database.Secrets.EnumerateAsync(RouteHelpers.Tenant(http), RouteHelpers.Enumeration(http), http.Token).ConfigureAwait(false)).ConfigureAwait(false);
+            SecretFilter filter = new SecretFilter();
+            filter.Kind = RouteHelpers.QueryEnum<SecretKindEnum>(http, "kind");
+            await RouteHelpers.JsonAsync(http, 200, await _Server.Database.Secrets.EnumerateAsync(RouteHelpers.Tenant(http), RouteHelpers.Enumeration(http), filter, http.Token).ConfigureAwait(false)).ConfigureAwait(false);
         }
 
         private async Task CreateAsync(HttpContextBase http)

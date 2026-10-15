@@ -403,9 +403,10 @@ namespace Hugo.Server
 
         private static async Task DefaultRouteAsync(HttpContextBase context)
         {
-            context.Response.StatusCode = 404;
-            context.Response.ContentType = "application/json";
-            await context.Response.Send("{\"error\":\"NotFound\",\"code\":\"RouteNotFound\",\"message\":\"No route matches the request.\"}").ConfigureAwait(false);
+            // The same error shape as every other error, including the request identifier sent in x-request-id.
+            Hugo.Core.Responses.ErrorResponse error = new Hugo.Core.Responses.ErrorResponse("NotFound", "RouteNotFound", "No route matches the request.");
+            error.RequestId = context.Metadata is RequestContext ctx ? ctx.RequestId : context.Request.Headers[Constants.HeaderRequestId];
+            await RouteHelpers.JsonAsync(context, 404, error).ConfigureAwait(false);
         }
 
         #endregion

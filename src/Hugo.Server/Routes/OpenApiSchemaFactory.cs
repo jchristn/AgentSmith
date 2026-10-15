@@ -9,7 +9,8 @@ namespace Hugo.Server.Routes
     using WatsonWebserver.Core.OpenApi;
 
     /// <summary>
-    /// Builds OpenAPI schemas from C# types by reflection (camelCase properties, enums as string lists, depth-limited).
+    /// Builds OpenAPI schemas from C# types by reflection (camelCase properties unless a JsonPropertyName attribute names
+    /// the property, as the serializer does; enums as string lists; depth-limited).
     /// Used so the API Explorer can template request bodies. Thread-safe.
     /// </summary>
     public static class OpenApiSchemaFactory
@@ -92,7 +93,8 @@ namespace Hugo.Server.Routes
             {
                 if (property.GetCustomAttribute<JsonIgnoreAttribute>() != null) continue;
                 if (!property.CanRead || property.GetIndexParameters().Length > 0) continue;
-                string name = Char.ToLowerInvariant(property.Name[0]) + property.Name.Substring(1);
+                JsonPropertyNameAttribute? named = property.GetCustomAttribute<JsonPropertyNameAttribute>();
+                string name = named != null ? named.Name : Char.ToLowerInvariant(property.Name[0]) + property.Name.Substring(1);
                 schema.Properties[name] = Build(property.PropertyType, depth + 1);
             }
             return schema;

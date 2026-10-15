@@ -73,7 +73,8 @@ namespace Hugo.Core.Models
         }
 
         /// <summary>
-        /// Key within the scope; empty for the scope root (the resource's root entry).
+        /// Key within the scope; <see cref="Constants.KnowledgeRootKey"/> (_root) for the scope root. Setting null, an empty
+        /// string, or _root stores _root.
         /// </summary>
         public string Key
         {
@@ -83,7 +84,7 @@ namespace Hugo.Core.Models
             }
             set
             {
-                _Key = value ?? String.Empty;
+                _Key = NormalizeKey(value);
             }
         }
 
@@ -149,13 +150,38 @@ namespace Hugo.Core.Models
 
         #endregion
 
+        #region Public-Methods
+
+        /// <summary>
+        /// The stored form of a knowledge key: null, empty, and _root all mean the scope root and become _root.
+        /// </summary>
+        /// <param name="key">Key as supplied, or null.</param>
+        /// <returns>Stored key.</returns>
+        public static string NormalizeKey(string? key)
+        {
+            if (String.IsNullOrEmpty(key) || key == Constants.KnowledgeRootKey) return Constants.KnowledgeRootKey;
+            return key;
+        }
+
+        /// <summary>
+        /// Whether a key addresses the scope root (null, empty, or _root).
+        /// </summary>
+        /// <param name="key">Key, or null.</param>
+        /// <returns>True for the scope root.</returns>
+        public static bool IsRootKey(string? key)
+        {
+            return NormalizeKey(key) == Constants.KnowledgeRootKey;
+        }
+
+        #endregion
+
         #region Private-Members
 
         private string _Id = IdGenerator.NewResourceKnowledgeId();
         private string _TenantId = String.Empty;
         private string _ResourceId = String.Empty;
         private string _Scope = String.Empty;
-        private string _Key = String.Empty;
+        private string _Key = Constants.KnowledgeRootKey;
         private string _Content = String.Empty;
         private DateTime _CreatedUtc = DateTime.UtcNow;
         private DateTime _LastUpdateUtc = DateTime.UtcNow;

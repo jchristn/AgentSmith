@@ -1,10 +1,13 @@
 namespace Hugo.Server.Routes
 {
     using System;
+    using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Hugo.Core.Enumeration;
     using Hugo.Core.Enums;
     using Hugo.Core.Models;
+    using Hugo.Core.Requests;
     using Hugo.Core.Services;
     using WatsonWebserver.Core;
 
@@ -55,20 +58,27 @@ namespace Hugo.Server.Routes
 
         private void RegisterAt(RouteRegistrar routes, string basePath)
         {
-            routes.Scoped(HttpMethod.GET, basePath, ResourceTypeEnum.Session, OperationTypeEnum.Read, ListAsync, "List authentication sessions in the tenant", "Sessions", null, typeof(EnumerationResult<AuthSession>));
+            routes.Scoped(HttpMethod.GET, basePath, ResourceTypeEnum.Session, OperationTypeEnum.Read, ListAsync, "List authentication sessions in the tenant (filters: principalType, userId, credentialId); each carries principalName", "Sessions", null, typeof(EnumerationResult<AuthSession>));
             routes.Scoped(HttpMethod.GET, basePath + "/{id}", ResourceTypeEnum.Session, OperationTypeEnum.Read, ReadAsync, "Read an authentication session", "Sessions", null, typeof(AuthSession));
             routes.Scoped(HttpMethod.DELETE, basePath + "/{id}", ResourceTypeEnum.Session, OperationTypeEnum.Delete, RevokeAsync, "Revoke an authentication session", "Sessions");
         }
 
         private async Task ListAsync(HttpContextBase http)
         {
-            EnumerationResult<AuthSession> result = await _Context.Database.Sessions.EnumerateAsync(RouteHelpers.Tenant(http), RouteHelpers.Enumeration(http), http.Token).ConfigureAwait(false);
+            SessionFilter filter = new SessionFilter();
+            filter.PrincipalType = RouteHelpers.QueryEnum<PrincipalTypeEnum>(http, "principalType");
+            filter.UserId = RouteHelpers.Query(http, "userId");
+            filter.CredentialId = RouteHelpers.Query(http, "credentialId");
+            EnumerationResult<AuthSession> result = await _Context.Database.Sessions.EnumerateAsync(RouteHelpers.Tenant(http), RouteHelpers.Enumeration(http), filter, http.Token).ConfigureAwait(false);
+            Dictionary<string, string?> names = new Dictionary<string, string?>(StringComparer.Ordinal);
+            foreach (AuthSession session in result.Objects) await NameAsync(session, names, http.Token).ConfigureAwait(false);
             await RouteHelpers.JsonAsync(http, 200, result).ConfigureAwait(false);
         }
 
         private async Task ReadAsync(HttpContextBase http)
         {
             AuthSession session = await LoadAsync(http).ConfigureAwait(false);
+            await NameAsync(session, new Dictionary<string, string?>(StringComparer.Ordinal), http.Token).ConfigureAwait(false);
             await RouteHelpers.JsonAsync(http, 200, session).ConfigureAwait(false);
         }
 
@@ -77,6 +87,35 @@ namespace Hugo.Server.Routes
             AuthSession session = await LoadAsync(http).ConfigureAwait(false);
             await _Context.Authentication.RevokeSessionAsync(session.Id, session.TenantId, "Revoked by " + (RouteHelpers.Context(http).PrincipalName ?? "an administrator") + ".", http.Token).ConfigureAwait(false);
             await RouteHelpers.NoContentAsync(http).ConfigureAwait(false);
+        }
+
+        private async Task NameAsync(AuthSession session, Dictionary<string, string?> names, CancellationToken token)
+        {
+            // The principal's display name: the user's email, the credential's name, or the administrator label.
+            if (session.PrincipalType == PrincipalTypeEnum.Administrator)
+            {
+                session.PrincipalName = "System Administrator (API key)";
+                return;
+            }
+            string? tenantId = session.TenantId;
+            string? id = session.PrincipalType == PrincipalTypeEnum.Credential ? session.CredentialId : session.UserId;
+            if (String.IsNullOrEmpty(tenantId) || String.IsNullOrEmpty(id)) return;
+            string key = session.PrincipalType.ToString() + ":" + id;
+            if (!names.TryGetValue(key, out string? name))
+            {
+                if (session.PrincipalType == PrincipalTypeEnum.Credential)
+                {
+                    Credential? credential = await _Context.Database.Credentials.ReadAsync(tenantId, id, token).ConfigureAwait(false);
+                    name = credential?.Name;
+                }
+                else
+                {
+                    User? user = await _Context.Database.Users.ReadAsync(tenantId, id, token).ConfigureAwait(false);
+                    name = user?.Email;
+                }
+                names[key] = name;
+            }
+            session.PrincipalName = name;
         }
 
         private async Task<AuthSession> LoadAsync(HttpContextBase http)

@@ -2,6 +2,7 @@ namespace Hugo.Core.Templates
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Text;
 
     /// <summary>
@@ -122,7 +123,12 @@ namespace Hugo.Core.Templates
                 if (tag.StartsWith(">", StringComparison.Ordinal))
                 {
                     string includeName = tag.Substring(1).Trim();
-                    if (includeName.Length == 0) throw Error("Include requires a template name.", token, name);
+                    if (includeName.Length == 0) throw Error("Include requires a template key: write {{> key}}, for example {{> persona.agent-smith}}.", token, name);
+                    if (includeName.Any(Char.IsWhiteSpace))
+                    {
+                        string[] words = includeName.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+                        throw Error("Invalid include {{> " + includeName + "}}: the syntax is {{> key}} with one template key and no 'include' keyword, for example {{> " + words[words.Length - 1] + "}}.", token, name);
+                    }
                     IncludeNode include = new IncludeNode();
                     include.Name = includeName;
                     include.Line = token.Line;

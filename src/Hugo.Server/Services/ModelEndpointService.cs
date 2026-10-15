@@ -47,6 +47,22 @@ namespace Hugo.Server.Services
         /// </summary>
         public event EventHandler<string>? Changed;
 
+        /// <summary>
+        /// Health checks kept per endpoint in the health history (newest first; older ones are pruned when a check is
+        /// recorded). Minimum 1, maximum 10000, default 100.
+        /// </summary>
+        public int HealthHistoryLimit
+        {
+            get
+            {
+                return _HealthHistoryLimit;
+            }
+            set
+            {
+                _HealthHistoryLimit = Math.Clamp(value, 1, 10000);
+            }
+        }
+
         #endregion
 
         #region Private-Members
@@ -58,6 +74,7 @@ namespace Hugo.Server.Services
         private readonly AuditService _Audit;
         private readonly LoggingModule _Logging;
         private readonly EventHub? _Events;
+        private int _HealthHistoryLimit = 100;
 
         #endregion
 
@@ -163,6 +180,7 @@ namespace Hugo.Server.Services
         {
             ModelEndpoint endpoint = await ReadAsync(tenantId, id, token).ConfigureAwait(false);
             await _Database.ModelEndpoints.DeleteAsync(tenantId, id, token).ConfigureAwait(false);
+            await _Database.ModelEndpointHealth.DeleteByEndpointAsync(tenantId, id, token).ConfigureAwait(false);
             await AfterChangeAsync(ctx, endpoint, "modelendpoint.deleted", "Deleted model endpoint " + endpoint.Name + ".", token).ConfigureAwait(false);
             return endpoint;
         }
@@ -224,7 +242,7 @@ namespace Hugo.Server.Services
         public async Task<ModelValidationResult> ValidateAsync(RequestContext? ctx, string tenantId, string id, CancellationToken token = default)
         {
             ModelEndpoint endpoint = await ReadAsync(tenantId, id, token).ConfigureAwait(false);
-            return await CheckAsync(endpoint, token).ConfigureAwait(false);
+            return await CheckAsync(endpoint, ModelHealthSourceEnum.Validate, token).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -236,6 +254,7 @@ namespace Hugo.Server.Services
         /// <param name="token">Cancellation token.</param>
         /// <returns>Model names.</returns>
         /// <exception cref="ConflictException">Thrown with code NotSupported when the provider cannot list models.</exception>
+        /// <exception cref="UpstreamException">Thrown (502, ProviderUnreachable or ProviderTimeout) when the provider cannot be reached or answers with an error.</exception>
         public async Task<List<string>> ListProviderModelsAsync(string tenantId, string id, CancellationToken token = default)
         {
             ModelEndpoint endpoint = await ReadAsync(tenantId, id, token).ConfigureAwait(false);
@@ -265,14 +284,44 @@ namespace Hugo.Server.Services
                 }
                 using (client)
                 {
-                    await foreach (ModelInformation model in client.ListModelsAsync(token).ConfigureAwait(false))
+                    try
                     {
-                        if (!String.IsNullOrEmpty(model.Name)) models.Add(model.Name);
-                        if (models.Count >= 1000) break;
+                        await foreach (ModelInformation model in client.ListModelsAsync(token).ConfigureAwait(false))
+                        {
+                            if (!String.IsNullOrEmpty(model.Name)) models.Add(model.Name);
+                            if (models.Count >= 1000) break;
+                        }
+                    }
+                    catch (OperationCanceledException e) when (!token.IsCancellationRequested)
+                    {
+                        throw new UpstreamException("ProviderTimeout", "The " + config.Provider + " provider did not answer within " + config.TimeoutSeconds + " seconds.", 502, e);
+                    }
+                    catch (Exception e) when (e is not OperationCanceledException && e is not UpstreamException)
+                    {
+                        // Like validate, an unreachable or failing provider is reported with its (scrubbed) message, as a
+                        // gateway error rather than a server error.
+                        SecretScrubber scrubber = new SecretScrubber();
+                        scrubber.AddKnownValue(config.ApiKey);
+                        throw new UpstreamException("ProviderUnreachable", "The " + config.Provider + " provider could not list models: " + (scrubber.Scrub(e.Message) ?? "unknown error"), 502, e);
                     }
                 }
             }
             return models.Distinct(StringComparer.Ordinal).OrderBy(m => m, StringComparer.Ordinal).ToList();
+        }
+
+        /// <summary>
+        /// Recent health checks of an endpoint (sweep and validate), newest first.
+        /// </summary>
+        /// <param name="tenantId">Tenant identifier.</param>
+        /// <param name="id">Endpoint identifier.</param>
+        /// <param name="maxResults">Maximum records. Minimum 1, maximum 1000; null means 50.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Health records, newest first.</returns>
+        /// <exception cref="NotFoundException">Thrown when the endpoint does not exist in the tenant.</exception>
+        public async Task<List<ModelEndpointHealthRecord>> HealthHistoryAsync(string tenantId, string id, int? maxResults, CancellationToken token = default)
+        {
+            ModelEndpoint endpoint = await ReadAsync(tenantId, id, token).ConfigureAwait(false);
+            return await _Database.ModelEndpointHealth.ListAsync(endpoint.TenantId, endpoint.Id, Math.Clamp(maxResults ?? 50, 1, 1000), token).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -288,7 +337,7 @@ namespace Hugo.Server.Services
                 token.ThrowIfCancellationRequested();
                 try
                 {
-                    await CheckAsync(endpoint, token).ConfigureAwait(false);
+                    await CheckAsync(endpoint, ModelHealthSourceEnum.Sweep, token).ConfigureAwait(false);
                 }
                 catch (Exception e) when (e is not OperationCanceledException)
                 {
@@ -303,7 +352,7 @@ namespace Hugo.Server.Services
 
         #region Private-Methods
 
-        private async Task<ModelValidationResult> CheckAsync(ModelEndpoint endpoint, CancellationToken token)
+        private async Task<ModelValidationResult> CheckAsync(ModelEndpoint endpoint, ModelHealthSourceEnum source, CancellationToken token)
         {
             ModelValidationResult result;
             ModelEndpointConfig config = await ToConfigAsync(endpoint, token).ConfigureAwait(false);
@@ -314,7 +363,16 @@ namespace Hugo.Server.Services
             ModelHealthStatusEnum previous = endpoint.HealthStatus;
             ModelHealthStatusEnum status = result.Success ? ModelHealthStatusEnum.Healthy : ModelHealthStatusEnum.Unhealthy;
             string message = result.Success ? "OK in " + result.LatencyMs + " ms" + (result.Dimensions.HasValue ? " (" + result.Dimensions.Value + " dimensions)" : String.Empty) : (result.Error ?? "Validation failed.");
-            await _Database.ModelEndpoints.UpdateHealthAsync(endpoint.TenantId, endpoint.Id, status, message.Length > 2000 ? message.Substring(0, 2000) : message, token).ConfigureAwait(false);
+            string stored = message.Length > 2000 ? message.Substring(0, 2000) : message;
+            await _Database.ModelEndpoints.UpdateHealthAsync(endpoint.TenantId, endpoint.Id, status, stored, token).ConfigureAwait(false);
+            ModelEndpointHealthRecord record = new ModelEndpointHealthRecord();
+            record.TenantId = endpoint.TenantId;
+            record.ModelEndpointId = endpoint.Id;
+            record.Status = status;
+            record.Source = source;
+            record.LatencyMs = result.LatencyMs > 0 || result.Success ? result.LatencyMs : null;
+            record.Message = stored;
+            await _Database.ModelEndpointHealth.AddAsync(record, _HealthHistoryLimit, token).ConfigureAwait(false);
             if (result.Success && endpoint.Kind == ModelKindEnum.Embedding && result.Dimensions.HasValue && endpoint.EmbeddingDimensions != result.Dimensions)
             {
                 endpoint.EmbeddingDimensions = result.Dimensions;

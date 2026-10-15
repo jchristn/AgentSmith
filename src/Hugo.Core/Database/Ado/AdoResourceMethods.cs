@@ -12,6 +12,7 @@ namespace Hugo.Core.Database.Ado
     using Hugo.Core.Enumeration;
     using Hugo.Core.Enums;
     using Hugo.Core.Models;
+    using Hugo.Core.Requests;
 
     /// <summary>
     /// Provider-neutral resource data access over resources, resource_settings, and resource_secret_bindings. Settings
@@ -135,13 +136,19 @@ namespace Hugo.Core.Database.Ado
         }
 
         /// <inheritdoc />
-        public async Task<EnumerationResult<Resource>> EnumerateAsync(string tenantId, EnumerationQuery query, string? connectorType = null, CancellationToken token = default)
+        public async Task<EnumerationResult<Resource>> EnumerateAsync(string tenantId, EnumerationQuery query, ResourceFilter? filter = null, CancellationToken token = default)
         {
             if (String.IsNullOrEmpty(tenantId)) throw new ArgumentNullException(nameof(tenantId));
             if (query == null) throw new ArgumentNullException(nameof(query));
+            ResourceFilter f = filter ?? new ResourceFilter();
+            string? connectorType = f.ConnectorType;
             List<string> clauses = new List<string> { "tenant_id = @tenant_id" };
             if (!String.IsNullOrEmpty(query.Search)) clauses.Add(_Driver.Dialect.CaseInsensitiveLike("name", "search"));
             if (!String.IsNullOrEmpty(connectorType)) clauses.Add("connector_type = @connector_type");
+            if (!String.IsNullOrEmpty(f.Environment)) clauses.Add("LOWER(environment) = @environment");
+            if (f.Health == ModelHealthStatusEnum.Healthy) clauses.Add("last_test_result = " + _Driver.Dialect.BooleanLiteral(true));
+            else if (f.Health == ModelHealthStatusEnum.Unhealthy) clauses.Add("last_test_result = " + _Driver.Dialect.BooleanLiteral(false));
+            else if (f.Health == ModelHealthStatusEnum.Unknown) clauses.Add("last_test_result IS NULL");
             if (query.ActiveOnly) clauses.Add("active = " + _Driver.Dialect.BooleanLiteral(true));
             string where = " WHERE " + String.Join(" AND ", clauses);
             Action<DbCommand> bind = command =>
@@ -149,6 +156,7 @@ namespace Hugo.Core.Database.Ado
                 AdoDatabaseDriver.Add(command, "tenant_id", tenantId);
                 if (!String.IsNullOrEmpty(query.Search)) AdoDatabaseDriver.Add(command, "search", "%" + query.Search + "%");
                 if (!String.IsNullOrEmpty(connectorType)) AdoDatabaseDriver.Add(command, "connector_type", connectorType);
+                if (!String.IsNullOrEmpty(f.Environment)) AdoDatabaseDriver.Add(command, "environment", f.Environment.Trim().ToLowerInvariant());
             };
             object? countValue = await _Driver.ScalarAsync("SELECT COUNT(*) FROM " + _Table + where + ";", bind, token).ConfigureAwait(false);
             long total = countValue == null ? 0 : Convert.ToInt64(countValue, CultureInfo.InvariantCulture);

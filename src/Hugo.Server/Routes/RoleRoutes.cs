@@ -46,13 +46,13 @@ namespace Hugo.Server.Routes
         public void Register(RouteRegistrar routes)
         {
             routes.Scoped(HttpMethod.GET, "/v1.0/api/tenants/{tenantId}/roles", ResourceTypeEnum.Role, OperationTypeEnum.Read, ListAsync, "List roles, including built-in roles", "Roles", null, typeof(EnumerationResult<Role>));
-            routes.Scoped(HttpMethod.POST, "/v1.0/api/tenants/{tenantId}/roles", ResourceTypeEnum.Role, OperationTypeEnum.Create, CreateAsync, "Create a custom role", "Roles", typeof(RoleRequest), typeof(Role));
+            routes.Scoped(HttpMethod.POST, "/v1.0/api/tenants/{tenantId}/roles", ResourceTypeEnum.Role, OperationTypeEnum.Create, CreateAsync, "Create a custom role", "Roles", typeof(RoleRequest), typeof(Role), statuses: new[] { 201 });
             routes.Scoped(HttpMethod.GET, "/v1.0/api/tenants/{tenantId}/roles/{id}", ResourceTypeEnum.Role, OperationTypeEnum.Read, ReadAsync, "Read a role", "Roles", null, typeof(Role));
             routes.Scoped(HttpMethod.PUT, "/v1.0/api/tenants/{tenantId}/roles/{id}", ResourceTypeEnum.Role, OperationTypeEnum.Update, UpdateAsync, "Update a custom role", "Roles", typeof(RoleRequest), typeof(Role));
             routes.Scoped(HttpMethod.DELETE, "/v1.0/api/tenants/{tenantId}/roles/{id}", ResourceTypeEnum.Role, OperationTypeEnum.Delete, DeleteAsync, "Delete a custom role", "Roles");
-            routes.Scoped(HttpMethod.POST, "/v1.0/api/tenants/{tenantId}/roles/{id}/clone", ResourceTypeEnum.Role, OperationTypeEnum.Create, CloneAsync, "Clone a role (including built-ins) into a custom role", "Roles", typeof(RoleRequest), typeof(Role));
+            routes.Scoped(HttpMethod.POST, "/v1.0/api/tenants/{tenantId}/roles/{id}/clone", ResourceTypeEnum.Role, OperationTypeEnum.Create, CloneAsync, "Clone a role (including built-ins) into a custom role", "Roles", typeof(RoleRequest), typeof(Role), statuses: new[] { 201 });
             routes.Scoped(HttpMethod.GET, "/v1.0/api/tenants/{tenantId}/role-permissions", ResourceTypeEnum.Role, OperationTypeEnum.Read, ListMapsAsync, "List role-permission mappings (filter with roleId)", "Roles", null, typeof(EnumerationResult<RolePermissionMap>));
-            routes.Scoped(HttpMethod.POST, "/v1.0/api/tenants/{tenantId}/role-permissions", ResourceTypeEnum.Role, OperationTypeEnum.Update, CreateMapAsync, "Map a permission to a custom role", "Roles", typeof(RolePermissionRequest), typeof(RolePermissionMap));
+            routes.Scoped(HttpMethod.POST, "/v1.0/api/tenants/{tenantId}/role-permissions", ResourceTypeEnum.Role, OperationTypeEnum.Update, CreateMapAsync, "Map a permission to a custom role", "Roles", typeof(RolePermissionRequest), typeof(RolePermissionMap), statuses: new[] { 201 });
             routes.Scoped(HttpMethod.DELETE, "/v1.0/api/tenants/{tenantId}/role-permissions/{id}", ResourceTypeEnum.Role, OperationTypeEnum.Update, DeleteMapAsync, "Remove a role-permission mapping", "Roles");
         }
 

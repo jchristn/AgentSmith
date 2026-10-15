@@ -50,6 +50,22 @@ namespace Hugo.Server.Services
         }
 
         /// <summary>
+        /// Seconds to wait for a resource's remote instructions (hugo_describe_resource on an external MCP server or a
+        /// remote agent). Minimum 1, maximum 120, default 10. On timeout the description is returned without them.
+        /// </summary>
+        public int RemoteInstructionsTimeoutSeconds
+        {
+            get
+            {
+                return _RemoteInstructionsTimeoutSeconds;
+            }
+            set
+            {
+                _RemoteInstructionsTimeoutSeconds = Math.Clamp(value, 1, 120);
+            }
+        }
+
+        /// <summary>
         /// Raised with the tenant identifier after any resource change.
         /// </summary>
         public event EventHandler<string>? Changed;
@@ -67,6 +83,7 @@ namespace Hugo.Server.Services
         private readonly AuditService _Audit;
         private readonly EventHub? _Events;
         private Func<int> _TestTimeoutSeconds = () => 30;
+        private int _RemoteInstructionsTimeoutSeconds = 10;
 
         #endregion
 
@@ -233,12 +250,12 @@ namespace Hugo.Server.Services
         /// <param name="ctx">Caller.</param>
         /// <param name="tenantId">Tenant identifier.</param>
         /// <param name="query">Query.</param>
-        /// <param name="connectorType">Optional connector type filter.</param>
+        /// <param name="filter">Optional filters (connector type, environment, health), or null.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Page (private resources of others are removed from the page).</returns>
-        public async Task<EnumerationResult<Resource>> EnumerateAsync(RequestContext ctx, string tenantId, EnumerationQuery query, string? connectorType, CancellationToken token = default)
+        public async Task<EnumerationResult<Resource>> EnumerateAsync(RequestContext ctx, string tenantId, EnumerationQuery query, ResourceFilter? filter, CancellationToken token = default)
         {
-            EnumerationResult<Resource> page = await _Database.Resources.EnumerateAsync(tenantId, query, connectorType, token).ConfigureAwait(false);
+            EnumerationResult<Resource> page = await _Database.Resources.EnumerateAsync(tenantId, query, filter, token).ConfigureAwait(false);
             int before = page.Objects.Count;
             page.Objects = page.Objects.Where(r => ResourceVisibility.CanSee(r, ctx)).ToList();
             page.TotalRecords -= before - page.Objects.Count;
@@ -374,6 +391,55 @@ namespace Hugo.Server.Services
             Resource? resource = await _Database.Resources.ReadAsync(tenantId, id, token).ConfigureAwait(false);
             if (resource == null || !ResourceVisibility.CanSee(resource, ctx)) throw new NotFoundException("Resource not found.");
             return resource;
+        }
+
+        /// <summary>
+        /// The third party's own guidance for a resource whose connector offers it (<see cref="IRemoteInstructionsProvider"/>),
+        /// scrubbed and wrapped in an untrusted-content fence so a model treats it as data, never as instructions.
+        /// </summary>
+        /// <param name="ctx">Caller, or null.</param>
+        /// <param name="tenantId">Tenant identifier.</param>
+        /// <param name="resourceId">Resource identifier.</param>
+        /// <param name="alias">Binding alias, used to label the fence.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>The result; Text is null when the connector offers none, and Error is set when fetching failed.</returns>
+        public async Task<RemoteInstructionsResult> RemoteInstructionsAsync(RequestContext? ctx, string tenantId, string resourceId, string alias, CancellationToken token = default)
+        {
+            RemoteInstructionsResult result = new RemoteInstructionsResult();
+            Resource? resource = await _Database.Resources.ReadAsync(tenantId, resourceId, token).ConfigureAwait(false);
+            if (resource == null) return result;
+            if (_Registry.Get(resource.ConnectorType) is not IRemoteInstructionsProvider provider) return result;
+            using (CancellationTokenSource timeout = CancellationTokenSource.CreateLinkedTokenSource(token))
+            {
+                timeout.CancelAfter(TimeSpan.FromSeconds(_RemoteInstructionsTimeoutSeconds));
+                ConnectorContextLease? lease = null;
+                try
+                {
+                    lease = await _Contexts.BuildAsync(resource, true, ctx, ctx?.PrincipalName ?? "describe", false, timeout.Token).ConfigureAwait(false);
+                    string? text = await provider.GetRemoteInstructionsAsync(lease.Context, timeout.Token).ConfigureAwait(false);
+                    if (!String.IsNullOrWhiteSpace(text))
+                    {
+                        result.Text = UntrustedContent.Fence("instructions from " + resource.ConnectorType + " resource " + alias, lease.Scrubber.Scrub(text));
+                    }
+                }
+                catch (OperationCanceledException) when (!token.IsCancellationRequested)
+                {
+                    result.Error = ConnectorErrorCodes.Timeout;
+                }
+                catch (ConnectorException e)
+                {
+                    result.Error = e.Code;
+                }
+                catch (Exception e) when (e is not OperationCanceledException)
+                {
+                    result.Error = ConnectorErrorCodes.ConnectionFailed;
+                }
+                finally
+                {
+                    lease?.Dispose();
+                }
+            }
+            return result;
         }
 
         private IConnector Connector(string type)

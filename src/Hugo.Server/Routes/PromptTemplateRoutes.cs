@@ -49,7 +49,7 @@ namespace Hugo.Server.Routes
         public void Register(RouteRegistrar routes)
         {
             routes.Scoped(HttpMethod.GET, _Base, ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Read, ListAsync, "List prompt templates (tenant and built-in)", "Prompt Templates", null, typeof(EnumerationResult<PromptTemplate>));
-            routes.Scoped(HttpMethod.POST, _Base, ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Create, CreateAsync, "Create a prompt template", "Prompt Templates", typeof(PromptTemplateRequest), typeof(PromptTemplate));
+            routes.Scoped(HttpMethod.POST, _Base, ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Create, CreateAsync, "Create a prompt template", "Prompt Templates", typeof(PromptTemplateRequest), typeof(PromptTemplate), statuses: new[] { 201 });
             routes.Scoped(HttpMethod.POST, _Base + "/render", ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Read, RenderAdHocAsync, "Render ad hoc template content with sample data", "Prompt Templates", typeof(PromptRenderRequest), typeof(PromptRenderResponse));
             routes.Scoped(HttpMethod.GET, _Base + "/{id}", ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Read, ReadAsync, "Read a prompt template", "Prompt Templates", null, typeof(PromptTemplate));
             routes.Scoped(HttpMethod.PUT, _Base + "/{id}", ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Update, UpdateAsync, "Update a prompt template (content changes create a version)", "Prompt Templates", typeof(PromptTemplateRequest), typeof(PromptTemplate));
@@ -57,7 +57,7 @@ namespace Hugo.Server.Routes
             routes.Scoped(HttpMethod.GET, _Base + "/{id}/versions", ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Read, VersionsAsync, "List template versions, newest first", "Prompt Templates", null, typeof(List<PromptTemplateVersion>));
             routes.Scoped(HttpMethod.GET, _Base + "/{id}/versions/{version}", ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Read, VersionAsync, "Read one template version", "Prompt Templates", null, typeof(PromptTemplateVersion));
             routes.Scoped(HttpMethod.POST, _Base + "/{id}/restore/{version}", ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Update, RestoreAsync, "Restore a version as a new version", "Prompt Templates", null, typeof(PromptTemplate));
-            routes.Scoped(HttpMethod.POST, _Base + "/{id}/clone", ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Create, CloneAsync, "Clone a template (built-in or tenant)", "Prompt Templates", typeof(CloneRequest), typeof(PromptTemplate));
+            routes.Scoped(HttpMethod.POST, _Base + "/{id}/clone", ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Create, CloneAsync, "Clone a template (built-in or tenant)", "Prompt Templates", typeof(CloneRequest), typeof(PromptTemplate), statuses: new[] { 201 });
             routes.Scoped(HttpMethod.POST, _Base + "/{id}/reset", ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Update, ResetAsync, "Reset a cloned built-in template to the shipped default", "Prompt Templates", null, typeof(PromptTemplate));
             routes.Scoped(HttpMethod.POST, _Base + "/{id}/render", ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Read, RenderAsync, "Render a stored template with sample data", "Prompt Templates", typeof(PromptRenderRequest), typeof(PromptRenderResponse));
         }
