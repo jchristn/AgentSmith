@@ -50,6 +50,7 @@ namespace Test.Shared
                 suites.AddRange(Test.Shared.Integration.IntegrationDataSuite.Build());
                 suites.AddRange(Test.Shared.Integration.SnapshotPluginSuite.Build());
                 suites.AddRange(AgentsSuites.Build());
+                suites.AddRange(Test.Shared.Cli.CliSuites.Build());
                 return suites;
             }
         }

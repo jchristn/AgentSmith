@@ -9,6 +9,13 @@
     <ToolCommandName>hugo</ToolCommandName>
     <IsPackable>true</IsPackable>
     <Description>The hugo command line: stdio MCP relay, login, and helpers for the Hugo super agent server.</Description>
+    <PackageTags>hugo;mcp;agent;cli;stdio</PackageTags>
   </PropertyGroup>
+
+  <!-- The tool package carries the CLI README instead of the repository README. -->
+  <ItemGroup>
+    <None Remove="$(MSBuildThisFileDirectory)..\..\README.md" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
 </Project>
