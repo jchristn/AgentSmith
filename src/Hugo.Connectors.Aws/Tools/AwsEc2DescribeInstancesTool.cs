@@ -100,7 +100,7 @@ namespace Hugo.Connectors.Aws.Tools
                 "{\"type\":\"object\",\"properties\":{"
                 + "\"instanceIds\":{\"type\":\"array\",\"items\":{\"type\":\"string\"},\"maxItems\":200,\"description\":\"Instance IDs (i-...). Paging is not used when IDs are given.\"},"
                 + "\"states\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"enum\":[\"pending\",\"running\",\"shutting-down\",\"terminated\",\"stopping\",\"stopped\"]},\"description\":\"Only instances in these states.\"},"
-                + "\"filters\":{\"type\":\"array\",\"maxItems\":20,\"items\":{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"values\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},\"required\":[\"name\",\"values\"]},\"description\":\"EC2 describe filters, for example tag:Name, vpc-id, instance-type.\"},"
+                + "\"filters\":{\"type\":\"array\",\"maxItems\":20,\"items\":{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\",\"description\":\"Filter name, for example tag:Name, vpc-id, or instance-type.\"},\"values\":{\"type\":\"array\",\"items\":{\"type\":\"string\"},\"description\":\"Values to match; an instance matches when any value matches. Wildcards * and ? are allowed.\"}},\"required\":[\"name\",\"values\"]},\"description\":\"EC2 describe filters, for example tag:Name, vpc-id, instance-type.\"},"
                 + "\"maxResults\":{\"type\":\"integer\",\"minimum\":5,\"maximum\":1000,\"description\":\"Page size. Defaults to the resource's maxResults.\"},"
                 + "\"nextToken\":{\"type\":\"string\",\"description\":\"Token from the previous page.\"}"
                 + "},\"additionalProperties\":false}";

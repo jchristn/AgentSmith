@@ -154,11 +154,11 @@ namespace Hugo.Connectors.Aws.Tools
                 "{\"type\":\"object\",\"properties\":{"
                 + "\"hostedZoneId\":{\"type\":\"string\",\"description\":\"Zone ID, for example Z123ABC (or /hostedzone/Z123ABC).\"},"
                 + "\"zoneName\":{\"type\":\"string\",\"description\":\"Zone name, for example example.com.\"},"
-                + "\"startRecordName\":{\"type\":\"string\"},"
-                + "\"startRecordType\":{\"type\":\"string\"},"
+                + "\"startRecordName\":{\"type\":\"string\",\"description\":\"Start listing at this record name (in Route 53 order) instead of at the top of the zone. Ignored when nextToken is set.\"},"
+                + "\"startRecordType\":{\"type\":\"string\",\"description\":\"With startRecordName, the record type to start at, for example A or CNAME. Ignored when nextToken is set.\"},"
                 + "\"type\":{\"type\":\"string\",\"description\":\"Show only this record type on the page, for example A or CNAME.\"},"
-                + "\"maxResults\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":300},"
-                + "\"nextToken\":{\"type\":\"string\"}"
+                + "\"maxResults\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":300,\"description\":\"Records per page, 1 to 300. Defaults to the resource's maxResults and is capped by the call's row limit.\"},"
+                + "\"nextToken\":{\"type\":\"string\",\"description\":\"The nextToken from the previous page, to fetch the next page. Send the same filters again.\"}"
                 + "},\"additionalProperties\":false}";
             d.BaseEffect = EffectEnum.Read;
             d.OutputDescription = "A table of records (or hosted zones) and a nextToken when more pages exist.";

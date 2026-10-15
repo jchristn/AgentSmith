@@ -423,6 +423,10 @@ namespace Test.Shared.Connectors.Ssh
                 SshAssert.Contains(result.Text, "binary content shown as base64", "header");
                 string body = result.Text.Substring(result.Text.IndexOf('\n') + 1).Trim();
                 SshAssert.True(Convert.FromBase64String(body).Length == 2048, "base64 decodes to the file");
+
+                ToolResult lines = await Run(r, "ssh_read_file", Json(new { path = "/srv/hugo/binary.bin", startLine = 1 }), token).ConfigureAwait(false);
+                SshAssert.Error(lines, "invalid_argument", "binary in line mode");
+                SshAssert.Contains(lines.Text, "offset and length", "line mode error points at byte mode");
             }
         }
 

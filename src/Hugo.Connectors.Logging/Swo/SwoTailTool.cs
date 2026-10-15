@@ -39,6 +39,7 @@ namespace Hugo.Connectors.Logging
             string? cursorText = arguments.GetString("cursor");
             if (!String.IsNullOrWhiteSpace(cursorText))
             {
+                RejectWithCursor(arguments, "query", "providerOptions");
                 state = LogCursor.Decode(cursorText, SolarWindsObservabilityConnector.TypeName, "tail");
             }
             else

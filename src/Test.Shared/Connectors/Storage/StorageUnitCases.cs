@@ -10,6 +10,7 @@ namespace Test.Shared.Connectors.Storage
     using System.Text.Json;
     using System.Threading;
     using System.Threading.Tasks;
+    using Blobject.Core;
     using Hugo.Connectors.Abstractions;
     using Hugo.Connectors.Storage;
     using Touchstone.Core;
@@ -64,6 +65,8 @@ namespace Test.Shared.Connectors.Storage
             cases.Add(Case("key-policy-restriction", "Keys and prefixes outside the restriction are permission_denied", KeyPolicyRestriction));
             cases.Add(Case("key-policy-malformed", "Dot segments, leading slash, backslash, and control characters are rejected", KeyPolicyMalformed));
             cases.Add(Case("continuation-token", "Continuation tokens round-trip and are bound to the prefix", ContinuationToken));
+            cases.Add(Case("list-deep-paging", "storage_list pages far past maxScanObjects because skipped keys do not use the scan budget", ListDeepPaging));
+            cases.Add(Case("list-skip-budget", "Paging stops with scan_limit only when the skip budget runs out", ListSkipBudget));
             cases.Add(Case("content-detection", "Textual content types and UTF-8 detection", ContentDetection));
             cases.Add(Case("classify-read-tools", "Read tools classify as Read with the full key in the summary", ClassifyReadTools));
             cases.Add(Case("classify-write", "storage_write is Write, or Destructive with overwrite=true", ClassifyWrite));
@@ -271,6 +274,74 @@ namespace Test.Shared.Connectors.Storage
             ExpectCode("invalid_argument", () => StorageKeyPolicy.ValidateKey(new string('a', 1025), null), "too long");
             ExpectCode("invalid_argument", () => StorageKeyPolicy.ResolvePrefix("reports/../", "reports/"), "dot-dot prefix");
             return Task.CompletedTask;
+        }
+
+        private static async Task ListDeepPaging(CancellationToken token)
+        {
+            List<string> keys = Enumerable.Range(0, 1000).Select(i => "logs/" + i.ToString("D5", System.Globalization.CultureInfo.InvariantCulture) + ".txt").ToList();
+            List<string> seen = new List<string>();
+            string? cursor = null;
+            int pages = 0;
+            do
+            {
+                StorageListPager pager = new StorageListPager { MaxScanObjects = 100, MaxSkipObjects = 1000, MaxResults = 60 };
+                string? startAfter = StorageContinuationToken.Decode(cursor, "logs/");
+                StorageListResult page = await pager.PageAsync(Source(keys), "logs/", null, startAfter, Info, token).ConfigureAwait(false);
+                seen.AddRange(page.Entries.Select(e => e.Key));
+                StorageTestAssert.True(page.Scanned <= 100, "page " + pages + " scanned within maxScanObjects: " + page.Scanned);
+                cursor = page.ContinuationToken;
+                pages++;
+            }
+            while (cursor != null && pages < 50);
+            StorageTestAssert.True(seen.Count == 1000 && seen.Distinct().Count() == 1000 && seen.SequenceEqual(keys), "every key once and in order, got " + seen.Count + " in " + pages + " pages");
+
+            List<string> nested = new List<string>();
+            for (int f = 0; f < 5; f++)
+                for (int i = 0; i < 40; i++) nested.Add("data/f" + f + "/" + i.ToString("D3", System.Globalization.CultureInfo.InvariantCulture));
+            List<string> folders = new List<string>();
+            cursor = null;
+            pages = 0;
+            do
+            {
+                StorageListPager pager = new StorageListPager { MaxScanObjects = 100, MaxSkipObjects = 1000, MaxResults = 2 };
+                StorageListResult page = await pager.PageAsync(Source(nested), "data/", "/", StorageContinuationToken.Decode(cursor, "data/"), Info, token).ConfigureAwait(false);
+                folders.AddRange(page.Entries.Select(e => e.Key));
+                cursor = page.ContinuationToken;
+                pages++;
+            }
+            while (cursor != null && pages < 20);
+            StorageTestAssert.True(folders.SequenceEqual(new[] { "data/f0/", "data/f1/", "data/f2/", "data/f3/", "data/f4/" }), "folder pages skip the contents of the last folder: " + String.Join(",", folders));
+        }
+
+        private static async Task ListSkipBudget(CancellationToken token)
+        {
+            List<string> keys = Enumerable.Range(0, 500).Select(i => "k/" + i.ToString("D4", System.Globalization.CultureInfo.InvariantCulture)).ToList();
+            StorageListPager pager = new StorageListPager { MaxScanObjects = 100, MaxSkipObjects = 200, MaxResults = 50 };
+            StorageListResult ok = await pager.PageAsync(Source(keys), "k/", null, "k/0199", Info, token).ConfigureAwait(false);
+            StorageTestAssert.True(ok.Skipped == 200 && ok.Entries.Count == 50 && ok.Entries[0].Key == "k/0200", "skips exactly up to the budget");
+            try
+            {
+                await pager.PageAsync(Source(keys), "k/", null, "k/0300", Info, token).ConfigureAwait(false);
+                throw new InvalidOperationException("Assertion failed: expected scan_limit past the skip budget.");
+            }
+            catch (ConnectorException e) when (e.Code == "scan_limit")
+            {
+                StorageTestAssert.True(e.Message.Contains("longer, more specific prefix", StringComparison.Ordinal), "message suggests a narrower prefix");
+            }
+        }
+
+        private static async IAsyncEnumerable<BlobMetadata> Source(List<string> keys)
+        {
+            foreach (string key in keys)
+            {
+                await Task.Yield();
+                yield return new BlobMetadata { Key = key, ContentLength = 10 };
+            }
+        }
+
+        private static StorageObjectInfo Info(BlobMetadata md)
+        {
+            return new StorageObjectInfo { Key = md.Key, Size = md.ContentLength };
         }
 
         private static Task ContinuationToken(CancellationToken token)

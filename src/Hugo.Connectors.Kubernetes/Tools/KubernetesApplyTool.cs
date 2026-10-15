@@ -45,7 +45,7 @@ namespace Hugo.Connectors.Kubernetes.Tools
         {
             Name = "k8s_apply",
             Title = "Apply a manifest",
-            Description = "Create or update objects with server-side apply (field manager 'hugo'). Works for every kind, including custom resources. "
+            Description = "Create or update objects with server-side apply, as the field manager named by the resource's fieldManager setting (default hugo). Works for every kind, including custom resources. "
                 + "Run with dryRun: true first to validate and preview. Write; Destructive when the manifest targets a destructive kind (RBAC, CRDs, namespaces, storage, webhooks), "
                 + "sets a field to null, uses force, or allows field removal. Applies that would silently remove fields are refused unless allowFieldRemoval is true.",
             InputSchemaJson = _Schema,

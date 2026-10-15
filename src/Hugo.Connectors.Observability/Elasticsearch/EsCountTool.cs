@@ -54,10 +54,13 @@ namespace Hugo.Connectors.Observability
             string? query = RawJson(arguments, "query", "{", "a Query DSL object");
             string body = query == null ? "{}" : "{\"query\":" + query + "}";
             ObservabilityTransport transport = Transport(context.Resource, settings);
+            EsResolvedTarget target = await new EsTargetResolver().ResolveAsync(transport, index, settings.AllowedIndexPatterns, token).ConfigureAwait(false);
             List<KeyValuePair<string, string?>> q = new List<KeyValuePair<string, string?>> { new KeyValuePair<string, string?>("expand_wildcards", "open") };
-            string json = await transport.PostJsonAsync(index + "/_count", q, body, token).ConfigureAwait(false);
+            string json = await transport.PostJsonAsync(target.Expression + "/_count", q, body, token).ConfigureAwait(false);
             EsCountResponse response = ObservabilityJson.DeserializeUpstream<EsCountResponse>(json, transport.Provider);
             string text = response.Count.ToString(CultureInfo.InvariantCulture) + " document(s) match in " + index + ".\n";
+            if (target.Excluded.Count > 0)
+                text = "Note: " + target.Excluded.Count.ToString(CultureInfo.InvariantCulture) + " index(es) outside the allowed patterns, reached through an alias or wildcard, were left out of the count.\n" + text;
             string structured = ObservabilityJson.Serialize(new Dictionary<string, object> { { "index", index }, { "count", response.Count } });
             ToolResult result = Finish(text, structured, context.Limits, false);
             result.Metrics["count"] = response.Count;

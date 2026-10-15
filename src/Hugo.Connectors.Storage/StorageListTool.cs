@@ -11,8 +11,10 @@ namespace Hugo.Connectors.Storage
 
     /// <summary>
     /// <c>storage_list</c> (Read): list objects under a prefix, optionally grouped into folders at a delimiter, with
-    /// continuation tokens. Blobject enumerates flat listings, so folder grouping and paging are computed here over a
-    /// lexicographically ordered scan capped by the resource's <c>maxScanObjects</c>. Thread-safe.
+    /// continuation tokens. Blobject enumerates flat listings and cannot resume from a marker, so folder grouping and
+    /// paging are computed by <see cref="StorageListPager"/> over a lexicographically ordered scan: each page re-walks
+    /// from the start of the prefix, skips up to the token's key (at most maxScanObjects times
+    /// <see cref="SkipBudgetMultiplier"/> keys), then examines at most maxScanObjects more. Thread-safe.
     /// </summary>
     public class StorageListTool : StorageToolBase
     {
@@ -24,6 +26,23 @@ namespace Hugo.Connectors.Storage
         public const string ToolName = "storage_list";
 
         /// <summary>
+        /// How many keys a page after the first may re-walk and skip, as a multiple of the resource's maxScanObjects.
+        /// Blobject cannot resume a listing from a marker, so this bounds how deep paging under one prefix can go.
+        /// Default 10, minimum 1, maximum 100.
+        /// </summary>
+        public int SkipBudgetMultiplier
+        {
+            get
+            {
+                return _SkipBudgetMultiplier;
+            }
+            set
+            {
+                _SkipBudgetMultiplier = Math.Clamp(value, 1, 100);
+            }
+        }
+
+        /// <summary>
         /// Input schema shared by every storage connector.
         /// </summary>
         public const string InputSchema =
@@ -33,6 +52,12 @@ namespace Hugo.Connectors.Storage
             + "\"continuationToken\":{\"type\":\"string\",\"description\":\"Token returned by a previous storage_list call with the same prefix and delimiter, to fetch the next page.\"},"
             + "\"maxResults\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":10000,\"description\":\"Maximum entries to return. Capped by the resource's maxListResults and the output row limit.\"}"
             + "},\"additionalProperties\":false}";
+
+        #endregion
+
+        #region Private-Members
+
+        private int _SkipBudgetMultiplier = 10;
 
         #endregion
 
@@ -81,75 +106,15 @@ namespace Hugo.Connectors.Storage
             int cap = Math.Min(options.MaxListResults, context.Limits.MaxRows);
             int maxResults = arguments.GetInt("maxResults", cap, 1, cap);
 
-            StorageListResult result = new StorageListResult();
-            result.Container = session.ContainerName;
-            result.Prefix = prefix;
-            result.Delimiter = delimiter;
-
-            string? lastFolder = null;
-            bool hasMore = false;
-            long scanned = 0;
             EnumerationFilter filter = new EnumerationFilter();
             filter.Prefix = prefix;
-
-            await foreach (BlobMetadata md in session.Client.EnumerateAsync(filter, token).ConfigureAwait(false))
-            {
-                if (md == null || String.IsNullOrEmpty(md.Key)) continue;
-                if (scanned >= options.MaxScanObjects)
-                {
-                    result.ScanTruncated = true;
-                    hasMore = true;
-                    break;
-                }
-                scanned++;
-                string key = md.Key;
-                if (!key.StartsWith(prefix, StringComparison.Ordinal)) continue;
-
-                if (startAfter != null)
-                {
-                    if (String.CompareOrdinal(key, startAfter) <= 0) continue;
-                    if (delimiter != null && startAfter.EndsWith(delimiter, StringComparison.Ordinal) && key.StartsWith(startAfter, StringComparison.Ordinal)) continue;
-                }
-
-                StorageObjectInfo? entry = null;
-                if (delimiter != null)
-                {
-                    int index = key.IndexOf(delimiter, prefix.Length, StringComparison.Ordinal);
-                    if (index >= 0)
-                    {
-                        string folder = key.Substring(0, index + delimiter.Length);
-                        if (folder != key || md.ContentLength == 0)
-                        {
-                            if (folder == lastFolder) continue;
-                            lastFolder = folder;
-                            entry = new StorageObjectInfo { Key = folder, IsFolder = true };
-                        }
-                    }
-                }
-                if (entry == null) entry = ToInfo(md);
-
-                if (result.Entries.Count >= maxResults)
-                {
-                    hasMore = true;
-                    break;
-                }
-
-                result.Entries.Add(entry);
-            }
-
-            token.ThrowIfCancellationRequested();
-            if (result.ScanTruncated && result.Entries.Count == 0)
-                throw new ConnectorException(
-                    "scan_limit",
-                    "Scanned " + scanned + " objects (the resource's maxScanObjects) without reaching new entries. Use a longer, more specific prefix.");
-
-            result.Scanned = scanned;
-            foreach (StorageObjectInfo e in result.Entries)
-            {
-                if (e.IsFolder) result.FolderCount++;
-                else result.ObjectCount++;
-            }
-            if (hasMore && result.Entries.Count > 0) result.ContinuationToken = StorageContinuationToken.Encode(result.Entries[result.Entries.Count - 1].Key);
+            StorageListPager pager = new StorageListPager();
+            pager.MaxResults = maxResults;
+            pager.MaxScanObjects = options.MaxScanObjects;
+            pager.MaxSkipObjects = (long)options.MaxScanObjects * _SkipBudgetMultiplier;
+            StorageListResult result = await pager.PageAsync(session.Client.EnumerateAsync(filter, token), prefix, delimiter, startAfter, ToInfo, token).ConfigureAwait(false);
+            result.Container = session.ContainerName;
+            long scanned = result.Scanned;
 
             ToolResult tool = new ToolResult();
             tool.Text = OutputLimiter.Head(Render(result), context.Limits.MaxBytes, 0, tool);
@@ -157,6 +122,7 @@ namespace Hugo.Connectors.Storage
             tool.Truncated = tool.Truncated || result.ContinuationToken != null;
             tool.Metrics["rows"] = result.Entries.Count;
             tool.Metrics["scanned"] = scanned;
+            tool.Metrics["skipped"] = result.Skipped;
             return tool;
         }
 

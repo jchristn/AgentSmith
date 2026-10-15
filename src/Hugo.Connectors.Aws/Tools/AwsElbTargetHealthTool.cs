@@ -142,9 +142,9 @@ namespace Hugo.Connectors.Aws.Tools
                 + "the region are checked.";
             d.InputSchemaJson =
                 "{\"type\":\"object\",\"properties\":{"
-                + "\"targetGroupArn\":{\"type\":\"string\"},"
-                + "\"targetGroupName\":{\"type\":\"string\"},"
-                + "\"loadBalancerName\":{\"type\":\"string\"}"
+                + "\"targetGroupArn\":{\"type\":\"string\",\"description\":\"ARN of one target group to check. Takes precedence over targetGroupName and loadBalancerName.\"},"
+                + "\"targetGroupName\":{\"type\":\"string\",\"description\":\"Name of one target group to check, used when targetGroupArn is not set.\"},"
+                + "\"loadBalancerName\":{\"type\":\"string\",\"description\":\"Name of a load balancer whose target groups (the first 10) are checked, used when neither targetGroupArn nor targetGroupName is set. With none of the three, the first 10 target groups in the region are checked.\"}"
                 + "},\"additionalProperties\":false}";
             d.BaseEffect = EffectEnum.Read;
             d.OutputDescription = "A table of targets with health state and reason.";

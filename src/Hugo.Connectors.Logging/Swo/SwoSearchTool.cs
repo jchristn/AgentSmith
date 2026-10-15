@@ -39,6 +39,7 @@ namespace Hugo.Connectors.Logging
             string? cursorText = arguments.GetString("cursor");
             if (!String.IsNullOrWhiteSpace(cursorText))
             {
+                RejectWithCursor(arguments, "query", "startTime", "endTime", "providerOptions");
                 state = LogCursor.Decode(cursorText, SolarWindsObservabilityConnector.TypeName, "search");
                 if (!state.Start.HasValue || !state.End.HasValue || String.IsNullOrEmpty(state.SkipToken))
                     throw new ConnectorException("invalid_argument", "Argument 'cursor' is incomplete. Repeat the search without a cursor.");

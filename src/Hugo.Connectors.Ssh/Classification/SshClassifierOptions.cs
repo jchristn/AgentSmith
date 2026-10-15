@@ -12,8 +12,9 @@ namespace Hugo.Connectors.Ssh.Classification
         #region Public-Members
 
         /// <summary>
-        /// Whether <c>sudo</c>, <c>doas</c>, and <c>su</c> are permitted. When false, any command that uses them is
-        /// rejected. Default false.
+        /// Whether <c>sudo</c>, <c>doas</c>, <c>sudoedit</c>, <c>pkexec</c>, and <c>su</c> are permitted. When false, any
+        /// command that uses them is rejected. When true, <c>sudo</c>, <c>doas</c>, and <c>sudoedit</c> must still be
+        /// called with <c>-n</c> (non-interactive), because there is no terminal to type a password into. Default false.
         /// </summary>
         public bool AllowSudo { get; set; } = false;
 

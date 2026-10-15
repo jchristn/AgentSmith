@@ -54,6 +54,7 @@ namespace Test.Shared.Connectors.Kubernetes
             Add(cases, "settings-schema", "Settings schema lists every documented key with defaults and ranges", SettingsSchema);
             Add(cases, "tools", "Tool set, names, base effects, and per-call flags", ToolsShape);
             Add(cases, "tool-schemas-parse", "Every tool input schema parses and every property is described", ToolSchemas);
+            Add(cases, "tool-text-accuracy", "k8s_scale does not offer DaemonSets and k8s_apply does not hardcode the field manager", ToolTextAccuracy);
             Add(cases, "options-defaults", "Options apply defaults, parse lists, and clamp ranges", OptionsDefaults);
             Add(cases, "validate-credentials", "Validation requires a kubeconfig, or a token with serverUrl", ValidateCredentials);
             Add(cases, "validate-settings", "Validation checks namespaces, defaultNamespace, serverUrl, CA, and ranges", ValidateSettings);
@@ -235,6 +236,20 @@ namespace Test.Shared.Connectors.Kubernetes
             return Task.CompletedTask;
         }
 
+        private static Task ToolTextAccuracy(CancellationToken token)
+        {
+            IConnectorTool scale = _Connector.Tools.First(t => t.Descriptor.Name == "k8s_scale");
+            using (JsonDocument doc = JsonDocument.Parse(scale.Descriptor.InputSchemaJson))
+            {
+                string name = doc.RootElement.GetProperty("properties").GetProperty("name").GetProperty("description").GetString() ?? String.Empty;
+                SshAssert.True(!name.Contains("Name of the Deployment, StatefulSet, or DaemonSet", StringComparison.Ordinal), "k8s_scale name does not offer DaemonSets: " + name);
+                SshAssert.True(name.Contains("cannot be scaled", StringComparison.Ordinal), "k8s_scale name says DaemonSets cannot be scaled");
+            }
+            IConnectorTool apply = _Connector.Tools.First(t => t.Descriptor.Name == "k8s_apply");
+            SshAssert.True(!apply.Descriptor.Description.Contains("'hugo'", StringComparison.Ordinal) && apply.Descriptor.Description.Contains("fieldManager", StringComparison.Ordinal), "k8s_apply names the fieldManager setting");
+            return Task.CompletedTask;
+        }
+
         private static Task OptionsDefaults(CancellationToken token)
         {
             KubernetesOptions d = KubernetesOptions.FromSettings(new ResourceSettings(null));
@@ -256,7 +271,9 @@ namespace Test.Shared.Connectors.Kubernetes
             }));
             SshAssert.True(o.AllowedNamespaces.SequenceEqual(new[] { "shop", "payments", "web" }), "allowedNamespaces split and de-duplicated: " + String.Join("|", o.AllowedNamespaces));
             SshAssert.True(o.MaxLogLines == 100000 && o.RequestTimeoutSeconds == 1 && o.MaxObjects == 1, "clamped");
-            SshAssert.True(o.IsDestructiveKind("deployment") && !o.IsDestructiveKind("Role"), "custom destructive kinds replace defaults");
+            SshAssert.True(o.IsDestructiveKind("deployment") && o.IsDestructiveKind("Role"), "custom destructive kinds add to the defaults");
+            foreach (string kind in new[] { "Namespace", "Node", "CustomResourceDefinition", "PersistentVolume", "PersistentVolumeClaim", "StorageClass", "ClusterRole", "ClusterRoleBinding", "Role", "RoleBinding", "ValidatingWebhookConfiguration", "MutatingWebhookConfiguration", "PriorityClass", "ResourceQuota", "NetworkPolicy" })
+                SshAssert.True(d.IsDestructiveKind(kind) && o.IsDestructiveKind(kind), kind + " is a default destructive kind and cannot be dropped");
             SshAssert.True(o.Context == "prod", "context trimmed");
             SshAssert.True(o.FieldManager == "hugo", "blank field manager falls back");
             return Task.CompletedTask;

@@ -144,9 +144,18 @@ namespace Hugo.Connectors.Redis
         }
 
         /// <summary>
-        /// Commands rejected by <c>redis_command</c> (upper case). Default contains KEYS.
+        /// Commands the operator adds to the built-in deny list of <c>redis_command</c> (upper case, optionally with a
+        /// subcommand). They are added to <c>KEYS</c>, never substituted for it: only <see cref="AllowKeysCommand"/>
+        /// lifts the built-in denial of <c>KEYS</c>. Default empty.
         /// </summary>
-        public List<string> DeniedCommands { get; set; } = new List<string> { "KEYS" };
+        public List<string> DeniedCommands { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Whether <c>redis_command</c> may run <c>KEYS</c>, which blocks the server while it walks every key. When false
+        /// (the default), <c>KEYS</c> is always denied, whatever <see cref="DeniedCommands"/> holds. When true, <c>KEYS</c>
+        /// is classified as Read, unless <see cref="DeniedCommands"/> lists it explicitly.
+        /// </summary>
+        public bool AllowKeysCommand { get; set; } = false;
 
         /// <summary>
         /// Extra commands classified as Read by <c>redis_command</c> (upper case). They never override a built-in
@@ -200,8 +209,8 @@ namespace Hugo.Connectors.Redis
             o.MaxValueBytes = settings.GetInt(RedisSettingKeys.MaxValueBytes, 65536, 64, 16 * 1024 * 1024);
             o.ConnectTimeoutSeconds = settings.GetInt(RedisSettingKeys.ConnectTimeoutSeconds, 5, 1, 60);
             o.CommandTimeoutSeconds = settings.GetInt(RedisSettingKeys.CommandTimeoutSeconds, 30, 1, 600);
-            if (settings.Has(RedisSettingKeys.DeniedCommands))
-                o.DeniedCommands = settings.GetStringList(RedisSettingKeys.DeniedCommands).Select(c => c.ToUpperInvariant()).ToList();
+            o.DeniedCommands = settings.GetStringList(RedisSettingKeys.DeniedCommands).Select(c => c.ToUpperInvariant()).ToList();
+            o.AllowKeysCommand = settings.GetBool(RedisSettingKeys.AllowKeysCommand, false);
             o.ReadOnlyCommands = settings.GetStringList(RedisSettingKeys.ReadOnlyCommands).Select(c => c.ToUpperInvariant()).ToList();
             o.ClientName = settings.GetString(RedisSettingKeys.ClientName, "hugo") ?? "hugo";
             return o;

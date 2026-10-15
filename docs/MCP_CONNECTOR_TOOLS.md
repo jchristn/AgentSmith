@@ -16,7 +16,7 @@ Values in the examples (hosts, keys, counts, timestamps) are illustrative. The r
 
 ## Effects and flags
 
-Each tool declares a base effect: Read, Write, or Destructive. Hugo compares the effect of each call with the binding's access mode before anything runs. Read is always allowed; Write is denied on a ReadOnly binding and needs approval on ReadWriteWithApproval; Destructive is denied on ReadOnly and needs approval on both writable modes unless the operator has opted out for ReadWrite. A few calls (terminating EC2 instances, flushing Redis, deleting a Kubernetes Namespace or Node) always need a human, opt-out or not.
+Each tool declares a base effect: Read, Write, or Destructive. Hugo compares the effect of each call with the binding's access mode before anything runs. Read is always allowed; Write is denied on a ReadOnly binding and needs approval on ReadWriteWithApproval; Destructive is denied on ReadOnly and needs approval on both writable modes unless the operator has opted out for ReadWrite. A few calls (terminating EC2 instances, deleting or flushing Redis keys, deleting a Kubernetes Namespace or Node) always need a human, opt-out or not.
 
 Four markers appear in the header line of each tool:
 
@@ -229,7 +229,7 @@ Mem:            7.6Gi       3.1Gi       1.2Gi        41Mi       3.6Gi       4.5G
 
 Run a shell command on the SSH host and return its exit code, standard output, and standard error (each bounded, keeping the end). Use it when no purpose-built ssh_ tool fits. Commands run non-interactively with a timeout: never start editors, pagers, or long-running foreground processes, and bound output with tail -n, head, or grep -m. Each command is classified: read-only commands are Read, unknown commands are Write, and destructive ones (rm, kill, systemctl stop/restart, overwriting redirections, package removal) are Destructive and may require approval. A non-zero exit code is a normal result, not a tool error.
 
-**Effect rule.** Each simple command in the line is classified and the most severe wins. Read-only commands (`cat`, `ls`, `grep`, `ps`, `df`, `journalctl`, `systemctl status`, and many more) are Read; unknown commands are Write; `rm`, `kill`, `dd`, `shutdown`, `systemctl stop|restart|disable`, overwriting redirections (`>`), `sed -i`, piping into a shell, here-documents, and anything that cannot be parsed are Destructive. A match on `deniedCommandPatterns`, or any use of `sudo`, `su`, or `doas` while `allowSudo` is off, rejects the call outright.
+**Effect rule.** Each simple command in the line is classified and the most severe wins. Read-only commands (`cat`, `ls`, `grep`, `ps`, `df`, `journalctl`, `systemctl status`, and many more) are Read; unknown commands are Write; `rm`, `kill`, `dd`, `shutdown`, `systemctl stop|restart|disable`, overwriting redirections (`>`), `sed -i`, piping into a shell, here-documents, and anything that cannot be parsed are Destructive. Wrappers that run another command (`command`, `builtin`, `exec`, `env`, `nice`, `nohup`, `timeout`, `xargs`, `chroot`, `flock`, `taskset`, `strace`, `systemd-run`, and similar) are unwrapped and classified by the command they run; `command -v` and `command -V` are Read only because they run nothing. A match on `deniedCommandPatterns`, or any use of `sudo`, `su`, `doas`, `sudoedit`, or `pkexec` while `allowSudo` is off, rejects the call outright. With `allowSudo` on, `sudo`, `doas`, and `sudoedit` without `-n` are rejected too.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -337,7 +337,7 @@ state after reload: active (running)
 
 *Read a file.* Base effect **Read**. Connectors: `ssh`.
 
-Read a file on the SSH host over SFTP, either a byte range (offset, length) or a line range (startLine, lineCount). Use it for configuration files and other text; use ssh_tail_file for the end of logs. Output is bounded: the header states the file size and the range returned, and tells you the offset to continue from. Binary content is returned as base64.
+Read a file on the SSH host over SFTP, either a byte range (offset, length) or a line range (startLine, lineCount). Use it for configuration files and other text; use ssh_tail_file for the end of logs. Output is bounded: the header states the file size and the range returned, and tells you the offset to continue from. Binary content (NUL bytes or invalid UTF-8) is returned as base64 in byte mode; line mode refuses it with invalid_argument.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -1379,9 +1379,9 @@ Connector reference: [CONNECTORS.md](CONNECTORS.md#log-services).
 
 *Search logs.* Base effect **Read**. Connectors: `papertrail`, `solarwinds-observability`.
 
-Search log events in a bounded time window and return them as compact lines (timestamp host program: message), oldest first, plus a nextCursor for older events. Always bound the window: start with 15m to 1h around the incident and widen only if needed. Windows longer than the resource's maxTimeRangeHours are rejected with time_range_exceeded. Summarize patterns instead of pasting many lines.
+Search log events in a bounded time window and return them as compact lines (timestamp host program: message), plus a nextCursor when more events match. Papertrail pages backward from the end of the window: each page holds the newest events not yet returned, listed oldest first, and the cursor fetches older ones. SolarWinds Observability lists events in the order the API uses for providerOptions.direction (backward by default, starting from the newest), and the cursor fetches the next page in that direction. Always bound the window: start with 15m to 1h around the incident and widen only if needed. Windows longer than the resource's maxTimeRangeHours are rejected with time_range_exceeded. Summarize patterns instead of pasting many lines.
 
-**Note.** On a call with `cursor`, the original window, query, and `providerOptions` are replayed and new values for them are ignored.
+**Note.** A call with `cursor` replays the original window, query, and `providerOptions`. Sending `query`, `startTime`, `endTime`, or `providerOptions` with a cursor returns `invalid_argument` rather than being ignored; only `limit` may change.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -1390,11 +1390,11 @@ Search log events in a bounded time window and return them as compact lines (tim
 | `startTime` | string | no | Window start: ISO-8601 timestamp (UTC when no offset) or a duration before now such as 15m, 2h, 1d. Default 1h. |
 | `endTime` | string | no | Window end: ISO-8601 timestamp, 'now', or a duration before now. Default now. |
 | `limit` | integer | no | Maximum events to return. Capped by the resource's maxEvents. Default 100. Range: min 1, max 10000. |
-| `cursor` | string | no | nextCursor from a previous logs_search call on the same resource. Fetches the next page of older events and reuses the original window, query, and filters. |
+| `cursor` | string | no | nextCursor from a previous logs_search call on the same resource. Fetches the next page with the original window, query, and filters: older events on Papertrail, the next page in the search direction on SolarWinds Observability. Only limit may be sent with it; query, startTime, endTime, or providerOptions alongside a cursor return invalid_argument. |
 | `providerOptions` | object | no | Provider-specific filters. Papertrail accepts system and group. SolarWinds Observability accepts group, entityId, and direction. Unsupported keys return invalid_argument. |
-| `providerOptions.system` | string | no | Papertrail only: system ID or name (see logs_list_systems). Defaults to the resource's defaultSystem. |
-| `providerOptions.group` | string | no | Papertrail: group ID or name (see logs_list_groups). SolarWinds Observability: log group name. Defaults to the resource's defaultGroup. |
-| `providerOptions.entityId` | string | no | SolarWinds Observability only: entity ID (see swo_list_entities). |
+| `providerOptions.system` | string | no | Papertrail only: system ID or name. Defaults to the resource's defaultSystem. |
+| `providerOptions.group` | string | no | Papertrail: group ID or name. SolarWinds Observability: log group name. Defaults to the resource's defaultGroup. |
+| `providerOptions.entityId` | string | no | SolarWinds Observability only: ID of the entity whose logs to search. |
 | `providerOptions.direction` | string | no | SolarWinds Observability only: search direction. Default backward. One of `backward`, `forward`, `tail`. |
 
 **Output.** Text lines plus structured JSON {provider, kind, query, startTime, endTime, count, omitted, nextCursor, events[{id, timestamp, host, program, severity, message}]}.
@@ -1433,11 +1433,11 @@ Return the newest log events for an optional query, newest last, plus a nextCurs
 | `resource` | string | yes | Alias of the bound resource. Added by Hugo; the allowed values are the caller's bindings for this family. |
 | `query` | string | no | Search expression in the provider's syntax. Omit for every event. |
 | `limit` | integer | no | Maximum events to return. Capped by the resource's maxEvents. Default 50. Range: min 1, max 10000. |
-| `cursor` | string | no | nextCursor from a previous logs_tail call. Returns only events newer than that call, with the original query and filters. |
+| `cursor` | string | no | nextCursor from a previous logs_tail call. Returns only events newer than that call, with the original query and filters. Only limit may be sent with it; query or providerOptions alongside a cursor return invalid_argument. |
 | `providerOptions` | object | no | Provider-specific filters. Papertrail accepts system and group. SolarWinds Observability accepts group, entityId, and direction. Unsupported keys return invalid_argument. |
-| `providerOptions.system` | string | no | Papertrail only: system ID or name (see logs_list_systems). Defaults to the resource's defaultSystem. |
-| `providerOptions.group` | string | no | Papertrail: group ID or name (see logs_list_groups). SolarWinds Observability: log group name. Defaults to the resource's defaultGroup. |
-| `providerOptions.entityId` | string | no | SolarWinds Observability only: entity ID (see swo_list_entities). |
+| `providerOptions.system` | string | no | Papertrail only: system ID or name. Defaults to the resource's defaultSystem. |
+| `providerOptions.group` | string | no | Papertrail: group ID or name. SolarWinds Observability: log group name. Defaults to the resource's defaultGroup. |
+| `providerOptions.entityId` | string | no | SolarWinds Observability only: ID of the entity whose logs to search. |
 | `providerOptions.direction` | string | no | SolarWinds Observability only: search direction. Default backward. One of `backward`, `forward`, `tail`. |
 
 **Output.** Text lines plus structured JSON {provider, kind, query, count, omitted, nextCursor, events[...]}.
@@ -1477,12 +1477,12 @@ Count matching log events in equal time buckets across a window, to find when a 
 | `buckets` | integer | no | Number of equal time buckets. Default 12. Range: min 1, max 120. |
 | `maxScanEvents` | integer | no | Maximum events scanned while counting. When reached, counts before the scanned range are reported as incomplete. Default 10000. Range: min 100, max 100000. |
 | `providerOptions` | object | no | Provider-specific filters. Papertrail accepts system and group. SolarWinds Observability accepts group, entityId, and direction. Unsupported keys return invalid_argument. |
-| `providerOptions.system` | string | no | Papertrail only: system ID or name (see logs_list_systems). Defaults to the resource's defaultSystem. |
-| `providerOptions.group` | string | no | Papertrail: group ID or name (see logs_list_groups). SolarWinds Observability: log group name. Defaults to the resource's defaultGroup. |
-| `providerOptions.entityId` | string | no | SolarWinds Observability only: entity ID (see swo_list_entities). |
+| `providerOptions.system` | string | no | Papertrail only: system ID or name. Defaults to the resource's defaultSystem. |
+| `providerOptions.group` | string | no | Papertrail: group ID or name. SolarWinds Observability: log group name. Defaults to the resource's defaultGroup. |
+| `providerOptions.entityId` | string | no | SolarWinds Observability only: ID of the entity whose logs to search. |
 | `providerOptions.direction` | string | no | SolarWinds Observability only: search direction. Default backward. One of `backward`, `forward`, `tail`. |
 
-**Output.** Table of bucketStart, bucketEnd, count, complete plus structured JSON {provider, query, startTime, endTime, total, scanned, complete, buckets[]}.
+**Output.** Table of bucketStart, bucketEnd, count, complete plus structured JSON {provider, query, startTime, endTime, bucketSeconds, total, pages, complete, scannedFrom, buckets[{start, end, count, complete}]}.
 
 Example arguments:
 
@@ -2126,7 +2126,7 @@ TTL of session:9f2c set to 60s.
 
 *Delete Redis keys.* Base effect **Destructive**. Connectors: `redis`.
 
-Delete up to 100 keys by exact name (UNLINK). Glob patterns are not expanded: find keys with redis_scan first and list them explicitly. Destructive: it requires approval, and deleted data cannot be recovered.
+Delete up to 100 keys by exact name (UNLINK). Glob patterns are not expanded: find keys with redis_scan first and list them explicitly. Destructive, and it always requires a human approval, whatever the binding's access mode; deleted data cannot be recovered.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -2157,9 +2157,9 @@ Deleted 2 of 2 keys.
 
 *Run a Redis command.* Base effect **Read**, classified per call. Connectors: `redis`.
 
-Run one Redis command when no purpose-built redis_* tool fits. Each call is classified from a table of every Redis command: reads (GET, HGETALL, XINFO, CONFIG GET) are Read, writes (SET, HSET, EXPIRE) are Write, and deletes, flushes, CONFIG SET, SHUTDOWN, scripts (EVAL), and unknown commands are Destructive and need approval. KEYS is denied (use redis_scan); blocking commands (BLPOP, XREAD BLOCK), SUBSCRIBE, MONITOR, MULTI/EXEC, SELECT, and AUTH are rejected. Replies are capped by the row limit and maxValueBytes.
+Run one Redis command when no purpose-built redis_* tool fits. Each call is classified from a table of every Redis command: reads (GET, HGETALL, XINFO, CONFIG GET) are Read, writes (SET, HSET, EXPIRE) are Write, and deletes, flushes, CONFIG SET, SHUTDOWN, scripts (EVAL), and unknown commands are Destructive and need approval. Key deletes (DEL, UNLINK, GETDEL) and flushes always need a human approval, whatever the access mode. KEYS is denied unless the resource allows it (use redis_scan); blocking commands (BLPOP, XREAD BLOCK), SUBSCRIBE, MONITOR, MULTI/EXEC, SELECT, and AUTH are rejected. Replies are capped by the row limit and maxValueBytes.
 
-**Effect rule.** Looked up in the command table. Reads such as `GET`, `HGETALL`, `XINFO`, and `CONFIG GET` are Read; writes such as `SET`, `HSET`, and `EXPIRE` are Write; deletes, `CONFIG SET`, `EVAL`, `FCALL`, and unknown commands are Destructive. `FLUSHALL`, `FLUSHDB`, `SHUTDOWN`, `SCRIPT FLUSH`, `FUNCTION FLUSH`, `DEBUG`, failovers, and `REPLICAOF` always need a human. Commands in `deniedCommands` (default `KEYS`), blocking commands, `SUBSCRIBE`, `MONITOR`, `MULTI`/`EXEC`, `SELECT`, and `AUTH` are rejected.
+**Effect rule.** Looked up in the command table. Reads such as `GET`, `HGETALL`, `XINFO`, and `CONFIG GET` are Read; writes such as `SET`, `HSET`, and `EXPIRE` are Write; deletes, `CONFIG SET`, `EVAL`, `FCALL`, and unknown commands are Destructive. `DEL`, `UNLINK`, `GETDEL`, `FLUSHALL`, `FLUSHDB`, `SHUTDOWN`, `SCRIPT FLUSH`, `FUNCTION FLUSH`, `DEBUG`, failovers, and `REPLICAOF` always need a human. `KEYS` (unless the resource sets `allowKeysCommand`), commands in `deniedCommands`, blocking commands, `SUBSCRIBE`, `MONITOR`, `MULTI`/`EXEC`, `SELECT`, and `AUTH` are rejected.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -2191,7 +2191,7 @@ Abbreviated result:
 
 ## AWS (`aws_*`)
 
-Served by the `aws` connector. One resource covers one account and region. Every tool belongs to a service (`ec2`, `cloudwatch`, `logs`, and so on), and a tool whose service is missing from the resource's `allowedServices` is rejected; `aws_caller_identity` is always allowed. Parameters marked † have no description in the schema the model receives; the description given here comes from the code.
+Served by the `aws` connector. One resource covers one account and region. Every tool belongs to a service (`ec2`, `cloudwatch`, `logs`, and so on), and a tool whose service is missing from the resource's `allowedServices` is rejected; `aws_caller_identity` is always allowed.
 
 Connector reference: [CONNECTORS.md](CONNECTORS.md#aws).
 
@@ -2237,8 +2237,8 @@ List EC2 instances with ID, Name tag, state, type, availability zone, IPs, and l
 | `instanceIds` | array of string | no | Instance IDs (i-...). Paging is not used when IDs are given. Range: max items 200. |
 | `states` | array of string | no | Only instances in these states. Items: `pending`, `running`, `shutting-down`, `terminated`, `stopping`, `stopped`. |
 | `filters` | array of object | no | EC2 describe filters, for example tag:Name, vpc-id, instance-type. Range: max items 20. |
-| `filters[].name` † | string | yes | Filter name, for example `tag:env` or `instance-type`. |
-| `filters[].values` † | array of string | yes | Values to match. |
+| `filters[].name` | string | yes | Filter name, for example tag:Name, vpc-id, or instance-type. |
+| `filters[].values` | array of string | yes | Values to match; an instance matches when any value matches. Wildcards * and ? are allowed. |
 | `maxResults` | integer | no | Page size. Defaults to the resource's maxResults. Range: min 5, max 1000. |
 | `nextToken` | string | no | Token from the previous page. |
 
@@ -2357,14 +2357,14 @@ Fetch CloudWatch metrics for an explicit time window: up to 10 metrics (namespac
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `resource` | string | yes | Alias of the bound resource. Added by Hugo; the allowed values are the caller's bindings for this family. |
-| `metrics` † | array of object | yes | Metrics or expressions to fetch, 1 to 10. Range: min items 1, max items 10. |
+| `metrics` | array of object | yes | Metrics or metric math expressions to fetch, 1 to 10. Each item sets namespace and metricName (with optional dimensions and stat), or expression. Range: min items 1, max items 10. |
 | `metrics[].id` | string | no | Optional id (lowercase letter first), used by expressions. |
-| `metrics[].namespace` † | string | no | Metric namespace, for example `AWS/EC2`. |
-| `metrics[].metricName` † | string | no | Metric name, for example `CPUUtilization`. |
-| `metrics[].dimensions` † | object | no | Dimension name to value. Values are strings. |
+| `metrics[].namespace` | string | no | Metric namespace, for example AWS/EC2. Required unless expression is set. |
+| `metrics[].metricName` | string | no | Metric name, for example CPUUtilization. Required unless expression is set. |
+| `metrics[].dimensions` | object | no | Dimension names and values that pick the metric, for example InstanceId set to i-0abc. Every dimension the metric was published with must be given. |
 | `metrics[].stat` | string | no | Average, Sum, Minimum, Maximum, SampleCount, or pNN. Default Average. |
 | `metrics[].expression` | string | no | Metric math instead of a metric, for example m0 * 100. |
-| `metrics[].label` † | string | no | Label shown in the result. |
+| `metrics[].label` | string | no | Label for this series in the result. Defaults to the namespace, metric, and dimensions, or the expression. |
 | `lookbackMinutes` | integer | no | Window length ending at endTime (default now). Range: min 1. |
 | `startTime` | string | no | ISO 8601 start (UTC when no offset). |
 | `endTime` | string | no | ISO 8601 end. Default now. |
@@ -2410,11 +2410,11 @@ List CloudWatch metric and composite alarms with state, when the state changed, 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `resource` | string | yes | Alias of the bound resource. Added by Hugo; the allowed values are the caller's bindings for this family. |
-| `state` † | string | no | Only alarms in this state. One of `ALARM`, `OK`, `INSUFFICIENT_DATA`. |
+| `state` | string | no | Only alarms currently in this state. Omit for every state. One of `ALARM`, `OK`, `INSUFFICIENT_DATA`. |
 | `namePrefix` | string | no | Alarm name prefix. |
-| `alarmNames` † | array of string | no | Exact alarm names. Range: max items 100. |
-| `maxResults` † | integer | no | Page size. Range: min 1, max 100. |
-| `nextToken` † | string | no | Token from the previous page. |
+| `alarmNames` | array of string | no | Exact alarm names to describe (up to 100). Omit to list alarms, optionally narrowed by namePrefix. Range: max items 100. |
+| `maxResults` | integer | no | Alarms per page, 1 to 100. Defaults to the resource's maxResults and is capped by the call's row limit. Range: min 1, max 100. |
+| `nextToken` | string | no | The nextToken from the previous page, to fetch the next page. Send the same filters again. |
 
 **Output.** A table of alarms and a nextToken when more pages exist.
 
@@ -2441,19 +2441,19 @@ Abbreviated result:
 
 Run a CloudWatch Logs Insights query over named log groups and an explicit window, wait for it (bounded), and return the rows. Prefer aggregations, for example: fields @timestamp, @message | filter @message like /ERROR/ | stats count(*) by bin(5m). Keep windows short; queries are billed by bytes scanned. If the query is still running when the wait ends, call again with the returned queryId.
 
-**Note.** `logGroupNames` and `query` are required unless `queryId` resumes an earlier query. The schema does not mark them required; the tool enforces it.
+**Note.** `logGroupNames` and `query` are required on every call. To resume a query that was still running, send them again together with the returned `queryId`; the tool polls the existing query and does not start a new one.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `resource` | string | yes | Alias of the bound resource. Added by Hugo; the allowed values are the caller's bindings for this family. |
-| `logGroupNames` | array of string | no | Log groups to query. Range: min items 1, max items 50. |
-| `query` | string | no | Logs Insights query text. Range: min length 1, max length 10000. |
-| `lookbackMinutes` † | integer | no | Window length ending at `endTime`. Defaults to the resource's `defaultLookbackMinutes`. Range: min 1. |
+| `logGroupNames` | array of string | yes | Log groups to query. Range: min items 1, max items 50. |
+| `query` | string | yes | Logs Insights query text. Range: min length 1, max length 10000. |
+| `lookbackMinutes` | integer | no | Window length in minutes ending at endTime (default now), used when startTime is not set. Defaults to the resource's defaultLookbackMinutes; the whole window may not exceed maxTimeRangeHours. Range: min 1. |
 | `startTime` | string | no | ISO 8601 start (UTC when no offset). |
 | `endTime` | string | no | ISO 8601 end. Default now. |
 | `limit` | integer | no | Most rows the query returns. Range: min 1, max 10000. |
 | `timeoutSeconds` | integer | no | How long to wait; capped by the resource's logsQueryTimeoutSeconds. Range: min 1, max 300. |
-| `queryId` | string | no | Resume waiting for a query started earlier instead of starting a new one. |
+| `queryId` | string | no | Resume waiting for a query started earlier instead of starting a new one. Send the same logGroupNames and query along with it; they are not run again. |
 
 **Output.** Query status, statistics, and result rows.
 
@@ -2489,11 +2489,11 @@ Return the newest log events of one log group within a window (default the resou
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `resource` | string | yes | Alias of the bound resource. Added by Hugo; the allowed values are the caller's bindings for this family. |
-| `logGroupName` † | string | yes | Log group to read. Range: min length 1. |
-| `logStreamNames` † | array of string | no | Only these log streams. Range: max items 100. |
-| `logStreamNamePrefix` † | string | no | Only streams whose names start with this prefix. |
+| `logGroupName` | string | yes | Log group to read, for example /aws/lambda/checkout. Range: min length 1. |
+| `logStreamNames` | array of string | no | Only these log streams (up to 100). Do not combine with logStreamNamePrefix. Range: max items 100. |
+| `logStreamNamePrefix` | string | no | Only log streams whose names start with this prefix. Do not combine with logStreamNames. |
 | `filterPattern` | string | no | CloudWatch Logs filter pattern. |
-| `lookbackMinutes` † | integer | no | Window length ending at `endTime`. Defaults to the resource's `defaultLookbackMinutes`. Range: min 1. |
+| `lookbackMinutes` | integer | no | Window length in minutes ending at endTime (default now), used when startTime is not set. Defaults to the resource's defaultLookbackMinutes; the whole window may not exceed maxTimeRangeHours. Range: min 1. |
 | `startTime` | string | no | ISO 8601 start (UTC when no offset). |
 | `endTime` | string | no | ISO 8601 end. Default now. |
 | `limit` | integer | no | Most events returned; capped by the resource's logsMaxEvents. Range: min 1, max 10000. |
@@ -2532,8 +2532,8 @@ Describe ECS services in one cluster: status, desired, running, and pending task
 | `cluster` | string | no | Cluster name or ARN. Default 'default'. |
 | `services` | array of string | no | Service names or ARNs. Empty lists the cluster's services. Range: max items 10. |
 | `eventsPerService` | integer | no | Recent events per service. Default 5. Range: min 0, max 50. |
-| `maxResults` † | integer | no | Page size when listing services. Range: min 1, max 10. |
-| `nextToken` † | string | no | Token from the previous page. |
+| `maxResults` | integer | no | Only when services is empty: services listed per page, 1 to 10. Defaults to the resource's maxResults and is capped by the call's row limit. Range: min 1, max 10. |
+| `nextToken` | string | no | Only when services is empty: the nextToken from the previous page, to list the next services in the cluster. |
 
 **Output.** A table of services, recent events, and a nextToken when listing more services.
 
@@ -2573,8 +2573,8 @@ Change an ECS service's desired task count and/or force a new deployment (restar
 | `resource` | string | yes | Alias of the bound resource. Added by Hugo; the allowed values are the caller's bindings for this family. |
 | `cluster` | string | no | Cluster name or ARN. Default 'default'. |
 | `service` | string | yes | Service name or ARN. Range: min length 1. |
-| `desiredCount` † | integer | no | New desired task count. 0 stops the service and is Destructive. Range: min 0, max 100000. |
-| `forceNewDeployment` † | boolean | no | Start a new deployment with the current task definition. |
+| `desiredCount` | integer | no | New desired task count, 0 to 100000. 0 stops every task of the service and is Destructive. Omit to keep the current count; set this, forceNewDeployment, or both. Range: min 0, max 100000. |
+| `forceNewDeployment` | boolean | no | Start a new deployment that replaces every running task, for example to pick up a new image pushed under the same tag. Default false. |
 
 **Output.** The service after the update.
 
@@ -2610,9 +2610,9 @@ Describe Amazon RDS and Aurora: kind=instances (status, engine, class, Multi-AZ,
 | `identifier` | string | no | DB instance or cluster identifier (for events, the event source). |
 | `sourceType` | string | no | events with identifier: the source type. Default db-instance. One of `db-instance`, `db-cluster`, `db-parameter-group`, `db-security-group`, `db-snapshot`, `db-cluster-snapshot`. |
 | `lookbackMinutes` | integer | no | events: window length. RDS keeps 14 days of events. Range: min 1. |
-| `startTime` † | string | no | events: ISO 8601 window start. |
-| `endTime` † | string | no | events: ISO 8601 window end. Default now. |
-| `maxResults` † | integer | no | Page size. Range: min 20, max 100. |
+| `startTime` | string | no | events: ISO 8601 start (UTC when no offset). Overrides lookbackMinutes. |
+| `endTime` | string | no | events: ISO 8601 end. Default now. |
+| `maxResults` | integer | no | Rows per page, 20 to 100 (the RDS API refuses fewer than 20). Defaults to the resource's maxResults. Range: min 20, max 100. |
 | `nextToken` | string | no | Marker from the previous page. |
 
 **Output.** A table of instances, clusters, or events and a nextToken when more pages exist.
@@ -2646,9 +2646,9 @@ List Lambda functions with runtime, memory, timeout, state, last modification, a
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `resource` | string | yes | Alias of the bound resource. Added by Hugo; the allowed values are the caller's bindings for this family. |
-| `nameContains` † | string | no | Case-insensitive substring filter applied to each page. |
-| `maxResults` † | integer | no | Page size. Range: min 1, max 50. |
-| `nextToken` † | string | no | Token from the previous page. |
+| `nameContains` | string | no | Keep only functions whose name contains this text (case-insensitive). It filters the current page only, so keep paging with nextToken to search every function. |
+| `maxResults` | integer | no | Functions per page, 1 to 50. Defaults to the resource's maxResults and is capped by the call's row limit. Range: min 1, max 50. |
+| `nextToken` | string | no | The nextToken from the previous page, to fetch the next page. Send the same filters again. |
 
 **Output.** A table of functions and a nextToken when more pages exist.
 
@@ -2720,9 +2720,9 @@ Show the health of load balancer targets (ALB and NLB, Elastic Load Balancing v2
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `resource` | string | yes | Alias of the bound resource. Added by Hugo; the allowed values are the caller's bindings for this family. |
-| `targetGroupArn` † | string | no | Target group ARN. |
-| `targetGroupName` † | string | no | Target group name. |
-| `loadBalancerName` † | string | no | Load balancer name; all of its target groups are checked. |
+| `targetGroupArn` | string | no | ARN of one target group to check. Takes precedence over targetGroupName and loadBalancerName. |
+| `targetGroupName` | string | no | Name of one target group to check, used when targetGroupArn is not set. |
+| `loadBalancerName` | string | no | Name of a load balancer whose target groups (the first 10) are checked, used when neither targetGroupArn nor targetGroupName is set. With none of the three, the first 10 target groups in the region are checked. |
 
 **Output.** A table of targets with health state and reason.
 
@@ -2754,11 +2754,11 @@ List DNS records of a Route 53 hosted zone (name, type, TTL, values or alias tar
 | `resource` | string | yes | Alias of the bound resource. Added by Hugo; the allowed values are the caller's bindings for this family. |
 | `hostedZoneId` | string | no | Zone ID, for example Z123ABC (or /hostedzone/Z123ABC). |
 | `zoneName` | string | no | Zone name, for example example.com. |
-| `startRecordName` † | string | no | Record name to start the listing at. |
-| `startRecordType` † | string | no | Record type to start at, with `startRecordName`. |
+| `startRecordName` | string | no | Start listing at this record name (in Route 53 order) instead of at the top of the zone. Ignored when nextToken is set. |
+| `startRecordType` | string | no | With startRecordName, the record type to start at, for example A or CNAME. Ignored when nextToken is set. |
 | `type` | string | no | Show only this record type on the page, for example A or CNAME. |
-| `maxResults` † | integer | no | Page size. Range: min 1, max 300. |
-| `nextToken` † | string | no | Token from the previous page. |
+| `maxResults` | integer | no | Records per page, 1 to 300. Defaults to the resource's maxResults and is capped by the call's row limit. Range: min 1, max 300. |
+| `nextToken` | string | no | The nextToken from the previous page, to fetch the next page. Send the same filters again. |
 
 **Output.** A table of records (or hosted zones) and a nextToken when more pages exist.
 
@@ -2789,11 +2789,11 @@ Show SQS queue attributes without touching messages: for one queue (queueName or
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `resource` | string | yes | Alias of the bound resource. Added by Hugo; the allowed values are the caller's bindings for this family. |
-| `queueName` † | string | no | One queue by name. |
-| `queueUrl` † | string | no | One queue by URL. |
-| `queueNamePrefix` † | string | no | Summarize queues whose names start with this prefix. |
-| `maxResults` † | integer | no | Page size for the summary. Range: min 1, max 1000. |
-| `nextToken` † | string | no | Token from the previous page. |
+| `queueName` | string | no | Name of one queue to describe in full. It is resolved to the queue URL first; ignored when queueUrl is set. |
+| `queueUrl` | string | no | URL of one queue to describe in full, for example https://sqs.us-east-1.amazonaws.com/123456789012/orders. |
+| `queueNamePrefix` | string | no | When listing (no queueUrl or queueName): only queues whose names start with this prefix. |
+| `maxResults` | integer | no | When listing: queues per page, at most 20 (the listing summarizes each queue). Defaults to the resource's maxResults and is capped by the call's row limit. Range: min 1, max 1000. |
+| `nextToken` | string | no | When listing: the nextToken from the previous page. Send the same queueNamePrefix again. |
 
 **Output.** Attribute table for one queue, or a backlog summary table.
 
@@ -2827,9 +2827,9 @@ List SNS topics (name and ARN), 100 per page. includeAttributes adds confirmed a
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `resource` | string | yes | Alias of the bound resource. Added by Hugo; the allowed values are the caller's bindings for this family. |
-| `nameContains` † | string | no | Substring filter applied to each page. |
+| `nameContains` | string | no | Keep only topics whose name contains this text (case-insensitive). It filters the current page of up to 100 topics, so keep paging with nextToken to search every topic. |
 | `includeAttributes` | boolean | no | Fetch subscription counts. Default false. |
-| `nextToken` † | string | no | Token from the previous page. |
+| `nextToken` | string | no | The nextToken from the previous page, to fetch the next page. Send the same filters again. |
 
 **Output.** A table of topics and a nextToken when more pages exist.
 
@@ -3204,13 +3204,11 @@ Set the replica count of a Deployment, StatefulSet, ReplicaSet, or a custom reso
 
 **Effect rule.** Write. `replicas: 0` is Destructive, because it stops the workload.
 
-**Note.** DaemonSets have no scale subresource and return `not_supported`, despite the `name` description.
-
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `resource` | string | yes | Alias of the bound resource. Added by Hugo; the allowed values are the caller's bindings for this family. |
 | `kind` | string | no | Kind with a scale subresource: Deployment (default), StatefulSet, ReplicaSet, or a custom resource that supports scale. Range: max length 253. |
-| `name` | string | yes | Name of the Deployment, StatefulSet, or DaemonSet. Range: min length 1, max length 253. |
+| `name` | string | yes | Name of the object to scale (a Deployment, StatefulSet, ReplicaSet, or custom resource with a scale subresource). DaemonSets run one pod per node and cannot be scaled. Range: min length 1, max length 253. |
 | `namespace` | string | no | Namespace. Defaults to the resource's default namespace. Range: max length 63. |
 | `apiVersion` | string | no | Optional apiVersion when a kind name exists in several API groups. Range: max length 253. |
 | `replicas` | integer | yes | Desired replica count. 0 stops the workload and is Destructive. Range: min 0, max 1000. |
@@ -3238,7 +3236,7 @@ deployment shop/checkout scaled from 2 to 4 replicas
 
 *Apply a manifest.* Base effect **Write**, classified per call. Connectors: `kubernetes`.
 
-Create or update objects with server-side apply (field manager 'hugo'). Works for every kind, including custom resources. Run with dryRun: true first to validate and preview. Write; Destructive when the manifest targets a destructive kind (RBAC, CRDs, namespaces, storage, webhooks), sets a field to null, uses force, or allows field removal. Applies that would silently remove fields are refused unless allowFieldRemoval is true.
+Create or update objects with server-side apply, as the field manager named by the resource's fieldManager setting (default hugo). Works for every kind, including custom resources. Run with dryRun: true first to validate and preview. Write; Destructive when the manifest targets a destructive kind (RBAC, CRDs, namespaces, storage, webhooks), sets a field to null, uses force, or allows field removal. Applies that would silently remove fields are refused unless allowFieldRemoval is true.
 
 **Effect rule.** `dryRun: true` is Read. Otherwise Write, and Destructive when a manifest object's kind is in the resource's `destructiveKinds`, a field is set to `null`, `force` is set, or `allowFieldRemoval` is set. An unparseable manifest is Destructive. A manifest namespace outside the allow list is rejected.
 
@@ -3565,12 +3563,10 @@ Abbreviated result:
 
 List Docker daemon events in a past time window: container starts, stops, deaths with exit codes, OOM kills, restarts, health changes, image pulls. Use type: container and event: die or oom to find crashes. The window defaults to the last 15 minutes and is always bounded.
 
-**Note.** A window longer than the resource's `maxEventsWindowSeconds` is clipped (its start moves forward), not rejected.
-
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `resource` | string | yes | Alias of the bound resource. Added by Hugo; the allowed values are the caller's bindings for this family. |
-| `since` | string | no | Start of the window: seconds ago (900), a duration (15m, 2h), or an ISO 8601 time. Default 15m. The window is capped by the resource's maxEventsWindowSeconds. Range: max length 64. |
+| `since` | string | no | Start of the window: seconds ago (900), a duration (15m, 2h), or an ISO 8601 time. Default 15m. A window longer than the resource's maxEventsWindowSeconds is refused with invalid_argument. Range: max length 64. |
 | `until` | string | no | End of the window in the same formats. Default now. Never in the future. Range: max length 64. |
 | `type` | string | no | Only events about this kind of object. One of `container`, `image`, `volume`, `network`, `daemon`, `plugin`, `service`, `node`, `secret`, `config`. |
 | `container` | string | no | Only events about this container name or ID. Range: max length 256. |
@@ -4164,7 +4160,7 @@ Connector reference: [CONNECTORS.md](CONNECTORS.md#elasticsearch-and-opensearch)
 
 Search one or more allowed indexes with a Query DSL query and return hits (index, id, score, source) and aggregations. Always set size (default 10, capped by the resource's maxHits), filter by time with a range query, and request only the fields you need with _source. Use aggs with size 0 for counts and breakdowns instead of reading many documents.
 
-**Note.** Only the listed body keys are accepted; `script_fields`, `runtime_mappings`, and similar top-level keys are rejected. Hits from indexes outside the allowed patterns (reached through an alias) are dropped, but totals and aggregations still count them.
+**Note.** Only the listed body keys are accepted; `script_fields`, `runtime_mappings`, and similar top-level keys are rejected. Before searching, Hugo resolves the index expression; when an alias or wildcard reaches indexes outside the allowed patterns, only the allowed concrete indexes are searched (the result says how many were left out), and when it reaches no allowed index the call fails with `permission_denied`. Totals and aggregations therefore cover only allowed indexes.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -4228,6 +4224,8 @@ aggregations: {"by_service":{"buckets":[{"key":"checkout","doc_count":388},{"key
 *Count Elasticsearch documents.* Base effect **Read**. Connectors: `elasticsearch`.
 
 Count documents that match a Query DSL query in allowed indexes, without returning them. Use it to size a problem before searching.
+
+**Note.** The index expression is resolved first, as for `es_search`: indexes outside the allowed patterns that an alias or wildcard reaches are left out of the count, and an expression that reaches no allowed index fails with `permission_denied`.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|

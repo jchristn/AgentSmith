@@ -235,13 +235,13 @@ namespace Hugo.Connectors.Aws.Tools
                 + "is chosen automatically unless given. Example metric: {\"namespace\":\"AWS/EC2\",\"metricName\":\"CPUUtilization\",\"dimensions\":{\"InstanceId\":\"i-0abc\"},\"stat\":\"Average\"}.";
             d.InputSchemaJson =
                 "{\"type\":\"object\",\"properties\":{"
-                + "\"metrics\":{\"type\":\"array\",\"minItems\":1,\"maxItems\":10,\"items\":{\"type\":\"object\",\"properties\":{"
+                + "\"metrics\":{\"type\":\"array\",\"minItems\":1,\"maxItems\":10,\"description\":\"Metrics or metric math expressions to fetch, 1 to 10. Each item sets namespace and metricName (with optional dimensions and stat), or expression.\",\"items\":{\"type\":\"object\",\"properties\":{"
                 + "\"id\":{\"type\":\"string\",\"description\":\"Optional id (lowercase letter first), used by expressions.\"},"
-                + "\"namespace\":{\"type\":\"string\"},\"metricName\":{\"type\":\"string\"},"
-                + "\"dimensions\":{\"type\":\"object\",\"additionalProperties\":{\"type\":\"string\"}},"
+                + "\"namespace\":{\"type\":\"string\",\"description\":\"Metric namespace, for example AWS/EC2. Required unless expression is set.\"},\"metricName\":{\"type\":\"string\",\"description\":\"Metric name, for example CPUUtilization. Required unless expression is set.\"},"
+                + "\"dimensions\":{\"type\":\"object\",\"additionalProperties\":{\"type\":\"string\"},\"description\":\"Dimension names and values that pick the metric, for example InstanceId set to i-0abc. Every dimension the metric was published with must be given.\"},"
                 + "\"stat\":{\"type\":\"string\",\"description\":\"Average, Sum, Minimum, Maximum, SampleCount, or pNN. Default Average.\"},"
                 + "\"expression\":{\"type\":\"string\",\"description\":\"Metric math instead of a metric, for example m0 * 100.\"},"
-                + "\"label\":{\"type\":\"string\"}}}},"
+                + "\"label\":{\"type\":\"string\",\"description\":\"Label for this series in the result. Defaults to the namespace, metric, and dimensions, or the expression.\"}}}},"
                 + "\"lookbackMinutes\":{\"type\":\"integer\",\"minimum\":1,\"description\":\"Window length ending at endTime (default now).\"},"
                 + "\"startTime\":{\"type\":\"string\",\"description\":\"ISO 8601 start (UTC when no offset).\"},"
                 + "\"endTime\":{\"type\":\"string\",\"description\":\"ISO 8601 end. Default now.\"},"

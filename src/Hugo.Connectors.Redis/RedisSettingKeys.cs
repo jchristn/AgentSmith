@@ -45,8 +45,11 @@ namespace Hugo.Connectors.Redis
         /// <summary>Command timeout in seconds enforced by the client library.</summary>
         public const string CommandTimeoutSeconds = "commandTimeoutSeconds";
 
-        /// <summary>Commands rejected by <c>redis_command</c>, one per line.</summary>
+        /// <summary>Commands rejected by <c>redis_command</c> in addition to <c>KEYS</c>, one per line.</summary>
         public const string DeniedCommands = "deniedCommands";
+
+        /// <summary>Whether <c>redis_command</c> may run <c>KEYS</c>.</summary>
+        public const string AllowKeysCommand = "allowKeysCommand";
 
         /// <summary>Extra commands (for example module commands) classified as Read by <c>redis_command</c>.</summary>
         public const string ReadOnlyCommands = "readOnlyCommands";

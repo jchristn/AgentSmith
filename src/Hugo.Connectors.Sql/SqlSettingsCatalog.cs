@@ -68,7 +68,7 @@ namespace Hugo.Connectors.Sql
             {
                 schema.Add(new SettingDescriptor(SqlSettingKeys.SslMode, SettingValueKindEnum.Enum, "TLS mode")
                 {
-                    Help = "Disable: no TLS. Prefer: TLS when the server offers it (default). Require: TLS without certificate validation. VerifyCA and VerifyFull: TLS with certificate validation.",
+                    Help = SslModeHelp(engine),
                     DefaultValue = "Prefer",
                     AllowedValues = new List<string> { "Disable", "Prefer", "Require", "VerifyCA", "VerifyFull" },
                     Group = "Security"
@@ -161,10 +161,39 @@ namespace Hugo.Connectors.Sql
             }
             slots.Add(new SecretSlotDescriptor(SqlSettingKeys.ConnectionStringSlot, "Connection string", SecretKindEnum.ConnectionString)
             {
-                Help = "A complete driver connection string. When bound, it overrides the discrete connection settings; Hugo still applies the command timeout, the application name when absent, and read-only enforcement.",
+                Help = ConnectionStringHelp(engine),
                 Required = false
             });
             return slots;
+        }
+
+        /// <summary>
+        /// Help text of the <c>sslMode</c> setting for an engine.
+        /// </summary>
+        /// <param name="engine">Engine.</param>
+        /// <returns>Help text.</returns>
+        public static string SslModeHelp(SqlEngineEnum engine)
+        {
+            if (engine == SqlEngineEnum.SqlServer)
+                return "Disable: Encrypt=false, no TLS beyond the login exchange SQL Server always encrypts (the server can still force encryption). "
+                    + "Prefer (default): Encrypt=Optional, which SqlClient treats the same as Encrypt=false; it has no opportunistic mode. "
+                    + "Require: Encrypt=true, validating the certificate unless trustServerCertificate is on. VerifyCA and VerifyFull: Encrypt=true with certificate validation.";
+            return "Disable: no TLS. Prefer: TLS when the server offers it (default). Require: TLS without certificate validation. VerifyCA and VerifyFull: TLS with certificate validation.";
+        }
+
+        /// <summary>
+        /// Help text of the <c>connectionString</c> secret slot for an engine.
+        /// </summary>
+        /// <param name="engine">Engine.</param>
+        /// <returns>Help text.</returns>
+        public static string ConnectionStringHelp(SqlEngineEnum engine)
+        {
+            string common = "A complete driver connection string. When bound, it overrides the discrete connection settings; Hugo still applies the command timeout and the application name when absent";
+            if (engine == SqlEngineEnum.SqlServer)
+                return common + ". SQL Server has no session-level read-only mode, so read-only access rests on the statement classifier and the login's permissions; bind a login that can only read.";
+            if (engine == SqlEngineEnum.Sqlite)
+                return common + ", and, with readOnlyEnforcement Session, opens the file read-only (Mode=ReadOnly) for Read calls.";
+            return common + ", and, with readOnlyEnforcement Session, runs Read calls in a read-only transaction.";
         }
 
         /// <summary>

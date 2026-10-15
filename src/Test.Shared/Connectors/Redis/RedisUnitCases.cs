@@ -62,6 +62,8 @@ namespace Test.Shared.Connectors.Redis
             Add(cases, "command-table", "The command table covers the Redis 7 command list", CommandTable);
             Add(cases, "classify-tools", "Fixed-effect tools classify with useful approval summaries", ClassifyTools);
             Add(cases, "classify-command", "redis_command classifies per call with resource options and summaries", ClassifyCommand);
+            Add(cases, "denied-commands-additive", "deniedCommands adds to the KEYS denial; only allowKeysCommand lifts it", DeniedCommandsAdditive);
+            Add(cases, "deletes-always-approval", "redis_delete and DEL, UNLINK, GETDEL in redis_command always require approval", DeletesAlwaysApproval);
             Add(cases, "display-values", "Values render as text or base64 and truncate on UTF-8 boundaries", DisplayValues);
             Add(cases, "result-renderer", "Raw replies render like redis-cli with element caps, and as JSON", ResultRenderer);
             Add(cases, "scan-cursor", "Scan cursors format and parse, and keys round trip through base64", ScanCursor);
@@ -104,13 +106,14 @@ namespace Test.Shared.Connectors.Redis
         private static Task SettingsSchema(CancellationToken token)
         {
             ConnectorSettingsSchema s = RedisTestHelper.Connector.Descriptor.SettingsSchema;
-            string[] keys = new string[] { "endpoints", "useSsl", "database", "username", "clusterMode", "sentinelServiceName", "maxKeysScanned", "maxValueBytes", "sslHost", "verifyTls", "caCertificate", "connectTimeoutSeconds", "commandTimeoutSeconds", "deniedCommands", "readOnlyCommands", "clientName" };
+            string[] keys = new string[] { "endpoints", "useSsl", "database", "username", "clusterMode", "sentinelServiceName", "maxKeysScanned", "maxValueBytes", "sslHost", "verifyTls", "caCertificate", "connectTimeoutSeconds", "commandTimeoutSeconds", "deniedCommands", "allowKeysCommand", "readOnlyCommands", "clientName" };
             foreach (string k in keys) RedisTestHelper.Assert(s.Find(k) != null, "setting " + k);
             RedisTestHelper.Assert(s.Find("endpoints")!.Required && s.Find("endpoints")!.Kind == SettingValueKindEnum.StringList, "endpoints required list");
             RedisTestHelper.Assert(s.Find("database")!.DefaultValue == "0", "database default 0");
             RedisTestHelper.Assert(s.Find("clusterMode")!.DefaultValue == "Auto" && s.Find("clusterMode")!.AllowedValues.Count == 4, "clusterMode enum");
             RedisTestHelper.Assert(s.Find("maxKeysScanned")!.DefaultValue == "10000" && s.Find("maxValueBytes")!.DefaultValue == "65536", "limits defaults");
-            RedisTestHelper.Assert(s.Find("deniedCommands")!.DefaultValue == "KEYS", "KEYS denied by default");
+            RedisTestHelper.Assert(s.Find("deniedCommands")!.DefaultValue == null, "deniedCommands holds only operator additions");
+            RedisTestHelper.Assert(s.Find("allowKeysCommand")!.DefaultValue == "false" && s.Find("allowKeysCommand")!.Kind == SettingValueKindEnum.Boolean, "KEYS denied by default");
             RedisTestHelper.Assert(s.Settings.All(x => !String.IsNullOrEmpty(x.Help)), "every setting has help");
             return Task.CompletedTask;
         }
@@ -235,16 +238,50 @@ namespace Test.Shared.Connectors.Redis
             return Task.CompletedTask;
         }
 
+        private static Task DeniedCommandsAdditive(CancellationToken token)
+        {
+            ConnectorInvocationContext extra = RedisTestHelper.Context(RedisTestHelper.Resource(new Dictionary<string, string> { { "endpoints", "h" }, { "deniedCommands", "FLUSHALL" } }, null));
+            RedisTestHelper.Assert(RedisTestHelper.Classify("redis_command", "{\"command\":\"KEYS *\"}", extra).Rejected, "KEYS stays denied when the operator denies something else");
+            RedisTestHelper.Assert(RedisTestHelper.Classify("redis_command", "{\"command\":\"FLUSHALL\"}", extra).Rejected, "the operator's denial applies");
+
+            ConnectorInvocationContext empty = RedisTestHelper.Context(RedisTestHelper.Resource(new Dictionary<string, string> { { "endpoints", "h" }, { "deniedCommands", "" } }, null));
+            RedisTestHelper.Assert(RedisTestHelper.Classify("redis_command", "{\"command\":\"KEYS *\"}", empty).Rejected, "an empty deniedCommands does not re-allow KEYS");
+
+            ConnectorInvocationContext allowed = RedisTestHelper.Context(RedisTestHelper.Resource(new Dictionary<string, string> { { "endpoints", "h" }, { "deniedCommands", "FLUSHALL" }, { "allowKeysCommand", "true" } }, null));
+            EffectClassification keys = RedisTestHelper.Classify("redis_command", "{\"command\":\"KEYS user:*\"}", allowed);
+            RedisTestHelper.Assert(!keys.Rejected && keys.Effect == EffectEnum.Read, "allowKeysCommand makes KEYS Read");
+            RedisTestHelper.Assert(RedisTestHelper.Classify("redis_command", "{\"command\":\"FLUSHALL\"}", allowed).Rejected, "other denials still apply");
+
+            ConnectorInvocationContext both = RedisTestHelper.Context(RedisTestHelper.Resource(new Dictionary<string, string> { { "endpoints", "h" }, { "deniedCommands", "KEYS" }, { "allowKeysCommand", "true" } }, null));
+            RedisTestHelper.Assert(RedisTestHelper.Classify("redis_command", "{\"command\":\"KEYS *\"}", both).Rejected, "an explicit denial beats allowKeysCommand");
+            return Task.CompletedTask;
+        }
+
+        private static Task DeletesAlwaysApproval(CancellationToken token)
+        {
+            ConnectorInvocationContext ctx = RedisTestHelper.Context(RedisTestHelper.Resource(Closed(), null));
+            EffectClassification tool = RedisTestHelper.Classify("redis_delete", "{\"keys\":[\"a\"]}", ctx);
+            RedisTestHelper.Assert(tool.Effect == EffectEnum.Destructive && tool.AlwaysRequireApproval, "redis_delete always requires approval");
+            foreach (string command in new[] { "DEL a", "del a b", "UNLINK a", "GETDEL a", "FLUSHDB" })
+            {
+                EffectClassification c = RedisTestHelper.Classify("redis_command", "{\"command\":\"" + command + "\"}", ctx);
+                RedisTestHelper.Assert(c.Effect == EffectEnum.Destructive && c.AlwaysRequireApproval, command + " always requires approval");
+            }
+            EffectClassification hdel = RedisTestHelper.Classify("redis_command", "{\"command\":\"HDEL h f\"}", ctx);
+            RedisTestHelper.Assert(hdel.Effect == EffectEnum.Destructive && !hdel.AlwaysRequireApproval, "field deletes follow the access mode");
+            return Task.CompletedTask;
+        }
+
         private static Task OptionsDefaults(CancellationToken token)
         {
             RedisConnectionOptions o = RedisConnectionOptions.FromSettings(new ResourceSettings(new Dictionary<string, string> { { "endpoints", "h" } }));
             RedisTestHelper.Assert(o.Endpoints.Count == 1 && o.Endpoints[0].Port == 6379, "default port");
             RedisTestHelper.Assert(o.Database == 0 && o.MaxKeysScanned == 10000 && o.MaxValueBytes == 65536 && o.ConnectTimeoutSeconds == 5 && o.CommandTimeoutSeconds == 30, "defaults");
-            RedisTestHelper.Assert(o.ClusterMode == RedisClusterModeEnum.Auto && !o.UseSsl && o.VerifyTls && o.DeniedCommands.SequenceEqual(new[] { "KEYS" }), "mode, tls, denied");
+            RedisTestHelper.Assert(o.ClusterMode == RedisClusterModeEnum.Auto && !o.UseSsl && o.VerifyTls && o.DeniedCommands.Count == 0 && !o.AllowKeysCommand, "mode, tls, denied");
             RedisConnectionOptions c = RedisConnectionOptions.FromSettings(new ResourceSettings(new Dictionary<string, string> { { "endpoints", "h" }, { "maxKeysScanned", "5" }, { "maxValueBytes", "999999999" }, { "clusterMode", "SENTINEL" }, { "deniedCommands", "config set\nflushall" } }));
             RedisTestHelper.Assert(c.MaxKeysScanned == 100 && c.MaxValueBytes == 16 * 1024 * 1024, "clamped");
             RedisTestHelper.Assert(c.ClusterMode == RedisClusterModeEnum.Sentinel && c.Endpoints[0].Port == 26379, "sentinel default port");
-            RedisTestHelper.Assert(c.DeniedCommands.Contains("CONFIG SET") && c.DeniedCommands.Contains("FLUSHALL") && !c.DeniedCommands.Contains("KEYS"), "denied list replaces the default");
+            RedisTestHelper.Assert(c.DeniedCommands.Contains("CONFIG SET") && c.DeniedCommands.Contains("FLUSHALL"), "denied list parsed");
             return Task.CompletedTask;
         }
 

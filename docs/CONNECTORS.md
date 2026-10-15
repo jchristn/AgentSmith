@@ -101,7 +101,7 @@ The `ssh` connector reaches Linux and Unix hosts over SSH with SSH.NET. It runs 
 | `workingDirectory` | String |  |  | Directory commands start in and relative paths resolve against. Empty means the login directory. |
 | `shell` | String | `/bin/bash -lc` |  | Program and options that run ssh_exec commands; the command is passed as one quoted argument. Default /bin/bash -lc. Empty runs commands through the login shell directly. |
 | `environment` | StringList |  |  | Variables exported before each ssh_exec command, one NAME=value per line. |
-| `allowSudo` | Boolean | `false` |  | When false, any command using sudo, doas, or su is rejected. When true, the command after sudo is classified normally. Commands must use sudo -n because there is no terminal. |
+| `allowSudo` | Boolean | `false` |  | When false, any command using sudo, doas, sudoedit, pkexec, or su is rejected. When true, sudo, doas, and sudoedit must be called with -n (non-interactive) or the command is rejected, because there is no terminal to type a password into; the command after sudo is then classified normally. |
 | `readOnlyCommandPatterns` | StringList |  |  | Extra regular expressions (one per line, case-insensitive, matched against the whole simple command) that classify a command as Read, for example ^myapp status( .*)?$. They never override a Destructive classification. |
 | `destructiveCommandPatterns` | StringList |  |  | Extra regular expressions (one per line, case-insensitive, searched in each simple command) that classify a command as Destructive. |
 | `deniedCommandPatterns` | StringList |  |  | Regular expressions (one per line, case-insensitive, searched in the whole command and in each simple command) that reject a command outright, whatever the access mode. |
@@ -137,11 +137,13 @@ The `ssh` connector reaches Linux and Unix hosts over SSH with SSH.NET. It runs 
 5. Built-in read-only commands are Read: `cat`, `ls`, `grep`, `tail`, `head`, `df`, `du`, `free`, `ps`, `top`, `uptime`, `journalctl`, `systemctl status`, `ss`, `netstat`, `dig`, `docker ps`, `docker logs`, `kubectl get`, and more than two hundred others, many with argument-aware rules (`curl` is Read unless it writes a file, posts data, or uses a non-GET method).
 6. Everything else is Write.
 
-Wrappers such as `env`, `nice`, `timeout`, `xargs`, `watch`, and `sh -c "..."` are unwrapped and the inner command is classified. With `allowSudo` off, any `sudo`, `su`, `doas`, or `sudoedit` rejects the call. With it on, the command after `sudo` is classified normally. There is no terminal, so grant passwordless sudo for exactly the commands the agent needs and have it use `sudo -n`; Hugo advises `-n` but does not enforce it.
+Wrappers are unwrapped and the command they run is classified: `command`, `builtin`, `exec`, `env`, `nice`, `nohup`, `setsid`, `time`, `timeout`, `stdbuf`, `ionice`, `xargs`, `watch`, `busybox`, `eval`, `chroot`, `flock`, `taskset`, `numactl`, `chrt`, `prlimit`, `runuser`, `strace`, `ltrace`, `nsenter`, `unshare`, `setpriv`, `systemd-run`, and `sh -c "..."`. Only the wrapper's own leading options count, so `command rm -rf -v /x` is Destructive; `command -v NAME` and `command -V NAME` are Read because they look a name up and run nothing. A few wrappers that run nothing are classified on their own terms (`taskset -p`, `chrt -p`, and `strace -p` act on a running process and are Write).
+
+With `allowSudo` off, any `sudo`, `su`, `doas`, `sudoedit`, or `pkexec` rejects the call. With it on, `sudo`, `doas`, and `sudoedit` must carry `-n` (alone, in a cluster such as `-nu root`, or as `--non-interactive`), and a call without it is rejected: there is no terminal, so a password prompt would only hang until the timeout. The command after `sudo -n` is then classified normally. Grant passwordless sudo for exactly the commands the agent needs.
 
 The other tools are simpler. `ssh_service_control` is always Destructive, and it is rejected when `useSudo` is set but the resource does not allow sudo. `ssh_write_file` is Write, and Destructive with `overwrite: true`; without it, writing over an existing file fails with `already_exists`. Every other SSH tool is Read.
 
-**Limits.** Standard output and standard error each go into a ring buffer of `maxOutputBytes` that keeps the end of the stream, and the result shows the tail with a note saying how much was cut. A command runs for the smallest of `commandTimeoutSeconds`, the call's `timeoutSeconds`, and the pipeline timeout; when it expires, the command is stopped and the partial output comes back with `timeout`. A non-zero exit code is a normal result. `ssh_read_file` reads at most `maxFileReadBytes`, `ssh_write_file` refuses content over `maxFileWriteBytes`, and `ssh_list_directory` stops counting at 100,000 entries.
+**Limits.** Standard output and standard error each go into a ring buffer of `maxOutputBytes` that keeps the end of the stream, and the result shows the tail with a note saying how much was cut. A command runs for the smallest of `commandTimeoutSeconds`, the call's `timeoutSeconds`, and the pipeline timeout; when it expires, the command is stopped and the partial output comes back with `timeout`. A non-zero exit code is a normal result. `ssh_read_file` reads at most `maxFileReadBytes`; content with NUL bytes or invalid UTF-8 comes back as base64 in byte mode, and line mode refuses it with `invalid_argument` and points at byte mode. `ssh_write_file` refuses content over `maxFileWriteBytes`, and `ssh_list_directory` stops counting at 100,000 entries.
 
 **Test connection** opens a real session (through the bastion if there is one), runs `uname -a`, and reports `Connected to host:port as user (uname)`. It pins the host key on first use, exactly like a tool call would, and returns the fingerprint, the key algorithm, and the server version as details.
 
@@ -152,8 +154,6 @@ The other tools are simpler. `ssh_service_control` is always Destructive, and it
 - OpenSSH 9.8 and later enable `PerSourcePenalties` by default. Every connection from Hugo comes from one address, so a run of authentication failures (a wrong key, a rotated password) can make the host refuse Hugo for a while, for every resource that points at it. Fix the credential first; if lockouts keep happening, exempt Hugo's address with `PerSourcePenaltyExemptList` in `sshd_config`. The testbed turns penalties off so its failure tests can run back to back.
 - A bastion is configured with the `jump*` settings. Reusing another SSH resource as the bastion (the plan's `jumpResourceName`) is not implemented.
 - Trust-on-first-use pins are handed to the server through the `LearnSetting` hook on the resource context. The server does not implement that hook yet, so today a learned fingerprint is not saved and the next new session pins again. Set `hostKeyFingerprint` explicitly for production hosts.
-- `ssh_read_file` returns binary content as base64 in byte mode only; in line mode a file containing NUL bytes is refused.
-- The classifier treats `command` with any `-v` or `-V` argument as a lookup and returns Read, even when it wraps another command. Do not rely on ReadOnly bindings alone for SSH users that can do damage.
 
 ## Object storage
 
@@ -170,7 +170,7 @@ Each resource is one bucket or container. Settings common to all three:
 | `prefixRestriction` | String |  |  | all | When set, every key the agent lists, reads, writes, copies, or deletes must start with this prefix (for example 'reports/'). Include the trailing '/' to restrict to a folder. Empty means the whole bucket or container. |
 | `maxObjectReadBytes` | Integer | `1048576` | 1024 to 16777216 | all | Largest amount of object content storage_read returns in one call; larger objects are read in ranges. Default 1048576 (1 MiB), minimum 1024, maximum 16777216. |
 | `maxListResults` | Integer | `1000` | 1 to 10000 | all | Largest page storage_list returns. Default 1000, minimum 1, maximum 10000. The call's output row limit also applies. |
-| `maxScanObjects` | Integer | `100000` | 100 to 10000000 | all | Most objects storage_stats and folder-style storage_list examine in one call before reporting a truncated result. Default 100000, minimum 100, maximum 10000000. |
+| `maxScanObjects` | Integer | `100000` | 100 to 10000000 | all | Most objects storage_stats examines in one call, and storage_list examines per page past its continuation point, before reporting a truncated result. A storage_list page may also re-walk up to ten times this many keys that earlier pages returned. Default 100000, minimum 100, maximum 10000000. |
 
 Provider settings:
 
@@ -207,7 +207,7 @@ An S3 resource without `accessKeyPair` makes anonymous requests, which only work
 
 **Effects.** Before anything else, every tool checks its keys and prefixes. A key with a leading `/`, a backslash, a control character, a `.` or `..` segment, more than 1024 bytes, or one outside `prefixRestriction` is rejected at classification time, so it never reaches an approval card. Listing, metadata, reads, and stats are Read. `storage_write` and `storage_copy` are Write, and Destructive with `overwrite: true`; without it they fail with `already_exists` when the target exists. `storage_delete` is Destructive and takes exactly one key. `storage_presign_url` is Write for `GET`, because a signed URL hands access to someone outside Hugo, and Destructive for `PUT`, because the holder can replace the object. URLs are signed with the provider SDKs (SigV4, SAS, or a GCS V4 signature).
 
-**Limits.** `storage_read` returns at most `maxObjectReadBytes` per call and gives `nextOffset` to continue. `storage_list` pages with a continuation token, and `storage_stats` scans at most `maxScanObjects` objects before reporting lower bounds. `storage_write` accepts up to 16 MiB of content, and `storage_copy`, which reads the object through Hugo rather than copying server-side, up to 256 MiB.
+**Limits.** `storage_read` returns at most `maxObjectReadBytes` per call and gives `nextOffset` to continue. `storage_list` pages with a continuation token (see below for how deep it can go), and `storage_stats` scans at most `maxScanObjects` objects before reporting lower bounds. `storage_write` accepts up to 16 MiB of content, and `storage_copy`, which reads the object through Hugo rather than copying server-side, up to 256 MiB.
 
 **Test connection** lists the first key under `prefixRestriction` and reports either that key or that the prefix is empty.
 
@@ -219,7 +219,7 @@ An S3 resource without `accessKeyPair` makes anonymous requests, which only work
 
 - Blobject decides S3 addressing: path-style when `endpoint` is set, virtual-hosted otherwise. There is no `forcePathStyle` setting, and the path part of `endpoint` is dropped.
 - S3 cannot use instance roles or the ambient AWS credential chain (there is no `useInstanceRole`), and temporary credentials with a session token are refused.
-- Blobject lists flat, so folders and continuation tokens are computed by the connector. Each page re-walks the listing from the start, and paging past roughly `maxScanObjects` keys fails with `scan_limit`. Narrow the prefix instead.
+- Blobject lists flat and cannot resume a listing from a marker, so folders and continuation tokens are computed by the connector. The token carries the last key returned, and each later page re-walks the listing from the start of the prefix, dropping keys up to that one without counting them against `maxScanObjects`. A page may skip at most ten times `maxScanObjects` keys (one million with the default), so a listing can page through roughly that many keys under one prefix before a page fails with `scan_limit`. Deep pages also get slower, because every skipped key is still fetched from the provider. Narrow the prefix for anything larger.
 - GCS reads buffer the whole object and refuse objects over 64 MiB.
 - Azure presigned URLs need an account key; a connection string without `AccountKey` returns `not_supported`.
 - The overwrite check on write and copy is not atomic. Two writers racing for the same key can both succeed.
@@ -235,7 +235,7 @@ Four connectors share the `sql` family: `sqlite` (Microsoft.Data.Sqlite), `mysql
 | `database` | String |  |  | `postgresql`, `mysql`, `sqlserver` | Database to connect to. |
 | `username` | String |  |  | `postgresql`, `mysql`, `sqlserver` | Login name. A username field on the bound password secret overrides this value. Prefer a least-privilege, read-only login. |
 | `schema` | String |  |  | all | *postgresql:* Schema used by catalog tools when none is given. Default public. *mysql:* Schema (database) used by catalog tools when none is given. Defaults to the connection database. *sqlserver:* Schema used by catalog tools when none is given. Default dbo. *sqlite:* Schema used by catalog tools when none is given: main, or the name of an attached database. Default main. |
-| `sslMode` | Enum | `Prefer` | `Disable`, `Prefer`, `Require`, `VerifyCA`, `VerifyFull` | `postgresql`, `mysql`, `sqlserver` | Disable: no TLS. Prefer: TLS when the server offers it (default). Require: TLS without certificate validation. VerifyCA and VerifyFull: TLS with certificate validation. |
+| `sslMode` | Enum | `Prefer` | `Disable`, `Prefer`, `Require`, `VerifyCA`, `VerifyFull` | `postgresql`, `mysql`, `sqlserver` | Disable: no TLS. Prefer: TLS when the server offers it (default). Require: TLS without certificate validation. VerifyCA and VerifyFull: TLS with certificate validation. SQL Server maps these differently; see below. |
 | `applicationName` | String | `hugo` |  | `postgresql`, `mysql`, `sqlserver` | Name reported to the server so DBAs can identify Hugo sessions. |
 | `connectTimeoutSeconds` | Integer | `15` | 1 to 300 | `postgresql`, `mysql`, `sqlserver` | Seconds to wait for a connection. Minimum 1, maximum 300. |
 | `commandTimeoutSeconds` | Integer | `30` | 1 to 3600 | all | Seconds a statement may run before it is cancelled on the server. The binding or profile timeout applies when smaller. Minimum 1, maximum 3600. |
@@ -249,9 +249,9 @@ Four connectors share the `sql` family: `sqlite` (Microsoft.Data.Sqlite), `mysql
 | Slot | Accepts | Required | Fields read | Meaning |
 |---|---|---|---|---|
 | `password` | Password | no | `password`, optional `username` (overrides the setting) | Password for the login. When the secret also carries a username, it overrides the username setting. |
-| `connectionString` | ConnectionString | no | `connectionString` | A complete driver connection string. When bound, it overrides the discrete connection settings; Hugo still applies the command timeout, the application name when absent, and read-only enforcement. |
+| `connectionString` | ConnectionString | no | `connectionString` | A complete driver connection string. When bound, it overrides the discrete connection settings; Hugo still applies the command timeout and the application name when absent, and, with readOnlyEnforcement Session, runs Read calls in a read-only transaction (PostgreSQL, MySQL) or opens the file with Mode=ReadOnly (SQLite). SQL Server has no session-level read-only mode, so read-only access there rests on the statement classifier and the login's permissions; bind a login that can only read. |
 
-SQLite has only the `connectionString` slot. A bound connection string replaces every discrete connection setting, including host, port, user, password, TLS, and the connect timeout; Hugo still applies the command timeout, the application name when the string has none, and read-only mode on SQLite. On SQL Server, `sslMode` values map to the driver's `Encrypt` option, and `Disable` maps to `Optional`, the same as `Prefer`.
+SQLite has only the `connectionString` slot. A bound connection string replaces every discrete connection setting, including host, port, user, password, TLS, and the connect timeout; Hugo still applies the command timeout, the application name when the string has none, and read-only mode on SQLite. On SQL Server, `sslMode` values map to the driver's `Encrypt` option. `Disable` sends `Encrypt=false` and turns `trustServerCertificate` off; SQL Server still encrypts the login exchange, and a server set to force encryption encrypts everything anyway. `Prefer` sends `Encrypt=Optional`, which SqlClient treats exactly like `Encrypt=false`, because the driver has no opportunistic mode. `Require` sends `Encrypt=true` and honors `trustServerCertificate`, and `VerifyCA` and `VerifyFull` send `Encrypt=true` with certificate validation. If you need TLS on SQL Server, choose `Require` or stricter.
 
 | Tool | Effect | Purpose |
 |---|---|---|
@@ -356,7 +356,7 @@ The `papertrail` connector searches, tails, and counts events through the Papert
 | [`logs_list_groups`](MCP_CONNECTOR_TOOLS.md#logs_list_groups) | Read | List log groups |
 | [`logs_list_saved_searches`](MCP_CONNECTOR_TOOLS.md#logs_list_saved_searches) | Read | List saved log searches |
 
-Every Papertrail tool is Read. `logs_search` calls `events/search.json` and pages backward with `max_id`; its cursor carries the original window, query, and filters, so a cursor call ignores new values for them. A group name (rather than a numeric ID) costs one extra `groups.json` lookup. `logs_volume` pages through matching events (up to `maxScanEvents`, at most 100,000) and counts them into equal buckets; when it runs out of budget, the oldest buckets are marked incomplete. Use a specific query to keep the scan small.
+Every Papertrail tool is Read. `logs_search` calls `events/search.json` and pages backward with `max_id`; each page holds the newest events not yet returned, listed oldest first. Its cursor carries the original window, query, and filters, and a cursor call that also sends `query`, `startTime`, `endTime`, or `providerOptions` fails with `invalid_argument` instead of quietly ignoring them; only `limit` may change. A group name (rather than a numeric ID) costs one extra `groups.json` lookup. `logs_volume` pages through matching events (up to `maxScanEvents`, at most 100,000) and counts them into equal buckets; when it runs out of budget, the oldest buckets are marked incomplete. Use a specific query to keep the scan small.
 
 **Test connection** calls `systems.json` and reports how many systems the token can see. **Testbed:** an in-process stub (`PapertrailStub`) replays the recorded response shapes, including paging flags and 429 responses.
 
@@ -386,7 +386,7 @@ The `solarwinds-observability` connector searches and tails logs, lists and read
 | [`swo_get_entity`](MCP_CONNECTOR_TOOLS.md#swo_get_entity) | Read | Get SolarWinds Observability entity |
 | [`swo_query_metric`](MCP_CONNECTOR_TOOLS.md#swo_query_metric) | Read | Query SolarWinds Observability metric |
 
-Every tool is Read. `logs_search` calls `/v1/logs` and follows the API's `nextPage` token; `providerOptions` accepts `group`, `entityId`, and `direction`. `logs_tail` tracks the newest timestamp it has returned and asks for events since then. `swo_query_metric` calls `/v1/metrics/{name}/measurements`, scoped by `entityId` or a SolarWinds filter expression, and shows at most the last 60 points per grouping in text.
+Every tool is Read. `logs_search` calls `/v1/logs` and follows the API's `nextPage` token; as with Papertrail, a cursor call refuses new values for the query, window, or filters. `providerOptions` accepts `group`, `entityId`, and `direction`. `logs_tail` tracks the newest timestamp it has returned and asks for events since then. `swo_query_metric` calls `/v1/metrics/{name}/measurements`, scoped by `entityId` or a SolarWinds filter expression, and shows at most the last 60 points per grouping in text.
 
 **Test connection** calls `/v1/entities?pageSize=1` and reports the base URL and whether any entity is visible. **Testbed:** an in-process stub (`SwoStub`).
 
@@ -394,7 +394,7 @@ Every tool is Read. `logs_search` calls `/v1/logs` and follows the API's `nextPa
 
 - There is no `swo_list_alerts`. The public API (OpenAPI 1.0.19) has no alert listing; alerts appear to be reachable only through GraphQL, which is out of scope.
 - `logs_volume` and the `logs_list_*` tools are Papertrail only.
-- The API documents `direction` inconsistently, so the connector passes it through and otherwise relies on the API default. "Older events" on a cursor means "the next page in the API's direction".
+- The API documents `direction` inconsistently, so the connector passes it through and otherwise relies on the API default (backward). Events come back in the API's order for that direction, and a cursor fetches the next page in the same direction.
 - Rate limits, 429 behavior, and the maximum `pageSize` are undocumented. The connector caps pages with `maxEvents`.
 - The tail has no server-side "newer than" token. Events that share the last timestamp can repeat, and when more than `limit` events arrive between calls, the tail skips some.
 - The public API requires a full-access token; ingestion tokens are rejected. There is no read-only token to give Hugo.
@@ -419,7 +419,8 @@ The `redis` connector works with Redis and Redis-compatible servers through Stac
 | `clientName` | String | `hugo` |  | Name shown in CLIENT LIST for Hugo's connection. Default hugo. |
 | `maxKeysScanned` | Integer | `10000` | 100 to 1000000 | Most keys one redis_scan or redis_bigkeys call examines before it stops and returns a cursor. Default 10000. |
 | `maxValueBytes` | Integer | `65536` | 64 to 16777216 | Values longer than this are cut when read, and redis_set refuses larger values. Default 65536. |
-| `deniedCommands` | StringList | `KEYS` |  | Commands redis_command rejects outright, one per line, optionally with a subcommand (for example CONFIG SET). Default KEYS, which blocks the server while it walks every key. |
+| `deniedCommands` | StringList |  |  | Extra commands redis_command rejects outright, one per line, optionally with a subcommand (for example CONFIG SET). They are added to the built-in denial of KEYS, never substituted for it. Default empty. |
+| `allowKeysCommand` | Boolean | `false` |  | KEYS blocks the server while it walks every key, so redis_command rejects it unless this is on. When on, KEYS is Read (unless deniedCommands lists it). Leave it off and use redis_scan. Default false. |
 | `readOnlyCommands` | StringList |  |  | Module or custom commands that only read (for example JSON.GET or FT.SEARCH), one per line. They are classified as Read instead of Destructive. Built-in commands keep their classification. |
 
 | Slot | Accepts | Required | Fields read | Meaning |
@@ -442,13 +443,13 @@ The `redis` connector works with Redis and Redis-compatible servers through Stac
 | [`redis_delete`](MCP_CONNECTOR_TOOLS.md#redis_delete) | Destructive | Delete Redis keys |
 | [`redis_command`](MCP_CONNECTOR_TOOLS.md#redis_command) | Read, per call | Run a Redis command |
 
-**Effects.** The purpose-built tools have fixed effects: nine reads, `redis_set` and `redis_expire` as Write, and `redis_delete` as Destructive. `redis_delete` takes up to 100 exact key names and never expands patterns, so find keys with `redis_scan` first.
+**Effects.** The purpose-built tools have fixed effects: nine reads, `redis_set` and `redis_expire` as Write, and `redis_delete` as Destructive with the always-approve flag. `redis_delete` takes up to 100 exact key names and never expands patterns, so find keys with `redis_scan` first.
 
-`redis_command` is the escape hatch, and it is classified from a table covering every Redis 7 command and its subcommands. Reads (`GET`, `HGETALL`, `XRANGE`, `TYPE`, `INFO`, `CONFIG GET`, `CLIENT LIST`, `OBJECT`, `XINFO`, `EVAL_RO`) are Read. Writes (`SET`, `HSET`, `INCR`, `EXPIRE`, `LPOP`, `XADD`, `SCRIPT LOAD`, `BGSAVE`) are Write. Deletes and anything that discards data or changes the server (`DEL`, `UNLINK`, `HDEL`, `RENAME`, `CONFIG SET`, `CLIENT KILL`, `ACL SETUSER`, `MODULE LOAD`) are Destructive, and so are `EVAL`, `EVALSHA`, and `FCALL`, because Hugo cannot see what a script does. `FLUSHALL`, `FLUSHDB`, `SHUTDOWN`, `SWAPDB`, `DEBUG`, `REPLICAOF`, `FAILOVER`, `SCRIPT FLUSH`, `FUNCTION FLUSH`, and the cluster and sentinel failover commands carry the always-approve flag. Option-dependent commands are handled too: `SORT ... STORE` is Write, and `COPY` or `RESTORE` with `REPLACE` is Destructive.
+`redis_command` is the escape hatch, and it is classified from a table covering every Redis 7 command and its subcommands. Reads (`GET`, `HGETALL`, `XRANGE`, `TYPE`, `INFO`, `CONFIG GET`, `CLIENT LIST`, `OBJECT`, `XINFO`, `EVAL_RO`) are Read. Writes (`SET`, `HSET`, `INCR`, `EXPIRE`, `LPOP`, `XADD`, `SCRIPT LOAD`, `BGSAVE`) are Write. Deletes and anything that discards data or changes the server (`DEL`, `UNLINK`, `HDEL`, `RENAME`, `CONFIG SET`, `CLIENT KILL`, `ACL SETUSER`, `MODULE LOAD`) are Destructive, and so are `EVAL`, `EVALSHA`, and `FCALL`, because Hugo cannot see what a script does. Whole-key deletes (`DEL`, `UNLINK`, `GETDEL`), `FLUSHALL`, `FLUSHDB`, `SHUTDOWN`, `SWAPDB`, `DEBUG`, `REPLICAOF`, `FAILOVER`, `SCRIPT FLUSH`, `FUNCTION FLUSH`, and the cluster and sentinel failover commands carry the always-approve flag, so a human approves them even on a ReadWrite binding that has opted out of approvals for Destructive calls. That follows the plan's rule that Redis deletes and flushes always require approval. Deletes inside a value (`HDEL`, `SREM`, `ZREM`, `XDEL`) are Destructive without the flag. Option-dependent commands are handled too: `SORT ... STORE` is Write, and `COPY` or `RESTORE` with `REPLACE` is Destructive.
 
-Some commands are rejected outright because they would hold or reconfigure the shared connection: blocking pops and `WAIT`, `XREAD` with `BLOCK`, `SUBSCRIBE` and its variants, `MONITOR`, `MULTI`/`EXEC`/`WATCH`, `SELECT`, `AUTH`, `HELLO`, and `CLIENT TRACKING`. Commands in `deniedCommands` are rejected before the table is consulted. Unknown commands, including module commands, are Destructive unless you list them in `readOnlyCommands`, which can only promote unknown commands to Read and never changes a built-in classification.
+Some commands are rejected outright because they would hold or reconfigure the shared connection: blocking pops and `WAIT`, `XREAD` with `BLOCK`, `SUBSCRIBE` and its variants, `MONITOR`, `MULTI`/`EXEC`/`WATCH`, `SELECT`, `AUTH`, `HELLO`, and `CLIENT TRACKING`. `KEYS` and the commands in `deniedCommands` are rejected before the table is consulted. Unknown commands, including module commands, are Destructive unless you list them in `readOnlyCommands`, which can only promote unknown commands to Read and never changes a built-in classification.
 
-Setting `deniedCommands` replaces the default rather than adding to it. If you set it, keep `KEYS` in the list unless you mean to allow it.
+`deniedCommands` only ever adds to the deny list. `KEYS` stays denied whatever you put there, and the one way to allow it is `allowKeysCommand`. If a command is in `deniedCommands` and `allowKeysCommand` is also on, the explicit denial wins, so listing `KEYS` there keeps it denied.
 
 **Limits.** `redis_scan` and `redis_bigkeys` walk the keyspace with `SCAN`, never `KEYS`, and stop after `maxKeysScanned` keys with a cursor to continue. An empty page with a cursor only means nothing matched yet. Values are cut at `maxValueBytes` on read, and `redis_set` refuses larger values. `redis_bigkeys` measures a sample with `MEMORY USAGE`; it is not a census. Every result is scrubbed of the bound password, so `CONFIG GET requirepass` shows `[redacted]`.
 
@@ -518,7 +519,7 @@ The `aws` connector covers the AWS control plane for one account and one region 
 
 **Testbed:** `docker/testbed/aws` runs LocalStack 4.14.0 on port 28566 with seeded EC2 instances, CloudWatch metrics and alarms, a log group, SQS queues, an SNS topic, a Route 53 zone, and a Lambda function. LocalStack's community edition does not emulate ECS, RDS, Elastic Load Balancing v2, or Auto Scaling, so those tools are tested against a recorded wire-protocol stub (`AwsStubServer`) instead.
 
-**Known limitations.** The tools cover the services listed and nothing else; there is no generic "call any API" tool. Several parameters (`nextToken`, `maxResults`, and most of the AWS filter fields) carry no description in their schemas, which the model has to infer from the tool description.
+**Known limitations.** The tools cover the services listed and nothing else; there is no generic "call any API" tool.
 
 ## Kubernetes
 
@@ -534,7 +535,7 @@ The `kubernetes` connector works with any conformant cluster through KubernetesC
 | `defaultNamespace` | String |  | pattern `^[a-z0-9]([-a-z0-9]*[a-z0-9])?$` | Namespace used when a call names none. Empty uses the first allowed namespace, else default. Must be in allowedNamespaces when that is set. |
 | `clusterScopedReads` | Boolean | `true` |  | Allow reading cluster-scoped kinds such as nodes, namespaces, and CRDs. Default true. Namespace objects outside allowedNamespaces stay hidden. |
 | `allowClusterScoped` | Boolean | `false` |  | Allow changes to cluster-scoped kinds: cordoning nodes, and applying or deleting namespaces, cluster roles, CRDs, and storage classes. Default false. |
-| `destructiveKinds` | StringList |  |  | Kinds whose apply is always Destructive, one per line. Empty uses the defaults: Namespace, Node, CustomResourceDefinition, APIService, ClusterRole, ClusterRoleBinding, Role, RoleBinding, ServiceAccount, PersistentVolume, PersistentVolumeClaim, StorageClass, NetworkPolicy, ResourceQuota, LimitRange, PriorityClass, MutatingWebhookConfiguration, ValidatingWebhookConfiguration, ValidatingAdmissionPolicy, ValidatingAdmissionPolicyBinding. |
+| `destructiveKinds` | StringList |  |  | Extra kinds whose apply is always Destructive, one per line. They are added to the built-in list, which always applies: Namespace, Node, CustomResourceDefinition, APIService, ClusterRole, ClusterRoleBinding, Role, RoleBinding, ServiceAccount, PersistentVolume, PersistentVolumeClaim, StorageClass, NetworkPolicy, ResourceQuota, LimitRange, PriorityClass, MutatingWebhookConfiguration, ValidatingWebhookConfiguration, ValidatingAdmissionPolicy, ValidatingAdmissionPolicyBinding. |
 | `fieldManager` | String | `hugo` |  | Field manager name for server-side apply and patches. Default hugo. |
 | `maxLogLines` | Integer | `500` | 1 to 100000 | Most lines k8s_logs returns. Default 500. |
 | `maxObjects` | Integer | `200` | 1 to 5000 | Most objects k8s_list returns in one call (page with continue). Default 200. |
@@ -567,6 +568,8 @@ The `kubernetes` connector works with any conformant cluster through KubernetesC
 
 **Effects.** Read tools stay Read. `k8s_rollout_restart` is Write. `k8s_scale` is Write, and Destructive when `replicas` is 0. `k8s_apply` is Read with `dryRun`, and otherwise Write, becoming Destructive when an object's kind is in `destructiveKinds`, when any field is set to `null`, or when `force` or `allowFieldRemoval` is set. Before applying, Hugo dry-runs every object and compares it with the live one; if any field would silently disappear and `allowFieldRemoval` is false, nothing is applied and the result lists the paths. `k8s_delete` is Destructive (Read with `dryRun`), and deleting a Namespace, Node, CustomResourceDefinition, PersistentVolume, or StorageClass always needs a human. `k8s_exec` and `k8s_cordon` are always Destructive.
 
+The built-in destructive kinds are the ones where one apply can hurt far more than the object itself, and `destructiveKinds` can add to them but never remove one. Namespace, Node, CustomResourceDefinition, and APIService sit underneath other workloads, and deleting or rewriting one cascades to everything inside or served by it. ClusterRole, ClusterRoleBinding, Role, RoleBinding, and ServiceAccount decide who can do what, so a small edit can hand out cluster-admin. PersistentVolume, PersistentVolumeClaim, and StorageClass hold or bind data, and a changed reclaim policy or a recreated claim can lose it. NetworkPolicy, ResourceQuota, LimitRange, and PriorityClass change what every pod in a namespace can reach, consume, or evict. The admission kinds (mutating and validating webhooks, ValidatingAdmissionPolicy and its binding) sit in front of every later API request and can block or rewrite all of them.
+
 Scope checks reject calls rather than classify them. A namespace outside `allowedNamespaces` is rejected, as is a manifest whose namespace differs from the `namespace` argument. Changing a cluster-scoped kind needs `allowClusterScoped`, and reading one needs `clusterScopedReads`.
 
 **Redaction.** `metadata.managedFields` is always stripped. Secret `data` and `stringData` come back as `<redacted: N bytes>`, including the copy in the last-applied annotation, and `k8s_list` and `k8s_describe` show Secret key names and sizes only.
@@ -579,7 +582,7 @@ Scope checks reject calls rather than classify them. A namespace outside `allowe
 
 **Testbed:** `docker/testbed/kubernetes` runs k3s v1.35.9 (privileged) with its API on port 28443, two namespaces, a deployment, a crash-looping pod, a Secret, and a custom resource. metrics-server is turned off on purpose, so the `k8s_top` failure path is exercised.
 
-**Known limitations.** `k8s_top` needs metrics-server and returns `not_supported` without it. `k8s_cordon` does not drain. `k8s_delete` takes one object per call; there is no selector delete. The `k8s_scale` schema mentions DaemonSets, which cannot be scaled and return `not_supported`.
+**Known limitations.** `k8s_top` needs metrics-server and returns `not_supported` without it. `k8s_cordon` does not drain. `k8s_delete` takes one object per call; there is no selector delete.
 
 ## Docker hosts
 
@@ -587,12 +590,12 @@ The `docker` connector talks to one Docker daemon through Docker.DotNet.Enhanced
 
 | Key | Kind | Default | Range or values | Meaning |
 |---|---|---|---|---|
-| `endpoint` | String, required | `unix:///var/run/docker.sock` | pattern `^(unix\|tcp\|npipe\|http\|https)://` | Daemon address: unix:///var/run/docker.sock (the Hugo host's socket), tcp://host:2376 (TLS) or tcp://host:2375, or npipe://./pipe/docker_engine. Reaching a daemon through an SSH resource is not supported yet. |
+| `endpoint` | String, required | `unix:///var/run/docker.sock` | pattern `^(unix\|tcp\|npipe\|http\|https)://` | Daemon address: unix:///var/run/docker.sock (the Hugo host's socket), tcp://host:2376 (TLS) or tcp://host:2375, http://host:2375 (plain HTTP, the same as tcp:// without TLS), https://host:2376 (TLS), or npipe://./pipe/docker_engine. Reaching a daemon through an SSH resource is not supported yet. |
 | `tlsVerify` | Boolean | `false` |  | Verify the daemon's certificate against the caCertificate in the tlsClientCertificate secret (or the system trust store). Requires the tlsClientCertificate slot. Default false. |
 | `requestTimeoutSeconds` | Integer | `30` | 1 to 600 | Timeout of each daemon request. Default 30, minimum 1, maximum 600. |
 | `showEnvironmentValues` | Boolean | `false` |  | When false, docker_inspect replaces environment variable values with <redacted> (names stay visible). Turn on only when containers carry no secrets in their environment. Default false. |
 | `maxLogLines` | Integer | `500` | 1 to 100000 | Most lines docker_logs returns. Default 500. |
-| `maxEventsWindowSeconds` | Integer | `3600` | 60 to 604800 | Largest time window docker_events reads. Default 3600 (one hour). |
+| `maxEventsWindowSeconds` | Integer | `3600` | 60 to 604800 | Largest time window docker_events reads; a longer window is refused with invalid_argument. Default 3600 (one hour). |
 | `execTimeoutSeconds` | Integer | `60` | 1 to 900 | Default and maximum run time of docker_exec. Default 60. |
 | `maxStatsContainers` | Integer | `20` | 1 to 100 | Most containers docker_stats samples when no container is named. Default 20. |
 
@@ -615,7 +618,7 @@ The endpoint can be the Hugo host's socket (`unix:///var/run/docker.sock`, which
 
 **Effects.** `docker_container_action` is classified by action: `start` and `restart` are Write; `stop`, `kill`, and `remove` are Destructive. `docker_exec` is always Destructive. Everything else is Read.
 
-**Redaction and limits.** `docker_inspect` replaces environment variable values with `<redacted>` unless `showEnvironmentValues` is on; names stay visible. Labels and command lines are not redacted, so do not put secrets there either. `docker_logs` keeps the newest `maxLogLines`. `docker_events` reads a past window (15 minutes by default) and clips anything longer than `maxEventsWindowSeconds` by moving the start forward. `docker_stats` samples at most `maxStatsContainers` containers and takes about a second.
+**Redaction and limits.** `docker_inspect` replaces environment variable values with `<redacted>` unless `showEnvironmentValues` is on; names stay visible. Labels and command lines are not redacted, so do not put secrets there either. `docker_logs` keeps the newest `maxLogLines`. `docker_events` reads a past window (15 minutes by default) and refuses a window longer than `maxEventsWindowSeconds` with `invalid_argument`, so the model never mistakes a shortened window for the one it asked for. `docker_stats` samples at most `maxStatsContainers` containers and takes about a second.
 
 **Test connection** asks the daemon for its version and reports the engine version, API version, OS, and whether TLS is off, verified, or unverified.
 
@@ -634,7 +637,7 @@ The `http` connector turns any HTTP or REST API under one base URL into two tool
 | `baseUrl` | String, required |  | pattern `^https?://` | Absolute http or https URL every request path is relative to, for example https://api.example.com/v1. No query string or credentials. |
 | `defaultHeaders` | StringList |  |  | Headers sent with every request, one 'Name: value' per line, for example 'Accept: application/json'. Authorization, cookies, and the API key header are not allowed here; use authType and a secret. |
 | `timeoutSeconds` | Integer | `30` | 1 to 600 | Longest time one request may take, including redirects. Default 30, minimum 1, maximum 600. The binding's timeout applies when shorter. |
-| `followRedirects` | Boolean | `true` |  | Follow redirects that stay on the same host, never downgrade https to http, and stay inside the allowed path prefixes. Authentication is never sent to a different origin. Default true. |
+| `followRedirects` | Boolean | `true` |  | Follow redirects to the same host name (any port), never from https to http, and only inside the base path and the allowed path prefixes. Credentials go only to the resource's own origin (same scheme, host, and port): a hop to another port, or from http to https, is followed without them. Default true. |
 | `maxRedirects` | Integer | `5` | 0 to 20 | Most redirects followed per request. Default 5. |
 | `verifyTls` | Boolean | `true` |  | When false, invalid or self-signed certificates are accepted (http_health_check still reports them). Keep true for anything reachable from the internet. Default true. |
 | `authType` | Enum | `None` | `None`, `Basic`, `Bearer`, `ApiKeyHeader`, `OAuth2ClientCredentials` | None; Basic (basicAuth slot); Bearer (bearerToken slot); ApiKeyHeader (apiKey slot, sent in apiKeyHeaderName); OAuth2ClientCredentials (clientCredentials slot and tokenUrl; tokens are cached and refreshed). |
@@ -753,6 +756,8 @@ Every query must contain a stream selector with at least one matcher (`{app="api
 
 Every index argument must match `allowedIndexPatterns`. The guard refuses `_all` and other names starting with `_`, exclusions (`-logs-*`), cross-cluster names, date math, and uppercase names; with an empty list, every index not starting with a dot is allowed, and hidden indexes need a pattern that starts with a dot. `es_search` accepts only `query`, `size`, `from`, `sort`, `_source`, `aggs`, `search_after`, and `track_total_hits`, so `script_fields` and `runtime_mappings` are refused; scripts inside a query or aggregation are not inspected. `size` is lowered to `maxHits` and `from + size` may not exceed 10,000.
 
-Use Elasticsearch API keys with `authType: ApiKeyHeader`, `apiKeyHeaderName: Authorization`, and `apiKeyPrefix: ApiKey ` (with the trailing space). **Test connection** reads the root endpoint and cluster health, reports the distribution, version, cluster name, and status, and warns when `flavor` disagrees with the detected distribution. **Testbed:** OpenSearch 2.19.3 on port 28992 with the security plugin disabled, a log index, a "secret" index outside the allowed patterns, and an alias spanning both.
+A name can pass the patterns and still reach other indexes: an alias called `logs-all` may point at `billing`, and `logs-*` also expands to any alias whose name matches. So before `es_search` and `es_count` run, Hugo asks the cluster what the expression reaches (`GET _resolve/index`). When every index, alias target, and data stream it reaches is allowed, the expression is sent unchanged. When some are not, Hugo sends the allowed concrete indexes instead and says so in the result, so hits, totals, aggregations, and counts cover only allowed data. When nothing it reaches is allowed, or the allowed indexes are too many to list in one request line (3,000 characters), the call fails with `permission_denied`. The resolution and the search are two requests, so an alias changed in between can still slip through; hits from disallowed indexes are dropped as a second check, and the API key's own index privileges remain the real boundary. `es_mappings` reports only the allowed indexes in the mapping response.
 
-**Known limitations.** `flavor` changes only the provider name in messages; both flavors use the same REST calls. Hits from indexes outside the allowed patterns, reached through an alias, are dropped from results, but totals, aggregations, and `es_count` still include them. Grant the API key `read` and `view_index_metadata` on the allowed indexes only, and `monitor` on the cluster for `es_cluster_health`, so the cluster enforces what the patterns intend.
+Use Elasticsearch API keys with `authType: ApiKeyHeader`, `apiKeyHeaderName: Authorization`, and `apiKeyPrefix: ApiKey ` (with the trailing space). **Test connection** reads the root endpoint and cluster health, reports the distribution, version, cluster name, and status, and warns when `flavor` disagrees with the detected distribution. **Testbed:** OpenSearch 2.19.3 on port 28992 with the security plugin disabled, a log index, a "secret" index outside the allowed patterns, and an alias that points only at the secret index.
+
+**Known limitations.** `flavor` changes only the provider name in messages; both flavors use the same REST calls. Alias resolution needs the `_resolve/index` API (Elasticsearch 7.9 and later, and OpenSearch). Grant the API key `read` and `view_index_metadata` on the allowed indexes only, and `monitor` on the cluster for `es_cluster_health`, so the cluster enforces what the patterns intend.
