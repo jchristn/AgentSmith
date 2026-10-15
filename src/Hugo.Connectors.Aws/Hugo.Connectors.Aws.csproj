@@ -3,12 +3,29 @@
   <PropertyGroup>
     <RootNamespace>Hugo.Connectors.Aws</RootNamespace>
     <AssemblyName>Hugo.Connectors.Aws</AssemblyName>
-    <Description>Hugo connector for the AWS control plane.</Description>
+    <Description>Hugo connector for the AWS control plane: STS, EC2, Auto Scaling, CloudWatch, CloudWatch Logs, ECS, RDS, Lambda, ELBv2, Route 53, SQS, and SNS.</Description>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Hugo.Connectors.Abstractions\Hugo.Connectors.Abstractions.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.Core" Version="4.0.102.11" />
+    <PackageReference Include="AWSSDK.SecurityToken" Version="4.0.101.4" />
+    <PackageReference Include="AWSSDK.EC2" Version="4.0.127" />
+    <PackageReference Include="AWSSDK.AutoScaling" Version="4.0.104.7" />
+    <PackageReference Include="AWSSDK.CloudWatch" Version="4.0.105.4" />
+    <PackageReference Include="AWSSDK.CloudWatchLogs" Version="4.0.105.3" />
+    <PackageReference Include="AWSSDK.ECS" Version="4.0.106.3" />
+    <PackageReference Include="AWSSDK.RDS" Version="4.0.106.4" />
+    <PackageReference Include="AWSSDK.Lambda" Version="4.0.110" />
+    <PackageReference Include="AWSSDK.ElasticLoadBalancingV2" Version="4.0.101.15" />
+    <PackageReference Include="AWSSDK.Route53" Version="4.0.100.18" />
+    <PackageReference Include="AWSSDK.SQS" Version="4.0.100.18" />
+    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="4.0.100.19" />
+  </ItemGroup>
+
   <ItemGroup>
     <EmbeddedResource Include="Instructions\**\*.md" />
   </ItemGroup>
