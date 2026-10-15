@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Hugo.Connectors.Http</RootNamespace>
+    <AssemblyName>Hugo.Connectors.Http</AssemblyName>
+    <Description>Hugo connector for generic HTTP APIs.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hugo.Connectors.Abstractions\Hugo.Connectors.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Instructions\**\*.md" />
+  </ItemGroup>
+
+</Project>

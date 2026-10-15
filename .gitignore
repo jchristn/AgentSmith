@@ -1,0 +1,61 @@
+# Build output
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+*.user
+*.suo
+
+# .NET
+project.lock.json
+*.nupkg
+*.snupkg
+.vs/
+TestResults/
+results.json
+
+# Node / dashboard
+node_modules/
+dashboard/dist/
+dashboard/test-results/
+dashboard/playwright-report/
+sdk/js/dist/
+*.log
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# Local runtime state
+logs/
+data/
+plugins/
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+!docker/factory/seed/*.db
+
+# Secrets
+.env
+docker/.env
+docker/testbed/generated/
+
+# Installers, benchmarks, user testing
+installers/
+benchmarks/.run/
+benchmarks/data/
+benchmarks/results/*
+!benchmarks/results/.gitkeep
+user-testing/evidence/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

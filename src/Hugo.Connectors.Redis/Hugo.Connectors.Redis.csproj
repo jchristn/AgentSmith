@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Hugo.Connectors.Redis</RootNamespace>
+    <AssemblyName>Hugo.Connectors.Redis</AssemblyName>
+    <Description>Hugo connector for Redis.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hugo.Connectors.Abstractions\Hugo.Connectors.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Instructions\**\*.md" />
+  </ItemGroup>
+
+</Project>

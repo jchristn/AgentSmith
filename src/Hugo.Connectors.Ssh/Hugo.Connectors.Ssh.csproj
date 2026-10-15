@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Hugo.Connectors.Ssh</RootNamespace>
+    <AssemblyName>Hugo.Connectors.Ssh</AssemblyName>
+    <Description>Hugo connector for SSH hosts (commands, SFTP, services).</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hugo.Connectors.Abstractions\Hugo.Connectors.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Instructions\**\*.md" />
+  </ItemGroup>
+
+</Project>

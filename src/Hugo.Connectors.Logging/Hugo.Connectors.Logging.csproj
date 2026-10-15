@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Hugo.Connectors.Logging</RootNamespace>
+    <AssemblyName>Hugo.Connectors.Logging</AssemblyName>
+    <Description>Hugo connectors for Papertrail and SolarWinds Observability log search.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hugo.Connectors.Abstractions\Hugo.Connectors.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Instructions\**\*.md" />
+  </ItemGroup>
+
+</Project>

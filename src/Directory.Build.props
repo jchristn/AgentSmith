@@ -1,0 +1,35 @@
+<Project>
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <Version>0.1.0-alpha</Version>
+    <Authors>Joel Christner</Authors>
+    <Copyright>(c)2026 Joel Christner</Copyright>
+    <Product>Hugo</Product>
+    <RepositoryUrl>https://github.com/jchristn/AgentSmith</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/jchristn/AgentSmith</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <IsPackable>false</IsPackable>
+    <NoWarn>$(NoWarn);1701;1702</NoWarn>
+  </PropertyGroup>
+
+  <!-- Product projects (Hugo.*) generate XML documentation and treat warnings as errors. -->
+  <PropertyGroup Condition="$(MSBuildProjectName.StartsWith('Hugo.'))">
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup Condition="$(MSBuildProjectName.StartsWith('Hugo.'))">
+    <None Include="$(MSBuildThisFileDirectory)..\README.md" Pack="true" PackagePath="\" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)..\LICENSE" Pack="true" PackagePath="\" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)..\assets\icon.png" Pack="true" PackagePath="\" Visible="false" />
+  </ItemGroup>
+
+</Project>

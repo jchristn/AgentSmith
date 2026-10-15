@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Hugo.Connectors.Abstractions</RootNamespace>
+    <AssemblyName>Hugo.Connectors.Abstractions</AssemblyName>
+    <PackageId>Hugo.Connectors.Abstractions</PackageId>
+    <IsPackable>true</IsPackable>
+    <Description>Contract for Hugo connectors: IConnector, IConnectorTool, descriptors, settings schemas, secret slots, and effect classification. Reference this package alone to build a Hugo connector plugin.</Description>
+  </PropertyGroup>
+
+</Project>

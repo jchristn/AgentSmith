@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="Touchstone.Core" Version="0.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hugo.Core\Hugo.Core.csproj" />
+    <ProjectReference Include="..\Hugo.Server\Hugo.Server.csproj" />
+    <ProjectReference Include="..\Hugo.Connectors.Abstractions\Hugo.Connectors.Abstractions.csproj" />
+    <ProjectReference Include="..\Hugo.Connectors.Ssh\Hugo.Connectors.Ssh.csproj" />
+    <ProjectReference Include="..\Hugo.Connectors.Storage\Hugo.Connectors.Storage.csproj" />
+    <ProjectReference Include="..\Hugo.Connectors.Sql\Hugo.Connectors.Sql.csproj" />
+    <ProjectReference Include="..\Hugo.Connectors.Logging\Hugo.Connectors.Logging.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Fixtures\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

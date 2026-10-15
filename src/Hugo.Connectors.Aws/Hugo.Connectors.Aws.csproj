@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Hugo.Connectors.Aws</RootNamespace>
+    <AssemblyName>Hugo.Connectors.Aws</AssemblyName>
+    <Description>Hugo connector for the AWS control plane.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hugo.Connectors.Abstractions\Hugo.Connectors.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Instructions\**\*.md" />
+  </ItemGroup>
+
+</Project>

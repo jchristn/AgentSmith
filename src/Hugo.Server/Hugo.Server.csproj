@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Hugo.Server</RootNamespace>
+    <AssemblyName>Hugo.Server</AssemblyName>
+    <StartupObject>Hugo.Server.Program</StartupObject>
+    <Description>Hugo server: REST, MCP, A2A, and OpenAI-compatible surfaces over the agent runtime.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hugo.Core\Hugo.Core.csproj" />
+    <ProjectReference Include="..\Hugo.Connectors.Abstractions\Hugo.Connectors.Abstractions.csproj" />
+    <ProjectReference Include="..\Hugo.Connectors.Ssh\Hugo.Connectors.Ssh.csproj" />
+    <ProjectReference Include="..\Hugo.Connectors.Storage\Hugo.Connectors.Storage.csproj" />
+    <ProjectReference Include="..\Hugo.Connectors.Sql\Hugo.Connectors.Sql.csproj" />
+    <ProjectReference Include="..\Hugo.Connectors.Logging\Hugo.Connectors.Logging.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Test.Shared" />
+  </ItemGroup>
+
+</Project>

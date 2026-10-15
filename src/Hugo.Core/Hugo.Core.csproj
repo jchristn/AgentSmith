@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Hugo.Core</RootNamespace>
+    <AssemblyName>Hugo.Core</AssemblyName>
+    <Description>Hugo core: models, data layer, security, secret cipher, template rendering, and instruction compilation.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hugo.Connectors.Abstractions\Hugo.Connectors.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Test.Shared" />
+  </ItemGroup>
+
+</Project>

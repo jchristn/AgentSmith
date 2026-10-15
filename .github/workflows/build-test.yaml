@@ -1,0 +1,49 @@
+name: Build and test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  dotnet:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16.4-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: hugo_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - name: Em-dash guard
+        run: scripts/check-em-dash.sh
+      - name: Restore
+        run: dotnet restore src/Hugo.sln
+      - name: Build
+        run: dotnet build src/Hugo.sln --no-restore
+      - name: Touchstone (SQLite)
+        run: dotnet run --project src/Test.Automated -f net10.0 -- --providers sqlite --results results-sqlite.json
+      - name: Touchstone (PostgreSQL)
+        env:
+          HUGO_TEST_POSTGRES: "Host=127.0.0.1;Port=5432;Username=postgres;Password=postgres;Database=hugo_test"
+        run: dotnet run --project src/Test.Automated -f net10.0 -- --providers postgresql --results results-postgresql.json
+      - name: xUnit
+        run: dotnet test src/Test.Xunit -f net10.0
+      - name: NUnit
+        run: dotnet test src/Test.Nunit -f net10.0
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: results-*.json

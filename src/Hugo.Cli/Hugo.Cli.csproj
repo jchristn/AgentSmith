@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Hugo.Cli</RootNamespace>
+    <AssemblyName>hugo</AssemblyName>
+    <PackageId>Hugo.Cli</PackageId>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>hugo</ToolCommandName>
+    <IsPackable>true</IsPackable>
+    <Description>The hugo command line: stdio MCP relay, login, and helpers for the Hugo super agent server.</Description>
+  </PropertyGroup>
+
+</Project>
