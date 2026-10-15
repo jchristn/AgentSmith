@@ -85,7 +85,21 @@ export default function SetupWizard() {
         const secret = await apiClient.createSecret({ name: `${form.name}-api-key`, kind: 'ApiToken', values: { token: form.apiKey } });
         apiKeySecretId = secret?.id || null;
       }
-      await apiClient.createModelEndpoint({ name: form.name, kind, provider: form.provider, baseUrl: form.baseUrl || null, model: form.model, apiKeySecretId });
+      const endpoint = await apiClient.createModelEndpoint({
+        name: form.name,
+        kind,
+        provider: form.provider,
+        baseUrl: form.baseUrl || null,
+        model: form.model,
+        apiKeySecretId
+      });
+      // The default profile uses the first endpoint of each kind, so chat and model-backed tools work right away.
+      const profile = created.profile;
+      const field = kind === 'Embedding' ? 'embeddingEndpointId' : 'inferenceEndpointId';
+      if (endpoint?.id && profile && !profile[field]) {
+        const updated = await apiClient.updateProfile(profile.id, { [field]: endpoint.id }).catch(() => null);
+        if (updated) setCreated((c) => ({ ...c, profile: updated }));
+      }
       addToast({ type: 'success', message: t('wizard.modelSaved') });
       next();
     } catch (e) {

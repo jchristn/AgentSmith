@@ -214,7 +214,8 @@ export default function ResourceView({ config }) {
       if (config.afterCreate && editing.mode !== 'edit') config.afterCreate(result, { ...ctx, setExtraModal });
       load(page.pageNumber);
     } catch (e) {
-      const perField = withListItemErrors(t, fieldErrorMessages(t, e));
+      const messages = fieldErrorMessages(t, e);
+      const perField = withListItemErrors(t, config.mapErrors ? config.mapErrors(messages, e) : messages);
       if (perField) setFieldErrors(perField);
       addToast({ type: 'error', message: `${errorMessage(t, e)} ${errorDetail(t, e)}`.trim() });
     } finally {

@@ -15,7 +15,7 @@ npm test               # Vitest unit and component suites
 npm run i18n:check     # missing, orphaned, and hard-coded strings; locale parity; placeholders; no dashes
 npm run build
 npm run test:e2e       # Playwright against mocked APIs (no server needed)
-npm run test:live      # Playwright against a running stack (HUGO_DASHBOARD_URL, HUGO_ADMIN_PASSWORD)
+npm run test:live      # Playwright against a running stack (HUGO_DASHBOARD_URL, HUGO_ADMIN_PASSWORD; see below)
 npm run format         # Prettier
 ```
 
@@ -30,6 +30,23 @@ docker run -p 8801:80 -e HUGO_API_UPSTREAM=http://hugo-server:8800 jchristn/hugo
 
 The login form's server URL defaults to the page origin (the nginx proxy); for local development it is
 `http://127.0.0.1:8800`. `HUGO_API_URL` in the container sets a different browser-facing API URL.
+
+## Live journey
+
+`tests/live/journey.spec.js` clicks through the primary journey (plan section 3.6) against a real server: the seeded
+operator's forced password change, the setup wizard, a secret, a SQLite resource (the spec creates the database file)
+with Test Connection, a ReadOnly binding on the Hugo profile, the compiled instructions, a dry run and an invocation
+from the resource page, Tool Invocations, a switch to ReadWriteWithApproval, a write approved from Approvals, the
+Knowledge tab, the layered connector instructions, Request History, and Audit. Screenshots land in
+`test-results/live/screenshots`.
+
+```bash
+dotnet run --project ../src/Hugo.Server -f net10.0       # fresh SQLite database, port 8800
+npm run dev                                              # http://127.0.0.1:3000, proxied to the server
+HUGO_DASHBOARD_URL=http://127.0.0.1:3000 npx playwright test --config playwright.live.config.js journey
+```
+
+On a server where the operator password was already changed, set `HUGO_OPERATOR_PASSWORD` to it.
 
 ## Layout
 
@@ -65,15 +82,16 @@ settings schemas), `SecretField` (slot picker with inline create, kind-specific 
 | `/dashboard/profiles/:id` | Compose a profile | Builder | profile, bindings, tool-rules, compiled-instructions, tools, card | Bindings table | General form, add or edit binding, tool rules, instructions with source map and surface picker, tools, Connect snippets | No bindings (link to Resources); each tab explains a missing route |
 | `/dashboard/approvals` | Decide pending actions | Operator, TenantAdmin | approvals | Status (default Pending), effect, profile, from | Approve or reject with a note, view invocation, bulk reject, auto-refresh | Nothing pending; route missing |
 | `/dashboard/conversations` | Review conversations | TenantAdmin, Auditor | conversations | Source, profile, user, from | Open in Chat, export Markdown, delete | None yet; route missing |
-| `/dashboard/resources` | Manage connections | Builder | resources, connectors, secrets | Connector, environment, health | Add or edit with connector picker, schema form, secret slots with inline create, Test Connection before save; test, try a tool (dry run, then execute), referrers, delete with referrers, View JSON | Connector gallery CTA via empty state; route missing |
+| `/dashboard/resources` | Manage connections | Builder | resources, connectors, secrets | Connector, search | Add or edit with connector picker, schema form, secret slots with inline create, Test Connection before save (400 SettingsInvalid lands on the setting); test, try a tool, referrers, delete with referrers, View JSON | Connector gallery CTA via empty state; route missing |
+| `/dashboard/resources/:id` | Inspect and use one resource | Builder, Operator | resource, referrers, test, invoke, knowledge, tool-invocations | | Overview (settings, slots, last test, bound profiles, Test Connection); Try a Tool (profile, dry run, execute; 202 shows the pending approval); Knowledge: database and table context with source badges and version history, Generate Context (`sql_generate_context` as a profile with a model), intelligence (`sql_get_intelligence`), relationships list and SVG graph (`sql_list_relationships`) | Not bound, no model, route missing |
 | `/dashboard/secrets` | Manage credential material | Builder, TenantAdmin | secrets | Kind | Add with kind-specific fields and file import, replace values, reveal (reason, re-authentication, 30 second auto-hide, copy), referrers, delete with referrers | Expiring soon badge; route missing |
-| `/dashboard/connectors`, `/dashboard/connectors/:type` | Browse connector types | Builder, system admin | connectors | Category, search | Overview with secret slots, settings schema preview and reference, tools with effects, default instructions with a link to Prompt Templates | Load errors shown on cards; route missing |
-| `/dashboard/models` | Manage model endpoints | Builder | model-endpoints, secrets | Kind, provider, health | Add, edit, validate, list provider models, delete | Explains chat needs one; route missing |
-| `/dashboard/prompts`, `/dashboard/prompts/:id` | Edit templates | Builder, system admin | prompt-templates (Garrison routes) | Kind, search | PromptEditor with palette, preview, diff; versions with restore; clone; reset | Built-in read-only notice |
+| `/dashboard/connectors`, `/dashboard/connectors/:type` | Browse connector types | Builder, system admin | connectors, prompt-templates | Category, search | Overview with secret slots, settings schema preview and reference, tools with effects and knowledge or model flags, default instructions edited inline per layer (Tenant, Global for system admins), reset per layer, versions, server diff, Built-in update notice with adopt | Load errors shown on cards; route missing |
+| `/dashboard/models` | Manage model endpoints | Builder | model-endpoints, secrets | Search | Add, edit, validate, list provider models, delete; last health check plus this session's validation history (the server keeps only the last check) | Explains chat needs one; route missing |
+| `/dashboard/prompts`, `/dashboard/prompts/:key` | Edit templates by key and layer | Builder (Tenant), system admin (Global) | prompt-templates (layered) | Layer in effect, customized, search | Layered editor per key: PromptEditor with palette and server preview, save per layer with a change note, reset per layer, versions with diff and load, server diff against the layer below, Built-in update notice | Global read-only for tenant administrators |
 | `/dashboard/knowledge` | Teach Hugo about the stack (M2) | Builder | knowledge | Search | Add, edit, delete | Route missing |
 | `/dashboard/tool-invocations` | See every action | Operator, Auditor | tool-invocations | Surface, effect, decision, status, profile, resource, tool, principal, from, to | Detail with redacted arguments, output preview, approval, Tempo trace link | Route missing |
 | `/dashboard/requests` | Inspect API traffic | All | request-history | Method, status, path, tenant, from, to; page sizes up to 1000 | Request details modal, bulk delete with plain-English confirm | Three distinct empty states |
-| `/dashboard/analytics` | Understand usage | TenantAdmin, Operator | analytics overview, tokens, tools, models | Range, profile | Token, tool, latency, and error charts; per-connector table | Per-panel route missing |
+| `/dashboard/analytics` | Understand usage | TenantAdmin, Operator | analytics overview, tokens, tools, models; tool-invocations summary, approvals | Range, profile | Token, tool, latency, and error charts; per-connector table; until the analytics routes exist, tool calls by effect, decision, status, and tool plus approval counts, turnaround, and rate | Per-panel route missing |
 | `/dashboard/audit` | Review security events | Auditor | audit (Garrison routes) | Event type, principal, from, to | Detail, delete | |
 | `/dashboard/explorer` | Try the REST API | All | `/openapi.json` | Tag grouping, search | Path, query, header, body editors; SSE streaming with Stop; curl, fetch, C# snippets; history of 12; destructive confirm | Missing OpenAPI error naming `/openapi.json` |
 | `/dashboard/mcp-explorer` | Try MCP as a profile | Builder, Operator | `/mcp`, `/mcp/{profile}` | Tools by family | initialize instructions, schema-generated tool forms, raw JSON-RPC log | Route missing |
@@ -92,12 +110,19 @@ works as soon as the server provides the route.
 
 ## Backend contract
 
-Identity and administration routes keep Garrison's paths and JSON shapes (`/v1.0/api/tenants/{tenantId}/users`,
-enumeration envelopes with `objects` and `totalRecords`). Hugo's routes follow plan section 14.2 and are
-tenant-implicit (`/v1.0/api/resources`), answering `{ items, pageNumber, pageSize, totalCount, totalPages }` and the
-error body `{ error, message, requestId, traceId, details: [{ field, code, message }] }`. `GET /v1.0/api/info` and
-`POST /v1.0/api/system/restart` fall back to Garrison's `/v1.0/api/server-info` and `/v1.0/api/settings/restart` on 404.
-The full list of calls is in `src/utils/api.js`.
+Identity and administration routes keep Garrison's tenant-scoped paths (`/v1.0/api/tenants/{tenantId}/users`). Hugo's
+routes follow plan section 14.2 and are flat, with the tenant taken from the session (system administrators may add
+`?tenantId=`): resources, connectors, agent profiles and bindings, layered prompt templates by key, model endpoints,
+tool invocations, approvals, tenant lockdown, and the flat secrets and sessions aliases. Both families enumerate with
+Garrison's envelope (`maxResults`, `skip`, `objects`, `totalRecords`; plan D-039); connectors, bindings, knowledge,
+and referrers answer bare arrays; request history and audit page with `pageNumber` and `pageSize`. Errors are
+`{ error, code, message, requestId, fields, fieldCodes }`, where `code` is the stable code the dashboard localizes
+(for example 400 `SettingsInvalid` keyed by setting, 409 `Duplicate`, `NotPending`, or `SelfApprovalNotAllowed`), and
+404 `RouteNotFound` marks a route this server does not expose (a record miss is `NotFound`). Tool invocation answers
+202 with the approval while one is pending. Conversations and chat, analytics, MCP, and A2A keep the contract in this
+file's route inventory and show their unavailable state until the server provides them. `GET /v1.0/api/info` and
+`POST /v1.0/api/system/restart` fall back to Garrison's `/v1.0/api/server-info` and `/v1.0/api/settings/restart` on
+404. The full list of calls is in `src/utils/api.js`.
 
 ## References used
 

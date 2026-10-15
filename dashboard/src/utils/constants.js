@@ -68,7 +68,7 @@ export const ENUMS = {
   // Identity and RBAC (forked from Garrison, plan section 15.3).
   principalType: ['Administrator', 'User', 'Credential'],
   credentialAuthMode: ['DirectHeader', 'SignedRequest', 'SessionExchange', 'Hybrid'],
-  authScheme: ['Password', 'AccessKey', 'SessionToken', 'SignedRequest', 'ApiKey'],
+  authScheme: ['BearerToken', 'XToken', 'PasswordHeaders', 'AccessKeySecret', 'AccessKeySignature', 'AdminApiKey'],
   permissionType: ['Permit', 'Deny'],
   resourceScope: ['Tenant', 'Resource'],
   resourceType: [
@@ -104,13 +104,17 @@ export const ENUMS = {
     'AuthFailure',
     'SessionIssued',
     'SessionRevoked',
+    'SessionReauthenticated',
     'CredentialCreated',
     'CredentialRotated',
     'CredentialUsed',
     'AuthorizationDenied',
     'AuthorizationBypass',
     'RoleChanged',
+    'PermissionChanged',
     'AssignmentChanged',
+    'ConfigurationChanged',
+    'PasswordChanged',
     'SecretCreated',
     'SecretUpdated',
     'SecretRevealed',
@@ -123,10 +127,14 @@ export const ENUMS = {
     'ApprovalDecided',
     'LockdownChanged',
     'SettingsChanged',
+    'RestartRequested',
     'ServerRestarted',
+    'KnowledgeChanged',
+    'ModelEndpointChanged',
     'PluginLoaded',
     'HostKeyPinned',
-    'HostKeyMismatch'
+    'HostKeyMismatch',
+    'SettingLearned'
   ],
   // Connector contract (src/Hugo.Connectors.Abstractions).
   secretKind: ['Password', 'PrivateKey', 'ApiToken', 'AccessKeyPair', 'ServiceAccountJson', 'Kubeconfig', 'ConnectionString', 'Certificate', 'Generic'],
@@ -136,8 +144,8 @@ export const ENUMS = {
   settingValueKind: ['String', 'Text', 'Integer', 'Boolean', 'StringList', 'Enum'],
   // Runtime entities (plan section 7.5).
   approvalStatus: ['Pending', 'Approved', 'Rejected', 'Expired', 'Cancelled'],
-  toolDecision: ['Allowed', 'Denied', 'ApprovalRequired', 'Approved', 'Rejected', 'Expired'],
-  toolStatus: ['Succeeded', 'Failed', 'TimedOut', 'Cancelled'],
+  toolDecision: ['Allowed', 'Denied', 'ApprovalRequired', 'Approved', 'Rejected', 'Expired', 'Cancelled'],
+  toolStatus: ['Pending', 'Running', 'Succeeded', 'Failed', 'TimedOut', 'Cancelled', 'NotExecuted'],
   surface: ['Chat', 'Mcp', 'A2A', 'OpenAI', 'Rest'],
   conversationSource: ['Dashboard', 'A2A', 'OpenAI', 'Mcp'],
   visibility: ['Private', 'Tenant'],
@@ -147,6 +155,7 @@ export const ENUMS = {
   modelProvider: ['Ollama', 'OpenAI', 'OpenAICompatible', 'Anthropic', 'Gemini', 'AzureOpenAI', 'Bedrock', 'VertexAI', 'VoyageAI'],
   healthStatus: ['Healthy', 'Degraded', 'Unhealthy', 'Unknown'],
   promptLayer: ['BuiltIn', 'Global', 'Tenant'],
+  knowledgeSource: ['Operator', 'Generated', 'Agent', 'Derived'],
   promptTemplateKind: ['System', 'Task', 'Fragment', 'ToolDescription', 'ConfigFile', 'Other']
 };
 
@@ -186,6 +195,8 @@ export function toolStatusTone(status) {
       return 'danger';
     case 'Cancelled':
       return 'warning';
+    case 'NotExecuted':
+      return 'neutral';
     default:
       return 'info';
   }

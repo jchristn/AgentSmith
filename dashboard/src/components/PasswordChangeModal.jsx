@@ -26,7 +26,7 @@ export function validatePasswordChange({ currentPassword, newPassword, confirmPa
  */
 export default function PasswordChangeModal({ open }) {
   const { t } = useTranslation();
-  const { apiClient, principal, passwordChanged, logout } = useAuth();
+  const { apiClient, passwordChanged, logout } = useAuth();
   const { addToast } = useToast();
   const [form, setForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [errors, setErrors] = useState({});
@@ -38,7 +38,7 @@ export default function PasswordChangeModal({ open }) {
     if (Object.keys(problems).length) return;
     setBusy(true);
     try {
-      await apiClient.changePassword(principal?.userId || principal?.principalId || 'me', {
+      await apiClient.changeMyPassword({
         currentPassword: form.currentPassword,
         newPassword: form.newPassword
       });

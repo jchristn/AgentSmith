@@ -4,6 +4,7 @@ import ChatView from '../ChatView';
 import ProfileDetailView from '../ProfileDetailView';
 import ConnectorsView from '../ConnectorsView';
 import ConnectorDetailView from '../ConnectorDetailView';
+import ResourceDetailView from '../ResourceDetailView';
 import PromptTemplateEditorView from '../PromptTemplateEditorView';
 import RequestHistoryView from '../RequestHistoryView';
 import AnalyticsView from '../AnalyticsView';
@@ -76,5 +77,6 @@ export const DETAIL_VIEWS = {
   chat: ChatView,
   profiles: ProfileDetailView,
   connectors: ConnectorDetailView,
+  resources: ResourceDetailView,
   promptTemplates: PromptTemplateEditorView
 };

@@ -10,6 +10,16 @@ import { useAuth } from '../context/AuthContext';
 import { normalizeSchema, initialValues, validateSchemaValues, toSubmitValues } from '../utils/schemaForm';
 import { errorMessage } from '../utils/errors';
 import { enumLabel } from '../utils/enums';
+import { slotBindingsToMap } from '../utils/resources';
+
+/**
+ * A connector's settings schema. The server's connector view carries the descriptors as `settings` (a list); older
+ * descriptors nest them as `settingsSchema.settings`.
+ */
+export function connectorSchema(connector) {
+  if (!connector) return null;
+  return connector.settingsSchema ?? connector.settings ?? null;
+}
 
 /** Group connector descriptors by category for the picker. */
 export function connectorsByCategory(connectors) {
@@ -29,7 +39,7 @@ export function validateResourceConnector(t, data, connector) {
   const errors = {};
   if (!data.connectorType) errors.connectorType = t('common.errors.required');
   if (!connector) return errors;
-  const settingErrors = schemaErrorMessages(t, validateSchemaValues(normalizeSchema(connector.settingsSchema), data.settings || {}));
+  const settingErrors = schemaErrorMessages(t, validateSchemaValues(normalizeSchema(connectorSchema(connector)), data.settings || {}));
   for (const [k, v] of Object.entries(settingErrors)) errors[`settings.${k}`] = v;
   for (const slot of connector.secretSlots || []) {
     if (slot.required && !data.secretBindings?.[slot.name]?.secretId) errors[`slots.${slot.name}`] = t('common.errors.required');
@@ -39,7 +49,7 @@ export function validateResourceConnector(t, data, connector) {
 
 /** Request body fields for the connector part: typed settings and slot bindings. */
 export function resourceConnectorBody(data, connector) {
-  const settings = connector ? toSubmitValues(normalizeSchema(connector.settingsSchema), data.settings || {}) : data.settings || {};
+  const settings = connector ? toSubmitValues(normalizeSchema(connectorSchema(connector)), data.settings || {}) : data.settings || {};
   const secretBindings = Object.entries(data.secretBindings || {})
     .filter(([, v]) => v?.secretId)
     .map(([slotName, v]) => ({ slotName, secretId: v.secretId, secretFieldName: v.secretFieldName || null }));
@@ -48,10 +58,7 @@ export function resourceConnectorBody(data, connector) {
 
 /** Normalize a stored resource's slot bindings (array or map) into { slotName: { secretId, secretFieldName } }. */
 export function slotBindingsToForm(bindings) {
-  if (!bindings) return {};
-  if (Array.isArray(bindings))
-    return Object.fromEntries(bindings.map((b) => [b.slotName, { secretId: b.secretId, secretFieldName: b.secretFieldName || null }]));
-  return bindings;
+  return slotBindingsToMap(bindings);
 }
 
 /**
@@ -83,7 +90,7 @@ export default function ResourceSettingsPanel({ data, onChange, errors = {}, dis
   }, [apiClient]);
 
   const connector = useMemo(() => (connectors || []).find((c) => c.type === data.connectorType) || null, [connectors, data.connectorType]);
-  const schema = connector?.settingsSchema;
+  const schema = connectorSchema(connector);
 
   // The form keeps the chosen connector's descriptor (as _connector, never sent) so validation and the request body
   // can use its schema.
@@ -98,7 +105,7 @@ export default function ResourceSettingsPanel({ data, onChange, errors = {}, dis
       ...data,
       connectorType: type,
       _connector: next || null,
-      settings: initialValues(normalizeSchema(next?.settingsSchema), {}),
+      settings: initialValues(normalizeSchema(connectorSchema(next)), {}),
       secretBindings: {}
     });
     setTest(null);
@@ -115,8 +122,7 @@ export default function ResourceSettingsPanel({ data, onChange, errors = {}, dis
     setTest(null);
     try {
       const body = { ...resourceConnectorBody(data, connector), name: data.name || undefined, endpoint: data.endpoint || undefined };
-      const result =
-        data.id && mode !== 'create' ? await apiClient.testResourceSettings({ ...body, resourceId: data.id }) : await apiClient.testResourceSettings(body);
+      const result = await apiClient.testResourceSettings(body);
       setTest({ ok: result?.success ?? result?.ok ?? true, result });
     } catch (e) {
       setTest({ ok: false, error: errorMessage(t, e) });
@@ -221,7 +227,14 @@ export default function ResourceSettingsPanel({ data, onChange, errors = {}, dis
                   <strong>{test.ok ? t('components.result.succeeded') : t('components.result.failed')}</strong> {test.error || test.result?.message || ''}
                 </div>
               )}
-              {test?.result?.details && <CodeBlock value={test.result.details} prettyJson />}
+              {(test?.result?.validationErrors || []).length > 0 && (
+                <ul className="plain-list field-hint" data-testid="test-validation">
+                  {test.result.validationErrors.map((v, i) => (
+                    <li key={v.key || v.field || i}>{typeof v === 'string' ? v : `${v.key || v.field || ''} ${v.message || ''}`.trim()}</li>
+                  ))}
+                </ul>
+              )}
+              {test?.result?.details && Object.keys(test.result.details).length > 0 && <CodeBlock value={test.result.details} prettyJson />}
             </div>
           )}
         </>

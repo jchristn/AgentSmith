@@ -18,6 +18,8 @@ import { requestRangeToParams } from '../utils/constants';
 import { pathFor } from '../config/navConfig';
 import { formatNumber, formatRelativeTime, formatTime } from '../i18n/formatters';
 import { tip } from '../components/Tooltip';
+import { resourceHealth } from '../utils/resources';
+import { isMissingEndpoint } from '../utils/errors';
 
 const settle = (promise) => promise.then((value) => ({ ok: true, value })).catch((error) => ({ ok: false, error }));
 
@@ -32,18 +34,41 @@ export function startOfToday(now = new Date()) {
  * Load every Home panel independently (partial failure handling): request totals, tool call totals and recent
  * failures, unhealthy resources, model endpoints, and today's tokens. Each entry is { ok, value } or { ok, error }.
  */
+/** Routes this server answered 404 for; Home stops polling them until the page is reloaded. */
+const MISSING_ROUTES = new Set();
+
+/** Settle a call unless its route is known to be missing; remember a missing route. */
+function settleRoute(key, call) {
+  if (MISSING_ROUTES.has(key)) return Promise.resolve({ ok: false, error: { status: 404, code: 'RouteNotFound' } });
+  return settle(call()).then((r) => {
+    if (!r.ok && isMissingEndpoint(r.error)) MISSING_ROUTES.add(key);
+    return r;
+  });
+}
+
 export async function loadHomeData(apiClient) {
   const day = requestRangeToParams('day');
-  const [requests, tools, failures, resources, unhealthy, models, analytics] = await Promise.all([
+  const [requests, tools, failures, resources, models, analytics] = await Promise.all([
     settle(apiClient.getRequestHistorySummary(day)),
-    settle(apiClient.getToolInvocationSummary({ fromUtc: day.fromUtc, toUtc: day.toUtc })),
+    settle(apiClient.getToolInvocationSummary({ fromUtc: day.fromUtc })),
     settle(apiClient.listToolInvocations({ pageNumber: 1, pageSize: 5, status: 'Failed' })),
-    settle(apiClient.listResources({ pageNumber: 1, pageSize: 1 })),
-    settle(apiClient.listResources({ pageNumber: 1, pageSize: 5, health: 'Unhealthy' })),
+    settle(apiClient.listResources({ pageNumber: 1, pageSize: 1000 })),
     settle(apiClient.listModelEndpoints({ pageNumber: 1, pageSize: 1 })),
-    settle(apiClient.getAnalyticsOverview({ fromUtc: startOfToday(), toUtc: new Date().toISOString() }))
+    settleRoute('analytics', () => apiClient.getAnalyticsOverview({ fromUtc: startOfToday(), toUtc: new Date().toISOString() }))
   ]);
+  // The server has no health filter on resources; unhealthy means the last connection test failed.
+  const unhealthy = resources.ok
+    ? (() => {
+        const items = (resources.value.items || []).filter((r) => resourceHealth(r) === 'Unhealthy');
+        return { ok: true, value: { items: items.slice(0, 5), totalCount: items.length } };
+      })()
+    : resources;
   return { requests, tools, failures, resources, unhealthy, models, analytics };
+}
+
+/** Count of a status (or several) in a summary list such as byStatus: [{ status, count }]. */
+export function summaryCount(list, ...statuses) {
+  return (list || []).filter((x) => statuses.includes(x.status)).reduce((sum, x) => sum + (x.count || 0), 0);
 }
 
 /**
@@ -90,13 +115,20 @@ export default function HomeView() {
   useServerEvent(['tool.invoked', 'resource.health'], load);
 
   const num = (entry, pick) => (entry?.ok ? formatNumber(pick(entry.value) ?? 0, {}, lng) : '-');
-  const toolTotals = data?.tools?.ok ? data.tools.value?.totals || data.tools.value || {} : {};
+  const toolSummary = data?.tools?.ok ? data.tools.value || {} : null;
   const reqTotals = data?.requests?.ok ? data.requests.value || {} : {};
   const failedRequests = reqTotals.totalFailure ?? reqTotals.failureCount ?? null;
-  const failedTools = toolTotals.failed ?? toolTotals.failures ?? null;
+  const failedTools = toolSummary
+    ? toolSummary.byStatus
+      ? summaryCount(toolSummary.byStatus, 'Failed', 'TimedOut')
+      : (toolSummary.totals?.failed ?? null)
+    : null;
   const tokensToday = data?.analytics?.ok ? (data.analytics.value?.totals?.inputTokens ?? 0) + (data.analytics.value?.totals?.outputTokens ?? 0) : null;
   const firstRun = data && data.resources?.ok && data.models?.ok && (data.resources.value.totalCount ?? 0) === 0 && (data.models.value.totalCount ?? 0) === 0;
-  const missingPanels = data ? ['tools', 'resources', 'models', 'analytics'].filter((k) => data[k] && !data[k].ok).length : 0;
+  // A route this server does not expose yet (analytics while it is being built) is not a failure.
+  const missingPanels = data
+    ? ['tools', 'resources', 'models', 'analytics'].filter((k) => data[k] && !data[k].ok && !isMissingEndpoint(data[k].error)).length
+    : 0;
 
   return (
     <div>
@@ -135,7 +167,7 @@ export default function HomeView() {
         <KpiCard
           label={t('views.home.kpis.toolCalls')}
           tip={t('tips.views.home.kpis.toolCalls')}
-          value={num(data?.tools, (v) => (v.totals || v).total ?? (v.totals || v).count)}
+          value={num(data?.tools, (v) => v.total ?? v.totals?.total ?? v.totals?.count)}
           note={t('views.home.kpis.last24h')}
           onClick={() => navigate(pathFor('toolInvocations'))}
           testId="kpi-tool-calls"
@@ -162,7 +194,7 @@ export default function HomeView() {
           tip={t('tips.views.home.kpis.unhealthy')}
           value={num(data?.unhealthy, (v) => v.totalCount)}
           tone={data?.unhealthy?.ok && data.unhealthy.value.totalCount > 0 ? 'danger' : undefined}
-          onClick={() => navigate(pathFor('resources', null, { health: 'Unhealthy' }))}
+          onClick={() => navigate(pathFor('resources'))}
           testId="kpi-unhealthy"
         />
         <KpiCard
@@ -220,7 +252,7 @@ export default function HomeView() {
                   >
                     <code>{r.toolName}</code>
                   </a>{' '}
-                  <EffectBadge effect={r.effect} /> <span className="text-muted">{r.resourceAlias || ''}</span>{' '}
+                  <EffectBadge effect={r.effect} /> <span className="text-muted">{r.bindingAlias || r.resourceAlias || ''}</span>{' '}
                   <span className="text-muted">{formatRelativeTime(r.createdUtc, lng)}</span>
                   {r.errorMessage && <div className="field-hint">{r.errorMessage}</div>}
                 </li>

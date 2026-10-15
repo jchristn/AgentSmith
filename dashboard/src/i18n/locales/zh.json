@@ -151,7 +151,13 @@
     "LockdownActive": "租户已锁定，仅允许读取调用。",
     "ConnectorNotFound": "此服务器没有该类型的连接器。可能有插件加载失败。",
     "ProfileNotExposed": "此配置文件未在该接口上公开。",
-    "NoInferenceEndpoint": "此配置文件没有推理模型，因此 Hugo 无法为其运行自己的智能体循环。"
+    "NoInferenceEndpoint": "此配置文件没有推理模型，因此 Hugo 无法为其运行自己的智能体循环。",
+    "NotPending": "此审批已被处理或已过期。",
+    "SelfApprovalNotAllowed": "在此租户中您不能审批自己的调用。请联系其他审批人。",
+    "PasswordChangeRequired": "请先更改密码再继续。",
+    "SystemAdminRequired": "只有系统管理员可以执行此操作。",
+    "SettingsInvalid": "资源设置无效。",
+    "Duplicate": "已存在同名记录。"
   },
   "enums": {
     "principalType": {
@@ -246,7 +252,15 @@
       "ServerRestarted": "服务器已重启",
       "PluginLoaded": "插件已加载",
       "HostKeyPinned": "SSH 主机密钥已固定",
-      "HostKeyMismatch": "SSH 主机密钥不匹配"
+      "HostKeyMismatch": "SSH 主机密钥不匹配",
+      "SessionReauthenticated": "会话已重新验证",
+      "PermissionChanged": "权限已更改",
+      "ConfigurationChanged": "配置已更改",
+      "PasswordChanged": "密码已更改",
+      "RestartRequested": "已请求重启",
+      "KnowledgeChanged": "知识已更改",
+      "ModelEndpointChanged": "模型端点已更改",
+      "SettingLearned": "已学习设置"
     },
     "secretKind": {
       "Password": "密码",
@@ -303,13 +317,17 @@
       "ApprovalRequired": "需要审批",
       "Approved": "已批准",
       "Rejected": "已驳回",
-      "Expired": "已过期"
+      "Expired": "已过期",
+      "Cancelled": "已取消"
     },
     "toolStatus": {
       "Succeeded": "成功",
       "Failed": "失败",
       "TimedOut": "超时",
-      "Cancelled": "已取消"
+      "Cancelled": "已取消",
+      "Pending": "待处理",
+      "Running": "运行中",
+      "NotExecuted": "未执行"
     },
     "surface": {
       "Chat": "聊天",
@@ -369,7 +387,19 @@
       "AccessKey": "访问密钥",
       "SessionToken": "会话令牌",
       "SignedRequest": "签名请求",
-      "ApiKey": "管理员 API 密钥"
+      "ApiKey": "管理员 API 密钥",
+      "BearerToken": "持有者令牌",
+      "XToken": "令牌标头",
+      "PasswordHeaders": "密码登录",
+      "AccessKeySecret": "访问密钥",
+      "AccessKeySignature": "签名请求",
+      "AdminApiKey": "管理员 API 密钥"
+    },
+    "knowledgeSource": {
+      "Operator": "操作员",
+      "Generated": "生成",
+      "Agent": "代理",
+      "Derived": "派生"
     }
   },
   "login": {
@@ -706,6 +736,39 @@
         "running": "运行中",
         "awaitingApproval": "等待审批"
       }
+    },
+    "layeredEditor": {
+      "title": "默认指令",
+      "purpose": "在租户层和全局层编辑提示模板，支持版本、重置，并可参考内置模板。",
+      "saved": "{{layer}} 层已保存为新版本。",
+      "resetDone": "{{layer}} 层已重置为默认值。",
+      "customized": "已自定义",
+      "inEffect": "生效：",
+      "outdated": {
+        "Tenant": "自从保存此租户的覆盖以来，全局默认值已更改。",
+        "Global": "自从自定义全局层以来，内置默认值已更新。"
+      },
+      "showChange": "查看更改",
+      "adopt": "采用新的默认值",
+      "layers": "模板层",
+      "builtInBody": "内置模板随 Hugo 提供，不可编辑。全局层和租户层会覆盖它。",
+      "noBuiltIn": "此键没有内置文本。",
+      "layerVersion": "版本 {{version}}",
+      "notCustomized": {
+        "Tenant": "此租户使用默认值。保存将创建租户覆盖。",
+        "Global": "全局层未设置。保存将用此文本创建它。"
+      },
+      "globalReadOnly": "只有系统管理员可以更改全局层。若要更改此租户，请编辑租户层。",
+      "diffBelow": "与 {{layer}} 比较",
+      "save": "保存 {{layer}} 层",
+      "restoreNote": "从版本 {{version}} 恢复。",
+      "load": "载入",
+      "resetTitle": "重置 {{layer}} 层？",
+      "resetBody": {
+        "Tenant": "租户覆盖将被关闭，全局默认值重新生效。历史记录会保留。",
+        "Global": "全局层恢复为随附的内置文本，并采用内置更新。历史记录会保留。"
+      },
+      "noDifferences": "没有差异。"
     }
   },
   "resources": {
@@ -937,12 +1000,27 @@
         "description": "描述",
         "isBuiltIn": "来源",
         "id": "ID",
-        "lastUpdateUtc": "更新时间"
+        "lastUpdateUtc": "更新时间",
+        "key": "键",
+        "source": "来源",
+        "activeLayer": "生效层",
+        "tenantLayer": "租户层",
+        "globalLayer": "全局层"
       },
       "fields": {
         "name": "名称",
         "kind": "类别",
         "description": "描述"
+      },
+      "defaultUpdated": "默认值已更新",
+      "filters": {
+        "customized": "已自定义",
+        "customizedValues": {
+          "Tenant": "租户覆盖",
+          "Global": "全局已自定义",
+          "Outdated": "此后默认值已更新",
+          "None": "未自定义"
+        }
       }
     },
     "audit": {
@@ -1023,8 +1101,11 @@
       "actions": {
         "decide": "批准或拒绝",
         "invocation": "查看工具调用",
-        "bulkReject": "拒绝所选项"
-      }
+        "bulkReject": "拒绝所选项",
+        "cancel": "取消请求"
+      },
+      "cancelled": "审批已取消。",
+      "selfApproval": "此租户要求由其他人审批您自己的调用。"
     },
     "resources": {
       "deleteReferenced_one": "{{name}} 已绑定到 {{count}} 个配置文件或端点。请先移除这些绑定；在仍被引用时，服务器会拒绝删除。",
@@ -1115,7 +1196,8 @@
         "expiresUtc": "过期时间",
         "lastRevealedUtc": "上次显示",
         "id": "ID",
-        "createdUtc": "创建时间"
+        "createdUtc": "创建时间",
+        "fields": "字段"
       },
       "fields": {
         "name": "名称",
@@ -1230,6 +1312,12 @@
         "validateTitle": "验证：{{name}}",
         "listModels": "列出服务商模型",
         "listModelsTitle": "{{name}} 提供的模型"
+      },
+      "noProviderModels": "提供商未列出任何模型。",
+      "history": {
+        "title": "验证历史（本次会话）",
+        "note": "服务器只保留最近一次健康检查。此处列出您在本浏览器会话中运行的验证。",
+        "empty": "本次会话尚无验证。使用“验证”运行一次。"
       }
     },
     "knowledge": {
@@ -1482,19 +1570,6 @@
       "showRendered": "显示格式化内容"
     },
     "templateEditor": {
-      "cloneToEdit": "克隆后编辑",
-      "builtInReadOnly": "内置模板为只读，因此这里的所有字段都已锁定。克隆后即可获得可编辑的副本。",
-      "renameHint": "你可以重命名此模板。按名称包含它的模板需要手动更新。",
-      "cloneDialog": {
-        "taken": "已存在名为 {{name}} 的模板。请换一个名称。",
-        "reserved": "以 builtin/ 开头的名称保留给内置模板。",
-        "hint": "之后可以在副本页面中重命名。",
-        "name": "副本名称",
-        "body": "副本以当前内容作为第 1 版，之后可以编辑、重命名和删除。",
-        "title": "克隆 {{name}}"
-      },
-      "newTitle": "新建提示词模板",
-      "subtitle": "编写模板，使用示例上下文预览，然后保存。",
       "changeNote": "变更说明",
       "versions_one": "版本（{{count}}）",
       "versions_other": "版本（{{count}}）",
@@ -1503,22 +1578,10 @@
       "note": "说明",
       "author": "作者",
       "diff": "差异",
-      "restore": "恢复",
       "diffTitle": "版本 {{version}} 与编辑器内容的对比",
       "current": "编辑器",
       "reset": "重置为默认值",
-      "savedVersion": "已保存新版本。",
-      "restored": "已恢复版本 {{version}}。",
-      "resetDone": "已重置为随产品提供的内容。",
-      "confirm": {
-        "restoreTitle": "恢复版本",
-        "restoreMessage": "恢复版本 {{version}}？当前内容会保留在历史记录中。",
-        "resetTitle": "重置模板",
-        "resetMessage": "将“{{name}}”重置为随产品提供的内容？",
-        "deleteTitle": "删除模板",
-        "deleteMessage": "删除“{{name}}”？使用它的配置文件和连接器将回退到内置默认值。"
-      },
-      "saved": "已保存的文本"
+      "layeredSubtitle": "在租户层和全局层编辑此模板。每次保存都是一个版本，重置会回退一层。"
     },
     "requests": {
       "grafana": "Grafana 中的 HTTP 仪表板",
@@ -1775,6 +1838,16 @@
         "calls": "调用数",
         "failures": "失败数",
         "p95": "p95 时长"
+      },
+      "derived": {
+        "title": "来自工具调用和审批",
+        "body": "在分析路由可用之前，这些数字来自所选范围内的工具调用摘要和审批列表。",
+        "none": "此范围内没有数据。",
+        "byEffect": "按影响分类的工具调用",
+        "byDecision": "按决定分类的工具调用",
+        "byStatus": "按状态分类的工具调用",
+        "byTool": "最常用的工具",
+        "approvalsByStatus": "按状态分类的审批"
       }
     },
     "chat": {
@@ -1845,7 +1918,9 @@
           "instructionText": "指令文本",
           "maxOutputBytes": "最大输出字节数",
           "maxRows": "最大行数",
-          "enabled": "已启用"
+          "enabled": "已启用",
+          "denyPatterns": "拒绝模式",
+          "allowKnowledgeUpdates": "允许更新知识"
         }
       },
       "toolRules": {
@@ -1861,7 +1936,13 @@
         "body": "调用方收到的指令：角色、安全规则以及各已绑定资源的部分，按顺序排列。",
         "purpose": "编译后的指令准确显示 Agent Smith 在每个接口上收到的内容，以及每个部分来自哪个模板。",
         "surface": "接口",
-        "sourceMap": "各部分的来源"
+        "sourceMap": "各部分的来源",
+        "tokens_one": "约 {{value}} 个令牌",
+        "tokens_other": "约 {{value}} 个令牌",
+        "bindings_one": "{{count}} 个资源",
+        "bindings_other": "{{count}} 个资源",
+        "chunkTip": "来自 {{key}}（{{layer}}，版本 {{version}}）",
+        "forBinding": "用于 {{alias}}"
       },
       "tools": {
         "body": "应用访问模式和工具规则后，此配置文件的调用方看到的工具。",
@@ -1870,7 +1951,13 @@
         "name": "工具",
         "effect": "影响",
         "description": "描述",
-        "perCall": "（按每次调用分类）"
+        "perCall": "（按每次调用分类）",
+        "hasModel": "已设置推理端点",
+        "noModel": "没有推理端点",
+        "resourceCount_one": "已绑定 {{count}} 个资源",
+        "resourceCount_other": "已绑定 {{count}} 个资源",
+        "resources": "资源",
+        "meta": "Hugo 工具"
       },
       "connect": {
         "claudeCode": "Claude Code（基于 HTTP 的 MCP）",
@@ -1910,7 +1997,13 @@
         "classification": "分类",
         "result": "结果",
         "notBound": "此配置文件未绑定该资源，因此其工具无法访问它。",
-        "pendingApproval": "调用正在等待审批 {{id}}。请在审批页面处理。"
+        "pendingApproval": "调用正在等待审批 {{id}}。请在审批页面处理。",
+        "effectReason": "分类器：{{reason}}",
+        "openApprovals": "打开审批",
+        "noOutput": "工具没有返回输出。",
+        "recorded": "已记录为工具调用。",
+        "openInvocations": "打开工具调用",
+        "asAlias": "调用发送到别名 {{alias}}："
       }
     },
     "secrets": {
@@ -1971,8 +2064,8 @@
       "noTools": "此连接器不提供工具。",
       "instructionsBody": "此类型的每个资源都会为智能体添加这些指令。可按租户或全局在模板键 {{key}} 下编辑。",
       "editInstructions": "在提示模板中编辑",
-      "builtInInstructions": "内置默认指令",
-      "noInstructions": "此连接器未附带默认指令。"
+      "updatesKnowledge": "写入知识",
+      "requiresModel": "需要模型"
     },
     "mcpExplorer": {
       "title": "MCP 浏览器",
@@ -2015,6 +2108,107 @@
       "tasks_one": "{{count}} 个任务",
       "tasks_other": "{{count}} 个任务",
       "noTasks": "此配置文件暂无任务。"
+    },
+    "resourceDetail": {
+      "title": "资源",
+      "noSettings": "未存储设置。",
+      "noSecrets": "未填写密钥槽位。",
+      "boundBy": "绑定到配置文件",
+      "notBound": "尚无配置文件绑定此资源。请在配置文件的“绑定”选项卡中附加它。",
+      "tabs": {
+        "overview": "概览",
+        "tools": "试用工具",
+        "knowledge": "知识"
+      }
+    },
+    "knowledge": {
+      "title": "知识",
+      "purpose": "代理在行动前读取的此资源的持久说明：数据库和表上下文、主机说明等。",
+      "body": "代理读取的此资源说明。每次保存都是一个版本；来源标记表示作者。",
+      "sqlBody": "代理对此数据库的了解：数据库和表上下文（操作员编写、生成或代理编写）、爬取得到的智能分析，以及表之间的关系。",
+      "views": {
+        "context": "上下文",
+        "intelligence": "智能分析",
+        "relationships": "关系"
+      },
+      "entries": "条目",
+      "noEntries": "尚未保存知识。",
+      "databaseContext": "数据库上下文",
+      "missing": "无上下文",
+      "noContext": "尚无上下文",
+      "loadTables": "列出没有上下文的表",
+      "add": "添加条目",
+      "scope": "范围",
+      "key": "键",
+      "content": "上下文（Markdown）",
+      "preview": "预览",
+      "edit": "编辑",
+      "empty": "尚未写入内容。",
+      "updatedBy": "由 {{name}}",
+      "history": "版本历史",
+      "hideHistory": "隐藏历史",
+      "saved": "知识已保存。",
+      "source": "来源",
+      "deleted": "已删除",
+      "deleteTitle": "删除知识条目",
+      "deleteBody": "删除 {{name}} 的上下文？代理将不再看到它。版本历史会保留。",
+      "emptyTitle": "暂无可编辑内容",
+      "emptyBody": "添加条目，或为 SQL 资源生成上下文。",
+      "quality": "上下文质量",
+      "tablesWithContext": "有上下文的表",
+      "relationshipCounts": "关系",
+      "declaredInferred": "{{declared}} 个声明，{{inferred}} 个推断",
+      "crawled": "爬取于 {{time}}",
+      "gaps": "上下文缺口",
+      "entities": "实体",
+      "columns": {
+        "table": "表",
+        "role": "角色",
+        "rows": "行数",
+        "keyColumns": "关键列",
+        "context": "上下文",
+        "from": "从",
+        "to": "到",
+        "kind": "类型",
+        "confidence": "置信度",
+        "evidence": "依据"
+      },
+      "metrics": "可能的指标",
+      "commonFilters": "常用筛选",
+      "freshness": "时效列",
+      "tenantColumns": "租户列",
+      "softDelete": "软删除列",
+      "ambiguities": "需澄清的歧义",
+      "questions": "入门问题",
+      "viaTool": "通过在此资源上运行 {{tool}} 读取。",
+      "refresh": "重新爬取",
+      "declared": "已声明",
+      "inferred": "推断",
+      "graphLabel": "关系图：{{tables}} 个表，{{edges}} 个关系",
+      "noRelationshipsTitle": "未找到关系",
+      "noRelationshipsBody": "爬取在此模式中没有发现声明的外键或可能的连接。",
+      "generateOpen": "生成上下文",
+      "generateTitle": "为 {{name}} 生成上下文",
+      "generateBody": "模型读取模式（如允许，还会读取少量脱敏样本行）并编写简明上下文。除非选择覆盖，否则保留操作员编写的条目。",
+      "generateNoBinding": "没有配置文件绑定此资源。请先将其绑定到设置了推理端点的配置文件。",
+      "generateNoModel": "此配置文件没有推理端点。请在配置文件的“常规”选项卡中设置。",
+      "noModel": "无模型",
+      "generateScope": "生成内容",
+      "generateScopes": {
+        "all": "数据库和表",
+        "database": "仅数据库",
+        "tables": "仅表"
+      },
+      "overwrite": "替换操作员和代理的条目",
+      "generateInstructions": "给模型的额外指引",
+      "generate": "生成",
+      "generating": "正在生成...",
+      "generateProgress": "正在生成上下文... 已用时 {{elapsed}}。模型正在读取模式并编写说明。",
+      "severity": {
+        "info": "信息",
+        "warning": "警告",
+        "error": "错误"
+      }
     }
   },
   "tips": {
@@ -2139,7 +2333,9 @@
       "toolName": "仅显示对此工具的调用，例如 sql_query。停止输入后列表会更新。",
       "principalId": "仅显示某个主体的记录。粘贴 ID，停止输入后列表会更新。",
       "principalType": "仅显示管理员、用户或凭据的会话。",
-      "visibility": "仅显示私有或租户范围的记录。"
+      "visibility": "仅显示私有或租户范围的记录。",
+      "activeLayer": "仅显示文本来自此层的模板。",
+      "customized": "按已自定义的层显示模板，或显示默认值此后已更改的模板。"
     },
     "form": {
       "option": "在 {{field}} 中包含 {{option}}。选中的选项会被保存；未选中的会被排除。",
@@ -2263,13 +2459,17 @@
         "ApprovalRequired": "需要审批：调用曾等待人工处理。",
         "Approved": "已批准：有人允许了该调用。",
         "Rejected": "已驳回：有人拒绝了该调用。",
-        "Expired": "已过期：无人及时处理。"
+        "Expired": "已过期：无人及时处理。",
+        "Cancelled": "已取消：待处理审批被撤回，或被锁定取消。"
       },
       "toolStatus": {
         "Succeeded": "成功：工具已运行并返回结果。",
         "Failed": "失败：工具或目标系统返回了错误。",
         "TimedOut": "超时：工具未在超时时间内完成。",
-        "Cancelled": "已取消：工具运行期间该轮被停止。"
+        "Cancelled": "已取消：工具运行期间该轮被停止。",
+        "Pending": "待处理：等待审批后才能运行。",
+        "Running": "运行中：工具正在执行。",
+        "NotExecuted": "未执行：调用被拒绝、驳回，或仅做了分类（试运行）。"
       },
       "healthStatus": {
         "Healthy": "健康：上次检查已连接到系统且其响应正常。",
@@ -2320,7 +2520,21 @@
         "AuthorizationDenied": "某个主体尝试执行其权限不允许的操作。",
         "SecretRevealed": "有人在说明原因后显示了密钥的明文。",
         "LockdownChanged": "租户管理员开启或关闭了锁定。",
-        "HostKeyMismatch": "SSH 主机提供的密钥与已固定的密钥不同，连接已被拒绝。"
+        "HostKeyMismatch": "SSH 主机提供的密钥与已固定的密钥不同，连接已被拒绝。",
+        "SessionReauthenticated": "用户在会话中重新输入了密码（显示密钥前需要）。",
+        "PermissionChanged": "权限被创建、更改或删除。",
+        "ConfigurationChanged": "配置记录已更改（例如提示模板或配置文件设置）。",
+        "PasswordChanged": "用户更改了密码，或管理员重置了密码。",
+        "RestartRequested": "有人请求重启服务器。",
+        "KnowledgeChanged": "操作员、代理或模型写入或删除了资源知识。",
+        "ModelEndpointChanged": "模型端点被创建、更改或删除。",
+        "SettingLearned": "连接器在首次使用时记录了设置，例如 SSH 主机密钥。"
+      },
+      "knowledgeSource": {
+        "Operator": "由人在仪表板或 API 中编写或编辑。",
+        "Generated": "由模型通过 sql_generate_context 起草。依赖前请审阅。",
+        "Agent": "由代理在工作中记录（sql_update_context）。未经验证。",
+        "Derived": "由 Hugo 根据爬取计算得出，并非人或模型编写。"
       }
     },
     "resources": {
@@ -2413,7 +2627,14 @@
         "name": "模板名称，在租户内唯一。包含语句按名称引用模板。",
         "kind": "模板的用途：系统提示词、任务包装、片段、工具描述或配置文件。",
         "currentVersion": "最新保存的版本。每次保存都会将之前的文本保留为可恢复的版本。",
-        "description": "模板的作用以及使用位置。"
+        "description": "模板的作用以及使用位置。",
+        "key": "模板键。连接器使用 connector.<type>.instructions；角色使用 persona.<name>。",
+        "source": "内置模板的来源：核心模板为 hugo，或连接器类型。",
+        "activeLayer": "当前使用其文本的层：先租户，再全局，再内置。",
+        "tenantLayer": "此租户的覆盖及其版本。",
+        "globalLayer": "所有租户的全局默认值及其版本。",
+        "lastUpdateUtc": "租户层或全局层的最后保存时间。",
+        "defaultUpdated": "此层下方的默认值在自定义后已更改。打开模板进行比较并采用。"
       },
       "audit": {
         "createdUtc": "事件发生的时间，按你的本地时区显示。",
@@ -2449,7 +2670,8 @@
         "fromUtc": "显示在此时间或之后请求的审批。",
         "actions": {
           "decide": "打开审批卡片，附带备注批准或拒绝此调用。",
-          "invocation": "打开此审批对应的工具调用记录。"
+          "invocation": "打开此审批对应的工具调用记录。",
+          "cancel": "撤回这个待处理的调用，使其永远不会运行。请求者或审批人可以取消。"
         }
       },
       "bindings": {
@@ -2461,7 +2683,9 @@
         "instructionText": "此配置文件中针对此资源的附加或替换指令，例如哪些架构比较重要。",
         "maxOutputBytes": "此资源工具输出的上限，比连接器默认值更严格。留空则使用默认值。",
         "maxRows": "此资源上查询返回的行数上限。留空则使用连接器默认值。",
-        "enabled": "已禁用的绑定会保留，但对智能体隐藏，如同资源未绑定一样。"
+        "enabled": "已禁用的绑定会保留，但对智能体隐藏，如同资源未绑定一样。",
+        "denyPatterns": "与按调用分类的工具的命令或语句匹配的正则表达式。匹配即拒绝该调用。",
+        "allowKnowledgeUpdates": "关闭时，保存此资源知识的工具（例如表上下文）将返回草稿而不保存。"
       },
       "models": {
         "apiKeySecretId": "保存此服务商 API 密钥或凭据的密钥。加密存储，永远不会向模型显示。",
@@ -2535,7 +2759,8 @@
           "replaceValues": "替换部分或全部值；留空的字段保留已存储的值。",
           "reveal": "说明原因并重新输入密码后显示明文值。此操作会被审计。",
           "referrers": "列出使用此密钥的资源和模型端点。"
-        }
+        },
+        "fields": "此密钥存储的值字段（从不显示值本身）。"
       },
       "toolInvocations": {
         "trace": "在新标签页中打开此调用在 Grafana Tempo 中的分布式跟踪。",
@@ -2685,13 +2910,6 @@
         "serviceGeneric": "在新标签页中打开此捆绑服务。"
       },
       "templateEditor": {
-        "cloneName": "副本名称。建议使用小写字母、数字、连字符和斜杠；builtin/ 前缀为保留前缀。",
-        "cloneConfirm": "以此名称创建副本并在编辑器中打开。",
-        "clone": "创建此模板的可编辑副本。创建前可以为副本命名。",
-        "reset": "将此内置模板恢复为 Hugo 附带的内容。",
-        "delete": "删除此模板及其版本。所有包含它的内容都将回退到内置默认值。",
-        "create": "创建模板及其第一个版本。",
-        "save": "将内容另存为新版本。新对话和 MCP 会话将使用该版本。",
         "changeNote": "随版本保存的简短说明，解释改了什么以及为什么改。",
         "columns": {
           "version": "版本号。数字越大越新。",
@@ -2700,7 +2918,7 @@
           "saved": "版本的保存时间。"
         },
         "diff": "将此版本与编辑器中的当前内容进行比较。",
-        "restore": "将此版本重新设为当前版本。当前内容会保留在历史记录中。"
+        "back": "返回所有提示模板。"
       },
       "serverInfo": {
         "rest": "REST API 调用和 SDK 使用的基础地址。",
@@ -2824,7 +3042,9 @@
           "default": "资源未填写此设置时使用的值。",
           "range": "允许的值，或数字的最小值和最大值。",
           "group": "该设置在资源表单中所在的部分。"
-        }
+        },
+        "updatesKnowledge": "此工具会保存关于资源的持久知识（例如数据库上下文）。绑定可以拒绝。",
+        "requiresModel": "此工具会调用调用方配置文件的推理端点，因此配置文件需要设置一个。"
       },
       "mcpExplorer": {
         "profile": "连接到 /mcp/{profile}，或交由服务器根据凭据或默认值确定你的配置文件。",
@@ -2862,12 +3082,16 @@
         },
         "instructions": {
           "surface": "不同接口（聊天、MCP、A2A、OpenAI、REST）的指令略有不同。选择一个进行预览。",
-          "section": "编译后指令中的一个部分及其来源的模板层级。"
+          "section": "编译后指令中的一个部分及其来源的模板层级。",
+          "copy": "复制编译后的指令。"
         },
         "tools": {
           "name": "调用方使用的工具名称，通常为 family_operation 形式，例如 sql_query。",
           "effect": "基础影响：读取、写入或破坏性。部分工具按每次调用分类。",
-          "description": "工具的功能，与调用方的模型看到的一致。"
+          "description": "工具的功能，与调用方的模型看到的一致。",
+          "hasModel": "需要模型的工具（例如生成数据库上下文）只有在配置文件设置了推理端点时才能使用。",
+          "resources": "工具在 resource 参数中接受的绑定别名，以及每个绑定的访问模式和规则。",
+          "meta": "Hugo 的内置工具（例如指令或审批），不是连接器工具。"
         },
         "connect": {
           "copyCard": "复制智能体卡片 URL，供其他 A2A 智能体发现此配置文件。",
@@ -2884,7 +3108,9 @@
           "tool": "配置文件为此资源公开的工具。",
           "arguments": "JSON 格式的工具参数。resource 参数指定绑定别名。",
           "dryRun": "对调用进行分类（影响、决定、访问模式）而不运行它。",
-          "execute": "通过完整管道运行调用。有风险的调用与其他调用一样需要等待审批。"
+          "execute": "通过完整管道运行调用。有风险的调用与其他调用一样需要等待审批。",
+          "openApprovals": "在审批收件箱中处理此调用。",
+          "openInvocations": "在工具调用中查看此调用及其脱敏参数和输出。"
         }
       },
       "secrets": {
@@ -2931,6 +3157,56 @@
           "Environment": "由环境变量设置，其优先级高于在这里保存的任何值。",
           "Database": "存储在数据库中。"
         }
+      },
+      "resourceDetail": {
+        "back": "返回所有资源。",
+        "connector": "打开此连接器的设置参考、工具和默认指令。",
+        "tabs": {
+          "overview": "连接、设置、密钥槽位、最近一次测试以及绑定此资源的配置文件。",
+          "tools": "以配置文件身份试运行工具，然后通过与聊天和 MCP 相同的流程执行。",
+          "knowledge": "代理读取的此资源的持久上下文：数据库和表说明、智能分析和关系。"
+        }
+      },
+      "knowledge": {
+        "views": {
+          "context": "数据库和表上下文，包含来源和版本历史。",
+          "intelligence": "实体、可能的指标、常用筛选、时效列、歧义以及上下文质量（sql_get_intelligence）。",
+          "relationships": "声明的外键以及带置信度的推断连接候选（sql_list_relationships）。"
+        },
+        "loadTables": "对资源运行 sql_get_context，列出所有表，包括尚无上下文的表。",
+        "add": "为尚无上下文的表或其他范围编写上下文。",
+        "select": "在编辑器中打开此条目。",
+        "scope": "说明的类型：database、table，或连接器特定的范围（如 notes）。",
+        "key": "对于表上下文，填写带模式的表名，例如 main.orders。留空表示该范围的根条目。",
+        "create": "为此新条目打开编辑器。点击“保存”之前不会保存任何内容。",
+        "content": "代理读取的简明 Markdown：数据含义、业务定义、注意事项和已确认的连接路径。",
+        "preview": "在 Markdown 源和渲染预览之间切换。",
+        "history": "此条目的每个已保存版本及其来源和作者。可与编辑器比较或载入。",
+        "delete": "删除此条目。其版本保留在历史中。",
+        "save": "作为操作员编辑保存。将成为来源为“操作员”的新版本。",
+        "source": "此版本的作者：操作员、模型（生成）、代理或 Hugo（派生）。",
+        "quality": "来自爬取的评分：数据库上下文、表覆盖率和未解决的歧义。",
+        "columns": {
+          "table": "表名；不在默认模式时带模式名。",
+          "role": "爬取对表的理解：核心实体、实体、关联表、日志等。",
+          "rows": "估计行数（SQLite 上为精确值）。",
+          "keyColumns": "爬取认为重要的列：键、指标、筛选和时间戳。",
+          "context": "是否为该表保存了持久上下文。",
+          "from": "引用方列。",
+          "to": "被引用列，通常是主键。",
+          "kind": "由外键约束声明，或根据名称和类型推断。",
+          "confidence": "爬取的把握程度：声明的为 100%，推断的需确认。",
+          "evidence": "爬取提出此关系的原因。"
+        },
+        "refresh": "重新爬取数据库而不使用缓存（在模式变更后）。",
+        "declared": "数据库中的外键约束。",
+        "inferred": "根据命名和类型推断的连接候选。确认后记录到表上下文中。",
+        "generateOpen": "以绑定此资源的配置文件身份运行 sql_generate_context，让模型起草数据库和表上下文。",
+        "generateProfile": "用于运行的配置文件和绑定。由其推理端点撰写，且绑定必须允许更新知识。",
+        "generateScope": "数据库摘要、表说明或两者。",
+        "overwrite": "默认关闭：保留操作员或代理编写的条目，仅写入缺失或已生成的条目。",
+        "generateInstructions": "可选。例如需要定义的业务术语或重点关注的表。",
+        "generate": "立即运行 sql_generate_context。大型模式可能需要几分钟。"
       }
     },
     "export": {
@@ -3074,12 +3350,32 @@
       "saveResource": "使用这些设置及其密钥创建资源，然后继续进行绑定。",
       "bind": "以所选访问模式将新资源绑定到默认 Hugo 配置文件。",
       "finish": "关闭此租户的向导，并打开聊天与 Agent Smith 对话。"
+    },
+    "layeredEditor": {
+      "layers": {
+        "Tenant": "此租户的覆盖，仅适用于此租户。",
+        "Global": "所有租户的可编辑默认值。仅限系统管理员。",
+        "BuiltIn": "随 Hugo 提供的文本。只读。"
+      },
+      "source": "内置模板的来源：核心模板为 hugo，或连接器类型。",
+      "showChange": "查看自从自定义此层以来默认值的变化。",
+      "adopt": "重置此层以采用新的默认值。旧文本保留在版本历史中。",
+      "diffBelow": "此层与其覆盖的层之间的逐行差异，由服务器计算。",
+      "reset": {
+        "Tenant": "关闭此租户的覆盖，使全局默认值生效。",
+        "Global": "将全局层恢复为随附的内置文本。"
+      },
+      "save": {
+        "Tenant": "将编辑器文本保存为此租户覆盖的新版本。",
+        "Global": "将编辑器文本保存为所有租户全局默认值的新版本。"
+      },
+      "load": "将此版本的文本放入编辑器。保存后成为当前版本。"
     }
   },
   "explainers": {
     "promptTemplates": {
       "title": "提示模板及其层级",
-      "p1": "Hugo 给智能体的每条指令都是模板：Agent Smith 角色、安全规则以及每个连接器的指令。模板使用 {{persona.name}} 和 {{resource.alias}} 等变量，每次保存都会创建一个新版本。",
+      "p1": "Hugo 给代理的每条指令都是模板：Agent Smith 角色、安全规则以及每个连接器的指令。模板在双花括号中使用 profile.personaName 和 this.alias 等变量，每次保存都会创建新版本。",
       "p2": "模板是分层的：内置文本随 Hugo 提供，全局默认值可为所有租户覆盖它，租户又可以覆盖全局默认值。“重置为默认值”会移除覆盖并回退一层。"
     },
     "tenants": {

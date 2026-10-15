@@ -10,7 +10,9 @@ import ResultModal from '../components/ResultModal';
 import RevealSecretModal from '../components/RevealSecretModal';
 import TryToolModal from '../components/TryToolModal';
 import ApprovalDecideModal from '../components/ApprovalDecideModal';
-import ResourceSettingsPanel, { validateResourceConnector, resourceConnectorBody, slotBindingsToForm } from '../components/ResourceSettingsPanel';
+import ResourceSettingsPanel, { validateResourceConnector, resourceConnectorBody } from '../components/ResourceSettingsPanel';
+import { resourceHealth, resourceToForm, resourceFieldErrors, referrerRows } from '../utils/resources';
+import { recordValidation, ModelHealthHistory } from '../components/ModelHealthHistory';
 import SecretSlotPicker, { SecretValuesForm } from '../components/SecretField';
 import ValuesModal from '../components/ValuesModal';
 import { tip } from '../components/Tooltip';
@@ -27,7 +29,27 @@ import { field, section, col, idCol, nameCol, createdCol, actionTip, safeList, h
 import { useGrafana } from '../hooks/useServerInfo';
 
 /** Surfaces a profile is exposed on, as translated surface labels (chat is always available). */
-const exposure = (t, r) => [r.exposeMcp && 'Mcp', r.exposeA2a && 'A2A', r.exposeOpenai && 'OpenAI'].filter(Boolean).map((s) => t(`enums.surface.${s}`));
+const exposure = (t, r) =>
+  [r.exposeMcp && 'Mcp', (r.exposeA2A ?? r.exposeA2a) && 'A2A', (r.exposeOpenAI ?? r.exposeOpenai) && 'OpenAI']
+    .filter(Boolean)
+    .map((s) => t(`enums.surface.${s}`));
+
+/**
+ * A stored profile as the form edits it. The server spells the exposure flags exposeA2A and exposeOpenAI; the form
+ * fields (and their catalog keys) are exposeA2a and exposeOpenai.
+ */
+export function profileToForm(p) {
+  const { exposeA2A, exposeOpenAI, ...rest } = p || {};
+  return {
+    ...rest,
+    exposeA2a: exposeA2A ?? p?.exposeA2a ?? true,
+    exposeOpenai: exposeOpenAI ?? p?.exposeOpenai ?? true,
+    inferenceEndpointId: p?.inferenceEndpointId || '',
+    fallbackInferenceEndpointId: p?.fallbackInferenceEndpointId || '',
+    embeddingEndpointId: p?.embeddingEndpointId || '',
+    instructionsAppend: p?.instructionsAppend || ''
+  };
+}
 const lookupMap = (items, label) => Object.fromEntries((items || []).map((x) => [x.id, label(x)]));
 const profileLabel = (p) => p.displayName || p.name;
 
@@ -50,7 +72,6 @@ export const profilesConfig = {
   api: hugoApi('listProfiles', 'createProfile', 'updateProfile', 'deleteProfile'),
   loadOptions: async ({ apiClient }) => ({ models: await safeList(apiClient.listModelEndpoints({ pageNumber: 1, pageSize: 1000 })) }),
   loadLookups: async ({ apiClient }) => ({ models: lookupMap(await safeList(apiClient.listModelEndpoints({ pageNumber: 1, pageSize: 1000 })), (m) => m.name) }),
-  filters: [{ name: 'visibility', label: (t) => t('resources.profiles.fields.visibility'), options: ENUMS.visibility, enumGroup: 'visibility' }],
   blank: () => ({
     name: '',
     displayName: '',
@@ -71,6 +92,7 @@ export const profilesConfig = {
     exposeManagementTools: false,
     instructionsAppend: ''
   }),
+  toForm: profileToForm,
   isEditable: () => true,
   canDelete: (r) => !r?.isDefault,
   detailPath: (r) => pathFor('profiles', r.id),
@@ -110,7 +132,10 @@ export const profilesConfig = {
         csv: (r) => lookups?.models?.[r.inferenceEndpointId] || r.inferenceEndpointId || ''
       }
     ),
-    col('profiles', t, 'bindingCount', (r) => formatNumber(r.bindingCount ?? 0, {}, i18n.language), { cellClass: 'right' }),
+    col('profiles', t, 'bindingCount', (r) => (r.bindingCount == null ? '-' : formatNumber(r.bindingCount, {}, i18n.language)), {
+      cellClass: 'right',
+      defaultHidden: true
+    }),
     col('profiles', t, 'exposure', (r) => exposure(t, r).join(' / ') || '-', { csv: (r) => exposure(t, r).join(' ') }),
     idCol('profiles', t),
     createdCol('profiles', t, i18n)
@@ -151,23 +176,23 @@ export const profilesConfig = {
   },
   toBody: (d) => ({
     name: d.name,
-    displayName: d.displayName || null,
-    description: d.description || null,
-    personaName: d.personaName || null,
-    userAddress: d.userAddress || null,
+    displayName: d.displayName ?? '',
+    description: d.description ?? '',
+    personaName: d.personaName ?? '',
+    userAddress: d.userAddress ?? '',
     visibility: d.visibility,
-    inferenceEndpointId: d.inferenceEndpointId || null,
-    fallbackInferenceEndpointId: d.fallbackInferenceEndpointId || null,
-    embeddingEndpointId: d.embeddingEndpointId || null,
+    inferenceEndpointId: d.inferenceEndpointId ?? '',
+    fallbackInferenceEndpointId: d.fallbackInferenceEndpointId ?? '',
+    embeddingEndpointId: d.embeddingEndpointId ?? '',
     maxIterations: d.maxIterations ?? null,
     maxToolCallsPerTurn: d.maxToolCallsPerTurn ?? null,
     toolTimeoutSeconds: d.toolTimeoutSeconds ?? null,
     temperature: d.temperature ?? null,
     exposeMcp: !!d.exposeMcp,
-    exposeA2a: !!d.exposeA2a,
-    exposeOpenai: !!d.exposeOpenai,
+    exposeA2A: !!d.exposeA2a,
+    exposeOpenAI: !!d.exposeOpenai,
     exposeManagementTools: !!d.exposeManagementTools,
-    instructionsAppend: d.instructionsAppend || null
+    instructionsAppend: d.instructionsAppend ?? ''
   }),
   rowActions: (r, ctx) => [
     { label: ctx.t('resources.profiles.actions.chat'), tip: actionTip(ctx.t, 'profiles', 'chat'), onClick: () => ctx.navigate(pathFor('chat')) },
@@ -197,24 +222,33 @@ export const approvalsConfig = {
   endpoint: '/v1.0/api/approvals',
   api: { list: (c, _t, p) => c.listApprovals(p), create: null, update: null, remove: null },
   defaultFilters: { status: 'Pending' },
-  urlFilters: ['status', 'effect', 'agentProfileId'],
+  urlFilters: ['status', 'agentProfileId', 'resourceId', 'toolName'],
   autoRefresh: 15,
   search: false,
   loadLookups: profileAndResourceLookups,
   filters: [
     { name: 'status', label: (t) => t('resources.approvals.fields.status'), options: ENUMS.approvalStatus, enumGroup: 'approvalStatus' },
-    { name: 'effect', label: (t) => t('resources.approvals.fields.effect'), options: ENUMS.effect, enumGroup: 'effect' },
     {
       name: 'agentProfileId',
       label: (t) => t('resources.approvals.fields.agentProfileId'),
       options: (lookups) => Object.keys(lookups.profiles || {}),
       optionLabel: (v, _t, lookups) => lookups?.profiles?.[v] || v
     },
-    { name: 'fromUtc', type: 'datetime', label: (t) => t('resources.approvals.fields.fromUtc') }
+    {
+      name: 'resourceId',
+      label: (t) => t('resources.toolInvocations.fields.resourceId'),
+      options: (lookups) => Object.keys(lookups.resources || {}),
+      optionLabel: (v, _t, lookups) => lookups?.resources?.[v] || v
+    },
+    { name: 'toolName', type: 'text', label: (t) => t('resources.toolInvocations.fields.toolName') }
   ],
   columns: ({ t, i18n, lookups }) => [
     col('approvals', t, 'summary', (r) => <span className="cell-wrap">{r.summary || '-'}</span>, { pinned: true }),
     col('approvals', t, 'effect', (r) => <EffectBadge effect={r.effect} />, { csv: (r) => r.effect }),
+    col('toolInvocations', t, 'resourceId', (r) => <NamedId id={r.resourceId} name={r.bindingAlias || lookups?.resources?.[r.resourceId]} />, {
+      csv: (r) => r.bindingAlias || lookups?.resources?.[r.resourceId] || r.resourceId || ''
+    }),
+    col('toolInvocations', t, 'toolName', (r) => <code>{r.toolName}</code>, { defaultHidden: true }),
     col('approvals', t, 'status', (r) => <EnumBadge group="approvalStatus" value={r.status} tone={approvalStatusTone(r.status)} />, { csv: (r) => r.status }),
     col('approvals', t, 'agentProfileId', (r) => <NamedId id={r.agentProfileId} name={lookups?.profiles?.[r.agentProfileId]} />, {
       csv: (r) => lookups?.profiles?.[r.agentProfileId] || r.agentProfileId
@@ -242,7 +276,29 @@ export const approvalsConfig = {
       label: ctx.t('resources.approvals.actions.invocation'),
       tip: actionTip(ctx.t, 'approvals', 'invocation'),
       hidden: !r.toolInvocationId,
-      onClick: () => ctx.navigate(pathFor('toolInvocations', null, { search: r.toolInvocationId }))
+      onClick: () =>
+        ctx.setExtraModal(
+          <ResultModal
+            title={ctx.t('resources.approvals.actions.invocation')}
+            load={() => ctx.apiClient.getApproval(r.id)}
+            renderResult={(a) => (a?.invocation ? <ToolInvocationDetail t={ctx.t} r={a.invocation} /> : <CodeBlock value={a} prettyJson />)}
+            onClose={() => ctx.setExtraModal(null)}
+          />
+        )
+    },
+    {
+      label: ctx.t('resources.approvals.actions.cancel'),
+      tip: actionTip(ctx.t, 'approvals', 'cancel'),
+      hidden: r.status !== 'Pending',
+      onClick: async () => {
+        try {
+          await ctx.apiClient.cancelApproval(r.id);
+          ctx.addToast({ type: 'success', message: ctx.t('resources.approvals.cancelled') });
+          ctx.reload();
+        } catch (e) {
+          ctx.addToast({ type: 'error', message: errorMessage(ctx.t, e) });
+        }
+      }
     }
   ],
   bulkActions: (selected, ctx) => (
@@ -346,10 +402,11 @@ export const resourcesConfig = {
       label: (t) => t('resources.resources.fields.connectorType'),
       options: (lookups) => Object.keys(lookups.connectors || {}),
       optionLabel: (v, _t, lookups) => lookups?.connectors?.[v] || v
-    },
-    { name: 'environment', type: 'text', label: (t) => t('resources.resources.fields.environment') },
-    { name: 'health', label: (t) => t('resources.resources.columns.health'), options: ENUMS.healthStatus, enumGroup: 'healthStatus' }
+    }
   ],
+  detailPath: (r) => pathFor('resources', r.id),
+  // Connector setting errors (400 SettingsInvalid) are keyed by setting; the form shows them under settings.<key>.
+  mapErrors: (fields, e) => resourceFieldErrors(fields, e),
   blank: () => ({
     name: '',
     displayName: '',
@@ -363,7 +420,7 @@ export const resourcesConfig = {
     settings: {},
     secretBindings: {}
   }),
-  toForm: (r) => ({ ...r, settings: { ...(r.settings || {}) }, secretBindings: slotBindingsToForm(r.secretBindings) }),
+  toForm: resourceToForm,
   duplicateStrip: ['lastTestUtc', 'lastTestResult', 'lastTestMessage'],
   columns: ({ t, i18n, lookups }) => [
     nameCol('resources', t),
@@ -372,13 +429,9 @@ export const resourcesConfig = {
     }),
     col('resources', t, 'environment', (r) => (r.environment ? <Badge>{r.environment}</Badge> : '-')),
     col('resources', t, 'endpoint', (r) => (r.endpoint ? <code className="cell-wrap">{r.endpoint}</code> : '-')),
-    col(
-      'resources',
-      t,
-      'health',
-      (r) => <EnumBadge group="healthStatus" value={r.healthStatus || r.lastTestResult || 'Unknown'} tone={healthTone(r.healthStatus || r.lastTestResult)} />,
-      { csv: (r) => r.healthStatus || r.lastTestResult || '' }
-    ),
+    col('resources', t, 'health', (r) => <EnumBadge group="healthStatus" value={resourceHealth(r)} tone={healthTone(resourceHealth(r))} />, {
+      csv: (r) => resourceHealth(r)
+    }),
     col('resources', t, 'lastTestUtc', (r) => timeCell(r.lastTestUtc, i18n, t('common.generic.never'))),
     col('resources', t, 'visibility', (r) => <EnumBadge group="visibility" value={r.visibility} />, { defaultHidden: true }),
     idCol('resources', t),
@@ -411,13 +464,14 @@ export const resourcesConfig = {
   },
   toBody: (d) => ({
     name: d.name,
-    displayName: d.displayName || null,
-    description: d.description || null,
-    environment: d.environment || null,
+    displayName: d.displayName ?? '',
+    description: d.description ?? '',
+    environment: d.environment ?? '',
     visibility: d.visibility,
-    notes: d.notes || null,
-    endpoint: d.endpoint || null,
+    notes: d.notes ?? '',
+    endpoint: d.endpoint ?? '',
     defaultAccessModeCeiling: d.defaultAccessModeCeiling || null,
+    clearAccessModeCeiling: !d.defaultAccessModeCeiling,
     ...resourceConnectorBody(d, d._connector)
   }),
   rowActions: (r, ctx) => [
@@ -463,22 +517,26 @@ export const resourcesConfig = {
   }
 };
 
-/** Referrer rows from either { items } or { profiles, bindings, resources, modelEndpoints } shapes. */
+/** Referrer rows for display: a resource's bindings or a secret's resources and model endpoints. */
 export function referrerItems(result) {
-  if (!result) return [];
-  if (Array.isArray(result)) return result;
-  if (Array.isArray(result.items)) return result.items;
-  return ['profiles', 'bindings', 'resources', 'modelEndpoints'].flatMap((k) => (result[k] || []).map((x) => ({ ...x, type: x.type || k })));
+  return referrerRows(result);
 }
 
-function ReferrerList({ t, result }) {
+export function ReferrerList({ t, result }) {
   const items = referrerItems(result);
   if (!items.length) return <p className="text-muted">{t('resources.resources.noReferrers')}</p>;
   return (
     <ul className="plain-list confirm-list" data-testid="referrers">
       {items.map((x, i) => (
         <li key={x.id || i}>
-          <Badge>{t(`resources.resources.referrerTypes.${x.type}`, { defaultValue: x.type || '-' })}</Badge> <code>{x.name || x.alias || x.id}</code>
+          <Badge>{t(`resources.resources.referrerTypes.${x.type}`, { defaultValue: x.type || '-' })}</Badge> <code>{x.name}</code>
+          {x.accessMode && (
+            <>
+              {' '}
+              <EnumBadge group="accessMode" value={x.accessMode} tone={accessModeTone(x.accessMode)} />
+            </>
+          )}
+          {x.detail && <span className="text-muted"> {x.detail}</span>}
         </li>
       ))}
     </ul>
@@ -497,7 +555,6 @@ export const secretsConfig = {
     update: (c, _t, id, b) => c.updateSecret(id, b),
     remove: (c, _t, id) => c.deleteSecret(id)
   },
-  filters: [{ name: 'kind', label: (t) => t('resources.secrets.fields.kind'), options: ENUMS.secretKind, enumGroup: 'secretKind' }],
   blank: () => ({ name: '', description: '', kind: 'Password', values: {}, expiresUtc: null }),
   toForm: (r) => ({ ...r, kind: r.kind || r.secretKind, values: {} }),
   canDuplicate: false,
@@ -505,7 +562,17 @@ export const secretsConfig = {
     nameCol('secrets', t),
     col('secrets', t, 'kind', (r) => <EnumBadge group="secretKind" value={r.kind || r.secretKind} tone="info" />, { csv: (r) => r.kind || r.secretKind }),
     col('secrets', t, 'fingerprint', (r) => (r.fingerprint ? <code>{r.fingerprint}</code> : '-')),
-    col('secrets', t, 'referrerCount', (r) => formatNumber(r.referrerCount ?? 0, {}, i18n.language), { cellClass: 'right' }),
+    col(
+      'secrets',
+      t,
+      'referrerCount',
+      (r) => {
+        const count = r.referrerCount ?? r.referrers?.length;
+        return count == null ? '-' : formatNumber(count, {}, i18n.language);
+      },
+      { cellClass: 'right', defaultHidden: true }
+    ),
+    col('secrets', t, 'fields', (r) => (r.fields || []).join(', ') || '-', { csv: (r) => (r.fields || []).join(' ') }),
     col('secrets', t, 'lastRotatedUtc', (r) => timeCell(r.lastRotatedUtc, i18n, t('common.generic.never'))),
     col('secrets', t, 'expiresUtc', (r) => (r.expiresUtc ? <ExpiryCell t={t} i18n={i18n} value={r.expiresUtc} /> : t('common.generic.never'))),
     col('secrets', t, 'lastRevealedUtc', (r) => timeCell(r.lastRevealedUtc, i18n, t('common.generic.never')), { defaultHidden: true }),
@@ -630,11 +697,6 @@ export const modelsConfig = {
   endpoint: '/v1.0/api/model-endpoints',
   api: hugoApi('listModelEndpoints', 'createModelEndpoint', 'updateModelEndpoint', 'deleteModelEndpoint'),
   loadOptions: async ({ apiClient }) => ({ secrets: await safeList(apiClient.listSecrets({ pageNumber: 1, pageSize: 1000 })) }),
-  filters: [
-    { name: 'kind', label: (t) => t('resources.models.fields.kind'), options: ENUMS.modelKind, enumGroup: 'modelKind' },
-    { name: 'provider', label: (t) => t('resources.models.fields.provider'), options: ENUMS.modelProvider, enumGroup: 'modelProvider' },
-    { name: 'healthStatus', label: (t) => t('resources.models.columns.healthStatus'), options: ENUMS.healthStatus, enumGroup: 'healthStatus' }
-  ],
   blank: () => ({
     name: '',
     kind: 'Inference',
@@ -706,6 +768,34 @@ export const modelsConfig = {
     field('models', t, 'timeoutSeconds', 'number', { min: 1, max: 3600 }),
     field('models', t, 'maxRetries', 'number', { min: 0, max: 10 })
   ],
+  toForm: (r) => ({
+    ...r,
+    baseUrl: r.baseUrl || '',
+    apiKeySecretId: r.apiKeySecretId || '',
+    region: r.region || '',
+    deploymentName: r.deploymentName || '',
+    apiVersion: r.apiVersion || ''
+  }),
+  toBody: (d) => ({
+    name: d.name,
+    kind: d.kind,
+    provider: d.provider,
+    baseUrl: d.baseUrl || null,
+    model: d.model,
+    apiKeySecretId: d.apiKeySecretId || null,
+    apiKeySecretField: d.apiKeySecretField || null,
+    region: d.region || null,
+    deploymentName: d.deploymentName || null,
+    apiVersion: d.apiVersion || null,
+    contextWindowTokens: d.contextWindowTokens ?? null,
+    maxOutputTokens: d.maxOutputTokens ?? null,
+    supportsTools: !!d.supportsTools,
+    supportsStreaming: !!d.supportsStreaming,
+    embeddingDimensions: d.embeddingDimensions ?? null,
+    maxConcurrency: d.maxConcurrency ?? null,
+    timeoutSeconds: d.timeoutSeconds ?? null,
+    maxRetries: d.maxRetries ?? null
+  }),
   validate: (d, t) => {
     const e = {};
     if (!d.name) e.name = t('common.errors.required');
@@ -721,7 +811,15 @@ export const modelsConfig = {
         ctx.setExtraModal(
           <ResultModal
             title={ctx.t('resources.models.actions.validateTitle', { name: r.name })}
-            load={() => ctx.apiClient.validateModelEndpoint(r.id)}
+            load={() =>
+              ctx.apiClient.validateModelEndpoint(r.id).then(
+                (result) => recordValidation(r.id, result),
+                (e) => {
+                  recordValidation(r.id, { success: false, error: errorMessage(ctx.t, e) });
+                  throw e;
+                }
+              )
+            }
             onClose={() => {
               ctx.setExtraModal(null);
               ctx.reload();
@@ -737,19 +835,39 @@ export const modelsConfig = {
           <ResultModal
             title={ctx.t('resources.models.actions.listModelsTitle', { name: r.name })}
             load={() => ctx.apiClient.listProviderModels(r.id)}
-            renderResult={(x) => <CodeBlock value={x} prettyJson />}
+            renderResult={(x) => <ProviderModelList t={ctx.t} models={x} />}
             onClose={() => ctx.setExtraModal(null)}
           />
         )
     }
   ],
-  viewExtra: (r, { t, i18n }) =>
-    r.lastHealthMessage ? (
-      <div className={r.healthStatus === 'Healthy' ? 'success-banner' : 'warning-banner'} data-testid="model-health">
-        {t('resources.models.lastHealth', { time: formatDateTime(r.lastHealthUtc, i18n.language), message: r.lastHealthMessage })}
-      </div>
-    ) : null
+  // Shown in view and edit mode: the last check the server kept, then this session's validations (P8.34).
+  formNotice: (r, { t, i18n }) => (
+    <>
+      {r.lastHealthUtc && (
+        <div className={r.healthStatus === 'Healthy' ? 'success-banner' : 'warning-banner'} data-testid="model-health">
+          {t('resources.models.lastHealth', { time: formatDateTime(r.lastHealthUtc, i18n.language), message: r.lastHealthMessage || r.healthStatus })}
+        </div>
+      )}
+      <ModelHealthHistory endpointId={r.id} />
+    </>
+  )
 };
+
+/** The provider's model names (a bare array, or { models } from older servers). */
+function ProviderModelList({ t, models }) {
+  const list = Array.isArray(models) ? models : models?.models || [];
+  if (!list.length) return <p className="text-muted">{t('resources.models.noProviderModels')}</p>;
+  return (
+    <ul className="plain-list" data-testid="provider-models">
+      {list.map((m) => (
+        <li key={typeof m === 'string' ? m : m.id || m.name}>
+          <code>{typeof m === 'string' ? m : m.id || m.name}</code>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 // ---------------------------------------------------------------- knowledge (M2)
 
@@ -796,11 +914,10 @@ export const toolInvocationsConfig = {
   endpoint: '/v1.0/api/tool-invocations',
   api: { list: (c, _t, p) => c.listToolInvocations(p), create: null, update: null, remove: null },
   autoRefresh: 15,
-  urlFilters: ['surface', 'effect', 'decision', 'status', 'agentProfileId', 'resourceId', 'toolName'],
+  urlFilters: ['surface', 'decision', 'status', 'agentProfileId', 'resourceId', 'toolName', 'conversationId'],
   loadLookups: profileAndResourceLookups,
   filters: [
     { name: 'surface', label: (t) => t('resources.toolInvocations.fields.surface'), options: ENUMS.surface, enumGroup: 'surface' },
-    { name: 'effect', label: (t) => t('resources.toolInvocations.fields.effect'), options: ENUMS.effect, enumGroup: 'effect' },
     { name: 'decision', label: (t) => t('resources.toolInvocations.fields.decision'), options: ENUMS.toolDecision, enumGroup: 'toolDecision' },
     { name: 'status', label: (t) => t('resources.toolInvocations.fields.status'), options: ENUMS.toolStatus, enumGroup: 'toolStatus' },
     {
@@ -817,16 +934,21 @@ export const toolInvocationsConfig = {
     },
     { name: 'toolName', type: 'text', label: (t) => t('resources.toolInvocations.fields.toolName') },
     { name: 'principalId', type: 'text', label: (t) => t('resources.toolInvocations.fields.principalId') },
-    { name: 'fromUtc', type: 'datetime', label: (t) => t('resources.toolInvocations.fields.fromUtc') },
-    { name: 'toUtc', type: 'datetime', label: (t) => t('resources.toolInvocations.fields.toUtc') }
+    { name: 'fromUtc', type: 'datetime', label: (t) => t('resources.toolInvocations.fields.fromUtc') }
   ],
   search: false,
   columns: ({ t, i18n, lookups }) => [
     col('toolInvocations', t, 'createdUtc', (r) => timeCell(r.createdUtc, i18n), { sortable: true, pinned: true }),
     col('toolInvocations', t, 'toolName', (r) => <code>{r.toolName}</code>),
-    col('toolInvocations', t, 'resourceId', (r) => <NamedId id={r.resourceId} name={r.resourceAlias || lookups?.resources?.[r.resourceId]} />, {
-      csv: (r) => r.resourceAlias || lookups?.resources?.[r.resourceId] || r.resourceId
-    }),
+    col(
+      'toolInvocations',
+      t,
+      'resourceId',
+      (r) => <NamedId id={r.resourceId} name={r.bindingAlias || r.resourceAlias || lookups?.resources?.[r.resourceId]} />,
+      {
+        csv: (r) => r.bindingAlias || r.resourceAlias || lookups?.resources?.[r.resourceId] || r.resourceId
+      }
+    ),
     col('toolInvocations', t, 'effect', (r) => <EffectBadge effect={r.effect} />, { csv: (r) => r.effect }),
     col('toolInvocations', t, 'decision', (r) => <EnumBadge group="toolDecision" value={r.decision} tone={toolDecisionTone(r.decision)} />, {
       csv: (r) => r.decision
@@ -850,7 +972,7 @@ export const toolInvocationsConfig = {
 };
 
 /** Tool invocation detail: identity, classification, redacted arguments, output preview, approval, and trace link. */
-function ToolInvocationDetail({ t, r }) {
+export function ToolInvocationDetail({ t, r }) {
   const grafana = useGrafana();
   const trace = traceUrl(grafana, r);
   return (
@@ -861,7 +983,9 @@ function ToolInvocationDetail({ t, r }) {
           <code>{r.toolName}</code>
         </dd>
         <dt>{t('resources.toolInvocations.columns.resourceId')}</dt>
-        <dd>{r.resourceAlias || r.resourceId || '-'}</dd>
+        <dd>{r.bindingAlias || r.resourceAlias || r.resourceId || '-'}</dd>
+        <dt>{t('resources.toolInvocations.columns.principalId')}</dt>
+        <dd>{r.principalName || r.principalId || '-'}</dd>
         <dt>{t('resources.toolInvocations.columns.effect')}</dt>
         <dd>
           <EffectBadge effect={r.effect} /> {r.effectReason && <span className="text-muted">{r.effectReason}</span>}
@@ -871,6 +995,7 @@ function ToolInvocationDetail({ t, r }) {
         <dt>{t('resources.toolInvocations.columns.decision')}</dt>
         <dd>
           <EnumBadge group="toolDecision" value={r.decision} tone={toolDecisionTone(r.decision)} />
+          {r.decisionReason && <span className="text-muted"> {r.decisionReason}</span>}
         </dd>
         <dt>{t('resources.toolInvocations.columns.status')}</dt>
         <dd>
@@ -920,10 +1045,6 @@ export const sessionsConfig = {
   endpoint: '/v1.0/api/sessions',
   api: { list: (c, _t, p) => c.listSessions(p), create: null, update: null, remove: (c, _t, id) => c.revokeSession(id) },
   search: false,
-  filters: [
-    { name: 'principalType', label: (t) => t('resources.sessions.fields.principalType'), options: ENUMS.principalType, enumGroup: 'principalType' },
-    { name: 'principalId', type: 'text', label: (t) => t('resources.sessions.fields.principalId') }
-  ],
   columns: ({ t, i18n }) => [
     col('sessions', t, 'principalName', (r) => <strong>{r.principalName || r.userId || r.credentialId || r.administratorId || '-'}</strong>, { pinned: true }),
     col('sessions', t, 'principalType', (r) => <EnumBadge group="principalType" value={r.principalType} />, { csv: (r) => r.principalType }),

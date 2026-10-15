@@ -4,11 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 import Tabs from '../components/Tabs';
 import SchemaForm from '../components/SchemaForm';
-import PromptEditor from '../components/PromptEditor';
-import CodeBlock from '../components/CodeBlock';
+import LayeredTemplateEditor from '../components/LayeredTemplateEditor';
 import JsonViewerModal from '../components/JsonViewerModal';
+import { connectorSchema } from '../components/ResourceSettingsPanel';
 import { LoadingState, UnavailableState, ErrorPresenter } from '../components/States';
-import { EffectBadge, EnumBadge } from '../components/StatusBadge';
+import { Badge, EffectBadge, EnumBadge } from '../components/StatusBadge';
 import { tip } from '../components/Tooltip';
 import { useAuth } from '../context/AuthContext';
 import { pathFor } from '../config/navConfig';
@@ -18,10 +18,35 @@ import { enumLabel } from '../utils/enums';
 
 const TABS = ['overview', 'settings', 'tools', 'instructions'];
 
+/** Badges for a tool that writes durable knowledge or needs the calling profile's inference endpoint (D-038). */
+export function ToolFlags({ tool }) {
+  const { t } = useTranslation();
+  if (!tool?.updatesKnowledge && !tool?.requiresModel) return null;
+  return (
+    <span className="tool-flags">
+      {tool.updatesKnowledge && (
+        <>
+          {' '}
+          <Badge tone="info" tip={t('tips.views.connectors.updatesKnowledge')}>
+            {t('views.connectors.updatesKnowledge')}
+          </Badge>
+        </>
+      )}
+      {tool.requiresModel && (
+        <>
+          {' '}
+          <Badge tip={t('tips.views.connectors.requiresModel')}>{t('views.connectors.requiresModel')}</Badge>
+        </>
+      )}
+    </span>
+  );
+}
+
 /**
  * One connector (P8.33): its description, the settings schema rendered as the form a resource will get (plus a
- * reference table), the secret slots with the kinds each accepts, the tools with their base effects, and the default
- * instructions. Instructions are edited per layer on the Prompt Templates page under the connector's template key.
+ * reference table), the secret slots with the kinds each accepts, the tools with their base effects and flags, and
+ * the default instructions edited inline per layer (Tenant and Global, reset, versions, diff, and the Built-in update
+ * notice) through the layered prompt template routes.
  */
 export default function ConnectorDetailView({ recordId }) {
   const { t } = useTranslation();
@@ -38,13 +63,13 @@ export default function ConnectorDetailView({ recordId }) {
       .getConnector(recordId)
       .then((c) => {
         setConnector(c);
-        setPreview(initialValues(normalizeSchema(c?.settingsSchema), {}));
+        setPreview(initialValues(normalizeSchema(connectorSchema(c)), {}));
       })
       .catch(setError);
   }, [apiClient, recordId]);
 
   useEffect(load, [load]);
-  const settings = useMemo(() => normalizeSchema(connector?.settingsSchema), [connector]);
+  const settings = useMemo(() => normalizeSchema(connectorSchema(connector)), [connector]);
 
   if (isMissingEndpoint(error)) {
     return (
@@ -59,6 +84,7 @@ export default function ConnectorDetailView({ recordId }) {
 
   const tools = connector.tools || [];
   const slots = connector.secretSlots || [];
+  const instructionsKey = connector.defaultInstructionsKey || `connector.${connector.type}.instructions`;
 
   return (
     <div>
@@ -132,7 +158,7 @@ export default function ConnectorDetailView({ recordId }) {
       {tab === 'settings' && (
         <div className="panel" data-testid="connector-settings">
           <p className="text-muted">{t('views.connectors.settingsBody')}</p>
-          <SchemaForm schema={connector.settingsSchema} values={preview} onChange={setPreview} connectorType={connector.type} idPrefix="connector-preview" />
+          <SchemaForm schema={connectorSchema(connector)} values={preview} onChange={setPreview} connectorType={connector.type} idPrefix="connector-preview" />
           <h3 className="section-title">{t('views.connectors.reference')}</h3>
           <div className="table-scroll">
             <table className="data-table">
@@ -198,6 +224,7 @@ export default function ConnectorDetailView({ recordId }) {
                       <td>
                         <EffectBadge effect={tool.baseEffect || tool.effect} />
                         {tool.classifiedPerCall && <span className="text-muted"> {t('views.profile.tools.perCall')}</span>}
+                        <ToolFlags tool={tool} />
                       </td>
                       <td className="cell-wrap">{tool.description || '-'}</td>
                     </tr>
@@ -211,21 +238,17 @@ export default function ConnectorDetailView({ recordId }) {
       {tab === 'instructions' && (
         <div data-testid="connector-instructions">
           <div className="info-banner">
-            <span>{t('views.connectors.instructionsBody', { key: connector.defaultInstructionsKey || `connector.${connector.type}.instructions` })}</span>
+            <span>{t('views.connectors.instructionsBody', { key: instructionsKey })}</span>
             <button
               type="button"
-              className="button-primary button-sm"
-              onClick={() => navigate(pathFor('promptTemplates', null, { search: connector.defaultInstructionsKey || connector.type }))}
+              className="button-secondary button-sm"
+              onClick={() => navigate(pathFor('promptTemplates', instructionsKey))}
               {...tip(t('tips.views.connectors.editInstructions'))}
             >
               {t('views.connectors.editInstructions')}
             </button>
           </div>
-          {connector.defaultInstructions ? (
-            <PromptEditor value={connector.defaultInstructions} readOnly id="connector-instructions" label={t('views.connectors.builtInInstructions')} />
-          ) : (
-            <CodeBlock value="" emptyText={t('views.connectors.noInstructions')} />
-          )}
+          <LayeredTemplateEditor templateKey={instructionsKey} testId="connector-layered-editor" />
         </div>
       )}
       <JsonViewerModal open={jsonOpen} value={connector} onClose={() => setJsonOpen(false)} />

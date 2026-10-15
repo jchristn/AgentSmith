@@ -151,7 +151,13 @@
     "LockdownActive": "O locatário está em bloqueio, então apenas chamadas de leitura são permitidas.",
     "ConnectorNotFound": "Este servidor não tem um conector desse tipo. Um plugin pode ter falhado ao carregar.",
     "ProfileNotExposed": "Este perfil não está exposto nessa superfície.",
-    "NoInferenceEndpoint": "Este perfil não tem modelo de inferência, então o Hugo não pode executar o próprio loop de agente para ele."
+    "NoInferenceEndpoint": "Este perfil não tem modelo de inferência, então o Hugo não pode executar o próprio loop de agente para ele.",
+    "NotPending": "Esta aprovação já foi decidida ou expirou.",
+    "SelfApprovalNotAllowed": "Você não pode aprovar sua própria chamada neste tenant. Peça a outro aprovador.",
+    "PasswordChangeRequired": "Altere sua senha antes de continuar.",
+    "SystemAdminRequired": "Somente administradores do sistema podem fazer isso.",
+    "SettingsInvalid": "As configurações do recurso são inválidas.",
+    "Duplicate": "Já existe um registro com esse nome."
   },
   "enums": {
     "principalType": {
@@ -246,7 +252,15 @@
       "ServerRestarted": "Servidor reiniciado",
       "PluginLoaded": "Plugin carregado",
       "HostKeyPinned": "Chave de host SSH fixada",
-      "HostKeyMismatch": "Divergência na chave de host SSH"
+      "HostKeyMismatch": "Divergência na chave de host SSH",
+      "SessionReauthenticated": "Sessão reautenticada",
+      "PermissionChanged": "Permissão alterada",
+      "ConfigurationChanged": "Configuração alterada",
+      "PasswordChanged": "Senha alterada",
+      "RestartRequested": "Reinício solicitado",
+      "KnowledgeChanged": "Conhecimento alterado",
+      "ModelEndpointChanged": "Endpoint de modelo alterado",
+      "SettingLearned": "Configuração aprendida"
     },
     "secretKind": {
       "Password": "Senha",
@@ -303,13 +317,17 @@
       "ApprovalRequired": "Aprovação necessária",
       "Approved": "Aprovada",
       "Rejected": "Rejeitada",
-      "Expired": "Expirada"
+      "Expired": "Expirada",
+      "Cancelled": "Cancelada"
     },
     "toolStatus": {
       "Succeeded": "Concluída",
       "Failed": "Falhou",
       "TimedOut": "Tempo esgotado",
-      "Cancelled": "Cancelada"
+      "Cancelled": "Cancelada",
+      "Pending": "Pendente",
+      "Running": "Em execução",
+      "NotExecuted": "Não executada"
     },
     "surface": {
       "Chat": "Chat",
@@ -369,7 +387,19 @@
       "AccessKey": "Chave de acesso",
       "SessionToken": "Token de sessão",
       "SignedRequest": "Requisição assinada",
-      "ApiKey": "Chave de API de administrador"
+      "ApiKey": "Chave de API de administrador",
+      "BearerToken": "Token portador",
+      "XToken": "Cabeçalho de token",
+      "PasswordHeaders": "Login com senha",
+      "AccessKeySecret": "Chave de acesso",
+      "AccessKeySignature": "Solicitação assinada",
+      "AdminApiKey": "Chave de API de administrador"
+    },
+    "knowledgeSource": {
+      "Operator": "Operador",
+      "Generated": "Gerado",
+      "Agent": "Agente",
+      "Derived": "Derivado"
     }
   },
   "login": {
@@ -706,6 +736,39 @@
         "running": "Em execução",
         "awaitingApproval": "Aguardando aprovação"
       }
+    },
+    "layeredEditor": {
+      "title": "Instruções padrão",
+      "purpose": "Edite um modelo nas camadas Tenant e Global, com versões, redefinição e o integrado como referência.",
+      "saved": "Camada {{layer}} salva como nova versão.",
+      "resetDone": "Camada {{layer}} redefinida para o padrão.",
+      "customized": "personalizado",
+      "inEffect": "Em vigor:",
+      "outdated": {
+        "Tenant": "O padrão global mudou desde que a substituição deste tenant foi salva.",
+        "Global": "O integrado foi atualizado desde que a camada Global foi personalizada."
+      },
+      "showChange": "Ver a alteração",
+      "adopt": "Adotar o novo padrão",
+      "layers": "Camadas do modelo",
+      "builtInBody": "O integrado vem com o Hugo e não pode ser editado. As camadas Global e Tenant o substituem.",
+      "noBuiltIn": "Esta chave não tem texto integrado.",
+      "layerVersion": "Versão {{version}}",
+      "notCustomized": {
+        "Tenant": "Este tenant usa o padrão. Salvar cria uma substituição do tenant.",
+        "Global": "A camada Global não está definida. Salvar a cria com este texto."
+      },
+      "globalReadOnly": "Somente administradores do sistema podem alterar a camada Global. Edite a camada Tenant para alterar este tenant.",
+      "diffBelow": "Comparar com {{layer}}",
+      "save": "Salvar camada {{layer}}",
+      "restoreNote": "Restaurado da versão {{version}}.",
+      "load": "Carregar",
+      "resetTitle": "Redefinir a camada {{layer}}?",
+      "resetBody": {
+        "Tenant": "A substituição do tenant é desativada e o padrão global volta a valer. O histórico é mantido.",
+        "Global": "A camada Global volta ao texto integrado, adotando qualquer atualização. O histórico é mantido."
+      },
+      "noDifferences": "Sem diferenças."
     }
   },
   "resources": {
@@ -937,12 +1000,27 @@
         "description": "Descrição",
         "isBuiltIn": "Origem",
         "id": "ID",
-        "lastUpdateUtc": "Atualizado"
+        "lastUpdateUtc": "Atualizado",
+        "key": "Chave",
+        "source": "Origem",
+        "activeLayer": "Em vigor",
+        "tenantLayer": "Camada do tenant",
+        "globalLayer": "Camada global"
       },
       "fields": {
         "name": "Nome",
         "kind": "Tipo",
         "description": "Descrição"
+      },
+      "defaultUpdated": "Padrão atualizado",
+      "filters": {
+        "customized": "Personalizado",
+        "customizedValues": {
+          "Tenant": "Substituição do tenant",
+          "Global": "Global personalizado",
+          "Outdated": "Padrão atualizado desde então",
+          "None": "Não personalizado"
+        }
       }
     },
     "audit": {
@@ -1023,8 +1101,11 @@
       "actions": {
         "decide": "Aprovar ou rejeitar",
         "invocation": "Ver invocação de ferramenta",
-        "bulkReject": "Rejeitar selecionadas"
-      }
+        "bulkReject": "Rejeitar selecionadas",
+        "cancel": "Cancelar solicitação"
+      },
+      "cancelled": "Aprovação cancelada.",
+      "selfApproval": "Este tenant exige que outra pessoa aprove suas próprias chamadas."
     },
     "resources": {
       "deleteReferenced_one": "{{name}} está vinculado a {{count}} perfil ou endpoint. Remova esses vínculos primeiro; o servidor recusa a exclusão enquanto houver referências.",
@@ -1115,7 +1196,8 @@
         "expiresUtc": "Expira",
         "lastRevealedUtc": "Última revelação",
         "id": "ID",
-        "createdUtc": "Criado"
+        "createdUtc": "Criado",
+        "fields": "Campos"
       },
       "fields": {
         "name": "Nome",
@@ -1230,6 +1312,12 @@
         "validateTitle": "Validação: {{name}}",
         "listModels": "Listar modelos do provedor",
         "listModelsTitle": "Modelos oferecidos por {{name}}"
+      },
+      "noProviderModels": "O provedor não listou nenhum modelo.",
+      "history": {
+        "title": "Histórico de validações (esta sessão)",
+        "note": "O servidor guarda apenas a última verificação de integridade. As validações executadas nesta sessão do navegador aparecem aqui.",
+        "empty": "Ainda não há validações nesta sessão. Use Validar para executar uma."
       }
     },
     "knowledge": {
@@ -1482,19 +1570,6 @@
       "showRendered": "Mostrar formatado"
     },
     "templateEditor": {
-      "cloneToEdit": "Clonar para editar",
-      "builtInReadOnly": "Modelos integrados são somente leitura, então todos os campos aqui estão bloqueados. Clone-o para obter uma cópia editável.",
-      "renameHint": "É possível renomear este modelo. Os modelos que o incluem pelo nome devem ser atualizados manualmente.",
-      "cloneDialog": {
-        "taken": "Já existe um modelo chamado {{name}}. Escolha outro nome.",
-        "reserved": "Nomes que começam com builtin/ são reservados para modelos integrados.",
-        "hint": "É possível renomear a cópia depois, na página dela.",
-        "name": "Nome da cópia",
-        "body": "A cópia começa com o conteúdo atual como versão 1 e pode ser editada, renomeada e excluída.",
-        "title": "Clonar {{name}}"
-      },
-      "newTitle": "Novo modelo de prompt",
-      "subtitle": "Escreva o modelo, visualize-o com um contexto de exemplo e salve.",
       "changeNote": "Nota da alteração",
       "versions_one": "Versões ({{count}})",
       "versions_other": "Versões ({{count}})",
@@ -1503,22 +1578,10 @@
       "note": "Nota",
       "author": "Autor",
       "diff": "Diferenças",
-      "restore": "Restaurar",
       "diffTitle": "Versão {{version}} comparada ao editor",
       "current": "Editor",
       "reset": "Redefinir para o padrão",
-      "savedVersion": "Nova versão salva.",
-      "restored": "Versão {{version}} restaurada.",
-      "resetDone": "Redefinido para o conteúdo original.",
-      "confirm": {
-        "restoreTitle": "Restaurar versão",
-        "restoreMessage": "Restaurar a versão {{version}}? O conteúdo atual é mantido no histórico.",
-        "resetTitle": "Redefinir modelo",
-        "resetMessage": "Redefinir \"{{name}}\" para o conteúdo original?",
-        "deleteTitle": "Excluir modelo",
-        "deleteMessage": "Excluir \"{{name}}\"? Os perfis e conectores que o usam voltam ao padrão integrado."
-      },
-      "saved": "Texto salvo"
+      "layeredSubtitle": "Edite este modelo nas camadas Tenant e Global. Cada salvamento é uma versão e Redefinir volta uma camada."
     },
     "requests": {
       "grafana": "Dashboard HTTP no Grafana",
@@ -1775,6 +1838,16 @@
         "calls": "Chamadas",
         "failures": "Falhas",
         "p95": "Duração p95"
+      },
+      "derived": {
+        "title": "A partir de invocações e aprovações",
+        "body": "Até as rotas de análise estarem disponíveis, estes números vêm do resumo de invocações e da lista de aprovações do intervalo escolhido.",
+        "none": "Nada neste intervalo.",
+        "byEffect": "Chamadas por efeito",
+        "byDecision": "Chamadas por decisão",
+        "byStatus": "Chamadas por status",
+        "byTool": "Ferramentas mais usadas",
+        "approvalsByStatus": "Aprovações por status"
       }
     },
     "chat": {
@@ -1845,7 +1918,9 @@
           "instructionText": "Texto da instrução",
           "maxOutputBytes": "Máximo de bytes de saída",
           "maxRows": "Máximo de linhas",
-          "enabled": "Habilitado"
+          "enabled": "Habilitado",
+          "denyPatterns": "Padrões negados",
+          "allowKnowledgeUpdates": "Permitir atualizar conhecimento"
         }
       },
       "toolRules": {
@@ -1861,7 +1936,13 @@
         "body": "As instruções que quem chama recebe: persona, regras de segurança e a seção de cada recurso vinculado, em ordem.",
         "purpose": "As instruções compiladas mostram exatamente o que Agent Smith recebe em cada superfície, com o modelo de origem de cada seção.",
         "surface": "Superfície",
-        "sourceMap": "Origem de cada seção"
+        "sourceMap": "Origem de cada seção",
+        "tokens_one": "Cerca de {{value}} tokens",
+        "tokens_other": "Cerca de {{value}} tokens",
+        "bindings_one": "{{count}} recursos",
+        "bindings_other": "{{count}} recursos",
+        "chunkTip": "De {{key}} ({{layer}}, versão {{version}})",
+        "forBinding": "para {{alias}}"
       },
       "tools": {
         "body": "Ferramentas exatamente como quem chama este perfil as vê, após a aplicação dos modos de acesso e das regras de ferramenta.",
@@ -1870,7 +1951,13 @@
         "name": "Ferramenta",
         "effect": "Efeito",
         "description": "Descrição",
-        "perCall": "(classificado por chamada)"
+        "perCall": "(classificado por chamada)",
+        "hasModel": "Endpoint de inferência definido",
+        "noModel": "Sem endpoint de inferência",
+        "resourceCount_one": "{{count}} recursos vinculados",
+        "resourceCount_other": "{{count}} recursos vinculados",
+        "resources": "Recursos",
+        "meta": "Ferramenta do Hugo"
       },
       "connect": {
         "claudeCode": "Claude Code (MCP via HTTP)",
@@ -1910,7 +1997,13 @@
         "classification": "Classificação",
         "result": "Resultado",
         "notBound": "Este perfil não vincula o recurso, então suas ferramentas não conseguem alcançá-lo.",
-        "pendingApproval": "A chamada está aguardando a aprovação {{id}}. Decida na página Aprovações."
+        "pendingApproval": "A chamada está aguardando a aprovação {{id}}. Decida na página Aprovações.",
+        "effectReason": "Classificador: {{reason}}",
+        "openApprovals": "Abrir Aprovações",
+        "noOutput": "A ferramenta não retornou nada.",
+        "recorded": "Registrada como invocação de ferramenta.",
+        "openInvocations": "Abrir Invocações",
+        "asAlias": "As chamadas vão para o alias {{alias}}:"
       }
     },
     "secrets": {
@@ -1971,8 +2064,8 @@
       "noTools": "Este conector não oferece ferramentas.",
       "instructionsBody": "Cada recurso deste tipo adiciona estas instruções para o agente. Edite-as por locatário ou globalmente na chave de modelo {{key}}.",
       "editInstructions": "Editar em Modelos de prompt",
-      "builtInInstructions": "Instruções padrão integradas",
-      "noInstructions": "Este conector não inclui instruções padrão."
+      "updatesKnowledge": "Grava conhecimento",
+      "requiresModel": "Requer um modelo"
     },
     "mcpExplorer": {
       "title": "MCP Explorer",
@@ -2015,6 +2108,107 @@
       "tasks_one": "{{count}} tarefa",
       "tasks_other": "{{count}} tarefas",
       "noTasks": "Ainda não há tarefas para este perfil."
+    },
+    "resourceDetail": {
+      "title": "Recurso",
+      "noSettings": "Nenhuma configuração salva.",
+      "noSecrets": "Nenhum slot de segredo preenchido.",
+      "boundBy": "Vinculado a perfis",
+      "notBound": "Nenhum perfil vincula este recurso ainda. Anexe-o na aba Vínculos de um perfil.",
+      "tabs": {
+        "overview": "Visão geral",
+        "tools": "Testar uma ferramenta",
+        "knowledge": "Conhecimento"
+      }
+    },
+    "knowledge": {
+      "title": "Conhecimento",
+      "purpose": "Notas duráveis sobre este recurso que os agentes leem antes de agir: contexto de banco e tabelas, notas de hosts e mais.",
+      "body": "Notas que os agentes leem sobre este recurso. Cada salvamento é uma versão; o selo de origem indica quem escreveu.",
+      "sqlBody": "O que os agentes sabem deste banco: contexto do banco e das tabelas (de operadores, gerado ou de agentes), a inteligência da varredura e como as tabelas se relacionam.",
+      "views": {
+        "context": "Contexto",
+        "intelligence": "Inteligência",
+        "relationships": "Relações"
+      },
+      "entries": "Entradas",
+      "noEntries": "Ainda não há conhecimento salvo.",
+      "databaseContext": "Contexto do banco de dados",
+      "missing": "sem contexto",
+      "noContext": "Sem contexto ainda",
+      "loadTables": "Listar tabelas sem contexto",
+      "add": "Adicionar entrada",
+      "scope": "Escopo",
+      "key": "Chave",
+      "content": "Contexto (Markdown)",
+      "preview": "Pré-visualizar",
+      "edit": "Editar",
+      "empty": "Nada escrito ainda.",
+      "updatedBy": "por {{name}}",
+      "history": "Histórico de versões",
+      "hideHistory": "Ocultar histórico",
+      "saved": "Conhecimento salvo.",
+      "source": "Origem",
+      "deleted": "excluída",
+      "deleteTitle": "Excluir entrada de conhecimento",
+      "deleteBody": "Excluir o contexto de {{name}}? Os agentes deixam de vê-lo. O histórico é mantido.",
+      "emptyTitle": "Nada para editar ainda",
+      "emptyBody": "Adicione uma entrada ou gere contexto para um recurso SQL.",
+      "quality": "Qualidade do contexto",
+      "tablesWithContext": "Tabelas com contexto",
+      "relationshipCounts": "Relações",
+      "declaredInferred": "{{declared}} declaradas, {{inferred}} inferidas",
+      "crawled": "Varrido em {{time}}",
+      "gaps": "Lacunas de contexto",
+      "entities": "Entidades",
+      "columns": {
+        "table": "Tabela",
+        "role": "Papel",
+        "rows": "Linhas",
+        "keyColumns": "Colunas-chave",
+        "context": "Contexto",
+        "from": "De",
+        "to": "Para",
+        "kind": "Tipo",
+        "confidence": "Confiança",
+        "evidence": "Evidência"
+      },
+      "metrics": "Métricas prováveis",
+      "commonFilters": "Filtros comuns",
+      "freshness": "Colunas de atualização",
+      "tenantColumns": "Colunas de tenant",
+      "softDelete": "Colunas de exclusão lógica",
+      "ambiguities": "Ambiguidades a esclarecer",
+      "questions": "Perguntas iniciais",
+      "viaTool": "Lido com {{tool}} neste recurso.",
+      "refresh": "Varrer de novo",
+      "declared": "Declarada",
+      "inferred": "Inferida",
+      "graphLabel": "Gráfico de relações: {{tables}} tabelas, {{edges}} relações",
+      "noRelationshipsTitle": "Nenhuma relação encontrada",
+      "noRelationshipsBody": "A varredura não encontrou chaves estrangeiras declaradas nem junções prováveis neste esquema.",
+      "generateOpen": "Gerar contexto",
+      "generateTitle": "Gerar contexto para {{name}}",
+      "generateBody": "O modelo lê o esquema (e, se permitido, algumas linhas de amostra mascaradas) e escreve um contexto conciso. Entradas de operadores são mantidas, a menos que você escolha sobrescrevê-las.",
+      "generateNoBinding": "Nenhum perfil vincula este recurso. Vincule-o primeiro a um perfil com endpoint de inferência.",
+      "generateNoModel": "Este perfil não tem endpoint de inferência. Defina um na aba Geral do perfil.",
+      "noModel": "sem modelo",
+      "generateScope": "O que gerar",
+      "generateScopes": {
+        "all": "Banco e tabelas",
+        "database": "Somente o banco",
+        "tables": "Somente tabelas"
+      },
+      "overwrite": "Substituir entradas de operadores e agentes",
+      "generateInstructions": "Orientação extra para o modelo",
+      "generate": "Gerar",
+      "generating": "Gerando...",
+      "generateProgress": "Gerando contexto... {{elapsed}} decorridos. O modelo lê o esquema e escreve notas.",
+      "severity": {
+        "info": "Informação",
+        "warning": "Aviso",
+        "error": "Erro"
+      }
     }
   },
   "tips": {
@@ -2139,7 +2333,9 @@
       "toolName": "Mostrar apenas chamadas a esta ferramenta, por exemplo sql_query. A lista é atualizada quando você para de digitar.",
       "principalId": "Mostrar apenas registros de um principal. Cole um ID; a lista é atualizada quando você para de digitar.",
       "principalType": "Mostrar apenas sessões de administradores, usuários ou credenciais.",
-      "visibility": "Mostrar apenas registros privados ou de todo o locatário."
+      "visibility": "Mostrar apenas registros privados ou de todo o locatário.",
+      "activeLayer": "Mostra apenas os modelos cujo texto vem desta camada.",
+      "customized": "Mostra os modelos pela camada personalizada ou cujo padrão mudou desde então."
     },
     "form": {
       "option": "Incluir {{option}} em {{field}}. Opções marcadas são salvas; as desmarcadas ficam de fora.",
@@ -2263,13 +2459,17 @@
         "ApprovalRequired": "Aprovação necessária: a chamada aguardou uma pessoa.",
         "Approved": "Aprovada: uma pessoa permitiu a chamada.",
         "Rejected": "Rejeitada: uma pessoa recusou a chamada.",
-        "Expired": "Expirada: ninguém decidiu a tempo."
+        "Expired": "Expirada: ninguém decidiu a tempo.",
+        "Cancelled": "Cancelada: a aprovação pendente foi retirada ou cancelada pelo bloqueio."
       },
       "toolStatus": {
         "Succeeded": "Concluída: a ferramenta foi executada e retornou um resultado.",
         "Failed": "Falhou: a ferramenta ou o sistema de destino retornou um erro.",
         "TimedOut": "Tempo esgotado: a ferramenta não terminou dentro do tempo limite.",
-        "Cancelled": "Cancelada: o turno foi interrompido enquanto a ferramenta era executada."
+        "Cancelled": "Cancelada: o turno foi interrompido enquanto a ferramenta era executada.",
+        "Pending": "Pendente: aguardando aprovação para ser executada.",
+        "Running": "Em execução: a ferramenta está executando agora.",
+        "NotExecuted": "Não executada: a chamada foi negada, rejeitada ou apenas classificada (teste a seco)."
       },
       "healthStatus": {
         "Healthy": "Íntegro: a última verificação alcançou o sistema e ele respondeu normalmente.",
@@ -2320,7 +2520,21 @@
         "AuthorizationDenied": "Um principal tentou algo que suas permissões não autorizam.",
         "SecretRevealed": "Alguém revelou o texto simples de um segredo, informando um motivo.",
         "LockdownChanged": "Um administrador do locatário ativou ou desativou o bloqueio.",
-        "HostKeyMismatch": "Um host SSH apresentou uma chave diferente da fixada; a conexão foi recusada."
+        "HostKeyMismatch": "Um host SSH apresentou uma chave diferente da fixada; a conexão foi recusada.",
+        "SessionReauthenticated": "Um usuário digitou a senha de novo em uma sessão (necessário antes de revelar segredos).",
+        "PermissionChanged": "Uma permissão foi criada, alterada ou excluída.",
+        "ConfigurationChanged": "Um registro de configuração mudou (por exemplo, um modelo ou configuração de perfil).",
+        "PasswordChanged": "Um usuário alterou a senha ou um administrador a redefiniu.",
+        "RestartRequested": "Alguém pediu para reiniciar o servidor.",
+        "KnowledgeChanged": "Conhecimento de recurso foi escrito ou excluído por operador, agente ou modelo.",
+        "ModelEndpointChanged": "Um endpoint de modelo foi criado, alterado ou excluído.",
+        "SettingLearned": "Um conector registrou uma configuração no primeiro uso, por exemplo uma chave de host SSH."
+      },
+      "knowledgeSource": {
+        "Operator": "Escrito ou editado por uma pessoa no painel ou na API.",
+        "Generated": "Redigido por um modelo com sql_generate_context. Revise antes de confiar nele.",
+        "Agent": "Registrado por um agente durante o trabalho (sql_update_context). Não verificado.",
+        "Derived": "Calculado pelo Hugo a partir da varredura, não escrito por pessoa nem modelo."
       }
     },
     "resources": {
@@ -2413,7 +2627,14 @@
         "name": "Nome do modelo, exclusivo no locatário. As inclusões se referem aos modelos pelo nome.",
         "kind": "Para que o modelo é usado: prompt de sistema, wrapper de tarefa, fragmento, descrição de ferramenta ou arquivo de configuração.",
         "currentVersion": "A versão salva mais recente. Cada salvamento mantém o texto anterior como uma versão que pode ser restaurada.",
-        "description": "O que o modelo faz e onde é usado."
+        "description": "O que o modelo faz e onde é usado.",
+        "key": "A chave do modelo. Conectores usam connector.<type>.instructions; personas usam persona.<name>.",
+        "source": "De onde vem o integrado: hugo para os modelos principais ou o tipo de conector.",
+        "activeLayer": "A camada cujo texto é usado agora: Tenant, depois Global, depois Integrada.",
+        "tenantLayer": "A substituição deste tenant, com sua versão.",
+        "globalLayer": "O padrão global para todos os tenants, com sua versão.",
+        "lastUpdateUtc": "Quando a camada Tenant ou Global foi salva pela última vez.",
+        "defaultUpdated": "O padrão abaixo desta camada mudou depois da personalização. Abra o modelo para comparar e adotar."
       },
       "audit": {
         "createdUtc": "Quando o evento aconteceu, no seu fuso horário local.",
@@ -2449,7 +2670,8 @@
         "fromUtc": "Mostrar aprovações solicitadas a partir deste horário.",
         "actions": {
           "decide": "Abrir o cartão de aprovação para aprovar ou rejeitar esta chamada com uma nota.",
-          "invocation": "Abrir o registro de invocação de ferramenta por trás desta aprovação."
+          "invocation": "Abrir o registro de invocação de ferramenta por trás desta aprovação.",
+          "cancel": "Retira esta chamada pendente para que nunca seja executada. Quem solicitou ou um aprovador pode cancelar."
         }
       },
       "bindings": {
@@ -2461,7 +2683,9 @@
         "instructionText": "Instruções extras ou substitutas para este recurso neste perfil, por exemplo quais schemas importam.",
         "maxOutputBytes": "Limite da saída de ferramentas deste recurso, mais restrito que o padrão do conector. Deixe vazio para o padrão.",
         "maxRows": "Limite de linhas retornadas por consultas neste recurso. Deixe vazio para o padrão do conector.",
-        "enabled": "Vínculos desabilitados são mantidos, mas ocultos do agente, como se o recurso não estivesse vinculado."
+        "enabled": "Vínculos desabilitados são mantidos, mas ocultos do agente, como se o recurso não estivesse vinculado.",
+        "denyPatterns": "Expressões regulares comparadas ao comando ou instrução das ferramentas classificadas por chamada. Uma correspondência nega a chamada.",
+        "allowKnowledgeUpdates": "Quando desativado, ferramentas que salvam conhecimento deste recurso (como contexto de tabelas) retornam rascunhos em vez de salvar."
       },
       "models": {
         "apiKeySecretId": "O segredo que contém a chave de API ou as credenciais deste provedor. Armazenado criptografado; nunca exibido ao modelo.",
@@ -2535,7 +2759,8 @@
           "replaceValues": "Substituir alguns ou todos os valores; campos deixados vazios mantêm os valores armazenados.",
           "reveal": "Mostrar os valores em texto simples após informar um motivo e digitar sua senha novamente. Auditado.",
           "referrers": "Listar os recursos e endpoints de modelo que usam este segredo."
-        }
+        },
+        "fields": "Os campos de valor que este segredo guarda (nunca os valores)."
       },
       "toolInvocations": {
         "trace": "Abrir o trace distribuído desta chamada no Grafana Tempo em uma nova aba.",
@@ -2685,13 +2910,6 @@
         "serviceGeneric": "Abrir este serviço incluído em uma nova aba."
       },
       "templateEditor": {
-        "cloneName": "Nome da cópia. Letras minúsculas, dígitos, hifens e barras funcionam bem; o prefixo builtin/ é reservado.",
-        "cloneConfirm": "Criar a cópia com este nome e abri-la no editor.",
-        "clone": "Criar uma cópia editável deste modelo. Você escolhe o nome da cópia antes de ela ser criada.",
-        "reset": "Restaurar este modelo integrado ao conteúdo que acompanha o Hugo.",
-        "delete": "Excluir este modelo e suas versões. Tudo o que o incluía volta a usar o padrão integrado.",
-        "create": "Criar o modelo e sua primeira versão.",
-        "save": "Salvar o conteúdo como uma nova versão. Novas conversas e sessões MCP passam a usá-la.",
         "changeNote": "Uma nota curta salva com a versão, explicando o que mudou e por quê.",
         "columns": {
           "version": "Número da versão. Maior é mais recente.",
@@ -2700,7 +2918,7 @@
           "saved": "Quando a versão foi salva."
         },
         "diff": "Comparar esta versão com o que está no editor agora.",
-        "restore": "Tornar esta versão a atual novamente. O conteúdo atual permanece no histórico."
+        "back": "Voltar a todos os modelos."
       },
       "serverInfo": {
         "rest": "Endereço base para chamadas da API REST e SDKs.",
@@ -2824,7 +3042,9 @@
           "default": "O valor usado quando um recurso deixa a configuração vazia.",
           "range": "Os valores permitidos ou o mínimo e o máximo para números.",
           "group": "A seção do formulário de recurso em que a configuração aparece."
-        }
+        },
+        "updatesKnowledge": "Esta ferramenta salva conhecimento durável do recurso (por exemplo, contexto do banco). Vínculos podem recusá-lo.",
+        "requiresModel": "Esta ferramenta usa o endpoint de inferência do perfil chamador, então o perfil precisa de um."
       },
       "mcpExplorer": {
         "profile": "Conectar a /mcp/{profile}, ou deixar que o servidor resolva seu perfil a partir da credencial ou dos padrões.",
@@ -2862,12 +3082,16 @@
         },
         "instructions": {
           "surface": "As instruções diferem um pouco por superfície (chat, MCP, A2A, OpenAI, REST). Escolha uma para pré-visualizar.",
-          "section": "Uma seção das instruções compiladas e a camada de modelo de onde ela veio."
+          "section": "Uma seção das instruções compiladas e a camada de modelo de onde ela veio.",
+          "copy": "Copiar as instruções compiladas."
         },
         "tools": {
           "name": "O nome da ferramenta usado por um chamador, geralmente familia_operacao, como sql_query.",
           "effect": "O efeito base: Leitura, Escrita ou Destrutivo. Algumas ferramentas são classificadas por chamada.",
-          "description": "O que a ferramenta faz, como o modelo do chamador a vê."
+          "description": "O que a ferramenta faz, como o modelo do chamador a vê.",
+          "hasModel": "Ferramentas que precisam de um modelo (como gerar contexto do banco) só funcionam quando o perfil tem um endpoint de inferência.",
+          "resources": "Os aliases vinculados que a ferramenta aceita no argumento resource, com o modo de acesso e a regra de cada vínculo.",
+          "meta": "Uma ferramenta integrada do Hugo (por exemplo, instruções ou aprovações), não de um conector."
         },
         "connect": {
           "copyCard": "Copiar a URL do cartão de agente para que outro agente A2A descubra este perfil.",
@@ -2884,7 +3108,9 @@
           "tool": "Uma ferramenta que o perfil expõe para este recurso.",
           "arguments": "Os argumentos da ferramenta em JSON. O argumento resource indica o alias do vínculo.",
           "dryRun": "Classificar a chamada (efeito, decisão, modo de acesso) sem executá-la.",
-          "execute": "Executar a chamada por todo o pipeline. Chamadas arriscadas aguardam aprovação como qualquer outra."
+          "execute": "Executar a chamada por todo o pipeline. Chamadas arriscadas aguardam aprovação como qualquer outra.",
+          "openApprovals": "Decida esta chamada na caixa de Aprovações.",
+          "openInvocations": "Veja esta chamada com argumentos ocultados e saída em Invocações."
         }
       },
       "secrets": {
@@ -2931,6 +3157,56 @@
           "Environment": "Definido por uma variável de ambiente, que prevalece sobre qualquer valor salvo aqui.",
           "Database": "Armazenado no banco de dados."
         }
+      },
+      "resourceDetail": {
+        "back": "Voltar a todos os recursos.",
+        "connector": "Abre a referência de configurações, as ferramentas e as instruções padrão deste conector.",
+        "tabs": {
+          "overview": "Conexão, configurações, slots de segredo, último teste e perfis que vinculam este recurso.",
+          "tools": "Faça um teste a seco de uma ferramenta como um perfil e depois execute-a pelo mesmo fluxo do chat e do MCP.",
+          "knowledge": "Contexto durável que os agentes leem deste recurso: notas de banco e tabelas, inteligência e relações."
+        }
+      },
+      "knowledge": {
+        "views": {
+          "context": "Contexto do banco e das tabelas, com origem e histórico de versões.",
+          "intelligence": "Entidades, métricas prováveis, filtros comuns, colunas de atualização, ambiguidades e qualidade do contexto (sql_get_intelligence).",
+          "relationships": "Chaves estrangeiras declaradas e candidatas a junção inferidas com confiança (sql_list_relationships)."
+        },
+        "loadTables": "Executa sql_get_context no recurso para listar todas as tabelas, inclusive as sem contexto.",
+        "add": "Escreva contexto para uma tabela ou outro escopo que ainda não tenha.",
+        "select": "Abre esta entrada no editor.",
+        "scope": "O tipo de nota: database, table ou um escopo do conector como notes.",
+        "key": "Para contexto de tabela, a tabela com esquema, por exemplo main.orders. Deixe vazio para a entrada raiz do escopo.",
+        "create": "Abre o editor para esta nova entrada. Nada é salvo até você clicar em Salvar.",
+        "content": "Markdown conciso que os agentes leem: o que os dados significam, definições de negócio, ressalvas e junções confirmadas.",
+        "preview": "Alterna entre o Markdown e a pré-visualização.",
+        "history": "Cada versão salva desta entrada, com origem e autor. Compare com o editor ou carregue uma.",
+        "delete": "Exclui esta entrada. As versões ficam no histórico.",
+        "save": "Salva como edição de operador. Vira uma nova versão com origem Operador.",
+        "source": "Quem escreveu esta versão: um operador, um modelo (gerada), um agente ou o Hugo (derivada).",
+        "quality": "Uma pontuação da varredura: contexto do banco, cobertura de tabelas e ambiguidades pendentes.",
+        "columns": {
+          "table": "A tabela, com esquema quando não está no esquema padrão.",
+          "role": "Como a varredura interpreta a tabela: entidade principal, entidade, tabela de ligação, log etc.",
+          "rows": "Número estimado de linhas (exato no SQLite).",
+          "keyColumns": "Colunas que a varredura considera importantes: chaves, métricas, filtros e datas.",
+          "context": "Se há contexto durável salvo para a tabela.",
+          "from": "A coluna que referencia.",
+          "to": "A coluna referenciada, geralmente uma chave primária.",
+          "kind": "Declarada por uma restrição de chave estrangeira ou inferida de nomes e tipos.",
+          "confidence": "Quão segura está a varredura: as declaradas são 100 por cento; as inferidas precisam de confirmação.",
+          "evidence": "Por que a varredura propõe esta relação."
+        },
+        "refresh": "Varre o banco de novo em vez de usar o cache (após mudanças de esquema).",
+        "declared": "Uma restrição de chave estrangeira no banco.",
+        "inferred": "Uma candidata a junção por nomes e tipos. Confirme e registre no contexto da tabela.",
+        "generateOpen": "Peça a um modelo que redija o contexto do banco e das tabelas com sql_generate_context, como um perfil que vincula este recurso.",
+        "generateProfile": "O perfil e o vínculo usados na execução. Seu endpoint de inferência escreve e o vínculo deve permitir atualizar conhecimento.",
+        "generateScope": "O resumo do banco, as notas das tabelas ou ambos.",
+        "overwrite": "Desativado por padrão: entradas de operadores ou agentes são mantidas e só as ausentes ou geradas são escritas.",
+        "generateInstructions": "Opcional. Por exemplo, termos de negócio a definir ou tabelas para focar.",
+        "generate": "Executa sql_generate_context agora. Pode levar alguns minutos em esquemas grandes."
       }
     },
     "export": {
@@ -3074,12 +3350,32 @@
       "saveResource": "Criar o recurso com estas configurações e seu segredo e depois seguir para o vínculo.",
       "bind": "Vincular o novo recurso ao perfil padrão do Hugo com o modo de acesso escolhido.",
       "finish": "Fechar o assistente para este locatário e abrir o Chat para conversar com Agent Smith."
+    },
+    "layeredEditor": {
+      "layers": {
+        "Tenant": "A substituição deste tenant. Vale apenas para este tenant.",
+        "Global": "O padrão editável para todos os tenants. Somente administradores do sistema.",
+        "BuiltIn": "O texto que vem com o Hugo. Somente leitura."
+      },
+      "source": "De onde vem o integrado: hugo para os modelos principais ou o tipo de conector.",
+      "showChange": "Veja o que mudou no padrão desde que esta camada foi personalizada.",
+      "adopt": "Redefine esta camada para usar o novo padrão. O texto antigo fica no histórico.",
+      "diffBelow": "Diferença linha a linha desta camada com a que ela substitui, calculada pelo servidor.",
+      "reset": {
+        "Tenant": "Desativa a substituição deste tenant para que o padrão global valha.",
+        "Global": "Retorna a camada Global ao texto integrado."
+      },
+      "save": {
+        "Tenant": "Salva o texto como nova versão da substituição deste tenant.",
+        "Global": "Salva o texto como nova versão do padrão global para todos os tenants."
+      },
+      "load": "Coloca o texto desta versão no editor. Salve para torná-lo atual."
     }
   },
   "explainers": {
     "promptTemplates": {
       "title": "Modelos de prompt e suas camadas",
-      "p1": "Toda instrução que o Hugo dá a um agente é um modelo: a persona Agent Smith, as regras de segurança e as instruções de cada conector. Os modelos usam variáveis como {{persona.name}} e {{resource.alias}}, e cada salvamento cria uma nova versão.",
+      "p1": "Cada instrução que o Hugo dá a um agente é um modelo: a persona Agent Smith, as regras de segurança e as instruções de cada conector. Os modelos usam variáveis como profile.personaName e this.alias entre chaves duplas, e cada salvamento cria uma versão.",
       "p2": "Os modelos são organizados em camadas: o texto integrado acompanha o Hugo, um padrão global pode substituí-lo para todos os locatários e um locatário pode substituir esse padrão. Redefinir para o padrão remove uma substituição e volta uma camada."
     },
     "tenants": {

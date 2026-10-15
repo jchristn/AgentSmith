@@ -3,13 +3,16 @@
  *
  * Hand-rolled over the browser fetch API (no axios). Every backend endpoint the dashboard uses is a named method
  * here, so contract changes are fixed in one place. List endpoints return the normalized page shape
- * { items, pageNumber, pageSize, totalCount }. Errors throw ApiError with the parsed error body.
+ * { items, pageNumber, pageSize, totalCount }. Errors throw ApiError with the parsed error body
+ * ({ error, code, message, requestId, fields, fieldCodes }).
  *
  * Two route families:
  *  - Identity and administration routes forked from Garrison keep Garrison's paths and JSON shapes
  *    (`/v1.0/api/tenants/{tenantId}/users` and so on), per plan decision D-032.
  *  - Hugo's own routes follow plan section 14.2 (`/v1.0/api/resources`, `/v1.0/api/agent-profiles`, ...). They are
- *    tenant-implicit: the server takes the tenant from the session.
+ *    tenant-implicit: the server takes the tenant from the session (system administrators may add ?tenantId=).
+ *    They enumerate with Garrison's envelope (maxResults, skip, objects, totalRecords; D-039), and a few answer bare
+ *    arrays (connectors, bindings, knowledge, referrers). Request history and audit page with pageNumber and pageSize.
  * A few routes that moved between Garrison and Hugo (server info, restart) try the Hugo path first and fall back to
  * the Garrison path on 404.
  */
@@ -166,9 +169,17 @@ class ApiClient {
     return this._request('DELETE', '/v1.0/token');
   }
 
-  /** Change a user's password (forced change after first login, or reset by an administrator). */
-  changePassword(userId, body) {
-    return this._request('POST', `/v1.0/api/users/${enc(userId)}/password`, { body });
+  /** Change the signed-in user's password (clears must-change-password). body: { currentPassword, newPassword }. */
+  changeMyPassword(body) {
+    return this._request('POST', '/v1.0/api/users/me/password', { body });
+  }
+
+  /** An administrator's password reset; the user must change it at next sign-in unless mustChangePassword is false. */
+  resetUserPassword(tenantId, userId, newPassword, mustChangePassword = true) {
+    return this._request('POST', this._t(tenantId, `users/${enc(userId)}/password`), {
+      body: { newPassword },
+      query: mustChangePassword ? undefined : { mustChangePassword: 'false' }
+    });
   }
 
   // ------------------------------------------------------------------ server, settings, events
@@ -202,6 +213,11 @@ class ApiClient {
 
   testDatabaseConnection(body) {
     return this._request('POST', '/v1.0/api/settings/database/test', { body });
+  }
+
+  /** The tenant's lockdown state: { tenantId, lockdown, approvalsCancelled }. */
+  getLockdown() {
+    return this._request('GET', '/v1.0/api/tenant/lockdown');
   }
 
   /** Turn tenant lockdown on (every non-Read call denied, pending approvals cancelled) or off. */
@@ -385,8 +401,9 @@ class ApiClient {
 
   // ------------------------------------------------------------------ sessions (plan section 14.2)
 
+  /** Sessions in the caller's tenant (flat alias of the tenant-scoped route). */
   listSessions(params) {
-    return this._pagedList('/v1.0/api/sessions', params);
+    return this._list('/v1.0/api/sessions', params);
   }
 
   revokeSession(id) {
@@ -436,7 +453,7 @@ class ApiClient {
   // ------------------------------------------------------------------ secrets (plan section 12.2)
 
   listSecrets(params) {
-    return this._pagedList('/v1.0/api/secrets', params);
+    return this._list('/v1.0/api/secrets', params);
   }
 
   /** Metadata, fields present, fingerprint, and referrers. Never values. */
@@ -454,7 +471,7 @@ class ApiClient {
     return this._request('PUT', `/v1.0/api/secrets/${enc(id)}`, { body });
   }
 
-  /** Replace the supplied fields; omitted fields are kept. body: { values: { field: value } }. */
+  /** Replace the supplied fields; omitted fields are kept. body: { values: { field: value }, remove? }. */
   updateSecretValues(id, values) {
     return this._request('PUT', `/v1.0/api/secrets/${enc(id)}/values`, { body: { values } });
   }
@@ -465,7 +482,7 @@ class ApiClient {
     return this._request('POST', `/v1.0/api/secrets/${enc(id)}/reveal`, { body: { reason }, keepSessionOn401: true });
   }
 
-  /** Resources and model endpoints that use a secret. */
+  /** Resources and model endpoints that use a secret: [{ referrerType, referrerId, referrerName, detail }]. */
   getSecretReferrers(id) {
     return this._request('GET', `/v1.0/api/secrets/${enc(id)}/referrers`);
   }
@@ -477,9 +494,12 @@ class ApiClient {
 
   // ------------------------------------------------------------------ connectors
 
-  /** Connector descriptors: type, family, displayName, description, category, settingsSchema, secretSlots, tools. */
+  /**
+   * Connector descriptors (a bare array): type, family, displayName, description, category, iconKey, version,
+   * documentationUrl, defaultInstructionsKey, plugin, settings (the settings schema), secretSlots, tools.
+   */
   listConnectors(params) {
-    return this._pagedList('/v1.0/api/connectors', params);
+    return this._list('/v1.0/api/connectors', params);
   }
 
   getConnector(type) {
@@ -488,14 +508,16 @@ class ApiClient {
 
   // ------------------------------------------------------------------ resources
 
+  /** filters: connectorType, search. */
   listResources(params) {
-    return this._pagedList('/v1.0/api/resources', params);
+    return this._list('/v1.0/api/resources', params);
   }
 
   getResource(id) {
     return this._request('GET', `/v1.0/api/resources/${enc(id)}`);
   }
 
+  /** 400 SettingsInvalid (fields keyed by setting) when the settings fail the connector schema; 409 Duplicate. */
   createResource(body) {
     return this._request('POST', '/v1.0/api/resources', { body });
   }
@@ -508,29 +530,66 @@ class ApiClient {
     return this._request('DELETE', `/v1.0/api/resources/${enc(id)}`);
   }
 
-  /** Test a saved resource's connection. Returns { success, message, latencyMs, details }. */
+  /** Test a saved resource's connection. Returns { success, message, errorCode, latencyMs, details }. */
   testResource(id) {
     return this._request('POST', `/v1.0/api/resources/${enc(id)}/test`);
   }
 
-  /** Test unsaved settings (the create and edit form's Test Connection). */
+  /** Test unsaved settings (the create and edit form's Test Connection). Nothing is stored. */
   testResourceSettings(body) {
     return this._request('POST', '/v1.0/api/resources/test', { body });
   }
 
-  /** Profiles and bindings that use a resource. */
+  /** Bindings that use a resource: [{ agentProfileId, agentProfileName, bindingId, alias, accessMode, enabled }]. */
   getResourceReferrers(id) {
     return this._request('GET', `/v1.0/api/resources/${enc(id)}/referrers`);
   }
 
+  /** body: { name }. Copies settings and secret slots. */
   duplicateResource(id, body) {
     return this._request('POST', `/v1.0/api/resources/${enc(id)}/duplicate`, { body });
+  }
+
+  /**
+   * Invoke a tool on a resource directly, without a profile (needs Execute on Resource; the access mode is the
+   * resource ceiling). Returns a tool invocation outcome; 202 while approval is pending.
+   */
+  invokeResourceTool(id, toolName, args = {}) {
+    return this._request('POST', `/v1.0/api/resources/${enc(id)}/invoke`, { body: { toolName, arguments: args } });
+  }
+
+  /** Every knowledge entry of a resource, or one scope's entries: [{ scope, key, content, source, version, ... }]. */
+  listResourceKnowledge(id, scope) {
+    return this._request('GET', scope ? `/v1.0/api/resources/${enc(id)}/knowledge/${enc(scope)}` : `/v1.0/api/resources/${enc(id)}/knowledge`);
+  }
+
+  /** Path of one knowledge entry; the empty key (a scope's root entry) is addressed as _root. */
+  _knowledgePath(id, scope, key) {
+    return `/v1.0/api/resources/${enc(id)}/knowledge/${enc(scope)}/${key ? enc(key) : '_root'}`;
+  }
+
+  getResourceKnowledge(id, scope, key) {
+    return this._request('GET', this._knowledgePath(id, scope, key));
+  }
+
+  /** Write one knowledge entry as an operator edit (scrubbed and audited). Creates a version. */
+  putResourceKnowledge(id, scope, key, content) {
+    return this._request('PUT', this._knowledgePath(id, scope, key), { body: { content } });
+  }
+
+  deleteResourceKnowledge(id, scope, key) {
+    return this._request('DELETE', this._knowledgePath(id, scope, key));
+  }
+
+  /** Version history of one knowledge entry, newest first. */
+  listResourceKnowledgeVersions(id, scope, key) {
+    return this._request('GET', `${this._knowledgePath(id, scope, key)}/versions`);
   }
 
   // ------------------------------------------------------------------ agent profiles and bindings
 
   listProfiles(params) {
-    return this._pagedList('/v1.0/api/agent-profiles', params);
+    return this._list('/v1.0/api/agent-profiles', params);
   }
 
   getProfile(id) {
@@ -549,18 +608,22 @@ class ApiClient {
     return this._request('DELETE', `/v1.0/api/agent-profiles/${enc(id)}`);
   }
 
+  /** body: { name }. Copies the profile with its bindings. */
   duplicateProfile(id, body) {
     return this._request('POST', `/v1.0/api/agent-profiles/${enc(id)}/duplicate`, { body });
   }
 
-  /** Compiled instructions as a caller receives them. query: { surface }. Returns { text, sections: [...] }. */
+  /**
+   * Compiled instructions as a caller receives them. query: { surface: Chat|Mcp|A2A|OpenAI }. Returns { text,
+   * tokenEstimate, bindingCount, segments: [{ key, layer, version, bindingAlias, start, length, depth }], warnings }.
+   */
   getCompiledInstructions(id, query) {
     return this._request('GET', `/v1.0/api/agent-profiles/${enc(id)}/compiled-instructions`, { query });
   }
 
-  /** Tools as the caller would see them. */
-  getProfileTools(id) {
-    return this._request('GET', `/v1.0/api/agent-profiles/${enc(id)}/tools`);
+  /** Tools as the caller would see them: { hasModel, resourceCount, tools: [...], metaTools: [...] }. */
+  getProfileTools(id, query) {
+    return this._request('GET', `/v1.0/api/agent-profiles/${enc(id)}/tools`, { query });
   }
 
   /** A2A agent card preview. */
@@ -568,8 +631,9 @@ class ApiClient {
     return this._request('GET', `/v1.0/api/agent-profiles/${enc(id)}/card`);
   }
 
+  /** A profile's bindings (a bare array). */
   listBindings(profileId, params) {
-    return this._pagedList(`/v1.0/api/agent-profiles/${enc(profileId)}/bindings`, params);
+    return this._list(`/v1.0/api/agent-profiles/${enc(profileId)}/bindings`, params);
   }
 
   createBinding(profileId, body) {
@@ -584,71 +648,62 @@ class ApiClient {
     return this._request('DELETE', `/v1.0/api/agent-profiles/${enc(profileId)}/bindings/${enc(bindingId)}`);
   }
 
+  /** [{ toolName, rule: Allow|Deny|RequireApproval }]. */
   getToolRules(profileId, bindingId) {
     return this._request('GET', `/v1.0/api/agent-profiles/${enc(profileId)}/bindings/${enc(bindingId)}/tool-rules`);
   }
 
+  /** Replace a binding's tool rules; the body is the array itself. Returns the binding. */
   updateToolRules(profileId, bindingId, rules) {
-    return this._request('PUT', `/v1.0/api/agent-profiles/${enc(profileId)}/bindings/${enc(bindingId)}/tool-rules`, { body: { rules } });
+    return this._request('PUT', `/v1.0/api/agent-profiles/${enc(profileId)}/bindings/${enc(bindingId)}/tool-rules`, { body: rules || [] });
   }
 
-  // ------------------------------------------------------------------ prompt templates (Garrison routes)
+  // ------------------------------------------------------------------ prompt templates (layered by key, plan section 10.2)
 
-  listPromptTemplates(tenantId, params) {
-    return this._list(this._t(tenantId, 'prompt-templates'), params);
+  /** Every template key with its Built-in, Global, and Tenant layers and the layer in effect (a bare array). */
+  listPromptLayers() {
+    return this._request('GET', '/v1.0/api/prompt-templates');
   }
 
-  getPromptTemplate(tenantId, id) {
-    return this._request('GET', this._t(tenantId, `prompt-templates/${enc(id)}`));
+  /** One key: { key, description, source, activeLayer, effectiveContent, builtInContent, builtInHash, global, tenant }. */
+  getPromptLayers(key) {
+    return this._request('GET', `/v1.0/api/prompt-templates/${enc(key)}`);
   }
 
-  createPromptTemplate(tenantId, body) {
-    return this._request('POST', this._t(tenantId, 'prompt-templates'), { body });
+  /** Save content at a layer (Tenant, or Global for system administrators). Creates a version; returns the view. */
+  savePromptLayer(key, layer, content, changeNote) {
+    return this._request('PUT', `/v1.0/api/prompt-templates/${enc(key)}`, { query: { layer }, body: { content, changeNote: changeNote || undefined } });
   }
 
-  /** Update a template. The server stores a new immutable version. */
-  updatePromptTemplate(tenantId, id, body) {
-    return this._request('PUT', this._t(tenantId, `prompt-templates/${enc(id)}`), { body });
+  /** Reset Tenant to the Global default, or Global to the Built-in (adopting a changed Built-in). Keeps history. */
+  resetPromptLayer(key, layer) {
+    return this._request('POST', `/v1.0/api/prompt-templates/${enc(key)}/reset`, { query: { layer } });
   }
 
-  deletePromptTemplate(tenantId, id) {
-    return this._request('DELETE', this._t(tenantId, `prompt-templates/${enc(id)}`));
+  /** Version history of a layer, newest first. */
+  listPromptLayerVersions(key, layer) {
+    return this._request('GET', `/v1.0/api/prompt-templates/${enc(key)}/versions`, { query: { layer } });
   }
 
-  clonePromptTemplate(tenantId, id, body) {
-    return this._request('POST', this._t(tenantId, `prompt-templates/${enc(id)}/clone`), { body });
+  /** The shipped Built-in: { key, content, hash, source, description }. */
+  getPromptBuiltIn(key) {
+    return this._request('GET', `/v1.0/api/prompt-templates/${enc(key)}/builtin`);
   }
 
-  resetPromptTemplate(tenantId, id) {
-    return this._request('POST', this._t(tenantId, `prompt-templates/${enc(id)}/reset`));
+  /** Line diff of a layer against the layer below it: [{ op: same|add|remove, text }]. */
+  getPromptLayerDiff(key, layer) {
+    return this._request('GET', `/v1.0/api/prompt-templates/${enc(key)}/diff`, { query: { layer } });
   }
 
-  listPromptTemplateVersions(tenantId, id) {
-    return this._request('GET', this._t(tenantId, `prompt-templates/${enc(id)}/versions`));
-  }
-
-  getPromptTemplateVersion(tenantId, id, version) {
-    return this._request('GET', this._t(tenantId, `prompt-templates/${enc(id)}/versions/${enc(version)}`));
-  }
-
-  restorePromptTemplateVersion(tenantId, id, version) {
-    return this._request('POST', this._t(tenantId, `prompt-templates/${enc(id)}/restore/${enc(version)}`));
-  }
-
-  /** Render a stored template with a sample context. Returns rendered text and variable usage. */
-  renderPromptTemplate(tenantId, id, body) {
-    return this._request('POST', this._t(tenantId, `prompt-templates/${enc(id)}/render`), { body });
-  }
-
-  /** Render ad hoc template content (used by the editor preview). */
-  renderTemplateContent(tenantId, body) {
-    return this._request('POST', this._t(tenantId, 'prompt-templates/render'), { body });
+  /** Render content with a sample context; includes resolve through the layers. Returns { rendered, success, variables, includes, errors }. */
+  renderPromptContent(content, context) {
+    return this._request('POST', '/v1.0/api/prompt-templates/render', { body: { content, context: context || undefined } });
   }
 
   // ------------------------------------------------------------------ model endpoints
 
   listModelEndpoints(params) {
-    return this._pagedList('/v1.0/api/model-endpoints', params);
+    return this._list('/v1.0/api/model-endpoints', params);
   }
 
   getModelEndpoint(id) {
@@ -667,12 +722,15 @@ class ApiClient {
     return this._request('DELETE', `/v1.0/api/model-endpoints/${enc(id)}`);
   }
 
-  /** Send a tiny prompt (or embed a short string); returns { success, latencyMs, dimensions, message }. */
+  /**
+   * Send a tiny prompt (or embed a short string) and record health. Returns { success, kind, latencyMs, dimensions,
+   * model, responsePreview, statusCode, error, problems }.
+   */
   validateModelEndpoint(id) {
     return this._request('POST', `/v1.0/api/model-endpoints/${enc(id)}/validate`);
   }
 
-  /** The provider's model list, where the provider supports it. */
+  /** The provider's model names (a bare array of strings), where the provider supports listing. */
   listProviderModels(id) {
     return this._request('GET', `/v1.0/api/model-endpoints/${enc(id)}/models`);
   }
@@ -725,40 +783,57 @@ class ApiClient {
 
   // ------------------------------------------------------------------ tool invocations
 
-  /** filters: surface, agentProfileId, resourceId, toolName, effect, decision, status, principalId, fromUtc, toUtc. */
-  listToolInvocations(params) {
-    return this._pagedList('/v1.0/api/tool-invocations', params);
+  /**
+   * filters: surface, agentProfileId, resourceId, toolName, decision, status, principalId, conversationId, and
+   * fromUtc (sent as since). The server enumerates newest first with maxResults and skip.
+   */
+  listToolInvocations(params = {}) {
+    const { fromUtc, ...rest } = params || {};
+    return this._list('/v1.0/api/tool-invocations', { ...rest, since: fromUtc || rest.since });
   }
 
   getToolInvocation(id) {
     return this._request('GET', `/v1.0/api/tool-invocations/${enc(id)}`);
   }
 
-  getToolInvocationSummary(query) {
-    return this._request('GET', '/v1.0/api/tool-invocations/summary', { query });
+  /**
+   * Counts since a time: { total, sinceUtc, byDecision, byStatus, byEffect, byTool }, each a list of
+   * { status, count }. query: { fromUtc } (sent as since).
+   */
+  getToolInvocationSummary(query = {}) {
+    return this._request('GET', '/v1.0/api/tool-invocations/summary', { query: { since: query.fromUtc || query.since } });
   }
 
-  /** Classify a call without running it: returns { effect, effectReason, decision, accessMode }. */
+  /**
+   * Resolve, authorize, validate, classify, and apply rules without running or recording anything. body: { profileId,
+   * resource (alias), toolName, arguments }. Returns the outcome: { decision, decisionCode, reason, effect,
+   * effectReason, accessMode, bindingAlias, approvalSummary }.
+   */
   dryRunTool(body) {
     return this._request('POST', '/v1.0/api/tool-invocations/dry-run', { body });
   }
 
-  /** Invoke a tool as a profile through the same pipeline as every other surface. 202 when approval is required. */
+  /**
+   * Invoke a tool as a profile through the same pipeline as every other surface. Answers 200 with the outcome
+   * (including denials, whose decision is Denied), or 202 with approvalId and approvalStatus Pending.
+   */
   invokeTool(body) {
     return this._request('POST', '/v1.0/api/tool-invocations', { body });
   }
 
   // ------------------------------------------------------------------ approvals
 
-  /** filters: status, effect, agentProfileId, requestedBy, fromUtc, toUtc, pageNumber, pageSize. */
+  /** filters: status, agentProfileId, resourceId, principalId, toolName, pageNumber, pageSize. */
   listApprovals(params) {
-    return this._pagedList('/v1.0/api/approvals', params);
+    return this._list('/v1.0/api/approvals', params);
   }
 
+  /** One approval with its tool invocation (and the result once executed). */
   getApproval(id) {
     return this._request('GET', `/v1.0/api/approvals/${enc(id)}`);
   }
 
+  /** 409 NotPending when already decided; 409 SelfApprovalNotAllowed when self-approval is off for the tenant. */
   approveApproval(id, note) {
     return this._request('POST', `/v1.0/api/approvals/${enc(id)}/approve`, { body: { note: note || undefined } });
   }
@@ -767,8 +842,8 @@ class ApiClient {
     return this._request('POST', `/v1.0/api/approvals/${enc(id)}/reject`, { body: { note: note || undefined } });
   }
 
-  cancelApproval(id) {
-    return this._request('POST', `/v1.0/api/approvals/${enc(id)}/cancel`);
+  cancelApproval(id, note) {
+    return this._request('POST', `/v1.0/api/approvals/${enc(id)}/cancel`, { body: { note: note || undefined } });
   }
 
   /** Number of approvals waiting for a person (one-row page, totalCount). */
@@ -1002,6 +1077,16 @@ export function normalizeEnumeration(result, requestedPageNumber, requestedPageS
   };
 }
 
+/** out_of_range -> OutOfRange; PascalCase codes pass through. */
+export function pascalCode(code) {
+  if (typeof code !== 'string' || !code.includes('_')) return code;
+  return code
+    .split('_')
+    .filter(Boolean)
+    .map((part) => part[0].toUpperCase() + part.slice(1))
+    .join('');
+}
+
 /**
  * Normalized API error: status, stable code, message, request ID, trace ID, and field errors. Accepts both the
  * Garrison error body ({ code, message, fields }) and the Hugo body ({ error, message, requestId, traceId,
@@ -1030,7 +1115,8 @@ export class ApiError extends Error {
       if (Object.keys(fields).length === 0) fields = null;
     }
     this.fields = fields;
-    this.fieldCodes = fieldCodes;
+    // Connector setting validation reports snake_case codes (out_of_range); the catalog keys are PascalCase.
+    this.fieldCodes = fieldCodes ? Object.fromEntries(Object.entries(fieldCodes).map(([k, v]) => [k, pascalCode(v)])) : fieldCodes;
     this.requiredPermission = obj?.requiredPermission || null;
     this.resourceType = obj?.resourceType || null;
     this.body = body;

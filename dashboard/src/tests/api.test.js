@@ -49,7 +49,7 @@ describe('requests', () => {
     await client.listUsers('default', { pageNumber: 2, pageSize: 10 });
     expect(fetchMock.mock.calls[0][0]).toBe('http://h/v1.0/api/tenants/default/users?maxResults=10&skip=10');
     await client.listResources({ pageNumber: 1, pageSize: 25, connectorType: 'ssh' });
-    expect(fetchMock.mock.calls[1][0]).toBe('http://h/v1.0/api/resources?pageNumber=1&pageSize=25&connectorType=ssh');
+    expect(fetchMock.mock.calls[1][0]).toBe('http://h/v1.0/api/resources?connectorType=ssh&maxResults=25&skip=0');
     await client.revealSecret('sec_1', 'incident');
     expect(fetchMock.mock.calls[2][0]).toBe('http://h/v1.0/api/secrets/sec_1/reveal');
     expect(JSON.parse(fetchMock.mock.calls[2][1].body)).toEqual({ reason: 'incident' });

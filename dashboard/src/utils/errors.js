@@ -6,7 +6,18 @@ import { translateServerText, stripCodePrefix } from './serverText';
  * Codes whose translation is generic ("The record was not found."). For these the server's own message is more
  * useful (it names the record and the reason), so it wins when the server sent one (M1-22, M1-24).
  */
-const GENERIC_CODES = new Set(['NotFound', 'Conflict', 'InUse', 'ValidationFailed', 'InvalidBody', 'Http400', 'Http404', 'Http409']);
+const GENERIC_CODES = new Set([
+  'NotFound',
+  'Conflict',
+  'InUse',
+  'ValidationFailed',
+  'InvalidBody',
+  'SettingsInvalid',
+  'Duplicate',
+  'Http400',
+  'Http404',
+  'Http409'
+]);
 
 /**
  * Localized message for an error. Order: a translation of a known server message pattern; the server's own message
@@ -48,14 +59,17 @@ export function errorDetail(t, err) {
   return parts.join(' ');
 }
 
+/** 404 codes that mean "the route exists but the record does not". Hugo answers RouteNotFound for unknown routes. */
+const RECORD_MISS_CODES = new Set(['NotFound', 'RecordNotFound']);
+
 /**
- * True when the error indicates the endpoint does not exist on this server yet: 404 on a route (any code except a
- * record lookup miss), or 405 and 501 from servers that answer unknown routes that way. Pages use it to show a
- * "this server does not expose this capability yet" state instead of an error.
+ * True when the error indicates the endpoint does not exist on this server yet: 404 on a route (RouteNotFound, or
+ * any 404 without a record-miss code), or 405 and 501 from servers that answer unknown routes that way. Pages use it
+ * to show a "this server does not expose this capability yet" state instead of an error.
  */
 export function isMissingEndpoint(err) {
   if (err?.status === 405 || err?.status === 501) return true;
-  return err?.status === 404 && err?.code !== 'RecordNotFound';
+  return err?.status === 404 && !RECORD_MISS_CODES.has(err?.code);
 }
 
 /** Field codes the server attaches to 400 ValidationFailed (P9.17); `Invalid` has no translation of its own. */

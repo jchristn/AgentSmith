@@ -204,10 +204,10 @@ describe('PromptEditor', () => {
     const { rerender } = render(<PromptEditor value={value} onChange={onChange} />);
     const area = screen.getByLabelText(t('components.promptEditor.content'), { selector: 'textarea' });
     area.setSelectionRange(6, 6);
-    fireEvent.click(document.querySelector('[data-variable="persona.name"]'));
-    expect(onChange).toHaveBeenCalledWith('Hello {{persona.name}}');
+    fireEvent.click(document.querySelector('[data-variable="profile.personaName"]'));
+    expect(onChange).toHaveBeenCalledWith('Hello {{profile.personaName}}');
     rerender(<PromptEditor value={value} onChange={onChange} />);
-    expect(screen.getByTestId('used-variables').textContent).toContain('persona.name');
+    expect(screen.getByTestId('used-variables').textContent).toContain('profile.personaName');
     await waitFor(() => expect(document.body.textContent).toContain('Hello Agent Smith'), { timeout: 2000 });
   });
   it('shows a diff against the baseline', () => {

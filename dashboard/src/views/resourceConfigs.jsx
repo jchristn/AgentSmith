@@ -13,15 +13,9 @@ import { resourceTip, enumTip } from '../utils/tips';
 import { enumLabel, enumOptions, enumList } from '../utils/enums';
 import { tip } from '../components/Tooltip';
 import NamedId from '../components/NamedId';
-import CloneTemplateModal from '../components/CloneTemplateModal';
 import ValuePromptModal from '../components/ValuePromptModal';
 import { mcpConfigSnippet } from '../utils/snippets';
 import { field, col, idCol, nameCol, createdCol, activeCol, builtInCol, enumBadge, actionTip, notBuiltIn, safeList, tenantApi } from './configHelpers';
-
-/** Delete confirmation text for a prompt template. */
-export async function templateDeletePreview(t, _apiClient, _tenantId, template) {
-  return { message: t('resources.promptTemplates.deleteUnbound', { name: template.name }), names: [] };
-}
 
 // ---------------------------------------------------------------- administration
 
@@ -146,7 +140,7 @@ export const usersConfig = {
             saveTip={actionTip(ctx.t, 'users', 'resetPassword')}
             secret
             onSubmit={async (value) => {
-              await ctx.apiClient.changePassword(r.id, { newPassword: value, mustChangePassword: true });
+              await ctx.apiClient.resetUserPassword(ctx.tenantId, r.id, value, true);
               ctx.addToast({ type: 'success', message: ctx.t('resources.users.passwordReset') });
             }}
             onClose={() => ctx.setExtraModal(null)}
@@ -432,63 +426,95 @@ export const credentialAssignmentsConfig = assignmentConfig(
   '/v1.0/api/tenants/{tenantId}/credential-scope-assignments'
 );
 
-// ---------------------------------------------------------------- prompt templates
+// ---------------------------------------------------------------- prompt templates (layered by key, P8.35)
+
+/** The latest save across a template's editable layers. */
+function layeredUpdated(r) {
+  const times = [r.tenant?.exists && r.tenant.lastUpdateUtc, r.global?.exists && r.global.lastUpdateUtc].filter(Boolean);
+  return times.sort().pop() || null;
+}
+
+/** One layer cell: customized (with its version), the default updated underneath it, or not set. */
+function layerCell(t, state) {
+  if (!state?.exists) return <span className="text-muted">-</span>;
+  return (
+    <span className="inline-meta">
+      {state.customized ? (
+        <Badge tone="info" tip={t('tips.badges.custom')}>
+          {t('common.generic.custom')} v{state.version}
+        </Badge>
+      ) : (
+        <span className="text-muted">v{state.version}</span>
+      )}
+      {state.defaultUpdatedSinceCustomized && (
+        <Badge tone="warning" tip={t('tips.resources.promptTemplates.defaultUpdated')}>
+          {t('resources.promptTemplates.defaultUpdated')}
+        </Badge>
+      )}
+    </span>
+  );
+}
+
+/**
+ * List every template key with its layers, filtered and paged in the browser (the server answers the whole catalog,
+ * a few dozen keys). params: search, activeLayer, customized (Tenant, Global, Any, None), pageNumber, pageSize.
+ */
+export async function listLayeredTemplates(apiClient, params = {}) {
+  const all = await apiClient.listPromptLayers();
+  const list = (Array.isArray(all) ? all : all?.items || all?.objects || []).map((v) => ({ ...v, id: v.key, lastUpdateUtc: layeredUpdated(v) }));
+  const search = (params.search || '').toLowerCase();
+  const filtered = list
+    .filter((v) => !search || `${v.key} ${v.description || ''} ${v.source || ''}`.toLowerCase().includes(search))
+    .filter((v) => !params.activeLayer || v.activeLayer === params.activeLayer)
+    .filter((v) => {
+      if (!params.customized) return true;
+      const tenant = !!v.tenant?.exists && !!v.tenant.customized;
+      const global = !!v.global?.exists && !!v.global.customized;
+      if (params.customized === 'Tenant') return tenant;
+      if (params.customized === 'Global') return global;
+      if (params.customized === 'Outdated') return !!(v.tenant?.defaultUpdatedSinceCustomized || v.global?.defaultUpdatedSinceCustomized);
+      return !tenant && !global;
+    })
+    .sort((a, b) => a.key.localeCompare(b.key));
+  const pageSize = params.pageSize || 25;
+  const pageNumber = params.pageNumber || 1;
+  return { items: filtered.slice((pageNumber - 1) * pageSize, pageNumber * pageSize), pageNumber, pageSize, totalCount: filtered.length };
+}
 
 export const promptTemplatesConfig = {
   id: 'promptTemplates',
   explainer: 'promptTemplates',
-  endpoint: '/v1.0/api/tenants/{tenantId}/prompt-templates',
-  api: {
-    list: (c, tenant, p) => c.listPromptTemplates(tenant, p),
-    create: null,
-    update: null,
-    remove: (c, tenant, id) => c.deletePromptTemplate(tenant, id)
-  },
-  filters: [{ name: 'kind', label: (t) => t('resources.promptTemplates.fields.kind'), options: ENUMS.promptTemplateKind, enumGroup: 'promptTemplateKind' }],
+  endpoint: '/v1.0/api/prompt-templates',
+  api: { list: (c, _tenant, p) => listLayeredTemplates(c, p), create: null, update: null, remove: null },
+  defaultSort: 'key',
+  defaultSortDir: 'asc',
+  urlFilters: ['activeLayer', 'customized'],
+  filters: [
+    { name: 'activeLayer', label: (t) => t('resources.promptTemplates.columns.activeLayer'), options: ENUMS.promptLayer, enumGroup: 'promptLayer' },
+    {
+      name: 'customized',
+      label: (t) => t('resources.promptTemplates.filters.customized'),
+      options: ['Tenant', 'Global', 'Outdated', 'None'],
+      optionLabel: (v, t) => t(`resources.promptTemplates.filters.customizedValues.${v}`)
+    }
+  ],
   canDuplicate: false,
-  isEditable: notBuiltIn,
+  isEditable: () => false,
   columns: ({ t, i18n }) => [
-    nameCol('promptTemplates', t),
-    col('promptTemplates', t, 'kind', (r) => enumBadge(t, 'promptTemplateKind', r.kind)),
-    col('promptTemplates', t, 'currentVersion', (r) => `v${r.currentVersion ?? 1}`, { cellClass: 'right' }),
-    col('promptTemplates', t, 'description', (r) => r.description || '-', { defaultHidden: true }),
-    builtInCol('promptTemplates', t),
-    idCol('promptTemplates', t),
-    col('promptTemplates', t, 'lastUpdateUtc', (r) => formatRelativeTime(r.lastUpdateUtc, i18n.language))
+    col('promptTemplates', t, 'key', (r) => <code>{r.key}</code>, { sortable: true, pinned: true, csv: (r) => r.key }),
+    col('promptTemplates', t, 'description', (r) => <span className="cell-wrap">{r.description || '-'}</span>),
+    col('promptTemplates', t, 'source', (r) => r.source || '-', { defaultHidden: true }),
+    col('promptTemplates', t, 'activeLayer', (r) => enumBadge(t, 'promptLayer', r.activeLayer, r.activeLayer === 'BuiltIn' ? 'neutral' : 'info'), {
+      csv: (r) => r.activeLayer
+    }),
+    col('promptTemplates', t, 'tenantLayer', (r) => layerCell(t, r.tenant), { csv: (r) => (r.tenant?.exists ? `v${r.tenant.version}` : '') }),
+    col('promptTemplates', t, 'globalLayer', (r) => layerCell(t, r.global), { csv: (r) => (r.global?.exists ? `v${r.global.version}` : '') }),
+    col('promptTemplates', t, 'lastUpdateUtc', (r) => (r.lastUpdateUtc ? formatRelativeTime(r.lastUpdateUtc, i18n.language) : '-'), {
+      csv: (r) => r.lastUpdateUtc || ''
+    })
   ],
   fields: () => [],
-  headerActions: ({ t, navigate }) => (
-    <button
-      type="button"
-      className="button-primary"
-      onClick={() => navigate(pathFor('promptTemplates', 'new'))}
-      data-testid="add-template"
-      {...tip(t('tips.resources.promptTemplates.add'))}
-    >
-      {t('resources.promptTemplates.add')}
-    </button>
-  ),
-  detailPath: (r) => pathFor('promptTemplates', r.id),
-  deletePreview: (r, { apiClient, tenantId, t }) => templateDeletePreview(t, apiClient, tenantId, r),
-  rowActions: (r, ctx) => [
-    {
-      label: ctx.t('common.actions.clone'),
-      tip: actionTip(ctx.t, 'promptTemplates', 'clone'),
-      onClick: () =>
-        ctx.setExtraModal(
-          <CloneTemplateModal
-            template={r}
-            onClose={() => ctx.setExtraModal(null)}
-            onCloned={(created) => {
-              ctx.setExtraModal(null);
-              ctx.addToast({ type: 'success', message: ctx.t('common.toasts.cloned') });
-              if (created?.id) ctx.navigate(pathFor('promptTemplates', created.id));
-              else ctx.reload();
-            }}
-          />
-        )
-    }
-  ]
+  detailPath: (r) => pathFor('promptTemplates', r.key)
 };
 
 // ---------------------------------------------------------------- audit

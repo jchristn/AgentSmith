@@ -40,7 +40,7 @@ export const NAV_SECTIONS = [
   {
     key: 'connect',
     items: [
-      { key: 'resources', slug: 'resources', icon: 'ServerIcon', page: { id: 'resources', slug: 'resources' } },
+      { key: 'resources', slug: 'resources', icon: 'ServerIcon', page: { id: 'resources', slug: 'resources', detail: true } },
       { key: 'secrets', slug: 'secrets', icon: 'VaultIcon', page: { id: 'secrets', slug: 'secrets' } },
       { key: 'connectors', slug: 'connectors', icon: 'PlugIcon', page: { id: 'connectors', slug: 'connectors', detail: true } },
       { key: 'models', slug: 'models', icon: 'CpuIcon', page: { id: 'models', slug: 'models' } }
