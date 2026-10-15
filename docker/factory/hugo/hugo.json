@@ -1,0 +1,123 @@
+{
+  "CreatedUtc": "2026-10-15T01:33:46.6822148Z",
+  "NodeId": null,
+  "Rest": {
+    "Hostname": "0.0.0.0",
+    "Port": 8800,
+    "Ssl": false,
+    "ExternalBaseUrl": null,
+    "CorsOrigins": [],
+    "DatabaseRetryAfterSeconds": 2
+  },
+  "Database": {
+    "Type": "Sqlite",
+    "Filename": "/app/data/hugo.db",
+    "Host": "hugo-postgres",
+    "Port": 5432,
+    "DatabaseName": "hugo",
+    "Username": "hugo",
+    "Password": null,
+    "Schema": null,
+    "TablePrefix": null,
+    "ManageSchema": true,
+    "MaxPoolSize": 100,
+    "MinPoolSize": 0,
+    "ConnectionTimeoutSeconds": 15,
+    "CommandTimeoutSeconds": 30,
+    "ConnectionIdleLifetimeSeconds": 300,
+    "AdditionalOptions": null
+  },
+  "Logging": {
+    "ConsoleLogging": true,
+    "FileLogging": false,
+    "LogDirectory": "/app/data/logs/",
+    "LogFilename": "hugo.log",
+    "MinimumSeverity": 1
+  },
+  "Auth": {
+    "Issuer": "hugo",
+    "SigningKey": "hugo-default-signing-key-override-me",
+    "UserSessionMinutes": 60,
+    "AdminSessionMinutes": 30,
+    "SessionAbsoluteMaxHours": 12,
+    "AdminApiKey": "",
+    "SignedRequestSkewSeconds": 300,
+    "RateLimitPerMinute": 10,
+    "PasswordHashIterations": 600000
+  },
+  "Secrets": {
+    "MasterKey": null,
+    "MasterKeyFile": "/app/data/master.key",
+    "MasterKeyVersion": 1,
+    "PreviousMasterKeyVersion": 0,
+    "RevealReauthMinutes": 5,
+    "RevealRateLimitPerMinute": 10,
+    "RotationBatchSize": 200
+  },
+  "RequestHistory": {
+    "Enabled": true,
+    "MaxRequestBodyBytes": 65536,
+    "MaxResponseBodyBytes": 65536,
+    "RetentionDays": 30
+  },
+  "Telemetry": {
+    "Enabled": true,
+    "ServiceName": "hugo-server",
+    "PrometheusEnable": true,
+    "PrometheusHostname": "127.0.0.1",
+    "PrometheusPort": 9464,
+    "PrometheusPath": "/metrics",
+    "OtlpEnable": true,
+    "OtlpEndpoint": "http://hugo-alloy:4317",
+    "ServeMetricsOnServicePort": true,
+    "MaxLabelValues": 200,
+    "Exemplars": true
+  },
+  "Agent": {
+    "DefaultMaxIterations": 12,
+    "DefaultMaxToolCallsPerTurn": 24,
+    "MaxParallelToolCalls": 4,
+    "ToolRetrievalThreshold": 40,
+    "CompactionThresholdRatio": 0.75
+  },
+  "Approvals": {
+    "ExpirySeconds": 900,
+    "McpWaitSeconds": 90,
+    "AllowSelfApproval": true
+  },
+  "Connectors": {
+    "EnablePlugins": false,
+    "McpAllowStdio": false,
+    "PluginDirectory": "plugins",
+    "DefaultToolTimeoutSeconds": 120,
+    "HealthSweepMinutes": 15,
+    "AllowStdioMcp": false,
+    "TestTimeoutSeconds": 30,
+    "ModelToolTimeoutSeconds": 600,
+    "MaxConcurrencyPerResource": 4,
+    "SessionIdleMinutes": 10,
+    "ModelCallBudgetPerInvocation": 60
+  },
+  "Models": {
+    "HealthIntervalSeconds": 300
+  },
+  "Instructions": {
+    "MaxKnowledgeCharsPerResource": 2000,
+    "CacheEntries": 1024,
+    "CompactBindingThreshold": 3
+  },
+  "Mcp": {
+    "Enable": true,
+    "InternalPort": 0,
+    "SessionIdleTimeoutSeconds": 900,
+    "MaxMessageSize": 4194304,
+    "ProgressIntervalSeconds": 10
+  },
+  "A2A": {
+    "Enable": true
+  },
+  "OpenAI": {
+    "Enable": true
+  },
+  "SettingsFileReadOnly": false
+}
