@@ -88,7 +88,7 @@ These rules keep the plan honest:
 | 3 | Connector framework and tool invocation pipeline | M1 | In progress | 4 / 26 |
 | 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | In progress | 25 / 37 |
 | 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | In progress | 0 / 21 |
-| 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | Not started | 0 / 24 |
+| 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | In progress | 10 / 24 |
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Not started | 0 / 22 |
 | 8 | Dashboard | M1 | Not started | 0 / 53 |
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | Not started | 0 / 15 |
@@ -121,6 +121,8 @@ Milestones:
   - P4.29: document OpenSSH `PerSourcePenalties`; repeated auth failures from Hugo's single IP can temporarily lock it out of a host.
   - IConnectorTool docs: caller cancellation throws `OperationCanceledException`; a connector's own timeout returns a `timeout` error result (SQL behavior, make it the contract rule).
   - Package alignment: Hugo.Core must use the same Microsoft.Data.Sqlite (10.0.13) and Npgsql (10.0.3) versions as the SQL connectors.
+  - PolyPrompt: verify the forced final answer (`tool_choice: none` with no tools) against real OpenAI (P6.22); list provider models through PolyPrompt model clients (P6.5).
+  - Server must implement IAgentToolCatalog, IAgentToolExecutor, IAgentEventSink, IConversationStore (Hugo.Core.Agent) and set AgentRuntime.IdFactory to PrettyId.
   - SSH `jumpResourceName` (reuse another resource as bastion) needs a related-resource resolver; the jump settings cover the case today.
 - Next after the merges: Phase 3 pipeline (resources, invocation service, approvals), Phase 5 profiles and instructions, Phase 6 runtime, Phase 7 protocols.
 - Decisions D-001 through D-038 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
@@ -1871,25 +1873,25 @@ Database intelligence (D-038)
 
 - [ ] P6.1 Migration 6: `model_endpoints`, `conversations`, `messages`, `a2a_tasks`, `a2a_task_artifacts`.
 - [ ] P6.2 `I*Methods` and implementations for model endpoints, conversations, messages (both providers).
-- [ ] P6.3 `ModelClientFactory` (PolyPrompt) for all nine providers, API keys via secret references.
-- [ ] P6.4 Endpoint gate (concurrency), retry with backoff, circuit breaker, fallback endpoint.
-- [ ] P6.5 Model endpoint routes, validate, provider model list.
+- [x] P6.3 `ModelClientFactory` (PolyPrompt) for all nine providers, API keys via secret references.  | claude 2026-10-14 Hugo.Core/Inference/ModelClientFactory: nine providers via PolyPrompt 3.2.0; keys supplied per call, never logged
+- [x] P6.4 Endpoint gate (concurrency), retry with backoff, circuit breaker, fallback endpoint.  | claude 2026-10-14 EndpointGate, RetryPolicy (429/5xx jitter, Retry-After captured by an HTTP handler under PolyPrompt), CircuitBreaker, fallback endpoint in ModelGateway
+- [~] P6.5 Model endpoint routes, validate, provider model list.  | claude 2026-10-14 ModelGateway.ValidateAsync done; routes and provider model listing remain
 - [ ] P6.6 Model health sweep job and metrics.
-- [ ] P6.7 Deterministic LLM stub (`Test.Shared/Stubs/StubLlm`, OpenAI-compatible and Ollama-compatible) that scripts tool calls from a fixture, for tests and benchmarks.
-- [ ] P6.8 `AgentRuntime.RunTurnAsync`: context build, tool definitions, streaming loop, think-block parsing, parallel reads, forced final answer.
-- [ ] P6.9 Tool output wrapping as data, and the prompt-injection posture text in the persona.
-- [ ] P6.10 Context compaction with persisted summary messages.
-- [ ] P6.11 Tool retrieval by embeddings over the threshold (falls back to all tools when no embedding endpoint exists).
-- [ ] P6.12 Approval waits inside turns (events, resume on decision, expiry handling).
-- [ ] P6.13 Cancellation (client abort and cancel route), with in-flight tool cancellation.
-- [ ] P6.14 SSE writer and event types (D-022), with heartbeat and `retry` hints.
+- [x] P6.7 Deterministic LLM stub (`Test.Shared/Stubs/StubLlm`, OpenAI-compatible and Ollama-compatible) that scripts tool calls from a fixture, for tests and benchmarks.  | claude 2026-10-14 Test.Shared/Agent/StubLlm: OpenAI-compatible chat (stream and non-stream, tool calls) and feature-hashing embeddings, scripted, configurable latency; no Ollama mode
+- [x] P6.8 `AgentRuntime.RunTurnAsync`: context build, tool definitions, streaming loop, think-block parsing, parallel reads, forced final answer.  | claude 2026-10-14 AgentRuntime.RunTurnAsync: streaming loop, think parsing, parallel calls only for KnownEffect Read tools, forced final answer
+- [~] P6.9 Tool output wrapping as data, and the prompt-injection posture text in the persona.  | claude 2026-10-14 tool outputs wrapped as <tool_output> data and cannot close their block; persona text lands with the instruction compiler (P5.14)
+- [x] P6.10 Context compaction with persisted summary messages.  | claude 2026-10-14 compaction summarized through the model and persisted as a Summary message rendered into the system prompt
+- [x] P6.11 Tool retrieval by embeddings over the threshold (falls back to all tools when no embedding endpoint exists).  | claude 2026-10-14 embedding tool retrieval with cached vectors and fallback to all tools
+- [~] P6.12 Approval waits inside turns (events, resume on decision, expiry handling).  | claude 2026-10-14 approval events and blocking waits via IAgentApprovalListener; expiry belongs to the executor (P3.15)
+- [x] P6.13 Cancellation (client abort and cancel route), with in-flight tool cancellation.  | claude 2026-10-14 cancellation stops the loop, cancels in-flight tools, closes unfinished calls
+- [~] P6.14 SSE writer and event types (D-022), with heartbeat and `retry` hints.  | claude 2026-10-14 typed events done (D-022 names); SSE writer, heartbeat, retry hints remain in the server
 - [ ] P6.15 Conversation routes: CRUD, messages (SSE and JSON modes), cancel, export.
 - [ ] P6.16 Auto titles (a short model call after the first exchange, skipped when no endpoint is configured).
-- [ ] P6.17 Token accounting per message and conversation, plus analytics aggregation queries.
+- [~] P6.17 Token accounting per message and conversation, plus analytics aggregation queries.  | claude 2026-10-14 per-message and per-turn token accounting; aggregation queries remain
 - [ ] P6.18 Analytics routes (overview, tokens, tools, models), bucketed and gap-filled.
-- [ ] P6.19 Agent metrics and spans (stages per section 21).
-- [ ] P6.20 Per-conversation Padlock and the concurrent turn rejection (409) path.
-- [ ] P6.21 Agent suites with the stub LLM: multi-tool turn, approval approve and reject mid-turn, max iterations, compaction, cancellation, fallback endpoint, tool retrieval.
+- [x] P6.19 Agent metrics and spans (stages per section 21).  | claude 2026-10-14 AgentTelemetry on meter and source Hugo with section 21 names; folds into HugoMetrics when the foundation lands
+- [x] P6.20 Per-conversation Padlock and the concurrent turn rejection (409) path.  | claude 2026-10-14 keyed SemaphoreSlim lock (not Padlock); AgentTurnConflictException maps to 409
+- [x] P6.21 Agent suites with the stub LLM: multi-tool turn, approval approve and reject mid-turn, max iterations, compaction, cancellation, fallback endpoint, tool retrieval.  | claude 2026-10-14 agent.units 11, agent.inference 9, agent.runtime 16, passing on net8.0 and net10.0
 - [ ] P6.22 A live smoke script (`scripts/smoke-chat.sh`) against a real local Ollama, documented, not in CI.
 - [ ] P6.23 `ask_agent_smith` service entry point shared by MCP and REST.
 - [ ] P6.24 Conversation visibility rules and suites (own vs tenant admin).
