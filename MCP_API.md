@@ -26,8 +26,10 @@ MCP uses the REST schemes: `Authorization: Bearer <session token>` (or `x-token`
 ```bash
 curl -s -X POST "$HUGO/v1.0/api/tenants/default/credentials" \
   -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
-  -d '{"name": "claude-code", "agentProfileId": "agp_...", "lockToProfile": true}'
+  -d '{"name": "claude-code", "agentProfileId": "agp_...", "lockToProfile": true, "roleName": "Operator"}'
 ```
+
+Give the credential a role. A credential's permissions come from its scope assignments (`roleName` here), not from its owner's administrator bypass, so a credential created without one gets HTTP 403 (-32003 `Forbidden`, no Execute on the profile) on `initialize`. Only a tenant or system administrator can opt a credential into its owner's bypass with `inheritOwnerBypass`, and the change is audited. A credential in SessionExchange mode cannot send its keys here: exchange them at `POST /v1.0/token` and send the session token as a bearer token.
 
 A request without valid credentials gets HTTP 401 with `WWW-Authenticate: Bearer realm="hugo"` (plus `error="invalid_token"` when credentials were sent and rejected) and a JSON-RPC body:
 
@@ -273,7 +275,7 @@ The caller must be the principal that requested the approval or hold Read on App
  "structuredContent":{"statementType":"CREATE","columns":[],"rows":[],"rowCount":0,"rowLimit":500,"truncated":false,"recordsAffected":0,"elapsedMs":0.04}}
 ```
 
-Known issue in `0.1.0-alpha`: if the approval is decided while a `hugo_await_approval` call is already waiting on it, Hugo hands the decision to that waiter but nobody executes the call, and the await returns `approval_pending` at the end of its wait while the invocation stays Pending. Approving before calling `hugo_await_approval` (or while nothing waits) works: the call runs on approval and `hugo_await_approval` returns its result at once.
+The decision can come before or during the wait. Approving while a `hugo_await_approval` call is waiting runs the call and the waiter returns its result as soon as it finishes; approving before the await makes the await return the stored result at once.
 
 ### ask_agent_smith
 

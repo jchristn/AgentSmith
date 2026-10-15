@@ -73,6 +73,9 @@ namespace Hugo.Sdk.Clients
                 parameters["resourceId"] = filter.ResourceId;
                 parameters["principalId"] = filter.PrincipalId;
                 parameters["toolName"] = filter.ToolName;
+                parameters["effect"] = filter.Effect;
+                parameters["fromUtc"] = QueryBuilder.Date(filter.FromUtc);
+                parameters["toUtc"] = QueryBuilder.Date(filter.ToUtc);
             }
             return GetAsync<EnumerationResult<Approval>>("/v1.0/api/approvals", parameters, token);
         }

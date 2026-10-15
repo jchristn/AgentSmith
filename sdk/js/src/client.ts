@@ -9,6 +9,7 @@ import {
 } from "./clients/admin.js";
 import {
   AgentProfilesClient,
+  AnalyticsClient,
   ApprovalsClient,
   ConnectorsClient,
   ConversationsClient,
@@ -76,7 +77,7 @@ export class HugoClient {
   readonly settings: SettingsClient;
   readonly system: SystemClient;
 
-  // Hugo domain (flat routes with the tenant from the token; conversations are preview).
+  // Hugo domain (flat routes with the tenant from the token).
   readonly connectors: ConnectorsClient;
   readonly resources: ResourcesClient;
   readonly agentProfiles: AgentProfilesClient;
@@ -85,6 +86,8 @@ export class HugoClient {
   readonly approvals: ApprovalsClient;
   readonly lockdown: LockdownClient;
   readonly conversations: ConversationsClient;
+  /** Tenant analytics reports (overview, tokens, tools, models). */
+  readonly analytics: AnalyticsClient;
 
   constructor(baseUrl: string = DEFAULT_BASE_URL, options: HugoClientOptions = {}) {
     const t = (this.transport = new Transport(baseUrl, options));
@@ -113,6 +116,7 @@ export class HugoClient {
     this.approvals = new ApprovalsClient(t);
     this.lockdown = new LockdownClient(t);
     this.conversations = new ConversationsClient(t);
+    this.analytics = new AnalyticsClient(t);
   }
 
   /** Base URL without a trailing slash. */
@@ -151,8 +155,9 @@ export class HugoClient {
   // -------------------------------------------------------------------------------------------------------------
 
   /**
-   * Sign in with email and password (x-email, x-password, x-tenant-id). Stores the token and tenant. When the
-   * response has mustChangePassword, only changePassword and token routes work until the password is changed.
+   * Sign in with email and password (x-email, x-password, x-tenant-id). Stores the token and tenant.
+   * mustChangePassword in the response is advisory: the account still has a seeded or reset password, every route
+   * works, and changePassword clears the flag.
    */
   async login(email: string, password: string, tenantId?: string): Promise<TokenResponse> {
     const headers: Record<string, string> = { "x-email": email, "x-password": password };
@@ -162,7 +167,10 @@ export class HugoClient {
     return issued;
   }
 
-  /** Exchange credential keys for a session token (credentials in DirectHeader, SessionExchange, or Hybrid mode). */
+  /**
+   * Exchange credential keys for a session token (credentials in DirectHeader, SessionExchange, or Hybrid mode).
+   * SessionExchange credentials work only here; use the returned token for other routes.
+   */
   async loginWithAccessKey(accessKey: string, secretKey: string): Promise<TokenResponse> {
     const issued = await this.transport.request<TokenResponse>("POST", "/v1.0/token", {
       headers: { "x-access-key": accessKey, "x-secret-key": secretKey },
@@ -230,7 +238,7 @@ export class HugoClient {
     return this.transport.request("POST", "/v1.0/token/reauthenticate", { body: { password } });
   }
 
-  /** Change the signed-in user's password (clears must-change-password; revokes the user's other sessions). */
+  /** Change the signed-in user's password (clears the advisory mustChangePassword flag; revokes the user's other sessions). */
   changePassword(currentPassword: string, newPassword: string): Promise<User> {
     return this.transport.request("POST", "/v1.0/api/users/me/password", { body: { currentPassword, newPassword } });
   }

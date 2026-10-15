@@ -104,6 +104,40 @@ namespace Hugo.Sdk.Http
         }
 
         /// <summary>
+        /// How many times a request answered with 429 (for example RateLimited on /v1.0/token, whose default limit is
+        /// Auth.RateLimitPerMinute = 10 per minute per source IP and per identity) is retried after waiting. Minimum 0,
+        /// maximum 10, default 0 (no retry: the 429 surfaces as a HugoException). Streaming requests are not retried.
+        /// </summary>
+        public int RateLimitRetries
+        {
+            get
+            {
+                return _RateLimitRetries;
+            }
+            set
+            {
+                _RateLimitRetries = Math.Clamp(value, 0, 10);
+            }
+        }
+
+        /// <summary>
+        /// Longest wait before a 429 retry, in seconds. The wait is the response's Retry-After seconds when present,
+        /// otherwise an exponential backoff (2, 4, 8, ... seconds), capped at this value. Minimum 1, maximum 600,
+        /// default 90.
+        /// </summary>
+        public int RateLimitMaxWaitSeconds
+        {
+            get
+            {
+                return _RateLimitMaxWaitSeconds;
+            }
+            set
+            {
+                _RateLimitMaxWaitSeconds = Math.Clamp(value, 1, 600);
+            }
+        }
+
+        /// <summary>
         /// User-Agent header value. Default Hugo.Sdk/0.1.0-alpha.
         /// </summary>
         public string UserAgent { get; set; } = "Hugo.Sdk/" + HugoClient.SdkVersion;
@@ -130,6 +164,8 @@ namespace Hugo.Sdk.Http
         private readonly SemaphoreSlim _RefreshLock = new SemaphoreSlim(1, 1);
         private string _BaseUrl = "http://127.0.0.1:8800";
         private int _RefreshSkewSeconds = 60;
+        private int _RateLimitRetries = 0;
+        private int _RateLimitMaxWaitSeconds = 90;
         private bool _Disposed = false;
 
         #endregion
@@ -212,13 +248,22 @@ namespace Hugo.Sdk.Http
         /// <exception cref="HugoException">Thrown on a non-success status.</exception>
         public async Task<string> SendTextAsync(HttpMethod method, string path, object? body, IDictionary<string, string?>? query, IDictionary<string, string?>? headers, bool authenticate, CancellationToken token = default)
         {
-            if (authenticate) await RefreshIfDueAsync(path, token).ConfigureAwait(false);
-            using (HttpRequestMessage request = Build(method, path, body, query, headers, authenticate))
-            using (HttpResponseMessage response = await _Http.SendAsync(request, token).ConfigureAwait(false))
+            int attempt = 0;
+            while (true)
             {
-                string text = await response.Content.ReadAsStringAsync(token).ConfigureAwait(false);
-                if (!response.IsSuccessStatusCode) throw Error(response, text);
-                return text;
+                token.ThrowIfCancellationRequested();
+                if (authenticate) await RefreshIfDueAsync(path, token).ConfigureAwait(false);
+                TimeSpan? wait = null;
+                using (HttpRequestMessage request = Build(method, path, body, query, headers, authenticate))
+                using (HttpResponseMessage response = await _Http.SendAsync(request, token).ConfigureAwait(false))
+                {
+                    string text = await response.Content.ReadAsStringAsync(token).ConfigureAwait(false);
+                    if (response.IsSuccessStatusCode) return text;
+                    if ((int)response.StatusCode != 429 || attempt >= _RateLimitRetries) throw Error(response, text);
+                    wait = RetryDelay(response, attempt);
+                }
+                attempt++;
+                await Task.Delay(wait.Value, token).ConfigureAwait(false);
             }
         }
 
@@ -403,6 +448,18 @@ namespace Hugo.Sdk.Http
                     break;
             }
             return request;
+        }
+
+        private TimeSpan RetryDelay(HttpResponseMessage response, int attempt)
+        {
+            double seconds = Math.Pow(2, attempt + 1);
+            if (response.Headers.RetryAfter != null)
+            {
+                if (response.Headers.RetryAfter.Delta.HasValue) seconds = response.Headers.RetryAfter.Delta.Value.TotalSeconds;
+                else if (response.Headers.RetryAfter.Date.HasValue) seconds = (response.Headers.RetryAfter.Date.Value - DateTimeOffset.UtcNow).TotalSeconds;
+            }
+            seconds = Math.Clamp(seconds, 1, _RateLimitMaxWaitSeconds);
+            return TimeSpan.FromSeconds(seconds);
         }
 
         private static HugoException Error(HttpResponseMessage response, string text)

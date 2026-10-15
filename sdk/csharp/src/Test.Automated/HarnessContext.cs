@@ -58,6 +58,11 @@ namespace Test.Automated
         /// </summary>
         public string RunId { get; }
 
+        /// <summary>
+        /// 429 retries for harness clients. Default 4 (each waits Retry-After, 60 seconds for the auth limiter).
+        /// </summary>
+        public int RateLimitRetries { get; set; } = 4;
+
         #endregion
 
         #region Private-Members
@@ -75,8 +80,8 @@ namespace Test.Automated
         public HarnessContext(TestEnvironment environment)
         {
             Environment = environment ?? throw new ArgumentNullException(nameof(environment));
-            Admin = new HugoClient(environment.ServerUrl);
-            Owner = new HugoClient(environment.ServerUrl);
+            Admin = NewClient();
+            Owner = NewClient();
             RunId = DateTime.UtcNow.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture) + "-" + RandomHex(2);
         }
 
@@ -85,22 +90,14 @@ namespace Test.Automated
         #region Public-Methods
 
         /// <summary>
-        /// Sign in the administrator (clearing a first-login password change), create a tenant and its owner, and
-        /// sign in the owner.
+        /// Sign in the administrator, create a tenant and its owner, and sign in the owner. A fresh server reports
+        /// mustChangePassword for the seeded administrator; the flag is advisory, so the harness keeps going.
         /// </summary>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Task.</returns>
         public async Task SetupAsync(CancellationToken token = default)
         {
-            TokenResponse login = await Admin.LoginAsync(Environment.AdminEmail, Environment.AdminPassword, Environment.AdminTenantId, token).ConfigureAwait(false);
-            if (login.MustChangePassword)
-            {
-                // A fresh server requires a password change at first sign-in. Change to a temporary password and back
-                // on the same session, which clears the flag and keeps the configured password for later runs.
-                string temporary = Environment.AdminPassword + "-sdk-tmp-" + RandomHex(4);
-                await Admin.ChangePasswordAsync(Environment.AdminPassword, temporary, token).ConfigureAwait(false);
-                await Admin.ChangePasswordAsync(temporary, Environment.AdminPassword, token).ConfigureAwait(false);
-            }
+            await Admin.LoginAsync(Environment.AdminEmail, Environment.AdminPassword, Environment.AdminTenantId, token).ConfigureAwait(false);
 
             TenantRequest tenantRequest = new TenantRequest();
             tenantRequest.Name = "sdk-csharp-" + RunId;
@@ -124,12 +121,15 @@ namespace Test.Automated
         }
 
         /// <summary>
-        /// A new client sharing nothing with the others.
+        /// A new client sharing nothing with the others. It retries 429 responses (honoring Retry-After) so the run
+        /// fits the server's default authentication rate limit (Auth.RateLimitPerMinute = 10).
         /// </summary>
         /// <returns>Client.</returns>
         public HugoClient NewClient()
         {
-            return new HugoClient(Environment.ServerUrl);
+            HugoClient client = new HugoClient(Environment.ServerUrl);
+            client.Transport.RateLimitRetries = RateLimitRetries;
+            return client;
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace Test.Automated
         /// <returns>Client.</returns>
         public HugoClient ForTenant(HugoClient source, string tenantId)
         {
-            HugoClient client = new HugoClient(Environment.ServerUrl);
+            HugoClient client = NewClient();
             client.UseToken(source.Token ?? throw new InvalidOperationException("The source client is not signed in."), tenantId, source.Transport.TokenExpiresUtc);
             return client;
         }

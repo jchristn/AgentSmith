@@ -56,7 +56,7 @@ The script never overwrites an existing `hugo-secrets`, because a new master key
 kubectl -n hugo get secret hugo-secrets -o yaml > hugo-secrets.backup.yaml   # store it outside the cluster and the repository
 ```
 
-The seeded accounts do not need a secret of their own. On first boot the server creates tenant `default`, the system administrator `admin@hugo.local`, and the tenant administrator `anderson@hugo.local` (Thomas Anderson), both with password `password`. Hugo refuses every other route until the password is changed, so the default never survives the first sign-in.
+The seeded accounts do not need a secret of their own. On first boot the server creates tenant `default`, the system administrator `admin@hugo.local`, and the tenant administrator `anderson@hugo.local` (Thomas Anderson), both with password `password`. The dashboard prompts for a new password at first sign-in and the prompt can be skipped (decision D-048), so change both passwords before the cluster is reachable by anyone else.
 
 ## minikube
 
@@ -65,7 +65,7 @@ The seeded accounts do not need a secret of their own. On first boot the server 
 ```bash
 minikube/scripts/start.sh                              # profile "hugo": 4 CPUs, 6 GB, ingress and metrics-server addons
 minikube/scripts/deploy.sh --with observability        # pull the images, create secrets, apply, wait
-minikube/scripts/smoke-test.sh                         # health, sign-in, password change, connectors, instructions, Grafana
+minikube/scripts/smoke-test.sh                         # health, sign-in, connectors, instructions, Grafana
 minikube/scripts/port-forward.sh                       # dashboard :8801, API :8800, Grafana :3000
 ```
 
@@ -196,9 +196,9 @@ With in-cluster PostgreSQL, use `pg_dump` from the StatefulSet instead (`kubectl
 
 ## Checking that it works
 
-`k8s/scripts/smoke-test.sh` (and `minikube/scripts/smoke-test.sh`) checks a deployment from your machine through its own temporary port-forwards, so it does not collide with `port-forward.sh`. It verifies that the server runs one replica with Recreate, that health answers on the server and through the dashboard, that the console loads, that `anderson@hugo.local` can sign in (changing the seeded password when the server still flags it), that the connector catalog lists connectors, and that the compiled instructions of profile Hugo introduce Agent Smith. With observability it also checks that Grafana's Hugo folder holds every Hugo dashboard and that Prometheus is scraping the server.
+`k8s/scripts/smoke-test.sh` (and `minikube/scripts/smoke-test.sh`) checks a deployment from your machine through its own temporary port-forwards, so it does not collide with `port-forward.sh`. It verifies that the server runs one replica with Recreate, that health answers on the server and through the dashboard, that the console loads, that `anderson@hugo.local` can sign in and call the API without a forced password change, that the connector catalog lists connectors, and that the compiled instructions of profile Hugo introduce Agent Smith. With observability it also checks that Grafana's Hugo folder holds every Hugo dashboard and that Prometheus is scraping the server.
 
-On a fresh install the test changes Mr. Anderson's password to a random one and prints it once; set `HUGO_SMOKE_NEW_PASSWORD` to choose it, and `HUGO_SMOKE_PASSWORD` to tell later runs the current one.
+Set `HUGO_SMOKE_PASSWORD` if Mr. Anderson's password is no longer the seeded one.
 
 `k8s/tests/check-render.sh` is the static counterpart that CI runs on every push (`.github/workflows/k8s.yaml`). It renders every overlay with and without the components, renders the chart with the matching values, validates everything with kubeconform, verifies the mirrored files, and fails when Kustomize and Helm disagree about any object.
 

@@ -188,8 +188,6 @@ All default to empty, which means "not configured".
 | `Connectors.SessionIdleMinutes` | `10` | 1 to 1440 | Live | | Idle pooled connector sessions (SSH clients, database connections) are closed after this. The pool reads the value at startup. |
 | `Connectors.TestTimeoutSeconds` | `30` | 1 to 600 | Live | | Connection tests are cancelled after this (D-036). |
 | `Connectors.McpAllowStdio` | `false` | | Restart | | Lets `mcp` resources launch local MCP servers over stdio (each resource must also opt in). File only. |
-| `Connectors.AllowStdioMcp` | `false` | | Restart | | Shown in the settings API, but not read by the server. Use `Connectors.McpAllowStdio`. |
-| `Connectors.HealthSweepMinutes` | `15` | 0 to 1440 | Live | | Reserved for a resource health sweep that is not implemented yet; the value has no effect today. |
 
 ### Instructions
 

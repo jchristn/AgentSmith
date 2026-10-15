@@ -1,11 +1,14 @@
 /**
  * Hugo domain clients. Routes are flat (/v1.0/api/...) with the tenant taken from the caller's token (system
- * administrators can set client.tenantOverride). Conversations and chat streaming are preview: verified against
- * the server when the Phase 7 routes land.
+ * administrators can set client.tenantOverride).
  */
 import type {
   AgentCardPreview,
+  AgentDelegationResult,
   AgentProfile,
+  AgentTurnResult,
+  AnalyticsQuery,
+  AnalyticsReport,
   AgentProfileRequest,
   BuiltInTemplate,
   Approval,
@@ -18,6 +21,9 @@ import type {
   CompiledInstructions,
   Connector,
   Conversation,
+  ConversationCancelResponse,
+  ConversationFilter,
+  ConversationMessage,
   ConversationRequest,
   EnumerationQuery,
   EnumerationResult,
@@ -25,8 +31,8 @@ import type {
   Json,
   KnowledgeRequest,
   LockdownState,
-  Message,
   ModelEndpoint,
+  ModelEndpointFilter,
   ModelEndpointRequest,
   ModelEndpointHealthRecord,
   ModelValidationResult,
@@ -209,6 +215,16 @@ export class AgentProfilesClient extends FlatCollection<AgentProfile, AgentProfi
   card(id: string): Promise<AgentCardPreview> {
     return this.t.request("GET", `${this.item(id)}/card`);
   }
+
+  /**
+   * Delegate a task to the profile's own agent loop and wait for the answer (REST twin of the MCP ask_agent_smith
+   * tool). Needs Execute on the profile and an inference endpoint on it. Approvals wait up to the server's
+   * Approvals.McpWaitSeconds, after which status is ApprovalPending with approvalId. Pass conversationId to continue
+   * a conversation. Throws HugoError 409 TurnInProgress when that conversation already has a running turn.
+   */
+  ask(id: string, message: string, conversationId?: string): Promise<AgentDelegationResult> {
+    return this.t.request("POST", `${this.item(id)}/ask`, { body: { message, conversationId } });
+  }
 }
 
 /** Model endpoints (inference and embedding). */
@@ -217,10 +233,25 @@ export class ModelEndpointsClient extends FlatCollection<ModelEndpoint, ModelEnd
     super(t, "/v1.0/api/model-endpoints");
   }
 
+  /** List model endpoints, optionally filtered by kind, provider, and health (unknown values answer 400 ValidationFailed). */
+  override list(query?: ModelEndpointFilter): Promise<EnumerationResult<ModelEndpoint>> {
+    return super.list(query);
+  }
+
+  /** Validate a saved endpoint with a tiny prompt (or embedding) and record its health. */
   validate(id: string): Promise<ModelValidationResult> {
     return this.t.request("POST", `${this.item(id)}/validate`);
   }
 
+  /**
+   * Validate unsaved settings (the body is the same as create) with a tiny prompt or embedding. Nothing is stored;
+   * an unreachable provider is reported as success false with an error, not as an HTTP error.
+   */
+  validateDraft(body: ModelEndpointRequest): Promise<ModelValidationResult> {
+    return this.t.request("POST", `${this.base()}/validate`, { body });
+  }
+
+  /** Models offered by the provider. Throws HugoError 502 ProviderUnreachable or ProviderTimeout when it cannot be reached. */
   models(id: string): Promise<string[]> {
     return this.t.request("GET", `${this.item(id)}/models`);
   }
@@ -228,6 +259,37 @@ export class ModelEndpointsClient extends FlatCollection<ModelEndpoint, ModelEnd
   /** Recent health checks (validate and the server's health sweep), newest first. maxResults 1 to 1000, default 50. */
   healthHistory(id: string, maxResults?: number): Promise<ModelEndpointHealthRecord[]> {
     return this.t.request("GET", `${this.item(id)}/health-history`, { query: maxResults === undefined ? undefined : { maxResults: String(maxResults) } });
+  }
+}
+
+/**
+ * Tenant analytics from conversations, turns, tool invocations, and approvals. Every report takes an optional
+ * window (from, to; default the last seven days) and bucket interval (minute, hour, or day; chosen from the window
+ * length when omitted). An invalid window or too many buckets answers 400 ValidationFailed.
+ */
+export class AnalyticsClient {
+  constructor(private readonly t: Transport) {}
+
+  private static readonly base = "/v1.0/api/analytics";
+
+  /** Conversations, turns, tokens, tool calls, approvals, and latency per bucket. */
+  overview(query?: AnalyticsQuery): Promise<AnalyticsReport> {
+    return this.t.request("GET", `${AnalyticsClient.base}/overview`, { query: toQuery(query) });
+  }
+
+  /** Token usage per bucket (input and output) with window totals. */
+  tokens(query?: AnalyticsQuery): Promise<AnalyticsReport> {
+    return this.t.request("GET", `${AnalyticsClient.base}/tokens`, { query: toQuery(query) });
+  }
+
+  /** Tool calls, errors, and approvals per bucket, with per-tool rows. */
+  tools(query?: AnalyticsQuery): Promise<AnalyticsReport> {
+    return this.t.request("GET", `${AnalyticsClient.base}/tools`, { query: toQuery(query) });
+  }
+
+  /** Turns, tokens, and latency per model endpoint, with per-bucket totals. */
+  models(query?: AnalyticsQuery): Promise<AnalyticsReport> {
+    return this.t.request("GET", `${AnalyticsClient.base}/models`, { query: toQuery(query) });
   }
 }
 
@@ -320,28 +382,41 @@ export class LockdownClient {
   }
 }
 
-/** Conversations and chat, including streaming turns. */
+/**
+ * Conversations and chat. Callers see their own conversations; tenant administrators see all. Sending a message runs
+ * an agent turn on the conversation's profile (which needs an inference endpoint).
+ */
 export class ConversationsClient extends FlatCollection<Conversation, ConversationRequest> {
   constructor(t: Transport) {
     super(t, "/v1.0/api/conversations");
   }
 
-  messages(id: string, query?: EnumerationQuery): Promise<Message[] | EnumerationResult<Message>> {
+  /** List conversations, optionally filtered by agentProfileId and source. */
+  override list(query?: ConversationFilter): Promise<EnumerationResult<Conversation>> {
+    return super.list(query);
+  }
+
+  /** A page of the conversation's messages in order (maxResults defaults to 1000 on this route). */
+  messages(id: string, query?: EnumerationQuery): Promise<EnumerationResult<ConversationMessage>> {
     return this.t.request("GET", `${this.item(id)}/messages`, { query: toQuery(query) });
   }
 
-  /** Send a message and wait for the completed turn (JSON). */
-  sendMessage(id: string, content: string | SendMessageRequest): Promise<Json> {
-    const body = typeof content === "string" ? { content } : content;
+  /**
+   * Send a message and wait for the completed turn (JSON). Throws HugoError 409 TurnInProgress when a turn is
+   * already running in the conversation.
+   */
+  sendMessage(id: string, message: string | SendMessageRequest): Promise<AgentTurnResult> {
+    const body = typeof message === "string" ? { message } : message;
     return this.t.request("POST", `${this.item(id)}/messages`, { body });
   }
 
   /**
    * Send a message and stream the turn as typed events (turn.started, assistant.delta, assistant.thinking,
-   * tool.proposed, tool.started, tool.completed, approval.required, approval.resolved, turn.completed, error).
+   * tool.proposed, tool.started, tool.completed, approval.required, approval.resolved, turn.completed, error), ending
+   * with stream.closed (conversationId, turnId, finishReason, title).
    */
-  async *streamMessage(id: string, content: string | SendMessageRequest, options: { signal?: AbortSignal } = {}): AsyncGenerator<ChatEvent> {
-    const body = typeof content === "string" ? { content } : content;
+  async *streamMessage(id: string, message: string | SendMessageRequest, options: { signal?: AbortSignal } = {}): AsyncGenerator<ChatEvent> {
+    const body = typeof message === "string" ? { message } : message;
     for await (const event of this.t.stream("POST", `${this.item(id)}/messages`, { body, signal: options.signal })) {
       const chatEvent: ChatEvent = { type: event.event, data: event.data, payload: parseEventData<Json>(event) };
       if (event.id !== undefined) chatEvent.id = event.id;
@@ -349,8 +424,8 @@ export class ConversationsClient extends FlatCollection<Conversation, Conversati
     }
   }
 
-  /** Cancel the running turn. */
-  cancel(id: string): Promise<Json> {
+  /** Cancel the running turn; cancelled is false when no turn was running. */
+  cancel(id: string): Promise<ConversationCancelResponse> {
     return this.t.request("POST", `${this.item(id)}/cancel`);
   }
 

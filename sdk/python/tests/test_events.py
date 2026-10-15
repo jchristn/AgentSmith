@@ -6,9 +6,7 @@ import threading
 
 import pytest
 
-from hugo_sdk import AsyncHugoClient, HugoClient
-
-from conftest import SERVER, unique
+from conftest import new_async_client, new_client, unique
 
 
 def test_events_stream_sync_receives_secret_created(client, harness):
@@ -46,9 +44,9 @@ def test_events_stream_sync_receives_secret_created(client, harness):
 
 
 async def test_events_stream_async_receives_secret_deleted(harness):
-    async with AsyncHugoClient(SERVER) as listener, AsyncHugoClient(SERVER) as actor:
+    async with new_async_client() as listener, new_async_client() as actor:
         await listener.login(harness.owner_email, harness.owner_password, harness.tenant_id)
-        await actor.login(harness.owner_email, harness.owner_password, harness.tenant_id)
+        actor.use_token(listener.token, harness.tenant_id)
         name = unique("aevt")
         stream = listener.events.stream()
         opened = await asyncio.wait_for(stream.__anext__(), 15)
@@ -68,7 +66,7 @@ async def test_events_stream_async_receives_secret_deleted(harness):
 
 
 def test_events_requires_auth():
-    with HugoClient(SERVER) as anon:
+    with new_client() as anon:
         with pytest.raises(Exception) as err:
             next(iter(anon.events.stream()))
         assert getattr(err.value, "status", None) == 401

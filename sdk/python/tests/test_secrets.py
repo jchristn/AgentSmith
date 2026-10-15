@@ -1,8 +1,9 @@
-"""Secrets vault: CRUD, values, referrers, parse, and reveal with re-authentication."""
+"""Secrets vault: CRUD, values, referrers, parse, kinds (including BearerToken), filters, and reveal with
+re-authentication."""
 
 import pytest
 
-from hugo_sdk import HugoError
+from hugo_sdk import HugoError, models
 
 from conftest import unique
 
@@ -83,3 +84,25 @@ def test_reauthenticate_wrong_password(harness):
         assert err.value.status == 401
     finally:
         c.close()
+
+
+def test_bearer_token_secret_and_kind_filter(client):
+    assert "BearerToken" in models.SECRET_KINDS
+    bearer = client.secrets.create({"name": unique("bearer"), "kind": "BearerToken", "description": "sdk bearer",
+                                    "values": {"token": "bearer-sdk-123"}})
+    other = client.secrets.create({"name": unique("generic"), "kind": "Generic", "values": {"value": "x"}})
+    try:
+        assert bearer.kind == "BearerToken" and bearer.fields == ["token"]
+        listed = client.secrets.list(kind="BearerToken", max_results=1000)
+        assert any(s.id == bearer.id for s in listed.objects)
+        assert all(s.kind == "BearerToken" for s in listed.objects)
+        assert not any(s.id == other.id for s in listed.objects)
+        with pytest.raises(HugoError) as err:
+            client.secrets.list(kind="NotAKind")
+        assert err.value.status == 400 and err.value.code == "ValidationFailed" and "BearerToken" in err.value.message
+        # PUT keeps the omitted name and kind.
+        kept = client.secrets.update(bearer.id, {"description": "changed only"})
+        assert kept.name == bearer.name and kept.kind == "BearerToken" and kept.description == "changed only"
+    finally:
+        client.secrets.delete(bearer.id)
+        client.secrets.delete(other.id)

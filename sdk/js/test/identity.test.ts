@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { HugoClient } from "../src/index.js";
-import { admin, ctx, expectHugoError, owner, randomPassword, unique } from "./helpers.js";
+import { admin, ctx, expectHugoError, owner, randomPassword, unique, newClient } from "./helpers.js";
 
 describe("tenants", () => {
   it("system administrator reads and updates the provisioned tenant", async () => {
@@ -61,7 +61,7 @@ describe("users", () => {
       const reset = randomPassword();
       const afterReset = await client.users.resetPassword(user.id, reset, false);
       expect(afterReset.mustChangePassword).toBe(false);
-      const login = new HugoClient(c.server, { autoRefresh: false });
+      const login = newClient({ autoRefresh: false });
       await login.login(email, reset, c.tenantId);
       expect((await login.users.me()).id).toBe(user.id);
     } finally {
@@ -96,7 +96,7 @@ describe("credentials", () => {
 describe("sessions", () => {
   it("list, read, and revoke", async () => {
     const c = ctx();
-    const extra = new HugoClient(c.server, { autoRefresh: false });
+    const extra = newClient({ autoRefresh: false });
     const issued = await extra.login(c.ownerEmail, c.ownerPassword, c.tenantId);
     const client = owner();
     const page = await client.sessions.list({ maxResults: 1000 });

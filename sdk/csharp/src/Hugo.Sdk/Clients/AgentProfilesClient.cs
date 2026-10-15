@@ -198,6 +198,28 @@ namespace Hugo.Sdk.Clients
             return PutAsync<Binding>(Item(id) + "/bindings/" + Segment(bindingId) + "/tool-rules", rules, token);
         }
 
+        /// <summary>
+        /// Delegate a task to the profile's own agent loop and wait for the answer (the REST twin of the MCP
+        /// ask_agent_smith tool). Approvals raised during the turn are waited on for up to Approvals.McpWaitSeconds,
+        /// after which the result reports ApprovalPending with the approval identifier. Needs Execute on the profile
+        /// and an inference endpoint on it.
+        /// </summary>
+        /// <param name="id">Profile identifier.</param>
+        /// <param name="message">Task or question.</param>
+        /// <param name="conversationId">Conversation to continue, or null to start a new one.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Final text, conversation, status (Completed, ApprovalPending, or Failed), and a tool trace.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when message is null or empty.</exception>
+        /// <exception cref="HugoException">Thrown on a non-success status (409 TurnInProgress when the conversation is busy).</exception>
+        public Task<AgentDelegationResult> AskAsync(string id, string message, string? conversationId = null, CancellationToken token = default)
+        {
+            if (String.IsNullOrEmpty(message)) throw new ArgumentNullException(nameof(message));
+            ChatMessageRequest request = new ChatMessageRequest();
+            request.Message = message;
+            request.ConversationId = conversationId;
+            return PostAsync<AgentDelegationResult>(Item(id) + "/ask", request, token);
+        }
+
         #endregion
     }
 }

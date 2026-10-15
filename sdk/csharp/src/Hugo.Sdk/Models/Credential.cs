@@ -56,6 +56,11 @@ namespace Hugo.Sdk.Models
         public bool LockToProfile { get; set; } = false;
 
         /// <summary>
+        /// Whether the credential carries its owner's administrator or tenant administrator bypass. Default false.
+        /// </summary>
+        public bool InheritOwnerBypass { get; set; } = false;
+
+        /// <summary>
         /// Last used UTC.
         /// </summary>
         public DateTime? LastUsedUtc { get; set; } = null;

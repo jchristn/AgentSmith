@@ -130,7 +130,7 @@ namespace Test.Automated.Suites
                 }
             }).ConfigureAwait(false);
 
-            await runner.RunAsync("Password change required before other routes", async () =>
+            await runner.RunAsync("Must change password is advisory", async () =>
             {
                 string email = Unique("mustchange") + "@sdk-csharp.test";
                 string initial = "Initial-" + HarnessContext.RandomHex(6);
@@ -145,7 +145,10 @@ namespace Test.Automated.Suites
                     {
                         TokenResponse login = await client.LoginAsync(email, initial, ctx.TenantId).ConfigureAwait(false);
                         Check.True(login.MustChangePassword, "login reports must change password");
-                        await Check.FailsAsync(() => client.Users.GetAsync(user.Id), 403, "PasswordChangeRequired").ConfigureAwait(false);
+                        User before = await client.Users.GetAsync(user.Id).ConfigureAwait(false);
+                        Check.True(before.MustChangePassword, "routes keep working while the flag is set");
+                        TokenDetails flagged = await client.GetTokenDetailsAsync().ConfigureAwait(false);
+                        Check.True(flagged.MustChangePassword, "details report the flag");
                         string next = "Changed-" + HarnessContext.RandomHex(6);
                         User changed = await client.ChangePasswordAsync(initial, next).ConfigureAwait(false);
                         Check.True(!changed.MustChangePassword, "flag cleared");

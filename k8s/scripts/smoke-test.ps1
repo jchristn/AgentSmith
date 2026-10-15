@@ -1,8 +1,7 @@
 # Smoke test of a deployed Hugo for Windows (smoke-test.bat runs it). The same checks as smoke-test.sh: pods Ready and
-# one server replica, health on the server and through the dashboard, the console, sign-in with the forced password
-# change, the connector catalog, the compiled instructions of profile Hugo, and with observability the Grafana Hugo
-# folder and the Prometheus scrape. Environment: HUGO_KUBE_CONTEXT, HUGO_SMOKE_EMAIL, HUGO_SMOKE_PASSWORD,
-# HUGO_SMOKE_NEW_PASSWORD (see smoke-test.sh).
+# one server replica, health on the server and through the dashboard, the console, sign-in (the password change is advisory), the connector catalog, the compiled instructions of profile Hugo, and with observability the Grafana Hugo
+# folder and the Prometheus scrape. Environment: HUGO_KUBE_CONTEXT, HUGO_SMOKE_EMAIL, HUGO_SMOKE_PASSWORD
+# (see smoke-test.sh).
 $ErrorActionPreference = 'Stop'
 $ctx = @()
 if ($env:HUGO_KUBE_CONTEXT) { $ctx = @('--context', $env:HUGO_KUBE_CONTEXT) }
@@ -58,18 +57,8 @@ Pass "signed in as $email"
 $headers = @{ Authorization = "Bearer $token" }
 $code = 200
 try { Invoke-WebRequest -UseBasicParsing -Headers $headers "$api/v1.0/api/connectors" | Out-Null } catch { $code = [int]$_.Exception.Response.StatusCode }
-if ($code -eq 403) {
-  $new = $env:HUGO_SMOKE_NEW_PASSWORD
-  if (-not $new) { $new = 'Hugo-' + [Guid]::NewGuid().ToString('N').Substring(0, 16) }
-  $body = @{ currentPassword = $password; newPassword = $new } | ConvertTo-Json
-  try { Invoke-RestMethod -Method Post -Uri "$api/v1.0/api/users/me/password" -Headers $headers -ContentType 'application/json' -Body $body | Out-Null } catch { Die 'password change' }
-  $token = Login $new
-  $headers = @{ Authorization = "Bearer $token" }
-  Pass 'password change was required (403) and is done'
-  if (-not $env:HUGO_SMOKE_NEW_PASSWORD) { Write-Host "[hugo]      $email now signs in with the generated password (shown once): $new" }
-} elseif ($code -eq 200) {
-  Pass 'password already changed earlier'
-} else { Die "unexpected status $code from /v1.0/api/connectors" }
+if ($code -ne 200) { Die "unexpected status $code from /v1.0/api/connectors" }
+Pass 'the session calls the API without a forced password change'
 
 $connectors = Invoke-RestMethod -Headers $headers "$api/v1.0/api/connectors"
 if (@($connectors).Count -lt 1) { Die 'the connector catalog is empty' }

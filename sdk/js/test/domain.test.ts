@@ -1,13 +1,11 @@
 /**
  * Hugo domain routes: connectors, resources, knowledge, agent profiles, bindings, tool invocations, approvals,
- * lockdown, prompt layers, model endpoints, and the system administrator tenant override. Conversations and chat
- * streaming are preview (Phase 7): those tests skip with a clear reason while the server answers 404.
+ * lockdown, prompt layers, model endpoints, and the system administrator tenant override. Conversations, chat
+ * streaming, ask, and analytics run against a stub model in model.test.ts.
  */
 import { describe, expect, it } from "vitest";
 import type { HugoClient, ResourceRequest, ToolCallRequest } from "../src/index.js";
-import { admin, ctx, expectHugoError, owner, routeMissing, unique } from "./helpers.js";
-
-const PHASE7_SKIP = "route not available on this server yet (Phase 7 preview)";
+import { admin, ctx, expectHugoError, owner, unique } from "./helpers.js";
 
 function httpResource(name: string): ResourceRequest {
   return { name, connectorType: "http", displayName: name, description: "Hugo JS SDK harness resource", environment: "test", settings: { baseUrl: "http://127.0.0.1:9" } };
@@ -298,42 +296,6 @@ describe("tenant override", () => {
       expect((await sysadmin.resources.list({ maxResults: 1000 })).objects.map((r) => r.id)).toContain(resource.id);
     } finally {
       await client.resources.delete(resource.id);
-    }
-  });
-});
-
-describe("conversations (preview)", () => {
-  it("conversations CRUD", async (t) => {
-    const client = owner();
-    if (await routeMissing(() => client.conversations.list())) return t.skip(PHASE7_SKIP);
-    const conversation = await client.conversations.create({ title: unique("chat") });
-    try {
-      expect((await client.conversations.get(conversation.id)).id).toBe(conversation.id);
-      await client.conversations.messages(conversation.id);
-    } finally {
-      await client.conversations.delete(conversation.id);
-    }
-  });
-
-  it("chat streaming emits typed events", async (t) => {
-    const client = owner();
-    if (await routeMissing(() => client.conversations.list())) return t.skip(PHASE7_SKIP);
-    let profileId: string | undefined;
-    for await (const p of client.agentProfiles.all()) {
-      if (p.inferenceEndpointId) {
-        profileId = p.id;
-        break;
-      }
-    }
-    if (!profileId) return t.skip("no agent profile with an inference endpoint in the test tenant");
-    const conversation = await client.conversations.create({ agentProfileId: profileId });
-    try {
-      const types: string[] = [];
-      for await (const event of client.conversations.streamMessage(conversation.id, "Say hello.")) types.push(event.type);
-      expect(types).toContain("turn.started");
-      expect(types.includes("turn.completed") || types.includes("error")).toBe(true);
-    } finally {
-      await client.conversations.delete(conversation.id);
     }
   });
 });

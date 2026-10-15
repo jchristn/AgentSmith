@@ -40,8 +40,8 @@ class _ClientCore:
         self.approvals = api.ApprovalsApi(transport)
         self.lockdown = api.LockdownApi(transport)
         self.prompt_layers = api.PromptLayersApi(transport)
-        # Preview: conversations and chat streaming are verified when the Phase 7 routes land.
         self.conversations = api.ConversationsApi(transport)
+        self.analytics = api.AnalyticsApi(transport)
 
     # -- state ----------------------------------------------------------------------------------------------------------
 
@@ -123,8 +123,9 @@ class _ClientCore:
         return self.transport.run(call)
 
     def login(self, email: str, password: str, tenant_id: Optional[str] = None) -> Any:
-        """POST /v1.0/token with x-email, x-password, and x-tenant-id. Stores the token and tenant. When the result has
-        must_change_password, only ``change_password`` and token routes work until the password changes."""
+        """POST /v1.0/token with x-email, x-password, and x-tenant-id. Stores the token and tenant. ``must_change_password``
+        on the result is advisory: the account still has a seeded or administrator-set password, every route works, and
+        ``change_password`` clears the flag."""
         headers = {"x-email": email, "x-password": password, "x-tenant-id": tenant_id}
         self.transport.auth.mode = "none"
         return self._run(Call("POST", "/v1.0/token", headers=headers, parse=m.TokenResponse.from_dict, after=self.transport.store_token))
@@ -179,6 +180,10 @@ class _ClientCore:
 class HugoClient(_ClientCore):
     """Blocking Hugo client.
 
+    ``rate_limit_retries`` (default 0, off) retries a 429 answer that many times, waiting the Retry-After seconds
+    (exponential backoff when the header is missing), capped at ``rate_limit_max_wait`` seconds (default 90). The
+    token routes are rate limited per source IP and per identity (Auth.RateLimitPerMinute, default 10).
+
     Example::
 
         client = HugoClient("http://127.0.0.1:8800")
@@ -189,10 +194,10 @@ class HugoClient(_ClientCore):
 
     def __init__(self, base_url: str = DEFAULT_BASE_URL, timeout: float = 300.0, http_client: Optional[httpx.Client] = None,
                  auto_refresh: bool = True, refresh_skew_seconds: int = 60, headers: Optional[Dict[str, str]] = None,
-                 tenant_override: Optional[str] = None):
+                 tenant_override: Optional[str] = None, rate_limit_retries: int = 0, rate_limit_max_wait: float = 90.0):
         auth = AuthState(auto_refresh=auto_refresh, refresh_skew_seconds=refresh_skew_seconds, extra_headers=dict(headers or {}),
                          tenant_override=tenant_override)
-        self._setup(SyncTransport(base_url, timeout, http_client, auth))
+        self._setup(SyncTransport(base_url, timeout, http_client, auth, rate_limit_retries, rate_limit_max_wait))
 
     def close(self) -> None:
         self.transport.close()
@@ -205,7 +210,8 @@ class HugoClient(_ClientCore):
 
 
 class AsyncHugoClient(_ClientCore):
-    """Asynchronous Hugo client; every method returns an awaitable, and streams are async iterators.
+    """Asynchronous Hugo client; every method returns an awaitable, and streams are async iterators. The options match
+    ``HugoClient``, including ``rate_limit_retries``.
 
     Example::
 
@@ -217,10 +223,10 @@ class AsyncHugoClient(_ClientCore):
 
     def __init__(self, base_url: str = DEFAULT_BASE_URL, timeout: float = 300.0, http_client: Optional[httpx.AsyncClient] = None,
                  auto_refresh: bool = True, refresh_skew_seconds: int = 60, headers: Optional[Dict[str, str]] = None,
-                 tenant_override: Optional[str] = None):
+                 tenant_override: Optional[str] = None, rate_limit_retries: int = 0, rate_limit_max_wait: float = 90.0):
         auth = AuthState(auto_refresh=auto_refresh, refresh_skew_seconds=refresh_skew_seconds, extra_headers=dict(headers or {}),
                          tenant_override=tenant_override)
-        self._setup(AsyncTransport(base_url, timeout, http_client, auth))
+        self._setup(AsyncTransport(base_url, timeout, http_client, auth, rate_limit_retries, rate_limit_max_wait))
 
     async def aclose(self) -> None:
         await self.transport.aclose()

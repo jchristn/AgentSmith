@@ -2,13 +2,13 @@
 
 import pytest
 
-from hugo_sdk import AsyncHugoClient, HugoError
+from hugo_sdk import HugoError
 
-from conftest import SERVER, unique
+from conftest import new_async_client, unique
 
 
 async def test_async_login_details_refresh(harness):
-    async with AsyncHugoClient(SERVER) as c:
+    async with new_async_client() as c:
         issued = await c.login(harness.owner_email, harness.owner_password, harness.tenant_id)
         assert issued.token and c.tenant_id == harness.tenant_id
         details = await c.token_details()
@@ -19,7 +19,7 @@ async def test_async_login_details_refresh(harness):
 
 
 async def test_async_secrets_and_users(harness):
-    async with AsyncHugoClient(SERVER) as c:
+    async with new_async_client() as c:
         await c.login(harness.owner_email, harness.owner_password, harness.tenant_id)
         secret = await c.secrets.create({"name": unique("async"), "kind": "Generic", "values": {"value": "z"}})
         try:
@@ -34,7 +34,7 @@ async def test_async_secrets_and_users(harness):
 
 
 async def test_async_typed_error(harness):
-    async with AsyncHugoClient(SERVER) as c:
+    async with new_async_client() as c:
         await c.login(harness.owner_email, harness.owner_password, harness.tenant_id)
         with pytest.raises(HugoError) as err:
             await c.roles.get("rol_missing")
@@ -42,7 +42,7 @@ async def test_async_typed_error(harness):
 
 
 async def test_async_auto_refresh_when_near_expiry(harness):
-    async with AsyncHugoClient(SERVER, refresh_skew_seconds=10 ** 7) as c:
+    async with new_async_client(refresh_skew_seconds=10 ** 7) as c:
         await c.login(harness.owner_email, harness.owner_password, harness.tenant_id)
         first = c.token
         await c.users.me()

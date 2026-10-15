@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Run the three SDK harnesses and the coverage check against a live Hugo server.
 #
-#   HUGO_SDK_SERVER=http://127.0.0.1:8800 sdk/scripts/run-harnesses.sh
+#   HUGO_SDK_SERVER=http://127.0.0.1:8800 HUGO_SDK_ADMIN_API_KEY=... sdk/scripts/run-harnesses.sh
 #
 # The server must already be running (for example `dotnet run --project src/Hugo.Server -f net10.0`).
-# Each harness provisions its own tenant and deletes it at the end. Exit code is nonzero when any step fails.
+# Each harness provisions its own tenant and deletes it at the end. Default server settings work: the harnesses
+# start their own stub model and retry token routes after a 429. Exit code is nonzero when any step fails.
 
 set -u
 SDK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

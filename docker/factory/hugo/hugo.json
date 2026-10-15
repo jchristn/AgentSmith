@@ -90,8 +90,6 @@
     "McpAllowStdio": false,
     "PluginDirectory": "plugins",
     "DefaultToolTimeoutSeconds": 120,
-    "HealthSweepMinutes": 15,
-    "AllowStdioMcp": false,
     "TestTimeoutSeconds": 30,
     "ModelToolTimeoutSeconds": 600,
     "MaxConcurrencyPerResource": 4,

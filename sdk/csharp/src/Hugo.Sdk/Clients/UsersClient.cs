@@ -68,11 +68,12 @@ namespace Hugo.Sdk.Clients
         }
 
         /// <summary>
-        /// Set a user's password as an administrator. By default the user must change it at next sign-in.
+        /// Set a user's password as an administrator. By default the user is flagged mustChangePassword, which is
+        /// advisory: sign-in and every route keep working, and the dashboard prompts the user to pick a new password.
         /// </summary>
         /// <param name="id">User identifier.</param>
         /// <param name="newPassword">New password, 8 to 256 characters.</param>
-        /// <param name="mustChangePassword">Whether the user must change it at next sign-in; null uses the server default (true).</param>
+        /// <param name="mustChangePassword">Advisory flag to set on the user; null uses the server default (true for someone else, false for yourself).</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Updated user.</returns>
         /// <exception cref="ArgumentNullException">Thrown when newPassword is null or empty.</exception>

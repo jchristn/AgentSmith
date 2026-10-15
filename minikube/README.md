@@ -9,7 +9,7 @@ You need minikube, `kubectl`, and `openssl`. The default profile gets 4 CPUs and
 ```bash
 minikube/scripts/start.sh                         # creates profile "hugo" with the ingress and metrics-server addons
 minikube/scripts/deploy.sh --with observability   # pulls the images, creates Secret hugo-secrets, applies, waits
-minikube/scripts/smoke-test.sh                    # checks health, sign-in, the password change, connectors, Grafana
+minikube/scripts/smoke-test.sh                    # checks health, sign-in, connectors, Grafana
 minikube/scripts/port-forward.sh                  # leave it running
 ```
 

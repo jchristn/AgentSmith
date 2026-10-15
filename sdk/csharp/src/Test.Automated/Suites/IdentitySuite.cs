@@ -92,7 +92,7 @@ namespace Test.Automated.Suites
                 Check.True(permissions.HasPermission.Count > 0, "checks present");
             }).ConfigureAwait(false);
 
-            await runner.RunAsync("Administrator password reset forces a change", async () =>
+            await runner.RunAsync("Administrator password reset sets the advisory flag", async () =>
             {
                 string email = Unique("reset") + "@sdk-csharp.test";
                 UserRequest create = new UserRequest();
@@ -123,6 +123,7 @@ namespace Test.Automated.Suites
                 CredentialRequest create = new CredentialRequest();
                 create.Name = Unique("cred");
                 create.AuthMode = CredentialAuthModeEnum.Hybrid;
+                create.RoleName = "Viewer";
                 CredentialCreateResponse created = await ctx.Owner.Credentials.CreateAsync(create).ConfigureAwait(false);
                 Check.NotEmpty(created.SecretKey, "secret key returned once");
                 Check.Equal(created.AccessKey, created.Credential.AccessKey, "access key");
@@ -152,6 +153,8 @@ namespace Test.Automated.Suites
                 CredentialRequest create = new CredentialRequest();
                 create.Name = Unique("direct");
                 create.AuthMode = CredentialAuthModeEnum.Hybrid;
+                // Credentials never inherit the owner's administrator bypass; give this one a role explicitly.
+                create.RoleName = "Operator";
                 CredentialCreateResponse created = await ctx.Owner.Credentials.CreateAsync(create).ConfigureAwait(false);
                 try
                 {
@@ -173,6 +176,47 @@ namespace Test.Automated.Suites
                         TokenDetails details = await client.GetTokenDetailsAsync().ConfigureAwait(false);
                         Check.Equal(PrincipalTypeEnum.Credential, details.PrincipalType, "principal type after exchange");
                     }
+                }
+                finally
+                {
+                    await ctx.Owner.Credentials.DeleteAsync(created.Credential.Id).ConfigureAwait(false);
+                }
+            }).ConfigureAwait(false);
+
+            await runner.RunAsync("Credential bypass is opt-in, administrator-only, and audited", async () =>
+            {
+                CredentialRequest create = new CredentialRequest();
+                create.Name = Unique("bypass");
+                create.AuthMode = CredentialAuthModeEnum.Hybrid;
+                CredentialCreateResponse created = await ctx.Owner.Credentials.CreateAsync(create).ConfigureAwait(false);
+                try
+                {
+                    Check.True(!created.Credential.InheritOwnerBypass, "bypass is off by default");
+                    using (HugoClient client = ctx.NewClient())
+                    {
+                        client.UseAccessKey(created.AccessKey, created.SecretKey, ctx.TenantId);
+                        await Check.FailsAsync(() => client.Users.ListAsync(), 403).ConfigureAwait(false);
+
+                        CredentialRequest grant = new CredentialRequest();
+                        grant.InheritOwnerBypass = true;
+                        Credential granted = await ctx.Owner.Credentials.UpdateAsync(created.Credential.Id, grant).ConfigureAwait(false);
+                        Check.True(granted.InheritOwnerBypass, "a tenant administrator can grant the bypass");
+                        EnumerationResult<User> users = await client.Users.ListAsync().ConfigureAwait(false);
+                        Check.True(users.Objects.Any(u => u.Id == ctx.OwnerUserId), "the credential now carries the owner's tenant administrator bypass");
+
+                        CredentialRequest revoke = new CredentialRequest();
+                        revoke.InheritOwnerBypass = false;
+                        await Check.FailsAsync(() => client.Credentials.UpdateAsync(created.Credential.Id, revoke), 403, "BypassRequiresAdministrator").ConfigureAwait(false);
+                        CredentialRequest child = new CredentialRequest();
+                        child.Name = Unique("bypass-child");
+                        child.InheritOwnerBypass = true;
+                        await Check.FailsAsync(() => client.Credentials.CreateAsync(child), 403, "BypassRequiresAdministrator").ConfigureAwait(false);
+                    }
+
+                    AuditFilter filter = new AuditFilter();
+                    filter.EventType = "CredentialBypassChanged";
+                    PageResult<AuditRecord> audit = await ctx.Owner.Audit.ListAsync(filter).ConfigureAwait(false);
+                    Check.True(audit.Objects.Any(a => a.ResourceId == created.Credential.Id), "the change is audited as CredentialBypassChanged");
                 }
                 finally
                 {

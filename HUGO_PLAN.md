@@ -94,7 +94,7 @@ These rules keep the plan honest:
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | In progress | 14 / 15 |
 | 10 | Docker, testbed, and observability stack | M1 | In progress | 18 / 24 |
 | 11 | Documentation and Postman | M1 | Complete | 18 / 18 |
-| 12 | MVP verification (milestone M1) | M1 | Not started | 0 / 14 |
+| 12 | MVP verification (milestone M1) | M1 | In progress | 1 / 14 |
 | 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | In progress | 30 / 38 |
 | 14 | Knowledge, runbooks, and operator conveniences | M2 | Not started | 0 / 12 |
 | 15 | Benchmarking | M3 | Not started | 0 / 16 |
@@ -130,7 +130,7 @@ Milestones:
   - docs/connectors/redis-acl.md still says KEYS lives in the default deniedCommands; it is now a built-in denial.
   - Kubernetes testbed has one timing-sensitive crash-loop case (k8s_events or k8s_logs) that fails intermittently.
   - Security review item from the MCP work: a credential inherits its owner's tenant-admin flag in AuthenticationService even when scoped to a narrower role; review whether credentials should carry the owner's bypass flags (P16.3).
-  - Follow-ups merged 2026-10-14 (credential bypass security fix with audited inheritOwnerBypass opt-in, approval-await execution fix, list filters, model endpoint health history, 502 for unreachable providers, template cycle detection, header echo removal, SessionExchange enforcement, HostKeyMismatch audit, OpenAPI fixes, storage fixtures, Loki empty test, HTTP healthPath). Remaining: SDK harnesses still expect the old forced password change and lack /ask and /analytics methods; REST_API.md and Postman need the follow-up API changes.
+  - Follow-ups merged 2026-10-14 (credential bypass security fix with audited inheritOwnerBypass opt-in, approval-await execution fix, list filters, model endpoint health history, 502 for unreachable providers, template cycle detection, header echo removal, SessionExchange enforcement, HostKeyMismatch audit, OpenAPI fixes, storage fixtures, Loki empty test, HTTP healthPath). SDK and docs sync merged 2026-10-14: harnesses pass (C# 63, Python 83, JS 74) against default settings with 429 retry and a stub model, coverage check complete, REST/MCP/A2A docs and Postman updated, Newman 338 requests with 0 failures. Open minor items: auth rate limit always sends Retry-After 60; health-history maxResults is clamped rather than rejected; analytics counts only conversations that still exist; list filters are not declared in OpenAPI; tenant prompt-template update still requires name.
   - From the dashboard live journey (all resolved 2026-10-14): telemetry startup stack overflow, model list 500, include syntax wording, missing list filters, bindingCount, principalName, model endpoint health history, analytics routes in the dashboard.
   - Dynamic tools (D-044): add optional `IDynamicToolProvider` so external MCP tools appear as `<prefix>__<tool>`; fence remote instructions inside compiled instructions (P13.28).
   - SSH `jumpResourceName` (reuse another resource as bastion) needs a related-resource resolver; the jump settings cover the case today.
@@ -2111,7 +2111,7 @@ Quality
 
 - [ ] P12.1 Full Touchstone run on SQLite and PostgreSQL, all suites including the testbed. *Accept:* zero failures, counts in the annotation.
 - [ ] P12.2 Dashboard unit, Playwright, i18n, and visual QA suites green.
-- [ ] P12.3 SDK harnesses green.
+- [x] P12.3 SDK harnesses green.  | claude 2026-10-14 claude 2026-10-14 C# 63, Python 83, JS 74 pass against a fresh server with default settings; Newman 338 requests 0 failures
 - [ ] P12.4 Newman run of the full Postman collection against the factory stack, zero failures.
 - [ ] P12.5 Clean-machine Docker quick start following the README literally (Docker is the only documented deployment until Phase 17 adds Kubernetes and minikube). *Accept:* time to first chat recorded, and every doc deviation fixed.
 - [ ] P12.6 Primary journey (section 3.6) replayed end to end with a real model endpoint and the testbed. *Accept:* screenshots and transcript in the annotation.

@@ -89,8 +89,7 @@
     "EnablePlugins": false,
     "PluginDirectory": "plugins",
     "DefaultToolTimeoutSeconds": 120,
-    "HealthSweepMinutes": 15,
-    "AllowStdioMcp": false
+    "McpAllowStdio": false
   },
   "Models": {
     "HealthIntervalSeconds": 300

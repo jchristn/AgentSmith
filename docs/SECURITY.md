@@ -209,7 +209,7 @@ Tool calls are not duplicated into audit. They have their own record (`GET /v1.0
 A few things are worth checking on any deployment that holds real credentials:
 
 - `HUGO_MASTER_KEY` and `HUGO_AUTH_SIGNING_KEY` are set to generated values, and the master key is backed up.
-- Both seeded accounts (`admin@hugo.local`, `anderson@hugo.local`) have new passwords; Hugo forces this at first sign-in.
+- Both seeded accounts (`admin@hugo.local`, `anderson@hugo.local`) have new passwords. Hugo prompts for this at first sign-in but does not force it.
 - `HUGO_ADMIN_API_KEY` is unset unless you need it.
 - The REST port is not reachable from untrusted networks, or `Telemetry.ServeMetricsOnServicePort` is off, since `/metrics` is unauthenticated.
 - `Rest.CorsOrigins` names the dashboard origin instead of allowing any origin.

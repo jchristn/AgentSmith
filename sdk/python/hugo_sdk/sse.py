@@ -17,6 +17,7 @@ CHAT_EVENT_TYPES = (
     "approval.resolved",
     "turn.completed",
     "error",
+    "stream.closed",
 )
 
 
@@ -46,7 +47,7 @@ class SseEvent:
 @dataclass
 class ChatEvent(SseEvent):
     """A chat streaming event (turn.started, assistant.delta, assistant.thinking, tool.proposed, tool.started,
-    tool.completed, approval.required, approval.resolved, turn.completed, error)."""
+    tool.completed, approval.required, approval.resolved, turn.completed, error, and the closing stream.closed)."""
 
     @property
     def is_terminal(self) -> bool:
