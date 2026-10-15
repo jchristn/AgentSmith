@@ -1,0 +1,31 @@
+# Disruption budgets for voluntary disruptions (node drains, cluster upgrades).
+#
+# Server: one replica (D-045), so any eviction is an outage of a few seconds while the pod moves. maxUnavailable 1
+# documents that and never blocks a drain; a minAvailable of 1 would block every drain forever. Plan drains for a
+# quiet moment: open approvals survive (they are in the database), but in-flight streams reconnect.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: hugo-server
+  labels:
+    app.kubernetes.io/name: hugo-server
+spec:
+  maxUnavailable: 1
+  unhealthyPodEvictionPolicy: AlwaysAllow
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hugo-server
+---
+# Dashboard: two replicas; keep at least one serving during a drain.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: hugo-dashboard
+  labels:
+    app.kubernetes.io/name: hugo-dashboard
+spec:
+  minAvailable: 1
+  unhealthyPodEvictionPolicy: AlwaysAllow
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hugo-dashboard

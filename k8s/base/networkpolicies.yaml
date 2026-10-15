@@ -1,0 +1,57 @@
+# Network policies. They take effect only where the network plugin enforces them (k3s does; minikube's default
+# CNI does not, so there they are inert).
+#
+# Server: accepts its REST port from anywhere (the dashboard, an ingress controller in another namespace,
+# Prometheus). /metrics shares that port, so it stays internal by routing rather than by policy: the Ingress routes
+# only /v1.0, /mcp, and /openapi.json to the server, and the dashboard proxies only those paths. Egress is open
+# except the cloud instance metadata service, because Hugo connects to operator-chosen targets (SSH hosts, databases,
+# object storage, clouds, clusters, HTTP APIs, model endpoints) and must not hand those requests the node's cloud
+# identity. Narrow the egress rule to the targets you configure if your cluster allows it.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: hugo-server
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hugo-server
+  policyTypes: ["Ingress", "Egress"]
+  ingress:
+    - ports:
+        - port: 8800
+  egress:
+    - to:
+        - namespaceSelector: {}
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 169.254.169.254/32
+---
+# Dashboard: accepts HTTP from anywhere; may only resolve DNS and reach the server.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: hugo-dashboard
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hugo-dashboard
+  policyTypes: ["Ingress", "Egress"]
+  ingress:
+    - ports:
+        - port: 80
+  egress:
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hugo-server
+      ports:
+        - port: 8800

@@ -1,0 +1,112 @@
+# Loki: stores the Hugo pod logs that Alloy ships (config/loki.yaml). 72 hours of retention on a 2 GiB volume.
+# Liveness is a TCP check because /ready also reports ring and ingester state, which can briefly fail under load
+# without the process being stuck; readiness uses /ready.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hugo-loki
+  labels:
+    app.kubernetes.io/name: hugo-loki
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hugo-loki
+  labels:
+    app.kubernetes.io/name: hugo-loki
+    app.kubernetes.io/component: observability
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hugo-loki
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hugo-loki
+        app.kubernetes.io/component: observability
+    spec:
+      serviceAccountName: hugo-observability
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: loki
+          image: grafana/loki:3.5.5
+          imagePullPolicy: IfNotPresent
+          args:
+            - -config.file=/etc/loki/loki.yaml
+          ports:
+            - name: http
+              containerPort: 3100
+          volumeMounts:
+            - name: config
+              mountPath: /etc/loki
+              readOnly: true
+            - name: data
+              mountPath: /loki
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          startupProbe:
+            httpGet:
+              path: /ready
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 4
+            failureThreshold: 60
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 4
+            failureThreshold: 2
+          livenessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 4
+            failureThreshold: 2
+      volumes:
+        - name: config
+          configMap:
+            name: hugo-loki-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: hugo-loki
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hugo-loki
+  labels:
+    app.kubernetes.io/name: hugo-loki
+spec:
+  selector:
+    app.kubernetes.io/name: hugo-loki
+  ports:
+    - name: http
+      port: 3100
+      targetPort: http

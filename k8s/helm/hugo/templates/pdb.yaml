@@ -1,0 +1,34 @@
+{{- if .Values.pdb.enabled }}
+{{- $ns := include "hugo.namespace" . }}
+# The same budgets as k8s/overlays/production/pdb.yaml. The server runs one replica, so its budget is
+# maxUnavailable 1: it never blocks a drain.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: hugo-server
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+    app.kubernetes.io/name: hugo-server
+spec:
+  maxUnavailable: 1
+  unhealthyPodEvictionPolicy: AlwaysAllow
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hugo-server
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: hugo-dashboard
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+    app.kubernetes.io/name: hugo-dashboard
+spec:
+  minAvailable: {{ .Values.pdb.dashboardMinAvailable }}
+  unhealthyPodEvictionPolicy: AlwaysAllow
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hugo-dashboard
+{{- end }}

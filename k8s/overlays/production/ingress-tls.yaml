@@ -1,0 +1,11 @@
+# TLS with Secret hugo-tls (for example issued by cert-manager) for hugo.example.com. Replace the host here and in
+# server.yaml (HUGO_EXTERNAL_BASE_URL).
+- op: replace
+  path: /spec/rules/0/host
+  value: hugo.example.com
+- op: add
+  path: /spec/tls
+  value:
+    - hosts:
+        - hugo.example.com
+      secretName: hugo-tls

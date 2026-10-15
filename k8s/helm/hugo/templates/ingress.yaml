@@ -1,0 +1,66 @@
+{{- if .Values.ingress.enabled }}
+{{- $i := .Values.ingress }}
+{{- $annotations := dict }}
+{{- if and (eq $i.className "nginx") $i.nginxStreamingAnnotations }}
+{{- $_ := set $annotations "nginx.ingress.kubernetes.io/proxy-buffering" "off" }}
+{{- $_ := set $annotations "nginx.ingress.kubernetes.io/proxy-request-buffering" "off" }}
+{{- $_ := set $annotations "nginx.ingress.kubernetes.io/proxy-read-timeout" "3600" }}
+{{- $_ := set $annotations "nginx.ingress.kubernetes.io/proxy-send-timeout" "3600" }}
+{{- $_ := set $annotations "nginx.ingress.kubernetes.io/proxy-body-size" "64m" }}
+{{- $_ := set $annotations "nginx.ingress.kubernetes.io/proxy-http-version" "1.1" }}
+{{- end }}
+{{- $annotations = merge (deepCopy ($i.annotations | default dict)) $annotations }}
+# The same Ingress as k8s/components/ingress: /v1.0, /mcp, and /openapi.json to the server, the rest to the
+# dashboard; /metrics is not routed. Server-Sent Events need buffering off and long reads (see the component).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hugo
+  namespace: {{ include "hugo.namespace" . }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+  {{- with $annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if $i.className }}
+  ingressClassName: {{ $i.className }}
+  {{- end }}
+  {{- with $i.tls }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    - host: {{ $i.host }}
+      http:
+        paths:
+          - path: /mcp
+            pathType: Prefix
+            backend:
+              service:
+                name: hugo-server
+                port:
+                  name: http
+          - path: /v1.0
+            pathType: Prefix
+            backend:
+              service:
+                name: hugo-server
+                port:
+                  name: http
+          - path: /openapi.json
+            pathType: Exact
+            backend:
+              service:
+                name: hugo-server
+                port:
+                  name: http
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hugo-dashboard
+                port:
+                  name: http
+{{- end }}

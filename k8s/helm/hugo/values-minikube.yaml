@@ -1,0 +1,11 @@
+# Same objects as minikube/overlay:
+#   helm install hugo k8s/helm/hugo -n hugo -f k8s/helm/hugo/values-minikube.yaml
+# Add --set database.mode=embedded for PostgreSQL and --set observability.enabled=true for the observability stack.
+image:
+  pullPolicy: IfNotPresent
+persistence:
+  storageClassName: standard
+ingress:
+  enabled: true
+  className: nginx
+  host: hugo.local

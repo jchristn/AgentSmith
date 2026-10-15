@@ -1,0 +1,115 @@
+{{- if .Values.networkPolicies.enabled }}
+{{- $ns := include "hugo.namespace" . }}
+# Same policies as k8s/base/networkpolicies.yaml (see the comments there).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: hugo-server
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hugo-server
+  policyTypes: ["Ingress", "Egress"]
+  ingress:
+    - ports:
+        - port: 8800
+  egress:
+    - to:
+        - namespaceSelector: {}
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 169.254.169.254/32
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: hugo-dashboard
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hugo-dashboard
+  policyTypes: ["Ingress", "Egress"]
+  ingress:
+    - ports:
+        - port: 80
+  egress:
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hugo-server
+      ports:
+        - port: 8800
+{{- if eq .Values.database.mode "embedded" }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: hugo-postgres
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hugo-postgres
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hugo-server
+      ports:
+        - port: 5432
+{{- end }}
+{{- if .Values.observability.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: hugo-observability-internal
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app.kubernetes.io/name
+        operator: In
+        values: ["hugo-prometheus", "hugo-loki", "hugo-tempo", "hugo-alloy"]
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - podSelector: {}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: hugo-grafana
+  namespace: {{ $ns }}
+  labels:
+    {{- include "hugo.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hugo-grafana
+  policyTypes: ["Ingress"]
+  ingress:
+    - ports:
+        - port: 3000
+{{- end }}
+{{- end }}

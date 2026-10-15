@@ -1,0 +1,87 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+# Observability for Hugo: Prometheus (scraping the server pod), Tempo (traces), Loki (logs), Grafana Alloy (OTLP
+# receiver and pod log shipper through the Kubernetes API), and Grafana with the Hugo dashboards in folder Hugo.
+# The same images, provisioning, and datasource UIDs (prometheus, tempo, loki) as docker/compose.yaml.
+# Grafana's admin password is grafana-admin-password in Secret hugo-secrets (k8s/scripts/generate-secrets.sh).
+#
+# Mirrors kept in step by k8s/tests/check-render.sh:
+#   config/loki.yaml, tempo.yaml, grafana.ini, grafana-dashboards.yaml, grafana-datasources.yaml = docker/observability
+#   dashboards/*.json = assets/grafana (the source of truth; refresh with k8s/scripts/sync-mirrors.sh)
+#   config/ and dashboards/ = k8s/helm/hugo/files/observability
+# config/prometheus.yaml and config/config.alloy are Kubernetes-specific (pod discovery instead of Docker).
+
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: hugo
+    includeSelectors: false
+
+resources:
+  - rbac.yaml
+  - prometheus.yaml
+  - loki.yaml
+  - tempo.yaml
+  - alloy.yaml
+  - grafana.yaml
+  - networkpolicies.yaml
+
+configMapGenerator:
+  - name: hugo-prometheus-config
+    files:
+      - prometheus.yaml=config/prometheus.yaml
+  - name: hugo-loki-config
+    files:
+      - loki.yaml=config/loki.yaml
+  - name: hugo-tempo-config
+    files:
+      - tempo.yaml=config/tempo.yaml
+  - name: hugo-alloy-config
+    files:
+      - config.alloy=config/config.alloy
+  - name: hugo-grafana-config
+    files:
+      - grafana.ini=config/grafana.ini
+  - name: hugo-grafana-datasources
+    files:
+      - datasources.yaml=config/grafana-datasources.yaml
+  - name: hugo-grafana-dashboard-provider
+    files:
+      - dashboards.yaml=config/grafana-dashboards.yaml
+  # One ConfigMap per dashboard keeps each object well under the 256 KiB kubectl apply annotation limit.
+  - name: hugo-grafana-dashboard-agent
+    files:
+      - hugo-agent.json=dashboards/hugo-agent.json
+  - name: hugo-grafana-dashboard-control-plane
+    files:
+      - hugo-control-plane.json=dashboards/hugo-control-plane.json
+  - name: hugo-grafana-dashboard-database
+    files:
+      - hugo-database.json=dashboards/hugo-database.json
+  - name: hugo-grafana-dashboard-http
+    files:
+      - hugo-http.json=dashboards/hugo-http.json
+  - name: hugo-grafana-dashboard-integrations
+    files:
+      - hugo-integrations.json=dashboards/hugo-integrations.json
+  - name: hugo-grafana-dashboard-logs
+    files:
+      - hugo-logs.json=dashboards/hugo-logs.json
+  - name: hugo-grafana-dashboard-models
+    files:
+      - hugo-models.json=dashboards/hugo-models.json
+  - name: hugo-grafana-dashboard-overview
+    files:
+      - hugo-overview.json=dashboards/hugo-overview.json
+  - name: hugo-grafana-dashboard-protocols
+    files:
+      - hugo-protocols.json=dashboards/hugo-protocols.json
+  - name: hugo-grafana-dashboard-security
+    files:
+      - hugo-security.json=dashboards/hugo-security.json
+  - name: hugo-grafana-dashboard-tools
+    files:
+      - hugo-tools.json=dashboards/hugo-tools.json
+
+patches:
+  - path: server-telemetry.yaml

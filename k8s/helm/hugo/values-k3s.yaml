@@ -1,0 +1,13 @@
+# Same objects as k8s/overlays/k3s:
+#   helm install hugo k8s/helm/hugo -n hugo -f k8s/helm/hugo/values-k3s.yaml
+# Add --set database.mode=embedded for PostgreSQL and --set observability.enabled=true for the observability stack.
+image:
+  pullPolicy: IfNotPresent
+persistence:
+  storageClassName: local-path
+ingress:
+  enabled: true
+  className: traefik
+  host: hugo.local
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web

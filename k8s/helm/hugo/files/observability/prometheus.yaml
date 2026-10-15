@@ -1,0 +1,52 @@
+# Prometheus configuration for Hugo on Kubernetes (k8s/components/observability and the Helm chart, which mirrors
+# this file; k8s/tests/check-render.sh diffs them).
+#
+# The server pod carries prometheus.io/scrape, prometheus.io/port, and prometheus.io/path annotations; the target is
+# built from the pod IP and the annotated port (8800, where the server serves /metrics). The job keeps the name
+# hugo-server, as in Docker Compose, because the dashboards select job=~"hugo.*". Every series gets component
+# (server) and node (the pod name, which is also the Hugo node name).
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  evaluation_interval: 15s
+  # Keep the underscore metric names the Grafana dashboards use.
+  metric_name_validation_scheme: legacy
+
+scrape_configs:
+  - job_name: hugo-server
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          own_namespace: true
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        regex: "true"
+        action: keep
+      - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+        regex: hugo-server
+        action: keep
+      - source_labels: [__meta_kubernetes_pod_phase]
+        regex: Running
+        action: keep
+      - source_labels: [__meta_kubernetes_pod_container_init]
+        regex: "true"
+        action: drop
+      - source_labels: [__meta_kubernetes_pod_ip, __meta_kubernetes_pod_annotation_prometheus_io_port]
+        regex: (.+);(\d+)
+        replacement: $1:$2
+        target_label: __address__
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        regex: (.+)
+        target_label: __metrics_path__
+      - target_label: component
+        replacement: server
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: node
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: pod
+      - source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ["127.0.0.1:9090"]

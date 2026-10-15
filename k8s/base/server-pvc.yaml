@@ -1,0 +1,14 @@
+# /app/data: the SQLite database (the default), logs when file logging is on, and plugins. Back it up together with
+# Secret hugo-secrets: the master key in the Secret decrypts the credentials stored in the database
+# (docs/KUBERNETES.md, "Back up").
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hugo-data
+  labels:
+    app.kubernetes.io/name: hugo-server
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 5Gi

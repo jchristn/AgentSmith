@@ -1,0 +1,63 @@
+# Prometheus discovers the server pod through the Kubernetes API; Alloy discovers the Hugo pods and reads their logs
+# through the API (no host paths, no DaemonSet). Both are limited to this namespace with a Role, not a ClusterRole.
+# Loki, Tempo, and Grafana need no API access and share an account without a token.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hugo-prometheus
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hugo-alloy
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hugo-observability
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: hugo-prometheus
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: hugo-prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: hugo-prometheus
+subjects:
+  - kind: ServiceAccount
+    name: hugo-prometheus
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: hugo-alloy
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: hugo-alloy
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: hugo-alloy
+subjects:
+  - kind: ServiceAccount
+    name: hugo-alloy
