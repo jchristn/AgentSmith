@@ -171,6 +171,100 @@ namespace Test.Shared.Suites
         }
 
         /// <summary>
+        /// A credential is authorized by its own scope assignments capped by its owner, never by the owner's IsAdmin or
+        /// IsTenantAdmin flags, unless an administrator opts it in with inheritOwnerBypass (audited).
+        /// </summary>
+        /// <param name="provider">Provider.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Task.</returns>
+        public static async Task CredentialLeastPrivilegeAsync(DatabaseTypeEnum provider, CancellationToken token)
+        {
+            await using (TestServerHost host = await TestServerHost.StartAsync(provider, null, token).ConfigureAwait(false))
+            {
+                string t = "/v1.0/api/tenants/" + host.TenantId;
+                User admin = Assert.NotNull(await host.Server.Context.Database.Users.ReadByEmailAsync(host.TenantId, "admin@hugo.local", token).ConfigureAwait(false), "seeded administrator");
+
+                // A system administrator's credential scoped to Operator is an Operator: no secrets, no users, no settings.
+                CredentialCreateResponse operatorCredential = await CreateCredentialAsync(host, host.TenantId, admin.Id, "Operator", token).ConfigureAwait(false);
+                using (HttpClient client = host.CredentialClient(operatorCredential.AccessKey, operatorCredential.SecretKey))
+                {
+                    TokenDetailsResponse details = await HttpTestHelpers.SendAsync<TokenDetailsResponse>(client, HttpMethod.Get, "/v1.0/token/details", null, 200, token).ConfigureAwait(false);
+                    Assert.True(!details.IsAdmin && !details.IsTenantAdmin, "no bypass flags on the credential");
+                    Assert.Equal(403, (await HttpTestHelpers.SendAsync(client, HttpMethod.Get, "/v1.0/api/secrets", null, token).ConfigureAwait(false)).StatusCode, "Operator credential reading secrets");
+                    Assert.Equal(403, (await HttpTestHelpers.SendAsync(client, HttpMethod.Get, t + "/users", null, token).ConfigureAwait(false)).StatusCode, "Operator credential listing users");
+                    Assert.Equal(403, (await HttpTestHelpers.SendAsync(client, HttpMethod.Get, "/v1.0/api/settings", null, token).ConfigureAwait(false)).StatusCode, "Operator credential reading platform settings");
+                    Assert.Equal(200, (await HttpTestHelpers.SendAsync(client, HttpMethod.Get, "/v1.0/api/approvals", null, token).ConfigureAwait(false)).StatusCode, "Operator credential reading approvals");
+                }
+
+                // A credential without any scope assignment is denied, even when its owner is a system administrator.
+                CredentialCreateResponse bare = await CreateCredentialAsync(host, host.TenantId, admin.Id, null, token).ConfigureAwait(false);
+                using (HttpClient client = host.CredentialClient(bare.AccessKey, bare.SecretKey))
+                {
+                    Assert.Equal(403, (await HttpTestHelpers.SendAsync(client, HttpMethod.Get, "/v1.0/api/resources", null, token).ConfigureAwait(false)).StatusCode, "unscoped credential");
+                }
+
+                // A TenantAdmin-scoped credential of a system administrator administers the tenant but not the platform.
+                CredentialCreateResponse tenantScoped = await CreateCredentialAsync(host, host.TenantId, admin.Id, "TenantAdmin", token).ConfigureAwait(false);
+                using (HttpClient client = host.CredentialClient(tenantScoped.AccessKey, tenantScoped.SecretKey))
+                {
+                    Assert.Equal(200, (await HttpTestHelpers.SendAsync(client, HttpMethod.Get, t + "/users", null, token).ConfigureAwait(false)).StatusCode, "TenantAdmin credential lists users");
+                    Assert.Equal(403, (await HttpTestHelpers.SendAsync(client, HttpMethod.Get, "/v1.0/api/settings", null, token).ConfigureAwait(false)).StatusCode, "TenantAdmin credential on platform settings");
+                }
+
+                // The owner ceiling honors an owner who is a tenant administrator by flag only (no role assignment).
+                User flagged = await CreateUserAsync(host, host.TenantId, "flagged@example.com", null, token).ConfigureAwait(false);
+                await HttpTestHelpers.SendAsync<User>(host.AdminClient, HttpMethod.Put, t + "/users/" + flagged.Id, new UserRequest { IsTenantAdmin = true }, 200, token).ConfigureAwait(false);
+                foreach (UserRoleAssignment assignment in await host.Server.Context.Database.UserRoleAssignments.ListByUserAsync(host.TenantId, flagged.Id, token).ConfigureAwait(false))
+                {
+                    await host.Server.Context.Database.UserRoleAssignments.DeleteAsync(assignment.Id, token).ConfigureAwait(false);
+                }
+                host.Server.Context.Authorization.Invalidate();
+                CredentialCreateResponse security = await CreateCredentialAsync(host, host.TenantId, flagged.Id, "SecurityAdmin", token).ConfigureAwait(false);
+                using (HttpClient client = host.CredentialClient(security.AccessKey, security.SecretKey))
+                {
+                    Assert.Equal(200, (await HttpTestHelpers.SendAsync(client, HttpMethod.Get, t + "/users", null, token).ConfigureAwait(false)).StatusCode, "SecurityAdmin credential of a flag-only tenant administrator");
+                    Assert.Equal(403, (await HttpTestHelpers.SendAsync(client, HttpMethod.Get, "/v1.0/api/secrets", null, token).ConfigureAwait(false)).StatusCode, "SecurityAdmin credential does not get the owner's bypass for secrets");
+                    TestResponse escalate = await HttpTestHelpers.SendAsync(client, HttpMethod.Put, t + "/credentials/" + security.Credential.Id, new CredentialRequest { InheritOwnerBypass = true }, token).ConfigureAwait(false);
+                    Assert.Equal(403, escalate.StatusCode, "a credential cannot opt itself into the owner's bypass");
+                    Assert.True(escalate.Body.Contains("BypassRequiresAdministrator", StringComparison.Ordinal), "escalation error code: " + escalate.Body);
+                }
+
+                // A SecurityAdmin user can manage credentials but cannot grant the bypass opt-in.
+                await CreateUserAsync(host, host.TenantId, "secadmin@example.com", "SecurityAdmin", token).ConfigureAwait(false);
+                using (HttpClient secAdmin = await host.UserClientAsync("secadmin@example.com", "password123", host.TenantId, token).ConfigureAwait(false))
+                {
+                    TestResponse refused = await HttpTestHelpers.SendAsync(secAdmin, HttpMethod.Post, t + "/credentials", new CredentialRequest { Name = "automation", UserId = admin.Id, RoleName = "Operator", InheritOwnerBypass = true }, token).ConfigureAwait(false);
+                    Assert.Equal(403, refused.StatusCode, "SecurityAdmin granting inheritOwnerBypass");
+                }
+
+                // The opt-in: an administrator lets an automation credential carry the owner's bypass; it is audited, and
+                // turning it off removes the bypass again.
+                CredentialCreateResponse automation = await HttpTestHelpers.SendAsync<CredentialCreateResponse>(host.AdminClient, HttpMethod.Post, t + "/credentials", new CredentialRequest { Name = "automation", UserId = admin.Id, RoleName = "Operator", InheritOwnerBypass = true }, 201, token).ConfigureAwait(false);
+                Assert.True(automation.Credential.InheritOwnerBypass, "opt-in stored");
+                using (HttpClient client = host.CredentialClient(automation.AccessKey, automation.SecretKey))
+                {
+                    TokenDetailsResponse details = await HttpTestHelpers.SendAsync<TokenDetailsResponse>(client, HttpMethod.Get, "/v1.0/token/details", null, 200, token).ConfigureAwait(false);
+                    Assert.True(details.IsAdmin, "the opted-in credential carries the owner's IsAdmin");
+                    Assert.Equal(200, (await HttpTestHelpers.SendAsync(client, HttpMethod.Get, "/v1.0/api/settings", null, token).ConfigureAwait(false)).StatusCode, "opted-in credential on platform settings");
+                }
+                AuditPage audited = await HttpTestHelpers.SendAsync<AuditPage>(host.AdminClient, HttpMethod.Get, t + "/audit?eventType=CredentialBypassChanged", null, 200, token).ConfigureAwait(false);
+                Assert.True(audited.Objects.Any(r => r.ResourceId == automation.Credential.Id && (r.Description ?? String.Empty).Contains("now carries", StringComparison.Ordinal)), "opt-in audited");
+
+                Credential off = await HttpTestHelpers.SendAsync<Credential>(host.AdminClient, HttpMethod.Put, t + "/credentials/" + automation.Credential.Id, new CredentialRequest { InheritOwnerBypass = false }, 200, token).ConfigureAwait(false);
+                Assert.True(!off.InheritOwnerBypass, "opt-in removed");
+                using (HttpClient client = host.CredentialClient(automation.AccessKey, automation.SecretKey))
+                {
+                    Assert.Equal(403, (await HttpTestHelpers.SendAsync(client, HttpMethod.Get, "/v1.0/api/settings", null, token).ConfigureAwait(false)).StatusCode, "bypass gone after opting out");
+                }
+                AuditPage removed = await HttpTestHelpers.SendAsync<AuditPage>(host.AdminClient, HttpMethod.Get, t + "/audit?eventType=CredentialBypassChanged", null, 200, token).ConfigureAwait(false);
+                Assert.True(removed.Objects.Any(r => r.ResourceId == automation.Credential.Id && (r.Description ?? String.Empty).Contains("no longer carries", StringComparison.Ordinal)), "opt-out audited");
+
+                EffectivePermissionsResponse effective = await HttpTestHelpers.SendAsync<EffectivePermissionsResponse>(host.AdminClient, HttpMethod.Get, t + "/credentials/" + operatorCredential.Credential.Id + "/permissions", null, 200, token).ConfigureAwait(false);
+                Assert.True(!effective.IsAdmin && !effective.IsTenantAdmin, "effective permissions show no inherited bypass");
+            }
+        }
+
+        /// <summary>
         /// Administrator and tenant administrator bypass rules and platform-only resources.
         /// </summary>
         /// <param name="provider">Provider.</param>

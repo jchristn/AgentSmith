@@ -178,6 +178,11 @@ namespace Hugo.Core.Enums
         /// <summary>
         /// A connector learned and persisted a resource setting other than a host key.
         /// </summary>
-        SettingLearned
+        SettingLearned,
+
+        /// <summary>
+        /// A tenant or system administrator turned a credential's inheritOwnerBypass opt-in on or off.
+        /// </summary>
+        CredentialBypassChanged
     }
 }

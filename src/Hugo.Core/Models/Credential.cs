@@ -125,6 +125,13 @@ namespace Hugo.Core.Models
         public bool LockToProfile { get; set; } = false;
 
         /// <summary>
+        /// Whether the credential carries its owner's administrator bypass (IsAdmin or IsTenantAdmin). Default false: a
+        /// credential is authorized by its own scope assignments, capped by its owner's grants (least privilege). Only a
+        /// tenant or system administrator can turn this on, and every change is audited. Meant for admin automation.
+        /// </summary>
+        public bool InheritOwnerBypass { get; set; } = false;
+
+        /// <summary>
         /// Last use timestamp (UTC).
         /// </summary>
         public DateTime? LastUsedUtc { get; set; } = null;

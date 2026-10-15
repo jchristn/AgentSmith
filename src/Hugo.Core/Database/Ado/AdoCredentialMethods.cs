@@ -91,7 +91,7 @@ namespace Hugo.Core.Database.Ado
             if (obj == null) throw new ArgumentNullException(nameof(obj));
             obj.LastUpdateUtc = DateTime.UtcNow;
 
-            string sql = "UPDATE " + _Table + " SET tenant_id = @tenant_id, owner_user_id = @owner_user_id, name = @name, access_key = @access_key, secret_key_encrypted = @secret_key_encrypted, secret_key_last4 = @secret_key_last4, auth_mode = @auth_mode, agent_profile_id = @agent_profile_id, lock_to_profile = @lock_to_profile, last_used_utc = @last_used_utc, expires_utc = @expires_utc, active = @active, is_protected = @is_protected, last_update_utc = @last_update_utc WHERE id = @id;";
+            string sql = "UPDATE " + _Table + " SET tenant_id = @tenant_id, owner_user_id = @owner_user_id, name = @name, access_key = @access_key, secret_key_encrypted = @secret_key_encrypted, secret_key_last4 = @secret_key_last4, auth_mode = @auth_mode, agent_profile_id = @agent_profile_id, lock_to_profile = @lock_to_profile, inherit_owner_bypass = @inherit_owner_bypass, last_used_utc = @last_used_utc, expires_utc = @expires_utc, active = @active, is_protected = @is_protected, last_update_utc = @last_update_utc WHERE id = @id;";
 
             await _Driver.ExecuteInTransactionAsync(async (connection, transaction, ct) =>
             {
@@ -107,6 +107,7 @@ namespace Hugo.Core.Database.Ado
                     AdoDatabaseDriver.Add(command, "auth_mode", obj.AuthMode.ToString());
                     AdoDatabaseDriver.Add(command, "agent_profile_id", obj.AgentProfileId);
                     AdoDatabaseDriver.Add(command, "lock_to_profile", obj.LockToProfile);
+                    AdoDatabaseDriver.Add(command, "inherit_owner_bypass", obj.InheritOwnerBypass);
                     AdoDatabaseDriver.Add(command, "last_used_utc", obj.LastUsedUtc);
                     AdoDatabaseDriver.Add(command, "expires_utc", obj.ExpiresUtc);
                     AdoDatabaseDriver.Add(command, "active", obj.Active);
@@ -191,6 +192,7 @@ namespace Hugo.Core.Database.Ado
             obj.AuthMode = AdoConverters.Enum<CredentialAuthModeEnum>(reader, "auth_mode", CredentialAuthModeEnum.Hybrid);
             obj.AgentProfileId = AdoConverters.NullableStr(reader, "agent_profile_id");
             obj.LockToProfile = AdoConverters.Bool(reader, "lock_to_profile");
+            obj.InheritOwnerBypass = AdoConverters.Bool(reader, "inherit_owner_bypass");
             obj.LastUsedUtc = AdoConverters.NullableDate(reader, "last_used_utc");
             obj.ExpiresUtc = AdoConverters.NullableDate(reader, "expires_utc");
             obj.Active = AdoConverters.Bool(reader, "active");
@@ -271,7 +273,7 @@ namespace Hugo.Core.Database.Ado
 
         private async Task InsertRowAsync(DbConnection connection, DbTransaction transaction, Credential obj, CancellationToken token)
         {
-            string sql = "INSERT INTO " + _Table + " (id, tenant_id, owner_user_id, name, access_key, secret_key_encrypted, secret_key_last4, auth_mode, agent_profile_id, lock_to_profile, last_used_utc, expires_utc, active, is_protected, created_utc, last_update_utc) VALUES (@id, @tenant_id, @owner_user_id, @name, @access_key, @secret_key_encrypted, @secret_key_last4, @auth_mode, @agent_profile_id, @lock_to_profile, @last_used_utc, @expires_utc, @active, @is_protected, @created_utc, @last_update_utc);";
+            string sql = "INSERT INTO " + _Table + " (id, tenant_id, owner_user_id, name, access_key, secret_key_encrypted, secret_key_last4, auth_mode, agent_profile_id, lock_to_profile, inherit_owner_bypass, last_used_utc, expires_utc, active, is_protected, created_utc, last_update_utc) VALUES (@id, @tenant_id, @owner_user_id, @name, @access_key, @secret_key_encrypted, @secret_key_last4, @auth_mode, @agent_profile_id, @lock_to_profile, @inherit_owner_bypass, @last_used_utc, @expires_utc, @active, @is_protected, @created_utc, @last_update_utc);";
             await AdoDatabaseDriver.ExecuteAsync(connection, transaction, sql, command =>
             {
                 AdoDatabaseDriver.Add(command, "id", obj.Id);
@@ -284,6 +286,7 @@ namespace Hugo.Core.Database.Ado
                 AdoDatabaseDriver.Add(command, "auth_mode", obj.AuthMode.ToString());
                 AdoDatabaseDriver.Add(command, "agent_profile_id", obj.AgentProfileId);
                 AdoDatabaseDriver.Add(command, "lock_to_profile", obj.LockToProfile);
+                AdoDatabaseDriver.Add(command, "inherit_owner_bypass", obj.InheritOwnerBypass);
                 AdoDatabaseDriver.Add(command, "last_used_utc", obj.LastUsedUtc);
                 AdoDatabaseDriver.Add(command, "expires_utc", obj.ExpiresUtc);
                 AdoDatabaseDriver.Add(command, "active", obj.Active);

@@ -88,8 +88,8 @@ namespace Test.Shared.Integration.Mcp
                 fixture.Ops = await HttpTestHelpers.SendAsync<AgentProfile>(rig.Anderson, HttpMethod.Post, "/v1.0/api/agent-profiles", new { name = "Ops" }, 201, token).ConfigureAwait(false);
                 Resource ops = await rig.ResourceAsync("echo-ops", token).ConfigureAwait(false);
                 await rig.BindAsync(fixture.Ops.Id, ops.Id, AccessModeEnum.ReadOnly, token).ConfigureAwait(false);
-                fixture.HugoCredential = await CredentialAsync(rig, "hugo-mcp", rig.Hugo.Id, null, token).ConfigureAwait(false);
-                fixture.OpsCredential = await CredentialAsync(rig, "ops-mcp", fixture.Ops.Id, null, token).ConfigureAwait(false);
+                fixture.HugoCredential = await CredentialAsync(rig, "hugo-mcp", rig.Hugo.Id, "Operator", token).ConfigureAwait(false);
+                fixture.OpsCredential = await CredentialAsync(rig, "ops-mcp", fixture.Ops.Id, "Operator", token).ConfigureAwait(false);
                 return fixture;
             }
             catch
@@ -105,7 +105,7 @@ namespace Test.Shared.Integration.Mcp
         /// <param name="rig">Rig.</param>
         /// <param name="name">Name.</param>
         /// <param name="profileId">Profile.</param>
-        /// <param name="roleName">Role, or null for the owner's permissions.</param>
+        /// <param name="roleName">Role granted at tenant scope, or null for none (a credential without scope assignments is denied everything).</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Credential with its secret.</returns>
         public static async Task<CredentialCreateResponse> CredentialAsync(IntegrationRig rig, string name, string profileId, string? roleName, CancellationToken token)

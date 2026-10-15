@@ -36,6 +36,7 @@ namespace Test.Shared.Suites
                 cases.Add(new TestCaseDescriptor(id, "credential-secret-once", "Credential secret is returned once and never stored in plain text (" + provider + ")", ct => IdentityHttpCases.CredentialSecretOnceAsync(provider, ct)));
                 cases.Add(new TestCaseDescriptor(id, "owner-ceiling", "Credential grants are capped by the owning user's grants (" + provider + ")", ct => IdentityHttpCases.OwnerCeilingAsync(provider, ct)));
                 cases.Add(new TestCaseDescriptor(id, "bypass", "Bypass rules and platform-only resources (" + provider + ")", ct => IdentityHttpCases.BypassAsync(provider, ct)));
+                cases.Add(new TestCaseDescriptor(id, "credential-least-privilege", "Credentials never carry the owner's bypass flags by default; the inheritOwnerBypass opt-in is administrator-only and audited (" + provider + ")", ct => IdentityHttpCases.CredentialLeastPrivilegeAsync(provider, ct)));
                 cases.Add(new TestCaseDescriptor(id, "cross-tenant-404", "Cross-tenant reads return 404 (" + provider + ")", ct => IdentityHttpCases.CrossTenantAsync(provider, ct)));
                 cases.Add(new TestCaseDescriptor(id, "tenant-cascade", "Tenant delete cascades and protected records are kept (" + provider + ")", ct => IdentityHttpCases.TenantCascadeAsync(provider, ct)));
                 cases.Add(new TestCaseDescriptor(id, "roles-and-assignments", "Custom roles, permissions, assignments, and effective permissions (" + provider + ")", ct => IdentityHttpCases.RolesAndAssignmentsAsync(provider, ct)));
