@@ -1,0 +1,1 @@
+Kubernetes cluster. Stay within the allowed namespaces. Investigate with k8s_describe and k8s_events before k8s_logs; use previous logs for crash loops. Prefer k8s_rollout_restart over deleting pods. Scale to zero, delete, exec, and cordon are Destructive; state why before using them. Secret values are always redacted.

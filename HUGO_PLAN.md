@@ -113,10 +113,13 @@ Milestones:
 
 - Execution started 2026-10-14. Phase 0 skeleton is committed: solution, connector contract (P3.1), CI workflow, assets. The foundation is being forked from Garrison (D-032).
 - In flight 2026-10-14 (parallel agents, one git worktree each, merged by the coordinator):
-  2. MCP and A2A agent connectors: P13.26 to P13.31.
-  4. Connector documentation: P4.29, connector parts of P11.10 and P13.33, P13.36 Redis part.
+  1. Chat, conversations, A2A, OpenAI-compatible surface, delegation service: P6 remainder, P7.13 to P7.19, A2A part of P7.22.
+  2. MCP surface: P7.1 to P7.12, MCP part of P7.22.
+  3. Dashboard wiring to the real routes and the live primary-journey test: P8.33, P8.34, P8.35, P8.38, P8.53.
+  4. MCP and A2A agent connectors: P13.26 to P13.31.
   5. hugo CLI with stdio MCP relay: P7.20, P7.21.
-  6. SDK cores in C#, Python, and JavaScript: Phase 9 (domain routes as preview until the integration lands).
+  6. SDKs in C#, Python, and JavaScript: Phase 9, now verifying domain routes against the server.
+  7. Connector bug fixes from the documentation review (SSH command wrapper classification, Redis deny list, Kubernetes, AWS, logs, storage paging, SQL Server TLS, Elasticsearch aliases).
 - Follow-ups recorded from connector work (fold into the named tasks):
   - P3.13: the pipeline applies binding-level command deny patterns (the invocation context has no binding policy).
   - P3.8: audit every `LearnSetting` call (pinned host keys, D-028) as `HostKeyPinned`.

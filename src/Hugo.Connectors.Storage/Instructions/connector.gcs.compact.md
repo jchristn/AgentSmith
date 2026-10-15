@@ -1,0 +1,1 @@
+Google Cloud Storage bucket. List with a prefix (storage_list) before reading; use storage_stats for size and count questions instead of listing everything. Reads over the size limit are truncated. Writes refuse to replace an object unless overwrite is set; deletes, overwrites, and presigned URLs name the full key and may need approval.

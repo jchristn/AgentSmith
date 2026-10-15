@@ -105,6 +105,8 @@ namespace Test.Shared.Integration
                 Assert.True(compiled.Text.Contains("Revenue means sum(", StringComparison.Ordinal), "root knowledge included");
                 Assert.True(compiled.Warnings.Count == 0, "no warnings: " + String.Join("; ", compiled.Warnings));
                 Assert.True(compiled.Text.IndexOf((char)0x2014) < 0, "no em-dashes in compiled instructions");
+                Assert.True(compiled.Text.Contains("call hugo_describe_resource", StringComparison.Ordinal), "eight bindings exceed the compact threshold, so connector guidance is abbreviated");
+                Assert.True(compiled.Text.Length < 16000, "compact instructions stay short (" + compiled.Text.Length + " characters)");
 
                 string path = Path.Combine(RepositoryRoot(), GoldenPath);
                 if (Environment.GetEnvironmentVariable("HUGO_WRITE_GOLDEN") == "true")

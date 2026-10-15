@@ -20,7 +20,7 @@ namespace Hugo.Core.Database.Ado
 
         private readonly AdoDatabaseDriver _Driver;
         private readonly string _Table;
-        private static readonly string _Columns = "id, tenant_id, owner_user_id, visibility, name, display_name, persona_name, user_address, description, persona_template_key, inference_endpoint_id, fallback_inference_endpoint_id, embedding_endpoint_id, max_iterations, max_tool_calls_per_turn, tool_timeout_seconds, temperature, expose_a2a, expose_mcp, expose_openai, expose_management_tools, instructions_append, is_default, active, created_utc, last_update_utc";
+        private static readonly string _Columns = "id, tenant_id, owner_user_id, visibility, name, display_name, persona_name, user_address, description, persona_template_key, inference_endpoint_id, fallback_inference_endpoint_id, embedding_endpoint_id, max_iterations, max_tool_calls_per_turn, tool_timeout_seconds, temperature, expose_a2a, expose_mcp, expose_openai, expose_management_tools, instructions_append, instruction_detail, is_default, active, created_utc, last_update_utc";
 
         #endregion
 
@@ -209,6 +209,7 @@ namespace Hugo.Core.Database.Ado
             obj.ExposeOpenAI = AdoConverters.Bool(reader, "expose_openai");
             obj.ExposeManagementTools = AdoConverters.Bool(reader, "expose_management_tools");
             obj.InstructionsAppend = AdoConverters.NullableStr(reader, "instructions_append");
+            obj.InstructionDetail = AdoConverters.Enum(reader, "instruction_detail", InstructionDetailEnum.Auto);
             obj.IsDefault = AdoConverters.Bool(reader, "is_default");
             obj.Active = AdoConverters.Bool(reader, "active");
             obj.CreatedUtc = AdoConverters.Date(reader, "created_utc");
@@ -244,6 +245,7 @@ namespace Hugo.Core.Database.Ado
             AdoDatabaseDriver.Add(command, "expose_openai", obj.ExposeOpenAI);
             AdoDatabaseDriver.Add(command, "expose_management_tools", obj.ExposeManagementTools);
             AdoDatabaseDriver.Add(command, "instructions_append", obj.InstructionsAppend);
+            AdoDatabaseDriver.Add(command, "instruction_detail", obj.InstructionDetail.ToString());
             AdoDatabaseDriver.Add(command, "is_default", obj.IsDefault);
             AdoDatabaseDriver.Add(command, "active", obj.Active);
             if (insert) AdoDatabaseDriver.Add(command, "created_utc", obj.CreatedUtc);

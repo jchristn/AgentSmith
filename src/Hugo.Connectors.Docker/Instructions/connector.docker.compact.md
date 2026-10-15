@@ -1,0 +1,1 @@
+Docker host. Start with docker_ps and docker_inspect, then docker_logs with a tail and docker_stats for resource pressure. Start and restart are Write; stop, kill, remove, and exec are Destructive and may need approval.

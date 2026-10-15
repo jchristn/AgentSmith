@@ -1,0 +1,1 @@
+Loki. Every query needs a stream selector; find labels with loki_labels and loki_label_values. Use loki_query_range with a bounded window, add line filters early, and summarize patterns instead of pasting many lines.

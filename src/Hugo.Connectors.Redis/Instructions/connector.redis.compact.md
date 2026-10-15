@@ -1,0 +1,1 @@
+Redis. Check redis_info and redis_slowlog first for health and latency. Never use KEYS; find keys with redis_scan and a pattern. Large values are truncated. Writes go through redis_set and redis_expire; deletes and flushes are Destructive and need approval.

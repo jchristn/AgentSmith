@@ -1,0 +1,1 @@
+SolarWinds Observability. Always bound logs_search by time; start narrow (group or entity, short window) and widen. Use swo_list_entities to find hosts and services and swo_query_metric for metrics. Summarize patterns instead of pasting many lines; page with the returned cursor.

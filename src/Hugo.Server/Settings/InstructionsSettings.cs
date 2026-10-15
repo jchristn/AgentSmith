@@ -40,12 +40,29 @@ namespace Hugo.Server.Settings
             }
         }
 
+        /// <summary>
+        /// Profiles whose instruction detail is Auto use compact connector instructions when they have more bindings than
+        /// this. Default 3, minimum 0 (always compact), maximum 1000.
+        /// </summary>
+        public int CompactBindingThreshold
+        {
+            get
+            {
+                return _CompactBindingThreshold;
+            }
+            set
+            {
+                _CompactBindingThreshold = Math.Clamp(value, 0, 1000);
+            }
+        }
+
         #endregion
 
         #region Private-Members
 
         private int _MaxKnowledgeCharsPerResource = 2000;
         private int _CacheEntries = 1024;
+        private int _CompactBindingThreshold = 3;
 
         #endregion
     }

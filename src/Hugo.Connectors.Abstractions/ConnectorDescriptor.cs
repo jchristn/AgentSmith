@@ -120,6 +120,29 @@ namespace Hugo.Connectors.Abstractions
         public string DefaultInstructions { get; set; } = String.Empty;
 
         /// <summary>
+        /// Prompt template key of the compact instructions used when a profile has many resources. Defaults to
+        /// <c>connector.{type}.compact</c>.
+        /// </summary>
+        public string CompactInstructionsKey
+        {
+            get
+            {
+                return String.IsNullOrEmpty(_CompactInstructionsKey) ? "connector." + _Type + ".compact" : _CompactInstructionsKey;
+            }
+            set
+            {
+                _CompactInstructionsKey = value ?? String.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Built-in compact instructions (a few lines: what to call first, the key limits, the one or two things never to
+        /// do). When empty, the server looks for an embedded resource named <c>connector.{type}.compact.md</c> in the
+        /// connector's assembly, then falls back to a generated line.
+        /// </summary>
+        public string CompactInstructions { get; set; } = String.Empty;
+
+        /// <summary>
         /// Optional documentation URL for the upstream service.
         /// </summary>
         public string? DocumentationUrl { get; set; } = null;
@@ -131,6 +154,7 @@ namespace Hugo.Connectors.Abstractions
         private string _Type = "connector";
         private string _Family = String.Empty;
         private string _DefaultInstructionsKey = String.Empty;
+        private string _CompactInstructionsKey = String.Empty;
         private ConnectorSettingsSchema _SettingsSchema = new ConnectorSettingsSchema();
         private List<SecretSlotDescriptor> _SecretSlots = new List<SecretSlotDescriptor>();
 
