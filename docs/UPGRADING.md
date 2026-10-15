@@ -32,7 +32,7 @@ cd docker
 ./update.sh            # Windows: update.bat
 ```
 
-`update.sh` runs `docker compose pull`, `docker compose down`, `docker compose up -d`, and `docker ps -a`. It is non-destructive: named volumes, and therefore your data, survive. Running it without changing the tag pulls the same images again, which is how you pick up a rebuilt image of the same version.
+`update.sh` runs `docker compose pull`, `docker compose down`, `docker compose up -d`, and `docker ps -a`. When `HUGO_DB_TYPE` is `Postgresql` (in the environment or `docker/.env`), it adds `--profile postgres` to each compose command so the PostgreSQL container is updated too. It is non-destructive: named volumes, and therefore your data, survive. Running it without changing the tag pulls the same images again, which is how you pick up a rebuilt image of the same version.
 
 Kubernetes and minikube upgrades follow the same model with a new image tag in the manifests; see [`KUBERNETES.md`](KUBERNETES.md).
 

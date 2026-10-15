@@ -843,7 +843,7 @@
         "isTenantAdmin": "Administrador del inquilino",
         "isAdmin": "Administrador del sistema",
         "active": "Activo",
-        "mustChangePassword": "Debe cambiar la contraseña en el próximo inicio de sesión"
+        "mustChangePassword": "Pedir el cambio de contraseña en el próximo inicio de sesión"
       },
       "hints": {
         "isAdmin": "Los administradores del sistema pueden gestionar todos los inquilinos y omitir toda autorización.",
@@ -854,7 +854,7 @@
         "resetPassword": "Restablecer contraseña",
         "assignRole": "Asignar un rol"
       },
-      "passwordReset": "Contraseña restablecida. El usuario debe cambiarla en el próximo inicio de sesión."
+      "passwordReset": "Contraseña restablecida. Se pedirá al usuario que la cambie en el próximo inicio de sesión."
     },
     "credentials": {
       "title": "Claves de acceso",
@@ -2616,10 +2616,10 @@
         "active": "Los usuarios inactivos no pueden iniciar sesión y sus claves de acceso dejan de funcionar.",
         "actions": {
           "permissions": "Muestra todos los permisos que acaba teniendo este usuario tras combinar todos sus roles y asignaciones.",
-          "resetPassword": "Establece una contraseña temporal; el usuario debe cambiarla en el próximo inicio de sesión.",
+          "resetPassword": "Establece una contraseña temporal; se pedirá al usuario que la cambie en el próximo inicio de sesión.",
           "assignRole": "Abre Asignaciones filtradas por este usuario para conceder un rol."
         },
-        "mustChangePassword": "El usuario debe elegir una contraseña nueva en su próximo inicio de sesión."
+        "mustChangePassword": "En su próximo inicio de sesión se pide al usuario que elija una contraseña nueva. Puede omitir el aviso; no se bloquea ningún acceso."
       },
       "credentials": {
         "add": "Crea una clave de acceso para un script, un SDK o un servicio. El secreto se muestra una sola vez después de guardar.",

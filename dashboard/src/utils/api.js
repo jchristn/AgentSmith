@@ -176,7 +176,7 @@ class ApiClient {
     return this._request('POST', '/v1.0/api/users/me/password', { body });
   }
 
-  /** An administrator's password reset; the user must change it at next sign-in unless mustChangePassword is false. */
+  /** An administrator's password reset; the user is prompted (not forced, D-048) to change it at next sign-in unless mustChangePassword is false. */
   resetUserPassword(tenantId, userId, newPassword, mustChangePassword = true) {
     return this._request('POST', this._t(tenantId, `users/${enc(userId)}/password`), {
       body: { newPassword },

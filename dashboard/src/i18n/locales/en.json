@@ -844,7 +844,7 @@
         "isTenantAdmin": "Tenant administrator",
         "isAdmin": "System administrator",
         "active": "Active",
-        "mustChangePassword": "Must change password at next sign-in"
+        "mustChangePassword": "Prompt to change password at next sign-in"
       },
       "hints": {
         "isAdmin": "System administrators can manage every tenant and bypass all authorization.",
@@ -855,7 +855,7 @@
         "resetPassword": "Reset password",
         "assignRole": "Assign a role"
       },
-      "passwordReset": "Password reset. The user must change it at next sign-in."
+      "passwordReset": "Password reset. The user is prompted to change it at next sign-in."
     },
     "credentials": {
       "title": "Credentials",
@@ -2601,10 +2601,10 @@
         "active": "Inactive users cannot sign in, and their access keys stop working.",
         "actions": {
           "permissions": "Show every permission this user ends up with after combining all roles and assignments.",
-          "resetPassword": "Set a temporary password; the user must change it at next sign-in.",
+          "resetPassword": "Set a temporary password; the user is prompted to change it at next sign-in.",
           "assignRole": "Open Assignments filtered to this user to grant a role."
         },
-        "mustChangePassword": "The user must choose a new password at their next sign-in."
+        "mustChangePassword": "At their next sign-in the user is prompted to choose a new password. The prompt can be skipped; no access is blocked."
       },
       "credentials": {
         "add": "Create an access key for a script, SDK, or service. The secret is shown once after saving.",

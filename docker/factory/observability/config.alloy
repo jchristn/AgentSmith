@@ -1,5 +1,5 @@
-// Grafana Alloy for the Hugo factory stack. Identical to docker/observability/config.alloy except that it reads
-// the logs of the hugo-factory Compose project instead of hugo.
+// Grafana Alloy for the Hugo factory stack. Identical to docker/observability/config.alloy except that it falls
+// back to the hugo-factory Compose project instead of hugo when HUGO_COMPOSE_PROJECT is unset.
 //
 // 1. OTLP receiver (gRPC 4317, HTTP 4318) for traces from the server, forwarded to Tempo. OTLP metrics
 //    and logs are accepted and dropped: Prometheus scrapes the metrics, and logs are read from the containers.
@@ -81,7 +81,9 @@ discovery.docker "containers" {
 
   filter {
     name   = "label"
-    values = ["com.docker.compose.project=hugo-factory"]
+    // HUGO_COMPOSE_PROJECT is set by compose.yaml from ${COMPOSE_PROJECT_NAME}, so logs keep flowing when the
+    // stack runs under another project name (docker compose -p). The literal is the fallback when it is unset.
+    values = ["com.docker.compose.project=" + coalesce(sys.env("HUGO_COMPOSE_PROJECT"), "hugo-factory")]
   }
 }
 

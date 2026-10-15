@@ -843,7 +843,7 @@
         "isTenantAdmin": "Mandantenadministration",
         "isAdmin": "Systemadministration",
         "active": "Aktiv",
-        "mustChangePassword": "Muss das Passwort bei der nächsten Anmeldung ändern"
+        "mustChangePassword": "Bei der nächsten Anmeldung zur Passwortänderung auffordern"
       },
       "hints": {
         "isAdmin": "Systemadministration kann alle Mandanten verwalten und umgeht jede Autorisierung.",
@@ -854,7 +854,7 @@
         "resetPassword": "Passwort zurücksetzen",
         "assignRole": "Rolle zuweisen"
       },
-      "passwordReset": "Passwort zurückgesetzt. Der Benutzer muss es bei der nächsten Anmeldung ändern."
+      "passwordReset": "Passwort zurückgesetzt. Der Benutzer wird bei der nächsten Anmeldung aufgefordert, es zu ändern."
     },
     "credentials": {
       "title": "Zugangsschlüssel",
@@ -2616,10 +2616,10 @@
         "active": "Inaktive Benutzer können sich nicht anmelden, und ihre Zugangsschlüssel funktionieren nicht mehr.",
         "actions": {
           "permissions": "Alle Berechtigungen anzeigen, die dieser Benutzer nach Kombination aller Rollen und Zuweisungen erhält.",
-          "resetPassword": "Ein temporäres Passwort festlegen; der Benutzer muss es bei der nächsten Anmeldung ändern.",
+          "resetPassword": "Ein temporäres Passwort festlegen; der Benutzer wird bei der nächsten Anmeldung aufgefordert, es zu ändern.",
           "assignRole": "Zuweisungen gefiltert auf diesen Benutzer öffnen, um eine Rolle zu vergeben."
         },
-        "mustChangePassword": "Der Benutzer muss bei der nächsten Anmeldung ein neues Passwort wählen."
+        "mustChangePassword": "Bei der nächsten Anmeldung wird der Benutzer aufgefordert, ein neues Passwort zu wählen. Die Aufforderung kann übersprungen werden; kein Zugriff wird gesperrt."
       },
       "credentials": {
         "add": "Einen Zugangsschlüssel für ein Skript, ein SDK oder einen Dienst erstellen. Das Geheimnis wird nach dem Speichern einmal angezeigt.",

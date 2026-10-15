@@ -3,6 +3,7 @@
 The testbed runs a real target for every connector that has one, so connector suites never need a cloud account (decision D-030 in `HUGO_PLAN.md`). Papertrail and SolarWinds Observability have no self-hostable equivalent; their suites run against in-process stubs in `src/Test.Shared/Connectors/Logging` instead.
 
 ```bash
+docker/testbed/ssh/generate-keys.sh                        # once: SSH client keys for the ssh targets
 docker compose -f docker/testbed/compose.yaml up -d --wait
 HUGO_TESTBED=1 dotnet run --project src/Test.Automated -f net10.0 -- --suites testbed
 docker compose -f docker/testbed/compose.yaml down -v
@@ -21,7 +22,7 @@ Every target binds to `127.0.0.1` in the `28xxx` port block. Each family directo
 | `kubernetes/` | k3s (privileged) | 28443 |
 | `docker/` | Docker-in-Docker (privileged, plain TCP) | 28375 |
 
-The Kubernetes and Docker targets run privileged containers and pull images from Docker Hub from inside the container; skip them on machines or CI runners that forbid that (plan risk R-6). The connector suites for those families skip cleanly when the targets are down. Generated material such as SSH keys goes to `docker/testbed/generated/`, which git ignores.
+The Kubernetes and Docker targets run privileged containers and pull images from Docker Hub from inside the container; skip them on machines or CI runners that forbid that (plan risk R-6). The connector suites for those families skip cleanly when the targets are down. Generated material such as SSH keys goes to `docker/testbed/generated/`, which git ignores. Run `ssh/generate-keys.sh` before the first start: it writes the ed25519, passphrase-protected ed25519, and RSA client keys the SSH suites use, plus the `authorized` directory that the `ssh/` containers mount. It keeps existing keys, so running it again is safe.
 
 ## MCP and A2A targets
 

@@ -80,7 +80,9 @@ discovery.docker "containers" {
 
   filter {
     name   = "label"
-    values = ["com.docker.compose.project=hugo"]
+    // HUGO_COMPOSE_PROJECT is set by compose.yaml from ${COMPOSE_PROJECT_NAME}, so logs keep flowing when the
+    // stack runs under another project name (docker compose -p). The literal is the fallback when it is unset.
+    values = ["com.docker.compose.project=" + coalesce(sys.env("HUGO_COMPOSE_PROJECT"), "hugo")]
   }
 }
 

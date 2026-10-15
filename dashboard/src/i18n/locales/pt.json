@@ -843,7 +843,7 @@
         "isTenantAdmin": "Administrador do locatário",
         "isAdmin": "Administrador do sistema",
         "active": "Ativo",
-        "mustChangePassword": "Deve alterar a senha na próxima entrada"
+        "mustChangePassword": "Solicitar a troca de senha no próximo acesso"
       },
       "hints": {
         "isAdmin": "Administradores do sistema podem gerenciar todos os locatários e ignorar toda a autorização.",
@@ -854,7 +854,7 @@
         "resetPassword": "Redefinir senha",
         "assignRole": "Atribuir uma função"
       },
-      "passwordReset": "Senha redefinida. O usuário deve alterá-la na próxima entrada."
+      "passwordReset": "Senha redefinida. O usuário será solicitado a alterá-la no próximo acesso."
     },
     "credentials": {
       "title": "Credenciais",
@@ -2616,10 +2616,10 @@
         "active": "Usuários inativos não podem entrar, e suas chaves de acesso param de funcionar.",
         "actions": {
           "permissions": "Mostrar todas as permissões que este usuário obtém após combinar todas as funções e atribuições.",
-          "resetPassword": "Definir uma senha temporária; o usuário deve alterá-la no próximo acesso.",
+          "resetPassword": "Definir uma senha temporária; o usuário será solicitado a alterá-la no próximo acesso.",
           "assignRole": "Abrir Atribuições filtradas para este usuário para conceder uma função."
         },
-        "mustChangePassword": "O usuário deve escolher uma nova senha no próximo acesso."
+        "mustChangePassword": "No próximo acesso, o usuário é solicitado a escolher uma nova senha. O aviso pode ser ignorado; nenhum acesso é bloqueado."
       },
       "credentials": {
         "add": "Criar uma chave de acesso para um script, SDK ou serviço. O segredo é exibido uma vez após salvar.",

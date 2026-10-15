@@ -843,7 +843,7 @@
         "isTenantAdmin": "租户管理员",
         "isAdmin": "系统管理员",
         "active": "启用",
-        "mustChangePassword": "下次登录时必须修改密码"
+        "mustChangePassword": "下次登录时提示修改密码"
       },
       "hints": {
         "isAdmin": "系统管理员可以管理所有租户，并绕过所有授权检查。",
@@ -854,7 +854,7 @@
         "resetPassword": "重置密码",
         "assignRole": "分配角色"
       },
-      "passwordReset": "密码已重置。用户下次登录时必须修改密码。"
+      "passwordReset": "密码已重置。用户下次登录时会收到修改密码的提示。"
     },
     "credentials": {
       "title": "访问密钥",
@@ -2616,10 +2616,10 @@
         "active": "未启用的用户无法登录，其访问密钥也会失效。",
         "actions": {
           "permissions": "显示此用户在合并所有角色和分配后最终拥有的全部权限。",
-          "resetPassword": "设置临时密码；用户下次登录时必须修改。",
+          "resetPassword": "设置临时密码；用户下次登录时会收到修改提示。",
           "assignRole": "打开按此用户筛选的分配页面以授予角色。"
         },
-        "mustChangePassword": "用户下次登录时必须设置新密码。"
+        "mustChangePassword": "用户下次登录时会收到设置新密码的提示。该提示可以跳过，不会阻止任何访问。"
       },
       "credentials": {
         "add": "为脚本、SDK 或服务创建访问密钥。保存后私密密钥只显示一次。",

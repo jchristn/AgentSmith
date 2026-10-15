@@ -163,7 +163,7 @@ Grafana at http://127.0.0.1:3010 (admin / admin) has the datasources `prometheus
 | `docker/factory/reset.sh`, `reset.bat` | Destructive reset, seed, and summary |
 | `docker/factory/seed/seed.py` | The seed (Python standard library, runs in `python:3.12.15-alpine3.24`) |
 | `docker/factory/hugo/hugo.json` | Server settings (a copy of `docker/hugo/hugo.json`) |
-| `docker/factory/observability/config.alloy` | Alloy configuration; the same as `docker/observability/config.alloy` except that it reads the `hugo-factory` project's logs |
+| `docker/factory/observability/config.alloy` | Alloy configuration; the same as `docker/observability/config.alloy` except that its fallback project name is `hugo-factory`; both read the running project's name from `HUGO_COMPOSE_PROJECT` |
 | `docker/factory/grafana/` | Mirror of `assets/grafana/` |
 
 The remaining observability configuration (Prometheus, Tempo, Loki, Grafana provisioning) is mounted straight from `docker/observability/`, so the two stacks cannot drift apart.

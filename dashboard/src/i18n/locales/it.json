@@ -843,7 +843,7 @@
         "isTenantAdmin": "Amministratore del tenant",
         "isAdmin": "Amministratore di sistema",
         "active": "Attivo",
-        "mustChangePassword": "Deve cambiare la password al prossimo accesso"
+        "mustChangePassword": "Chiedi di cambiare la password al prossimo accesso"
       },
       "hints": {
         "isAdmin": "Gli amministratori di sistema possono gestire ogni tenant e aggirare ogni autorizzazione.",
@@ -854,7 +854,7 @@
         "resetPassword": "Reimposta password",
         "assignRole": "Assegna un ruolo"
       },
-      "passwordReset": "Password reimpostata. L'utente dovrà cambiarla al prossimo accesso."
+      "passwordReset": "Password reimpostata. All'utente verrà chiesto di cambiarla al prossimo accesso."
     },
     "credentials": {
       "title": "Chiavi di accesso",
@@ -2616,10 +2616,10 @@
         "active": "Gli utenti inattivi non possono accedere e le loro chiavi di accesso smettono di funzionare.",
         "actions": {
           "permissions": "Mostra tutte le autorizzazioni che questo utente ottiene combinando tutti i ruoli e le assegnazioni.",
-          "resetPassword": "Imposta una password temporanea; l'utente dovrà cambiarla al prossimo accesso.",
+          "resetPassword": "Imposta una password temporanea; all'utente verrà chiesto di cambiarla al prossimo accesso.",
           "assignRole": "Apri Assegnazioni filtrate su questo utente per concedere un ruolo."
         },
-        "mustChangePassword": "L'utente dovrà scegliere una nuova password al prossimo accesso."
+        "mustChangePassword": "Al prossimo accesso all'utente viene chiesto di scegliere una nuova password. La richiesta può essere saltata; nessun accesso viene bloccato."
       },
       "credentials": {
         "add": "Crea una chiave di accesso per uno script, un SDK o un servizio. Il segreto viene mostrato una sola volta dopo il salvataggio.",

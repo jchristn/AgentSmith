@@ -843,7 +843,7 @@
         "isTenantAdmin": "Administrateur du locataire",
         "isAdmin": "Administrateur système",
         "active": "Actif",
-        "mustChangePassword": "Doit changer de mot de passe à la prochaine connexion"
+        "mustChangePassword": "Inviter à changer de mot de passe à la prochaine connexion"
       },
       "hints": {
         "isAdmin": "Les administrateurs système peuvent gérer tous les locataires et contournent toutes les autorisations.",
@@ -854,7 +854,7 @@
         "resetPassword": "Réinitialiser le mot de passe",
         "assignRole": "Attribuer un rôle"
       },
-      "passwordReset": "Mot de passe réinitialisé. L'utilisateur doit le changer à la prochaine connexion."
+      "passwordReset": "Mot de passe réinitialisé. L'utilisateur sera invité à le changer à la prochaine connexion."
     },
     "credentials": {
       "title": "Clés d'accès",
@@ -2616,10 +2616,10 @@
         "active": "Les utilisateurs inactifs ne peuvent pas se connecter, et leurs clés d'accès cessent de fonctionner.",
         "actions": {
           "permissions": "Afficher toutes les autorisations effectives de cet utilisateur après combinaison de tous les rôles et attributions.",
-          "resetPassword": "Définir un mot de passe temporaire ; l'utilisateur doit le changer à la prochaine connexion.",
+          "resetPassword": "Définir un mot de passe temporaire ; l'utilisateur sera invité à le changer à la prochaine connexion.",
           "assignRole": "Ouvrir les attributions filtrées sur cet utilisateur pour accorder un rôle."
         },
-        "mustChangePassword": "L'utilisateur doit choisir un nouveau mot de passe à sa prochaine connexion."
+        "mustChangePassword": "À sa prochaine connexion, l'utilisateur est invité à choisir un nouveau mot de passe. L'invitation peut être ignorée ; aucun accès n'est bloqué."
       },
       "credentials": {
         "add": "Créer une clé d'accès pour un script, un SDK ou un service. Le secret est affiché une seule fois après l'enregistrement.",

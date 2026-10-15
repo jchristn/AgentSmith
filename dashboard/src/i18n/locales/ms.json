@@ -843,7 +843,7 @@
         "isTenantAdmin": "Pentadbir penyewa",
         "isAdmin": "Pentadbir sistem",
         "active": "Aktif",
-        "mustChangePassword": "Mesti menukar kata laluan pada log masuk seterusnya"
+        "mustChangePassword": "Gesa menukar kata laluan pada log masuk seterusnya"
       },
       "hints": {
         "isAdmin": "Pentadbir sistem boleh mengurus setiap penyewa dan memintas semua kebenaran.",
@@ -854,7 +854,7 @@
         "resetPassword": "Tetapkan semula kata laluan",
         "assignRole": "Tugaskan peranan"
       },
-      "passwordReset": "Kata laluan ditetapkan semula. Pengguna mesti menukarnya pada log masuk seterusnya."
+      "passwordReset": "Kata laluan ditetapkan semula. Pengguna akan digesa menukarnya pada log masuk seterusnya."
     },
     "credentials": {
       "title": "Kelayakan",
@@ -2616,10 +2616,10 @@
         "active": "Pengguna tidak aktif tidak boleh log masuk, dan kunci akses mereka berhenti berfungsi.",
         "actions": {
           "permissions": "Tunjukkan setiap kebenaran yang dimiliki pengguna ini selepas menggabungkan semua peranan dan penugasan.",
-          "resetPassword": "Tetapkan kata laluan sementara; pengguna mesti menukarnya pada log masuk seterusnya.",
+          "resetPassword": "Tetapkan kata laluan sementara; pengguna akan digesa menukarnya pada log masuk seterusnya.",
           "assignRole": "Buka Penugasan yang ditapis kepada pengguna ini untuk memberikan peranan."
         },
-        "mustChangePassword": "Pengguna mesti memilih kata laluan baharu pada log masuk seterusnya."
+        "mustChangePassword": "Pada log masuk seterusnya pengguna digesa memilih kata laluan baharu. Gesaan boleh dilangkau; tiada akses disekat."
       },
       "credentials": {
         "add": "Cipta kunci akses untuk skrip, SDK atau perkhidmatan. Rahsia ditunjukkan sekali selepas disimpan.",
