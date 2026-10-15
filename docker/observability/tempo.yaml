@@ -1,0 +1,35 @@
+# Tempo configuration for Garrison: single binary, local storage, 24 hours of retention. Traces arrive over OTLP
+# from Grafana Alloy (garrison-alloy), which is what the server and workers export to. Shared by
+# k8s/components/observability, the Helm chart (mirrored copy, diffed in CI), and the Docker Compose
+# observability profile (mounted from here).
+server:
+  http_listen_port: 3200
+  log_level: warn
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+
+ingester:
+  max_block_duration: 5m
+  trace_idle_period: 10s
+
+compactor:
+  compaction:
+    block_retention: 24h
+
+storage:
+  trace:
+    backend: local
+    local:
+      path: /var/tempo/blocks
+    wal:
+      path: /var/tempo/wal
+
+usage_report:
+  reporting_enabled: false

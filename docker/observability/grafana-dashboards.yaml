@@ -1,0 +1,16 @@
+# Grafana dashboard provider: every JSON file under the mounted directory lands in the Hugo folder. Dashboard JSON
+# is maintained in assets/grafana/ and mirrored here (CI checks they match).
+apiVersion: 1
+
+providers:
+  - name: hugo
+    orgId: 1
+    folder: Hugo
+    folderUid: hugo
+    type: file
+    disableDeletion: true
+    allowUiUpdates: false
+    updateIntervalSeconds: 60
+    options:
+      path: /etc/grafana/dashboards/hugo
+      foldersFromFilesStructure: false
