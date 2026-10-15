@@ -76,6 +76,12 @@ namespace Hugo.Server
         public OperationScopeMap Scopes { get; }
 
         /// <summary>
+        /// Runs tasks on Hugo's own agent loop for ask_agent_smith (D-012), or null while no module provides it (the
+        /// tool is then not listed).
+        /// </summary>
+        public IAgentDelegationService? AgentDelegation { get; set; } = null;
+
+        /// <summary>
         /// Default tenant identifier seeded on first boot.
         /// </summary>
         public string DefaultTenantId { get; set; } = Hugo.Core.Constants.DefaultTenantId;

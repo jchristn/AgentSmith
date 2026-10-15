@@ -32,6 +32,7 @@ Hugo records metrics through the `Hugo` meter and spans through the `Hugo` activ
 | `hugo_model_connector_requests_total` | counter | `provider`, `purpose`, `outcome` | Models | Model calls made by connector tools through the calling profile's inference endpoint (IConnectorModel), by purpose and outcome (ok, error, budget_exhausted) |
 | `hugo_model_connector_tokens_total` | counter | `provider`, `purpose`, `direction` | Models | Tokens used by connector model calls, by purpose and direction (input, output) |
 | `hugo_model_health_checks_total` | counter | `provider`, `kind`, `outcome` | Models | Model endpoint validations and health sweep checks by outcome (healthy, unhealthy) |
+| `hugo_mcp_requests_total` | counter | `method`, `outcome` | Protocols | MCP requests on /mcp by JSON-RPC method (initialize, tools/list, tools/call, ...; other for anything else) and outcome (ok, tool_error, error, stream, unauthenticated, forbidden, not_found, bad_request) |
 | `hugo_sse_events_total` | counter | `stream` | Protocols | Server-sent events written |
 | `hugo_sse_streams_active` | gauge | `stream` | Protocols | Server-sent event streams open on this server (events, chat, A2A) |
 | `hugo_audit_events_total` | counter | `type` | Security | Audit records written, by event type |

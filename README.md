@@ -26,6 +26,8 @@ curl -X POST http://127.0.0.1:8800/v1.0/api/users/me/password -H "Authorization:
   -d '{"currentPassword":"password","newPassword":"<new password>"}'
 ```
 
+MCP clients connect to `http://127.0.0.1:8800/mcp` (or `/mcp/<profile>`) with a bearer token or an access key. [`docs/MCP_CLIENTS.md`](docs/MCP_CLIENTS.md) shows the Claude Code configuration over HTTP and stdio.
+
 Secrets are encrypted with a master key from `HUGO_MASTER_KEY` (base64, 32 bytes or more; for example `openssl rand -base64 32`). Without it, a development key file is generated in `data/master.key` and the server logs a loud warning. Never run production that way.
 
 ## Test

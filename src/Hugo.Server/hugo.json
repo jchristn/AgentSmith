@@ -98,7 +98,8 @@
     "Enable": true,
     "InternalPort": 0,
     "SessionIdleTimeoutSeconds": 900,
-    "MaxMessageSize": 4194304
+    "MaxMessageSize": 4194304,
+    "ProgressIntervalSeconds": 10
   },
   "A2A": {
     "Enable": true
