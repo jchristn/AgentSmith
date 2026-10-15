@@ -39,6 +39,7 @@ namespace Test.Shared
                 suites.AddRange(LoggingSuites.Build());
                 suites.AddRange(RedisSuites.Build());
                 suites.AddRange(HttpSuites.Build());
+                suites.AddRange(ObservabilitySuites.Build());
                 return suites;
             }
         }

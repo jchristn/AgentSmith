@@ -14,6 +14,7 @@
     <ProjectReference Include="..\Hugo.Connectors.Logging\Hugo.Connectors.Logging.csproj" />
     <ProjectReference Include="..\Hugo.Connectors.Redis\Hugo.Connectors.Redis.csproj" />
     <ProjectReference Include="..\Hugo.Connectors.Http\Hugo.Connectors.Http.csproj" />
+    <ProjectReference Include="..\Hugo.Connectors.Observability\Hugo.Connectors.Observability.csproj" />
   </ItemGroup>
 
   <ItemGroup>
