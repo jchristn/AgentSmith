@@ -44,7 +44,8 @@
       "view": "Visualizza",
       "viewDetails": "Visualizza dettagli",
       "viewJson": "Visualizza JSON",
-      "dismiss": "Ignora"
+      "dismiss": "Ignora",
+      "openDiscord": "Apri Discord"
     },
     "boolean": {
       "yes": "Sì",
@@ -271,7 +272,8 @@
       "Kubeconfig": "Kubeconfig",
       "ConnectionString": "Stringa di connessione",
       "Certificate": "Certificato",
-      "Generic": "Segreto generico"
+      "Generic": "Segreto generico",
+      "BearerToken": "Token bearer"
     },
     "effect": {
       "Read": "Lettura",
@@ -643,7 +645,8 @@
       "changed": "Password cambiata.",
       "tooShort": "Usa almeno {{min}} caratteri.",
       "sameAsCurrent": "Scegli una password diversa da quella attuale.",
-      "mismatch": "Le due nuove password non corrispondono."
+      "mismatch": "Le due nuove password non corrispondono.",
+      "skip": "Salta"
     },
     "progress": {
       "count": "{{done}} di {{total}}",
@@ -1272,7 +1275,8 @@
       "sections": {
         "endpoint": "Endpoint",
         "capabilities": "Funzionalità",
-        "limits": "Limiti"
+        "limits": "Limiti",
+        "validation": "Convalida"
       },
       "columns": {
         "name": "Nome",
@@ -1318,6 +1322,23 @@
         "title": "Cronologia delle convalide (questa sessione)",
         "note": "Il server conserva solo l'ultimo controllo di integrità. Qui sono elencate le convalide eseguite in questa sessione del browser.",
         "empty": "Nessuna convalida in questa sessione. Usa Convalida per eseguirne una."
+      },
+      "validation": {
+        "button": "Convalida",
+        "running": "Convalida in corso...",
+        "succeeded": "Il modello ha risposto.",
+        "failed": "Il modello non ha risposto come previsto.",
+        "respondedIn": "Andata e ritorno {{value}}.",
+        "model": "Modello",
+        "kind": "Tipo",
+        "latency": "Latenza",
+        "dimensions": "Dimensioni dell’embedding",
+        "statusCode": "Stato HTTP del provider",
+        "response": "Anteprima della risposta",
+        "error": "Errore",
+        "problems": "Problemi",
+        "hint": "Controlla l’URL di base, il nome del modello e il segreto della chiave API, poi convalida di nuovo.",
+        "needsModel": "Scegli prima un provider e un modello."
       }
     },
     "knowledge": {
@@ -2267,7 +2288,8 @@
       "lockdownOff": "Blocca il tenant: nega ogni chiamata di scrittura e distruttiva da ogni superficie finché non revochi il blocco.",
       "lockdownOn": "Il tenant è in blocco. Fai clic per esaminare e revocare il blocco.",
       "lockdownEngage": "Nega subito ogni chiamata non di lettura in questo tenant e annulla le approvazioni in sospeso.",
-      "lockdownLift": "Consenti di nuovo le chiamate di scrittura e distruttive, nel rispetto delle modalità di accesso e delle approvazioni."
+      "lockdownLift": "Consenti di nuovo le chiamate di scrittura e distruttive, nel rispetto delle modalità di accesso e delle approvazioni.",
+      "discord": "Unisciti alla community di Hugo su Discord (si apre in una nuova scheda)."
     },
     "login": {
       "passwordTab": "Accedi come persona con tenant, email e password.",
@@ -2486,7 +2508,8 @@
         "Kubeconfig": "Un file kubeconfig di Kubernetes con le credenziali del cluster e dell'utente.",
         "ConnectionString": "Una stringa di connessione completa che include le credenziali.",
         "Certificate": "Un certificato con la relativa chiave privata, per TLS reciproco.",
-        "Generic": "Qualsiasi altro valore segreto singolo."
+        "Generic": "Qualsiasi altro valore segreto singolo.",
+        "BearerToken": "Un token inviato esattamente nell’intestazione Authorization: Bearer."
       },
       "connectorCategory": {
         "Compute": "Host e macchine raggiunti tramite SSH o simili.",
@@ -2711,12 +2734,14 @@
         "sections": {
           "endpoint": "Quale provider e modello è, e come raggiungerlo.",
           "capabilities": "Cosa può fare il modello e quanto testo gestisce.",
-          "limits": "Concorrenza, timeout e tentativi per le chiamate a questo endpoint."
+          "limits": "Concorrenza, timeout e tentativi per le chiamate a questo endpoint.",
+          "validation": "Verifica le impostazioni con il provider prima di salvare."
         },
         "actions": {
           "validate": "Invia un prompt minimo (o calcola l'embedding di un testo breve) e registra latenza e risultato.",
           "listModels": "Chiedi al provider quali modelli offre, se il provider supporta l'elenco."
-        }
+        },
+        "validateDraft": "Invia un breve prompt (o un breve testo da vettorizzare) con queste impostazioni prima di salvare. Non viene memorizzato nulla."
       },
       "resources": {
         "name": "Nome univoco di questa risorsa nel tenant. Le associazioni lo usano come alias predefinito visto dall'agente.",
@@ -3294,7 +3319,8 @@
       "current": "La password con cui hai effettuato l'accesso: quella predefinita o quella impostata per te da un amministratore.",
       "new": "La tua nuova password. Usa una passphrase lunga; il server potrebbe applicare altre regole.",
       "confirm": "Digita di nuovo la nuova password, così un errore di battitura non ti impedirà di accedere.",
-      "submit": "Salva la nuova password e prosegui alla dashboard."
+      "submit": "Salva la nuova password e prosegui alla dashboard.",
+      "skip": "Mantieni la password attuale per ora. Puoi cambiarla in seguito dal tuo profilo."
     },
     "promptEditor": {
       "content": "Il testo del modello. Le variabili tra doppie parentesi graffe vengono compilate quando si generano le istruzioni.",

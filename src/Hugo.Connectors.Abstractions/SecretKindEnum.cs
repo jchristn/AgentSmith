@@ -16,7 +16,8 @@ namespace Hugo.Connectors.Abstractions
         PrivateKey = 1,
 
         /// <summary>
-        /// Fields: <c>token</c>.
+        /// Fields: <c>token</c>. An API token or key whose transport depends on the service (it may be a bearer token,
+        /// a custom header such as <c>X-Papertrail-Token</c>, or something else). See <see cref="BearerToken"/>.
         /// </summary>
         ApiToken = 2,
 
@@ -48,6 +49,13 @@ namespace Hugo.Connectors.Abstractions
         /// <summary>
         /// Any named fields.
         /// </summary>
-        Generic = 8
+        Generic = 8,
+
+        /// <summary>
+        /// Fields: <c>token</c>. A token sent exactly as <c>Authorization: Bearer &lt;token&gt;</c>. Use
+        /// <see cref="ApiToken"/> for tokens a service expects somewhere else (a custom header, a query parameter, or a
+        /// different scheme).
+        /// </summary>
+        BearerToken = 9
     }
 }

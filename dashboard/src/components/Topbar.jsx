@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { usePendingApprovals } from '../context/ApprovalsContext';
-import { GITHUB_URL } from '../utils/constants';
+import { DISCORD_URL, GITHUB_URL } from '../utils/constants';
 import { roleKey, principalCaps } from '../utils/principal';
 import { errorMessage } from '../utils/errors';
 import { formatNumber } from '../i18n/formatters';
@@ -14,7 +14,7 @@ import LanguageSelector from './LanguageSelector';
 import CopyButton from './CopyButton';
 import ConfirmModal from './ConfirmModal';
 import { tip } from './Tooltip';
-import { MenuIcon, SunIcon, MoonIcon, GithubIcon, LogoutIcon, RefreshIcon, ShieldCheckIcon, LockIcon } from './Icons';
+import { MenuIcon, SunIcon, MoonIcon, GithubIcon, DiscordIcon, LogoutIcon, RefreshIcon, ShieldCheckIcon, LockIcon } from './Icons';
 
 /**
  * Top bar. Left: sidebar toggle, server chip with health, tenant (a switcher for system administrators), principal,
@@ -148,6 +148,17 @@ export default function Topbar({ onToggleSidebar, health, mode }) {
             {...tip(t('tips.topbar.github'))}
           >
             <GithubIcon />
+          </a>
+          <a
+            className="icon-button"
+            href={DISCORD_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={t('common.actions.openDiscord')}
+            data-testid="discord-link"
+            {...tip(t('tips.topbar.discord'))}
+          >
+            <DiscordIcon />
           </a>
           <button
             type="button"

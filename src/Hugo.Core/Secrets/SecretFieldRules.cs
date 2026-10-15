@@ -52,6 +52,7 @@ namespace Hugo.Core.Secrets
                 case SecretKindEnum.Password: return new List<string> { "password" };
                 case SecretKindEnum.PrivateKey: return new List<string> { "privateKey" };
                 case SecretKindEnum.ApiToken: return new List<string> { "token" };
+                case SecretKindEnum.BearerToken: return new List<string> { "token" };
                 case SecretKindEnum.AccessKeyPair: return new List<string> { "accessKeyId", "secretAccessKey" };
                 case SecretKindEnum.ServiceAccountJson: return new List<string> { "json" };
                 case SecretKindEnum.Kubeconfig: return new List<string> { "kubeconfig" };

@@ -21,12 +21,12 @@ export function validatePasswordChange({ currentPassword, newPassword, confirmPa
 }
 
 /**
- * Forced password change after signing in with a seeded or reset password (plan section 17.3). It cannot be
- * dismissed; logging out is the only other way out.
+ * Password change prompt after signing in with a seeded or reset password. It recommends a change but never forces
+ * one: Skip dismisses it for the rest of the browser session (D-048).
  */
 export default function PasswordChangeModal({ open }) {
   const { t } = useTranslation();
-  const { apiClient, passwordChanged, logout } = useAuth();
+  const { apiClient, passwordChanged, skipPasswordChange } = useAuth();
   const { addToast } = useToast();
   const [form, setForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [errors, setErrors] = useState({});
@@ -64,14 +64,14 @@ export default function PasswordChangeModal({ open }) {
   return (
     <Modal
       open={open}
-      blocking
+      onClose={skipPasswordChange}
       size="small"
       title={t('components.passwordChange.title')}
       testId="password-change"
       footer={
         <>
-          <button type="button" className="button-secondary" onClick={logout} disabled={busy} {...tip(t('tips.topbar.logout'))}>
-            {t('common.actions.logout')}
+          <button type="button" className="button-secondary" onClick={skipPasswordChange} disabled={busy} data-testid="password-change-skip" {...tip(t('tips.passwordChange.skip'))}>
+            {t('components.passwordChange.skip')}
           </button>
           <button type="button" className="button-primary" onClick={submit} disabled={busy} {...tip(t('tips.passwordChange.submit'))}>
             {busy ? t('common.generic.saving') : t('components.passwordChange.submit')}

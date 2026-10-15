@@ -16,7 +16,7 @@ Hugo holds the access and the judgment about using it. Credentials live encrypte
 
 ## What a session looks like
 
-1. Mr. Anderson starts the Docker stack, opens the dashboard, signs in with the seeded account, and picks a new password.
+1. Mr. Anderson starts the Docker stack, opens the dashboard, signs in with the seeded account, and picks a new password when Hugo asks.
 2. The setup wizard asks for one model endpoint (a local Ollama, or Anthropic, OpenAI, and others with an API key).
 3. He stores an SSH key, a PostgreSQL password, and a Papertrail token in the vault, and adds the resources that use them: `web-01`, `prod-db`, `papertrail`. Each form comes from the connector's schema and has a Test Connection button.
 4. He binds them to the Hugo profile: `prod-db` ReadOnly, `web-01` ReadWriteWithApproval, `papertrail` ReadOnly. The instructions preview shows Agent Smith's persona followed by one section per resource.
@@ -44,7 +44,7 @@ cd AgentSmith/docker
 | Grafana (admin / admin, change it) | http://127.0.0.1:3000 |
 | Prometheus | http://127.0.0.1:9090 |
 
-Sign in to the dashboard as `anderson@hugo.local` with the password `password` (tenant `default`). Hugo makes you choose a new password before anything else. A system administrator, `admin@hugo.local`, is seeded the same way.
+Sign in to the dashboard as `anderson@hugo.local` with the password `password` (tenant `default`). Hugo prompts you to choose a new password; change it right away or skip the prompt for now, but do not leave a published default password on anything reachable from a network. A system administrator, `admin@hugo.local`, is seeded the same way.
 
 Keeping it current and starting over:
 
@@ -167,6 +167,10 @@ Treat Hugo's classifiers as a second line of defense. Give it read-only database
 | Docker, the factory demo, upgrades | [`docs/DOCKER.md`](docs/DOCKER.md), [`docs/FACTORY.md`](docs/FACTORY.md), [`docs/UPGRADING.md`](docs/UPGRADING.md) |
 | When something goes wrong | [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md) |
 | Dashboard languages | [`docs/I18N.md`](docs/I18N.md) |
+
+## Community
+
+Questions, ideas, and war stories are welcome on Discord: https://discord.gg/tRAN8HgvK5. Bugs and feature requests go to [GitHub issues](https://github.com/jchristn/AgentSmith/issues).
 
 ## Developing Hugo
 

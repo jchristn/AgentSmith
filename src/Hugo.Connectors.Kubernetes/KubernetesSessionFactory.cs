@@ -58,7 +58,7 @@ namespace Hugo.Connectors.Kubernetes
             }
             else
             {
-                throw new ConnectorException(ConnectorErrorCodes.SecretMissing, "Bind a Kubeconfig secret to the 'kubeconfig' slot, or an ApiToken secret to the 'serviceAccountToken' slot together with the serverUrl setting.");
+                throw new ConnectorException(ConnectorErrorCodes.SecretMissing, "Bind a Kubeconfig secret to the 'kubeconfig' slot, or a BearerToken (or ApiToken) secret to the 'serviceAccountToken' slot together with the serverUrl setting.");
             }
 
             if (options.InsecureSkipTlsVerify) config.SkipTlsVerify = true;

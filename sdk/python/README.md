@@ -57,7 +57,7 @@ Signed requests send `x-access-key`, `x-date` (`yyyy-MM-ddTHH:mm:ssZ`), `x-nonce
 
 Session helpers: `refresh()`, `logout()`, `validate_token()`, `token_details()`, `reauthenticate(password)`, `change_password(current, new)`, and `lookup_tenants(email)`. After `login`, the client refreshes the token automatically when it is within `refresh_skew_seconds` (default 60) of expiry; pass `auto_refresh=False` to turn that off.
 
-A user whose `must_change_password` is true can call only the token routes and `change_password`; everything else raises `HugoError` with status 403 and code `PasswordChangeRequired`.
+`must_change_password` tells you the account still has its seeded or reset password. It is advisory: every route works, and the dashboard shows a skippable prompt.
 
 ## Clients
 
@@ -195,6 +195,6 @@ HUGO_SDK_SERVER=http://127.0.0.1:8800 .venv/bin/python -m pytest -rs
 | `HUGO_SDK_ADMIN_PASSWORD` | `password` |
 | `HUGO_SDK_ADMIN_TENANT` | `default` |
 
-On a fresh server the seeded administrator must change its password at first sign-in. The harness changes it to a temporary password and back to `HUGO_SDK_ADMIN_PASSWORD` on the same session, which clears the flag and keeps reruns working.
+On a fresh server the seeded administrator is flagged to change its password (advisory only). The harness changes it to a temporary password and back to `HUGO_SDK_ADMIN_PASSWORD` on the same session, which clears the flag and keeps reruns working.
 
 `run_harness.py` prints a PASS, SKIP, or FAIL line per test and exits with 1 when anything fails. `tests/test_unit.py` needs no server (SSE parsing, request signing, errors, models).

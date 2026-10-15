@@ -44,7 +44,8 @@
       "view": "查看",
       "viewDetails": "查看详情",
       "viewJson": "查看 JSON",
-      "dismiss": "关闭"
+      "dismiss": "关闭",
+      "openDiscord": "打开 Discord"
     },
     "boolean": {
       "yes": "是",
@@ -271,7 +272,8 @@
       "Kubeconfig": "Kubeconfig",
       "ConnectionString": "连接字符串",
       "Certificate": "证书",
-      "Generic": "通用密钥"
+      "Generic": "通用密钥",
+      "BearerToken": "Bearer 令牌"
     },
     "effect": {
       "Read": "读取",
@@ -643,7 +645,8 @@
       "changed": "密码已修改。",
       "tooShort": "请至少使用 {{min}} 个字符。",
       "sameAsCurrent": "请选择与当前密码不同的密码。",
-      "mismatch": "两次输入的新密码不一致。"
+      "mismatch": "两次输入的新密码不一致。",
+      "skip": "跳过"
     },
     "progress": {
       "count": "{{done}} / {{total}}",
@@ -1272,7 +1275,8 @@
       "sections": {
         "endpoint": "端点",
         "capabilities": "能力",
-        "limits": "限制"
+        "limits": "限制",
+        "validation": "验证"
       },
       "columns": {
         "name": "名称",
@@ -1318,6 +1322,23 @@
         "title": "验证历史（本次会话）",
         "note": "服务器只保留最近一次健康检查。此处列出您在本浏览器会话中运行的验证。",
         "empty": "本次会话尚无验证。使用“验证”运行一次。"
+      },
+      "validation": {
+        "button": "验证",
+        "running": "正在验证...",
+        "succeeded": "模型已响应。",
+        "failed": "模型未按预期响应。",
+        "respondedIn": "往返用时 {{value}}。",
+        "model": "模型",
+        "kind": "类型",
+        "latency": "延迟",
+        "dimensions": "嵌入维度",
+        "statusCode": "提供方 HTTP 状态",
+        "response": "回复预览",
+        "error": "错误",
+        "problems": "问题",
+        "hint": "请检查基础 URL、模型名称和 API 密钥机密，然后重新验证。",
+        "needsModel": "请先选择提供方和模型。"
       }
     },
     "knowledge": {
@@ -2267,7 +2288,8 @@
       "lockdownOff": "锁定租户：在你解除锁定之前，拒绝来自所有接口的每个写入和破坏性调用。",
       "lockdownOn": "租户已锁定。点击查看并解除锁定。",
       "lockdownEngage": "立即拒绝此租户中所有非读取调用，并取消待处理的审批。",
-      "lockdownLift": "重新允许写入和破坏性调用，但仍受访问模式和审批约束。"
+      "lockdownLift": "重新允许写入和破坏性调用，但仍受访问模式和审批约束。",
+      "discord": "加入 Discord 上的 Hugo 社区（在新标签页中打开）。"
     },
     "login": {
       "passwordTab": "以人员身份使用租户、电子邮件和密码登录。",
@@ -2486,7 +2508,8 @@
         "Kubeconfig": "包含集群和用户凭据的 Kubernetes kubeconfig 文件。",
         "ConnectionString": "包含凭据的完整连接字符串。",
         "Certificate": "带私钥的证书，用于双向 TLS。",
-        "Generic": "任何其他单个密钥值。"
+        "Generic": "任何其他单个密钥值。",
+        "BearerToken": "以 Authorization: Bearer 请求头原样发送的令牌。"
       },
       "connectorCategory": {
         "Compute": "通过 SSH 或类似方式访问的主机和机器。",
@@ -2711,12 +2734,14 @@
         "sections": {
           "endpoint": "服务商和模型，以及如何访问。",
           "capabilities": "模型的能力以及可处理的文本量。",
-          "limits": "调用此端点的并发数、超时和重试。"
+          "limits": "调用此端点的并发数、超时和重试。",
+          "validation": "保存前先用提供方检查这些设置。"
         },
         "actions": {
           "validate": "发送一个简短提示（或嵌入一段短文本），并记录延迟和结果。",
           "listModels": "向服务商查询其提供的模型（如果服务商支持列出）。"
-        }
+        },
+        "validateDraft": "在保存前用这些设置发送一个简短提示（或嵌入一段短文本）。不会存储任何内容。"
       },
       "resources": {
         "name": "此资源在租户内的唯一名称。绑定将其用作智能体看到的默认别名。",
@@ -3294,7 +3319,8 @@
       "current": "你登录时使用的密码：预置密码或管理员为你设置的密码。",
       "new": "你的新密码。建议使用较长的密码短语；服务器可能会强制执行更多规则。",
       "confirm": "再次输入新密码，以免因输入错误而无法登录。",
-      "submit": "保存新密码并继续进入控制台。"
+      "submit": "保存新密码并继续进入控制台。",
+      "skip": "暂时保留当前密码。您可以稍后在个人资料中更改。"
     },
     "promptEditor": {
       "content": "模板文本。双花括号中的变量会在编译指令时填入。",

@@ -37,7 +37,8 @@ namespace Test.Shared.Connectors.Logging
                     LoggingTestHelper.Assert(c.Descriptor.Category == ConnectorCategoryEnum.Logging, c.Descriptor.Type + " category");
                     LoggingTestHelper.Assert(c.Descriptor.IconKey == "logs", c.Descriptor.Type + " icon");
                     SecretSlotDescriptor? slot = c.Descriptor.SecretSlots.FirstOrDefault(s => s.Name == "apiToken");
-                    LoggingTestHelper.Assert(slot != null && slot.Required && slot.AcceptedKinds.SequenceEqual(new[] { SecretKindEnum.ApiToken }), c.Descriptor.Type + " apiToken slot");
+                    SecretKindEnum[] expectedKinds = c.Descriptor.Type == "papertrail" ? new[] { SecretKindEnum.ApiToken } : new[] { SecretKindEnum.ApiToken, SecretKindEnum.BearerToken };
+                    LoggingTestHelper.Assert(slot != null && slot.Required && slot.AcceptedKinds.SequenceEqual(expectedKinds), c.Descriptor.Type + " apiToken slot (Papertrail uses its own header; SolarWinds sends Bearer)");
                     LoggingTestHelper.Assert(c.Descriptor.DefaultInstructionsKey == "connector." + c.Descriptor.Type + ".instructions", c.Descriptor.Type + " instructions key");
                     LoggingTestHelper.Assert(c.Descriptor.DefaultInstructions.Contains("bound", StringComparison.OrdinalIgnoreCase), c.Descriptor.Type + " instructions loaded");
                     LoggingTestHelper.Assert(c.Descriptor.SettingsSchema.Find("maxEvents")!.DefaultValue == "500", c.Descriptor.Type + " maxEvents default");

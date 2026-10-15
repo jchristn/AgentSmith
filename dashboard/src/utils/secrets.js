@@ -13,6 +13,7 @@ export const SECRET_FIELDS = {
     { name: 'passphrase', secret: true, required: false }
   ],
   ApiToken: [{ name: 'token', secret: true, required: true }],
+  BearerToken: [{ name: 'token', secret: true, required: true }],
   AccessKeyPair: [
     { name: 'accessKeyId', secret: false, required: true },
     { name: 'secretAccessKey', secret: true, required: true },

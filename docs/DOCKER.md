@@ -31,7 +31,7 @@ On first run, `start.sh` copies `.env.example` to `.env` and generates two keys:
 
 Plain `docker compose up -d` also works, but without `.env` it falls back to development keys labeled `not-for-production`. The server logs a loud warning when it sees them.
 
-The first boot creates the `default` tenant, the system administrator `admin@hugo.local`, and the tenant administrator `anderson@hugo.local` (Thomas Anderson). Both start with the password `password` and must change it at first login.
+The first boot creates the `default` tenant, the system administrator `admin@hugo.local`, and the tenant administrator `anderson@hugo.local` (Thomas Anderson). Both start with the password `password`. The dashboard prompts you to change it at first login; you can skip the prompt, but change it before anyone else can reach the stack.
 
 ## Configuration
 

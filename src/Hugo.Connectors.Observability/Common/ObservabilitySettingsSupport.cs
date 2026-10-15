@@ -119,7 +119,7 @@ namespace Hugo.Connectors.Observability
             return new List<SecretSlotDescriptor>
             {
                 new SecretSlotDescriptor(ObservabilitySettingKeys.BasicAuthSlot, "Basic authentication", SecretKindEnum.Password) { Help = "Password secret with 'username' and 'password'. Used when authType is Basic." },
-                new SecretSlotDescriptor(ObservabilitySettingKeys.BearerTokenSlot, "Bearer token", SecretKindEnum.ApiToken) { Help = "Token sent as 'Authorization: Bearer'. Used when authType is Bearer." },
+                new SecretSlotDescriptor(ObservabilitySettingKeys.BearerTokenSlot, "Bearer token", SecretKindEnum.BearerToken, SecretKindEnum.ApiToken) { Help = "BearerToken (or ApiToken) secret sent as 'Authorization: Bearer'. Used when authType is Bearer." },
                 new SecretSlotDescriptor(ObservabilitySettingKeys.ApiKeySlot, "API key", SecretKindEnum.ApiToken) { Help = "Key sent in the apiKeyHeaderName header. Used when authType is ApiKeyHeader." },
                 new SecretSlotDescriptor(ObservabilitySettingKeys.ClientCredentialsSlot, "OAuth2 client credentials", SecretKindEnum.Generic, SecretKindEnum.Password) { Help = "Generic secret with 'clientId' and 'clientSecret', or a Password secret with 'username' (client ID) and 'password' (client secret). Used when authType is OAuth2ClientCredentials." }
             };
@@ -156,7 +156,7 @@ namespace Hugo.Connectors.Observability
                         break;
                     case ObservabilityAuthTypeEnum.Bearer:
                         if (String.IsNullOrEmpty(secrets.Get(ObservabilitySettingKeys.BearerTokenSlot, "token")))
-                            result.Add(ObservabilitySettingKeys.BearerTokenSlot, "required", "authType is Bearer, so bind an ApiToken secret to the bearerToken slot.");
+                            result.Add(ObservabilitySettingKeys.BearerTokenSlot, "required", "authType is Bearer, so bind a BearerToken (or ApiToken) secret to the bearerToken slot.");
                         break;
                     case ObservabilityAuthTypeEnum.ApiKeyHeader:
                         if (String.IsNullOrEmpty(secrets.Get(ObservabilitySettingKeys.ApiKeySlot, "token")))

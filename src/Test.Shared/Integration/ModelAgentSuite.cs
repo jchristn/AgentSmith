@@ -77,6 +77,22 @@ namespace Test.Shared.Integration
                     TestResponse unsupported = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Post, "/v1.0/api/model-endpoints", new { name = "bad", provider = "VoyageAI", kind = "Inference", model = "m" }, token).ConfigureAwait(false);
                     Assert.Equal(400, unsupported.StatusCode, "provider without inference support");
 
+                    // Names are labels: colons, slashes, at signs, and spaces are fine (model ids such as llama3:8b).
+                    ModelEndpoint colon = await HttpTestHelpers.SendAsync<ModelEndpoint>(rig.Anderson, HttpMethod.Post, "/v1.0/api/model-endpoints", new { name = "ollama:llama3/8b @lab", provider = "OpenAICompatible", baseUrl = stub.BaseUrl, model = "m" }, 201, token).ConfigureAwait(false);
+                    Assert.Equal("ollama:llama3/8b @lab", colon.Name, "name with colon, slash, at sign, and space");
+                    Assert.Equal(204, (await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Delete, "/v1.0/api/model-endpoints/" + colon.Id, null, token).ConfigureAwait(false)).StatusCode, "remove the extra endpoint so the sweep count below stays exact");
+
+                    // Draft validation (the form's Validate button): works before saving and stores nothing.
+                    long before = (await HttpTestHelpers.SendAsync<Hugo.Core.Enumeration.EnumerationResult<ModelEndpoint>>(rig.Anderson, HttpMethod.Get, "/v1.0/api/model-endpoints", null, 200, token).ConfigureAwait(false)).TotalRecords;
+                    ModelValidationResult draft = await HttpTestHelpers.SendAsync<ModelValidationResult>(rig.Anderson, HttpMethod.Post, "/v1.0/api/model-endpoints/validate", new { name = "draft:check", provider = "OpenAICompatible", baseUrl = stub.BaseUrl, model = stub.ModelName, maxRetries = 0, timeoutSeconds = 30 }, 200, token).ConfigureAwait(false);
+                    Assert.True(draft.Success, "draft validation against the stub: " + draft.Error);
+                    long after = (await HttpTestHelpers.SendAsync<Hugo.Core.Enumeration.EnumerationResult<ModelEndpoint>>(rig.Anderson, HttpMethod.Get, "/v1.0/api/model-endpoints", null, 200, token).ConfigureAwait(false)).TotalRecords;
+                    Assert.Equal(before, after, "draft validation stores nothing");
+                    ModelValidationResult unreachable = await HttpTestHelpers.SendAsync<ModelValidationResult>(rig.Anderson, HttpMethod.Post, "/v1.0/api/model-endpoints/validate", new { provider = "OpenAICompatible", baseUrl = "http://127.0.0.1:9", model = "m", maxRetries = 0, timeoutSeconds = 5 }, 200, token).ConfigureAwait(false);
+                    Assert.True(!unreachable.Success && !String.IsNullOrEmpty(unreachable.Error), "unreachable draft reports a failure, not an exception");
+                    TestResponse noProvider = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Post, "/v1.0/api/model-endpoints/validate", new { model = "m" }, token).ConfigureAwait(false);
+                    Assert.Equal(400, noProvider.StatusCode, "draft without a provider");
+
                     ModelValidationResult validation = await HttpTestHelpers.SendAsync<ModelValidationResult>(rig.Anderson, HttpMethod.Post, "/v1.0/api/model-endpoints/" + endpoint.Id + "/validate", null, 200, token).ConfigureAwait(false);
                     Assert.True(validation.Success, "validation against the stub: " + validation.Error);
                     ModelEndpoint healthy = await HttpTestHelpers.SendAsync<ModelEndpoint>(rig.Anderson, HttpMethod.Get, "/v1.0/api/model-endpoints/" + endpoint.Id, null, 200, token).ConfigureAwait(false);

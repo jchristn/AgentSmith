@@ -129,6 +129,18 @@ namespace Test.Shared.Suites
                 Check(codes.Contains("password:kind_not_accepted"), "slot kind");
                 return Task.CompletedTask;
             }));
+            cases.Add(new TestCaseDescriptor(ValidatorSuite, "bearer-token-kind", "BearerToken secrets bind to bearer slots but not to custom-header API token slots", ct =>
+            {
+                SolarWindsObservabilityConnector swo = new SolarWindsObservabilityConnector();
+                PapertrailConnector papertrail = new PapertrailConnector();
+                Dictionary<string, string> swoValues = new Dictionary<string, string>();
+                ConnectorValidationResult swoResult = ConnectorSettingsValidator.Validate(swo.Descriptor, swoValues, new Dictionary<string, SecretKindEnum> { { "apiToken", SecretKindEnum.BearerToken } });
+                Check(!swoResult.Errors.Exists(e => e.Field == "apiToken"), "SolarWinds accepts a BearerToken");
+                ConnectorValidationResult ptResult = ConnectorSettingsValidator.Validate(papertrail.Descriptor, new Dictionary<string, string>(), new Dictionary<string, SecretKindEnum> { { "apiToken", SecretKindEnum.BearerToken } });
+                Check(ptResult.Errors.Exists(e => e.Field == "apiToken" && e.Code == "kind_not_accepted"), "Papertrail (X-Papertrail-Token header) refuses a BearerToken");
+                Check(Hugo.Core.Secrets.SecretFieldRules.Required(SecretKindEnum.BearerToken).Contains("token"), "BearerToken requires the token field");
+                return Task.CompletedTask;
+            }));
             return cases;
         }
 

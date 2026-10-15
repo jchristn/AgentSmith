@@ -63,7 +63,7 @@ test('reports bad credentials without leaving the login page', async ({ page }) 
   await expect(page.getByTestId('login-submit')).toBeVisible();
 });
 
-test('forces a password change for a seeded account', async ({ page }) => {
+test('prompts a seeded account to change its password and accepts the change', async ({ page }) => {
   await installMocks(page);
   await page.route('**/v1.0/token/details', (route) =>
     route.fulfill({
@@ -82,13 +82,39 @@ test('forces a password change for a seeded account', async ({ page }) => {
   await login(page, { expect });
   const dialog = page.getByTestId('password-change');
   await expect(dialog).toBeVisible();
-  await page.keyboard.press('Escape');
-  await expect(dialog).toBeVisible();
+  // The prompt recommends a change but never blocks the dashboard (D-048): content renders behind it.
+  await expect(page.locator('.page-header-title').first()).toBeVisible();
   await dialog.locator('#pwd-currentPassword').fill('password');
   await dialog.locator('#pwd-newPassword').fill('a-long-new-passphrase');
   await dialog.locator('#pwd-confirmPassword').fill('a-long-new-passphrase');
   await dialog.locator('.button-primary').click();
   await expect(dialog).toHaveCount(0);
+});
+
+test('lets the user skip the password prompt and keeps the dashboard usable', async ({ page }) => {
+  await installMocks(page);
+  await page.route('**/v1.0/token/details', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        principalType: 'User',
+        principalName: 'anderson@hugo.local',
+        tenantId: 'default',
+        userId: 'usr_0002',
+        isTenantAdmin: true,
+        mustChangePassword: true
+      })
+    })
+  );
+  await login(page, { expect });
+  const dialog = page.getByTestId('password-change');
+  await expect(dialog).toBeVisible();
+  // The prompt recommends a change but never blocks the dashboard (D-048): content renders behind it.
+  await expect(page.locator('.page-header-title').first()).toBeVisible();
+  await dialog.getByTestId('password-change-skip').click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.locator('.page-header-title').first()).toBeVisible();
 });
 
 test('groups the sidebar as plan section 18.2 and highlights every route', async ({ page }) => {
