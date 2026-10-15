@@ -52,6 +52,9 @@ namespace Hugo.Core.Telemetry
         /// <summary>SSE streams active.</summary>
         public static readonly MetricDescriptor SseStreamsActive = new MetricDescriptor("hugo.sse.streams.active", MetricKindEnum.ObservableGauge, "{stream}", "stream", "Server-sent event streams open on this server (events, chat, A2A)", "server", "Protocols", "hugo-protocols");
 
+        /// <summary>MCP requests.</summary>
+        public static readonly MetricDescriptor McpRequests = new MetricDescriptor("hugo.mcp.requests", MetricKindEnum.Counter, "{request}", "method, outcome", "MCP requests on /mcp by JSON-RPC method (initialize, tools/list, tools/call, ...; other for anything else) and outcome (ok, tool_error, error, stream, unauthenticated, forbidden, not_found, bad_request)", "server", "Protocols", "hugo-protocols");
+
         /// <summary>SSE events sent.</summary>
         public static readonly MetricDescriptor SseEvents = new MetricDescriptor("hugo.sse.events", MetricKindEnum.Counter, "{event}", "stream", "Server-sent events written", "server", "Protocols", "hugo-protocols");
 
@@ -164,6 +167,7 @@ namespace Hugo.Core.Telemetry
             AuditEvents,
             SseStreamsActive,
             SseEvents,
+            McpRequests,
             BackgroundDuration,
             BackgroundIterations,
             BuildInfo,

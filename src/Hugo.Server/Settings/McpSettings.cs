@@ -59,10 +59,27 @@ namespace Hugo.Server.Settings
             }
         }
 
+        /// <summary>
+        /// Seconds between MCP progress notifications while a tool call waits for an approval (sent only when the client
+        /// supplied a progress token). Minimum 1, maximum 60, default 10.
+        /// </summary>
+        public int ProgressIntervalSeconds
+        {
+            get
+            {
+                return _ProgressIntervalSeconds;
+            }
+            set
+            {
+                _ProgressIntervalSeconds = Math.Clamp(value, 1, 60);
+            }
+        }
+
         #endregion
 
         #region Private-Members
 
+        private int _ProgressIntervalSeconds = 10;
         private int _InternalPort = 0;
         private int _SessionIdleTimeoutSeconds = 900;
         private int _MaxMessageSize = 4194304;

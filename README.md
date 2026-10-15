@@ -38,6 +38,8 @@ Keeping it current and starting over:
 
 Every host port binds to `127.0.0.1` and can be changed in `docker/.env`. See [`docs/DOCKER.md`](docs/DOCKER.md) for networking to your own systems (`host.docker.internal`, the Docker socket for the Docker connector), PostgreSQL, and upgrades.
 
+MCP clients such as Claude Code connect to `http://127.0.0.1:8800/mcp` (or `/mcp/<profile>`) with an access key or a bearer token; see [`docs/MCP_CLIENTS.md`](docs/MCP_CLIENTS.md) for HTTP and stdio configuration.
+
 ## Developing Hugo
 
 Building, testing, and the connector testbed are covered in [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md). Those instructions are for working on Hugo's source; they are not a way to deploy it.

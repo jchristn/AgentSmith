@@ -181,6 +181,64 @@ namespace Hugo.Core.Instructions
             }
         }
 
+        /// <summary>
+        /// The full guidance for one bound resource of a profile, as a caller of a surface receives it: the connector's
+        /// full instructions (never the compact form, whatever the profile's instruction detail), rendered through the
+        /// prompt template layers exactly as <see cref="CompileAsync"/> renders them, with the binding's Append or
+        /// Replace applied, plus the operator notes, root knowledge, effective access mode, and usable tools. This is
+        /// what hugo_describe_resource and hugo://resources/{alias} return, so a compact profile can fetch the detail.
+        /// </summary>
+        /// <param name="tenantId">Tenant identifier.</param>
+        /// <param name="profileId">Profile identifier.</param>
+        /// <param name="alias">Binding alias.</param>
+        /// <param name="principal">Caller, or null for an internal caller.</param>
+        /// <param name="surface">Surface.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Resource guidance, or null when no usable binding has the alias.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when tenantId, profileId, or alias is null or empty.</exception>
+        /// <exception cref="NotFoundException">Thrown when the profile does not exist in the tenant.</exception>
+        public async Task<ResourceInstructions?> DescribeResourceAsync(string tenantId, string profileId, string alias, RequestContext? principal, InvocationSurfaceEnum surface, CancellationToken token = default)
+        {
+            if (String.IsNullOrEmpty(tenantId)) throw new ArgumentNullException(nameof(tenantId));
+            if (String.IsNullOrEmpty(profileId)) throw new ArgumentNullException(nameof(profileId));
+            if (String.IsNullOrEmpty(alias)) throw new ArgumentNullException(nameof(alias));
+            if (surface == InvocationSurfaceEnum.Rest) surface = InvocationSurfaceEnum.Chat;
+            AgentProfile profile = await _Database.AgentProfiles.ReadAsync(tenantId, profileId, token).ConfigureAwait(false) ?? throw new NotFoundException("Agent profile not found.");
+            Tenant? tenant = await _Database.Tenants.ReadAsync(tenantId, token).ConfigureAwait(false);
+            List<BoundResource> bound = await _Bindings.ResolveAsync(tenantId, profileId, principal, token).ConfigureAwait(false);
+            int index = bound.FindIndex(b => String.Equals(b.Binding.Alias, alias, StringComparison.Ordinal));
+            if (index < 0) return null;
+            Dictionary<string, ResolvedPromptTemplate> templates = await _Templates.ResolveAllAsync(tenantId, token).ConfigureAwait(false);
+            List<SegmentSource> sources = new List<SegmentSource>();
+            List<string> warnings = new List<string>();
+            TemplateContext context = await BuildContextAsync(profile, tenant, principal, surface, bound, templates, sources, warnings, token, true).ConfigureAwait(false);
+            if (context.Get("bindings") is not List<object?> maps || index >= maps.Count || maps[index] is not Dictionary<string, object?> map) return null;
+
+            BoundResource item = bound[index];
+            ResourceInstructions result = new ResourceInstructions();
+            result.Alias = item.Binding.Alias;
+            result.ResourceId = item.Resource.Id;
+            result.ConnectorType = item.Resource.ConnectorType;
+            result.ConnectorDisplayName = DisplayName(item);
+            result.Family = item.Family;
+            result.AccessMode = item.EffectiveAccessMode;
+            result.RequireApprovalForDestructive = item.Binding.RequireApprovalForDestructive;
+            result.Environment = String.IsNullOrEmpty(item.Resource.Environment) ? null : item.Resource.Environment;
+            result.Endpoint = String.IsNullOrEmpty(item.Resource.Endpoint) ? null : item.Resource.Endpoint;
+            result.Description = String.IsNullOrWhiteSpace(item.Resource.Description) ? null : item.Resource.Description.Trim();
+            result.Notes = String.IsNullOrWhiteSpace(item.Resource.Notes) ? null : item.Resource.Notes.Trim();
+            string knowledge = map.TryGetValue("knowledge", out object? k) && k is string ks ? ks : String.Empty;
+            result.Knowledge = knowledge.Length == 0 ? null : knowledge;
+            string marked = map.TryGetValue("instructions", out object? i) && i is string text ? text : String.Empty;
+            result.Instructions = Extract(marked, sources, new List<InstructionSegment>()).Trim();
+            bool hasModel = !String.IsNullOrEmpty(profile.InferenceEndpointId);
+            result.Tools = item.Connector.Tools.Where(t => ToolVisibilityFilter.Offers(item, t.Descriptor, hasModel)).Select(t => t.Descriptor.Name).ToList();
+            result.MaxOutputBytes = item.Binding.MaxOutputBytes;
+            result.MaxRows = item.Binding.MaxRows;
+            result.Warnings = warnings;
+            return result;
+        }
+
         #endregion
 
         #region Private-Methods
@@ -252,7 +310,7 @@ namespace Hugo.Core.Instructions
             return Mark(sources, root.Key, root.Layer, root.Version, null, body);
         }
 
-        private async Task<TemplateContext> BuildContextAsync(AgentProfile profile, Tenant? tenant, RequestContext? principal, InvocationSurfaceEnum surface, List<BoundResource> bound, Dictionary<string, ResolvedPromptTemplate> templates, List<SegmentSource> sources, List<string> warnings, CancellationToken token)
+        private async Task<TemplateContext> BuildContextAsync(AgentProfile profile, Tenant? tenant, RequestContext? principal, InvocationSurfaceEnum surface, List<BoundResource> bound, Dictionary<string, ResolvedPromptTemplate> templates, List<SegmentSource> sources, List<string> warnings, CancellationToken token, bool forceFull = false)
         {
             TemplateContext context = new TemplateContext();
             bool hasModel = !String.IsNullOrEmpty(profile.InferenceEndpointId);
@@ -287,8 +345,8 @@ namespace Hugo.Core.Instructions
 
             List<object?> bindings = new List<object?>();
             Dictionary<string, object?> byFamily = TemplateContext.NewMap();
-            bool compact = profile.InstructionDetail == InstructionDetailEnum.Compact
-                || (profile.InstructionDetail == InstructionDetailEnum.Auto && bound.Count > _CompactBindingThreshold);
+            bool compact = !forceFull && (profile.InstructionDetail == InstructionDetailEnum.Compact
+                || (profile.InstructionDetail == InstructionDetailEnum.Auto && bound.Count > _CompactBindingThreshold));
             context.Set("compactInstructions", compact);
             foreach (BoundResource item in bound)
             {
