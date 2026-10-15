@@ -1,0 +1,3507 @@
+{
+  "common": {
+    "fieldCodes": {
+      "ExpiryInPast": "भविष्य का कोई समय चुनें।",
+      "SettingsFileReadOnly": "सेटिंग्स फ़ाइल केवल-पढ़ने योग्य है, इसलिए यह बदलाव सहेजा नहीं जा सकता।",
+      "OverriddenByEnvironment": "यह मान एक एनवायरनमेंट वेरिएबल द्वारा सेट है, इसलिए इसे यहाँ बदला नहीं जा सकता।",
+      "PathRequired": "सेटिंग पाथ आवश्यक है।",
+      "UnknownSetting": "इस सर्वर पर यह सेटिंग नहीं है।",
+      "TooLong": "यह मान बहुत लंबा है।",
+      "NotAllowedValue": "अनुमत मानों में से एक चुनें।",
+      "NotABoolean": "true या false चुनें।",
+      "NotAnInteger": "एक पूर्ण संख्या दर्ज करें।",
+      "OutOfRange": "मान अनुमत सीमा से बाहर है।"
+    },
+    "appName": "Hugo",
+    "language": {
+      "label": "भाषा"
+    },
+    "theme": {
+      "switchToLight": "लाइट थीम पर जाएँ",
+      "switchToDark": "डार्क थीम पर जाएँ"
+    },
+    "actions": {
+      "apply": "लागू करें",
+      "back": "वापस",
+      "cancel": "रद्द करें",
+      "clear": "साफ़ करें",
+      "clone": "क्लोन करें",
+      "close": "बंद करें",
+      "confirm": "पुष्टि करें",
+      "copied": "कॉपी हो गया",
+      "copy": "कॉपी करें",
+      "delete": "हटाएँ",
+      "duplicate": "डुप्लिकेट करें",
+      "edit": "संपादित करें",
+      "hide": "मान छिपाएँ",
+      "logout": "लॉग आउट करें",
+      "next": "आगे",
+      "openGithub": "GitHub पर Hugo रिपॉज़िटरी (AgentSmith) खोलें",
+      "remove": "निकालें",
+      "retry": "पुनः प्रयास करें",
+      "reveal": "मान दिखाएँ",
+      "save": "सहेजें",
+      "view": "देखें",
+      "viewDetails": "विवरण देखें",
+      "viewJson": "JSON देखें",
+      "dismiss": "खारिज करें"
+    },
+    "boolean": {
+      "yes": "हाँ",
+      "no": "नहीं"
+    },
+    "confirm": {
+      "deleteNamed": "\"{{name}}\" हटाएँ? इसे पूर्ववत नहीं किया जा सकता।",
+      "bulkDelete": "{{count}} चयनित रिकॉर्ड हटाएँ? इसे पूर्ववत नहीं किया जा सकता।"
+    },
+    "errors": {
+      "listItem": "आइटम {{index}}: {{message}}",
+      "chooseOne": "कम से कम एक विकल्प चुनें।",
+      "fixFields": "कुछ फ़ील्ड पर ध्यान देने की आवश्यकता है। हाइलाइट किए गए मानों की समीक्षा करें।",
+      "invalidEmail": "एक मान्य ईमेल पता दर्ज करें।",
+      "invalidJson": "यह मान्य JSON नहीं है।",
+      "loadFailed": "डेटा लोड करने में विफल।",
+      "requestId": "अनुरोध {{id}}।",
+      "required": "यह फ़ील्ड आवश्यक है।",
+      "requiredPermission": "{{resource}} पर {{permission}} आवश्यक है।",
+      "title": "अनुरोध विफल रहा",
+      "status": "HTTP {{status}}",
+      "requestIdLabel": "अनुरोध ID",
+      "traceIdLabel": "ट्रेस ID"
+    },
+    "generic": {
+      "deletedName": "{{name}} (हटाया गया)",
+      "actions": "कार्रवाइयाँ",
+      "active": "सक्रिय",
+      "all": "सभी",
+      "any": "कोई भी",
+      "builtIn": "बिल्ट-इन",
+      "custom": "कस्टम",
+      "inactive": "निष्क्रिय",
+      "loading": "लोड हो रहा है...",
+      "never": "कभी नहीं",
+      "none": "कोई नहीं",
+      "notAvailable": "लागू नहीं",
+      "saving": "सहेजा जा रहा है...",
+      "default": "डिफ़ॉल्ट",
+      "disabled": "अक्षम",
+      "enabled": "सक्षम",
+      "lockdown": "लॉकडाउन",
+      "locked": "लॉक है",
+      "required": "आवश्यक"
+    },
+    "relativeTime": {
+      "now": "अभी-अभी"
+    },
+    "states": {
+      "forbiddenTitle": "आपको इस पेज तक पहुँच नहीं है",
+      "forbiddenBody": "किसी व्यवस्थापक से ऐसी भूमिका माँगें जो पहुँच प्रदान करे, या कोई दूसरा पेज चुनें।",
+      "notExposedTitle": "यह सर्वर अभी {{feature}} उपलब्ध नहीं कराता",
+      "notExposedBody": "डैशबोर्ड {{feature}} के लिए तैयार है, लेकिन यह Hugo सर्वर आवश्यक रूट उपलब्ध नहीं कराता। सर्वर द्वारा इसे उपलब्ध कराते ही यह यहाँ काम करने लगेगा; इस पेज पर कुछ भी बदलने की आवश्यकता नहीं है।",
+      "notExposedEndpoint": "डैशबोर्ड द्वारा कॉल किया गया रूट:"
+    },
+    "toasts": {
+      "bulkDeleted": "{{count}} रिकॉर्ड हटाए गए ({{failed}} विफल)।",
+      "cloned": "क्लोन किया गया।",
+      "created": "बनाया गया।",
+      "deleted": "हटाया गया।",
+      "saved": "सहेजा गया।"
+    },
+    "units": {
+      "msShort": "ms",
+      "sShort": "सेकंड",
+      "mShort": "मिनट"
+    },
+    "tagline": "Agent Smith आपकी सेवा में",
+    "serverText": {
+      "valueClamped": "{{field}} के लिए मान {{given}} अनुमत सीमा {{minimum}} से {{maximum}} के बाहर है; {{stored}} संग्रहीत किया गया।",
+      "approvalWaitingExpires": "{{subject}} को किसी व्यक्ति की स्वीकृति की प्रतीक्षा है; स्वीकृति {{id}} की समय-सीमा {{expires}} पर समाप्त होगी।",
+      "approvalWaiting": "{{subject}} को किसी व्यक्ति की स्वीकृति की प्रतीक्षा है; स्वीकृति {{id}}।",
+      "inUse": "{{what}} अभी भी {{users}} द्वारा उपयोग में है। पहले उन संदर्भों को हटाएँ।"
+    }
+  },
+  "errorCodes": {
+    "ApprovalNotPending": "इस स्वीकृति पर पहले ही निर्णय हो चुका है या यह समाप्त हो चुकी है, इसलिए इस पर फिर से निर्णय नहीं लिया जा सकता।",
+    "TenantNotFound": "वह टेनेंट मौजूद नहीं है। टेनेंट ID जाँचें।",
+    "NetworkError": "सर्वर तक नहीं पहुँचा जा सका। सर्वर URL जाँचें और सुनिश्चित करें कि सर्वर चल रहा है।",
+    "AuthenticationRequired": "आपका सत्र समाप्त हो गया है। फिर से साइन इन करें।",
+    "InvalidCredentials": "टेनेंट, ईमेल, पासवर्ड या कुंजियाँ गलत हैं।",
+    "RateLimited": "साइन-इन के बहुत अधिक प्रयास। एक मिनट प्रतीक्षा करें और फिर से प्रयास करें।",
+    "AuthorizationDenied": "आपको इस कार्रवाई की अनुमति नहीं है।",
+    "NotFound": "रिकॉर्ड नहीं मिला।",
+    "RouteNotFound": "यह सर्वर अभी उस एंडपॉइंट का समर्थन नहीं करता।",
+    "ValidationFailed": "कुछ मान अमान्य हैं।",
+    "InvalidBody": "अनुरोध बॉडी मान्य नहीं है।",
+    "InvalidJson": "अनुरोध बॉडी मान्य JSON नहीं है।",
+    "Conflict": "यह किसी मौजूदा रिकॉर्ड से टकराता है।",
+    "BuiltInImmutable": "बिल्ट-इन रिकॉर्ड बदले नहीं जा सकते। अनुकूलित करने के लिए इसे क्लोन करें।",
+    "Protected": "यह रिकॉर्ड सुरक्षित है और हटाया नहीं जा सकता।",
+    "InternalError": "सर्वर में आंतरिक त्रुटि हुई। अनुरोध ID के साथ सर्वर लॉग जाँचें।",
+    "Http400": "अनुरोध अमान्य मानकर अस्वीकार कर दिया गया।",
+    "Http403": "आपको इस कार्रवाई की अनुमति नहीं है।",
+    "Http404": "नहीं मिला।",
+    "Http409": "वर्तमान स्थिति से टकराव।",
+    "Http500": "सर्वर में आंतरिक त्रुटि हुई।",
+    "Http503": "सर्वर उपलब्ध नहीं है।",
+    "ConversationBusy": "यह बातचीत अभी भी अपने पिछले टर्न पर काम कर रही है। इसके पूरा होने की प्रतीक्षा करें, या इसे रोकें, फिर से प्रयास करें।",
+    "ApprovalExpired": "किसी के निर्णय लेने से पहले ही यह स्वीकृति समाप्त हो गई।",
+    "ReauthenticationRequired": "सीक्रेट दिखाने से पहले अपना पासवर्ड फिर से दर्ज करें।",
+    "SecretInUse": "यह सीक्रेट अभी भी संसाधनों या मॉडल एंडपॉइंट द्वारा उपयोग में है। पहले उन संदर्भों को हटाएँ।",
+    "ResourceInUse": "यह संसाधन अभी भी प्रोफ़ाइलों से बाउंड है। पहले बाइंडिंग हटाएँ।",
+    "LockdownActive": "टेनेंट लॉकडाउन में है, इसलिए केवल पढ़ने वाली कॉल की अनुमति है।",
+    "ConnectorNotFound": "इस सर्वर पर उस प्रकार का कोई कनेक्टर नहीं है। हो सकता है कोई प्लगइन लोड होने में विफल रहा हो।",
+    "ProfileNotExposed": "यह प्रोफ़ाइल उस सतह पर उपलब्ध नहीं है।",
+    "NoInferenceEndpoint": "इस प्रोफ़ाइल में कोई इन्फ़रेंस मॉडल नहीं है, इसलिए Hugo इसके लिए अपना एजेंट लूप नहीं चला सकता।"
+  },
+  "enums": {
+    "principalType": {
+      "Administrator": "व्यवस्थापक",
+      "User": "उपयोगकर्ता",
+      "Credential": "क्रेडेंशियल"
+    },
+    "credentialAuthMode": {
+      "DirectHeader": "सीधे हेडर",
+      "SignedRequest": "हस्ताक्षरित अनुरोध",
+      "SessionExchange": "सत्र टोकन विनिमय",
+      "Hybrid": "कोई भी तरीका"
+    },
+    "operationType": {
+      "All": "सब कुछ",
+      "Create": "बनाएँ",
+      "Read": "पढ़ें",
+      "Write": "लिखें (बनाएँ, अपडेट करें, हटाएँ)",
+      "Update": "अपडेट करें",
+      "Delete": "हटाएँ",
+      "Execute": "निष्पादित करें",
+      "Admin": "प्रशासन करें",
+      "Reveal": "दिखाएँ"
+    },
+    "promptTemplateKind": {
+      "System": "सिस्टम",
+      "Task": "कार्य",
+      "Fragment": "अंश",
+      "ToolDescription": "टूल विवरण",
+      "ConfigFile": "कॉन्फ़िग फ़ाइल",
+      "Other": "अन्य"
+    },
+    "permissionType": {
+      "Permit": "अनुमति दें",
+      "Deny": "अस्वीकार करें"
+    },
+    "resourceScope": {
+      "Tenant": "टेनेंट",
+      "Resource": "संसाधन"
+    },
+    "resourceType": {
+      "All": "सब कुछ",
+      "Tenant": "टेनेंट",
+      "Admin": "प्रशासन",
+      "User": "उपयोगकर्ता",
+      "Credential": "क्रेडेंशियल",
+      "Session": "सत्र",
+      "Role": "भूमिका",
+      "Permission": "अनुमति",
+      "Assignment": "असाइनमेंट",
+      "Audit": "ऑडिट",
+      "Settings": "सेटिंग्स",
+      "Secret": "सीक्रेट",
+      "Resource": "संसाधन",
+      "Connector": "कनेक्टर",
+      "AgentProfile": "एजेंट प्रोफ़ाइल",
+      "Binding": "बाइंडिंग",
+      "PromptTemplate": "प्रॉम्प्ट टेम्पलेट",
+      "ModelEndpoint": "मॉडल एंडपॉइंट",
+      "Conversation": "बातचीत",
+      "ToolInvocation": "टूल इनवोकेशन",
+      "Approval": "स्वीकृति",
+      "RequestHistory": "अनुरोध इतिहास",
+      "Knowledge": "ज्ञान",
+      "Plugin": "प्लगइन",
+      "Analytics": "एनालिटिक्स"
+    },
+    "auditEventType": {
+      "AuthSuccess": "साइन-इन सफल",
+      "AuthFailure": "साइन-इन विफल",
+      "SessionIssued": "सत्र जारी किया गया",
+      "SessionRevoked": "सत्र रद्द किया गया",
+      "CredentialCreated": "क्रेडेंशियल बनाया गया",
+      "CredentialRotated": "क्रेडेंशियल रोटेट किया गया",
+      "CredentialUsed": "क्रेडेंशियल उपयोग किया गया",
+      "AuthorizationDenied": "पहुँच अस्वीकृत",
+      "AuthorizationBypass": "पहुँच जाँच बायपास की गई",
+      "RoleChanged": "भूमिका बदली गई",
+      "AssignmentChanged": "असाइनमेंट बदला गया",
+      "SecretCreated": "सीक्रेट बनाया गया",
+      "SecretUpdated": "सीक्रेट अपडेट किया गया",
+      "SecretRevealed": "सीक्रेट दिखाया गया",
+      "SecretDeleted": "सीक्रेट हटाया गया",
+      "MasterKeyRotated": "मास्टर कुंजी रोटेट की गई",
+      "ResourceChanged": "संसाधन बदला गया",
+      "ProfileChanged": "प्रोफ़ाइल बदली गई",
+      "BindingChanged": "बाइंडिंग बदली गई",
+      "PromptTemplateChanged": "प्रॉम्प्ट टेम्पलेट बदला गया",
+      "ApprovalDecided": "स्वीकृति पर निर्णय लिया गया",
+      "LockdownChanged": "लॉकडाउन बदला गया",
+      "SettingsChanged": "सेटिंग्स बदली गईं",
+      "ServerRestarted": "सर्वर पुनः आरंभ हुआ",
+      "PluginLoaded": "प्लगइन लोड हुआ",
+      "HostKeyPinned": "SSH होस्ट कुंजी पिन की गई",
+      "HostKeyMismatch": "SSH होस्ट कुंजी मेल नहीं खाती"
+    },
+    "secretKind": {
+      "Password": "पासवर्ड",
+      "PrivateKey": "निजी कुंजी",
+      "ApiToken": "API टोकन",
+      "AccessKeyPair": "एक्सेस कुंजी जोड़ी",
+      "ServiceAccountJson": "सर्विस अकाउंट JSON",
+      "Kubeconfig": "Kubeconfig",
+      "ConnectionString": "कनेक्शन स्ट्रिंग",
+      "Certificate": "प्रमाणपत्र",
+      "Generic": "सामान्य सीक्रेट"
+    },
+    "effect": {
+      "Read": "पढ़ना",
+      "Write": "लिखना",
+      "Destructive": "विनाशकारी"
+    },
+    "accessMode": {
+      "ReadOnly": "केवल पढ़ना",
+      "ReadWriteWithApproval": "स्वीकृति के साथ पढ़ना और लिखना",
+      "ReadWrite": "पढ़ना और लिखना"
+    },
+    "connectorCategory": {
+      "Compute": "कंप्यूट",
+      "Storage": "स्टोरेज",
+      "Database": "डेटाबेस",
+      "Logging": "लॉगिंग",
+      "Cache": "कैश",
+      "Cloud": "क्लाउड",
+      "Orchestration": "ऑर्केस्ट्रेशन",
+      "Observability": "ऑब्ज़र्वेबिलिटी",
+      "Http": "HTTP API",
+      "Agent": "एजेंट",
+      "Other": "अन्य"
+    },
+    "settingValueKind": {
+      "String": "टेक्स्ट",
+      "Text": "लंबा टेक्स्ट",
+      "Integer": "पूर्ण संख्या",
+      "Boolean": "true या false",
+      "StringList": "सूची",
+      "Enum": "एक सेट में से एक"
+    },
+    "approvalStatus": {
+      "Pending": "लंबित",
+      "Approved": "स्वीकृत",
+      "Rejected": "अस्वीकृत",
+      "Expired": "समाप्त",
+      "Cancelled": "रद्द"
+    },
+    "toolDecision": {
+      "Allowed": "अनुमत",
+      "Denied": "अस्वीकृत",
+      "ApprovalRequired": "स्वीकृति आवश्यक",
+      "Approved": "स्वीकृत",
+      "Rejected": "अस्वीकृत",
+      "Expired": "समाप्त"
+    },
+    "toolStatus": {
+      "Succeeded": "सफल",
+      "Failed": "विफल",
+      "TimedOut": "समय समाप्त",
+      "Cancelled": "रद्द"
+    },
+    "surface": {
+      "Chat": "चैट",
+      "Mcp": "MCP",
+      "A2A": "A2A",
+      "OpenAI": "OpenAI-संगत",
+      "Rest": "REST"
+    },
+    "conversationSource": {
+      "Dashboard": "डैशबोर्ड",
+      "A2A": "A2A",
+      "OpenAI": "OpenAI-संगत",
+      "Mcp": "MCP"
+    },
+    "visibility": {
+      "Private": "निजी",
+      "Tenant": "टेनेंट"
+    },
+    "instructionMode": {
+      "Inherit": "इनहेरिट करें",
+      "Append": "जोड़ें",
+      "Replace": "बदलें"
+    },
+    "toolRule": {
+      "Allow": "अनुमति दें",
+      "Deny": "अस्वीकार करें",
+      "RequireApproval": "स्वीकृति आवश्यक करें"
+    },
+    "modelKind": {
+      "Inference": "इन्फ़रेंस",
+      "Embedding": "एम्बेडिंग"
+    },
+    "modelProvider": {
+      "Ollama": "Ollama",
+      "OpenAI": "OpenAI",
+      "OpenAICompatible": "OpenAI-संगत",
+      "Anthropic": "Anthropic",
+      "Gemini": "Gemini",
+      "AzureOpenAI": "Azure OpenAI",
+      "Bedrock": "Amazon Bedrock",
+      "VertexAI": "Vertex AI",
+      "VoyageAI": "Voyage AI"
+    },
+    "healthStatus": {
+      "Healthy": "स्वस्थ",
+      "Degraded": "प्रभावित",
+      "Unhealthy": "अस्वस्थ",
+      "Unknown": "जाँचा नहीं गया"
+    },
+    "promptLayer": {
+      "BuiltIn": "बिल्ट-इन",
+      "Global": "वैश्विक डिफ़ॉल्ट",
+      "Tenant": "टेनेंट"
+    },
+    "authScheme": {
+      "Password": "पासवर्ड से साइन-इन",
+      "AccessKey": "एक्सेस कुंजी",
+      "SessionToken": "सेशन टोकन",
+      "SignedRequest": "हस्ताक्षरित अनुरोध",
+      "ApiKey": "व्यवस्थापक API कुंजी"
+    }
+  },
+  "login": {
+    "title": "Hugo में साइन इन करें",
+    "subtitle": "Agent Smith आपकी प्रतीक्षा कर रहा है, Mr. Anderson।",
+    "tabs": {
+      "password": "ईमेल और पासवर्ड",
+      "accessKey": "एक्सेस कुंजी"
+    },
+    "serverUrl": "सर्वर URL",
+    "tenantId": "टेनेंट ID",
+    "email": "ईमेल",
+    "password": "पासवर्ड",
+    "accessKey": "एक्सेस कुंजी",
+    "secretKey": "सीक्रेट कुंजी",
+    "submit": "साइन इन करें",
+    "connecting": "साइन इन हो रहा है...",
+    "restoring": "आपका सत्र पुनर्स्थापित किया जा रहा है...",
+    "errorGeneric": "साइन इन नहीं हो सका। सर्वर URL और अपने क्रेडेंशियल जाँचें।",
+    "footerHint": "Hugo आपके सिस्टम के क्रेडेंशियल एन्क्रिप्ट करके संग्रहीत करता है और एजेंटों को उनका सुरक्षित रूप से उपयोग करने देता है।",
+    "tenant": "टेनेंट",
+    "tenantFound": "टेनेंट {{name}} में साइन इन हो रहा है।",
+    "unreachable": "{{url}} पर Hugo सर्वर तक नहीं पहुँचा जा सका। सर्वर URL जाँचें और सुनिश्चित करें कि सर्वर चल रहा है।",
+    "badCredentials": "ईमेल, पासवर्ड या टेनेंट सही नहीं है।",
+    "defaultsHint": "स्थानीय डिफ़ॉल्ट खाता: {{email}}, पासवर्ड \"{{password}}\"। आपसे इसे बदलने के लिए कहा जाएगा।",
+    "useDefaults": "स्थानीय डिफ़ॉल्ट उपयोग करें"
+  },
+  "topbar": {
+    "tenant": "टेनेंट",
+    "switchTenant": "टेनेंट बदलें",
+    "copyServer": "सर्वर URL कॉपी करें",
+    "live": "लाइव",
+    "polling": "पोलिंग",
+    "health": {
+      "healthy": "स्वस्थ",
+      "unhealthy": "पहुँच से बाहर",
+      "unknown": "जाँच हो रही है"
+    },
+    "lockdown": {
+      "on": "लॉकडाउन चालू",
+      "off": "लॉकडाउन",
+      "banner": "टेनेंट लॉकडाउन चालू है: पढ़ने के अलावा हर कॉल अस्वीकार की जाती है और लंबित स्वीकृतियाँ रद्द कर दी गई हैं।",
+      "engageTitle": "इस टेनेंट को लॉकडाउन करें?",
+      "engageBody": "लॉकडाउन हटाए जाने तक हर सतह से लिखने या हटाने वाली हर टूल कॉल अस्वीकार की जाएगी। लंबित स्वीकृतियाँ रद्द कर दी जाती हैं। पढ़ना जारी रहता है।",
+      "engage": "लॉकडाउन करें",
+      "engaged": "टेनेंट लॉकडाउन चालू है।",
+      "liftTitle": "लॉकडाउन हटाएँ?",
+      "liftBody": "लिखने और विनाशकारी टूल कॉल की फिर से अनुमति होगी, जो प्रत्येक बाइंडिंग के एक्सेस मोड और स्वीकृतियों के अधीन होगी।",
+      "lift": "लॉकडाउन हटाएँ",
+      "lifted": "टेनेंट लॉकडाउन हटाया गया।"
+    }
+  },
+  "roles": {
+    "systemAdmin": "सिस्टम व्यवस्थापक",
+    "tenantAdmin": "टेनेंट व्यवस्थापक",
+    "user": "उपयोगकर्ता",
+    "credential": "एक्सेस कुंजी"
+  },
+  "components": {
+    "fieldWarnings": {
+      "title_one": "{{count}} समायोजित मान के साथ सहेजा गया",
+      "title_other": "{{count}} समायोजित मानों के साथ सहेजा गया",
+      "body": "सर्वर ने अनुरोध स्वीकार किया लेकिन इन मानों को भेजे गए मानों से अलग रूप में संग्रहीत किया।",
+      "dismiss": "खारिज करें",
+      "codes": {
+        "ValueClamped": "मान को अनुमत सीमा तक सीमित किया गया"
+      }
+    },
+    "autoRefresh": {
+      "label": "ऑटो-रिफ़्रेश",
+      "none": "बंद",
+      "seconds_one": "हर {{count}} सेकंड",
+      "seconds_other": "हर {{count}} सेकंड"
+    },
+    "chart": {
+      "success": "सफल",
+      "failure": "विफल",
+      "total": "कुल",
+      "avgDuration": "औसत अवधि",
+      "noData": "इस अवधि में कोई गतिविधि नहीं।",
+      "range": "समय सीमा",
+      "ranges": {
+        "hour": "पिछला घंटा",
+        "day": "पिछला दिन",
+        "week": "पिछला सप्ताह",
+        "month": "पिछला महीना",
+        "custom": "कस्टम"
+      }
+    },
+    "confirm": {
+      "title": "कृपया पुष्टि करें",
+      "message": "क्या आप वाकई जारी रखना चाहते हैं?"
+    },
+    "diff": {
+      "before": "पहले",
+      "after": "बाद में"
+    },
+    "explainer": {
+      "about": "{{topic}} के बारे में",
+      "dismiss": "यह स्पष्टीकरण छिपाएँ"
+    },
+    "export": {
+      "label": "निर्यात करें",
+      "csv": "CSV (डेटा)",
+      "png": "PNG छवि",
+      "svg": "SVG छवि",
+      "json": "JSON (डेटा)",
+      "failed": "निर्यात विफल। {{message}}",
+      "tableTitle": "तालिका {{table}}"
+    },
+    "filters": {
+      "allTenants": "सभी टेनेंट",
+      "clear": "फ़िल्टर साफ़ करें",
+      "from": "से",
+      "to": "तक",
+      "method": "मेथड",
+      "path": "पाथ में शामिल है",
+      "pathPlaceholder": "उदाहरण के लिए /v1.0/api/tenants",
+      "searchName": "नाम से खोजें",
+      "status": "स्टेटस कोड",
+      "statusPlaceholder": "उदाहरण के लिए 404",
+      "tenant": "टेनेंट"
+    },
+    "form": {
+      "addItem": "आइटम जोड़ें",
+      "addRow": "पंक्ति जोड़ें",
+      "key": "कुंजी",
+      "value": "मान",
+      "moveUp": "ऊपर ले जाएँ",
+      "moveDown": "नीचे ले जाएँ",
+      "noItems": "अभी कोई आइटम नहीं।",
+      "onePerLine": "प्रति पंक्ति एक मान",
+      "steps": "फ़ॉर्म चरण"
+    },
+    "permissions": {
+      "title": "प्रभावी अनुमतियाँ",
+      "none": "कोई अनुदान नहीं। यह प्रिंसिपल केवल बायपास नियमों का उपयोग कर सकता है, यदि कोई हों।",
+      "source": "भूमिका",
+      "type": "प्रकार",
+      "resources": "संसाधन प्रकार",
+      "operations": "ऑपरेशन",
+      "scope": "दायरा"
+    },
+    "requestDetails": {
+      "title": "अनुरोध विवरण",
+      "metadata": "मेटाडेटा",
+      "requestHeaders": "अनुरोध हेडर",
+      "requestBody": "अनुरोध बॉडी",
+      "responseHeaders": "प्रतिक्रिया हेडर",
+      "responseBody": "प्रतिक्रिया बॉडी",
+      "rawJson": "रॉ JSON",
+      "truncated": "संक्षिप्त किया गया (मूल {{bytes}} बाइट)",
+      "empty": "कोई सामग्री नहीं।",
+      "fields": {
+        "id": "अनुरोध ID",
+        "method": "मेथड",
+        "path": "पाथ",
+        "url": "URL",
+        "status": "स्टेटस",
+        "duration": "अवधि",
+        "createdUtc": "बनाया गया",
+        "completedUtc": "पूर्ण हुआ",
+        "sourceIp": "स्रोत IP",
+        "principal": "प्रिंसिपल",
+        "tenant": "टेनेंट",
+        "user": "उपयोगकर्ता"
+      }
+    },
+    "secretOnce": {
+      "title": "यह सीक्रेट अभी कॉपी करें",
+      "warning": "सीक्रेट केवल इसी बार दिखाया जाता है। बंद करने से पहले इसे किसी सुरक्षित स्थान पर संग्रहीत करें।",
+      "accessKey": "एक्सेस कुंजी",
+      "secretKey": "सीक्रेट कुंजी",
+      "done": "मैंने इसे सहेज लिया",
+      "snippet": "Claude Code के लिए MCP कॉन्फ़िगरेशन",
+      "snippetHint": "इसे अपने MCP क्लाइंट की सेटिंग्स में पेस्ट करें, और HUGO_SECRET_KEY को ऊपर दिखाई गई सीक्रेट कुंजी पर सेट करें।"
+    },
+    "table": {
+      "bulkActions": "बल्क कार्रवाइयाँ",
+      "bulkDelete": "चयनित हटाएँ",
+      "clearSelection": "चयन साफ़ करें",
+      "empty": "दिखाने के लिए कोई रिकॉर्ड नहीं।",
+      "first": "पहला पेज",
+      "jump": "पेज पर जाएँ",
+      "last": "अंतिम पेज",
+      "loading": "रिकॉर्ड लोड हो रहे हैं...",
+      "next": "अगला पेज",
+      "noMatches": "वर्तमान फ़िल्टर से कोई रिकॉर्ड मेल नहीं खाता।",
+      "pageOf": "पेज {{page}} / {{total}}",
+      "pageSize": "प्रति पेज",
+      "pinned": "हमेशा दिखाया जाता है",
+      "prev": "पिछला पेज",
+      "records_one": "रिकॉर्ड",
+      "records_other": "रिकॉर्ड",
+      "refresh": "रिफ़्रेश करें",
+      "selectAll": "इस पेज की सभी पंक्तियाँ चुनें",
+      "selectColumns": "कॉलम चुनें",
+      "selected_one": "{{count}} चयनित",
+      "selected_other": "{{count}} चयनित",
+      "selectRow": "पंक्ति चुनें",
+      "showing": "{{from}} से {{to}} दिखाए जा रहे हैं"
+    },
+    "approvalCard": {
+      "title": "स्वीकृति आवश्यक",
+      "approve": "स्वीकृत करें",
+      "reject": "अस्वीकार करें",
+      "note": "निर्णय नोट",
+      "notePlaceholder": "ऑडिट ट्रेल के लिए वैकल्पिक नोट",
+      "resource": "संसाधन",
+      "tool": "टूल",
+      "reason": "स्वीकृति की आवश्यकता क्यों है: {{reason}}",
+      "expires": "यदि कोई निर्णय नहीं लेता है तो {{time}} पर समाप्त होगी।",
+      "decided": "निर्णय: {{status}}।",
+      "by": "{{name}} द्वारा निर्णय लिया गया।",
+      "withNote": "नोट: {{note}}"
+    },
+    "chat": {
+      "you": "आप",
+      "assistant": "Agent Smith",
+      "thinking": "तर्क",
+      "waiting": "Agent Smith सोच रहा है...",
+      "stopped": "उत्तर पूरा होने से पहले रोक दिया गया।",
+      "streamError": "उत्तर स्ट्रीम विफल रही।",
+      "ttft": "पहला टोकन {{value}}",
+      "duration": "टर्न {{value}}",
+      "tokens": "टोकन: {{input}} इनपुट, {{output}} आउटपुट",
+      "transcript": "बातचीत का ट्रांसक्रिप्ट",
+      "empty": "अभी कोई संदेश नहीं। शुरू करने के लिए कोई प्रश्न पूछें।",
+      "message": "संदेश",
+      "placeholder": "Agent Smith से पूछें। Enter भेजता है, Shift+Enter नई पंक्ति जोड़ता है।",
+      "send": "भेजें",
+      "stop": "रोकें"
+    },
+    "passwordChange": {
+      "title": "नया पासवर्ड चुनें",
+      "body": "इस खाते में अभी भी प्रारंभिक या रीसेट किया गया पासवर्ड है। जारी रखने के लिए कम से कम {{min}} वर्णों का नया पासवर्ड चुनें।",
+      "current": "वर्तमान पासवर्ड",
+      "new": "नया पासवर्ड",
+      "confirm": "नए पासवर्ड की पुष्टि करें",
+      "submit": "पासवर्ड बदलें",
+      "changed": "पासवर्ड बदल दिया गया।",
+      "tooShort": "कम से कम {{min}} वर्णों का उपयोग करें।",
+      "sameAsCurrent": "वर्तमान पासवर्ड से अलग पासवर्ड चुनें।",
+      "mismatch": "दोनों नए पासवर्ड मेल नहीं खाते।"
+    },
+    "progress": {
+      "count": "{{total}} में से {{done}}",
+      "deleting_one": "{{count}} रिकॉर्ड हटाया जा रहा है",
+      "deleting_other": "{{count}} रिकॉर्ड हटाए जा रहे हैं"
+    },
+    "promptEditor": {
+      "content": "टेम्पलेट टेक्स्ट",
+      "palette": "वेरिएबल डालें",
+      "used": "इस टेक्स्ट में वेरिएबल",
+      "variables": "वेरिएबल",
+      "noVariables": "यह टेक्स्ट किसी वेरिएबल का उपयोग नहीं करता।",
+      "preview": "पूर्वावलोकन",
+      "diff": "बदलाव",
+      "sampleContext": "नमूना संदर्भ (JSON)",
+      "rendered": "रेंडर किया गया",
+      "serverRender": "सर्वर द्वारा रेंडर किया गया",
+      "localRender": "ब्राउज़र में रेंडर किया गया",
+      "previewEmpty": "टेम्पलेट खाली टेक्स्ट के रूप में रेंडर होता है।",
+      "missing": "नमूना संदर्भ में नहीं है: {{list}}",
+      "current": "वर्तमान टेक्स्ट",
+      "syntaxHint": "{{variable}}, {{variable | default: \"text\"}}, {{#if variable}}...{{/if}} और {{#each list}}...{{/each}} का उपयोग करें।"
+    },
+    "result": {
+      "succeeded": "सफल।",
+      "failed": "विफल।",
+      "latency": "{{value}} लगे।"
+    },
+    "schemaForm": {
+      "noSettings": "इस कनेक्टर की कोई सेटिंग नहीं है।",
+      "range": "अनुमत सीमा: {{minimum}} से {{maximum}}।",
+      "groups": {
+        "General": "सामान्य",
+        "Connection": "कनेक्शन",
+        "Authentication": "प्रमाणीकरण",
+        "Limits": "सीमाएँ",
+        "Advanced": "उन्नत"
+      },
+      "errors": {
+        "Required": "यह सेटिंग आवश्यक है।",
+        "NotAnInteger": "एक पूर्ण संख्या दर्ज करें।",
+        "OutOfRange": "{{minimum}} से {{maximum}} तक का मान दर्ज करें।",
+        "NotAllowedValue": "इनमें से एक चुनें: {{values}}।",
+        "PatternMismatch": "मान अपेक्षित प्रारूप में नहीं है।",
+        "TooLong": "अधिकतम {{maximum}} वर्णों का उपयोग करें।"
+      }
+    },
+    "secretField": {
+      "accepts": "स्वीकार करता है: {{kinds}}।",
+      "anyKind": "किसी भी प्रकार का सीक्रेट",
+      "noneSelected": "कोई सीक्रेट चयनित नहीं",
+      "createInline": "नया सीक्रेट बनाएँ",
+      "saveInline": "सीक्रेट सहेजें",
+      "import": "फ़ाइल से आयात करें",
+      "importNamed": "फ़ाइल से {{field}} आयात करें",
+      "replaceHint": "संग्रहीत मान रखने के लिए खाली छोड़ें।",
+      "fields": {
+        "username": "उपयोगकर्ता नाम",
+        "password": "पासवर्ड",
+        "privateKey": "निजी कुंजी",
+        "passphrase": "पासफ़्रेज़",
+        "token": "टोकन",
+        "accessKeyId": "एक्सेस कुंजी ID",
+        "secretAccessKey": "सीक्रेट एक्सेस कुंजी",
+        "sessionToken": "सत्र टोकन",
+        "json": "सर्विस अकाउंट JSON",
+        "kubeconfig": "Kubeconfig",
+        "connectionString": "कनेक्शन स्ट्रिंग",
+        "certificate": "प्रमाणपत्र (PEM)",
+        "value": "मान"
+      },
+      "file": {
+        "pem": "फ़ाइल में {{type}} प्रकार का PEM ब्लॉक है।",
+        "serviceAccount": "प्रोजेक्ट {{project}} के लिए सर्विस अकाउंट ({{email}})।",
+        "kubeconfig": "Kubeconfig कॉन्टेक्स्ट: {{contexts}}।",
+        "kubeconfigNone": "इस kubeconfig में कोई कॉन्टेक्स्ट नहीं मिला।",
+        "invalidJson": "यह फ़ाइल मान्य JSON नहीं है।"
+      }
+    },
+    "toolActivity": {
+      "arguments": "आर्ग्युमेंट (सीक्रेट छिपाए गए)",
+      "output": "आउटपुट पूर्वावलोकन",
+      "error": "त्रुटि",
+      "noArguments": "कोई आर्ग्युमेंट नहीं।",
+      "noOutput": "अभी कोई आउटपुट नहीं।",
+      "truncated": "आउटपुट को बाइंडिंग की सीमा तक संक्षिप्त किया गया।",
+      "effectReason": "वर्गीकरण का कारण: {{reason}}",
+      "status": {
+        "proposed": "प्रस्तावित",
+        "running": "चल रहा है",
+        "awaitingApproval": "स्वीकृति की प्रतीक्षा"
+      }
+    }
+  },
+  "resources": {
+    "tenants": {
+      "title": "टेनेंट",
+      "subtitle": "इस सर्वर पर पृथक टेनेंट। बिल्ट-इन भूमिकाओं और वैश्विक डिफ़ॉल्ट को छोड़कर सब कुछ ठीक एक टेनेंट का होता है।",
+      "add": "टेनेंट जोड़ें",
+      "create": "टेनेंट बनाएँ",
+      "edit": "टेनेंट संपादित करें",
+      "view": "टेनेंट विवरण",
+      "deleteTitle": "टेनेंट हटाएँ",
+      "emptyTitle": "अभी कोई टेनेंट नहीं",
+      "emptyBody": "किसी टीम या ग्राहक को पृथक करने के लिए टेनेंट बनाएँ।",
+      "columns": {
+        "name": "नाम",
+        "id": "ID",
+        "description": "विवरण",
+        "active": "सक्रिय",
+        "createdUtc": "बनाया गया",
+        "region": "क्षेत्र",
+        "lockdown": "लॉकडाउन"
+      },
+      "fields": {
+        "name": "नाम",
+        "description": "विवरण",
+        "active": "सक्रिय",
+        "region": "क्षेत्र"
+      }
+    },
+    "users": {
+      "title": "उपयोगकर्ता",
+      "subtitle": "वे लोग जो ईमेल और पासवर्ड से इस टेनेंट में साइन इन करते हैं।",
+      "add": "उपयोगकर्ता जोड़ें",
+      "create": "उपयोगकर्ता बनाएँ",
+      "edit": "उपयोगकर्ता संपादित करें",
+      "view": "उपयोगकर्ता विवरण",
+      "deleteTitle": "उपयोगकर्ता हटाएँ",
+      "emptyTitle": "अभी कोई उपयोगकर्ता नहीं",
+      "emptyBody": "किसी व्यक्ति को इस टेनेंट में साइन इन करने देने के लिए उपयोगकर्ता जोड़ें।",
+      "columns": {
+        "email": "ईमेल",
+        "name": "नाम",
+        "id": "ID",
+        "role": "भूमिका",
+        "active": "सक्रिय",
+        "createdUtc": "बनाया गया"
+      },
+      "fields": {
+        "email": "ईमेल",
+        "password": "पासवर्ड",
+        "firstName": "पहला नाम",
+        "lastName": "उपनाम",
+        "isTenantAdmin": "टेनेंट व्यवस्थापक",
+        "isAdmin": "सिस्टम व्यवस्थापक",
+        "active": "सक्रिय",
+        "mustChangePassword": "अगले साइन-इन पर पासवर्ड बदलना अनिवार्य"
+      },
+      "hints": {
+        "isAdmin": "सिस्टम व्यवस्थापक हर टेनेंट का प्रबंधन कर सकते हैं और सभी प्राधिकरण को बायपास कर सकते हैं।",
+        "password": "संपादित करते समय वर्तमान पासवर्ड रखने के लिए खाली छोड़ें।"
+      },
+      "actions": {
+        "permissions": "प्रभावी अनुमतियाँ",
+        "resetPassword": "पासवर्ड रीसेट करें",
+        "assignRole": "भूमिका असाइन करें"
+      },
+      "passwordReset": "पासवर्ड रीसेट हो गया। उपयोगकर्ता को अगले साइन-इन पर इसे बदलना होगा।"
+    },
+    "credentials": {
+      "title": "क्रेडेंशियल",
+      "subtitle": "ऑटोमेशन, SDK और इंटीग्रेशन द्वारा उपयोग की जाने वाली एक्सेस कुंजियाँ। सीक्रेट केवल एक बार दिखाए जाते हैं।",
+      "add": "क्रेडेंशियल जोड़ें",
+      "create": "क्रेडेंशियल बनाएँ",
+      "edit": "क्रेडेंशियल संपादित करें",
+      "view": "क्रेडेंशियल विवरण",
+      "deleteTitle": "क्रेडेंशियल हटाएँ",
+      "emptyTitle": "अभी कोई क्रेडेंशियल नहीं",
+      "emptyBody": "एक एक्सेस कुंजी बनाएँ ताकि कोई स्क्रिप्ट या सेवा Hugo को कॉल कर सके।",
+      "columns": {
+        "name": "नाम",
+        "accessKey": "एक्सेस कुंजी",
+        "secretKeyLast4": "सीक्रेट",
+        "userId": "स्वामी",
+        "lastUsedUtc": "अंतिम उपयोग",
+        "expiresUtc": "समाप्ति",
+        "active": "सक्रिय",
+        "id": "ID",
+        "agentProfileId": "प्रोफ़ाइल",
+        "lockToProfile": "लॉक है"
+      },
+      "fields": {
+        "name": "नाम",
+        "userId": "स्वामी",
+        "authMode": "प्रमाणीकरण मोड",
+        "expiresUtc": "समाप्ति",
+        "active": "सक्रिय",
+        "agentProfileId": "बाउंड प्रोफ़ाइल",
+        "lockToProfile": "इस प्रोफ़ाइल पर लॉक करें"
+      },
+      "hints": {
+        "userId": "कोई क्रेडेंशियल कभी भी अपने स्वामी की अनुमतियों से अधिक नहीं हो सकता।"
+      },
+      "actions": {
+        "rotate": "सीक्रेट रोटेट करें",
+        "scopes": "दायरा असाइनमेंट"
+      }
+    },
+    "roles": {
+      "title": "भूमिकाएँ",
+      "subtitle": "भूमिकाएँ अनुमतियों को समूहित करती हैं। बिल्ट-इन भूमिकाएँ केवल-पढ़ने योग्य हैं; अनुकूलित करने के लिए किसी को क्लोन करें।",
+      "add": "भूमिका जोड़ें",
+      "create": "भूमिका बनाएँ",
+      "edit": "भूमिका संपादित करें",
+      "view": "भूमिका विवरण",
+      "deleteTitle": "भूमिका हटाएँ",
+      "emptyTitle": "अभी कोई भूमिका नहीं",
+      "emptyBody": "एक कस्टम भूमिका बनाएँ, या किसी बिल्ट-इन भूमिका को क्लोन करें।",
+      "columns": {
+        "name": "नाम",
+        "description": "विवरण",
+        "isBuiltIn": "प्रकार",
+        "active": "सक्रिय",
+        "id": "ID",
+        "createdUtc": "बनाया गया"
+      },
+      "fields": {
+        "name": "नाम",
+        "description": "विवरण",
+        "active": "सक्रिय"
+      }
+    },
+    "permissions": {
+      "title": "अनुमतियाँ",
+      "subtitle": "संसाधन प्रकारों पर ऑपरेशन की अनुमति दें या अस्वीकार करें। अस्वीकृति हमेशा प्रभावी होती है।",
+      "add": "अनुमति जोड़ें",
+      "create": "अनुमति बनाएँ",
+      "edit": "अनुमति संपादित करें",
+      "view": "अनुमति विवरण",
+      "deleteTitle": "अनुमति हटाएँ",
+      "emptyTitle": "अभी कोई अनुमति नहीं",
+      "emptyBody": "एक अनुमति बनाएँ और उसे किसी भूमिका से मैप करें।",
+      "columns": {
+        "name": "नाम",
+        "permissionType": "प्रकार",
+        "resourceTypes": "संसाधन प्रकार",
+        "operationTypes": "ऑपरेशन",
+        "isBuiltIn": "स्रोत",
+        "id": "ID"
+      },
+      "fields": {
+        "name": "नाम",
+        "permissionType": "प्रकार",
+        "resourceTypes": "संसाधन प्रकार",
+        "operationTypes": "ऑपरेशन",
+        "active": "सक्रिय"
+      }
+    },
+    "userAssignments": {
+      "title": "उपयोगकर्ता असाइनमेंट",
+      "subtitle": "उपयोगकर्ताओं को टेनेंट या संसाधन दायरे में भूमिकाएँ प्रदान करें।",
+      "add": "उपयोगकर्ता असाइनमेंट जोड़ें",
+      "create": "उपयोगकर्ता असाइनमेंट बनाएँ",
+      "edit": "उपयोगकर्ता असाइनमेंट संपादित करें",
+      "view": "उपयोगकर्ता असाइनमेंट विवरण",
+      "deleteTitle": "उपयोगकर्ता असाइनमेंट हटाएँ",
+      "emptyTitle": "अभी कोई उपयोगकर्ता असाइनमेंट नहीं",
+      "emptyBody": "किसी उपयोगकर्ता को भूमिका असाइन करें।",
+      "columns": {
+        "userId": "उपयोगकर्ता",
+        "roleName": "भूमिका",
+        "resourceScope": "दायरा",
+        "resourceId": "संसाधन",
+        "active": "सक्रिय",
+        "createdUtc": "बनाया गया",
+        "id": "ID"
+      },
+      "fields": {
+        "userId": "उपयोगकर्ता",
+        "roleId": "भूमिका",
+        "resourceScope": "दायरा",
+        "resourceId": "संसाधन ID",
+        "inheritsToChildren": "टेनेंट के संसाधनों पर लागू होता है",
+        "active": "सक्रिय"
+      }
+    },
+    "credentialAssignments": {
+      "title": "क्रेडेंशियल असाइनमेंट",
+      "subtitle": "एक्सेस कुंजियों को भूमिकाएँ प्रदान करें। क्रेडेंशियल को उनके स्वामियों से सीमित रखें।",
+      "add": "क्रेडेंशियल असाइनमेंट जोड़ें",
+      "create": "क्रेडेंशियल असाइनमेंट बनाएँ",
+      "edit": "क्रेडेंशियल असाइनमेंट संपादित करें",
+      "view": "क्रेडेंशियल असाइनमेंट विवरण",
+      "deleteTitle": "क्रेडेंशियल असाइनमेंट हटाएँ",
+      "emptyTitle": "अभी कोई क्रेडेंशियल असाइनमेंट नहीं",
+      "emptyBody": "किसी क्रेडेंशियल को भूमिका असाइन करें।",
+      "columns": {
+        "credentialId": "क्रेडेंशियल",
+        "roleName": "भूमिका",
+        "resourceScope": "दायरा",
+        "resourceId": "संसाधन",
+        "active": "सक्रिय",
+        "createdUtc": "बनाया गया",
+        "id": "ID"
+      },
+      "fields": {
+        "credentialId": "क्रेडेंशियल",
+        "roleId": "भूमिका",
+        "resourceScope": "दायरा",
+        "resourceId": "संसाधन ID",
+        "inheritsToChildren": "टेनेंट के संसाधनों पर लागू होता है",
+        "active": "सक्रिय"
+      }
+    },
+    "promptTemplates": {
+      "deleteUnbound": "\"{{name}}\" और इसके सभी संस्करण हटाएँ? जिन प्रोफ़ाइलों में यह शामिल है वे बिल्ट-इन डिफ़ॉल्ट पर लौट जाएँगी। इसे पूर्ववत नहीं किया जा सकता।",
+      "title": "प्रॉम्प्ट टेम्पलेट",
+      "subtitle": "Hugo द्वारा रेंडर किया जाने वाला हर प्रॉम्प्ट और कॉन्फ़िगरेशन फ़ाइल। हर बार सहेजने पर एक नया संस्करण बनता है।",
+      "add": "नया टेम्पलेट",
+      "create": "टेम्पलेट बनाएँ",
+      "edit": "टेम्पलेट संपादित करें",
+      "view": "टेम्पलेट विवरण",
+      "deleteTitle": "टेम्पलेट हटाएँ",
+      "emptyTitle": "अभी कोई प्रॉम्प्ट टेम्पलेट नहीं",
+      "emptyBody": "एक टेम्पलेट बनाएँ, या किसी बिल्ट-इन टेम्पलेट को क्लोन करें।",
+      "columns": {
+        "name": "नाम",
+        "kind": "प्रकार",
+        "currentVersion": "संस्करण",
+        "description": "विवरण",
+        "isBuiltIn": "स्रोत",
+        "id": "ID",
+        "lastUpdateUtc": "अपडेट किया गया"
+      },
+      "fields": {
+        "name": "नाम",
+        "kind": "प्रकार",
+        "description": "विवरण"
+      }
+    },
+    "audit": {
+      "title": "ऑडिट",
+      "subtitle": "इस टेनेंट के प्रमाणीकरण, प्राधिकरण और कॉन्फ़िगरेशन इवेंट।",
+      "add": "ऑडिट रिकॉर्ड जोड़ें",
+      "create": "ऑडिट रिकॉर्ड बनाएँ",
+      "edit": "ऑडिट रिकॉर्ड संपादित करें",
+      "view": "ऑडिट रिकॉर्ड विवरण",
+      "deleteTitle": "ऑडिट रिकॉर्ड हटाएँ",
+      "emptyTitle": "अभी कोई ऑडिट रिकॉर्ड नहीं",
+      "emptyBody": "लोगों और एजेंटों द्वारा Hugo का उपयोग करने पर सुरक्षा इवेंट यहाँ दिखाई देते हैं।",
+      "columns": {
+        "createdUtc": "समय",
+        "eventType": "इवेंट",
+        "principalName": "प्रिंसिपल",
+        "resource": "संसाधन",
+        "reason": "कारण",
+        "sourceIp": "स्रोत IP",
+        "id": "ID"
+      },
+      "fields": {
+        "eventType": "इवेंट",
+        "principalType": "प्रिंसिपल प्रकार",
+        "principalName": "प्रिंसिपल",
+        "principalId": "प्रिंसिपल ID",
+        "resourceType": "संसाधन प्रकार",
+        "resourceId": "संसाधन ID",
+        "operation": "ऑपरेशन",
+        "method": "मेथड",
+        "path": "पाथ",
+        "authResult": "प्रमाणीकरण परिणाम",
+        "authorizationResult": "प्राधिकरण परिणाम",
+        "reason": "कारण",
+        "bypassReason": "बायपास कारण",
+        "statusCode": "स्टेटस कोड",
+        "sourceIp": "स्रोत IP",
+        "requestId": "अनुरोध ID",
+        "createdUtc": "समय"
+      }
+    },
+    "approvals": {
+      "approved": "स्वीकृत। कॉल अब चलती है।",
+      "rejected": "अस्वीकृत। कॉलर को बताया जाता है कि कार्रवाई अस्वीकार कर दी गई।",
+      "notPending": "इस स्वीकृति पर पहले ही निर्णय हो चुका है या यह समाप्त हो चुकी है।",
+      "bulkNote": "स्वीकृति इनबॉक्स से बल्क में अस्वीकृत।",
+      "bulkRejected_one": "{{count}} स्वीकृति अस्वीकृत की गई ({{failed}} विफल)।",
+      "bulkRejected_other": "{{count}} स्वीकृतियाँ अस्वीकृत की गईं ({{failed}} विफल)।",
+      "title": "स्वीकृतियाँ",
+      "subtitle": "लिखने और विनाशकारी टूल कॉल जो किसी व्यक्ति की प्रतीक्षा करती हैं। चलाने के लिए स्वीकृत करें, मना करने के लिए अस्वीकार करें।",
+      "add": "स्वीकृति जोड़ें",
+      "create": "स्वीकृति बनाएँ",
+      "edit": "स्वीकृति संपादित करें",
+      "view": "स्वीकृति विवरण",
+      "deleteTitle": "स्वीकृति हटाएँ",
+      "emptyTitle": "अभी कोई स्वीकृति नहीं",
+      "emptyBody": "कुछ भी प्रतीक्षा में नहीं है। जिन कॉल को स्वीकृति चाहिए, वे एजेंट द्वारा प्रस्तावित किए जाते ही यहाँ और चैट में दिखाई देती हैं।",
+      "purpose": "स्वीकृति इनबॉक्स में वे टूल कॉल होती हैं जिन्हें किसी व्यक्ति की आवश्यकता है: विनाशकारी कॉल, और स्वीकृति आवश्यक वाली बाइंडिंग पर हर लिखने वाली कॉल।",
+      "columns": {
+        "summary": "कार्रवाई",
+        "effect": "प्रभाव",
+        "status": "स्थिति",
+        "agentProfileId": "प्रोफ़ाइल",
+        "requestedBy": "अनुरोधकर्ता",
+        "createdUtc": "अनुरोध किया गया",
+        "expiresUtc": "समाप्ति",
+        "decidedBy": "निर्णयकर्ता",
+        "id": "ID"
+      },
+      "fields": {
+        "summary": "कार्रवाई",
+        "effect": "प्रभाव",
+        "status": "स्थिति",
+        "decisionNote": "निर्णय नोट",
+        "agentProfileId": "प्रोफ़ाइल",
+        "fromUtc": "से"
+      },
+      "actions": {
+        "decide": "स्वीकृत या अस्वीकार करें",
+        "invocation": "टूल इनवोकेशन देखें",
+        "bulkReject": "चयनित अस्वीकार करें"
+      }
+    },
+    "resources": {
+      "deleteReferenced_one": "{{name}} {{count}} प्रोफ़ाइल या एंडपॉइंट से बाउंड है। पहले उन बाइंडिंग को हटाएँ; संदर्भित रहते हुए सर्वर हटाने से मना करता है।",
+      "deleteReferenced_other": "{{name}} {{count}} प्रोफ़ाइलों या एंडपॉइंट से बाउंड है। पहले उन बाइंडिंग को हटाएँ; संदर्भित रहते हुए सर्वर हटाने से मना करता है।",
+      "noReferrers": "अभी इसका कहीं उपयोग नहीं होता।",
+      "referrerTypes": {
+        "profiles": "प्रोफ़ाइल",
+        "bindings": "बाइंडिंग",
+        "resources": "संसाधन",
+        "modelEndpoints": "मॉडल एंडपॉइंट"
+      },
+      "title": "संसाधन",
+      "subtitle": "आपके सिस्टम से कनेक्शन, उनकी सेटिंग्स और सीक्रेट के साथ। एजेंटों को उनका उपयोग करने देने के लिए उन्हें प्रोफ़ाइलों से बाइंड करें।",
+      "add": "संसाधन जोड़ें",
+      "create": "संसाधन बनाएँ",
+      "edit": "संसाधन संपादित करें",
+      "view": "संसाधन विवरण",
+      "deleteTitle": "संसाधन हटाएँ",
+      "emptyTitle": "अभी कोई संसाधन नहीं",
+      "emptyBody": "एक SSH होस्ट, बकेट, डेटाबेस या लॉग सेवा जोड़ें। हर फ़ॉर्म कनेक्टर के स्कीमा से बनता है और सहेजने से पहले उसका परीक्षण किया जा सकता है।",
+      "purpose": "संसाधन वास्तविक सिस्टम से कॉन्फ़िगर किए गए कनेक्शन हैं: एक SSH होस्ट, एक S3 बकेट, एक PostgreSQL डेटाबेस, एक Papertrail खाता। उनके सीक्रेट Hugo में एन्क्रिप्टेड रहते हैं।",
+      "sections": {
+        "general": "सामान्य",
+        "connector": "कनेक्टर"
+      },
+      "columns": {
+        "name": "नाम",
+        "connectorType": "कनेक्टर",
+        "environment": "एनवायरनमेंट",
+        "endpoint": "एंडपॉइंट",
+        "health": "स्वास्थ्य",
+        "lastTestUtc": "अंतिम परीक्षण",
+        "visibility": "दृश्यता",
+        "id": "ID",
+        "createdUtc": "बनाया गया"
+      },
+      "fields": {
+        "name": "नाम",
+        "displayName": "प्रदर्शन नाम",
+        "environment": "एनवायरनमेंट",
+        "visibility": "दृश्यता",
+        "defaultAccessModeCeiling": "अनुमत उच्चतम एक्सेस मोड",
+        "endpoint": "एंडपॉइंट सारांश",
+        "description": "विवरण",
+        "notes": "एजेंट के लिए नोट्स",
+        "connectorType": "कनेक्टर"
+      },
+      "hints": {
+        "notes": "इस संसाधन को बाइंड करने वाली हर प्रोफ़ाइल के निर्देशों में जोड़ा जाता है।",
+        "endpoint": "सूचियों और निर्देशों में दिखाया जाता है, उदाहरण के लिए web-01.example.com:22।"
+      },
+      "actions": {
+        "test": "कनेक्शन का परीक्षण करें",
+        "testTitle": "कनेक्शन परीक्षण: {{name}}",
+        "tryTool": "कोई टूल आज़माएँ",
+        "referrers": "कहाँ उपयोग होता है",
+        "referrersTitle": "{{name}} कहाँ उपयोग होता है"
+      }
+    },
+    "secrets": {
+      "deleteReferenced_one": "{{name}} का उपयोग {{count}} संसाधन या मॉडल एंडपॉइंट द्वारा किया जाता है। संदर्भित रहते हुए सर्वर इसे हटाने से मना करता है।",
+      "deleteReferenced_other": "{{name}} का उपयोग {{count}} संसाधनों या मॉडल एंडपॉइंट द्वारा किया जाता है। संदर्भित रहते हुए सर्वर इसे हटाने से मना करता है।",
+      "expired": "समाप्त",
+      "expiringSoon": "जल्द समाप्त हो रहा है",
+      "errors": {
+        "expiryPast": "भविष्य का कोई समय चुनें।",
+        "noValues": "बदलने के लिए कम से कम एक मान भरें।"
+      },
+      "title": "सीक्रेट",
+      "subtitle": "पासवर्ड, कुंजियाँ, टोकन और प्रमाणपत्र, मास्टर कुंजी से एन्क्रिप्टेड। ऑडिट किए गए प्रकटीकरण के अलावा मान कभी नहीं दिखाए जाते।",
+      "add": "सीक्रेट जोड़ें",
+      "create": "सीक्रेट बनाएँ",
+      "edit": "सीक्रेट संपादित करें",
+      "view": "सीक्रेट विवरण",
+      "deleteTitle": "सीक्रेट हटाएँ",
+      "emptyTitle": "अभी कोई सीक्रेट नहीं",
+      "emptyBody": "अपने संसाधनों के लिए आवश्यक क्रेडेंशियल जोड़ें। संसाधन जोड़ते समय आप उन्हें वहीं भी बना सकते हैं।",
+      "purpose": "सीक्रेट वॉल्ट क्रेडेंशियल सामग्री को एन्क्रिप्ट करके (AES-256-GCM) संग्रहीत करता है। संसाधन और मॉडल एंडपॉइंट स्लॉट द्वारा सीक्रेट का संदर्भ देते हैं; एजेंट कभी भी मान नहीं देखते।",
+      "sections": {
+        "values": "मान"
+      },
+      "columns": {
+        "name": "नाम",
+        "kind": "प्रकार",
+        "fingerprint": "फ़िंगरप्रिंट",
+        "referrerCount": "उपयोगकर्ता",
+        "lastRotatedUtc": "अंतिम रोटेशन",
+        "expiresUtc": "समाप्ति",
+        "lastRevealedUtc": "अंतिम बार दिखाया गया",
+        "id": "ID",
+        "createdUtc": "बनाया गया"
+      },
+      "fields": {
+        "name": "नाम",
+        "kind": "प्रकार",
+        "description": "विवरण",
+        "expiresUtc": "समाप्ति"
+      },
+      "actions": {
+        "replaceValues": "मान बदलें",
+        "reveal": "दिखाएँ",
+        "referrers": "कहाँ उपयोग होता है",
+        "referrersTitle": "{{name}} कहाँ उपयोग होता है"
+      }
+    },
+    "toolInvocations": {
+      "openTrace": "Grafana में ट्रेस खोलें",
+      "truncated": "संक्षिप्त किया गया",
+      "title": "टूल इनवोकेशन",
+      "subtitle": "हर सतह से हर टूल कॉल: क्या चला, किस संसाधन पर, इसे कैसे वर्गीकृत किया गया, क्या निर्णय लिया गया, और यह कैसे समाप्त हुआ।",
+      "add": "टूल इनवोकेशन जोड़ें",
+      "create": "टूल इनवोकेशन बनाएँ",
+      "edit": "टूल इनवोकेशन संपादित करें",
+      "view": "टूल इनवोकेशन विवरण",
+      "deleteTitle": "टूल इनवोकेशन हटाएँ",
+      "emptyTitle": "अभी कोई टूल इनवोकेशन नहीं",
+      "emptyBody": "जैसे ही कोई एजेंट चैट, MCP, A2A, OpenAI एंडपॉइंट या REST API से किसी संसाधन का उपयोग करता है, टूल कॉल यहाँ दिखाई देती हैं।",
+      "purpose": "टूल इनवोकेशन हर सतह से, Hugo की एकल इनवोकेशन पाइपलाइन से होकर गुज़रने वाली हर टूल कॉल का ऑडिट किया गया रिकॉर्ड हैं।",
+      "columns": {
+        "createdUtc": "कब",
+        "toolName": "टूल",
+        "resourceId": "संसाधन",
+        "effect": "प्रभाव",
+        "decision": "निर्णय",
+        "status": "स्थिति",
+        "durationMs": "अवधि",
+        "surface": "सतह",
+        "agentProfileId": "प्रोफ़ाइल",
+        "principalId": "प्रिंसिपल",
+        "id": "ID"
+      },
+      "fields": {
+        "surface": "सतह",
+        "effect": "प्रभाव",
+        "decision": "निर्णय",
+        "status": "स्थिति",
+        "agentProfileId": "प्रोफ़ाइल",
+        "resourceId": "संसाधन",
+        "toolName": "टूल का नाम",
+        "principalId": "प्रिंसिपल ID",
+        "fromUtc": "से",
+        "toUtc": "तक",
+        "accessMode": "एक्सेस मोड",
+        "outputBytes": "आउटपुट आकार",
+        "approvalId": "स्वीकृति",
+        "traceId": "ट्रेस",
+        "argumentsRedacted": "आर्ग्युमेंट (सीक्रेट छिपाए गए)",
+        "outputPreview": "आउटपुट पूर्वावलोकन"
+      }
+    },
+    "models": {
+      "lastHealth": "अंतिम स्वास्थ्य जाँच {{time}}: {{message}}",
+      "title": "मॉडल एंडपॉइंट",
+      "subtitle": "Hugo के अपने एजेंट लूप के लिए इन्फ़रेंस और एम्बेडिंग मॉडल। चैट, A2A और OpenAI-संगत क्लाइंट को एक इन्फ़रेंस मॉडल की आवश्यकता होती है।",
+      "add": "मॉडल एंडपॉइंट जोड़ें",
+      "create": "मॉडल एंडपॉइंट बनाएँ",
+      "edit": "मॉडल एंडपॉइंट संपादित करें",
+      "view": "मॉडल एंडपॉइंट विवरण",
+      "deleteTitle": "मॉडल एंडपॉइंट हटाएँ",
+      "emptyTitle": "अभी कोई मॉडल एंडपॉइंट नहीं",
+      "emptyBody": "चैट के लिए एक इन्फ़रेंस मॉडल आवश्यक है। एक स्थानीय Ollama मॉडल या OpenAI या Anthropic जैसा होस्टेड प्रदाता जोड़ें।",
+      "purpose": "मॉडल एंडपॉइंट वे इन्फ़रेंस और एम्बेडिंग प्रदाता हैं जिन्हें Hugo का एजेंट लूप कॉल करता है: Ollama, OpenAI, Anthropic, Gemini, Azure OpenAI, Bedrock, Vertex और VoyageAI।",
+      "sections": {
+        "endpoint": "एंडपॉइंट",
+        "capabilities": "क्षमताएँ",
+        "limits": "सीमाएँ"
+      },
+      "columns": {
+        "name": "नाम",
+        "kind": "प्रकार",
+        "provider": "प्रदाता",
+        "model": "मॉडल",
+        "baseUrl": "बेस URL",
+        "healthStatus": "स्वास्थ्य",
+        "lastHealthUtc": "अंतिम जाँच",
+        "id": "ID"
+      },
+      "fields": {
+        "name": "नाम",
+        "kind": "प्रकार",
+        "provider": "प्रदाता",
+        "baseUrl": "बेस URL",
+        "model": "मॉडल",
+        "apiKey": "API कुंजी",
+        "apiKeySecretId": "API कुंजी सीक्रेट",
+        "region": "क्षेत्र",
+        "deploymentName": "डिप्लॉयमेंट नाम",
+        "apiVersion": "API संस्करण",
+        "contextWindowTokens": "कॉन्टेक्स्ट विंडो (टोकन)",
+        "maxOutputTokens": "अधिकतम आउटपुट टोकन",
+        "embeddingDimensions": "एम्बेडिंग आयाम",
+        "supportsTools": "टूल कॉल का समर्थन करता है",
+        "supportsStreaming": "स्ट्रीमिंग का समर्थन करता है",
+        "maxConcurrency": "अधिकतम समवर्ती अनुरोध",
+        "timeoutSeconds": "टाइमआउट (सेकंड)",
+        "maxRetries": "अधिकतम पुनः प्रयास"
+      },
+      "errors": {
+        "baseUrl": "http:// या https:// से शुरू होने वाला URL दर्ज करें।"
+      },
+      "actions": {
+        "validate": "सत्यापित करें",
+        "validateTitle": "सत्यापन: {{name}}",
+        "listModels": "प्रदाता के मॉडल सूचीबद्ध करें",
+        "listModelsTitle": "{{name}} द्वारा उपलब्ध मॉडल"
+      }
+    },
+    "knowledge": {
+      "allProfiles": "हर प्रोफ़ाइल",
+      "title": "ज्ञान",
+      "subtitle": "आपके स्टैक के बारे में नोट्स जिन्हें Hugo संदर्भ में लाता है, किसी एक प्रोफ़ाइल या संसाधन के लिए या हर प्रोफ़ाइल के लिए।",
+      "add": "नोट जोड़ें",
+      "create": "नोट बनाएँ",
+      "edit": "नोट संपादित करें",
+      "view": "नोट विवरण",
+      "deleteTitle": "नोट हटाएँ",
+      "emptyTitle": "अभी कोई ज्ञान नहीं",
+      "emptyBody": "वह लिखें जो एक ऑपरेटर किसी नए साथी को बताएगा: कौन से होस्ट checkout चलाते हैं, payments को कब पुनः आरंभ नहीं करना है।",
+      "purpose": "ज्ञान नोट्स आपके स्टैक के बारे में ऑपरेटर द्वारा लिखे गए तथ्य हैं, जिन्हें एम्बेड किया जाता है और बातचीत के दौरान संदर्भ में लाया जाता है (माइलस्टोन M2)।",
+      "columns": {
+        "title": "शीर्षक",
+        "agentProfileId": "प्रोफ़ाइल",
+        "resourceId": "संसाधन",
+        "lastUpdateUtc": "अपडेट किया गया",
+        "id": "ID"
+      },
+      "fields": {
+        "title": "शीर्षक",
+        "agentProfileId": "प्रोफ़ाइल",
+        "resourceId": "संसाधन",
+        "content": "नोट"
+      }
+    },
+    "profiles": {
+      "noModel": "कोई मॉडल नहीं",
+      "title": "एजेंट प्रोफ़ाइल",
+      "subtitle": "हर प्रोफ़ाइल एक एजेंट है: एक पर्सोना, मॉडल, और वे संसाधन जिनका यह उपयोग कर सकता है, जो MCP, A2A, REST, OpenAI और चैट से पहुँच योग्य हैं।",
+      "add": "प्रोफ़ाइल जोड़ें",
+      "create": "प्रोफ़ाइल बनाएँ",
+      "edit": "प्रोफ़ाइल संपादित करें",
+      "view": "प्रोफ़ाइल विवरण",
+      "deleteTitle": "प्रोफ़ाइल हटाएँ",
+      "emptyTitle": "अभी कोई एजेंट प्रोफ़ाइल नहीं",
+      "emptyBody": "एक प्रोफ़ाइल बनाएँ, या डिफ़ॉल्ट Hugo प्रोफ़ाइल से शुरू करें और उससे संसाधन बाइंड करें।",
+      "purpose": "एजेंट प्रोफ़ाइल एक पर्सोना (डिफ़ॉल्ट रूप से Agent Smith), मॉडल, और एक्सेस मोड वाले संसाधनों को एक साथ जोड़ती हैं। हर सतह (MCP, A2A, REST, चैट) किसी प्रोफ़ाइल से बात करती है।",
+      "sections": {
+        "identity": "पहचान",
+        "models": "मॉडल",
+        "limits": "सीमाएँ",
+        "exposure": "उपलब्धता"
+      },
+      "columns": {
+        "name": "प्रोफ़ाइल",
+        "personaName": "पर्सोना",
+        "visibility": "दृश्यता",
+        "inferenceEndpointId": "इन्फ़रेंस मॉडल",
+        "bindingCount": "बाइंडिंग",
+        "exposure": "इनके माध्यम से उपलब्ध",
+        "id": "ID",
+        "createdUtc": "बनाया गया"
+      },
+      "fields": {
+        "name": "नाम",
+        "displayName": "प्रदर्शन नाम",
+        "description": "विवरण",
+        "personaName": "पर्सोना नाम",
+        "userAddress": "उपयोगकर्ता को संबोधित करता है",
+        "visibility": "दृश्यता",
+        "inferenceEndpointId": "इन्फ़रेंस मॉडल",
+        "fallbackInferenceEndpointId": "फ़ॉलबैक इन्फ़रेंस मॉडल",
+        "embeddingEndpointId": "एम्बेडिंग मॉडल",
+        "maxIterations": "प्रति टर्न अधिकतम पुनरावृत्तियाँ",
+        "maxToolCallsPerTurn": "प्रति टर्न अधिकतम टूल कॉल",
+        "toolTimeoutSeconds": "टूल टाइमआउट (सेकंड)",
+        "temperature": "टेम्परेचर",
+        "exposeMcp": "MCP पर उपलब्ध कराएँ",
+        "exposeA2a": "A2A पर उपलब्ध कराएँ",
+        "exposeOpenai": "OpenAI-संगत एंडपॉइंट पर उपलब्ध कराएँ",
+        "exposeManagementTools": "प्रबंधन टूल उपलब्ध कराएँ",
+        "instructionsAppend": "अतिरिक्त निर्देश"
+      },
+      "hints": {
+        "name": "अक्षर, अंक, बिंदु, डैश और अंडरस्कोर। /mcp/{name} जैसे URL में उपयोग किया जाता है।"
+      },
+      "errors": {
+        "urlSafe": "अक्षर, अंक, बिंदु, डैश और अंडरस्कोर का उपयोग करें, जो किसी अक्षर या अंक से शुरू हो।"
+      },
+      "actions": {
+        "chat": "इस प्रोफ़ाइल से चैट करें",
+        "duplicate": "डुप्लिकेट करें"
+      }
+    },
+    "sessions": {
+      "revoked": "रद्द किया गया",
+      "title": "सत्र",
+      "subtitle": "इस टेनेंट में सक्रिय साइन-इन सत्र और टोकन। किसी क्लाइंट को तुरंत साइन आउट करने के लिए उसका सत्र रद्द करें।",
+      "add": "सत्र जोड़ें",
+      "create": "सत्र बनाएँ",
+      "edit": "सत्र संपादित करें",
+      "view": "सत्र विवरण",
+      "deleteTitle": "सत्र हटाएँ",
+      "emptyTitle": "अभी कोई सत्र नहीं",
+      "emptyBody": "कोई सत्र सक्रिय नहीं है। साइन इन करने या एक्सेस कुंजी का विनिमय करने से एक सत्र बनता है।",
+      "purpose": "सत्र वे बेयरर टोकन हैं जो साइन-इन पर या एक्सेस कुंजी के विनिमय द्वारा जारी किए जाते हैं। किसी को रद्द करने से वह तुरंत समाप्त हो जाता है।",
+      "columns": {
+        "principalName": "प्रिंसिपल",
+        "principalType": "प्रकार",
+        "authScheme": "स्कीम",
+        "sourceIp": "स्रोत IP",
+        "issuedUtc": "जारी किया गया",
+        "lastUsedUtc": "अंतिम उपयोग",
+        "expiresUtc": "समाप्ति",
+        "revokedUtc": "स्थिति",
+        "userAgent": "क्लाइंट",
+        "id": "ID"
+      },
+      "fields": {
+        "principalName": "प्रिंसिपल",
+        "authScheme": "स्कीम",
+        "sourceIp": "स्रोत IP",
+        "userAgent": "क्लाइंट",
+        "principalType": "प्रिंसिपल प्रकार",
+        "principalId": "प्रिंसिपल ID"
+      }
+    },
+    "conversations": {
+      "title": "बातचीत",
+      "subtitle": "इस टेनेंट में हर सतह से आई बातचीत। चैट में जारी रखने के लिए किसी एक को खोलें।",
+      "add": "बातचीत जोड़ें",
+      "create": "बातचीत बनाएँ",
+      "edit": "बातचीत संपादित करें",
+      "view": "बातचीत विवरण",
+      "deleteTitle": "बातचीत हटाएँ",
+      "emptyTitle": "अभी कोई बातचीत नहीं",
+      "emptyBody": "जैसे ही कोई डैशबोर्ड या किसी क्लाइंट से किसी प्रोफ़ाइल के साथ चैट करता है, बातचीत यहाँ दिखाई देती है।",
+      "purpose": "बातचीत कॉलर और प्रोफ़ाइलों के बीच सहेजे गए थ्रेड हैं, जो डैशबोर्ड चैट, A2A कॉन्टेक्स्ट, MCP और OpenAI-संगत सत्रों से आते हैं।",
+      "columns": {
+        "title": "शीर्षक",
+        "agentProfileId": "प्रोफ़ाइल",
+        "userId": "उपयोगकर्ता",
+        "source": "स्रोत",
+        "messageCount": "संदेश",
+        "tokens": "टोकन",
+        "lastMessageUtc": "अंतिम संदेश",
+        "id": "ID"
+      },
+      "fields": {
+        "source": "स्रोत",
+        "agentProfileId": "प्रोफ़ाइल",
+        "userId": "उपयोगकर्ता ID",
+        "fromUtc": "से"
+      },
+      "actions": {
+        "export": "Markdown के रूप में निर्यात करें"
+      }
+    },
+    "plugins": {
+      "title": "प्लगइन",
+      "subtitle": "प्लगइन डायरेक्टरी से लोड किए गए कनेक्टर प्लगइन। उन्हें सक्षम या अक्षम करें, और देखें कि कोई लोड होने में विफल क्यों रहा।",
+      "add": "प्लगइन जोड़ें",
+      "create": "प्लगइन बनाएँ",
+      "edit": "प्लगइन संपादित करें",
+      "view": "प्लगइन विवरण",
+      "deleteTitle": "प्लगइन हटाएँ",
+      "emptyTitle": "अभी कोई प्लगइन नहीं",
+      "emptyBody": "कोई प्लगइन इंस्टॉल नहीं है। प्लगइन डायरेक्टरी में एक कनेक्टर प्लगइन डालें और Connectors.EnablePlugins चालू करें।",
+      "purpose": "प्लगइन Hugo को फिर से बिल्ड किए बिना कनेक्टर प्रकार जोड़ते हैं। वे प्लगइन डायरेक्टरी से एक पृथक संदर्भ में लोड होते हैं।",
+      "columns": {
+        "name": "नाम",
+        "version": "संस्करण",
+        "connectorTypes": "कनेक्टर प्रकार",
+        "enabled": "स्थिति",
+        "loadError": "लोड त्रुटि",
+        "sha256": "SHA-256",
+        "id": "ID"
+      },
+      "fields": {
+        "name": "नाम",
+        "version": "संस्करण",
+        "enabled": "सक्षम"
+      },
+      "actions": {
+        "enable": "सक्षम करें",
+        "disable": "अक्षम करें"
+      }
+    }
+  },
+  "views": {
+    "home": {
+      "observabilityState": {
+        "reachable": "पहुँच योग्य",
+        "unreachable": "पहुँच से बाहर",
+        "checking": "जाँच हो रही है",
+        "unknown": "स्थिति अज्ञात"
+      },
+      "observabilityVersion": "संस्करण {{version}}",
+      "observabilityOpen": "{{service}} खोलें",
+      "kpisGrafana": "Grafana में अवलोकन खोलें",
+      "grafanaDashboards": "Grafana डैशबोर्ड",
+      "grafanaSections": {
+        "overview": "अवलोकन",
+        "http": "HTTP API",
+        "models": "मॉडल",
+        "protocols": "MCP और A2A",
+        "security": "सुरक्षा",
+        "agent": "एजेंट और चैट",
+        "tools": "टूल और कनेक्टर"
+      },
+      "observabilitySetup": "ऑब्ज़र्वेबिलिटी सेट अप करें",
+      "observabilityNone": "इस Hugo सर्वर के लिए कोई ऑब्ज़र्वेबिलिटी सेवा (Grafana, Prometheus, Tempo या Loki) कॉन्फ़िगर नहीं है।",
+      "observability": "ऑब्ज़र्वेबिलिटी",
+      "title": "होम",
+      "subtitle": "Hugo अभी क्या कर रहा है, किस पर आपका ध्यान चाहिए, और आगे कहाँ जाना है।",
+      "lastLoaded": "{{time}} पर अपडेट किया गया",
+      "getStartedTitle": "Agent Smith को काम पर लगाएँ",
+      "getStartedBody": "इस टेनेंट में अभी कोई मॉडल एंडपॉइंट और कोई संसाधन नहीं है। सेटअप विज़ार्ड कुछ ही मिनटों में एक मॉडल और पहला सिस्टम कनेक्ट करता है।",
+      "runSetup": "सेटअप चलाएँ",
+      "kpis": {
+        "last24h": "पिछले 24 घंटे",
+        "requests": "अनुरोध",
+        "toolCalls": "टूल कॉल",
+        "failures": "विफलताएँ",
+        "approvals": "प्रतीक्षारत स्वीकृतियाँ",
+        "unhealthy": "अस्वस्थ संसाधन",
+        "tokens": "आज के टोकन",
+        "today": "आधी रात से"
+      },
+      "requestActivity": "API अनुरोध गतिविधि",
+      "recentFailures": "हाल की विफल टूल कॉल",
+      "noFailures": "हाल ही में कोई विफल टूल कॉल नहीं।",
+      "cta": {
+        "title": "सामान्य वर्कफ़्लो",
+        "apiExplorer": "API एक्सप्लोरर खोलें",
+        "addResource": "संसाधन जोड़ें",
+        "addModel": "मॉडल एंडपॉइंट जोड़ें",
+        "chat": "Agent Smith से चैट करें",
+        "connect": "Claude Code कनेक्ट करें",
+        "approvals": "स्वीकृतियों की समीक्षा करें"
+      },
+      "services": {
+        "loki": "Loki",
+        "grafana": "Grafana",
+        "prometheus": "Prometheus",
+        "tempo": "Tempo"
+      },
+      "partial_one": "{{count}} पैनल लोड नहीं हो सका, इसलिए नीचे की कुछ संख्याएँ मौजूद नहीं हैं। पेज का बाकी हिस्सा अद्यतन है।",
+      "partial_other": "{{count}} पैनल लोड नहीं हो सके, इसलिए नीचे की कुछ संख्याएँ मौजूद नहीं हैं। पेज का बाकी हिस्सा अद्यतन है।",
+      "failuresUnavailable": "यह सर्वर अभी टूल इनवोकेशन की रिपोर्ट नहीं करता।",
+      "unhealthyTitle": "अस्वस्थ संसाधन",
+      "allHealthy": "हर संसाधन अपनी अंतिम स्वास्थ्य जाँच में सफल रहा।",
+      "resourcesUnavailable": "यह सर्वर अभी संसाधनों की रिपोर्ट नहीं करता।"
+    },
+    "markdown": {
+      "showRaw": "रॉ टेक्स्ट दिखाएँ",
+      "showRendered": "फ़ॉर्मेट किया हुआ दिखाएँ"
+    },
+    "templateEditor": {
+      "cloneToEdit": "संपादित करने के लिए क्लोन करें",
+      "builtInReadOnly": "बिल्ट-इन टेम्पलेट केवल-पढ़ने योग्य हैं, इसलिए यहाँ हर फ़ील्ड लॉक है। संपादन योग्य प्रति पाने के लिए इसे क्लोन करें।",
+      "renameHint": "आप इस टेम्पलेट का नाम बदल सकते हैं। जो टेम्पलेट इसे नाम से शामिल करते हैं, उन्हें मैन्युअल रूप से अपडेट करना होगा।",
+      "cloneDialog": {
+        "taken": "{{name}} नाम का टेम्पलेट पहले से मौजूद है। कोई दूसरा नाम चुनें।",
+        "reserved": "builtin/ से शुरू होने वाले नाम बिल्ट-इन टेम्पलेट के लिए आरक्षित हैं।",
+        "hint": "आप बाद में प्रति का नाम उसके पेज पर बदल सकते हैं।",
+        "name": "प्रति का नाम",
+        "body": "प्रति वर्तमान सामग्री के साथ संस्करण 1 के रूप में शुरू होती है और इसे संपादित किया, नाम बदला और हटाया जा सकता है।",
+        "title": "{{name}} क्लोन करें"
+      },
+      "newTitle": "नया प्रॉम्प्ट टेम्पलेट",
+      "subtitle": "टेम्पलेट लिखें, नमूना संदर्भ के साथ उसका पूर्वावलोकन करें, और सहेजें।",
+      "changeNote": "बदलाव नोट",
+      "versions_one": "संस्करण ({{count}})",
+      "versions_other": "संस्करण ({{count}})",
+      "noVersions": "अभी कोई सहेजा गया संस्करण नहीं।",
+      "version": "संस्करण",
+      "note": "नोट",
+      "author": "लेखक",
+      "diff": "अंतर",
+      "restore": "पुनर्स्थापित करें",
+      "diffTitle": "संस्करण {{version}} की एडिटर से तुलना",
+      "current": "एडिटर",
+      "reset": "डिफ़ॉल्ट पर रीसेट करें",
+      "savedVersion": "एक नया संस्करण सहेजा गया।",
+      "restored": "संस्करण {{version}} पुनर्स्थापित किया गया।",
+      "resetDone": "मूल रूप से शामिल सामग्री पर रीसेट किया गया।",
+      "confirm": {
+        "restoreTitle": "संस्करण पुनर्स्थापित करें",
+        "restoreMessage": "संस्करण {{version}} पुनर्स्थापित करें? वर्तमान सामग्री इतिहास में रखी जाती है।",
+        "resetTitle": "टेम्पलेट रीसेट करें",
+        "resetMessage": "\"{{name}}\" को मूल रूप से शामिल सामग्री पर रीसेट करें?",
+        "deleteTitle": "टेम्पलेट हटाएँ",
+        "deleteMessage": "\"{{name}}\" हटाएँ? इसका उपयोग करने वाली प्रोफ़ाइलें और कनेक्टर बिल्ट-इन डिफ़ॉल्ट पर लौट जाते हैं।"
+      },
+      "saved": "सहेजा गया टेक्स्ट"
+    },
+    "requests": {
+      "grafana": "Grafana में HTTP डैशबोर्ड",
+      "title": "अनुरोध इतिहास",
+      "subtitle": "कैप्चर किया गया API ट्रैफ़िक। किसी भी अनुरोध का विस्तार से विवरण देखें और रिटेंशन प्रबंधित करें।",
+      "kpis": {
+        "total": "रखे गए अनुरोध",
+        "success": "सफल",
+        "failure": "विफलताएँ",
+        "avgDuration": "औसत अवधि"
+      },
+      "columns": {
+        "time": "समय",
+        "method": "मेथड",
+        "path": "पाथ",
+        "status": "स्टेटस",
+        "duration": "अवधि",
+        "principal": "प्रिंसिपल"
+      },
+      "bulkDeleteTitle": "अनुरोध इतिहास हटाएँ",
+      "bulkDeleteMessage": "वर्तमान फ़िल्टर से मेल खाने वाले सभी {{count}} अनुरोध हटाएँ?",
+      "bulkDeleteAll": "सभी मेल खाने वाले हटाएँ",
+      "deleteOneTitle": "अनुरोध हटाएँ",
+      "deleteOneMessage": "अनुरोध {{id}} हटाएँ?",
+      "deleted": "हटाया गया।",
+      "emptyTitle": "कोई अनुरोध इतिहास नहीं",
+      "emptyBodyNoTraffic": "अभी तक कोई API ट्रैफ़िक नहीं रखा गया है।",
+      "emptyBodyNoMatch": "वर्तमान फ़िल्टर से कोई अनुरोध मेल नहीं खाता।"
+    },
+    "explorer": {
+      "title": "API एक्सप्लोरर",
+      "subtitle": "इस सर्वर के OpenAPI दस्तावेज़ के आधार पर इस पर लाइव कॉल निष्पादित करें।",
+      "operations": "ऑपरेशन",
+      "selectOperation": "अनुरोध बनाने के लिए एक ऑपरेशन चुनें।",
+      "selectOperationOption": "एक ऑपरेशन चुनें...",
+      "pathParams": "पाथ पैरामीटर",
+      "queryParams": "क्वेरी पैरामीटर",
+      "headers": "हेडर",
+      "addHeader": "हेडर जोड़ें",
+      "headerName": "हेडर नाम",
+      "headerValue": "हेडर {{name}} का मान",
+      "removeHeader": "हेडर {{name}} हटाएँ",
+      "body": "अनुरोध बॉडी",
+      "resolvedUrl": "रिज़ॉल्व किया गया URL",
+      "copyUrl": "URL कॉपी करें",
+      "execute": "निष्पादित करें",
+      "executing": "निष्पादित हो रहा है...",
+      "stop": "रोकें",
+      "streaming": "स्ट्रीमिंग",
+      "response": "प्रतिक्रिया",
+      "responseHeaders": "प्रतिक्रिया हेडर",
+      "responseBody": "प्रतिक्रिया बॉडी",
+      "snippets": "कोड स्निपेट",
+      "history": "हाल के अनुरोध",
+      "historyEmpty": "कोई हालिया अनुरोध नहीं।",
+      "loadHistory": "लोड करें",
+      "deleteHistory": "हटाएँ",
+      "clearHistory": "इतिहास साफ़ करें",
+      "required": "आवश्यक",
+      "confirmTitle": "विनाशकारी ऑपरेशन निष्पादित करें",
+      "confirmMessage": "यह {{method}} अनुरोध डेटा को संशोधित या हटा सकता है। जारी रखें?",
+      "noSpecTitle": "OpenAPI दस्तावेज़ उपलब्ध नहीं",
+      "noSpecBody": "इस सर्वर ने उपयोग योग्य /openapi.json दस्तावेज़ नहीं लौटाया, इसलिए एक्सप्लोरर ऑपरेशन सूचीबद्ध नहीं कर सकता।"
+    },
+    "settings": {
+      "errors": {
+        "allowed": "इनमें से एक चुनें: {{values}}।",
+        "boolean": "true या false चुनें।",
+        "max": "{{max}} या उससे कम दर्ज करें।",
+        "min": "{{min}} या उससे अधिक दर्ज करें।",
+        "range": "{{min}} से {{max}} तक का मान दर्ज करें।",
+        "integer": "एक पूर्ण संख्या दर्ज करें।",
+        "number": "एक संख्या दर्ज करें।"
+      },
+      "notSaved": "कुछ भी सहेजा नहीं गया। हाइलाइट की गई सेटिंग्स ठीक करें और फिर से सहेजें।",
+      "title": "सेटिंग्स",
+      "subtitle": "सर्वर की hugo.json सेटिंग्स, एनवायरनमेंट ओवरराइड केवल-पढ़ने योग्य रूप में दिखाए गए। कुछ बदलाव तुरंत लागू होते हैं, अन्य पुनः आरंभ के बाद।",
+      "readOnly": "आप सेटिंग्स केवल-पढ़ने के मोड में देख रहे हैं। केवल सिस्टम व्यवस्थापक उन्हें बदल सकते हैं।",
+      "restartBanner": "कुछ सहेजे गए बदलाव पुनः आरंभ के बाद प्रभावी होते हैं।",
+      "restarting": "सर्वर पुनः आरंभ हो रहा है। यह पेज स्वचालित रूप से फिर से कनेक्ट होगा।",
+      "restarted": "सर्वर फिर से ऑनलाइन है।",
+      "restartTimeout": "सर्वर तीन मिनट के भीतर वापस नहीं आया। docker ps से कंटेनर की स्थिति जाँचें।",
+      "restart": "सर्वर पुनः आरंभ करें",
+      "restartConfirmTitle": "सर्वर पुनः आरंभ करें",
+      "restartConfirmMessage": "Hugo सर्वर अभी पुनः आरंभ करें? चल रहे अनुरोध और चैट स्ट्रीम कट जाएँगे; कंटेनर प्रोसेस को पुनः आरंभ करता है और यह पेज फिर से कनेक्ट होता है।",
+      "savedLive": "सेटिंग्स सहेजी गईं और लागू की गईं।",
+      "savedRestart": "सेटिंग्स सहेजी गईं। हर बदलाव लागू करने के लिए सर्वर पुनः आरंभ करें।",
+      "live": "लाइव",
+      "restartRequired": "पुनः आरंभ आवश्यक",
+      "secretSet": "सेट है (बदलने के लिए नया मान दर्ज करें)",
+      "secretNotSet": "सेट नहीं है",
+      "range": "अनुमत सीमा {{min}} से {{max}}",
+      "testDatabase": "डेटाबेस कनेक्शन का परीक्षण करें",
+      "testing": "परीक्षण हो रहा है...",
+      "dbOk": "कनेक्शन सफल रहा",
+      "dbFailed": "कनेक्शन विफल रहा",
+      "unavailableTitle": "सेटिंग्स उपलब्ध नहीं",
+      "unavailableBody": "इस सर्वर ने अपनी सेटिंग्स नहीं लौटाईं।",
+      "sources": {
+        "File": "सेटिंग्स फ़ाइल",
+        "Environment": "एनवायरनमेंट",
+        "Database": "डेटाबेस"
+      },
+      "lockedBy": {
+        "Environment": "एक एनवायरनमेंट वेरिएबल द्वारा सेट। एनवायरनमेंट मान को प्राथमिकता मिलती है।",
+        "other": "यह सेटिंग यहाँ बदली नहीं जा सकती।"
+      },
+      "groups": {
+        "General": "सामान्य",
+        "Rest": "REST लिसनर",
+        "Mcp": "MCP",
+        "Database": "डेटाबेस",
+        "Logging": "लॉगिंग",
+        "Auth": "प्रमाणीकरण",
+        "RequestHistory": "अनुरोध इतिहास",
+        "Telemetry": "टेलीमेट्री",
+        "Audit": "ऑडिट",
+        "Secrets": "सीक्रेट वॉल्ट",
+        "Agent": "एजेंट लूप",
+        "Approvals": "स्वीकृतियाँ",
+        "Connectors": "कनेक्टर",
+        "Models": "मॉडल एंडपॉइंट",
+        "A2A": "A2A",
+        "OpenAI": "OpenAI-संगत एंडपॉइंट",
+        "Embeddings": "एम्बेडिंग"
+      },
+      "fields": {
+        "Rest": {
+          "Hostname": "लिसनर होस्टनाम",
+          "Port": "लिसनर पोर्ट",
+          "Ssl": "TLS का उपयोग करें",
+          "ExternalBaseUrl": "बाहरी बेस URL",
+          "AllowedOrigins": "अनुमत CORS ओरिजिन"
+        },
+        "Database": {
+          "Type": "डेटाबेस प्रकार",
+          "Filename": "SQLite फ़ाइल",
+          "Server": "डेटाबेस सर्वर",
+          "Port": "डेटाबेस पोर्ट",
+          "DatabaseName": "डेटाबेस नाम",
+          "Username": "डेटाबेस उपयोगकर्ता",
+          "Password": "डेटाबेस पासवर्ड"
+        },
+        "Auth": {
+          "SigningKey": "टोकन साइनिंग कुंजी",
+          "UserSessionMinutes": "उपयोगकर्ता सत्र की अवधि (मिनट)",
+          "AdminSessionMinutes": "व्यवस्थापक सत्र की अवधि (मिनट)",
+          "SessionAbsoluteMaxHours": "पूर्ण सत्र सीमा (घंटे)",
+          "RateLimitPerMinute": "प्रति मिनट साइन-इन प्रयास"
+        },
+        "Secrets": {
+          "MasterKey": "मास्टर कुंजी (केवल डेवलपमेंट के लिए)",
+          "RevealReauthMinutes": "दिखाने के लिए पुनः प्रमाणीकरण अवधि (मिनट)"
+        },
+        "Agent": {
+          "DefaultMaxIterations": "प्रति टर्न डिफ़ॉल्ट अधिकतम पुनरावृत्तियाँ",
+          "DefaultMaxToolCallsPerTurn": "प्रति टर्न डिफ़ॉल्ट अधिकतम टूल कॉल",
+          "MaxParallelToolCalls": "समानांतर पढ़ने वाली टूल कॉल",
+          "ToolRetrievalThreshold": "टूल रिट्रीवल थ्रेशोल्ड",
+          "CompactionThresholdRatio": "इतिहास संक्षेपण थ्रेशोल्ड"
+        },
+        "Approvals": {
+          "ExpirySeconds": "स्वीकृति समाप्ति (सेकंड)",
+          "McpWaitSeconds": "MCP स्वीकृति प्रतीक्षा (सेकंड)",
+          "AllowSelfApproval": "अपनी स्वयं की कॉल स्वीकृत करने की अनुमति दें"
+        },
+        "Connectors": {
+          "EnablePlugins": "कनेक्टर प्लगइन सक्षम करें",
+          "PluginDirectory": "प्लगइन डायरेक्टरी",
+          "DefaultToolTimeoutSeconds": "डिफ़ॉल्ट टूल टाइमआउट (सेकंड)",
+          "HealthSweepMinutes": "संसाधन स्वास्थ्य जाँच अंतराल (मिनट)"
+        },
+        "Models": {
+          "HealthIntervalSeconds": "मॉडल स्वास्थ्य जाँच अंतराल (सेकंड)"
+        }
+      }
+    },
+    "serverInfo": {
+      "title": "सर्वर जानकारी",
+      "subtitle": "एंडपॉइंट, संस्करण, और वह पहचान जिससे आपने साइन इन किया है।",
+      "endpoints": "एंडपॉइंट",
+      "rest": "REST API",
+      "mcp": "MCP",
+      "a2a": "A2A",
+      "openapi": "OpenAPI",
+      "server": "सर्वर",
+      "version": "सर्वर संस्करण",
+      "dashboardVersion": "डैशबोर्ड संस्करण",
+      "node": "सर्वर नोड",
+      "database": "डेटाबेस",
+      "health": "स्वास्थ्य",
+      "routes": "पंजीकृत ऑपरेशन",
+      "serverTime": "सर्वर समय",
+      "principal": "इस रूप में साइन इन",
+      "principalName": "प्रिंसिपल",
+      "principalType": "प्रिंसिपल प्रकार",
+      "role": "भूमिका",
+      "tenant": "टेनेंट",
+      "expires": "सत्र समाप्ति",
+      "features": "फ़ीचर फ़्लैग",
+      "connectors": "लोड किए गए कनेक्टर",
+      "openai": "OpenAI-संगत"
+    },
+    "analytics": {
+      "legend": "{{chart}} में सीरीज़",
+      "noDataInChart": "चयनित अवधि में इस चार्ट के लिए कोई डेटा नहीं।",
+      "dataTable": "डेटा तालिका",
+      "bucketStart": "बकेट प्रारंभ",
+      "title": "एनालिटिक्स",
+      "subtitle": "टोकन उपयोग, प्रभाव और कनेक्टर के अनुसार टूल कॉल, मॉडल लेटेंसी और त्रुटियाँ, और स्वीकृति में लगने वाला समय।",
+      "purpose": "एनालिटिक्स टूल इनवोकेशन, चैट टर्न और मॉडल कॉल को प्रति प्रोफ़ाइल और मॉडल उपयोग तथा लागत रुझानों में बदलता है।",
+      "profile": "प्रोफ़ाइल",
+      "panels": {
+        "overview": "कुल योग",
+        "tokens": "टोकन उपयोग",
+        "tools": "प्रभाव के अनुसार टूल कॉल",
+        "models": "मॉडल",
+        "modelLatency": "मॉडल लेटेंसी",
+        "modelErrors": "मॉडल त्रुटियाँ"
+      },
+      "purposes": {
+        "overview": "चुनी गई अवधि में टर्न, टूल कॉल, विफलताओं, टोकन और स्वीकृतियों का कुल योग।",
+        "tokens": "समय के साथ इनपुट और आउटपुट टोकन, उन सभी सतहों पर जो Hugo का अपना लूप चलाती हैं।",
+        "tools": "समय के साथ प्रभाव के अनुसार विभाजित टूल कॉल, और प्रति कनेक्टर कॉल, विफलताएँ और लेटेंसी।",
+        "models": "प्रत्येक मॉडल एंडपॉइंट के लिए लेटेंसी पर्सेंटाइल और त्रुटियों की संख्या।"
+      },
+      "help": {
+        "tokens": "प्रति समय-खंड इनपुट और आउटपुट टोकन।",
+        "tools": "प्रभाव के अनुसार प्रति समय-खंड टूल कॉल: पढ़ना, लिखना और विनाशकारी।",
+        "modelLatency": "प्रति खंड मॉडल प्रतिक्रिया समय का माध्यिका (p50) और p95।",
+        "modelErrors": "प्रति खंड विफल हुए मॉडल अनुरोध।"
+      },
+      "kpis": {
+        "turns": "चैट टर्न",
+        "toolCalls": "टूल कॉल",
+        "failures": "विफल टूल कॉल",
+        "tokens": "टोकन",
+        "approvals": "स्वीकृतियाँ",
+        "turnaround": "स्वीकृति में लगा समय",
+        "approvalRate": "स्वीकृत हिस्सा"
+      },
+      "metrics": {
+        "inputTokens": "इनपुट टोकन",
+        "outputTokens": "आउटपुट टोकन",
+        "latencyMsP50": "माध्यिका (p50)",
+        "latencyMsP95": "p95",
+        "errors": "त्रुटियाँ",
+        "Read": "पढ़ना",
+        "Write": "लिखना",
+        "Destructive": "विनाशकारी"
+      },
+      "columns": {
+        "connector": "कनेक्टर",
+        "calls": "कॉल",
+        "failures": "विफलताएँ",
+        "p95": "p95 अवधि"
+      }
+    },
+    "chat": {
+      "title": "चैट",
+      "subtitle": "Agent Smith से बात करें। टूल कॉल अपने प्रभाव के साथ इनलाइन दिखती हैं, और जोखिम भरी कॉल आपकी स्वीकृति की प्रतीक्षा करती हैं।",
+      "purpose": "चैट आपके चुने गए प्रोफ़ाइल पर Hugo का अपना एजेंट लूप चलाता है: यह आपके बाउंड संसाधनों को उनके टूल के माध्यम से पढ़ता है, जोखिम भरी कार्रवाइयों से पहले पूछता है, और उत्तर यहाँ स्ट्रीम करता है।",
+      "conversations": "बातचीत",
+      "search": "बातचीत खोजें",
+      "noConversations": "अभी तक कोई बातचीत नहीं।",
+      "untitled": "बिना शीर्षक की बातचीत",
+      "new": "नई बातचीत",
+      "export": "निर्यात करें",
+      "context": "संदर्भ",
+      "profile": "प्रोफ़ाइल",
+      "model": "मॉडल: {{model}}",
+      "modelLabel": "मॉडल",
+      "persona": "पर्सोना",
+      "addresses": "आपको इस नाम से संबोधित करता है",
+      "resources": "बाउंड संसाधन",
+      "noResources": "इस प्रोफ़ाइल से कोई संसाधन बाउंड नहीं है।",
+      "usage": "टोकन उपयोग",
+      "pending": "लंबित स्वीकृतियाँ",
+      "noPending": "आपके लिए कुछ भी प्रतीक्षा में नहीं है।",
+      "noModel": "इस प्रोफ़ाइल में कोई इन्फ़रेंस मॉडल नहीं है, इसलिए Agent Smith अभी उत्तर नहीं दे सकता। एक मॉडल एंडपॉइंट जोड़ें और उसे प्रोफ़ाइल पर चुनें।",
+      "goModels": "मॉडल एंडपॉइंट जोड़ें",
+      "noProfilesTitle": "अभी तक कोई एजेंट प्रोफ़ाइल नहीं",
+      "noProfilesBody": "चैट एक एजेंट प्रोफ़ाइल से बात करता है। शुरू करने के लिए एक प्रोफ़ाइल बनाएँ (या सर्वर को डिफ़ॉल्ट Hugo प्रोफ़ाइल बनाने दें)।",
+      "goProfiles": "एजेंट प्रोफ़ाइल खोलें",
+      "emptyHint": "{{persona}} से अपने स्टैक के बारे में पूछें, उदाहरण के लिए \"चेकआउट धीमा क्यों है?\""
+    },
+    "profile": {
+      "title": "एजेंट प्रोफ़ाइल",
+      "subtitle": "पर्सोना {{persona}}, उपयोगकर्ता को {{address}} कहकर संबोधित करता है।",
+      "tabs": {
+        "general": "सामान्य",
+        "bindings": "बाइंडिंग",
+        "instructions": "निर्देश",
+        "tools": "टूल",
+        "connect": "कनेक्ट करें"
+      },
+      "bindings": {
+        "body": "प्रत्येक बाइंडिंग किसी संसाधन को एक उपनाम के तहत इस प्रोफ़ाइल से जोड़ती है, एक एक्सेस मोड के साथ जो तय करता है कि एजेंट क्या कर सकता है।",
+        "purpose": "बाइंडिंग संसाधनों को एक्सेस मोड, स्वीकृति नीति और टूल नियमों के साथ किसी प्रोफ़ाइल से जोड़ती हैं।",
+        "add": "बाइंडिंग जोड़ें",
+        "edit": "बाइंडिंग संपादित करें",
+        "emptyTitle": "अभी तक कोई संसाधन बाउंड नहीं",
+        "emptyBody": "जब तक आप इससे संसाधन बाइंड नहीं करते, यह प्रोफ़ाइल किसी सिस्टम तक नहीं पहुँच सकती। पहले संसाधन जोड़ें, फिर उन्हें यहाँ बाइंड करें।",
+        "goResources": "संसाधन खोलें",
+        "noResources": "बाइंड करने के लिए अभी कोई संसाधन नहीं है। पहले संसाधन पेज पर एक जोड़ें।",
+        "approvalOn": "स्वीकृति",
+        "aliasInvalid": "अक्षर, अंक, बिंदु, डैश और अंडरस्कोर का उपयोग करें, जो किसी अक्षर या अंक से शुरू हो।",
+        "aliasTaken": "इस प्रोफ़ाइल पर एक अन्य बाइंडिंग पहले से इस उपनाम का उपयोग करती है।",
+        "deleteTitle": "बाइंडिंग हटाएँ",
+        "deleteBody": "{{alias}} को इस प्रोफ़ाइल से हटाएँ? संसाधन स्वयं बना रहता है; इस प्रोफ़ाइल के कॉलर इसकी एक्सेस खो देते हैं।",
+        "columns": {
+          "alias": "उपनाम",
+          "resource": "संसाधन",
+          "accessMode": "एक्सेस मोड",
+          "approval": "स्वीकृति",
+          "enabled": "स्थिति"
+        },
+        "fields": {
+          "resourceId": "संसाधन",
+          "alias": "उपनाम",
+          "accessMode": "एक्सेस मोड",
+          "requireApprovalForDestructive": "विनाशकारी कॉल के लिए स्वीकृति आवश्यक करें",
+          "instructionMode": "निर्देश",
+          "instructionText": "निर्देश टेक्स्ट",
+          "maxOutputBytes": "अधिकतम आउटपुट बाइट",
+          "maxRows": "अधिकतम पंक्तियाँ",
+          "enabled": "सक्षम"
+        }
+      },
+      "toolRules": {
+        "title": "{{alias}} के लिए टूल नियम",
+        "body": "इस बाइंडिंग पर अलग-अलग टूल को ओवरराइड करें। जिन टूल के लिए नियम सेट नहीं है, वे एक्सेस मोड का पालन करते हैं।",
+        "open": "टूल नियम",
+        "rule": "नियम",
+        "ruleFor": "{{tool}} के लिए नियम",
+        "inherit": "एक्सेस मोड का पालन करें",
+        "noTools": "सर्वर ने इस प्रोफ़ाइल के लिए कोई टूल नहीं बताया।"
+      },
+      "instructions": {
+        "body": "कॉलर को मिलने वाले निर्देश: पर्सोना, सुरक्षा नियम, और प्रत्येक बाउंड संसाधन का अनुभाग, क्रम से।",
+        "purpose": "संकलित निर्देश ठीक-ठीक दिखाते हैं कि प्रत्येक सतह के लिए Agent Smith को क्या बताया जाता है, और प्रत्येक अनुभाग किस टेम्पलेट से आया।",
+        "surface": "सतह",
+        "sourceMap": "प्रत्येक अनुभाग कहाँ से आता है"
+      },
+      "tools": {
+        "body": "टूल ठीक वैसे ही जैसे इस प्रोफ़ाइल का कॉलर उन्हें देखता है, एक्सेस मोड और टूल नियम लागू होने के बाद।",
+        "purpose": "टूल सूची दिखाती है कि एक्सेस मोड और टूल नियमों के बाद इस प्रोफ़ाइल का कॉलर क्या कॉल कर सकता है।",
+        "empty": "यह प्रोफ़ाइल कोई टूल उपलब्ध नहीं कराती।",
+        "name": "टूल",
+        "effect": "प्रभाव",
+        "description": "विवरण",
+        "perCall": "(प्रति कॉल वर्गीकृत)"
+      },
+      "connect": {
+        "claudeCode": "Claude Code (HTTP पर MCP)",
+        "claudeCodeBody": "इसे अपनी MCP सेटिंग में जोड़ें। HUGO_TOKEN को सेशन टोकन पर सेट करें, या इस प्रोफ़ाइल से बाउंड क्रेडेंशियल का उपयोग करें।",
+        "claudeCli": "Claude Code CLI",
+        "claudeCliBody": "वही सर्वर, कमांड लाइन से पंजीकृत।",
+        "stdio": "Stdio रिले",
+        "stdioBody": "उन MCP क्लाइंट के लिए जो केवल stdio समझते हैं: hugo CLI, HTTP एंडपॉइंट तक रिले करता है।",
+        "a2a": "A2A एजेंट कार्ड",
+        "a2aBody": "अन्य एजेंट इस प्रोफ़ाइल को इसके A2A कार्ड के माध्यम से खोजते हैं।",
+        "a2aOff": "इस प्रोफ़ाइल के लिए A2A बंद है। कार्ड प्रकाशित करने के लिए सामान्य टैब पर A2A एक्सपोज़र चालू करें।",
+        "openai": "OpenAI-संगत एंडपॉइंट",
+        "openaiBody": "किसी भी OpenAI-संगत क्लाइंट को इस बेस URL पर इंगित करें और मॉडल नाम {{model}} का उपयोग करें।",
+        "openaiOff": "इस प्रोफ़ाइल के लिए OpenAI-संगत एंडपॉइंट बंद है।",
+        "credential": "इस प्रोफ़ाइल के लिए एक क्रेडेंशियल",
+        "credentialBody": "हार्नेस को इस प्रोफ़ाइल से बाउंड क्रेडेंशियल के साथ कनेक्ट करना चाहिए, ताकि वे हमेशा इसी के रूप में कार्य करें और इससे अधिक कुछ नहीं।",
+        "credentialAction": "क्रेडेंशियल बनाएँ"
+      }
+    },
+    "resources": {
+      "form": {
+        "chooseConnector": "कनेक्टर चुनें",
+        "connectorsUnavailable": "सर्वर ने अपने कनेक्टर सूचीबद्ध नहीं किए, इसलिए सेटिंग अभी जनरेट नहीं की जा सकतीं।",
+        "settings": "सेटिंग",
+        "secrets": "सीक्रेट",
+        "test": "कनेक्शन जाँचें",
+        "testing": "जाँच हो रही है..."
+      },
+      "tryTool": {
+        "title": "{{name}} पर कोई टूल आज़माएँ",
+        "body": "ऐसी प्रोफ़ाइल चुनें जो इस संसाधन को बाइंड करती हो, और एक टूल चुनें। ड्राई रन कॉल को चलाए बिना वर्गीकृत करता है; निष्पादित करें इसे उन्हीं सुरक्षा जाँचों के साथ चलाता है जो हर अन्य सतह पर लागू होती हैं।",
+        "profile": "इस प्रोफ़ाइल के रूप में चलाएँ",
+        "tool": "टूल",
+        "arguments": "आर्ग्युमेंट (JSON)",
+        "dryRun": "ड्राई रन",
+        "execute": "निष्पादित करें",
+        "classification": "वर्गीकरण",
+        "result": "परिणाम",
+        "notBound": "यह प्रोफ़ाइल इस संसाधन को बाइंड नहीं करती, इसलिए इसके टूल इस तक नहीं पहुँच सकते।",
+        "pendingApproval": "कॉल स्वीकृति {{id}} की प्रतीक्षा कर रही है। स्वीकृतियाँ पेज पर इसका निर्णय लें।"
+      }
+    },
+    "secrets": {
+      "reveal": {
+        "title": "{{name}} प्रकट करें",
+        "warning": "प्रकट करने पर प्लेनटेक्स्ट मान दिखता है। प्रकटीकरण आपके कारण के साथ ऑडिट किया जाता है, और मान 30 सेकंड बाद छिप जाते हैं।",
+        "reason": "कारण",
+        "reasonRequired": "बताएँ कि आपको मान देखने की आवश्यकता क्यों है।",
+        "submit": "प्रकट करें",
+        "reauthBody": "आपकी सुरक्षा के लिए, सीक्रेट प्रकट करने से पहले अपना पासवर्ड फिर से दर्ज करें।",
+        "password": "आपका पासवर्ड",
+        "reauthSubmit": "पुष्टि करें और प्रकट करें",
+        "hidesIn": "{{seconds}} सेकंड में फिर से छिप जाएगा।",
+        "hidden": "मान फिर से छिपा दिए गए।",
+        "again": "फिर से प्रकट करें"
+      }
+    },
+    "connectors": {
+      "title": "कनेक्टर",
+      "subtitle": "वे प्रकार के सिस्टम जिन तक Hugo पहुँच सकता है, उनकी सेटिंग, सीक्रेट, टूल और डिफ़ॉल्ट निर्देशों के साथ।",
+      "purpose": "कनेक्टर कैटलॉग हर उस सेवा परिवार को सूचीबद्ध करता है जिस तक यह सर्वर पहुँच सकता है (SSH, ऑब्जेक्ट स्टोरेज, डेटाबेस, लॉग सेवाएँ और अन्य), साथ ही प्रत्येक को आवश्यक सेटिंग और सीक्रेट तथा उसके द्वारा दिए गए टूल।",
+      "search": "कनेक्टर खोजें",
+      "category": "श्रेणी",
+      "count_one": "{{shown}} कनेक्टर",
+      "count_other": "{{shown}} कनेक्टर",
+      "emptyTitle": "कोई कनेक्टर मेल नहीं खाता",
+      "emptyBody": "खोज साफ़ करें या कोई अन्य श्रेणी चुनें।",
+      "noDescription": "कोई विवरण नहीं।",
+      "toolCount_one": "{{count}} टूल",
+      "toolCount_other": "{{count}} टूल",
+      "loadError": "लोड त्रुटि",
+      "addResource": "संसाधन जोड़ें",
+      "tabs": {
+        "overview": "अवलोकन",
+        "settings": "सेटिंग स्कीमा",
+        "tools": "टूल",
+        "instructions": "डिफ़ॉल्ट निर्देश"
+      },
+      "fields": {
+        "type": "प्रकार",
+        "family": "परिवार",
+        "category": "श्रेणी",
+        "version": "संस्करण",
+        "documentation": "दस्तावेज़ीकरण"
+      },
+      "slots": "सीक्रेट स्लॉट",
+      "noSlots": "इस कनेक्टर को किसी सीक्रेट की आवश्यकता नहीं है।",
+      "settingsBody": "यह वह फ़ॉर्म है जो इस प्रकार के नए संसाधन को मिलता है। इसे यहाँ आज़माएँ; कुछ भी सहेजा नहीं जाता।",
+      "reference": "सेटिंग संदर्भ",
+      "columns": {
+        "key": "कुंजी",
+        "kind": "प्रकार",
+        "required": "आवश्यक",
+        "default": "डिफ़ॉल्ट",
+        "range": "अनुमत मान",
+        "group": "समूह"
+      },
+      "noTools": "यह कनेक्टर कोई टूल प्रदान नहीं करता।",
+      "instructionsBody": "इस प्रकार का प्रत्येक संसाधन एजेंट के लिए ये निर्देश जोड़ता है। इन्हें टेम्पलेट कुंजी {{key}} के तहत प्रति टेनेंट या वैश्विक रूप से संपादित करें।",
+      "editInstructions": "प्रॉम्प्ट टेम्पलेट में संपादित करें",
+      "builtInInstructions": "अंतर्निहित डिफ़ॉल्ट निर्देश",
+      "noInstructions": "यह कनेक्टर कोई डिफ़ॉल्ट निर्देश नहीं देता।"
+    },
+    "mcpExplorer": {
+      "title": "MCP एक्सप्लोरर",
+      "subtitle": "स्वयं के रूप में Hugo के MCP एंडपॉइंट से कनेक्ट करें, निर्देश पढ़ें, टूल सूचीबद्ध करें और उन्हें कॉल करें।",
+      "purpose": "MCP एक्सप्लोरर /mcp से ठीक वैसे ही बात करता है जैसे Claude Code करेगा, ताकि हार्नेस जोड़ने से पहले आप किसी प्रोफ़ाइल द्वारा उपलब्ध निर्देश और टूल सूची जाँच सकें।",
+      "profile": "प्रोफ़ाइल",
+      "defaultProfile": "सर्वर द्वारा निर्धारित",
+      "connect": "कनेक्ट करें",
+      "reconnect": "फिर से कनेक्ट करें",
+      "session": "सेशन {{id}}",
+      "failed": "MCP अनुरोध विफल रहा",
+      "tools": "टूल",
+      "toolsCount_one": "{{count}} टूल",
+      "toolsCount_other": "{{count}} टूल",
+      "noTools": "सर्वर ने इस कॉलर के लिए कोई टूल सूचीबद्ध नहीं किया।",
+      "serverInfo": "सर्वर",
+      "instructions": "initialize से मिले निर्देश",
+      "noInstructions": "सर्वर ने कोई निर्देश नहीं भेजे।",
+      "call": "टूल कॉल करें",
+      "toolOk": "टूल ने परिणाम लौटाया।",
+      "toolError": "टूल ने त्रुटि बताई।",
+      "invalidJson": "{{field}} का मान मान्य JSON नहीं है।",
+      "log_one": "JSON-RPC लॉग ({{count}} संदेश)",
+      "log_other": "JSON-RPC लॉग ({{count}} संदेश)"
+    },
+    "a2aExplorer": {
+      "title": "A2A एक्सप्लोरर",
+      "subtitle": "A2A पर किसी प्रोफ़ाइल का एजेंट कार्ड प्राप्त करें, उसे संदेश भेजें, उत्तर स्ट्रीम करें और कार्य सूचीबद्ध करें।",
+      "purpose": "A2A एक्सप्लोरर A2A 1.0 JSON-RPC मेथड के साथ /v1.0/a2a/{tenant}/{profile} को कॉल करता है, जैसे कोई अन्य एजेंट करेगा।",
+      "profile": "प्रोफ़ाइल",
+      "fetchCard": "कार्ड प्राप्त करें",
+      "listTasks": "कार्य सूचीबद्ध करें",
+      "message": "संदेश",
+      "stream": "उत्तर स्ट्रीम करें",
+      "send": "भेजें",
+      "context": "संदर्भ {{id}} जारी है",
+      "result": "परिणाम",
+      "events_one": "स्ट्रीम इवेंट ({{count}})",
+      "events_other": "स्ट्रीम इवेंट ({{count}})",
+      "tasks_one": "{{count}} कार्य",
+      "tasks_other": "{{count}} कार्य",
+      "noTasks": "इस प्रोफ़ाइल के लिए अभी तक कोई कार्य नहीं।"
+    }
+  },
+  "tips": {
+    "fieldWarnings": {
+      "dismiss": "यह सूचना छिपाएँ। रिकॉर्ड यहाँ सूचीबद्ध मानों के साथ पहले ही सहेजा जा चुका है।"
+    },
+    "ids": {
+      "deleted": "यह रिकॉर्ड हटा दिया गया था। ID {{id}}। कॉपी बटन ID कॉपी करता है।",
+      "named": "ID {{id}}। API, SDK या सहायता अनुरोध के लिए ID कॉपी करने हेतु कॉपी बटन का उपयोग करें।"
+    },
+    "markdown": {
+      "column": "एजेंट आउटपुट में किसी तालिका का कॉलम {{name}}। चौड़ी तालिकाएँ अपने फ़्रेम के भीतर बगल में स्क्रॉल होती हैं।",
+      "showRaw": "एजेंट द्वारा लौटाया गया सटीक टेक्स्ट, Markdown फ़ॉर्मेटिंग के बिना दिखाएँ, ताकि आप उसे जाँच या कॉपी कर सकें।",
+      "showRendered": "टेक्स्ट को फिर से Markdown के रूप में फ़ॉर्मेट करके दिखाएँ, तालिकाओं, सूचियों, कोड ब्लॉक और लिंक के साथ।",
+      "copy": "कच्चे परिणाम टेक्स्ट को, Markdown सिंटैक्स सहित, क्लिपबोर्ड पर कॉपी करें।",
+      "link": "{{href}} को नए टैब में खोलता है। लिंक एजेंट आउटपुट से आता है, इसलिए भरोसा करने से पहले पता जाँच लें।"
+    },
+    "common": {
+      "fields": {
+        "name": "टेनेंट के भीतर इस रिकॉर्ड का अद्वितीय नाम। अन्य रिकॉर्ड इसे इसी नाम से संदर्भित करते हैं।",
+        "description": "लोगों के लिए मुक्त टेक्स्ट नोट। यह बताता है कि यह रिकॉर्ड किसलिए है और रन टाइम पर उपयोग नहीं होता।",
+        "active": "निष्क्रिय रिकॉर्ड रखे जाते हैं पर अनदेखे किए जाते हैं। किसी चीज़ को हटाए बिना रोकने के लिए इसे बंद करें।",
+        "id": "प्रकार उपसर्ग वाला सिस्टम द्वारा जनरेट किया गया पहचानकर्ता। इसे API कॉल और स्क्रिप्ट में उपयोग करें; यह कभी नहीं बदलता।",
+        "createdUtc": "यह रिकॉर्ड कब बनाया गया था। सटीक दिनांक और समय के लिए मान पर होवर करें।",
+        "lastUpdateUtc": "यह रिकॉर्ड पिछली बार कब बदला गया था।",
+        "isBuiltIn": "अंतर्निहित रिकॉर्ड Hugo के साथ आते हैं और केवल पढ़ने योग्य हैं। कस्टम रिकॉर्ड इस टेनेंट में बनाए गए थे और संपादित किए जा सकते हैं।",
+        "expiresUtc": "इस समय के बाद रिकॉर्ड काम करना बंद कर देता है। कोई समाप्ति न रखने के लिए खाली छोड़ें।"
+      }
+    },
+    "explainer": {
+      "reopen": "{{topic}} की व्याख्या फिर से दिखाएँ: यह पेज क्या प्रबंधित करता है और यह Hugo के बाकी हिस्सों से कैसे संबंधित है।",
+      "dismiss": "यह व्याख्या छिपाएँ। इसकी जगह एक छोटा \"परिचय\" बटन रहता है ताकि आप इसे कभी भी वापस ला सकें।"
+    },
+    "topbar": {
+      "toggleSidebar": "नेविगेशन साइडबार को संक्षिप्त या विस्तृत करें। छोटी स्क्रीन पर यह नेविगेशन को ओवरले के रूप में खोलता है।",
+      "server": "वह Hugo सर्वर जिससे यह कंसोल बात करता है: {{url}}। बिंदु दिखाता है कि इसकी हेल्थ चेक पास हो रही है या नहीं।",
+      "health": {
+        "healthy": "सर्वर ने पिछले 30 सेकंड में अपनी हेल्थ चेक का उत्तर दिया।",
+        "unhealthy": "सर्वर ने अपनी हेल्थ चेक का उत्तर नहीं दिया। इस पेज से अनुरोध संभवतः विफल होंगे।",
+        "unknown": "सर्वर से पहली हेल्थ चेक के परिणाम की प्रतीक्षा की जा रही है।"
+      },
+      "copyServer": "सर्वर URL कॉपी करें, उदाहरण के लिए किसी SDK या curl कमांड को कॉन्फ़िगर करने के लिए।",
+      "switchTenant": "सिस्टम एडमिनिस्ट्रेटर कोई भी टेनेंट देख सकते हैं। हर पेज चुने गए टेनेंट का डेटा दिखाता है।",
+      "tenant": "आप टेनेंट {{tenant}} में काम कर रहे हैं। आपको दिखने वाला हर रिकॉर्ड इसी का है।",
+      "principal": "आप {{name}} के रूप में साइन इन हैं। आपकी कार्रवाइयाँ इसी पहचान के तहत दर्ज होती हैं।",
+      "role": "इस टेनेंट में आपका उच्चतम एक्सेस स्तर। यह तय करता है कि कौन से पेज और कार्रवाइयाँ उपलब्ध हैं।",
+      "liveOn": "सर्वर इवेंट स्ट्रीम से कनेक्टेड, इसलिए स्वीकृतियाँ और टूल कॉल होते ही दिखाई देती हैं।",
+      "liveOff": "कोई लाइव कनेक्शन नहीं। पेज इसके बजाय टाइमर पर पोल करते हैं, इसलिए बदलाव दिखने में कुछ सेकंड लग सकते हैं।",
+      "github": "दस्तावेज़ीकरण और इश्यू के लिए GitHub पर Hugo सोर्स रिपॉज़िटरी (AgentSmith) नए टैब में खोलें।",
+      "themeLight": "हल्की रंग थीम पर स्विच करें। विकल्प इस ब्राउज़र में याद रखा जाता है।",
+      "themeDark": "गहरी रंग थीम पर स्विच करें। विकल्प इस ब्राउज़र में याद रखा जाता है।",
+      "logout": "साइन आउट करें और इस ब्राउज़र सेशन को रद्द करें। आपको फिर से साइन इन करना होगा।",
+      "language": "प्रदर्शन भाषा बदलें। दिनांक और संख्याएँ भी भाषा का पालन करती हैं, और विकल्प याद रखा जाता है।",
+      "approvals_one": "{{count}} स्वीकृति किसी व्यक्ति की प्रतीक्षा कर रही है। स्वीकृतियाँ इनबॉक्स खोलें।",
+      "approvals_other": "{{count}} स्वीकृतियाँ किसी व्यक्ति की प्रतीक्षा कर रही हैं। स्वीकृतियाँ इनबॉक्स खोलें।",
+      "lockdownOff": "टेनेंट को लॉकडाउन करें: जब तक आप इसे हटा न दें, हर सतह से हर लिखने और विनाशकारी कॉल को अस्वीकार करें।",
+      "lockdownOn": "टेनेंट लॉकडाउन में है। लॉकडाउन की समीक्षा करने और उसे हटाने के लिए क्लिक करें।",
+      "lockdownEngage": "इस टेनेंट में हर गैर-पढ़ने वाली कॉल को अभी अस्वीकार करें और लंबित स्वीकृतियाँ रद्द करें।",
+      "lockdownLift": "लिखने और विनाशकारी कॉल को फिर से अनुमति दें, एक्सेस मोड और स्वीकृतियों के अधीन।"
+    },
+    "login": {
+      "passwordTab": "टेनेंट, ईमेल और पासवर्ड के साथ एक व्यक्ति के रूप में साइन इन करें।",
+      "keyTab": "एक्सेस कुंजी और सीक्रेट कुंजी के साथ साइन इन करें, वही जोड़ी जो स्क्रिप्ट और SDK उपयोग करते हैं।",
+      "serverUrl": "Hugo सर्वर का बेस पता, उदाहरण के लिए स्थानीय रूप से http://127.0.0.1:8800 या डैशबोर्ड प्रॉक्सी के पीछे इस पेज का अपना पता।",
+      "tenantId": "वह टेनेंट जिससे आपका खाता संबंधित है। स्थानीय डिफ़ॉल्ट टेनेंट का नाम default है।",
+      "email": "इस टेनेंट में आपके उपयोगकर्ता खाते का ईमेल पता।",
+      "password": "आपके खाते का पासवर्ड। यह सेशन टोकन प्राप्त करने के लिए एक बार भेजा जाता है और ब्राउज़र ऐप द्वारा कभी संग्रहीत नहीं किया जाता।",
+      "accessKey": "एक्सेस कुंजी का सार्वजनिक भाग, जो access_ से शुरू होता है। कुंजियाँ प्रशासन, क्रेडेंशियल के अंतर्गत बनाएँ।",
+      "secretKey": "एक्सेस कुंजी का निजी भाग। यह कुंजी बनाते या रोटेट करते समय एक बार दिखाया गया था।",
+      "submit": "सर्वर से क्रेडेंशियल जाँचें और अपने टेनेंट के लिए कंसोल खोलें।",
+      "tenantSelect": "आपका ईमेल एक से अधिक टेनेंट से संबंधित है। जिसमें साइन इन करना है, उसे चुनें।",
+      "useDefaults": "पहले से बनाया गया स्थानीय एडमिनिस्ट्रेटर खाता भरें। केवल तब दिखाया जाता है जब सर्वर इसी मशीन पर हो।"
+    },
+    "table": {
+      "selectAll": "इस पेज की हर पंक्ति चुनें या साफ़ करें, उदाहरण के लिए उन्हें एक साथ हटाने के लिए।",
+      "selectRow": "हटाने जैसी बल्क कार्रवाई के लिए यह पंक्ति चुनें।",
+      "sortServer": "{{tip}} पूरी सूची को इस कॉलम के अनुसार क्रमबद्ध करने के लिए क्लिक करें; क्रम उलटने के लिए फिर से क्लिक करें।",
+      "sortPageOnly": "{{tip}} केवल इस पेज की पंक्तियों को क्रमबद्ध करने के लिए क्लिक करें; सर्वर इस कॉलम के अनुसार क्रमबद्ध नहीं कर सकता।",
+      "clearSelection": "कुछ भी बदले बिना हर चुनी गई पंक्ति का चयन हटाएँ।",
+      "pageSize": "प्रति पेज कितनी पंक्तियाँ लोड करनी हैं। बड़े पेज लोड होने में अधिक समय लेते हैं। विकल्प प्रति तालिका याद रखा जाता है।",
+      "first": "परिणामों के पहले पेज पर जाएँ।",
+      "prev": "परिणामों के एक पेज पीछे जाएँ।",
+      "jump": "1 और {{total}} के बीच कोई पेज नंबर टाइप करें और सीधे उस पर जाने के लिए Enter दबाएँ।",
+      "next": "परिणामों के एक पेज आगे जाएँ।",
+      "last": "परिणामों के अंतिम पेज पर जाएँ।",
+      "refresh": "अपना पेज, फ़िल्टर और क्रम बनाए रखते हुए इस सूची को अभी सर्वर से फिर से लोड करें।",
+      "autoRefresh": "इस डेटा को टाइमर पर स्वचालित रूप से फिर से लोड करें। बंद रखने पर यह पढ़ते समय स्थिर रहता है।",
+      "selectColumns": "चुनें कि तालिका कौन से कॉलम दिखाए। आपका विकल्प इस ब्राउज़र में प्रति तालिका याद रखा जाता है।",
+      "columnPinned": "{{column}} हमेशा दिखाया जाता है क्योंकि इसके बिना पंक्तियों की पहचान नहीं हो सकती।",
+      "columnToggle": "{{column}} कॉलम दिखाएँ या छिपाएँ। {{tip}}",
+      "actionsFor": "{{name}} के लिए कार्रवाइयाँ खोलें: देखें, संपादित करें, डुप्लिकेट करें, JSON देखें, हटाएँ, और रिकॉर्ड-विशिष्ट कार्रवाइयाँ।",
+      "actionsMenu": "इस पंक्ति के लिए उपलब्ध कार्रवाइयाँ खोलें।",
+      "actionsColumn": "प्रति पंक्ति कार्रवाइयाँ। देखने, संपादित करने, डुप्लिकेट करने, JSON जाँचने या हटाने के लिए तीन बिंदुओं पर क्लिक करें।",
+      "search": "सूची को सीमित करने के लिए नाम का कोई भाग टाइप करें। टाइप करना रोकने के बाद खोज सर्वर पर चलती है।",
+      "clearFilters": "खोज टेक्स्ट और हर फ़िल्टर हटाएँ और पूरी सूची फिर से दिखाएँ।",
+      "bulkDelete": "हर चुनी गई पंक्ति हटाएँ। पहले आपसे पुष्टि माँगी जाएगी।"
+    },
+    "filters": {
+      "status": "केवल इस स्थिति वाले रिकॉर्ड दिखाएँ। फ़िल्टर हटाने के लिए सभी चुनें।",
+      "kind": "केवल एक प्रकार के रिकॉर्ड दिखाएँ। फ़िल्टर हटाने के लिए सभी चुनें।",
+      "eventType": "केवल एक प्रकार के ऑडिट इवेंट दिखाएँ, जैसे विफल साइन-इन या सीक्रेट में बदलाव।",
+      "fromUtc": "केवल इस समय पर या इसके बाद बनाए गए रिकॉर्ड दिखाएँ (आपका स्थानीय समय क्षेत्र)।",
+      "toUtc": "केवल इस समय से पहले बनाए गए रिकॉर्ड दिखाएँ (आपका स्थानीय समय क्षेत्र)।",
+      "method": "केवल वे अनुरोध दिखाएँ जिन्होंने यह HTTP मेथड उपयोग किया।",
+      "statusCode": "केवल वे अनुरोध दिखाएँ जिन्होंने यह HTTP स्टेटस कोड लौटाया, उदाहरण के लिए 404 या 500।",
+      "pathContains": "केवल वे अनुरोध दिखाएँ जिनके पथ में यह टेक्स्ट है, उदाहरण के लिए /agents।",
+      "tenantId": "केवल इस टेनेंट में किए गए अनुरोध दिखाएँ। हर टेनेंट के लिए खाली छोड़ें।",
+      "apply": "ऊपर दिए गए फ़िल्टर मानों के साथ खोज चलाएँ।",
+      "clear": "ऊपर के हर फ़िल्टर को खाली पर रीसेट करें और फिर से खोजें।",
+      "effect": "केवल इस प्रभाव वाली कॉल दिखाएँ: पढ़ना, लिखना या विनाशकारी।",
+      "agentProfileId": "केवल एक एजेंट प्रोफ़ाइल से संबंधित रिकॉर्ड दिखाएँ। फ़िल्टर हटाने के लिए सभी चुनें।",
+      "source": "केवल वे बातचीत दिखाएँ जो एक सतह पर शुरू हुईं।",
+      "userId": "केवल एक उपयोगकर्ता के रिकॉर्ड दिखाएँ। उपयोगकर्ता ID पेस्ट करें; टाइप करना रोकने पर सूची अपडेट होती है।",
+      "connectorType": "केवल एक कनेक्टर प्रकार के संसाधन दिखाएँ, जैसे SSH या PostgreSQL।",
+      "environment": "केवल इस एनवायरनमेंट से टैग किए गए संसाधन दिखाएँ, उदाहरण के लिए prod।",
+      "health": "केवल इस हेल्थ स्थिति वाले संसाधन दिखाएँ।",
+      "healthStatus": "केवल इस हेल्थ स्थिति वाले मॉडल एंडपॉइंट दिखाएँ।",
+      "provider": "केवल एक प्रदाता के मॉडल एंडपॉइंट दिखाएँ।",
+      "surface": "केवल एक सतह से की गई कॉल दिखाएँ: चैट, MCP, A2A, OpenAI-संगत या REST।",
+      "decision": "केवल इस सुरक्षा निर्णय वाली कॉल दिखाएँ, जैसे अस्वीकृत या स्वीकृति आवश्यक।",
+      "resourceId": "केवल एक संसाधन पर की गई कॉल दिखाएँ।",
+      "toolName": "केवल इस टूल को की गई कॉल दिखाएँ, उदाहरण के लिए sql_query। टाइप करना रोकने पर सूची अपडेट होती है।",
+      "principalId": "केवल एक प्रिंसिपल के रिकॉर्ड दिखाएँ। ID पेस्ट करें; टाइप करना रोकने पर सूची अपडेट होती है।",
+      "principalType": "केवल एडमिनिस्ट्रेटर, उपयोगकर्ताओं या क्रेडेंशियल के सेशन दिखाएँ।",
+      "visibility": "केवल निजी या टेनेंट-व्यापी रिकॉर्ड दिखाएँ।"
+    },
+    "form": {
+      "option": "{{field}} में {{option}} शामिल करें। चेक किए गए विकल्प सहेजे जाते हैं; अनचेक किए गए छोड़ दिए जाते हैं।",
+      "reveal": "टाइप किया गया मान सादे टेक्स्ट में दिखाएँ ताकि आप सहेजने से पहले उसे जाँच सकें।",
+      "hide": "मान को फिर से छिपाएँ ताकि आपकी स्क्रीन देख रहे लोग इसे पढ़ न सकें।",
+      "key": "{{field}} की इस प्रविष्टि की कुंजी। कुंजियाँ सूची में अद्वितीय होनी चाहिए।",
+      "value": "{{field}} की इस प्रविष्टि का मान। जहाँ बताया गया है, वहाँ टेम्पलेट और सीक्रेट संदर्भ अनुमत हैं।",
+      "removeRow": "इस प्रविष्टि को सूची से हटाएँ। सहेजें पर क्लिक करने तक कुछ भी सहेजा नहीं जाता।",
+      "addRow": "{{field}} में एक खाली कुंजी और मान प्रविष्टि जोड़ें।",
+      "moveUp": "इस आइटम को एक स्थान पहले ले जाएँ। यहाँ क्रम मायने रखता है, उदाहरण के लिए आर्ग्युमेंट सूचियों में।",
+      "moveDown": "इस आइटम को एक स्थान बाद ले जाएँ। यहाँ क्रम मायने रखता है, उदाहरण के लिए आर्ग्युमेंट सूचियों में।",
+      "removeItem": "इस आइटम को सूची से हटाएँ। सहेजें पर क्लिक करने तक कुछ भी सहेजा नहीं जाता।",
+      "addItem": "{{field}} में एक नया, खाली आइटम जोड़ें और उसके फ़ील्ड भरें।"
+    },
+    "actions": {
+      "openDetail": "इस रिकॉर्ड का पूरा विवरण पेज खोलें।",
+      "view": "इस रिकॉर्ड को केवल-पढ़ने के लिए खोलें ताकि बदलने के जोखिम के बिना हर फ़ील्ड देख सकें।",
+      "edit": "इसे बदलने के लिए इस रिकॉर्ड को फ़ॉर्म में खोलें। सहेजें पर क्लिक करने पर बदलाव लागू होते हैं।",
+      "duplicate": "इस रिकॉर्ड के मानों और -copy नाम से पहले से भरा एक नया रिकॉर्ड शुरू करें। सहेजने तक कुछ भी नहीं बनाया जाता।",
+      "viewJson": "डीबगिंग या स्क्रिप्ट में कॉपी करने के लिए, कच्चा JSON ठीक वैसे ही दिखाएँ जैसे API उसे लौटाता है।",
+      "delete": "इस रिकॉर्ड को स्थायी रूप से हटाएँ। आपसे पुष्टि माँगी जाएगी, और इसे पूर्ववत नहीं किया जा सकता।",
+      "add": "फ़ॉर्म में इस प्रकार का एक नया रिकॉर्ड बनाएँ।",
+      "switchToEdit": "इस केवल-पढ़ने वाले दृश्य को संपादन योग्य फ़ॉर्म में बदलें।",
+      "retryLoad": "इस डेटा को सर्वर से फिर से लोड करने का प्रयास करें।",
+      "dismiss": "यह संदेश छिपाएँ। समस्या फिर से होने पर यह वापस आ जाता है।"
+    },
+    "modal": {
+      "close": "यह विंडो बंद करें। सर्वर पर कुछ भी नहीं बदलता।",
+      "dismiss": "सहेजे बिना यह विंडो बंद करें। आप Escape भी दबा सकते हैं।",
+      "cancelForm": "फ़ॉर्म बंद करें और न सहेजे गए बदलाव छोड़ दें।",
+      "back": "फ़ॉर्म के पिछले चरण पर जाएँ। आपके दर्ज किए गए मान बने रहते हैं।",
+      "next": "फ़ॉर्म के अगले चरण पर जाएँ। सहेजें पर क्लिक करने तक कुछ भी सहेजा नहीं जाता।",
+      "saveEdit": "इस रिकॉर्ड में अपने बदलाव सहेजें। सर्वर उन्हें सत्यापित करता है और ध्यान देने योग्य हर फ़ील्ड की जानकारी देता है।",
+      "saveCreate": "इन मानों के साथ रिकॉर्ड बनाएँ। सर्वर उन्हें सत्यापित करता है और ध्यान देने योग्य हर फ़ील्ड की जानकारी देता है।",
+      "saveValue": "मान सर्वर को भेजें। पहुँचते ही इसे एन्क्रिप्ट किया जाता है और फिर कभी नहीं दिखाया जाता।"
+    },
+    "confirm": {
+      "delete": "हाँ, इस रिकॉर्ड को स्थायी रूप से हटाएँ।",
+      "bulkDelete": "हाँ, हर चुने गए रिकॉर्ड को स्थायी रूप से हटाएँ।",
+      "cancel": "कुछ भी किए बिना वापस जाएँ।",
+      "danger": "यह विनाशकारी कार्रवाई करें। इसे पूर्ववत नहीं किया जा सकता।",
+      "confirm": "ऊपर बताई गई कार्रवाई करें।"
+    },
+    "copy": {
+      "id": "REST API, SDK या फ़िल्टर में उपयोग के लिए रिकॉर्ड ID क्लिपबोर्ड पर कॉपी करें।",
+      "value": "यह मान क्लिपबोर्ड पर कॉपी करें।",
+      "block": "पूरा ब्लॉक क्लिपबोर्ड पर कॉपी करें, टर्मिनल या फ़ाइल में पेस्ट करने के लिए तैयार।",
+      "done": "क्लिपबोर्ड पर कॉपी किया गया।"
+    },
+    "chart": {
+      "ranges": {
+        "hour": "पिछले 60 मिनट दिखाएँ, एक-एक मिनट के खंडों में।",
+        "day": "पिछले 24 घंटे दिखाएँ। खंडों का आकार ऐसा रखा जाता है कि चार्ट पढ़ने योग्य रहे।",
+        "week": "पिछले 7 दिन दिखाएँ। खंडों का आकार ऐसा रखा जाता है कि चार्ट पढ़ने योग्य रहे।",
+        "month": "पिछले 30 दिन दिखाएँ। खंडों का आकार ऐसा रखा जाता है कि चार्ट पढ़ने योग्य रहे।",
+        "custom": "अपना प्रारंभ और समाप्ति समय चुनें। बहुत लंबी अवधियाँ सर्वर द्वारा अस्वीकार कर दी जाती हैं।"
+      },
+      "refresh": "चार्ट डेटा अभी सर्वर से फिर से लोड करें।",
+      "tenant": "एक टेनेंट या सर्वर के हर टेनेंट के लिए अनुरोध गतिविधि दिखाएँ।"
+    },
+    "badges": {
+      "active": "सक्रिय: यह रिकॉर्ड उपयोग में है।",
+      "inactive": "निष्क्रिय: यह रिकॉर्ड रखा गया है पर फिर से चालू होने तक अनदेखा किया जाता है।",
+      "builtIn": "अंतर्निहित: Hugo के साथ आता है और केवल पढ़ने योग्य है। संपादन योग्य संस्करण बनाने के लिए इसे क्लोन करें।",
+      "custom": "कस्टम: इस टेनेंट में बनाया गया, इसलिए इसे संपादित और हटाया जा सकता है।",
+      "systemAdmin": "सिस्टम एडमिनिस्ट्रेटर: हर टेनेंट का प्रबंधन कर सकता है और प्राधिकरण जाँचों को बायपास करता है।",
+      "tenantAdmin": "टेनेंट एडमिनिस्ट्रेटर: इस टेनेंट के भीतर सब कुछ प्रबंधित कर सकता है।",
+      "user": "सामान्य उपयोगकर्ता: एक्सेस केवल भूमिका असाइनमेंट से मिलती है।",
+      "role": "यह असाइनमेंट {{role}} भूमिका और उसकी हर अनुमति प्रदान करता है।",
+      "defaultProfile": "टेनेंट की डिफ़ॉल्ट प्रोफ़ाइल: जो कॉलर कोई प्रोफ़ाइल नहीं बताते, उन्हें यही मिलती है।",
+      "expiringSoon": "यह सीक्रेट 14 दिनों के भीतर समाप्त हो जाएगा। संसाधनों के काम करना बंद करने से पहले इसके मान बदलें या समाप्ति बढ़ाएँ।",
+      "lockdown": "यह टेनेंट लॉकडाउन में है: जब तक कोई टेनेंट एडमिनिस्ट्रेटर इसे हटा न दे, केवल पढ़ने वाली कॉल की अनुमति है।",
+      "locked": "अपनी प्रोफ़ाइल से लॉक: कॉलर चाहे जो माँगे, क्रेडेंशियल केवल बाउंड प्रोफ़ाइल के रूप में कार्य कर सकता है।"
+    },
+    "permissions": {
+      "source": "वह भूमिका जिससे यह अनुदान आता है। उस भूमिका या उसे प्रदान करने वाले असाइनमेंट को बदलकर एक्सेस ठीक करें।",
+      "type": "अनुमति दें ऑपरेशन प्रदान करता है; अस्वीकार करें उन्हें तब भी रोकता है जब कोई अन्य भूमिका उनकी अनुमति देती है।",
+      "resources": "इस अनुदान द्वारा कवर किए गए रिकॉर्ड के प्रकार, जैसे संसाधन, सीक्रेट या एजेंट प्रोफ़ाइल।",
+      "operations": "उन रिकॉर्ड पर क्या किया जा सकता है, जैसे पढ़ना, बनाना या निष्पादित करना।",
+      "scope": "टेनेंट स्कोप उस प्रकार के हर रिकॉर्ड को कवर करता है; संसाधन स्कोप एक विशिष्ट रिकॉर्ड को कवर करता है।"
+    },
+    "secretOnce": {
+      "accessKey": "सार्वजनिक एक्सेस कुंजी। यह क्रेडेंशियल की पहचान करती है और कॉन्फ़िगरेशन में संग्रहीत करने के लिए सुरक्षित है।",
+      "secretKey": "सीक्रेट कुंजी। यह केवल इसी बार दिखाई जाती है; इसे अभी अपने पासवर्ड मैनेजर या सीक्रेट स्टोर में कॉपी करें।",
+      "done": "यह विंडो बंद करें। सीक्रेट कुंजी बाद में प्राप्त नहीं की जा सकती, केवल रोटेट की जा सकती है।",
+      "snippet": "इस एक्सेस कुंजी का उपयोग करने वाला, पेस्ट करने के लिए तैयार MCP क्लाइंट कॉन्फ़िगरेशन। सीक्रेट कुंजी एक एनवायरनमेंट वेरिएबल से पढ़ी जाती है।"
+    },
+    "enums": {
+      "promptTemplateKind": {
+        "System": "एक सिस्टम प्रॉम्प्ट: स्थायी निर्देश जो एजेंट को सेट अप करते हैं।",
+        "Task": "एक टास्क प्रॉम्प्ट: कॉलर के संदेश को उस रूप में लपेटता है जो एजेंट को मिलता है।",
+        "Fragment": "एक पुन: प्रयोज्य अंश जिसे अन्य टेम्पलेट {{> name}} के साथ शामिल करते हैं।",
+        "ToolDescription": "वह टेक्स्ट जो किसी एजेंट को MCP टूल या A2A स्किल के रूप में वर्णित करता है।",
+        "ConfigFile": "जनरेट की गई कॉन्फ़िगरेशन फ़ाइल की सामग्री, जैसे MCP कॉन्फ़िग।",
+        "Other": "कोई अन्य टेक्स्ट जिसे Hugo निर्देशों में रेंडर करता है।"
+      },
+      "permissionType": {
+        "Permit": "अनुमति दें: सूचीबद्ध ऑपरेशन की अनुमति देता है।",
+        "Deny": "अस्वीकार करें: सूचीबद्ध ऑपरेशन को रोकता है, तब भी जब कोई अन्य अनुमति उन्हें अनुमति देती है।"
+      },
+      "effect": {
+        "Read": "पढ़ना: कुछ भी बदले बिना डेटा देखता है, जैसे SELECT या फ़ाइलों की सूची।",
+        "Write": "लिखना: कुछ ऐसा बदलता है जिसे वापस बदला जा सकता है, जैसे INSERT या फ़ाइल अपलोड करना।",
+        "Destructive": "विनाशकारी: हटाता है, ड्रॉप करता है, रीस्टार्ट करता है, या अन्यथा पूर्ववत नहीं किया जा सकता। डिफ़ॉल्ट रूप से स्वीकृति की प्रतीक्षा करता है।"
+      },
+      "accessMode": {
+        "ReadOnly": "केवल पढ़ना: एजेंट देख सकता है, पर लिखने और विनाशकारी टूल सूचीबद्ध भी नहीं होते।",
+        "ReadWriteWithApproval": "स्वीकृति के साथ पढ़ना और लिखना: हर लिखने या विनाशकारी कॉल किसी व्यक्ति की प्रतीक्षा करती है।",
+        "ReadWrite": "पढ़ना और लिखना: लेखन सीधे चलते हैं; विनाशकारी कॉल तब भी प्रतीक्षा करती हैं जब तक बाइंडिंग ऑप्ट आउट न करे।"
+      },
+      "approvalStatus": {
+        "Pending": "लंबित: किसी व्यक्ति द्वारा स्वीकृत या अस्वीकृत किए जाने की प्रतीक्षा में।",
+        "Approved": "स्वीकृत: किसी व्यक्ति ने कॉल की अनुमति दी और वह चली।",
+        "Rejected": "अस्वीकृत: किसी व्यक्ति ने कॉल से इनकार किया; एजेंट को बताया गया।",
+        "Expired": "समाप्त: किसी ने समय पर निर्णय नहीं लिया, इसलिए कॉल अस्वीकार कर दी गई।",
+        "Cancelled": "रद्द: निर्णय से पहले टर्न समाप्त हो गया या टेनेंट लॉकडाउन हो गया।"
+      },
+      "toolDecision": {
+        "Allowed": "अनुमत: एक्सेस मोड ने बिना पूछे कॉल चलने दी।",
+        "Denied": "अस्वीकृत: एक्सेस मोड, किसी टूल नियम या लॉकडाउन ने कॉल अस्वीकार कर दी।",
+        "ApprovalRequired": "स्वीकृति आवश्यक: कॉल ने किसी व्यक्ति की प्रतीक्षा की।",
+        "Approved": "स्वीकृत: किसी व्यक्ति ने कॉल की अनुमति दी।",
+        "Rejected": "अस्वीकृत: किसी व्यक्ति ने कॉल से इनकार किया।",
+        "Expired": "समाप्त: किसी ने समय पर निर्णय नहीं लिया।"
+      },
+      "toolStatus": {
+        "Succeeded": "सफल: टूल चला और परिणाम लौटाया।",
+        "Failed": "विफल: टूल या लक्ष्य सिस्टम ने त्रुटि लौटाई।",
+        "TimedOut": "समय समाप्त: टूल अपने टाइमआउट के भीतर पूरा नहीं हुआ।",
+        "Cancelled": "रद्द: टूल चलते समय टर्न रोक दिया गया।"
+      },
+      "healthStatus": {
+        "Healthy": "स्वस्थ: पिछली जाँच सिस्टम तक पहुँची और उसने सामान्य रूप से उत्तर दिया।",
+        "Degraded": "कमज़ोर: सिस्टम ने उत्तर दिया, पर धीरे या चेतावनियों के साथ।",
+        "Unhealthy": "अस्वस्थ: पिछली जाँच सिस्टम तक नहीं पहुँच सकी या उसने त्रुटि के साथ उत्तर दिया।",
+        "Unknown": "अभी जाँचा नहीं गया: कोई कनेक्शन परीक्षण या हेल्थ चेक नहीं चला है।"
+      },
+      "secretKind": {
+        "Password": "एक पासवर्ड, वैकल्पिक रूप से उसके उपयोगकर्ता नाम के साथ।",
+        "PrivateKey": "एक SSH या TLS निजी कुंजी, वैकल्पिक रूप से उसके पासफ़्रेज़ के साथ।",
+        "ApiToken": "किसी सेवा द्वारा जारी API या बेयरर टोकन।",
+        "AccessKeyPair": "एक्सेस कुंजी ID और सीक्रेट एक्सेस कुंजी, जैसे AWS कुंजियाँ।",
+        "ServiceAccountJson": "JSON में क्लाउड सेवा खाता कुंजी फ़ाइल, जैसे Google Cloud।",
+        "Kubeconfig": "क्लस्टर और उपयोगकर्ता क्रेडेंशियल वाली Kubernetes kubeconfig फ़ाइल।",
+        "ConnectionString": "क्रेडेंशियल सहित एक पूर्ण कनेक्शन स्ट्रिंग।",
+        "Certificate": "म्यूचुअल TLS के लिए, अपनी निजी कुंजी के साथ एक प्रमाणपत्र।",
+        "Generic": "कोई अन्य एकल सीक्रेट मान।"
+      },
+      "connectorCategory": {
+        "Compute": "SSH या समान तरीकों से पहुँचे जाने वाले होस्ट और मशीनें।",
+        "Storage": "ऑब्जेक्ट स्टोरेज जैसे S3, Azure Blob और Google Cloud Storage।",
+        "Database": "SQL और अन्य डेटाबेस।",
+        "Logging": "लॉग सेवाएँ जैसे Papertrail और Loki।",
+        "Cache": "कैश जैसे Redis।",
+        "Cloud": "क्लाउड कंट्रोल प्लेन जैसे AWS।",
+        "Orchestration": "कंटेनर ऑर्केस्ट्रेशन जैसे Kubernetes और Docker।",
+        "Observability": "मेट्रिक्स और मॉनिटरिंग जैसे Prometheus और SolarWinds।",
+        "Http": "सामान्य HTTP API।",
+        "Agent": "MCP या A2A पर पहुँचे जाने वाले अन्य एजेंट।",
+        "Other": "ऐसे कनेक्टर जो किसी अन्य श्रेणी में नहीं आते।"
+      },
+      "surface": {
+        "Chat": "Hugo के अपने एजेंट लूप के साथ डैशबोर्ड चैट।",
+        "Mcp": "Claude Code जैसे किसी MCP क्लाइंट ने कॉल चलाई।",
+        "A2A": "किसी अन्य एजेंट ने A2A पर इस प्रोफ़ाइल को कॉल किया।",
+        "OpenAI": "किसी OpenAI-संगत क्लाइंट ने प्रोफ़ाइल से बात की।",
+        "Rest": "सीधा REST या SDK टूल इनवोकेशन।"
+      },
+      "modelKind": {
+        "Inference": "उत्तर और टूल कॉल जनरेट करता है।",
+        "Embedding": "पुनर्प्राप्ति के लिए टेक्स्ट को वेक्टर में बदलता है।"
+      },
+      "visibility": {
+        "Private": "केवल स्वामी इसका उपयोग कर सकता है।",
+        "Tenant": "टेनेंट में एक्सेस वाला हर व्यक्ति इसका उपयोग कर सकता है।"
+      },
+      "auditEventType": {
+        "AuthorizationDenied": "किसी प्रिंसिपल ने कुछ ऐसा करने का प्रयास किया जिसकी उसकी अनुमतियाँ इजाज़त नहीं देतीं।",
+        "SecretRevealed": "किसी ने कारण के साथ सीक्रेट का प्लेनटेक्स्ट प्रकट किया।",
+        "LockdownChanged": "किसी टेनेंट एडमिनिस्ट्रेटर ने लॉकडाउन चालू या बंद किया।",
+        "HostKeyMismatch": "किसी SSH होस्ट ने पिन की गई कुंजी से अलग कुंजी प्रस्तुत की; कनेक्शन अस्वीकार कर दिया गया।"
+      }
+    },
+    "resources": {
+      "tenants": {
+        "add": "एक नया टेनेंट बनाएँ: अपने उपयोगकर्ताओं, संसाधनों, सीक्रेट और प्रोफ़ाइल वाला एक पृथक स्थान।",
+        "name": "टेनेंट का प्रदर्शन नाम। साइन इन करते समय लोग टेनेंट को उसकी ID से चुनते हैं।",
+        "description": "यह टेनेंट किसके लिए या किसलिए है, उदाहरण के लिए कोई टीम या ग्राहक।",
+        "active": "निष्क्रिय टेनेंट साइन इन या टूल कॉल नहीं कर सकते। उनका डेटा रखा जाता है।",
+        "region": "इस टेनेंट के लिए वैकल्पिक क्षेत्र लेबल, आपके अपने रिकॉर्ड के लिए।",
+        "lockdown": "लॉकडाउन वाला टेनेंट हर उस कॉल को अस्वीकार करता है जो पढ़ने वाली नहीं है।"
+      },
+      "users": {
+        "add": "ईमेल और पासवर्ड से साइन इन करने वाला एक व्यक्ति बनाएँ। बाद में भूमिका असाइनमेंट से उन्हें एक्सेस दें।",
+        "email": "वह पता जिससे व्यक्ति साइन इन करता है। टेनेंट के भीतर अद्वितीय।",
+        "name": "पहला और अंतिम नाम, ऑडिट रिकॉर्ड और सूचियों में दिखाया जाता है।",
+        "role": "खाते का एडमिनिस्ट्रेटर स्तर। सामान्य उपयोगकर्ताओं को भूमिका असाइनमेंट के माध्यम से एक्सेस मिलती है।",
+        "password": "साइन-इन पासवर्ड। संपादन करते समय वर्तमान पासवर्ड रखने के लिए इसे खाली छोड़ें।",
+        "firstName": "पहला नाम, सूचियों और ऑडिट रिकॉर्ड में दिखाया जाता है।",
+        "lastName": "उपनाम (परिवार का नाम), सूचियों और ऑडिट रिकॉर्ड में दिखाया जाता है।",
+        "isTenantAdmin": "टेनेंट एडमिनिस्ट्रेटर इस टेनेंट के भीतर उपयोगकर्ताओं और सीक्रेट सहित सब कुछ प्रबंधित कर सकते हैं।",
+        "isAdmin": "सिस्टम एडमिनिस्ट्रेटर हर टेनेंट का प्रबंधन करते हैं और प्राधिकरण को बायपास करते हैं। सोच-समझकर प्रदान करें।",
+        "active": "निष्क्रिय उपयोगकर्ता साइन इन नहीं कर सकते, और उनकी एक्सेस कुंजियाँ काम करना बंद कर देती हैं।",
+        "actions": {
+          "permissions": "सभी भूमिकाओं और असाइनमेंट को मिलाने के बाद इस उपयोगकर्ता को मिलने वाली हर अनुमति दिखाएँ।",
+          "resetPassword": "एक अस्थायी पासवर्ड सेट करें; उपयोगकर्ता को अगले साइन-इन पर इसे बदलना होगा।",
+          "assignRole": "भूमिका प्रदान करने के लिए इस उपयोगकर्ता पर फ़िल्टर किए गए असाइनमेंट खोलें।"
+        },
+        "mustChangePassword": "उपयोगकर्ता को अपने अगले साइन-इन पर नया पासवर्ड चुनना होगा।"
+      },
+      "credentials": {
+        "add": "किसी स्क्रिप्ट, SDK या सेवा के लिए एक्सेस कुंजी बनाएँ। सहेजने के बाद सीक्रेट एक बार दिखाया जाता है।",
+        "name": "यह कुंजी किसलिए है, उदाहरण के लिए claude-code-laptop। रोटेट करने या हटाने से पहले इसे ढूँढने में मदद करता है।",
+        "accessKey": "कुंजी का सार्वजनिक भाग, हर अनुरोध के साथ भेजा जाता है। कॉन्फ़िगरेशन में संग्रहीत करने के लिए सुरक्षित।",
+        "secretKeyLast4": "सीक्रेट के अंतिम चार अक्षर, ताकि आप उसे देखे बिना कुंजी का मिलान कर सकें।",
+        "userId": "वह उपयोगकर्ता जिसकी यह कुंजी है। कोई कुंजी अपने स्वामी से अधिक कभी नहीं कर सकती।",
+        "lastUsedUtc": "कुंजी ने पिछली बार कब किसी अनुरोध को प्रमाणित किया। पुरानी तिथियाँ अप्रयुक्त कुंजियों की ओर इशारा करती हैं जिन्हें आप हटा सकते हैं।",
+        "authMode": "कुंजी कैसे प्रमाणित कर सकती है: सीधे भेजी गई, प्रति अनुरोध हस्ताक्षरित, सेशन के लिए बदली गई, या इनमें से कोई भी (Hybrid)।",
+        "expiresUtc": "इस समय के बाद कुंजी काम करना बंद कर देती है। समाप्त न होने वाली कुंजी के लिए खाली छोड़ें।",
+        "active": "निष्क्रिय कुंजियाँ अस्वीकार की जाती हैं पर रखी जाती हैं, ताकि आप उन्हें फिर से चालू कर सकें।",
+        "actions": {
+          "rotate": "सीक्रेट को नए से बदलें। पुराना सीक्रेट तुरंत काम करना बंद कर देता है; नया एक बार दिखाया जाता है।",
+          "permissions": "इसके स्वामी, भूमिकाओं और असाइनमेंट को मिलाने के बाद इस कुंजी को मिलने वाली हर अनुमति दिखाएँ।",
+          "scopes": "इस क्रेडेंशियल पर फ़िल्टर किए गए क्रेडेंशियल स्कोप असाइनमेंट खोलें।"
+        },
+        "agentProfileId": "वह प्रोफ़ाइल जिसके रूप में यह क्रेडेंशियल डिफ़ॉल्ट रूप से कार्य करता है। हार्नेस को बाउंड क्रेडेंशियल का उपयोग करना चाहिए।",
+        "lockToProfile": "चालू होने पर, कॉलर चाहे जो अनुरोध करे, क्रेडेंशियल केवल अपनी बाउंड प्रोफ़ाइल के रूप में कार्य कर सकता है।"
+      },
+      "roles": {
+        "add": "एक कस्टम भूमिका बनाएँ, फिर उसमें अनुमतियाँ जोड़ें और उसे उपयोगकर्ताओं या कुंजियों को असाइन करें।",
+        "name": "भूमिका असाइन करते समय लोगों को दिखने वाला नाम, उदाहरण के लिए Release Operator।",
+        "description": "यह भूमिका किसलिए है और यह किसे मिलनी चाहिए।",
+        "active": "निष्क्रिय भूमिकाएँ कुछ भी प्रदान नहीं करतीं, जहाँ असाइन की गई हों वहाँ भी।",
+        "actions": {
+          "clone": "इस अंतर्निहित भूमिका की एक संपादन योग्य प्रति बनाएँ जिसे आप समायोजित कर सकें।"
+        }
+      },
+      "permissions": {
+        "add": "एक नियम बनाएँ जो संसाधन प्रकारों पर ऑपरेशन की अनुमति देता है या उन्हें अस्वीकार करता है।",
+        "name": "नियम का छोटा नाम, भूमिकाएँ बनाते समय दिखाया जाता है।",
+        "permissionType": "अनुमति दें नीचे दिए गए ऑपरेशन की अनुमति देता है। अस्वीकार करें उन्हें रोकता है और हमेशा अनुमति पर प्रभावी रहता है।",
+        "resourceTypes": "नियम किस प्रकार के रिकॉर्ड को कवर करता है। सभी हर प्रकार को कवर करता है।",
+        "operationTypes": "नियम किन ऑपरेशन को कवर करता है, जैसे पढ़ना, बनाना या निष्पादित करना (इनवोक)।",
+        "active": "निष्क्रिय अनुमतियों का कोई प्रभाव नहीं होता।"
+      },
+      "userAssignments": {
+        "add": "किसी उपयोगकर्ता को पूरे टेनेंट के लिए या किसी एक विशिष्ट रिकॉर्ड के लिए भूमिका दें।",
+        "userId": "वह व्यक्ति जिसे भूमिका मिलती है।",
+        "roleName": "प्रदान की गई भूमिका। व्यक्ति को इसकी हर अनुमति मिलती है।",
+        "roleId": "प्रदान करने वाली भूमिका। व्यक्ति को इसकी हर अनुमति मिलती है।",
+        "resourceScope": "टेनेंट भूमिका को हर रिकॉर्ड पर लागू करता है। संसाधन इसे नीचे बताए गए एक रिकॉर्ड तक सीमित करता है।",
+        "resourceId": "उस एकल रिकॉर्ड का पहचानकर्ता जिस पर भूमिका लागू होती है, उदाहरण के लिए एजेंट ID।",
+        "inheritsToChildren": "भूमिका को टेनेंट के हर रिकॉर्ड पर लागू करें, बाद में बनाए गए रिकॉर्ड सहित।",
+        "active": "निष्क्रिय असाइनमेंट कुछ भी प्रदान नहीं करते पर रखे जाते हैं।"
+      },
+      "credentialAssignments": {
+        "add": "किसी एक्सेस कुंजी को पूरे टेनेंट के लिए या किसी एक विशिष्ट रिकॉर्ड के लिए भूमिका दें।",
+        "credentialId": "वह एक्सेस कुंजी जिसे भूमिका मिलती है। यह फिर भी अपने स्वामी से अधिक नहीं कर सकती।",
+        "roleName": "कुंजी को प्रदान की गई भूमिका।",
+        "roleId": "प्रदान करने वाली भूमिका। सबसे सीमित भूमिका चुनें जो ऑटोमेशन को अपना काम करने दे।",
+        "resourceScope": "टेनेंट भूमिका को हर रिकॉर्ड पर लागू करता है। संसाधन इसे नीचे बताए गए एक रिकॉर्ड तक सीमित करता है।",
+        "resourceId": "उस एकल रिकॉर्ड का पहचानकर्ता जिस पर भूमिका लागू होती है, उदाहरण के लिए वह एक एजेंट जिसे कोई CI जॉब इनवोक कर सकता है।",
+        "inheritsToChildren": "भूमिका को टेनेंट के हर रिकॉर्ड पर लागू करें, बाद में बनाए गए रिकॉर्ड सहित।",
+        "active": "निष्क्रिय असाइनमेंट कुछ भी प्रदान नहीं करते पर रखे जाते हैं।"
+      },
+      "promptTemplates": {
+        "actions": {
+          "clone": "इस टेम्पलेट को आपके चुने हुए नए नाम से कॉपी करें, फिर प्रति को एडिटर में खोलें।"
+        },
+        "add": "लाइव पूर्वावलोकन वाले एडिटर में नया प्रॉम्प्ट टेम्पलेट लिखें। हर बार सहेजना एक संस्करण बन जाता है।",
+        "name": "टेम्पलेट नाम, टेनेंट में अद्वितीय। इनक्लूड टेम्पलेट को नाम से संदर्भित करते हैं।",
+        "kind": "टेम्पलेट किसलिए उपयोग होता है: सिस्टम प्रॉम्प्ट, टास्क रैपर, फ़्रैगमेंट, टूल विवरण या कॉन्फ़िग फ़ाइल।",
+        "currentVersion": "सबसे नया सहेजा गया संस्करण। हर बार सहेजने पर पिछला टेक्स्ट एक संस्करण के रूप में रखा जाता है जिसे आप पुनर्स्थापित कर सकते हैं।",
+        "description": "टेम्पलेट क्या करता है और कहाँ उपयोग होता है।"
+      },
+      "audit": {
+        "createdUtc": "इवेंट कब हुआ, आपके स्थानीय समय क्षेत्र में।",
+        "eventType": "यह किस प्रकार का सुरक्षा या कॉन्फ़िगरेशन इवेंट था।",
+        "principalName": "यह किसने किया: एडमिनिस्ट्रेटर, उपयोगकर्ता या एक्सेस कुंजी।",
+        "resource": "शामिल रिकॉर्ड का प्रकार और ऑपरेशन, उदाहरण के लिए Agent / Read।",
+        "reason": "इवेंट क्यों हुआ या एक्सेस क्यों अस्वीकार की गई।",
+        "sourceIp": "वह नेटवर्क पता जहाँ से अनुरोध आया।",
+        "principalType": "कर्ता एडमिनिस्ट्रेटर था, उपयोगकर्ता था या एक्सेस कुंजी।",
+        "principalId": "कार्य करने वाले एडमिनिस्ट्रेटर, उपयोगकर्ता या एक्सेस कुंजी का पहचानकर्ता।",
+        "resourceType": "शामिल रिकॉर्ड का प्रकार, जैसे Agent या Secret।",
+        "resourceId": "शामिल रिकॉर्ड का पहचानकर्ता।",
+        "operation": "प्रयास किया गया ऑपरेशन, जैसे Read या Execute।",
+        "method": "अनुरोध का HTTP मेथड।",
+        "path": "इवेंट का कारण बने अनुरोध का पथ।",
+        "authResult": "कॉलर कौन है, इसकी जाँच का परिणाम।",
+        "authorizationResult": "कॉलर क्या कर सकता है, इसकी जाँच का परिणाम।",
+        "bypassReason": "प्राधिकरण क्यों छोड़ा गया, उदाहरण के लिए सिस्टम एडमिनिस्ट्रेटर।",
+        "statusCode": "कॉलर को लौटाया गया HTTP स्टेटस।",
+        "requestId": "अनुरोध पहचानकर्ता। इससे अनुरोध इतिहास या सर्वर लॉग में खोजें।"
+      },
+      "approvals": {
+        "bulkReject": "हर चुनी गई स्वीकृति को एक साथ अस्वीकार करें। प्रत्येक कॉलर को बताया जाता है कि उसकी कार्रवाई अस्वीकार कर दी गई।",
+        "summary": "स्वीकृति की प्रतीक्षा कर रही सटीक कार्रवाई, उदाहरण के लिए किसी होस्ट पर कमांड चलाना।",
+        "effect": "कॉल को कैसे वर्गीकृत किया गया: लिखना कुछ बदलता है, विनाशकारी हटाता या रीस्टार्ट करता है।",
+        "status": "लंबित किसी व्यक्ति की प्रतीक्षा करता है; अन्य स्थितियाँ अंतिम हैं।",
+        "agentProfileId": "वह प्रोफ़ाइल जिसकी बाइंडिंग ने स्वीकृति आवश्यक की।",
+        "requestedBy": "वह प्रिंसिपल (उपयोगकर्ता, क्रेडेंशियल या एजेंट रन) जिसने कॉल की।",
+        "createdUtc": "एजेंट ने कॉल का प्रस्ताव कब किया।",
+        "expiresUtc": "किसी के निर्णय न लेने पर अनुरोध कब समाप्त होता है। समाप्त कॉल अस्वीकार कर दी जाती हैं।",
+        "decidedBy": "कॉल को किसने स्वीकृत या अस्वीकृत किया।",
+        "decisionNote": "स्वीकर्ता द्वारा निर्णय के साथ छोड़ा गया नोट।",
+        "fromUtc": "इस समय पर या इसके बाद अनुरोधित स्वीकृतियाँ दिखाएँ।",
+        "actions": {
+          "decide": "नोट के साथ इस कॉल को स्वीकृत या अस्वीकृत करने के लिए स्वीकृति कार्ड खोलें।",
+          "invocation": "इस स्वीकृति के पीछे का टूल इनवोकेशन रिकॉर्ड खोलें।"
+        }
+      },
+      "bindings": {
+        "resourceId": "वह संसाधन जिसे यह बाइंडिंग जोड़ती है। एक संसाधन कई प्रोफ़ाइल से बाउंड हो सकता है।",
+        "alias": "वह नाम जिसे एजेंट टूल कॉल और निर्देशों में इस संसाधन के लिए उपयोग करता है, उदाहरण के लिए prod-db।",
+        "accessMode": "केवल पढ़ना, जोखिम भरी कॉल के लिए स्वीकृति के साथ पढ़ना और लिखना, या पढ़ना और लिखना। तय करता है कि एजेंट क्या कर सकता है।",
+        "requireApprovalForDestructive": "पढ़ने और लिखने वाले मोड में भी, विनाशकारी कॉल (हटाना, रीस्टार्ट, ड्रॉप) किसी व्यक्ति की प्रतीक्षा करती हैं। डिफ़ॉल्ट रूप से चालू।",
+        "instructionMode": "इनहेरिट कनेक्टर और संसाधन के निर्देशों का उपयोग करता है; जोड़ें आपका टेक्स्ट जोड़ता है; बदलें केवल आपके टेक्स्ट का उपयोग करता है।",
+        "instructionText": "इस प्रोफ़ाइल में इस संसाधन के लिए अतिरिक्त या प्रतिस्थापन निर्देश, उदाहरण के लिए कौन से स्कीमा महत्वपूर्ण हैं।",
+        "maxOutputBytes": "इस संसाधन से टूल आउटपुट की सीमा, कनेक्टर डिफ़ॉल्ट से सख़्त। डिफ़ॉल्ट के लिए खाली छोड़ें।",
+        "maxRows": "इस संसाधन पर क्वेरी द्वारा लौटाई गई पंक्तियों की सीमा। कनेक्टर डिफ़ॉल्ट के लिए खाली छोड़ें।",
+        "enabled": "अक्षम बाइंडिंग रखी जाती हैं पर एजेंट से छिपी रहती हैं, मानो संसाधन बाउंड ही न हो।"
+      },
+      "models": {
+        "apiKeySecretId": "वह सीक्रेट जिसमें इस प्रदाता की API कुंजी या क्रेडेंशियल हैं। एन्क्रिप्ट करके संग्रहीत; मॉडल को कभी नहीं दिखाया जाता।",
+        "add": "Hugo के अपने एजेंट लूप के लिए इन्फ़रेंस या एम्बेडिंग मॉडल एंडपॉइंट जोड़ें।",
+        "kind": "इन्फ़रेंस मॉडल चैट टर्न का उत्तर देते हैं; एम्बेडिंग मॉडल पुनर्प्राप्ति के लिए टेक्स्ट को वेक्टर में बदलते हैं।",
+        "provider": "एंडपॉइंट कौन सा API बोलता है। OpenAI-संगत में vLLM, LM Studio और इसी तरह के सर्वर शामिल हैं।",
+        "baseUrl": "प्रदाता API कहाँ सुनता है, उदाहरण के लिए स्थानीय Ollama के लिए http://127.0.0.1:11434।",
+        "model": "प्रदाता का मॉडल नाम, उदाहरण के लिए llama3.1, gpt-4o या claude-sonnet।",
+        "apiKey": "प्रदाता API कुंजी। एन्क्रिप्टेड सीक्रेट के रूप में संग्रहीत और एंडपॉइंट द्वारा संदर्भित।",
+        "region": "उन प्रदाताओं के लिए क्लाउड क्षेत्र जिन्हें इसकी आवश्यकता है, जैसे Bedrock या Vertex।",
+        "deploymentName": "वह Azure OpenAI डिप्लॉयमेंट जो मॉडल सर्व करता है।",
+        "apiVersion": "कॉल करने के लिए Azure OpenAI API संस्करण।",
+        "contextWindowTokens": "मॉडल कितने टोकन स्वीकार करता है। Hugo उस सीमा तक पहुँचने से पहले इतिहास को संक्षिप्त करता है।",
+        "maxOutputTokens": "एक उत्तर में मॉडल द्वारा उत्पन्न किए जा सकने वाले टोकन की ऊपरी सीमा।",
+        "embeddingDimensions": "एम्बेडिंग मॉडल द्वारा उत्पन्न वेक्टर का आकार। खाली छोड़ने पर सत्यापित करें द्वारा भरा जाता है।",
+        "supportsTools": "क्या मॉडल टूल कॉल कर सकता है। सादे उत्तरों से आगे किसी भी चीज़ के लिए चैट को इसकी आवश्यकता है।",
+        "supportsStreaming": "क्या उत्तर टोकन दर टोकन स्ट्रीम हो सकते हैं।",
+        "maxConcurrency": "Hugo इस एंडपॉइंट को एक साथ कितने अनुरोध भेजता है।",
+        "timeoutSeconds": "एक मॉडल अनुरोध विफल होने से पहले कितना समय ले सकता है।",
+        "maxRetries": "हार मानने से पहले विफल अनुरोध को कितनी बार दोहराया जाता है।",
+        "healthStatus": "पिछले सत्यापन या बैकग्राउंड हेल्थ चेक का परिणाम।",
+        "lastHealthUtc": "एंडपॉइंट की पिछली जाँच कब हुई।",
+        "sections": {
+          "endpoint": "यह कौन सा प्रदाता और मॉडल है, और इस तक कैसे पहुँचें।",
+          "capabilities": "मॉडल क्या कर सकता है और कितना टेक्स्ट संभालता है।",
+          "limits": "इस एंडपॉइंट की कॉल के लिए समवर्तीता, टाइमआउट और पुनः प्रयास।"
+        },
+        "actions": {
+          "validate": "एक छोटा प्रॉम्प्ट भेजें (या कोई छोटा टेक्स्ट एम्बेड करें) और लेटेंसी तथा परिणाम दर्ज करें।",
+          "listModels": "जहाँ प्रदाता सूचीकरण का समर्थन करता है, वहाँ प्रदाता से पूछें कि वह कौन से मॉडल प्रदान करता है।"
+        }
+      },
+      "resources": {
+        "name": "टेनेंट में इस संसाधन का अद्वितीय नाम। बाइंडिंग इसे एजेंट को दिखने वाले डिफ़ॉल्ट उपनाम के रूप में उपयोग करती हैं।",
+        "connectorType": "यह किस प्रकार का सिस्टम है (SSH, PostgreSQL, S3 आदि)। यह सेटिंग, सीक्रेट और टूल तय करता है।",
+        "environment": "prod या staging जैसा मुक्त टैग। एजेंट इसे देखता है, जिससे उसे प्रोडक्शन के साथ सावधानी बरतने में मदद मिलती है।",
+        "add": "किसी सिस्टम से कनेक्शन जोड़ें: कनेक्टर चुनें, उसकी सेटिंग भरें, उसके सीक्रेट चुनें और उसे जाँचें।",
+        "displayName": "लोगों के लिए वैकल्पिक अनुकूल नाम। एजेंट नाम या बाइंडिंग उपनाम का उपयोग करता है।",
+        "visibility": "निजी संसाधन उनके स्वामी द्वारा उपयोग योग्य हैं; टेनेंट संसाधन टेनेंट की हर प्रोफ़ाइल द्वारा।",
+        "defaultAccessModeCeiling": "कोई बाइंडिंग इस संसाधन पर अधिकतम क्या प्रदान कर सकती है। किसी भी एक्सेस मोड की अनुमति के लिए खाली छोड़ें।",
+        "endpoint": "संसाधन कहाँ स्थित है, इसका संक्षिप्त सारांश। खोजने योग्य, और एजेंट को दिखाया जाता है।",
+        "description": "यह संसाधन क्या है, सूची पढ़ने वाले लोगों के लिए।",
+        "notes": "ऑपरेटर नोट जो एजेंट को उसके निर्देशों में मिलते हैं, जैसे कौन सी तालिकाएँ महत्वपूर्ण हैं या किसे कभी नहीं छूना है।",
+        "health": "पिछले कनेक्शन परीक्षण या हेल्थ स्वीप का परिणाम।",
+        "lastTestUtc": "कनेक्शन की पिछली जाँच कब हुई।",
+        "sections": {
+          "general": "नाम, एनवायरनमेंट और नोट जो एजेंट पढ़ता है।",
+          "connector": "कनेक्टर, उसकी सेटिंग और उसके सीक्रेट।"
+        },
+        "actions": {
+          "test": "सहेजी गई सेटिंग और सीक्रेट को अभी वास्तविक सिस्टम पर जाँचें।",
+          "tryTool": "चुनी गई प्रोफ़ाइल के रूप में इस संसाधन के किसी टूल का ड्राई रन करें और फिर उसे निष्पादित करें।",
+          "referrers": "इस संसाधन का उपयोग करने वाली प्रोफ़ाइल और बाइंडिंग सूचीबद्ध करें।"
+        }
+      },
+      "secrets": {
+        "name": "टेनेंट में इस सीक्रेट का अद्वितीय नाम। संसाधन और मॉडल एंडपॉइंट इसे नाम से चुनते हैं।",
+        "kind": "सीक्रेट में क्या है। प्रकार तय करता है कि इसमें कौन से फ़ील्ड हैं और कौन से कनेक्टर स्लॉट इसे स्वीकार करते हैं।",
+        "saveValue": "नए मानों को एन्क्रिप्ट करके संग्रहीत करें। खाली छोड़े गए फ़ील्ड अपने संग्रहीत मान रखते हैं।",
+        "add": "एक नया सीक्रेट संग्रहीत करें: उसका प्रकार चुनें और मान भरें, या उन्हें किसी फ़ाइल से आयात करें।",
+        "description": "सीक्रेट किसलिए है और इसका स्वामी कौन है। यहाँ कभी सीक्रेट मान न डालें।",
+        "expiresUtc": "क्रेडेंशियल कब काम करना बंद करता है, ताकि Hugo समाप्ति से पहले चेतावनी दे सके।",
+        "fingerprint": "सीक्रेट को अलग पहचानने के लिए एक अपरिवर्तनीय संकेत, जैसे अंतिम अक्षर या SSH कुंजी फ़िंगरप्रिंट।",
+        "referrerCount": "कितने संसाधन और मॉडल एंडपॉइंट इस सीक्रेट का उपयोग करते हैं।",
+        "lastRotatedUtc": "मान पिछली बार कब बदले गए।",
+        "lastRevealedUtc": "किसी ने पिछली बार ऑडिट किए गए प्रकटीकरण के माध्यम से प्लेनटेक्स्ट कब प्रकट किया।",
+        "sections": {
+          "values": "इस प्रकार के सीक्रेट मान। संग्रहीत करने से पहले इन्हें एन्क्रिप्ट किया जाता है।"
+        },
+        "actions": {
+          "replaceValues": "कुछ या सभी मान बदलें; आपके द्वारा खाली छोड़े गए फ़ील्ड अपने संग्रहीत मान रखते हैं।",
+          "reveal": "कारण बताने और अपना पासवर्ड फिर से दर्ज करने के बाद प्लेनटेक्स्ट मान दिखाएँ। ऑडिट किया जाता है।",
+          "referrers": "इस सीक्रेट का उपयोग करने वाले संसाधन और मॉडल एंडपॉइंट सूचीबद्ध करें।"
+        }
+      },
+      "toolInvocations": {
+        "trace": "इस कॉल का डिस्ट्रिब्यूटेड ट्रेस Grafana Tempo में नए टैब में खोलें।",
+        "createdUtc": "कॉल कब की गई। सटीक समय के लिए होवर करें।",
+        "toolName": "कॉल किया गया टूल, जैसे sql_query या ssh_exec।",
+        "resourceId": "वह संसाधन (बाइंडिंग उपनाम) जिस पर कॉल चली।",
+        "effect": "कॉल को कैसे वर्गीकृत किया गया: पढ़ना, लिखना या विनाशकारी।",
+        "decision": "सुरक्षा पाइपलाइन ने क्या निर्णय लिया: अनुमत, अस्वीकृत, या स्वीकृति के लिए भेजा गया और उसका परिणाम।",
+        "status": "कॉल कैसे समाप्त हुई: सफल, विफल, समय समाप्त या रद्द।",
+        "durationMs": "सर्वर पर कॉल में कितना समय लगा।",
+        "surface": "कॉल किस सतह से की गई: चैट, MCP, A2A, OpenAI-संगत या REST।",
+        "agentProfileId": "वह प्रोफ़ाइल जिसके रूप में कॉलर ने कार्य किया।",
+        "principalId": "कॉल के पीछे का उपयोगकर्ता या क्रेडेंशियल।",
+        "fromUtc": "इस समय पर या इसके बाद की गई कॉल दिखाएँ।",
+        "toUtc": "इस समय से पहले की गई कॉल दिखाएँ।",
+        "accessMode": "कॉल किए जाने के समय बाइंडिंग का एक्सेस मोड।",
+        "outputBytes": "काटे जाने से पहले टूल आउटपुट का आकार।",
+        "approvalId": "वह स्वीकृति जिसकी कॉल ने प्रतीक्षा की, यदि कोई हो।",
+        "traceId": "कॉल का डिस्ट्रिब्यूटेड ट्रेस, Grafana Tempo में देखा जा सकता है।",
+        "argumentsRedacted": "संग्रहीत आर्ग्युमेंट, जिनमें सीक्रेट को मार्करों से बदल दिया गया है।",
+        "outputPreview": "सीक्रेट हटाने के बाद, एजेंट को मिले आउटपुट का प्रारंभिक भाग।"
+      },
+      "profiles": {
+        "add": "एक एजेंट प्रोफ़ाइल बनाएँ: पर्सोना, मॉडल, सीमाएँ, और वे सतहें जो इसे उपलब्ध कराती हैं।",
+        "name": "URL-सुरक्षित नाम, टेनेंट में अद्वितीय। MCP क्लाइंट प्रोफ़ाइल तक /mcp/{name} पर और A2A .../{name} पर पहुँचते हैं।",
+        "displayName": "डैशबोर्ड और A2A एजेंट कार्ड में दिखाया जाने वाला अनुकूल नाम।",
+        "description": "यह प्रोफ़ाइल किसलिए है। लोगों को और A2A कार्ड सारांश में दिखाया जाता है।",
+        "personaName": "एजेंट बातचीत में स्वयं को क्या कहता है। डिफ़ॉल्ट प्रोफ़ाइल Agent Smith का उपयोग करती है।",
+        "userAddress": "एजेंट कॉलर को कैसे संबोधित करता है। डिफ़ॉल्ट प्रोफ़ाइल Mr. Anderson कहती है।",
+        "visibility": "निजी प्रोफ़ाइल उनके स्वामी को दिखती हैं; टेनेंट प्रोफ़ाइल टेनेंट में एक्सेस वाले हर व्यक्ति को।",
+        "inferenceEndpointId": "वह मॉडल जो चैट, A2A और OpenAI क्लाइंट के लिए Hugo का अपना एजेंट लूप चलाता है। MCP कॉलर अपना मॉडल लाते हैं।",
+        "fallbackInferenceEndpointId": "तब उपयोग किया जाता है जब प्राथमिक मॉडल विफल हो या उपलब्ध न हो।",
+        "embeddingEndpointId": "टूल विवरण और ज्ञान नोट को एम्बेड करता है ताकि बड़ी प्रोफ़ाइल केवल प्रासंगिक टूल पुनर्प्राप्त करें।",
+        "maxIterations": "एक टर्न में मॉडल और टूल राउंड की ऊपरी सीमा। अंतिम राउंड को टूल के बिना उत्तर देना होगा।",
+        "maxToolCallsPerTurn": "एक टर्न में, सभी राउंड मिलाकर, टूल कॉल की ऊपरी सीमा।",
+        "toolTimeoutSeconds": "रद्द होने से पहले एक टूल कॉल कितनी देर चल सकती है।",
+        "temperature": "मॉडल के लिए सैंपलिंग तापमान। कम मान उत्तरों को अधिक निर्धारित बनाते हैं।",
+        "exposeMcp": "इस प्रोफ़ाइल के टूल और निर्देश Claude Code जैसे MCP क्लाइंट को सूचीबद्ध करें।",
+        "exposeA2a": "इस प्रोफ़ाइल के लिए A2A एजेंट कार्ड प्रकाशित करें और A2A संदेश स्वीकार करें।",
+        "exposeOpenai": "OpenAI-संगत क्लाइंट को इस प्रोफ़ाइल को मॉडल नाम के रूप में उपयोग करने दें।",
+        "exposeManagementTools": "एडमिन अधिकारों वाले कॉलर को एडमिन टूल (संसाधन बनाना, बाइंडिंग बदलना) भी उपलब्ध कराएँ। डिफ़ॉल्ट रूप से बंद।",
+        "instructionsAppend": "संकलित निर्देशों में, हर संसाधन अनुभाग के बाद, जोड़ा जाने वाला मुक्त टेक्स्ट।",
+        "bindingCount": "इस प्रोफ़ाइल से कितने संसाधन बाउंड हैं।",
+        "exposure": "कौन सी प्रोटोकॉल सतहें इस प्रोफ़ाइल तक पहुँच सकती हैं।",
+        "sections": {
+          "identity": "नाम, पर्सोना और दृश्यता।",
+          "models": "Hugo के अपने लूप में इस प्रोफ़ाइल के लिए कौन से मॉडल उत्तर देते हैं।",
+          "limits": "प्रत्येक टर्न की सीमाएँ, ताकि अनियंत्रित लूप रुक जाए।",
+          "exposure": "कौन सी प्रोटोकॉल सतहें इस प्रोफ़ाइल तक पहुँच सकती हैं।"
+        },
+        "actions": {
+          "chat": "इस प्रोफ़ाइल से बात करने के लिए चैट खोलें।",
+          "duplicate": "इस प्रोफ़ाइल और इसकी बाइंडिंग को नए नाम से कॉपी करें, फिर प्रति खोलें।"
+        }
+      },
+      "conversations": {
+        "title": "बातचीत का शीर्षक, पहले आदान-प्रदान से जनरेट किया गया।",
+        "agentProfileId": "वह प्रोफ़ाइल जिससे बातचीत होती है।",
+        "userId": "बातचीत किसकी है: उपयोगकर्ता या क्रेडेंशियल।",
+        "source": "बातचीत कहाँ शुरू हुई: डैशबोर्ड चैट, A2A, MCP या OpenAI-संगत क्लाइंट।",
+        "messageCount": "बातचीत में उपयोगकर्ता और एजेंट के संदेश।",
+        "tokens": "बातचीत द्वारा अब तक उपयोग किए गए इनपुट और आउटपुट टोकन।",
+        "lastMessageUtc": "नवीनतम संदेश कब जोड़ा गया।",
+        "fromUtc": "इस समय पर या इसके बाद सक्रिय बातचीत दिखाएँ।",
+        "actions": {
+          "export": "बातचीत को Markdown के रूप में डाउनलोड करें, टूल कॉल के सारांश के साथ।"
+        }
+      },
+      "knowledge": {
+        "add": "अपने स्टैक के बारे में एक नोट लिखें जिसे Hugo संदर्भ में पुनर्प्राप्त कर सके।",
+        "title": "एक छोटा शीर्षक जो बताए कि नोट किस बारे में है।",
+        "agentProfileId": "नोट को एक प्रोफ़ाइल तक सीमित करें, या खाली छोड़ें ताकि हर प्रोफ़ाइल इसका उपयोग कर सके।",
+        "resourceId": "नोट को एक संसाधन से जोड़ें, ताकि वह संसाधन शामिल होने पर इसका उपयोग हो।",
+        "content": "नोट स्वयं, सरल भाषा में, उदाहरण के लिए कौन से होस्ट चेकआउट सर्व करते हैं।",
+        "lastUpdateUtc": "नोट पिछली बार कब संपादित (और फिर से एम्बेड) किया गया।"
+      },
+      "sessions": {
+        "principalName": "सेशन किसका है: उपयोगकर्ता, एडमिनिस्ट्रेटर या क्रेडेंशियल।",
+        "principalType": "सेशन किसी एडमिनिस्ट्रेटर, उपयोगकर्ता या क्रेडेंशियल का है।",
+        "principalId": "केवल इस प्रिंसिपल ID के सेशन दिखाएँ।",
+        "authScheme": "सेशन कैसे प्राप्त किया गया: पासवर्ड साइन-इन, एक्सेस कुंजी एक्सचेंज या हस्ताक्षरित अनुरोध।",
+        "sourceIp": "वह पता जहाँ से सेशन बनाया गया।",
+        "issuedUtc": "सेशन कब जारी किया गया।",
+        "lastUsedUtc": "सेशन का पिछली बार किसी अनुरोध के लिए कब उपयोग हुआ।",
+        "expiresUtc": "सेशन अपने आप कब समाप्त होता है।",
+        "revokedUtc": "रद्द किए गए सेशन अब काम नहीं करते; सक्रिय सेशन अभी भी काम करते हैं।",
+        "userAgent": "सेशन बनाने वाला क्लाइंट, जैसा उसने अपनी पहचान दी।"
+      },
+      "plugins": {
+        "name": "प्लगइन असेंबली का नाम।",
+        "version": "प्लगइन का संस्करण, जैसा उसकी असेंबली में घोषित है।",
+        "connectorTypes": "कनेक्टर प्रकार जो यह प्लगइन कैटलॉग में जोड़ता है।",
+        "enabled": "अक्षम प्लगइन डिस्क पर रहते हैं पर उनके कनेक्टर पेश नहीं किए जाते।",
+        "loadError": "प्लगइन लोड होने में क्यों विफल रहा, यदि ऐसा हुआ।",
+        "sha256": "प्लगइन फ़ाइल का चेकसम, यह पुष्टि करने के लिए कि कौन सा बिल्ड लोड है।",
+        "actions": {
+          "enable": "अगले रीस्टार्ट पर इस प्लगइन के कनेक्टर लोड करें।",
+          "disable": "अगले रीस्टार्ट के बाद इस प्लगइन के कनेक्टर पेश करना बंद करें।"
+        }
+      }
+    },
+    "views": {
+      "home": {
+        "observabilityState": {
+          "reachable": "सर्वर पिछले 30 सेकंड में {{service}} तक उसके आंतरिक URL पर पहुँचा।",
+          "unreachable": "सर्वर {{service}} तक उसके आंतरिक URL पर नहीं पहुँच सका। जाँचें कि सेवा चल रही है और आंतरिक URL सेटिंग उसी की ओर इंगित करती है।",
+          "checking": "सर्वर से पूछा जा रहा है कि क्या {{service}} पहुँच योग्य है।",
+          "unknown": "सर्वर ने नहीं बताया कि {{service}} पहुँच योग्य है या नहीं। स्थिति जाँच विफल रही या यह सर्वर अभी इसका समर्थन नहीं करता।"
+        },
+        "observabilityVersion": "{{service}} द्वारा सर्वर की हेल्थ चेक को बताया गया संस्करण।",
+        "kpisGrafana": "समय के साथ इन संख्याओं को देखने के लिए Grafana में Hugo अवलोकन डैशबोर्ड नए टैब में खोलें।",
+        "grafanaDashboards": "Grafana में Hugo फ़ोल्डर में प्रत्येक अनुभाग के लिए एक डैशबोर्ड है। प्रत्येक लिंक वह डैशबोर्ड नए टैब में खोलता है।",
+        "grafanaSections": {
+          "overview": "एक नज़र में हेल्थ: अपटाइम, अनुरोध दर, त्रुटि अनुपात, टूल कॉल और लंबित स्वीकृतियाँ।",
+          "http": "HTTP ट्रैफ़िक: रूट और स्टेटस वर्ग के अनुसार दर, लेटेंसी क्वांटाइल, और सबसे धीमे रूट।",
+          "models": "प्रदाता के अनुसार मॉडल अनुरोध, त्रुटियाँ, लेटेंसी और टोकन।",
+          "protocols": "मेथड और परिणाम के अनुसार MCP और A2A अनुरोध।",
+          "security": "साइन-इन, प्राधिकरण अस्वीकृतियाँ, सीक्रेट प्रकटीकरण, रिडैक्शन और लॉकडाउन।",
+          "agent": "एजेंट लूप और चैट: टर्न, चरण विवरण, पुनरावृत्तियाँ, और पहले टोकन तक का समय।",
+          "tools": "कनेक्टर और प्रभाव के अनुसार टूल कॉल, निर्णय, लेटेंसी, आउटपुट आकार और विफलताएँ।"
+        },
+        "observabilityDocs": "टेलीमेट्री गाइड नए टैब में खोलें: Hugo मेट्रिक्स कैसे स्क्रैप करें और Grafana, Prometheus, Tempo या Loki कैसे कनेक्ट करें।",
+        "observability": "मेट्रिक्स, डैशबोर्ड और ट्रेसिंग टूल के लिंक जिन्हें यह Hugo सर्वर कॉन्फ़िगर किए गए के रूप में बताता है। जो सेवाएँ कॉन्फ़िगर नहीं हैं, वे नहीं दिखाई जातीं।",
+        "kpis": {
+          "requests": "पिछले 24 घंटों में सर्वर द्वारा संभाले गए API अनुरोध। अनुरोध इतिहास खोलने के लिए क्लिक करें।",
+          "toolCalls": "पिछले 24 घंटों में हर सतह से टूल कॉल। टूल इनवोकेशन खोलने के लिए क्लिक करें।",
+          "failures": "पिछले 24 घंटों में विफल API अनुरोध और विफल टूल कॉल। विफल टूल कॉल देखने के लिए क्लिक करें।",
+          "approvals": "इस समय किसी व्यक्ति की प्रतीक्षा कर रही नियंत्रित टूल कॉल। स्वीकृतियाँ इनबॉक्स खोलने के लिए क्लिक करें।",
+          "unhealthy": "वे संसाधन जिनका पिछला कनेक्शन परीक्षण या हेल्थ चेक विफल रहा। उन्हें देखने के लिए क्लिक करें।",
+          "tokens": "मध्यरात्रि से Hugo की अपनी मॉडल कॉल द्वारा उपयोग किए गए इनपुट और आउटपुट टोकन। एनालिटिक्स खोलने के लिए क्लिक करें।"
+        },
+        "openFailure": "इस विफल टूल पर फ़िल्टर किए गए टूल इनवोकेशन खोलें।",
+        "cta": {
+          "apiExplorer": "इस सर्वर पर कोई भी API कॉल लाइव आज़माएँ।",
+          "addResource": "किसी सिस्टम को कनेक्ट करें: SSH होस्ट, बकेट, डेटाबेस या लॉग सेवा, उसके सीक्रेट के साथ।",
+          "addModel": "इन्फ़रेंस या एम्बेडिंग मॉडल जोड़ें ताकि Agent Smith चैट में उत्तर दे सके।",
+          "chat": "चैट खोलें और Agent Smith से अपने स्टैक के बारे में पूछें।",
+          "connect": "Claude Code, A2A और OpenAI-संगत सेटिंग के लिए किसी प्रोफ़ाइल का कनेक्ट टैब खोलें।",
+          "approvals": "निर्णय की प्रतीक्षा कर रही जोखिम भरी टूल कॉल की समीक्षा करें।"
+        },
+        "services": {
+          "loki": "Hugo लॉग खोजने के लिए Loki नए टैब में खोलें।",
+          "grafana": "Hugo मेट्रिक्स के लिए Grafana डैशबोर्ड नए टैब में खोलें।",
+          "prometheus": "Hugo मेट्रिक्स स्क्रैप करने वाला Prometheus सर्वर नए टैब में खोलें।",
+          "tempo": "ट्रेस ब्राउज़ करने के लिए Tempo नए टैब में खोलें।"
+        },
+        "serviceGeneric": "यह बंडल की गई सेवा नए टैब में खोलें।"
+      },
+      "templateEditor": {
+        "cloneName": "प्रति का नाम। छोटे अक्षर, अंक, हाइफ़न और स्लैश अच्छे से काम करते हैं; builtin/ उपसर्ग आरक्षित है।",
+        "cloneConfirm": "इस नाम से प्रति बनाएँ और उसे एडिटर में खोलें।",
+        "clone": "इस टेम्पलेट की एक संपादन योग्य प्रति बनाएँ। प्रति बनने से पहले आप उसका नाम चुनते हैं।",
+        "reset": "इस अंतर्निहित टेम्पलेट को उस सामग्री पर पुनर्स्थापित करें जिसके साथ Hugo आता है।",
+        "delete": "इस टेम्पलेट और इसके संस्करणों को हटाएँ। जिसमें भी यह शामिल था, वह अंतर्निहित डिफ़ॉल्ट पर लौट जाता है।",
+        "create": "टेम्पलेट और उसका पहला संस्करण बनाएँ।",
+        "save": "सामग्री को नए संस्करण के रूप में सहेजें। नई बातचीत और MCP सेशन इसे अपना लेते हैं।",
+        "changeNote": "संस्करण के साथ सहेजा गया एक छोटा नोट, जो बताता है कि क्या बदला और क्यों।",
+        "columns": {
+          "version": "संस्करण संख्या। अधिक संख्या नई है।",
+          "note": "संस्करण के साथ सहेजा गया बदलाव नोट।",
+          "author": "टेम्पलेट का यह संस्करण किसने सहेजा।",
+          "saved": "संस्करण कब सहेजा गया।"
+        },
+        "diff": "इस संस्करण की तुलना अभी एडिटर में मौजूद सामग्री से करें।",
+        "restore": "इस संस्करण को फिर से वर्तमान बनाएँ। वर्तमान सामग्री इतिहास में रहती है।"
+      },
+      "serverInfo": {
+        "rest": "REST API कॉल और SDK के लिए बेस पता।",
+        "mcp": "वह पता जिससे MCP क्लाइंट कनेक्ट होते हैं। टूल के रूप में उपलब्ध हर एजेंट वहाँ दिखाई देता है।",
+        "a2a": "इस टेनेंट के लिए A2A गेटवे का बेस पता। हर एजेंट का अपना कार्ड इसके नीचे होता है।",
+        "openapi": "वह OpenAPI दस्तावेज़ जो हर REST ऑपरेशन का वर्णन करता है।",
+        "version": "Hugo सर्वर का संस्करण।",
+        "dashboardVersion": "इस कंसोल का संस्करण।",
+        "node": "वह सर्वर इंस्टेंस जिसने इस पेज के सर्वर जानकारी अनुरोध का उत्तर दिया।",
+        "database": "सर्वर द्वारा उपयोग किया जाने वाला डेटाबेस इंजन।",
+        "health": "सर्वर हेल्थ चेक का परिणाम।",
+        "routes": "सर्वर ने कितने API ऑपरेशन पंजीकृत किए।",
+        "serverTime": "सर्वर की घड़ी। आपकी घड़ी से बड़ा अंतर हस्ताक्षरित अनुरोधों को विफल कर सकता है।",
+        "principalName": "वह पहचान जिसके रूप में आप साइन इन हैं।",
+        "principalType": "आपने उपयोगकर्ता के रूप में साइन इन किया या एक्सेस कुंजी से।",
+        "role": "आपका उच्चतम एक्सेस स्तर।",
+        "tenant": "वह टेनेंट जिससे आपका सेशन संबंधित है।",
+        "expires": "आपका सेशन कब समाप्त होता है और आपको फिर से साइन इन करना होगा।",
+        "rawJson": "कच्चा सर्वर जानकारी उत्तर दिखाएँ।",
+        "connectors": "सर्वर ने प्लगइन सहित कितने कनेक्टर प्रकार लोड किए।",
+        "openai": "OpenAI-संगत एंडपॉइंट का बेस URL; प्रोफ़ाइल नाम ही मॉडल ID हैं।"
+      },
+      "requests": {
+        "grafana": "Grafana में HTTP डैशबोर्ड नए टैब में खोलें: Prometheus मेट्रिक्स से समय के साथ अनुरोध दरें, लेटेंसी और त्रुटियाँ।",
+        "kpis": {
+          "total": "चुनी गई अवधि और फ़िल्टर के लिए सर्वर द्वारा अपने इतिहास में रखे गए अनुरोध।",
+          "success": "वे अनुरोध जिन्होंने 2xx या 3xx स्टेटस लौटाया।",
+          "failure": "वे अनुरोध जिन्होंने 4xx या 5xx स्टेटस लौटाया।",
+          "avgDuration": "सर्वर को उत्तर देने में लगा औसत समय।"
+        },
+        "columns": {
+          "time": "अनुरोध कब आया।",
+          "method": "अनुरोध का HTTP मेथड।",
+          "path": "कॉल किया गया पथ। पूरा देखने के लिए मान पर होवर करें।",
+          "status": "सर्वर द्वारा लौटाया गया HTTP स्टेटस।",
+          "duration": "सर्वर को उत्तर देने में कितना समय लगा।",
+          "principal": "अनुरोध किसने किया: एडमिनिस्ट्रेटर, उपयोगकर्ता या एक्सेस कुंजी।"
+        },
+        "viewDetails": "हेडर, बॉडी और टाइमिंग के साथ अनुरोध खोलें।",
+        "viewJson": "अनुरोध रिकॉर्ड खोलें, उसके कच्चे JSON सहित।",
+        "deleteOne": "इस अनुरोध को इतिहास से हटाएँ।",
+        "bulkDeleteAll": "वर्तमान फ़िल्टर से मेल खाने वाला हर अनुरोध हटाएँ, केवल यह पेज नहीं।"
+      },
+      "explorer": {
+        "operations": "क्षेत्र के अनुसार समूहित कोई API ऑपरेशन चुनें। नीचे का फ़ॉर्म उसके पैरामीटर के अनुसार ढल जाता है।",
+        "pathParam": "पथ पैरामीटर {{name}} ({{type}})। इसे URL में प्रतिस्थापित किया जाता है। {{description}}",
+        "queryParam": "क्वेरी पैरामीटर {{name}} ({{type}})। भरे जाने पर इसे URL में जोड़ा जाता है। {{description}}",
+        "copyUrl": "पूरी तरह से हल किया गया अनुरोध URL कॉपी करें।",
+        "headerName": "अनुरोध हेडर का नाम। Authorization आपके सेशन से आपके लिए जोड़ दिया जाता है।",
+        "headerValue": "इस हेडर के लिए भेजा जाने वाला मान।",
+        "removeHeader": "इस हेडर को अनुरोध से हटाएँ।",
+        "addHeader": "एक और अनुरोध हेडर जोड़ें।",
+        "body": "रिकॉर्ड बनाने या बदलने वाले ऑपरेशन के लिए JSON अनुरोध बॉडी।",
+        "execute": "अपने सेशन के साथ अनुरोध अभी सर्वर को भेजें। विनाशकारी मेथड पुष्टि माँगते हैं।",
+        "stop": "अनुरोध रद्द करें या स्ट्रीमिंग उत्तर पढ़ना बंद करें।",
+        "snippets": {
+          "curl": "वही अनुरोध टर्मिनल के लिए curl कमांड के रूप में।",
+          "fetch": "वही अनुरोध JavaScript fetch कोड के रूप में।",
+          "csharp": "वही अनुरोध C# HttpClient कोड के रूप में।"
+        },
+        "clearHistory": "इस ब्राउज़र में संग्रहीत हर हाल का अनुरोध भूल जाएँ।",
+        "loadHistory": "इस अनुरोध को फ़ॉर्म में वापस लोड करें।",
+        "deleteHistory": "इस प्रविष्टि को हाल के अनुरोधों की सूची से हटाएँ।",
+        "confirmExecute": "यह अनुरोध भेजें, भले ही यह डेटा बदल या हटा सकता है।"
+      },
+      "a2aExplorer": {
+        "profile": "जिस प्रोफ़ाइल से बात करनी है। केवल A2A एक्सपोज़र चालू वाली प्रोफ़ाइल उत्तर देती हैं।",
+        "fetchCard": "प्रोफ़ाइल का सार्वजनिक एजेंट कार्ड उसके well-known URL से डाउनलोड करें।",
+        "listTasks": "इस प्रोफ़ाइल पर आपके स्वामित्व वाले A2A कार्य सूचीबद्ध करें (टेनेंट एडमिनिस्ट्रेटर हर कार्य देखते हैं)।",
+        "message": "एजेंट को उपयोगकर्ता संदेश के रूप में भेजा जाने वाला टेक्स्ट।",
+        "stream": "अंतिम उत्तर की प्रतीक्षा करने के बजाय SendStreamingMessage का उपयोग करें और इवेंट आते ही दिखाएँ।",
+        "send": "अपने स्वयं के प्रिंसिपल के रूप में A2A JSON-RPC पर संदेश भेजें।",
+        "context": "एक ही संदर्भ के संदेश एक बातचीत को जारी रखते हैं। नए सिरे से शुरू करने के लिए प्रोफ़ाइल बदलें।",
+        "events": "हर स्ट्रीम किया गया इवेंट, जैसा सर्वर ने भेजा।"
+      },
+      "analytics": {
+        "profile": "हर चार्ट को एक एजेंट प्रोफ़ाइल तक सीमित करें, या पूरा टेनेंट दिखाएँ।",
+        "kpis": {
+          "turns": "अवधि में Hugo का अपना एजेंट लूप चलाने वाले चैट, A2A और OpenAI-संगत टर्न।",
+          "toolCalls": "अवधि में हर सतह से टूल कॉल, अस्वीकार और अस्वीकृत की गई कॉल सहित।",
+          "failures": "अवधि में Failed या TimedOut पर समाप्त हुई टूल कॉल।",
+          "tokens": "अवधि में Hugo की मॉडल कॉल द्वारा उपयोग किए गए इनपुट और आउटपुट टोकन।",
+          "approvals": "अवधि में अनुरोधित स्वीकृतियाँ, उनका परिणाम चाहे जो हो।",
+          "turnaround": "स्वीकृति अनुरोधित होने से लेकर किसी व्यक्ति के निर्णय लेने तक का माध्यिका समय।",
+          "approvalRate": "निर्णीत स्वीकृतियों में से कितनी अस्वीकृत होने के बजाय स्वीकृत हुईं।"
+        },
+        "columns": {
+          "connector": "वह कनेक्टर प्रकार जिस पर कॉल गईं।",
+          "calls": "अवधि में इस कनेक्टर को की गई टूल कॉल।",
+          "failures": "इस कनेक्टर को की गई कॉल जो विफल हुईं या जिनका समय समाप्त हुआ।",
+          "p95": "इस कनेक्टर को की गई 95 प्रतिशत कॉल इस समय के भीतर पूरी हुईं।"
+        }
+      },
+      "chat": {
+        "search": "अपनी बातचीत शीर्षक से खोजें।",
+        "profile": "जिस एजेंट प्रोफ़ाइल से बात करनी है। यह पर्सोना, मॉडल और एजेंट द्वारा उपयोग किए जा सकने वाले संसाधन तय करती है।",
+        "model": "वह इन्फ़रेंस मॉडल जिसे यह प्रोफ़ाइल अपने उत्तरों के लिए उपयोग करती है।",
+        "new": "चुनी गई प्रोफ़ाइल के साथ नई बातचीत शुरू करें।",
+        "export": "इस बातचीत को Markdown के रूप में डाउनलोड करें।",
+        "drawer": "संदर्भ पैनल दिखाएँ या छिपाएँ: प्रोफ़ाइल, बाउंड संसाधन, टोकन उपयोग और लंबित स्वीकृतियाँ।",
+        "goModels": "इन्फ़रेंस मॉडल जोड़ने के लिए मॉडल एंडपॉइंट खोलें।",
+        "goProfiles": "प्रोफ़ाइल बनाने या चुनने के लिए एजेंट प्रोफ़ाइल खोलें।"
+      },
+      "connectors": {
+        "search": "कनेक्टर को प्रकार, परिवार, नाम या विवरण से फ़िल्टर करें।",
+        "category": "कनेक्टर की केवल एक श्रेणी दिखाएँ, जैसे डेटाबेस या लॉग सेवाएँ।",
+        "card": "{{name}} खोलें: इसकी सेटिंग, सीक्रेट स्लॉट, टूल और डिफ़ॉल्ट निर्देश।",
+        "back": "कनेक्टर कैटलॉग पर वापस जाएँ।",
+        "addResource": "कनेक्टर का उपयोग करने वाला संसाधन जोड़ने के लिए संसाधन खोलें।",
+        "editInstructions": "इस कनेक्टर के निर्देश टेम्पलेट पर फ़िल्टर किए गए प्रॉम्प्ट टेम्पलेट खोलें।",
+        "tabs": {
+          "overview": "प्रकार, परिवार, श्रेणी, संस्करण, और इस कनेक्टर को आवश्यक सीक्रेट स्लॉट।",
+          "settings": "इस प्रकार के संसाधन को मिलने वाला सेटिंग फ़ॉर्म, और हर सेटिंग की संदर्भ तालिका।",
+          "tools": "इस कनेक्टर द्वारा दिया गया हर टूल, उसके मूल प्रभाव के साथ।",
+          "instructions": "वे निर्देश जो इस प्रकार का हर संसाधन एजेंट के लिए जोड़ता है।"
+        },
+        "columns": {
+          "key": "सेटिंग कुंजी, जैसी संसाधन पर संग्रहीत है और API द्वारा स्वीकार की जाती है।",
+          "kind": "मान का प्रकार: टेक्स्ट, लंबा टेक्स्ट, पूर्ण संख्या, सत्य या असत्य, सूची, या किसी समूह में से एक।",
+          "required": "क्या किसी संसाधन को इस सेटिंग के लिए मान सेट करना आवश्यक है।",
+          "default": "वह मान जो तब उपयोग होता है जब कोई संसाधन सेटिंग खाली छोड़ता है।",
+          "range": "अनुमत मान या संख्याओं के लिए न्यूनतम और अधिकतम।",
+          "group": "संसाधन फ़ॉर्म का वह अनुभाग जिसमें सेटिंग दिखाई देती है।"
+        }
+      },
+      "mcpExplorer": {
+        "profile": "/mcp/{profile} से कनेक्ट करें, या सर्वर को क्रेडेंशियल या डिफ़ॉल्ट से आपकी प्रोफ़ाइल निर्धारित करने दें।",
+        "connect": "initialize चलाएँ, फिर वे टूल सूचीबद्ध करें जो यह कॉलर देख सकता है।",
+        "session": "सर्वर द्वारा निर्दिष्ट MCP सेशन। इस एक्सप्लोरर का हर अनुरोध इसका पुन: उपयोग करता है।",
+        "instructions": "initialize से सर्वर द्वारा लौटाए गए संकलित निर्देश, जैसे कोई MCP क्लाइंट उन्हें प्राप्त करता है।",
+        "call": "चुने गए टूल को इन आर्ग्युमेंट के साथ पूरी सुरक्षा पाइपलाइन से कॉल करें।",
+        "log": "सर्वर के साथ आदान-प्रदान किया गया हर JSON-RPC अनुरोध और उत्तर, क्रम से।"
+      },
+      "profile": {
+        "back": "एजेंट प्रोफ़ाइल की सूची पर वापस जाएँ।",
+        "chat": "इस प्रोफ़ाइल से बात करने के लिए चैट खोलें।",
+        "tabs": {
+          "general": "पर्सोना, यह उपयोगकर्ता को कैसे संबोधित करता है, मॉडल, सीमाएँ, और कौन सी सतहें इस प्रोफ़ाइल को उपलब्ध कराती हैं।",
+          "bindings": "इस प्रोफ़ाइल से जुड़े संसाधन, प्रत्येक एक उपनाम और एक्सेस मोड के साथ।",
+          "instructions": "कॉलर को मिलने वाले संकलित निर्देश, साथ में यह कि प्रत्येक अनुभाग कहाँ से आता है।",
+          "tools": "एक्सेस मोड और टूल नियमों के बाद इस प्रोफ़ाइल के कॉलर को दिखने वाले टूल।",
+          "connect": "Claude Code, अन्य MCP क्लाइंट, A2A एजेंट और OpenAI-संगत क्लाइंट कनेक्ट करने के लिए स्निपेट।"
+        },
+        "bindings": {
+          "add": "उपनाम और एक्सेस मोड के साथ इस प्रोफ़ाइल से कोई संसाधन जोड़ें।",
+          "goResources": "वे सिस्टम जोड़ने के लिए संसाधन खोलें जिन तक इस प्रोफ़ाइल को पहुँचना चाहिए।",
+          "columns": {
+            "alias": "वह नाम जिसे एजेंट टूल कॉल में संसाधन के लिए उपयोग करता है।",
+            "resource": "वह संसाधन जिसे यह बाइंडिंग जोड़ती है।",
+            "accessMode": "एजेंट संसाधन के साथ क्या कर सकता है: केवल पढ़ना, स्वीकृति के साथ पढ़ना और लिखना, या पढ़ना और लिखना।",
+            "approval": "क्या इस बाइंडिंग पर कुछ कॉल किसी व्यक्ति की प्रतीक्षा करती हैं।",
+            "enabled": "अक्षम बाइंडिंग एजेंट से छिपी रहती हैं।"
+          }
+        },
+        "toolRules": {
+          "open": "इस बाइंडिंग पर अलग-अलग टूल के लिए अनुमति दें, अस्वीकार करें या स्वीकृति आवश्यक करें।",
+          "rule": "अनुमति दें टूल को एक्सेस मोड के तहत चलने देता है; अस्वीकार करें इसे छिपाता है; स्वीकृति आवश्यक हमेशा किसी व्यक्ति से पूछता है।",
+          "save": "ये टूल नियम सहेजें। ये नई कॉल पर तुरंत लागू होते हैं।"
+        },
+        "instructions": {
+          "surface": "निर्देश प्रति सतह थोड़े भिन्न होते हैं (चैट, MCP, A2A, OpenAI, REST)। पूर्वावलोकन के लिए एक चुनें।",
+          "section": "संकलित निर्देशों का एक अनुभाग और वह टेम्पलेट परत जिससे यह आया।"
+        },
+        "tools": {
+          "name": "वह टूल नाम जिसे कॉलर उपयोग करता है, आमतौर पर family_operation जैसे sql_query।",
+          "effect": "मूल प्रभाव: पढ़ना, लिखना या विनाशकारी। कुछ टूल प्रति कॉल वर्गीकृत होते हैं।",
+          "description": "टूल क्या करता है, जैसा कॉलर का मॉडल इसे देखता है।"
+        },
+        "connect": {
+          "copyCard": "किसी अन्य A2A एजेंट द्वारा इस प्रोफ़ाइल को खोजने के लिए एजेंट कार्ड URL कॉपी करें।",
+          "copyOpenai": "OpenAI-संगत बेस URL कॉपी करें।",
+          "credential": "इस प्रोफ़ाइल से बाउंड एक्सेस कुंजी बनाने के लिए क्रेडेंशियल खोलें।"
+        }
+      },
+      "resources": {
+        "form": {
+          "test": "कुछ भी सहेजने से पहले इस फ़ॉर्म की सेटिंग और सीक्रेट को वास्तविक सिस्टम पर जाँचें।"
+        },
+        "tryTool": {
+          "profile": "जिस प्रोफ़ाइल के रूप में कार्य करना है। इसकी बाइंडिंग कॉल के लिए एक्सेस मोड और स्वीकृतियाँ तय करती है।",
+          "tool": "एक टूल जिसे प्रोफ़ाइल इस संसाधन के लिए उपलब्ध कराती है।",
+          "arguments": "JSON के रूप में टूल आर्ग्युमेंट। resource आर्ग्युमेंट बाइंडिंग उपनाम बताता है।",
+          "dryRun": "कॉल को चलाए बिना वर्गीकृत करें (प्रभाव, निर्णय, एक्सेस मोड)।",
+          "execute": "कॉल को पूरी पाइपलाइन से चलाएँ। जोखिम भरी कॉल किसी भी अन्य की तरह स्वीकृति की प्रतीक्षा करती हैं।"
+        }
+      },
+      "secrets": {
+        "reveal": {
+          "reason": "आपको यह सीक्रेट देखने की आवश्यकता क्यों है। प्रकटीकरण के साथ ऑडिट ट्रेल में सहेजा जाता है।",
+          "submit": "सर्वर से प्लेनटेक्स्ट मान माँगें। Reveal अनुमति आवश्यक है और ऑडिट किया जाता है।",
+          "password": "आपके खाते का पासवर्ड, सीक्रेट दिखाने से पहले यह पुष्टि करने के लिए कि यह वास्तव में आप हैं।",
+          "reauth": "इस सेशन को अपने पासवर्ड से फिर से प्रमाणित करें, फिर सीक्रेट प्रकट करें।",
+          "copy": "यह मान क्लिपबोर्ड पर कॉपी करें। छिपने के बाद यह फिर से नहीं दिखाया जाता।",
+          "again": "मान फिर से प्रकट करें। इसे नए प्रकटीकरण के रूप में ऑडिट किया जाता है।"
+        }
+      },
+      "settings": {
+        "applyLive": "सहेजते ही तुरंत लागू होता है।",
+        "applyRestart": "सर्वर रीस्टार्ट होने के बाद प्रभावी होता है।",
+        "fieldGeneric": "सर्वर सेटिंग {{path}}।",
+        "groupGeneric": "{{group}} समूह की सेटिंग।",
+        "restart": "Hugo सर्वर को रीस्टार्ट करें ताकि रीस्टार्ट-आवश्यक सेटिंग प्रभावी हों। कंटेनर इसे स्वचालित रूप से रीस्टार्ट करता है।",
+        "save": "हर बदली गई सेटिंग सहेजें। लाइव सेटिंग तुरंत लागू होती हैं; अन्य रीस्टार्ट की प्रतीक्षा करती हैं।",
+        "settingPath": "सेटिंग पथ: {{path}}। इस नाम का उपयोग hugo.json और सेटिंग REST API में करें।",
+        "sourceGeneric": "वर्तमान मान कहाँ से आता है।",
+        "testDatabase": "ऊपर दी गई डेटाबेस सेटिंग सहेजने से पहले उनसे कनेक्ट करके देखें।",
+        "viewJson": "कच्चा सेटिंग उत्तर दिखाएँ।",
+        "groups": {
+          "Rest": "सर्वर कहाँ सुनता है और प्रॉक्सी के पीछे सहित बाहर से उस तक कैसे पहुँचा जाता है।",
+          "Database": "Hugo अपना डेटा किस डेटाबेस में संग्रहीत करता है: SQLite या PostgreSQL।",
+          "Logging": "सर्वर प्रोसेस के लिए कंसोल और फ़ाइल लॉगिंग।",
+          "Auth": "सेशन अवधि, टोकन हस्ताक्षर और साइन-इन दर सीमाएँ।",
+          "Secrets": "सीक्रेट वॉल्ट: मास्टर कुंजी स्रोत और प्रकटीकरण के लिए पुनः प्रमाणीकरण अवधि।",
+          "RequestHistory": "क्या API अनुरोध दर्ज किए जाते हैं, प्रत्येक बॉडी का कितना भाग रखा जाता है, और कितने समय तक।",
+          "Audit": "सुरक्षा इवेंट कितने समय तक रखे जाते हैं और सफल साइन-इन का कितनी बार नमूना लिया जाता है।",
+          "Telemetry": "बंडल किए गए Tempo और Prometheus में निर्यात किए गए ट्रेस और मेट्रिक्स।",
+          "Agent": "चैट, A2A और OpenAI क्लाइंट के लिए Hugo के अपने एजेंट लूप की सीमाएँ और व्यवहार।",
+          "Approvals": "स्वीकृतियाँ कितनी देर प्रतीक्षा करती हैं, MCP कॉल उन पर कितनी देर रुकी रहती हैं, और क्या स्व-स्वीकृति की अनुमति है।",
+          "Connectors": "प्लगइन, टूल टाइमआउट और संसाधनों का बैकग्राउंड हेल्थ स्वीप।",
+          "Models": "मॉडल एंडपॉइंट की हेल्थ चेक कितनी बार की जाती है।",
+          "Mcp": "MCP एंडपॉइंट: चालू या बंद, सेशन टाइमआउट और संदेश आकार।",
+          "A2A": "क्या प्रोफ़ाइल तक A2A पर पहुँचा जा सकता है।",
+          "OpenAI": "क्या OpenAI-संगत एंडपॉइंट चालू है।",
+          "Embeddings": "वेक्टर कैसे संग्रहीत और खोजे जाते हैं, PostgreSQL पर pgvector सहित।"
+        },
+        "source": {
+          "File": "वर्तमान में hugo.json में सेट है। यहाँ सहेजने से फ़ाइल अपडेट होती है।",
+          "Environment": "एक एनवायरनमेंट वेरिएबल द्वारा सेट, जो यहाँ सहेजे गए किसी भी मान पर प्रभावी रहता है।",
+          "Database": "डेटाबेस में संग्रहीत।"
+        }
+      }
+    },
+    "export": {
+      "menu": "{{name}} डाउनलोड करें: डेटा CSV या JSON के रूप में, या चार्ट को उसके शीर्षक, लेजेंड, फ़िल्टर और समय अवधि के साथ PNG या SVG छवि के रूप में।",
+      "csv": "इस दृश्य के पीछे का सटीक डेटा CSV के रूप में डाउनलोड करें: प्रति खंड या रिकॉर्ड एक पंक्ति, ISO 8601 UTC टाइमस्टैम्प, और सादी दशमलव-बिंदु संख्याएँ।",
+      "png": "चार्ट को स्क्रीन रिज़ॉल्यूशन से दोगुने पर PNG छवि के रूप में डाउनलोड करें, शीर्षक, लेजेंड, सक्रिय फ़िल्टर और समय अवधि के साथ।",
+      "svg": "चार्ट को स्केलेबल SVG छवि के रूप में डाउनलोड करें, शीर्षक, लेजेंड, सक्रिय फ़िल्टर और समय अवधि के साथ।",
+      "json": "डेटा को JSON के रूप में डाउनलोड करें, सीरीज़, खंडों, फ़िल्टर और समय अवधि के साथ एक ही दस्तावेज़ में।"
+    },
+    "analytics": {
+      "dataTable": "इस चार्ट के पीछे की संख्याएँ तालिका के रूप में दिखाएँ, प्रति समय-खंड एक पंक्ति।",
+      "bucketStart": "समय-खंड का प्रारंभ। प्रत्येक पंक्ति एक खंड को कवर करती है।"
+    },
+    "approvalCard": {
+      "approve": "इस कॉल को अभी चलने दें। निर्णय और आपका नोट ऑडिट ट्रेल में दर्ज किए जाते हैं।",
+      "reject": "इस कॉल को अस्वीकार करें। एजेंट को बताया जाता है कि कार्रवाई अस्वीकार कर दी गई और वह इसके बिना जारी रखता है।",
+      "note": "आपके निर्णय के साथ सहेजा गया वैकल्पिक नोट, उदाहरण के लिए आपने रीस्टार्ट को क्यों स्वीकृत किया।"
+    },
+    "chat": {
+      "input": "Agent Smith के लिए संदेश टाइप करें। Enter भेजता है; Shift+Enter नई पंक्ति शुरू करता है। ड्राफ़्ट प्रति बातचीत रखे जाते हैं।",
+      "send": "संदेश भेजें और उत्तर स्ट्रीम करें, Agent Smith द्वारा की गई किसी भी टूल कॉल सहित।",
+      "stop": "उत्तर अभी रोकें। पहले से चल रही टूल कॉल रद्द कर दी जाती हैं और आंशिक उत्तर रखा जाता है।",
+      "thinking": "इस उत्तर के लिए मॉडल का तर्क, जब मॉडल इसे साझा करता है। डिफ़ॉल्ट रूप से संक्षिप्त।",
+      "ttft": "पहले टोकन तक का समय: संदेश भेजने से लेकर उत्तर का पहला भाग आने तक।",
+      "duration": "पूरे टर्न में कितना समय लगा, टूल कॉल और स्वीकृतियों की प्रतीक्षा सहित।",
+      "tokens": "मॉडल द्वारा उपयोग किए गए इनपुट और आउटपुट टोकन, जैसा प्रदाता ने बताया।"
+    },
+    "errors": {
+      "status": "वह HTTP स्टेटस कोड जिसके साथ सर्वर ने उत्तर दिया।",
+      "requestId": "इस अनुरोध के लिए सर्वर की ID। अनुरोध इतिहास या सर्वर लॉग में इसे खोजें।",
+      "copyRequestId": "अनुरोध ID कॉपी करें, उदाहरण के लिए इसे बग रिपोर्ट में शामिल करने के लिए।",
+      "traceId": "डिस्ट्रिब्यूटेड ट्रेस ID। इसके साथ Grafana के माध्यम से Tempo में पूरा अनुरोध खोजें।"
+    },
+    "nav": {
+      "approvalsBadge_one": "{{count}} टूल कॉल किसी व्यक्ति द्वारा स्वीकृत या अस्वीकृत किए जाने की प्रतीक्षा कर रही है। निर्णय लेने के लिए स्वीकृतियाँ खोलें।",
+      "approvalsBadge_other": "{{count}} टूल कॉल किसी व्यक्ति द्वारा स्वीकृत या अस्वीकृत किए जाने की प्रतीक्षा कर रही हैं। निर्णय लेने के लिए स्वीकृतियाँ खोलें।",
+      "setup": "सेटअप विज़ार्ड खोलें: एक मॉडल कनेक्ट करें, पहला संसाधन जोड़ें, उसे Hugo प्रोफ़ाइल से बाइंड करें, और Claude Code कनेक्ट करें।",
+      "skipToContent": "नेविगेशन को छोड़कर सीधे इस पेज की मुख्य सामग्री पर जाएँ। मुख्यतः कीबोर्ड उपयोगकर्ताओं के लिए उपयोगी।",
+      "tour": "छोटा निर्देशित टूर फिर से चलाएँ जो नेविगेशन, संदर्भ और हर चीज़ के स्थान की ओर इशारा करता है।",
+      "environment": {
+        "local": "डैशबोर्ड इसी मशीन पर (लूपबैक पते पर) एक Hugo सर्वर से बात कर रहा है।",
+        "remote": "डैशबोर्ड किसी अन्य होस्ट पर एक Hugo सर्वर से बात कर रहा है। यहाँ किए गए बदलाव उस सर्वर को प्रभावित करते हैं।"
+      },
+      "subtabs": {
+        "roles": "भूमिकाएँ अनुमतियों को एक नाम के तहत समूहित करती हैं, जैसे Operator या Builder। किसी को उसकी सभी अनुमतियाँ देने के लिए भूमिका असाइन करें।",
+        "permissions": "अलग-अलग नियम जो संसाधन प्रकारों पर ऑपरेशन की अनुमति देते हैं या उन्हें अस्वीकार करते हैं। भूमिकाएँ इन्हीं से बनती हैं; अस्वीकार हमेशा प्रभावी रहता है।",
+        "userAssignments": "ईमेल और पासवर्ड से साइन इन करने वाले लोगों को भूमिकाएँ प्रदान करें, पूरे टेनेंट में या किसी एक संसाधन पर।",
+        "credentialAssignments": "हार्नेस और ऑटोमेशन द्वारा उपयोग की जाने वाली एक्सेस कुंजियों को भूमिकाएँ प्रदान करें। कुंजियों को उनके स्वामियों से सीमित रखें।"
+      },
+      "hubs": {
+        "home": "कमांड सेंटर खोलें: KPI, अनुरोध गतिविधि, हाल की विफलताएँ, अस्वस्थ संसाधन और सामान्य वर्कफ़्लो।",
+        "chat": "अपने स्टैक के बारे में Agent Smith से बात करें। टूल कॉल इनलाइन दिखती हैं, और जोखिम भरी कॉल आपकी स्वीकृति की प्रतीक्षा करती हैं।",
+        "profiles": "एजेंट प्रोफ़ाइल बनाएँ और एक्सेस मोड के साथ उनसे संसाधन बाइंड करें; हर सतह किसी प्रोफ़ाइल से बात करती है।",
+        "approvals": "किसी भी सतह से आई, किसी व्यक्ति की प्रतीक्षा कर रही लिखने और विनाशकारी टूल कॉल पर निर्णय लें।",
+        "conversations": "चैट, A2A, MCP और OpenAI-संगत क्लाइंट से टेनेंट भर की बातचीत की समीक्षा करें।",
+        "resources": "SSH होस्ट, बकेट, डेटाबेस, लॉग सेवाओं और अन्य सिस्टम के कनेक्शन जोड़ें और जाँचें।",
+        "secrets": "पासवर्ड, कुंजियाँ और टोकन एन्क्रिप्ट करके संग्रहीत करें। संसाधन और मॉडल एंडपॉइंट इन्हें स्लॉट द्वारा उपयोग करते हैं।",
+        "connectors": "Hugo द्वारा समर्थित सेवा परिवार, उनके टूल और प्रभाव, और उनके डिफ़ॉल्ट निर्देश ब्राउज़ करें।",
+        "models": "वे इन्फ़रेंस और एम्बेडिंग मॉडल जोड़ें जिन्हें Hugo का अपना एजेंट लूप चैट, A2A और OpenAI क्लाइंट के लिए उपयोग करता है।",
+        "prompts": "प्रति परत (अंतर्निहित, वैश्विक, टेनेंट) निर्देश टेम्पलेट संपादित करें, पूर्वावलोकन, संस्करण और रीसेट के साथ।",
+        "knowledge": "नोट के माध्यम से Hugo को अपने स्टैक के बारे में सिखाएँ, जिन्हें वह बातचीत के दौरान संदर्भ में पुनर्प्राप्त करता है।",
+        "toolInvocations": "हर सतह से हर टूल कॉल, उसके प्रभाव, निर्णय, परिणाम और ट्रेस लिंक के साथ।",
+        "requests": "सर्वर द्वारा संभाले गए हर API अनुरोध की जाँच करें, हेडर, बॉडी, टाइमिंग और स्टेटस के साथ।",
+        "analytics": "टोकन उपयोग, प्रभाव और कनेक्टर के अनुसार टूल कॉल, मॉडल लेटेंसी और स्वीकृति में लगे समय को समझें।",
+        "audit": "साइन-इन, अस्वीकृतियाँ, सीक्रेट प्रकटीकरण और कॉन्फ़िगरेशन बदलाव जैसे सुरक्षा इवेंट की समीक्षा करें।",
+        "explorer": "सर्वर के लाइव OpenAPI दस्तावेज़ से कोई भी REST रूट आज़माएँ, जनरेट किए गए कोड स्निपेट के साथ।",
+        "mcpExplorer": "निर्देश और टूल देखने तथा टूल कॉल करने के लिए स्वयं के रूप में MCP एंडपॉइंट से कनेक्ट करें।",
+        "a2aExplorer": "किसी प्रोफ़ाइल का एजेंट कार्ड प्राप्त करें और उसे A2A JSON-RPC पर संदेश भेजें।",
+        "tenants": "इस सर्वर पर पृथक टेनेंट बनाएँ और प्रबंधित करें। केवल सिस्टम एडमिनिस्ट्रेटर यह पेज देखते हैं।",
+        "users": "इस टेनेंट में साइन इन करने वाले लोगों को प्रबंधित करें, पासवर्ड रीसेट करें और प्रभावी अनुमतियाँ देखें।",
+        "credentials": "हार्नेस और SDK के लिए एक्सेस कुंजियाँ बनाएँ, उन्हें किसी प्रोफ़ाइल से बाइंड करें और रोटेट करें।",
+        "rbac": "इस टेनेंट में भूमिकाएँ, उनमें शामिल अनुमतियाँ, और उन्हें धारण करने वालों को प्रबंधित करें।",
+        "sessions": "टेनेंट में हर सक्रिय सेशन और टोकन देखें, और उनमें से किसी को भी रद्द करें।",
+        "settings": "सर्वर सेटिंग फ़ाइल संपादित करें, सर्वर रीस्टार्ट करें और सर्वर जानकारी देखें।",
+        "plugins": "कनेक्टर प्लगइन सक्षम या अक्षम करें और लोड त्रुटियाँ देखें। केवल सिस्टम एडमिनिस्ट्रेटर यह पेज देखते हैं।"
+      },
+      "tabs": {
+        "roles": "भूमिकाएँ और उनमें शामिल अनुमतियाँ। अनुकूलित करने के लिए किसी अंतर्निहित भूमिका को क्लोन करें।",
+        "assignments": "कौन सी भूमिका किसके पास है: उपयोगकर्ता और क्रेडेंशियल, पूरे टेनेंट में या किसी एक संसाधन पर।",
+        "settings": "सत्यापन, लाइव बनाम रीस्टार्ट बैज, और सर्वर रीस्टार्ट के साथ सर्वर सेटिंग फ़ाइल संपादित करें।",
+        "serverInfo": "कॉपी करने योग्य एंडपॉइंट, सर्वर और डैशबोर्ड संस्करण, सुविधाएँ और आपकी पहचान।"
+      }
+    },
+    "passwordChange": {
+      "current": "वह पासवर्ड जिससे आपने साइन इन किया: पहले से बनाया गया पासवर्ड या जो किसी एडमिनिस्ट्रेटर ने आपके लिए सेट किया।",
+      "new": "आपका नया पासवर्ड। लंबा पासफ़्रेज़ उपयोग करें; सर्वर अधिक नियम लागू कर सकता है।",
+      "confirm": "नया पासवर्ड फिर से टाइप करें ताकि किसी टाइपो के कारण आप लॉक आउट न हों।",
+      "submit": "नया पासवर्ड सहेजें और डैशबोर्ड पर जारी रखें।"
+    },
+    "promptEditor": {
+      "content": "टेम्पलेट टेक्स्ट। निर्देश संकलित होते समय दोहरे ब्रेसेस में दिए गए वेरिएबल भरे जाते हैं।",
+      "insert": "कर्सर पर {{variable}} डालें।",
+      "preview": "एजेंट क्या पढ़ेगा यह देखने के लिए नमूना संदर्भ के साथ टेक्स्ट रेंडर करें।",
+      "diff": "इस टेक्स्ट की तुलना सहेजे गए या डिफ़ॉल्ट संस्करण से, पंक्ति दर पंक्ति, करें।",
+      "sampleContext": "पूर्वावलोकन के लिए उपयोग किए गए उदाहरण मान। अलग पर्सोना, संसाधन या एक्सेस मोड आज़माने के लिए इन्हें संपादित करें।",
+      "serverRender": "सर्वर ने यह पूर्वावलोकन उसी रेंडरर से रेंडर किया जिसका उपयोग वह वास्तविक निर्देशों के लिए करता है।",
+      "localRender": "सर्वर का पूर्वावलोकन रूट उपलब्ध नहीं है, इसलिए ब्राउज़र ने एक अनुमानित रूप रेंडर किया।"
+    },
+    "schemaForm": {
+      "setting": "कनेक्टर सेटिंग {{label}}। संसाधन सहेजे या जाँचे जाने पर कनेक्टर इसे सत्यापित करता है।"
+    },
+    "secretField": {
+      "slot": "वह सीक्रेट जिसे यह कनेक्टर {{slot}} के लिए पढ़ता है। केवल स्वीकृत प्रकार के सीक्रेट सूचीबद्ध हैं।",
+      "createInline": "यह फ़ॉर्म छोड़े बिना नया सीक्रेट बनाएँ। इसे एन्क्रिप्ट करके इस स्लॉट के लिए चुना जाता है।",
+      "saveInline": "नए सीक्रेट को एन्क्रिप्ट करके संग्रहीत करें, फिर इसे इस स्लॉट के लिए चुनें।",
+      "import": "अपने कंप्यूटर से कोई कुंजी, प्रमाणपत्र, kubeconfig या JSON फ़ाइल इस फ़ील्ड में पढ़ें। यह केवल सहेजने पर भेजी जाती है।",
+      "fields": {
+        "username": "साइन इन करने के लिए खाता नाम। सीक्रेट नहीं है, पर पासवर्ड के साथ संग्रहीत होता है।",
+        "password": "पासवर्ड। एन्क्रिप्ट करके संग्रहीत और एजेंट को कभी नहीं दिखाया जाता।",
+        "privateKey": "PEM या OpenSSH फ़ॉर्मेट में एक निजी कुंजी। कुंजी फ़ाइल यहाँ छोड़ें या उसे आयात करें।",
+        "passphrase": "निजी कुंजी की सुरक्षा करने वाला पासफ़्रेज़, यदि उसमें हो।",
+        "token": "सेवा द्वारा जारी API टोकन या बेयरर टोकन।",
+        "accessKeyId": "एक्सेस कुंजी ID, उदाहरण के लिए AWS पर AKIA के बाद अक्षर और अंक।",
+        "secretAccessKey": "एक्सेस कुंजी जोड़ी का सीक्रेट भाग। एन्क्रिप्ट करके संग्रहीत।",
+        "sessionToken": "अस्थायी क्रेडेंशियल के लिए वैकल्पिक सेशन टोकन।",
+        "json": "पूरी सेवा खाता कुंजी फ़ाइल JSON के रूप में, उदाहरण के लिए Google Cloud से।",
+        "kubeconfig": "उपयोग किए जाने वाले क्लस्टर, उपयोगकर्ता और संदर्भ वाली kubeconfig फ़ाइल।",
+        "connectionString": "क्रेडेंशियल सहित पूर्ण कनेक्शन स्ट्रिंग, उदाहरण के लिए SQL Server या Redis के लिए।",
+        "certificate": "PEM फ़ॉर्मेट में प्रमाणपत्र। स्वयं में सीक्रेट नहीं, पर अपनी कुंजी के साथ रखा जाता है।",
+        "value": "एक ही अपारदर्शी सीक्रेट लेने वाले कनेक्टर के लिए कोई भी सीक्रेट मान।"
+      }
+    },
+    "toolActivity": {
+      "toggle": "इस टूल कॉल के आर्ग्युमेंट और आउटपुट दिखाएँ या छिपाएँ।",
+      "resource": "वह संसाधन उपनाम जिस पर कॉल चली, जैसा प्रोफ़ाइल पर बाउंड है।",
+      "status": "कॉल किस स्थिति में है: प्रस्तावित, चल रही, स्वीकृति की प्रतीक्षा में, या पूर्ण।",
+      "duration": "सर्वर पर कॉल में शुरू से परिणाम तक कितना समय लगा।"
+    },
+    "tour": {
+      "skip": "टूर अभी समाप्त करें। आप इसे साइडबार से फिर से चला सकते हैं।",
+      "back": "टूर का पिछला पड़ाव दिखाएँ।",
+      "next": "टूर के अगले पड़ाव पर जाएँ।",
+      "done": "टूर पूरा करें। आप इसे साइडबार से फिर से चला सकते हैं।"
+    },
+    "wizard": {
+      "skip": "विज़ार्ड बंद करें और इस टेनेंट के लिए इसे फिर से पेश न करें। आप इसे साइडबार से फिर से खोल सकते हैं।",
+      "back": "विज़ार्ड के पिछले चरण पर वापस जाएँ।",
+      "start": "सेटअप शुरू करें: एक मॉडल कनेक्ट करें, संसाधन जोड़ें, उसे बाइंड करें और एक क्लाइंट कनेक्ट करें।",
+      "skipStep": "यह चरण पूरा किए बिना जारी रखें। आप इसे बाद में संबंधित पेज से कर सकते हैं।",
+      "saveModel": "मॉडल एंडपॉइंट बनाएँ (और यदि आपने API कुंजी दर्ज की है तो उसका सीक्रेट भी) और आगे बढ़ें।",
+      "saveResource": "इन सेटिंग और इसके सीक्रेट के साथ संसाधन बनाएँ, फिर उसे बाइंड करने के लिए आगे बढ़ें।",
+      "bind": "चुने गए एक्सेस मोड के साथ नए संसाधन को डिफ़ॉल्ट Hugo प्रोफ़ाइल से बाइंड करें।",
+      "finish": "इस टेनेंट के लिए विज़ार्ड बंद करें और Agent Smith से बात करने के लिए चैट खोलें।"
+    }
+  },
+  "explainers": {
+    "promptTemplates": {
+      "title": "प्रॉम्प्ट टेम्पलेट और उनकी परतें",
+      "p1": "Hugo किसी एजेंट को जो भी निर्देश देता है, वह एक टेम्पलेट है: Agent Smith पर्सोना, सुरक्षा नियम, और प्रत्येक कनेक्टर के निर्देश। टेम्पलेट {{persona.name}} और {{resource.alias}} जैसे वेरिएबल का उपयोग करते हैं, और हर बार सहेजने पर एक नया संस्करण बनता है।",
+      "p2": "टेम्पलेट परतों में होते हैं: अंतर्निहित टेक्स्ट Hugo के साथ आता है, एक वैश्विक डिफ़ॉल्ट इसे हर टेनेंट के लिए ओवरराइड कर सकता है, और एक टेनेंट उसे ओवरराइड कर सकता है। डिफ़ॉल्ट पर रीसेट करें एक ओवरराइड हटाता है और एक परत पीछे लौट जाता है।"
+    },
+    "tenants": {
+      "title": "टेनेंट",
+      "p1": "टेनेंट इस सर्वर पर एक पृथक संगठन है। उपयोगकर्ता, एक्सेस कुंजियाँ, संसाधन, सीक्रेट, प्रोफ़ाइल और बातचीत सभी एक टेनेंट से संबंधित होते हैं, और टेनेंट के बीच कुछ भी दिखाई नहीं देता।"
+    },
+    "users": {
+      "title": "उपयोगकर्ता और क्रेडेंशियल",
+      "p1": "उपयोगकर्ता वह व्यक्ति है जो ईमेल और पासवर्ड से साइन इन करता है। क्रेडेंशियल (एक्सेस कुंजी) वह तरीका है जिससे ऑटोमेशन साइन इन करता है। हर एक्सेस कुंजी किसी उपयोगकर्ता की होती है और उस उपयोगकर्ता से अधिक कभी नहीं कर सकती।",
+      "p2": "केवल मौजूद होने से किसी को भी एक्सेस नहीं मिलती। एक्सेस उपयोगकर्ता पर एडमिनिस्ट्रेटर फ़्लैग और भूमिका असाइनमेंट से मिलती है।"
+    },
+    "credentials": {
+      "title": "क्रेडेंशियल और उपयोगकर्ता",
+      "p1": "क्रेडेंशियल स्क्रिप्ट, SDK और सेवाओं के लिए एक्सेस कुंजी और सीक्रेट कुंजी की जोड़ी है। यह किसी उपयोगकर्ता का होता है। इसकी प्रभावी अनुमतियाँ उसके अपने भूमिका असाइनमेंट द्वारा प्रदान की गई अनुमतियों और उसके स्वामी की अनुमतियों का साझा भाग होती हैं।",
+      "p2": "सीक्रेट कुंजी एक बार दिखाई जाती है, जब कुंजी बनाई या रोटेट की जाती है। कुंजियों को नियमित रूप से रोटेट करें और लंबे समय से अप्रयुक्त कुंजियों को हटाएँ।"
+    },
+    "roles": {
+      "title": "भूमिकाएँ, अनुमतियाँ और असाइनमेंट",
+      "p1": "अनुमति एक एकल नियम है: कुछ संसाधन प्रकारों (जैसे संसाधन, सीक्रेट या एजेंट प्रोफ़ाइल) पर कुछ ऑपरेशन (जैसे पढ़ना, निष्पादित करना या प्रकट करना) की अनुमति देना या अस्वीकार करना। भूमिका अनुमतियों का एक नामित समूह है। अस्वीकार हमेशा अनुमति पर प्रभावी रहता है।",
+      "p2": "जब तक कोई भूमिका असाइन नहीं की जाती, किसी के लिए कुछ नहीं बदलता। अगले टैब पर असाइनमेंट किसी भूमिका को उपयोगकर्ता या एक्सेस कुंजी से जोड़ते हैं, पूरे टेनेंट के लिए या एक रिकॉर्ड के लिए।"
+    },
+    "assignments": {
+      "title": "असाइनमेंट",
+      "p1": "असाइनमेंट एक उपयोगकर्ता या एक्सेस कुंजी को एक भूमिका प्रदान करता है। टेनेंट स्कोप भूमिका को कवर किए गए प्रकारों के हर रिकॉर्ड पर लागू करता है; संसाधन स्कोप इसे एक रिकॉर्ड पर लागू करता है, जैसे वह एक एजेंट प्रोफ़ाइल जिसे कोई हार्नेस उपयोग कर सकता है।",
+      "p2": "किसी उपयोगकर्ता या क्रेडेंशियल के सभी असाइनमेंट का संयुक्त परिणाम देखने के लिए उस पर प्रभावी अनुमतियाँ का उपयोग करें।"
+    },
+    "audit": {
+      "title": "ऑडिट और अनुरोध इतिहास",
+      "p1": "ऑडिट रिकॉर्ड सुरक्षा और कॉन्फ़िगरेशन इवेंट हैं: साइन-इन, अस्वीकृत अनुरोध, सीक्रेट प्रकटीकरण और बदलाव, भूमिका और बाइंडिंग बदलाव, लॉकडाउन और रीस्टार्ट। इन्हें सेटिंग में दी गई प्रतिधारण अवधि तक रखा जाता है।",
+      "p2": "पिछले टैब पर अनुरोध इतिहास कच्चा HTTP ट्रैफ़िक है। किसने क्या बदला, यह जानने के लिए ऑडिट का उपयोग करें, और किसी क्लाइंट ने वास्तव में क्या भेजा, इसे डीबग करने के लिए अनुरोध इतिहास का।"
+    },
+    "requests": {
+      "title": "अनुरोध इतिहास",
+      "p1": "इस सर्वर द्वारा कैप्चर किया गया हर API अनुरोध, मेथड, पथ, स्टेटस, टाइमिंग, हेडर और बॉडी (कॉन्फ़िगर किए गए आकार तक काटी गई) के साथ। इंटीग्रेशन और SDK कॉल डीबग करने के लिए इसका उपयोग करें। तालिका को उस समय तक सीमित करने के लिए चार्ट में किसी बार पर क्लिक करें।"
+    },
+    "diagram": {
+      "label": "सीक्रेट, संसाधन, बाइंडिंग, प्रोफ़ाइल और सतहें कैसे संबंधित हैं",
+      "secret": {
+        "title": "सीक्रेट",
+        "body": "एन्क्रिप्टेड क्रेडेंशियल",
+        "tip": "पासवर्ड, कुंजियाँ और टोकन, Hugo में एन्क्रिप्ट किए हुए। संसाधन इन्हें स्लॉट के ज़रिए उपयोग करते हैं; एजेंट इन्हें कभी नहीं देखते।"
+      },
+      "resource": {
+        "title": "संसाधन",
+        "body": "कॉन्फ़िगर किए गए सिस्टम",
+        "tip": "हर संसाधन एक कॉन्फ़िगर किया गया सिस्टम है: SSH होस्ट, बकेट, डेटाबेस या लॉग सेवा, अपनी सेटिंग्स के साथ।"
+      },
+      "binding": {
+        "title": "बाइंडिंग",
+        "body": "उपनाम और एक्सेस मोड",
+        "tip": "किसी संसाधन को उपनाम के साथ प्रोफ़ाइल से जोड़ें, केवल पढ़ने, स्वीकृति के साथ, या पढ़ने और लिखने की एक्सेस के साथ।"
+      },
+      "profile": {
+        "title": "एजेंट प्रोफ़ाइल",
+        "body": "पर्सोना, मॉडल, सीमाएँ",
+        "tip": "स्वयं एजेंट: डिफ़ॉल्ट रूप से Agent Smith, अपने मॉडल और सीमाओं के साथ। हर इंटरफ़ेस किसी प्रोफ़ाइल से बात करता है।"
+      },
+      "surfaces": {
+        "title": "इंटरफ़ेस",
+        "body": "MCP, A2A, REST, चैट",
+        "tip": "Claude Code MCP के ज़रिए, अन्य एजेंट A2A के ज़रिए, स्क्रिप्ट REST और SDK के ज़रिए, और आप चैट में।"
+      }
+    },
+    "profiles": {
+      "title": "प्रोफ़ाइल, संसाधन और सतहें कैसे संबंधित हैं",
+      "p1": "प्रोफ़ाइल एक एजेंट है: एक पर्सोना (डिफ़ॉल्ट रूप से Agent Smith), वे मॉडल जिनसे वह सोचता है, और बाइंडिंग का एक सेट। प्रत्येक बाइंडिंग एक संसाधन को एक उपनाम के तहत एक्सेस मोड के साथ जोड़ती है।",
+      "p2": "हर सतह उसी प्रोफ़ाइल की क्लाइंट है। MCP क्लाइंट को प्रोफ़ाइल के टूल और निर्देश मिलते हैं; चैट, A2A और OpenAI-संगत क्लाइंट प्रोफ़ाइल के मॉडल के साथ Hugo का अपना लूप चलाते हैं।"
+    },
+    "approvals": {
+      "title": "जब कोई कॉल किसी व्यक्ति की प्रतीक्षा करती है",
+      "p1": "हर टूल कॉल को पढ़ना, लिखना या विनाशकारी के रूप में वर्गीकृत किया जाता है। विनाशकारी कॉल डिफ़ॉल्ट रूप से स्वीकृति की प्रतीक्षा करती हैं, और स्वीकृति के साथ पढ़ना और लिखना मोड वाली बाइंडिंग पर हर लिखने वाली कॉल भी प्रतीक्षा करती है।",
+      "p2": "कॉल को चलने देने के लिए स्वीकृत करें, या उसे रोकने के लिए अस्वीकृत करें। दोनों ही स्थितियों में एजेंट को बताया जाता है, और निर्णय आपके नोट के साथ दर्ज किया जाता है।"
+    },
+    "conversations": {
+      "title": "हर सतह से बातचीत",
+      "p1": "डैशबोर्ड चैट, A2A संदर्भ, MCP डेलिगेशन और OpenAI-संगत सेशन सभी यहाँ बातचीत बन जाते हैं, ताकि हर सतह का इतिहास एक ही स्थान पर हो।"
+    },
+    "resources": {
+      "title": "संसाधन, सीक्रेट और बाइंडिंग",
+      "p1": "संसाधन एक कॉन्फ़िगर किया गया सिस्टम है: उसका कनेक्टर, सेटिंग, और वे सीक्रेट जिनका वह उपयोग करता है। सीक्रेट Hugo में एन्क्रिप्टेड रहते हैं; एजेंट उन्हें कभी नहीं देखते।",
+      "p2": "जब तक कोई प्रोफ़ाइल किसी संसाधन को बाइंड नहीं करती, वह कुछ नहीं करता। बाइंडिंग तय करती है कि एजेंट को कौन सा उपनाम दिखता है और वह क्या कर सकता है।"
+    },
+    "secrets": {
+      "title": "सीक्रेट कैसे सुरक्षित रहते हैं",
+      "p1": "मान मास्टर कुंजी के तहत AES-256-GCM से एन्क्रिप्ट किए जाते हैं और अपने टेनेंट से बंधे होते हैं। संसाधन और मॉडल एंडपॉइंट सीक्रेट को स्लॉट द्वारा संदर्भित करते हैं।",
+      "p2": "प्रकट करें के अलावा कोई भी मान फिर से नहीं देखता, जिसके लिए Reveal अनुमति, एक कारण और नई पासवर्ड जाँच आवश्यक है, और जो हमेशा ऑडिट किया जाता है।"
+    },
+    "models": {
+      "title": "Hugo को मॉडल की आवश्यकता कब होती है",
+      "p1": "Claude Code जैसे MCP क्लाइंट अपना मॉडल लाते हैं; Hugo केवल टूल और निर्देश प्रदान करता है। चैट, A2A और OpenAI-संगत एंडपॉइंट Hugo का अपना लूप चलाते हैं और उन्हें प्रोफ़ाइल पर एक इन्फ़रेंस मॉडल की आवश्यकता होती है।"
+    },
+    "knowledge": {
+      "title": "ज्ञान नोट किसलिए हैं",
+      "p1": "नोट वे तथ्य हैं जो कोई ऑपरेटर अपने साथी को बताएगा। Hugo उन्हें एम्बेड करता है और प्रत्येक टर्न के लिए प्रासंगिक नोट को संदर्भ में पुनर्प्राप्त करता है।"
+    },
+    "toolInvocations": {
+      "title": "प्रति टूल कॉल एक रिकॉर्ड",
+      "p1": "हर सतह से हर टूल कॉल एक ही पाइपलाइन से गुज़रती है: वर्गीकरण, बाइंडिंग का एक्सेस मोड, आवश्यक होने पर स्वीकृति, कनेक्टर, और सीक्रेट स्क्रबर। प्रत्येक यहाँ दर्ज होती है।"
+    },
+    "connectors": {
+      "title": "कनेक्टर और संसाधन",
+      "p1": "कनेक्टर वह कोड है जो सिस्टम के एक परिवार से बात करना जानता है। संसाधन किसी कनेक्टर का एक कॉन्फ़िगर किया गया इंस्टेंस है, जिसकी अपनी सेटिंग और सीक्रेट होते हैं।"
+    },
+    "analytics": {
+      "title": "ये संख्याएँ कहाँ से आती हैं",
+      "p1": "एनालिटिक्स सर्वर पर टूल इनवोकेशन, चैट टर्न और मॉडल कॉल को एकत्रित करता है, समय के अनुसार खंडों में बाँटकर और इस टेनेंट तक सीमित करके।"
+    },
+    "sessions": {
+      "title": "सेशन और टोकन",
+      "p1": "साइन इन करने या एक्सेस कुंजी एक्सचेंज करने पर एक सेशन टोकन जारी होता है। किसी सेशन को रद्द करने से वह तुरंत समाप्त हो जाता है, चाहे उसका उपयोग कहीं भी हो रहा हो।"
+    },
+    "plugins": {
+      "title": "कनेक्टर प्लगइन",
+      "p1": "प्लगइन Hugo को फिर से बिल्ड किए बिना plugins डायरेक्टरी से कनेक्टर प्रकार जोड़ते हैं। वे केवल तभी लोड होते हैं जब Connectors.EnablePlugins चालू हो।"
+    }
+  },
+  "nav": {
+    "primary": "मुख्य नेविगेशन",
+    "collapseSidebar": "नेविगेशन टॉगल करें",
+    "setup": "सेटअप विज़ार्ड",
+    "skipToContent": "सामग्री पर जाएँ",
+    "tour": "निर्देशित टूर",
+    "version": "संस्करण {{version}}",
+    "approvalsPending_one": "{{count}} स्वीकृति किसी व्यक्ति की प्रतीक्षा में",
+    "approvalsPending_other": "{{count}} स्वीकृतियाँ किसी व्यक्ति की प्रतीक्षा में",
+    "environment": {
+      "local": "स्थानीय",
+      "remote": "रिमोट"
+    },
+    "sections": {
+      "start": "शुरू करें",
+      "agents": "एजेंट",
+      "connect": "कनेक्ट करें",
+      "configure": "कॉन्फ़िगर करें",
+      "observe": "निगरानी",
+      "develop": "विकास",
+      "administer": "प्रशासन"
+    },
+    "hubs": {
+      "home": {
+        "label": "होम",
+        "tip": "Hugo क्या कर रहा है, किस पर ध्यान देना है, और सामान्य अगले कदम।"
+      },
+      "chat": {
+        "label": "चैट",
+        "tip": "Agent Smith से बात करें; टूल कॉल और स्वीकृतियाँ इनलाइन दिखती हैं।"
+      },
+      "profiles": {
+        "label": "एजेंट प्रोफ़ाइल",
+        "tip": "बाउंड संसाधनों और एक्सेस मोड वाले पर्सोना, हर सतह से पहुँच योग्य।"
+      },
+      "approvals": {
+        "label": "स्वीकृतियाँ",
+        "tip": "जोखिम भरी टूल कॉल जो किसी व्यक्ति द्वारा स्वीकृत या अस्वीकृत किए जाने की प्रतीक्षा में हैं।"
+      },
+      "conversations": {
+        "label": "बातचीत",
+        "tip": "टेनेंट की हर बातचीत, चैट, A2A, MCP और OpenAI क्लाइंट से।"
+      },
+      "resources": {
+        "label": "संसाधन",
+        "tip": "आपके सिस्टम से कॉन्फ़िगर किए गए कनेक्शन: होस्ट, बकेट, डेटाबेस, लॉग सेवाएँ।"
+      },
+      "secrets": {
+        "label": "सीक्रेट",
+        "tip": "एन्क्रिप्टेड क्रेडेंशियल सामग्री जिसका संसाधन और मॉडल एंडपॉइंट उपयोग करते हैं।"
+      },
+      "connectors": {
+        "label": "कनेक्टर",
+        "tip": "वे प्रकार के सिस्टम जिन तक Hugo पहुँच सकता है, उनके टूल और डिफ़ॉल्ट निर्देश।"
+      },
+      "models": {
+        "label": "मॉडल एंडपॉइंट",
+        "tip": "Hugo के अपने एजेंट लूप के लिए इन्फ़रेंस और एम्बेडिंग मॉडल।"
+      },
+      "prompts": {
+        "label": "प्रॉम्प्ट टेम्पलेट",
+        "tip": "हर निर्देश टेम्पलेट: पर्सोना, सुरक्षा नियम और कनेक्टर निर्देश।"
+      },
+      "knowledge": {
+        "label": "ज्ञान",
+        "tip": "आपके स्टैक के बारे में नोट जिन्हें Hugo संदर्भ में पुनर्प्राप्त करता है।"
+      },
+      "toolInvocations": {
+        "label": "टूल इनवोकेशन",
+        "tip": "किसी भी एजेंट द्वारा की गई हर कार्रवाई, उसके प्रभाव, निर्णय और परिणाम के साथ।"
+      },
+      "requests": {
+        "label": "अनुरोध इतिहास",
+        "tip": "सर्वर द्वारा संभाला गया हर API अनुरोध, हेडर और बॉडी के साथ।"
+      },
+      "analytics": {
+        "label": "एनालिटिक्स",
+        "tip": "समय के साथ उपयोग, लागत, लेटेंसी और स्वीकृति के रुझान।"
+      },
+      "audit": {
+        "label": "ऑडिट",
+        "tip": "सुरक्षा इवेंट: साइन-इन, अस्वीकृतियाँ, सीक्रेट प्रकटीकरण, कॉन्फ़िगरेशन बदलाव।"
+      },
+      "explorer": {
+        "label": "API एक्सप्लोरर",
+        "tip": "लाइव OpenAPI दस्तावेज़ से कोई भी REST रूट आज़माएँ।"
+      },
+      "mcpExplorer": {
+        "label": "MCP एक्सप्लोरर",
+        "tip": "MCP क्लाइंट के रूप में कनेक्ट करें, टूल सूचीबद्ध करें और उन्हें कॉल करें।"
+      },
+      "a2aExplorer": {
+        "label": "A2A एक्सप्लोरर",
+        "tip": "एजेंट कार्ड प्राप्त करें और A2A पर प्रोफ़ाइल से बात करें।"
+      },
+      "tenants": {
+        "label": "टेनेंट",
+        "tip": "इस सर्वर पर पृथक टेनेंट। केवल सिस्टम एडमिनिस्ट्रेटर के लिए।"
+      },
+      "users": {
+        "label": "उपयोगकर्ता",
+        "tip": "इस टेनेंट में साइन इन करने वाले लोग।"
+      },
+      "credentials": {
+        "label": "क्रेडेंशियल",
+        "tip": "हार्नेस, SDK और ऑटोमेशन के लिए एक्सेस कुंजियाँ।"
+      },
+      "rbac": {
+        "label": "भूमिकाएँ और अनुमतियाँ",
+        "tip": "भूमिकाएँ, अनुमतियाँ, और उन्हें कौन धारण करता है।"
+      },
+      "sessions": {
+        "label": "सेशन",
+        "tip": "सक्रिय साइन-इन सेशन और टोकन; उनमें से किसी को भी रद्द करें।"
+      },
+      "settings": {
+        "label": "सेटिंग",
+        "tip": "सर्वर कॉन्फ़िगरेशन, रीस्टार्ट और सर्वर जानकारी।"
+      },
+      "plugins": {
+        "label": "प्लगइन",
+        "tip": "plugins डायरेक्टरी से लोड किए गए कनेक्टर प्लगइन।"
+      }
+    },
+    "items": {
+      "home": {
+        "label": "होम",
+        "tip": "Hugo क्या कर रहा है, किस पर ध्यान देना है, और सामान्य अगले कदम।"
+      },
+      "chat": {
+        "label": "चैट",
+        "tip": "Agent Smith से बात करें; टूल कॉल और स्वीकृतियाँ इनलाइन दिखती हैं।"
+      },
+      "profiles": {
+        "label": "एजेंट प्रोफ़ाइल",
+        "tip": "बाउंड संसाधनों और एक्सेस मोड वाले पर्सोना।"
+      },
+      "approvals": {
+        "label": "स्वीकृतियाँ",
+        "tip": "किसी व्यक्ति की प्रतीक्षा कर रही जोखिम भरी टूल कॉल।"
+      },
+      "conversations": {
+        "label": "बातचीत",
+        "tip": "टेनेंट की हर बातचीत।"
+      },
+      "resources": {
+        "label": "संसाधन",
+        "tip": "आपके सिस्टम से कॉन्फ़िगर किए गए कनेक्शन।"
+      },
+      "secrets": {
+        "label": "सीक्रेट",
+        "tip": "एन्क्रिप्टेड क्रेडेंशियल सामग्री।"
+      },
+      "connectors": {
+        "label": "कनेक्टर",
+        "tip": "सेवा परिवार जिन तक Hugo पहुँच सकता है।"
+      },
+      "models": {
+        "label": "मॉडल एंडपॉइंट",
+        "tip": "इन्फ़रेंस और एम्बेडिंग मॉडल।"
+      },
+      "promptTemplates": {
+        "label": "प्रॉम्प्ट टेम्पलेट",
+        "tip": "निर्देश टेम्पलेट और उनकी परतें।"
+      },
+      "knowledge": {
+        "label": "ज्ञान",
+        "tip": "नोट जिन्हें Hugo संदर्भ में पुनर्प्राप्त करता है।"
+      },
+      "toolInvocations": {
+        "label": "टूल इनवोकेशन",
+        "tip": "किसी भी एजेंट द्वारा की गई हर कार्रवाई।"
+      },
+      "requests": {
+        "label": "अनुरोध इतिहास",
+        "tip": "सर्वर द्वारा संभाला गया हर API अनुरोध।"
+      },
+      "analytics": {
+        "label": "एनालिटिक्स",
+        "tip": "उपयोग और लेटेंसी के रुझान।"
+      },
+      "audit": {
+        "label": "ऑडिट",
+        "tip": "सुरक्षा इवेंट।"
+      },
+      "explorer": {
+        "label": "API एक्सप्लोरर",
+        "tip": "REST रूट लाइव आज़माएँ।"
+      },
+      "mcpExplorer": {
+        "label": "MCP एक्सप्लोरर",
+        "tip": "क्लाइंट के रूप में MCP आज़माएँ।"
+      },
+      "a2aExplorer": {
+        "label": "A2A एक्सप्लोरर",
+        "tip": "एजेंट के रूप में A2A आज़माएँ।"
+      },
+      "tenants": {
+        "label": "टेनेंट",
+        "tip": "इस सर्वर पर पृथक टेनेंट।"
+      },
+      "users": {
+        "label": "उपयोगकर्ता",
+        "tip": "साइन इन करने वाले लोग।"
+      },
+      "credentials": {
+        "label": "क्रेडेंशियल",
+        "tip": "ऑटोमेशन के लिए एक्सेस कुंजियाँ।"
+      },
+      "roles": {
+        "label": "भूमिकाएँ",
+        "tip": "भूमिकाएँ और उनके द्वारा प्रदान की गई अनुमतियाँ।"
+      },
+      "assignments": {
+        "label": "असाइनमेंट",
+        "tip": "कौन सी भूमिका किसके पास है, और कहाँ।"
+      },
+      "sessions": {
+        "label": "सेशन",
+        "tip": "सक्रिय सेशन और टोकन।"
+      },
+      "settings": {
+        "label": "सेटिंग",
+        "tip": "सर्वर कॉन्फ़िगरेशन।"
+      },
+      "serverInfo": {
+        "label": "सर्वर जानकारी",
+        "tip": "एंडपॉइंट, संस्करण और आपकी पहचान।"
+      },
+      "plugins": {
+        "label": "प्लगइन",
+        "tip": "कनेक्टर प्लगइन।"
+      }
+    }
+  },
+  "tour": {
+    "title": "निर्देशित टूर",
+    "skip": "टूर छोड़ें",
+    "done": "हो गया",
+    "steps": {
+      "sidebar": {
+        "title": "नेविगेशन",
+        "body": "सब कुछ काम के अनुसार समूहित है: चैट शुरू करें, एजेंट बनाएँ, सिस्टम कनेक्ट करें, प्रॉम्प्ट कॉन्फ़िगर करें, गतिविधि की निगरानी करें, API आज़माएँ और टेनेंट का प्रशासन करें।"
+      },
+      "topbar": {
+        "title": "संदर्भ और नियंत्रण",
+        "body": "सर्वर, टेनेंट, आपकी पहचान और भूमिका, लाइव स्थिति, लंबित स्वीकृतियाँ, टेनेंट लॉकडाउन, भाषा, थीम और लॉगआउट यहाँ हैं।"
+      },
+      "kpis": {
+        "title": "कमांड सेंटर",
+        "body": "आज के अनुरोध, टूल कॉल, विफलताएँ, प्रतीक्षारत स्वीकृतियाँ, अस्वस्थ संसाधन और उपयोग किए गए टोकन। विस्तार से देखने के लिए किसी टाइल पर क्लिक करें।"
+      },
+      "chat": {
+        "title": "Agent Smith से चैट करें",
+        "body": "अपने स्टैक के बारे में प्रश्न पूछें। हर टूल कॉल अपने प्रभाव के साथ इनलाइन दिखती है, और जोखिम भरी कॉल आपकी स्वीकृति की प्रतीक्षा करती हैं।"
+      },
+      "connect": {
+        "title": "अपने सिस्टम कनेक्ट करें",
+        "body": "संसाधन (SSH होस्ट, बकेट, डेटाबेस, लॉग सेवाएँ) उनके सीक्रेट के साथ जोड़ें, और सहेजने से पहले प्रत्येक कनेक्शन जाँचें।"
+      },
+      "profiles": {
+        "title": "एजेंट प्रोफ़ाइल बनाएँ",
+        "body": "प्रति संसाधन एक्सेस मोड के साथ संसाधनों को किसी प्रोफ़ाइल से बाइंड करें। MCP, A2A, चैट और API प्रोफ़ाइल से ही बात करते हैं।"
+      },
+      "approvals": {
+        "title": "जोखिम भरी कार्रवाइयों को स्वीकृत करें",
+        "body": "जिन लिखने और विनाशकारी कॉल को किसी व्यक्ति की आवश्यकता है, वे यहाँ और चैट में तब तक प्रतीक्षा करती हैं जब तक कोई उन्हें स्वीकृत या अस्वीकृत न करे।"
+      },
+      "observe": {
+        "title": "जो कुछ हुआ, सब देखें",
+        "body": "टूल इनवोकेशन, अनुरोध इतिहास, एनालिटिक्स और ऑडिट हर सतह से हर कार्रवाई दिखाते हैं।"
+      }
+    }
+  },
+  "wizard": {
+    "title": "Hugo सेट अप करें",
+    "stepOf": "चरण {{step}} / {{total}}",
+    "skip": "सेटअप छोड़ें",
+    "skipStep": "यह चरण छोड़ें",
+    "start": "शुरू करें",
+    "saveModel": "एंडपॉइंट सहेजें",
+    "saveResource": "संसाधन सहेजें",
+    "bind": "प्रोफ़ाइल से बाइंड करें",
+    "finish": "चैट खोलें",
+    "modelSaved": "मॉडल एंडपॉइंट सहेजा गया।",
+    "bound": "{{alias}} अब {{profile}} से बाउंड है।",
+    "nothingToBind": "पिछले चरण में कोई संसाधन नहीं बनाया गया, इसलिए अभी बाइंड करने के लिए कुछ नहीं है। आप बाद में प्रोफ़ाइल पेज पर संसाधन बाइंड कर सकते हैं।",
+    "apiKeyHint": "एन्क्रिप्टेड सीक्रेट के रूप में संग्रहीत; एंडपॉइंट इसे संदर्भित करता है।",
+    "welcomeItem1": "एक मॉडल कनेक्ट करें ताकि Agent Smith सोच सके (Ollama, OpenAI, Anthropic और अन्य)।",
+    "welcomeItem2": "पहला संसाधन जोड़ें, जैसे SSH होस्ट या डेटाबेस, उसके क्रेडेंशियल के साथ।",
+    "welcomeItem3": "इसे डिफ़ॉल्ट Hugo प्रोफ़ाइल से बाइंड करें और MCP पर Claude Code कनेक्ट करें।",
+    "steps": {
+      "welcome": "स्वागत है",
+      "inference": "इन्फ़रेंस मॉडल",
+      "embedding": "एम्बेडिंग",
+      "resource": "पहला संसाधन",
+      "bind": "बाइंड करें",
+      "connect": "कनेक्ट करें"
+    },
+    "bodies": {
+      "welcome": "Hugo आपके सिस्टम की एक्सेस रखता है और यह समझ भी कि उसका उपयोग कैसे करना है। यह विज़ार्ड आपको कुछ ही मिनटों में खाली टेनेंट से काम करती चैट तक ले जाता है।",
+      "inference": "चैट, A2A और OpenAI-संगत एंडपॉइंट Hugo का अपना एजेंट लूप चलाते हैं, जिसके लिए इन्फ़रेंस मॉडल आवश्यक है। MCP क्लाइंट अपना मॉडल लाते हैं, इसलिए यदि आप केवल MCP का उपयोग करते हैं तो इसे छोड़ सकते हैं।",
+      "embedding": "वैकल्पिक। एम्बेडिंग मॉडल Hugo को कई टूल वाली प्रोफ़ाइल में प्रासंगिक टूल चुनने देता है, और बाद में ज्ञान नोट को संचालित करता है।",
+      "resource": "एक कनेक्टर चुनें, उसकी सेटिंग भरें, उसके लिए आवश्यक सीक्रेट चुनें या बनाएँ, और सहेजने से पहले कनेक्शन जाँचें।",
+      "bind": "नए संसाधन को डिफ़ॉल्ट Hugo प्रोफ़ाइल से जोड़ें और चुनें कि एजेंट इसके साथ क्या कर सकता है।",
+      "connect": "इस कॉन्फ़िगरेशन के साथ Hugo को Claude Code (या किसी भी MCP क्लाइंट) में जोड़ें, फिर Agent Smith से चैट शुरू करें।"
+    }
+  }
+}

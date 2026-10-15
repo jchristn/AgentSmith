@@ -1,0 +1,3507 @@
+{
+  "common": {
+    "fieldCodes": {
+      "ExpiryInPast": "Pilih masa pada masa hadapan.",
+      "SettingsFileReadOnly": "Fail tetapan adalah baca sahaja, jadi perubahan ini tidak dapat disimpan.",
+      "OverriddenByEnvironment": "Pemboleh ubah persekitaran menetapkan nilai ini, jadi ia tidak boleh diubah di sini.",
+      "PathRequired": "Laluan tetapan diperlukan.",
+      "UnknownSetting": "Pelayan ini tidak mempunyai tetapan ini.",
+      "TooLong": "Nilai ini terlalu panjang.",
+      "NotAllowedValue": "Pilih salah satu nilai yang dibenarkan.",
+      "NotABoolean": "Pilih benar atau palsu.",
+      "NotAnInteger": "Masukkan nombor bulat.",
+      "OutOfRange": "Nilai berada di luar julat yang dibenarkan."
+    },
+    "appName": "Hugo",
+    "language": {
+      "label": "Bahasa"
+    },
+    "theme": {
+      "switchToLight": "Tukar ke tema cerah",
+      "switchToDark": "Tukar ke tema gelap"
+    },
+    "actions": {
+      "apply": "Guna",
+      "back": "Kembali",
+      "cancel": "Batal",
+      "clear": "Kosongkan",
+      "clone": "Klon",
+      "close": "Tutup",
+      "confirm": "Sahkan",
+      "copied": "Disalin",
+      "copy": "Salin",
+      "delete": "Padam",
+      "duplicate": "Pendua",
+      "edit": "Edit",
+      "hide": "Sembunyikan nilai",
+      "logout": "Log keluar",
+      "next": "Seterusnya",
+      "openGithub": "Buka repositori Hugo (AgentSmith) di GitHub",
+      "remove": "Alih keluar",
+      "retry": "Cuba semula",
+      "reveal": "Tunjukkan nilai",
+      "save": "Simpan",
+      "view": "Lihat",
+      "viewDetails": "Lihat butiran",
+      "viewJson": "Lihat JSON",
+      "dismiss": "Tolak"
+    },
+    "boolean": {
+      "yes": "Ya",
+      "no": "Tidak"
+    },
+    "confirm": {
+      "deleteNamed": "Padam \"{{name}}\"? Tindakan ini tidak boleh dibuat asal.",
+      "bulkDelete": "Padam {{count}} rekod yang dipilih? Tindakan ini tidak boleh dibuat asal."
+    },
+    "errors": {
+      "listItem": "Item {{index}}: {{message}}",
+      "chooseOne": "Pilih sekurang-kurangnya satu pilihan.",
+      "fixFields": "Beberapa medan memerlukan perhatian. Semak nilai yang diserlahkan.",
+      "invalidEmail": "Masukkan alamat e-mel yang sah.",
+      "invalidJson": "Ini bukan JSON yang sah.",
+      "loadFailed": "Gagal memuatkan data.",
+      "requestId": "Permintaan {{id}}.",
+      "required": "Medan ini diperlukan.",
+      "requiredPermission": "Memerlukan {{permission}} pada {{resource}}.",
+      "title": "Permintaan gagal",
+      "status": "HTTP {{status}}",
+      "requestIdLabel": "ID permintaan",
+      "traceIdLabel": "ID jejak"
+    },
+    "generic": {
+      "deletedName": "{{name}} (dipadam)",
+      "actions": "Tindakan",
+      "active": "Aktif",
+      "all": "Semua",
+      "any": "Mana-mana",
+      "builtIn": "Terbina dalam",
+      "custom": "Tersuai",
+      "inactive": "Tidak aktif",
+      "loading": "Memuatkan...",
+      "never": "Tidak pernah",
+      "none": "Tiada",
+      "notAvailable": "t/b",
+      "saving": "Menyimpan...",
+      "default": "Lalai",
+      "disabled": "Dilumpuhkan",
+      "enabled": "Didayakan",
+      "lockdown": "Sekatan penuh",
+      "locked": "Dikunci",
+      "required": "Diperlukan"
+    },
+    "relativeTime": {
+      "now": "sebentar tadi"
+    },
+    "states": {
+      "forbiddenTitle": "Anda tidak mempunyai akses ke halaman ini",
+      "forbiddenBody": "Minta pentadbir memberikan peranan yang membenarkan akses, atau pilih halaman lain.",
+      "notExposedTitle": "Pelayan ini belum menawarkan {{feature}}",
+      "notExposedBody": "Papan pemuka sudah sedia untuk {{feature}}, tetapi pelayan Hugo ini tidak mendedahkan laluan yang diperlukan. Ia akan berfungsi di sini sebaik sahaja pelayan menyediakannya; tiada apa-apa pada halaman ini yang perlu diubah.",
+      "notExposedEndpoint": "Laluan yang dipanggil oleh papan pemuka:"
+    },
+    "toasts": {
+      "bulkDeleted": "{{count}} rekod dipadam ({{failed}} gagal).",
+      "cloned": "Diklon.",
+      "created": "Dicipta.",
+      "deleted": "Dipadam.",
+      "saved": "Disimpan."
+    },
+    "units": {
+      "msShort": "ms",
+      "sShort": "s",
+      "mShort": "min"
+    },
+    "tagline": "Agent Smith sedia berkhidmat",
+    "serverText": {
+      "valueClamped": "Nilai {{given}} untuk {{field}} berada di luar julat yang dibenarkan {{minimum}} hingga {{maximum}}; {{stored}} telah disimpan.",
+      "approvalWaitingExpires": "Menunggu seseorang meluluskan {{subject}}; kelulusan {{id}} tamat tempoh pada {{expires}}.",
+      "approvalWaiting": "Menunggu seseorang meluluskan {{subject}}; kelulusan {{id}}.",
+      "inUse": "{{what}} masih digunakan oleh {{users}}. Alih keluar rujukan tersebut terlebih dahulu."
+    }
+  },
+  "errorCodes": {
+    "ApprovalNotPending": "Kelulusan ini sudah diputuskan atau telah tamat tempoh, jadi ia tidak boleh diputuskan semula.",
+    "TenantNotFound": "Penyewa itu tidak wujud. Semak ID penyewa.",
+    "NetworkError": "Tidak dapat menghubungi pelayan. Semak URL pelayan dan pastikan pelayan sedang berjalan.",
+    "AuthenticationRequired": "Sesi anda telah tamat tempoh. Log masuk semula.",
+    "InvalidCredentials": "Penyewa, e-mel, kata laluan atau kunci tidak betul.",
+    "RateLimited": "Terlalu banyak percubaan log masuk. Tunggu seminit dan cuba lagi.",
+    "AuthorizationDenied": "Anda tidak mempunyai kebenaran untuk tindakan ini.",
+    "NotFound": "Rekod tidak ditemui.",
+    "RouteNotFound": "Pelayan ini belum menyokong titik akhir tersebut.",
+    "ValidationFailed": "Beberapa nilai tidak sah.",
+    "InvalidBody": "Badan permintaan tidak sah.",
+    "InvalidJson": "Badan permintaan bukan JSON yang sah.",
+    "Conflict": "Ini bercanggah dengan rekod sedia ada.",
+    "BuiltInImmutable": "Rekod terbina dalam tidak boleh diubah. Klonkannya untuk disesuaikan.",
+    "Protected": "Rekod ini dilindungi dan tidak boleh dipadam.",
+    "InternalError": "Pelayan mengalami ralat dalaman. Semak log pelayan dengan ID permintaan.",
+    "Http400": "Permintaan ditolak kerana tidak sah.",
+    "Http403": "Anda tidak mempunyai kebenaran untuk tindakan ini.",
+    "Http404": "Tidak ditemui.",
+    "Http409": "Bercanggah dengan keadaan semasa.",
+    "Http500": "Pelayan mengalami ralat dalaman.",
+    "Http503": "Pelayan tidak tersedia.",
+    "ConversationBusy": "Perbualan ini masih memproses giliran sebelumnya. Tunggu sehingga selesai, atau hentikannya, kemudian cuba lagi.",
+    "ApprovalExpired": "Kelulusan ini tamat tempoh sebelum sesiapa membuat keputusan.",
+    "ReauthenticationRequired": "Masukkan kata laluan anda sekali lagi sebelum mendedahkan rahsia.",
+    "SecretInUse": "Rahsia ini masih digunakan oleh sumber atau titik akhir model. Alih keluar rujukan tersebut terlebih dahulu.",
+    "ResourceInUse": "Sumber ini masih terikat pada profil. Alih keluar pengikatan terlebih dahulu.",
+    "LockdownActive": "Penyewa berada dalam sekatan penuh, jadi hanya panggilan baca dibenarkan.",
+    "ConnectorNotFound": "Pelayan ini tidak mempunyai penyambung jenis tersebut. Pemalam mungkin gagal dimuatkan.",
+    "ProfileNotExposed": "Profil ini tidak didedahkan pada permukaan tersebut.",
+    "NoInferenceEndpoint": "Profil ini tidak mempunyai model inferens, jadi Hugo tidak dapat menjalankan gelung ejennya sendiri untuknya."
+  },
+  "enums": {
+    "principalType": {
+      "Administrator": "Pentadbir",
+      "User": "Pengguna",
+      "Credential": "Kelayakan"
+    },
+    "credentialAuthMode": {
+      "DirectHeader": "Pengepala langsung",
+      "SignedRequest": "Permintaan bertandatangan",
+      "SessionExchange": "Pertukaran token sesi",
+      "Hybrid": "Mana-mana kaedah"
+    },
+    "operationType": {
+      "All": "Semua",
+      "Create": "Cipta",
+      "Read": "Baca",
+      "Write": "Tulis (cipta, kemas kini, padam)",
+      "Update": "Kemas kini",
+      "Delete": "Padam",
+      "Execute": "Laksana",
+      "Admin": "Tadbir",
+      "Reveal": "Dedahkan"
+    },
+    "promptTemplateKind": {
+      "System": "Sistem",
+      "Task": "Tugas",
+      "Fragment": "Serpihan",
+      "ToolDescription": "Penerangan alat",
+      "ConfigFile": "Fail konfigurasi",
+      "Other": "Lain-lain"
+    },
+    "permissionType": {
+      "Permit": "Benarkan",
+      "Deny": "Tolak"
+    },
+    "resourceScope": {
+      "Tenant": "Penyewa",
+      "Resource": "Sumber"
+    },
+    "resourceType": {
+      "All": "Semua",
+      "Tenant": "Penyewa",
+      "Admin": "Pentadbiran",
+      "User": "Pengguna",
+      "Credential": "Kelayakan",
+      "Session": "Sesi",
+      "Role": "Peranan",
+      "Permission": "Kebenaran",
+      "Assignment": "Penugasan",
+      "Audit": "Audit",
+      "Settings": "Tetapan",
+      "Secret": "Rahsia",
+      "Resource": "Sumber",
+      "Connector": "Penyambung",
+      "AgentProfile": "Profil ejen",
+      "Binding": "Pengikatan",
+      "PromptTemplate": "Templat gesaan",
+      "ModelEndpoint": "Titik akhir model",
+      "Conversation": "Perbualan",
+      "ToolInvocation": "Panggilan alat",
+      "Approval": "Kelulusan",
+      "RequestHistory": "Sejarah permintaan",
+      "Knowledge": "Pengetahuan",
+      "Plugin": "Pemalam",
+      "Analytics": "Analitik"
+    },
+    "auditEventType": {
+      "AuthSuccess": "Log masuk berjaya",
+      "AuthFailure": "Log masuk gagal",
+      "SessionIssued": "Sesi dikeluarkan",
+      "SessionRevoked": "Sesi dibatalkan",
+      "CredentialCreated": "Kelayakan dicipta",
+      "CredentialRotated": "Kelayakan diputar",
+      "CredentialUsed": "Kelayakan digunakan",
+      "AuthorizationDenied": "Akses ditolak",
+      "AuthorizationBypass": "Semakan akses dipintas",
+      "RoleChanged": "Peranan diubah",
+      "AssignmentChanged": "Penugasan diubah",
+      "SecretCreated": "Rahsia dicipta",
+      "SecretUpdated": "Rahsia dikemas kini",
+      "SecretRevealed": "Rahsia didedahkan",
+      "SecretDeleted": "Rahsia dipadam",
+      "MasterKeyRotated": "Kunci induk diputar",
+      "ResourceChanged": "Sumber diubah",
+      "ProfileChanged": "Profil diubah",
+      "BindingChanged": "Pengikatan diubah",
+      "PromptTemplateChanged": "Templat gesaan diubah",
+      "ApprovalDecided": "Kelulusan diputuskan",
+      "LockdownChanged": "Sekatan penuh diubah",
+      "SettingsChanged": "Tetapan diubah",
+      "ServerRestarted": "Pelayan dimulakan semula",
+      "PluginLoaded": "Pemalam dimuatkan",
+      "HostKeyPinned": "Kunci hos SSH dipin",
+      "HostKeyMismatch": "Kunci hos SSH tidak sepadan"
+    },
+    "secretKind": {
+      "Password": "Kata laluan",
+      "PrivateKey": "Kunci peribadi",
+      "ApiToken": "Token API",
+      "AccessKeyPair": "Pasangan kunci akses",
+      "ServiceAccountJson": "JSON akaun perkhidmatan",
+      "Kubeconfig": "Kubeconfig",
+      "ConnectionString": "Rentetan sambungan",
+      "Certificate": "Sijil",
+      "Generic": "Rahsia generik"
+    },
+    "effect": {
+      "Read": "Baca",
+      "Write": "Tulis",
+      "Destructive": "Memusnahkan"
+    },
+    "accessMode": {
+      "ReadOnly": "Baca sahaja",
+      "ReadWriteWithApproval": "Baca dan tulis dengan kelulusan",
+      "ReadWrite": "Baca dan tulis"
+    },
+    "connectorCategory": {
+      "Compute": "Pengkomputeran",
+      "Storage": "Storan",
+      "Database": "Pangkalan data",
+      "Logging": "Pengelogan",
+      "Cache": "Cache",
+      "Cloud": "Awan",
+      "Orchestration": "Orkestrasi",
+      "Observability": "Kebolehcerapan",
+      "Http": "API HTTP",
+      "Agent": "Ejen",
+      "Other": "Lain-lain"
+    },
+    "settingValueKind": {
+      "String": "Teks",
+      "Text": "Teks panjang",
+      "Integer": "Nombor bulat",
+      "Boolean": "Benar atau palsu",
+      "StringList": "Senarai",
+      "Enum": "Salah satu daripada set"
+    },
+    "approvalStatus": {
+      "Pending": "Belum selesai",
+      "Approved": "Diluluskan",
+      "Rejected": "Ditolak",
+      "Expired": "Tamat tempoh",
+      "Cancelled": "Dibatalkan"
+    },
+    "toolDecision": {
+      "Allowed": "Dibenarkan",
+      "Denied": "Dinafikan",
+      "ApprovalRequired": "Kelulusan diperlukan",
+      "Approved": "Diluluskan",
+      "Rejected": "Ditolak",
+      "Expired": "Tamat tempoh"
+    },
+    "toolStatus": {
+      "Succeeded": "Berjaya",
+      "Failed": "Gagal",
+      "TimedOut": "Tamat masa",
+      "Cancelled": "Dibatalkan"
+    },
+    "surface": {
+      "Chat": "Sembang",
+      "Mcp": "MCP",
+      "A2A": "A2A",
+      "OpenAI": "Serasi OpenAI",
+      "Rest": "REST"
+    },
+    "conversationSource": {
+      "Dashboard": "Papan pemuka",
+      "A2A": "A2A",
+      "OpenAI": "Serasi OpenAI",
+      "Mcp": "MCP"
+    },
+    "visibility": {
+      "Private": "Peribadi",
+      "Tenant": "Penyewa"
+    },
+    "instructionMode": {
+      "Inherit": "Warisi",
+      "Append": "Tambah di hujung",
+      "Replace": "Ganti"
+    },
+    "toolRule": {
+      "Allow": "Benarkan",
+      "Deny": "Tolak",
+      "RequireApproval": "Perlukan kelulusan"
+    },
+    "modelKind": {
+      "Inference": "Inferens",
+      "Embedding": "Benaman"
+    },
+    "modelProvider": {
+      "Ollama": "Ollama",
+      "OpenAI": "OpenAI",
+      "OpenAICompatible": "Serasi OpenAI",
+      "Anthropic": "Anthropic",
+      "Gemini": "Gemini",
+      "AzureOpenAI": "Azure OpenAI",
+      "Bedrock": "Amazon Bedrock",
+      "VertexAI": "Vertex AI",
+      "VoyageAI": "Voyage AI"
+    },
+    "healthStatus": {
+      "Healthy": "Sihat",
+      "Degraded": "Merosot",
+      "Unhealthy": "Tidak sihat",
+      "Unknown": "Belum disemak"
+    },
+    "promptLayer": {
+      "BuiltIn": "Terbina dalam",
+      "Global": "Lalai global",
+      "Tenant": "Penyewa"
+    },
+    "authScheme": {
+      "Password": "Log masuk dengan kata laluan",
+      "AccessKey": "Kunci akses",
+      "SessionToken": "Token sesi",
+      "SignedRequest": "Permintaan bertandatangan",
+      "ApiKey": "Kunci API pentadbir"
+    }
+  },
+  "login": {
+    "title": "Log masuk ke Hugo",
+    "subtitle": "Agent Smith sedang menanti anda, Mr. Anderson.",
+    "tabs": {
+      "password": "E-mel dan kata laluan",
+      "accessKey": "Kunci akses"
+    },
+    "serverUrl": "URL pelayan",
+    "tenantId": "ID penyewa",
+    "email": "E-mel",
+    "password": "Kata laluan",
+    "accessKey": "Kunci akses",
+    "secretKey": "Kunci rahsia",
+    "submit": "Log masuk",
+    "connecting": "Sedang log masuk...",
+    "restoring": "Memulihkan sesi anda...",
+    "errorGeneric": "Tidak dapat log masuk. Semak URL pelayan dan kelayakan anda.",
+    "footerHint": "Hugo menyimpan kelayakan sistem anda secara tersulit dan membenarkan ejen menggunakannya dengan selamat.",
+    "tenant": "Penyewa",
+    "tenantFound": "Log masuk ke penyewa {{name}}.",
+    "unreachable": "Tidak dapat menghubungi pelayan Hugo di {{url}}. Semak URL pelayan dan pastikan pelayan sedang berjalan.",
+    "badCredentials": "E-mel, kata laluan atau penyewa tidak betul.",
+    "defaultsHint": "Akaun lalai tempatan: {{email}} dengan kata laluan \"{{password}}\". Anda akan diminta menukarnya.",
+    "useDefaults": "Guna lalai tempatan"
+  },
+  "topbar": {
+    "tenant": "Penyewa",
+    "switchTenant": "Tukar penyewa",
+    "copyServer": "Salin URL pelayan",
+    "live": "Langsung",
+    "polling": "Tinjauan berkala",
+    "health": {
+      "healthy": "Sihat",
+      "unhealthy": "Tidak dapat dihubungi",
+      "unknown": "Menyemak"
+    },
+    "lockdown": {
+      "on": "Sekatan penuh aktif",
+      "off": "Sekatan penuh",
+      "banner": "Sekatan penuh penyewa aktif: setiap panggilan yang bukan bacaan ditolak dan kelulusan yang belum selesai telah dibatalkan.",
+      "engageTitle": "Kenakan sekatan penuh pada penyewa ini?",
+      "engageBody": "Setiap panggilan alat yang menulis atau memadam, daripada setiap permukaan, akan ditolak sehingga sekatan penuh ditarik balik. Kelulusan yang belum selesai dibatalkan. Bacaan terus berfungsi.",
+      "engage": "Kenakan sekatan penuh",
+      "engaged": "Sekatan penuh penyewa aktif.",
+      "liftTitle": "Tarik balik sekatan penuh?",
+      "liftBody": "Panggilan alat tulis dan memusnahkan akan dibenarkan semula, tertakluk kepada mod akses dan kelulusan setiap pengikatan.",
+      "lift": "Tarik balik sekatan penuh",
+      "lifted": "Sekatan penuh penyewa ditarik balik."
+    }
+  },
+  "roles": {
+    "systemAdmin": "Pentadbir sistem",
+    "tenantAdmin": "Pentadbir penyewa",
+    "user": "Pengguna",
+    "credential": "Kunci akses"
+  },
+  "components": {
+    "fieldWarnings": {
+      "title_one": "Disimpan dengan {{count}} nilai yang dilaraskan",
+      "title_other": "Disimpan dengan {{count}} nilai yang dilaraskan",
+      "body": "Pelayan menerima permintaan tetapi menyimpan nilai ini secara berbeza daripada yang dihantar.",
+      "dismiss": "Tolak",
+      "codes": {
+        "ValueClamped": "Nilai dihadkan kepada julat yang dibenarkan"
+      }
+    },
+    "autoRefresh": {
+      "label": "Muat semula automatik",
+      "none": "Mati",
+      "seconds_one": "Setiap {{count}} saat",
+      "seconds_other": "Setiap {{count}} saat"
+    },
+    "chart": {
+      "success": "Berjaya",
+      "failure": "Gagal",
+      "total": "Jumlah",
+      "avgDuration": "Purata tempoh",
+      "noData": "Tiada aktiviti dalam julat ini.",
+      "range": "Julat masa",
+      "ranges": {
+        "hour": "Sejam lalu",
+        "day": "Sehari lalu",
+        "week": "Seminggu lalu",
+        "month": "Sebulan lalu",
+        "custom": "Tersuai"
+      }
+    },
+    "confirm": {
+      "title": "Sila sahkan",
+      "message": "Adakah anda pasti mahu meneruskan?"
+    },
+    "diff": {
+      "before": "Sebelum",
+      "after": "Selepas"
+    },
+    "explainer": {
+      "about": "Perihal {{topic}}",
+      "dismiss": "Sembunyikan penerangan ini"
+    },
+    "export": {
+      "label": "Eksport",
+      "csv": "CSV (data)",
+      "png": "Imej PNG",
+      "svg": "Imej SVG",
+      "json": "JSON (data)",
+      "failed": "Eksport gagal. {{message}}",
+      "tableTitle": "jadual {{table}}"
+    },
+    "filters": {
+      "allTenants": "Semua penyewa",
+      "clear": "Kosongkan penapis",
+      "from": "Dari",
+      "to": "Hingga",
+      "method": "Kaedah",
+      "path": "Laluan mengandungi",
+      "pathPlaceholder": "contohnya /v1.0/api/tenants",
+      "searchName": "Cari mengikut nama",
+      "status": "Kod status",
+      "statusPlaceholder": "contohnya 404",
+      "tenant": "Penyewa"
+    },
+    "form": {
+      "addItem": "Tambah item",
+      "addRow": "Tambah baris",
+      "key": "Kunci",
+      "value": "Nilai",
+      "moveUp": "Alih ke atas",
+      "moveDown": "Alih ke bawah",
+      "noItems": "Belum ada item.",
+      "onePerLine": "Satu nilai setiap baris",
+      "steps": "Langkah borang"
+    },
+    "permissions": {
+      "title": "Kebenaran berkesan",
+      "none": "Tiada pemberian. Prinsipal ini hanya boleh menggunakan peraturan pintasan, jika ada.",
+      "source": "Peranan",
+      "type": "Jenis",
+      "resources": "Jenis sumber",
+      "operations": "Operasi",
+      "scope": "Skop"
+    },
+    "requestDetails": {
+      "title": "Butiran permintaan",
+      "metadata": "Metadata",
+      "requestHeaders": "Pengepala permintaan",
+      "requestBody": "Badan permintaan",
+      "responseHeaders": "Pengepala respons",
+      "responseBody": "Badan respons",
+      "rawJson": "JSON mentah",
+      "truncated": "Dipotong ({{bytes}} bait asal)",
+      "empty": "Tiada kandungan.",
+      "fields": {
+        "id": "ID permintaan",
+        "method": "Kaedah",
+        "path": "Laluan",
+        "url": "URL",
+        "status": "Status",
+        "duration": "Tempoh",
+        "createdUtc": "Dicipta",
+        "completedUtc": "Selesai",
+        "sourceIp": "IP sumber",
+        "principal": "Prinsipal",
+        "tenant": "Penyewa",
+        "user": "Pengguna"
+      }
+    },
+    "secretOnce": {
+      "title": "Salin rahsia ini sekarang",
+      "warning": "Ini satu-satunya kali rahsia ini dipaparkan. Simpan di tempat yang selamat sebelum menutup.",
+      "accessKey": "Kunci akses",
+      "secretKey": "Kunci rahsia",
+      "done": "Saya sudah menyimpannya",
+      "snippet": "Konfigurasi MCP untuk Claude Code",
+      "snippetHint": "Tampal ini ke dalam tetapan klien MCP anda, dan tetapkan HUGO_SECRET_KEY kepada kunci rahsia yang dipaparkan di atas."
+    },
+    "table": {
+      "bulkActions": "Tindakan pukal",
+      "bulkDelete": "Padam yang dipilih",
+      "clearSelection": "Kosongkan pilihan",
+      "empty": "Tiada rekod untuk dipaparkan.",
+      "first": "Halaman pertama",
+      "jump": "Lompat ke halaman",
+      "last": "Halaman terakhir",
+      "loading": "Memuatkan rekod...",
+      "next": "Halaman seterusnya",
+      "noMatches": "Tiada rekod yang sepadan dengan penapis semasa.",
+      "pageOf": "Halaman {{page}} daripada {{total}}",
+      "pageSize": "Setiap halaman",
+      "pinned": "Sentiasa dipaparkan",
+      "prev": "Halaman sebelumnya",
+      "records_one": "rekod",
+      "records_other": "rekod",
+      "refresh": "Muat semula",
+      "selectAll": "Pilih semua baris pada halaman ini",
+      "selectColumns": "Pilih lajur",
+      "selected_one": "{{count}} dipilih",
+      "selected_other": "{{count}} dipilih",
+      "selectRow": "Pilih baris",
+      "showing": "Memaparkan {{from}} hingga {{to}}"
+    },
+    "approvalCard": {
+      "title": "Kelulusan diperlukan",
+      "approve": "Luluskan",
+      "reject": "Tolak",
+      "note": "Nota keputusan",
+      "notePlaceholder": "Nota pilihan untuk jejak audit",
+      "resource": "Sumber",
+      "tool": "Alat",
+      "reason": "Sebab kelulusan diperlukan: {{reason}}",
+      "expires": "Tamat tempoh {{time}} jika tiada sesiapa membuat keputusan.",
+      "decided": "Keputusan: {{status}}.",
+      "by": "Diputuskan oleh {{name}}.",
+      "withNote": "Nota: {{note}}"
+    },
+    "chat": {
+      "you": "Anda",
+      "assistant": "Agent Smith",
+      "thinking": "Penaakulan",
+      "waiting": "Agent Smith sedang berfikir...",
+      "stopped": "Dihentikan sebelum jawapan lengkap.",
+      "streamError": "Strim jawapan gagal.",
+      "ttft": "Token pertama {{value}}",
+      "duration": "Giliran {{value}}",
+      "tokens": "Token: {{input}} masuk, {{output}} keluar",
+      "transcript": "Transkrip perbualan",
+      "empty": "Belum ada mesej. Tanya soalan untuk bermula.",
+      "message": "Mesej",
+      "placeholder": "Tanya Agent Smith. Enter untuk menghantar, Shift+Enter untuk menambah baris.",
+      "send": "Hantar",
+      "stop": "Henti"
+    },
+    "passwordChange": {
+      "title": "Pilih kata laluan baharu",
+      "body": "Akaun ini masih menggunakan kata laluan awal atau yang ditetapkan semula. Pilih kata laluan baharu sekurang-kurangnya {{min}} aksara untuk meneruskan.",
+      "current": "Kata laluan semasa",
+      "new": "Kata laluan baharu",
+      "confirm": "Sahkan kata laluan baharu",
+      "submit": "Tukar kata laluan",
+      "changed": "Kata laluan telah ditukar.",
+      "tooShort": "Gunakan sekurang-kurangnya {{min}} aksara.",
+      "sameAsCurrent": "Pilih kata laluan yang berbeza daripada kata laluan semasa.",
+      "mismatch": "Kedua-dua kata laluan baharu tidak sepadan."
+    },
+    "progress": {
+      "count": "{{done}} daripada {{total}}",
+      "deleting_one": "Memadam {{count}} rekod",
+      "deleting_other": "Memadam {{count}} rekod"
+    },
+    "promptEditor": {
+      "content": "Teks templat",
+      "palette": "Sisipkan pemboleh ubah",
+      "used": "Pemboleh ubah dalam teks ini",
+      "variables": "Pemboleh ubah",
+      "noVariables": "Teks ini tidak menggunakan pemboleh ubah.",
+      "preview": "Pratonton",
+      "diff": "Perubahan",
+      "sampleContext": "Konteks sampel (JSON)",
+      "rendered": "Dipaparkan",
+      "serverRender": "dipaparkan oleh pelayan",
+      "localRender": "dipaparkan dalam pelayar",
+      "previewEmpty": "Templat ini menghasilkan teks kosong.",
+      "missing": "Tiada dalam konteks sampel: {{list}}",
+      "current": "Teks semasa",
+      "syntaxHint": "Gunakan {{variable}}, {{variable | default: \"text\"}}, {{#if variable}}...{{/if}} dan {{#each list}}...{{/each}}."
+    },
+    "result": {
+      "succeeded": "Berjaya.",
+      "failed": "Gagal.",
+      "latency": "Mengambil masa {{value}}."
+    },
+    "schemaForm": {
+      "noSettings": "Penyambung ini tidak mempunyai tetapan.",
+      "range": "Julat yang dibenarkan: {{minimum}} hingga {{maximum}}.",
+      "groups": {
+        "General": "Umum",
+        "Connection": "Sambungan",
+        "Authentication": "Pengesahan",
+        "Limits": "Had",
+        "Advanced": "Lanjutan"
+      },
+      "errors": {
+        "Required": "Tetapan ini diperlukan.",
+        "NotAnInteger": "Masukkan nombor bulat.",
+        "OutOfRange": "Masukkan nilai dari {{minimum}} hingga {{maximum}}.",
+        "NotAllowedValue": "Pilih salah satu: {{values}}.",
+        "PatternMismatch": "Nilai tidak mengikut format yang dijangka.",
+        "TooLong": "Gunakan paling banyak {{maximum}} aksara."
+      }
+    },
+    "secretField": {
+      "accepts": "Menerima: {{kinds}}.",
+      "anyKind": "sebarang jenis rahsia",
+      "noneSelected": "Tiada rahsia dipilih",
+      "createInline": "Cipta rahsia baharu",
+      "saveInline": "Simpan rahsia",
+      "import": "Import daripada fail",
+      "importNamed": "Import {{field}} daripada fail",
+      "replaceHint": "Biarkan kosong untuk mengekalkan nilai yang disimpan.",
+      "fields": {
+        "username": "Nama pengguna",
+        "password": "Kata laluan",
+        "privateKey": "Kunci peribadi",
+        "passphrase": "Frasa laluan",
+        "token": "Token",
+        "accessKeyId": "ID kunci akses",
+        "secretAccessKey": "Kunci akses rahsia",
+        "sessionToken": "Token sesi",
+        "json": "JSON akaun perkhidmatan",
+        "kubeconfig": "Kubeconfig",
+        "connectionString": "Rentetan sambungan",
+        "certificate": "Sijil (PEM)",
+        "value": "Nilai"
+      },
+      "file": {
+        "pem": "Fail mengandungi blok PEM jenis {{type}}.",
+        "serviceAccount": "Akaun perkhidmatan untuk projek {{project}} ({{email}}).",
+        "kubeconfig": "Konteks kubeconfig: {{contexts}}.",
+        "kubeconfigNone": "Tiada konteks ditemui dalam kubeconfig ini.",
+        "invalidJson": "Fail ini bukan JSON yang sah."
+      }
+    },
+    "toolActivity": {
+      "arguments": "Argumen (rahsia disunting)",
+      "output": "Pratonton output",
+      "error": "Ralat",
+      "noArguments": "Tiada argumen.",
+      "noOutput": "Belum ada output.",
+      "truncated": "Output telah dipotong mengikut had pengikatan.",
+      "effectReason": "Dikelaskan kerana: {{reason}}",
+      "status": {
+        "proposed": "Dicadangkan",
+        "running": "Sedang berjalan",
+        "awaitingApproval": "Menunggu kelulusan"
+      }
+    }
+  },
+  "resources": {
+    "tenants": {
+      "title": "Penyewa",
+      "subtitle": "Penyewa terasing pada pelayan ini. Semua perkara kecuali peranan terbina dalam dan lalai global dimiliki oleh tepat satu penyewa.",
+      "add": "Tambah penyewa",
+      "create": "Cipta penyewa",
+      "edit": "Edit penyewa",
+      "view": "Butiran penyewa",
+      "deleteTitle": "Padam penyewa",
+      "emptyTitle": "Belum ada penyewa",
+      "emptyBody": "Cipta penyewa untuk mengasingkan pasukan atau pelanggan.",
+      "columns": {
+        "name": "Nama",
+        "id": "ID",
+        "description": "Penerangan",
+        "active": "Aktif",
+        "createdUtc": "Dicipta",
+        "region": "Rantau",
+        "lockdown": "Sekatan penuh"
+      },
+      "fields": {
+        "name": "Nama",
+        "description": "Penerangan",
+        "active": "Aktif",
+        "region": "Rantau"
+      }
+    },
+    "users": {
+      "title": "Pengguna",
+      "subtitle": "Orang yang log masuk ke penyewa ini dengan e-mel dan kata laluan.",
+      "add": "Tambah pengguna",
+      "create": "Cipta pengguna",
+      "edit": "Edit pengguna",
+      "view": "Butiran pengguna",
+      "deleteTitle": "Padam pengguna",
+      "emptyTitle": "Belum ada pengguna",
+      "emptyBody": "Tambah pengguna supaya seseorang boleh log masuk ke penyewa ini.",
+      "columns": {
+        "email": "E-mel",
+        "name": "Nama",
+        "id": "ID",
+        "role": "Peranan",
+        "active": "Aktif",
+        "createdUtc": "Dicipta"
+      },
+      "fields": {
+        "email": "E-mel",
+        "password": "Kata laluan",
+        "firstName": "Nama pertama",
+        "lastName": "Nama akhir",
+        "isTenantAdmin": "Pentadbir penyewa",
+        "isAdmin": "Pentadbir sistem",
+        "active": "Aktif",
+        "mustChangePassword": "Mesti menukar kata laluan pada log masuk seterusnya"
+      },
+      "hints": {
+        "isAdmin": "Pentadbir sistem boleh mengurus setiap penyewa dan memintas semua kebenaran.",
+        "password": "Biarkan kosong semasa mengedit untuk mengekalkan kata laluan semasa."
+      },
+      "actions": {
+        "permissions": "Kebenaran berkesan",
+        "resetPassword": "Tetapkan semula kata laluan",
+        "assignRole": "Tugaskan peranan"
+      },
+      "passwordReset": "Kata laluan ditetapkan semula. Pengguna mesti menukarnya pada log masuk seterusnya."
+    },
+    "credentials": {
+      "title": "Kelayakan",
+      "subtitle": "Kunci akses yang digunakan oleh automasi, SDK dan integrasi. Rahsia dipaparkan sekali sahaja.",
+      "add": "Tambah kelayakan",
+      "create": "Cipta kelayakan",
+      "edit": "Edit kelayakan",
+      "view": "Butiran kelayakan",
+      "deleteTitle": "Padam kelayakan",
+      "emptyTitle": "Belum ada kelayakan",
+      "emptyBody": "Cipta kunci akses supaya skrip atau perkhidmatan boleh memanggil Hugo.",
+      "columns": {
+        "name": "Nama",
+        "accessKey": "Kunci akses",
+        "secretKeyLast4": "Rahsia",
+        "userId": "Pemilik",
+        "lastUsedUtc": "Terakhir digunakan",
+        "expiresUtc": "Tamat tempoh",
+        "active": "Aktif",
+        "id": "ID",
+        "agentProfileId": "Profil",
+        "lockToProfile": "Dikunci"
+      },
+      "fields": {
+        "name": "Nama",
+        "userId": "Pemilik",
+        "authMode": "Mod pengesahan",
+        "expiresUtc": "Tamat tempoh",
+        "active": "Aktif",
+        "agentProfileId": "Profil terikat",
+        "lockToProfile": "Kunci pada profil ini"
+      },
+      "hints": {
+        "userId": "Kelayakan tidak boleh melebihi kebenaran pemiliknya."
+      },
+      "actions": {
+        "rotate": "Putar rahsia",
+        "scopes": "Penugasan skop"
+      }
+    },
+    "roles": {
+      "title": "Peranan",
+      "subtitle": "Peranan mengumpulkan kebenaran. Peranan terbina dalam adalah baca sahaja; klonkannya untuk disesuaikan.",
+      "add": "Tambah peranan",
+      "create": "Cipta peranan",
+      "edit": "Edit peranan",
+      "view": "Butiran peranan",
+      "deleteTitle": "Padam peranan",
+      "emptyTitle": "Belum ada peranan",
+      "emptyBody": "Cipta peranan tersuai, atau klon peranan terbina dalam.",
+      "columns": {
+        "name": "Nama",
+        "description": "Penerangan",
+        "isBuiltIn": "Jenis",
+        "active": "Aktif",
+        "id": "ID",
+        "createdUtc": "Dicipta"
+      },
+      "fields": {
+        "name": "Nama",
+        "description": "Penerangan",
+        "active": "Aktif"
+      }
+    },
+    "permissions": {
+      "title": "Kebenaran",
+      "subtitle": "Benarkan atau tolak operasi pada jenis sumber. Penolakan sentiasa diutamakan.",
+      "add": "Tambah kebenaran",
+      "create": "Cipta kebenaran",
+      "edit": "Edit kebenaran",
+      "view": "Butiran kebenaran",
+      "deleteTitle": "Padam kebenaran",
+      "emptyTitle": "Belum ada kebenaran",
+      "emptyBody": "Cipta kebenaran dan petakannya kepada peranan.",
+      "columns": {
+        "name": "Nama",
+        "permissionType": "Jenis",
+        "resourceTypes": "Jenis sumber",
+        "operationTypes": "Operasi",
+        "isBuiltIn": "Asal",
+        "id": "ID"
+      },
+      "fields": {
+        "name": "Nama",
+        "permissionType": "Jenis",
+        "resourceTypes": "Jenis sumber",
+        "operationTypes": "Operasi",
+        "active": "Aktif"
+      }
+    },
+    "userAssignments": {
+      "title": "Penugasan pengguna",
+      "subtitle": "Berikan peranan kepada pengguna pada skop penyewa atau sumber.",
+      "add": "Tambah penugasan pengguna",
+      "create": "Cipta penugasan pengguna",
+      "edit": "Edit penugasan pengguna",
+      "view": "Butiran penugasan pengguna",
+      "deleteTitle": "Padam penugasan pengguna",
+      "emptyTitle": "Belum ada penugasan pengguna",
+      "emptyBody": "Tugaskan peranan kepada pengguna.",
+      "columns": {
+        "userId": "Pengguna",
+        "roleName": "Peranan",
+        "resourceScope": "Skop",
+        "resourceId": "Sumber",
+        "active": "Aktif",
+        "createdUtc": "Dicipta",
+        "id": "ID"
+      },
+      "fields": {
+        "userId": "Pengguna",
+        "roleId": "Peranan",
+        "resourceScope": "Skop",
+        "resourceId": "ID sumber",
+        "inheritsToChildren": "Terpakai kepada sumber dalam penyewa",
+        "active": "Aktif"
+      }
+    },
+    "credentialAssignments": {
+      "title": "Penugasan kelayakan",
+      "subtitle": "Berikan peranan kepada kunci akses. Pastikan kelayakan lebih terhad daripada pemiliknya.",
+      "add": "Tambah penugasan kelayakan",
+      "create": "Cipta penugasan kelayakan",
+      "edit": "Edit penugasan kelayakan",
+      "view": "Butiran penugasan kelayakan",
+      "deleteTitle": "Padam penugasan kelayakan",
+      "emptyTitle": "Belum ada penugasan kelayakan",
+      "emptyBody": "Tugaskan peranan kepada kelayakan.",
+      "columns": {
+        "credentialId": "Kelayakan",
+        "roleName": "Peranan",
+        "resourceScope": "Skop",
+        "resourceId": "Sumber",
+        "active": "Aktif",
+        "createdUtc": "Dicipta",
+        "id": "ID"
+      },
+      "fields": {
+        "credentialId": "Kelayakan",
+        "roleId": "Peranan",
+        "resourceScope": "Skop",
+        "resourceId": "ID sumber",
+        "inheritsToChildren": "Terpakai kepada sumber dalam penyewa",
+        "active": "Aktif"
+      }
+    },
+    "promptTemplates": {
+      "deleteUnbound": "Padam \"{{name}}\" dan semua versinya? Profil yang menyertakannya akan kembali kepada lalai terbina dalam. Tindakan ini tidak boleh dibuat asal.",
+      "title": "Templat Gesaan",
+      "subtitle": "Setiap gesaan dan fail konfigurasi yang dijana oleh Hugo. Setiap simpanan mencipta satu versi.",
+      "add": "Templat baharu",
+      "create": "Cipta templat",
+      "edit": "Edit templat",
+      "view": "Butiran templat",
+      "deleteTitle": "Padam templat",
+      "emptyTitle": "Belum ada templat gesaan",
+      "emptyBody": "Cipta templat, atau klon templat terbina dalam.",
+      "columns": {
+        "name": "Nama",
+        "kind": "Jenis",
+        "currentVersion": "Versi",
+        "description": "Penerangan",
+        "isBuiltIn": "Asal",
+        "id": "ID",
+        "lastUpdateUtc": "Dikemas kini"
+      },
+      "fields": {
+        "name": "Nama",
+        "kind": "Jenis",
+        "description": "Penerangan"
+      }
+    },
+    "audit": {
+      "title": "Audit",
+      "subtitle": "Peristiwa pengesahan, kebenaran dan konfigurasi untuk penyewa ini.",
+      "add": "Tambah rekod audit",
+      "create": "Cipta rekod audit",
+      "edit": "Edit rekod audit",
+      "view": "Butiran rekod audit",
+      "deleteTitle": "Padam rekod audit",
+      "emptyTitle": "Belum ada rekod audit",
+      "emptyBody": "Peristiwa keselamatan dipaparkan di sini apabila orang dan ejen menggunakan Hugo.",
+      "columns": {
+        "createdUtc": "Masa",
+        "eventType": "Peristiwa",
+        "principalName": "Prinsipal",
+        "resource": "Sumber",
+        "reason": "Sebab",
+        "sourceIp": "IP sumber",
+        "id": "ID"
+      },
+      "fields": {
+        "eventType": "Peristiwa",
+        "principalType": "Jenis prinsipal",
+        "principalName": "Prinsipal",
+        "principalId": "ID prinsipal",
+        "resourceType": "Jenis sumber",
+        "resourceId": "ID sumber",
+        "operation": "Operasi",
+        "method": "Kaedah",
+        "path": "Laluan",
+        "authResult": "Keputusan pengesahan",
+        "authorizationResult": "Keputusan kebenaran",
+        "reason": "Sebab",
+        "bypassReason": "Sebab pintasan",
+        "statusCode": "Kod status",
+        "sourceIp": "IP sumber",
+        "requestId": "ID permintaan",
+        "createdUtc": "Masa"
+      }
+    },
+    "approvals": {
+      "approved": "Diluluskan. Panggilan dijalankan sekarang.",
+      "rejected": "Ditolak. Pemanggil dimaklumkan bahawa tindakan itu ditolak.",
+      "notPending": "Kelulusan ini sudah diputuskan atau telah tamat tempoh.",
+      "bulkNote": "Ditolak secara pukal daripada peti masuk Kelulusan.",
+      "bulkRejected_one": "{{count}} kelulusan ditolak ({{failed}} gagal).",
+      "bulkRejected_other": "{{count}} kelulusan ditolak ({{failed}} gagal).",
+      "title": "Kelulusan",
+      "subtitle": "Panggilan alat tulis dan memusnahkan yang menunggu seseorang. Luluskan untuk menjalankannya, tolak untuk menolaknya.",
+      "add": "Tambah kelulusan",
+      "create": "Cipta kelulusan",
+      "edit": "Edit kelulusan",
+      "view": "Butiran kelulusan",
+      "deleteTitle": "Padam kelulusan",
+      "emptyTitle": "Belum ada kelulusan",
+      "emptyBody": "Tiada apa-apa yang menunggu. Panggilan yang memerlukan kelulusan dipaparkan di sini dan dalam sembang sebaik sahaja ejen mencadangkannya.",
+      "purpose": "Peti masuk kelulusan menyimpan panggilan alat yang memerlukan seseorang: panggilan memusnahkan, dan setiap penulisan pada pengikatan yang memerlukan kelulusan.",
+      "columns": {
+        "summary": "Tindakan",
+        "effect": "Kesan",
+        "status": "Status",
+        "agentProfileId": "Profil",
+        "requestedBy": "Diminta oleh",
+        "createdUtc": "Diminta",
+        "expiresUtc": "Tamat tempoh",
+        "decidedBy": "Diputuskan oleh",
+        "id": "ID"
+      },
+      "fields": {
+        "summary": "Tindakan",
+        "effect": "Kesan",
+        "status": "Status",
+        "decisionNote": "Nota keputusan",
+        "agentProfileId": "Profil",
+        "fromUtc": "Dari"
+      },
+      "actions": {
+        "decide": "Luluskan atau tolak",
+        "invocation": "Lihat panggilan alat",
+        "bulkReject": "Tolak yang dipilih"
+      }
+    },
+    "resources": {
+      "deleteReferenced_one": "{{name}} terikat pada {{count}} profil atau titik akhir. Alih keluar pengikatan tersebut terlebih dahulu; pelayan menolak pemadaman selagi ia dirujuk.",
+      "deleteReferenced_other": "{{name}} terikat pada {{count}} profil atau titik akhir. Alih keluar pengikatan tersebut terlebih dahulu; pelayan menolak pemadaman selagi ia dirujuk.",
+      "noReferrers": "Belum ada apa-apa yang menggunakan ini.",
+      "referrerTypes": {
+        "profiles": "Profil",
+        "bindings": "Pengikatan",
+        "resources": "Sumber",
+        "modelEndpoints": "Titik akhir model"
+      },
+      "title": "Sumber",
+      "subtitle": "Sambungan ke sistem anda beserta tetapan dan rahsianya. Ikatkannya pada profil supaya ejen boleh menggunakannya.",
+      "add": "Tambah sumber",
+      "create": "Cipta sumber",
+      "edit": "Edit sumber",
+      "view": "Butiran sumber",
+      "deleteTitle": "Padam sumber",
+      "emptyTitle": "Belum ada sumber",
+      "emptyBody": "Tambah hos SSH, baldi, pangkalan data atau perkhidmatan log. Setiap borang datang daripada skema penyambung dan boleh diuji sebelum disimpan.",
+      "purpose": "Sumber ialah sambungan yang dikonfigurasikan ke sistem sebenar: hos SSH, baldi S3, pangkalan data PostgreSQL, akaun Papertrail. Rahsianya kekal tersulit dalam Hugo.",
+      "sections": {
+        "general": "Umum",
+        "connector": "Penyambung"
+      },
+      "columns": {
+        "name": "Nama",
+        "connectorType": "Penyambung",
+        "environment": "Persekitaran",
+        "endpoint": "Titik akhir",
+        "health": "Kesihatan",
+        "lastTestUtc": "Terakhir diuji",
+        "visibility": "Keterlihatan",
+        "id": "ID",
+        "createdUtc": "Dicipta"
+      },
+      "fields": {
+        "name": "Nama",
+        "displayName": "Nama paparan",
+        "environment": "Persekitaran",
+        "visibility": "Keterlihatan",
+        "defaultAccessModeCeiling": "Mod akses tertinggi yang dibenarkan",
+        "endpoint": "Ringkasan titik akhir",
+        "description": "Penerangan",
+        "notes": "Nota untuk ejen",
+        "connectorType": "Penyambung"
+      },
+      "hints": {
+        "notes": "Disuntik ke dalam arahan setiap profil yang mengikat sumber ini.",
+        "endpoint": "Dipaparkan dalam senarai dan arahan, contohnya web-01.example.com:22."
+      },
+      "actions": {
+        "test": "Uji sambungan",
+        "testTitle": "Ujian sambungan: {{name}}",
+        "tryTool": "Cuba alat",
+        "referrers": "Tempat ia digunakan",
+        "referrersTitle": "Tempat {{name}} digunakan"
+      }
+    },
+    "secrets": {
+      "deleteReferenced_one": "{{name}} digunakan oleh {{count}} sumber atau titik akhir model. Pelayan menolak untuk memadamnya selagi ia dirujuk.",
+      "deleteReferenced_other": "{{name}} digunakan oleh {{count}} sumber atau titik akhir model. Pelayan menolak untuk memadamnya selagi ia dirujuk.",
+      "expired": "Tamat tempoh",
+      "expiringSoon": "Akan tamat tempoh",
+      "errors": {
+        "expiryPast": "Pilih masa pada masa hadapan.",
+        "noValues": "Isikan sekurang-kurangnya satu nilai untuk diganti."
+      },
+      "title": "Rahsia",
+      "subtitle": "Kata laluan, kunci, token dan sijil, disulitkan dengan kunci induk. Nilai tidak pernah dipaparkan kecuali melalui pendedahan yang diaudit.",
+      "add": "Tambah rahsia",
+      "create": "Cipta rahsia",
+      "edit": "Edit rahsia",
+      "view": "Butiran rahsia",
+      "deleteTitle": "Padam rahsia",
+      "emptyTitle": "Belum ada rahsia",
+      "emptyBody": "Tambah kelayakan yang diperlukan oleh sumber anda. Anda juga boleh menciptanya terus semasa menambah sumber.",
+      "purpose": "Peti besi rahsia menyimpan bahan kelayakan secara tersulit (AES-256-GCM). Sumber dan titik akhir model merujuk rahsia mengikut slot; ejen tidak pernah melihat nilainya.",
+      "sections": {
+        "values": "Nilai"
+      },
+      "columns": {
+        "name": "Nama",
+        "kind": "Jenis",
+        "fingerprint": "Cap jari",
+        "referrerCount": "Digunakan oleh",
+        "lastRotatedUtc": "Terakhir diputar",
+        "expiresUtc": "Tamat tempoh",
+        "lastRevealedUtc": "Terakhir didedahkan",
+        "id": "ID",
+        "createdUtc": "Dicipta"
+      },
+      "fields": {
+        "name": "Nama",
+        "kind": "Jenis",
+        "description": "Penerangan",
+        "expiresUtc": "Tamat tempoh"
+      },
+      "actions": {
+        "replaceValues": "Ganti nilai",
+        "reveal": "Dedahkan",
+        "referrers": "Tempat ia digunakan",
+        "referrersTitle": "Tempat {{name}} digunakan"
+      }
+    },
+    "toolInvocations": {
+      "openTrace": "Buka jejak dalam Grafana",
+      "truncated": "Dipotong",
+      "title": "Panggilan alat",
+      "subtitle": "Setiap panggilan alat daripada setiap permukaan: apa yang dijalankan, pada sumber mana, cara ia dikelaskan, apa yang diputuskan dan bagaimana ia berakhir.",
+      "add": "Tambah panggilan alat",
+      "create": "Cipta panggilan alat",
+      "edit": "Edit panggilan alat",
+      "view": "Butiran panggilan alat",
+      "deleteTitle": "Padam panggilan alat",
+      "emptyTitle": "Belum ada panggilan alat",
+      "emptyBody": "Panggilan alat dipaparkan di sini sebaik sahaja ejen menggunakan sumber, daripada sembang, MCP, A2A, titik akhir OpenAI atau REST API.",
+      "purpose": "Panggilan alat ialah rekod yang diaudit bagi setiap panggilan alat, daripada setiap permukaan, melalui saluran paip panggilan tunggal Hugo.",
+      "columns": {
+        "createdUtc": "Bila",
+        "toolName": "Alat",
+        "resourceId": "Sumber",
+        "effect": "Kesan",
+        "decision": "Keputusan",
+        "status": "Status",
+        "durationMs": "Tempoh",
+        "surface": "Permukaan",
+        "agentProfileId": "Profil",
+        "principalId": "Prinsipal",
+        "id": "ID"
+      },
+      "fields": {
+        "surface": "Permukaan",
+        "effect": "Kesan",
+        "decision": "Keputusan",
+        "status": "Status",
+        "agentProfileId": "Profil",
+        "resourceId": "Sumber",
+        "toolName": "Nama alat",
+        "principalId": "ID prinsipal",
+        "fromUtc": "Dari",
+        "toUtc": "Hingga",
+        "accessMode": "Mod akses",
+        "outputBytes": "Saiz output",
+        "approvalId": "Kelulusan",
+        "traceId": "Jejak",
+        "argumentsRedacted": "Argumen (rahsia disunting)",
+        "outputPreview": "Pratonton output"
+      }
+    },
+    "models": {
+      "lastHealth": "Semakan kesihatan terakhir {{time}}: {{message}}",
+      "title": "Titik akhir model",
+      "subtitle": "Model inferens dan benaman untuk gelung ejen Hugo sendiri. Klien sembang, A2A dan serasi OpenAI memerlukan model inferens.",
+      "add": "Tambah titik akhir model",
+      "create": "Cipta titik akhir model",
+      "edit": "Edit titik akhir model",
+      "view": "Butiran titik akhir model",
+      "deleteTitle": "Padam titik akhir model",
+      "emptyTitle": "Belum ada titik akhir model",
+      "emptyBody": "Sembang memerlukan model inferens. Tambah model Ollama tempatan atau penyedia dihoskan seperti OpenAI atau Anthropic.",
+      "purpose": "Titik akhir model ialah penyedia inferens dan benaman yang dipanggil oleh gelung ejen Hugo: Ollama, OpenAI, Anthropic, Gemini, Azure OpenAI, Bedrock, Vertex dan VoyageAI.",
+      "sections": {
+        "endpoint": "Titik akhir",
+        "capabilities": "Keupayaan",
+        "limits": "Had"
+      },
+      "columns": {
+        "name": "Nama",
+        "kind": "Jenis",
+        "provider": "Penyedia",
+        "model": "Model",
+        "baseUrl": "URL asas",
+        "healthStatus": "Kesihatan",
+        "lastHealthUtc": "Terakhir disemak",
+        "id": "ID"
+      },
+      "fields": {
+        "name": "Nama",
+        "kind": "Jenis",
+        "provider": "Penyedia",
+        "baseUrl": "URL asas",
+        "model": "Model",
+        "apiKey": "Kunci API",
+        "apiKeySecretId": "Rahsia kunci API",
+        "region": "Rantau",
+        "deploymentName": "Nama pengerahan",
+        "apiVersion": "Versi API",
+        "contextWindowTokens": "Tetingkap konteks (token)",
+        "maxOutputTokens": "Token output maksimum",
+        "embeddingDimensions": "Dimensi benaman",
+        "supportsTools": "Menyokong panggilan alat",
+        "supportsStreaming": "Menyokong penstriman",
+        "maxConcurrency": "Permintaan serentak maksimum",
+        "timeoutSeconds": "Tamat masa (saat)",
+        "maxRetries": "Cubaan semula maksimum"
+      },
+      "errors": {
+        "baseUrl": "Masukkan URL yang bermula dengan http:// atau https://."
+      },
+      "actions": {
+        "validate": "Sahkan",
+        "validateTitle": "Pengesahan: {{name}}",
+        "listModels": "Senaraikan model penyedia",
+        "listModelsTitle": "Model yang ditawarkan oleh {{name}}"
+      }
+    },
+    "knowledge": {
+      "allProfiles": "Setiap profil",
+      "title": "Pengetahuan",
+      "subtitle": "Nota tentang tindanan anda yang diambil oleh Hugo ke dalam konteks, untuk satu profil atau sumber atau untuk setiap profil.",
+      "add": "Tambah nota",
+      "create": "Cipta nota",
+      "edit": "Edit nota",
+      "view": "Butiran nota",
+      "deleteTitle": "Padam nota",
+      "emptyTitle": "Belum ada pengetahuan",
+      "emptyBody": "Tuliskan apa yang akan diberitahu oleh pengendali kepada rakan sepasukan baharu: hos mana yang melayani pembayaran keluar, bila tidak boleh memulakan semula sistem pembayaran.",
+      "purpose": "Nota pengetahuan ialah fakta tentang tindanan anda yang ditulis oleh pengendali, dibenamkan dan diambil ke dalam konteks semasa perbualan (pencapaian M2).",
+      "columns": {
+        "title": "Tajuk",
+        "agentProfileId": "Profil",
+        "resourceId": "Sumber",
+        "lastUpdateUtc": "Dikemas kini",
+        "id": "ID"
+      },
+      "fields": {
+        "title": "Tajuk",
+        "agentProfileId": "Profil",
+        "resourceId": "Sumber",
+        "content": "Nota"
+      }
+    },
+    "profiles": {
+      "noModel": "Tiada model",
+      "title": "Profil ejen",
+      "subtitle": "Setiap profil ialah ejen: persona, model dan sumber yang boleh digunakannya, boleh dicapai melalui MCP, A2A, REST, OpenAI dan sembang.",
+      "add": "Tambah profil",
+      "create": "Cipta profil",
+      "edit": "Edit profil",
+      "view": "Butiran profil",
+      "deleteTitle": "Padam profil",
+      "emptyTitle": "Belum ada profil ejen",
+      "emptyBody": "Cipta profil, atau mulakan daripada profil Hugo lalai dan ikatkan sumber padanya.",
+      "purpose": "Profil ejen menghimpunkan persona (Agent Smith secara lalai), model dan sumber dengan mod akses. Setiap permukaan (MCP, A2A, REST, sembang) berkomunikasi dengan profil.",
+      "sections": {
+        "identity": "Identiti",
+        "models": "Model",
+        "limits": "Had",
+        "exposure": "Pendedahan"
+      },
+      "columns": {
+        "name": "Profil",
+        "personaName": "Persona",
+        "visibility": "Keterlihatan",
+        "inferenceEndpointId": "Model inferens",
+        "bindingCount": "Pengikatan",
+        "exposure": "Didedahkan melalui",
+        "id": "ID",
+        "createdUtc": "Dicipta"
+      },
+      "fields": {
+        "name": "Nama",
+        "displayName": "Nama paparan",
+        "description": "Penerangan",
+        "personaName": "Nama persona",
+        "userAddress": "Memanggil pengguna sebagai",
+        "visibility": "Keterlihatan",
+        "inferenceEndpointId": "Model inferens",
+        "fallbackInferenceEndpointId": "Model inferens sandaran",
+        "embeddingEndpointId": "Model benaman",
+        "maxIterations": "Lelaran maksimum setiap giliran",
+        "maxToolCallsPerTurn": "Panggilan alat maksimum setiap giliran",
+        "toolTimeoutSeconds": "Tamat masa alat (saat)",
+        "temperature": "Suhu",
+        "exposeMcp": "Dedahkan melalui MCP",
+        "exposeA2a": "Dedahkan melalui A2A",
+        "exposeOpenai": "Dedahkan melalui titik akhir serasi OpenAI",
+        "exposeManagementTools": "Dedahkan alat pengurusan",
+        "instructionsAppend": "Arahan tambahan"
+      },
+      "hints": {
+        "name": "Huruf, digit, titik, sengkang dan garis bawah. Digunakan dalam URL seperti /mcp/{name}."
+      },
+      "errors": {
+        "urlSafe": "Gunakan huruf, digit, titik, sengkang dan garis bawah, bermula dengan huruf atau digit."
+      },
+      "actions": {
+        "chat": "Bersembang dengan profil ini",
+        "duplicate": "Pendua"
+      }
+    },
+    "sessions": {
+      "revoked": "Dibatalkan",
+      "title": "Sesi",
+      "subtitle": "Sesi log masuk dan token aktif dalam penyewa ini. Batalkan satu untuk melog keluar klien tersebut serta-merta.",
+      "add": "Tambah sesi",
+      "create": "Cipta sesi",
+      "edit": "Edit sesi",
+      "view": "Butiran sesi",
+      "deleteTitle": "Padam sesi",
+      "emptyTitle": "Belum ada sesi",
+      "emptyBody": "Tiada sesi aktif. Log masuk atau menukar kunci akses akan mencipta sesi.",
+      "purpose": "Sesi ialah token pembawa yang dikeluarkan semasa log masuk atau dengan menukar kunci akses. Membatalkan satu sesi menamatkannya serta-merta.",
+      "columns": {
+        "principalName": "Prinsipal",
+        "principalType": "Jenis",
+        "authScheme": "Skema",
+        "sourceIp": "IP sumber",
+        "issuedUtc": "Dikeluarkan",
+        "lastUsedUtc": "Terakhir digunakan",
+        "expiresUtc": "Tamat tempoh",
+        "revokedUtc": "Keadaan",
+        "userAgent": "Klien",
+        "id": "ID"
+      },
+      "fields": {
+        "principalName": "Prinsipal",
+        "authScheme": "Skema",
+        "sourceIp": "IP sumber",
+        "userAgent": "Klien",
+        "principalType": "Jenis prinsipal",
+        "principalId": "ID prinsipal"
+      }
+    },
+    "conversations": {
+      "title": "Perbualan",
+      "subtitle": "Perbualan daripada setiap permukaan dalam penyewa ini. Buka satu untuk meneruskannya dalam Sembang.",
+      "add": "Tambah perbualan",
+      "create": "Cipta perbualan",
+      "edit": "Edit perbualan",
+      "view": "Butiran perbualan",
+      "deleteTitle": "Padam perbualan",
+      "emptyTitle": "Belum ada perbualan",
+      "emptyBody": "Perbualan dipaparkan di sini sebaik sahaja seseorang bersembang dengan profil, daripada papan pemuka atau mana-mana klien.",
+      "purpose": "Perbualan ialah bebenang tersimpan antara pemanggil dan profil, daripada sembang papan pemuka, konteks A2A, MCP dan sesi serasi OpenAI.",
+      "columns": {
+        "title": "Tajuk",
+        "agentProfileId": "Profil",
+        "userId": "Pengguna",
+        "source": "Sumber",
+        "messageCount": "Mesej",
+        "tokens": "Token",
+        "lastMessageUtc": "Mesej terakhir",
+        "id": "ID"
+      },
+      "fields": {
+        "source": "Sumber",
+        "agentProfileId": "Profil",
+        "userId": "ID pengguna",
+        "fromUtc": "Dari"
+      },
+      "actions": {
+        "export": "Eksport sebagai Markdown"
+      }
+    },
+    "plugins": {
+      "title": "Pemalam",
+      "subtitle": "Pemalam penyambung yang dimuatkan daripada direktori pemalam. Dayakan atau lumpuhkannya, dan lihat sebab pemalam gagal dimuatkan.",
+      "add": "Tambah pemalam",
+      "create": "Cipta pemalam",
+      "edit": "Edit pemalam",
+      "view": "Butiran pemalam",
+      "deleteTitle": "Padam pemalam",
+      "emptyTitle": "Belum ada pemalam",
+      "emptyBody": "Tiada pemalam dipasang. Letakkan pemalam penyambung ke dalam direktori pemalam dan hidupkan Connectors.EnablePlugins.",
+      "purpose": "Pemalam menambah jenis penyambung tanpa membina semula Hugo. Ia dimuatkan daripada direktori pemalam dalam konteks terasing.",
+      "columns": {
+        "name": "Nama",
+        "version": "Versi",
+        "connectorTypes": "Jenis penyambung",
+        "enabled": "Keadaan",
+        "loadError": "Ralat pemuatan",
+        "sha256": "SHA-256",
+        "id": "ID"
+      },
+      "fields": {
+        "name": "Nama",
+        "version": "Versi",
+        "enabled": "Didayakan"
+      },
+      "actions": {
+        "enable": "Dayakan",
+        "disable": "Lumpuhkan"
+      }
+    }
+  },
+  "views": {
+    "home": {
+      "observabilityState": {
+        "reachable": "Boleh dihubungi",
+        "unreachable": "Tidak dapat dihubungi",
+        "checking": "Menyemak",
+        "unknown": "Status tidak diketahui"
+      },
+      "observabilityVersion": "Versi {{version}}",
+      "observabilityOpen": "Buka {{service}}",
+      "kpisGrafana": "Buka gambaran keseluruhan dalam Grafana",
+      "grafanaDashboards": "Papan pemuka Grafana",
+      "grafanaSections": {
+        "overview": "Gambaran keseluruhan",
+        "http": "API HTTP",
+        "models": "Model",
+        "protocols": "MCP dan A2A",
+        "security": "Keselamatan",
+        "agent": "Ejen dan sembang",
+        "tools": "Alat dan penyambung"
+      },
+      "observabilitySetup": "Sediakan kebolehcerapan",
+      "observabilityNone": "Tiada perkhidmatan kebolehcerapan (Grafana, Prometheus, Tempo atau Loki) dikonfigurasikan untuk pelayan Hugo ini.",
+      "observability": "Kebolehcerapan",
+      "title": "Utama",
+      "subtitle": "Apa yang sedang dilakukan oleh Hugo sekarang, apa yang memerlukan perhatian anda dan ke mana untuk pergi seterusnya.",
+      "lastLoaded": "Dikemas kini {{time}}",
+      "getStartedTitle": "Mulakan Agent Smith",
+      "getStartedBody": "Penyewa ini belum mempunyai titik akhir model dan sumber. Wizard persediaan menyambungkan model dan sistem pertama dalam beberapa minit.",
+      "runSetup": "Jalankan persediaan",
+      "kpis": {
+        "last24h": "24 jam lalu",
+        "requests": "Permintaan",
+        "toolCalls": "Panggilan alat",
+        "failures": "Kegagalan",
+        "approvals": "Kelulusan menunggu",
+        "unhealthy": "Sumber tidak sihat",
+        "tokens": "Token hari ini",
+        "today": "sejak tengah malam"
+      },
+      "requestActivity": "Aktiviti permintaan API",
+      "recentFailures": "Panggilan alat gagal terkini",
+      "noFailures": "Tiada panggilan alat gagal baru-baru ini.",
+      "cta": {
+        "title": "Aliran kerja biasa",
+        "apiExplorer": "Buka Penjelajah API",
+        "addResource": "Tambah sumber",
+        "addModel": "Tambah titik akhir model",
+        "chat": "Bersembang dengan Agent Smith",
+        "connect": "Sambungkan Claude Code",
+        "approvals": "Semak kelulusan"
+      },
+      "services": {
+        "loki": "Loki",
+        "grafana": "Grafana",
+        "prometheus": "Prometheus",
+        "tempo": "Tempo"
+      },
+      "partial_one": "{{count}} panel tidak dapat dimuatkan, jadi beberapa nombor di bawah tiada. Bahagian lain halaman ini adalah terkini.",
+      "partial_other": "{{count}} panel tidak dapat dimuatkan, jadi beberapa nombor di bawah tiada. Bahagian lain halaman ini adalah terkini.",
+      "failuresUnavailable": "Pelayan ini belum melaporkan panggilan alat.",
+      "unhealthyTitle": "Sumber tidak sihat",
+      "allHealthy": "Setiap sumber lulus semakan kesihatan terakhirnya.",
+      "resourcesUnavailable": "Pelayan ini belum melaporkan sumber."
+    },
+    "markdown": {
+      "showRaw": "Tunjukkan teks mentah",
+      "showRendered": "Tunjukkan berformat"
+    },
+    "templateEditor": {
+      "cloneToEdit": "Klon untuk mengedit",
+      "builtInReadOnly": "Templat terbina dalam adalah baca sahaja, jadi setiap medan di sini dikunci. Klonkannya untuk mendapatkan salinan yang boleh diedit.",
+      "renameHint": "Anda boleh menamakan semula templat ini. Templat yang menyertakannya mengikut nama mesti dikemas kini secara manual.",
+      "cloneDialog": {
+        "taken": "Templat bernama {{name}} sudah wujud. Pilih nama lain.",
+        "reserved": "Nama yang bermula dengan builtin/ dikhaskan untuk templat terbina dalam.",
+        "hint": "Anda boleh menamakan semula salinan kemudian pada halamannya.",
+        "name": "Nama salinan",
+        "body": "Salinan bermula dengan kandungan semasa sebagai versi 1 dan boleh diedit, dinamakan semula dan dipadam.",
+        "title": "Klon {{name}}"
+      },
+      "newTitle": "Templat gesaan baharu",
+      "subtitle": "Tulis templat, pratonton dengan konteks sampel, dan simpan.",
+      "changeNote": "Nota perubahan",
+      "versions_one": "Versi ({{count}})",
+      "versions_other": "Versi ({{count}})",
+      "noVersions": "Belum ada versi yang disimpan.",
+      "version": "Versi",
+      "note": "Nota",
+      "author": "Pengarang",
+      "diff": "Perbezaan",
+      "restore": "Pulihkan",
+      "diffTitle": "Versi {{version}} berbanding editor",
+      "current": "Editor",
+      "reset": "Tetapkan semula kepada lalai",
+      "savedVersion": "Versi baharu disimpan.",
+      "restored": "Versi {{version}} dipulihkan.",
+      "resetDone": "Ditetapkan semula kepada kandungan asal.",
+      "confirm": {
+        "restoreTitle": "Pulihkan versi",
+        "restoreMessage": "Pulihkan versi {{version}}? Kandungan semasa disimpan dalam sejarah.",
+        "resetTitle": "Tetapkan semula templat",
+        "resetMessage": "Tetapkan semula \"{{name}}\" kepada kandungan asal?",
+        "deleteTitle": "Padam templat",
+        "deleteMessage": "Padam \"{{name}}\"? Profil dan penyambung yang menggunakannya akan kembali kepada lalai terbina dalam."
+      },
+      "saved": "Teks disimpan"
+    },
+    "requests": {
+      "grafana": "Papan pemuka HTTP dalam Grafana",
+      "title": "Sejarah Permintaan",
+      "subtitle": "Trafik API yang ditangkap. Teliti mana-mana permintaan dan urus pengekalan.",
+      "kpis": {
+        "total": "Permintaan yang dikekalkan",
+        "success": "Berjaya",
+        "failure": "Kegagalan",
+        "avgDuration": "Purata tempoh"
+      },
+      "columns": {
+        "time": "Masa",
+        "method": "Kaedah",
+        "path": "Laluan",
+        "status": "Status",
+        "duration": "Tempoh",
+        "principal": "Prinsipal"
+      },
+      "bulkDeleteTitle": "Padam sejarah permintaan",
+      "bulkDeleteMessage": "Padam kesemua {{count}} permintaan yang sepadan dengan penapis semasa?",
+      "bulkDeleteAll": "Padam semua yang sepadan",
+      "deleteOneTitle": "Padam permintaan",
+      "deleteOneMessage": "Padam permintaan {{id}}?",
+      "deleted": "Dipadam.",
+      "emptyTitle": "Tiada sejarah permintaan",
+      "emptyBodyNoTraffic": "Belum ada trafik API yang dikekalkan.",
+      "emptyBodyNoMatch": "Tiada permintaan yang sepadan dengan penapis semasa."
+    },
+    "explorer": {
+      "title": "Penjelajah API",
+      "subtitle": "Laksanakan panggilan langsung terhadap pelayan ini, berpandukan dokumen OpenAPI pelayan.",
+      "operations": "Operasi",
+      "selectOperation": "Pilih operasi untuk membina permintaan.",
+      "selectOperationOption": "Pilih operasi...",
+      "pathParams": "Parameter laluan",
+      "queryParams": "Parameter pertanyaan",
+      "headers": "Pengepala",
+      "addHeader": "Tambah pengepala",
+      "headerName": "Nama pengepala",
+      "headerValue": "Nilai pengepala {{name}}",
+      "removeHeader": "Alih keluar pengepala {{name}}",
+      "body": "Badan permintaan",
+      "resolvedUrl": "URL yang diselesaikan",
+      "copyUrl": "Salin URL",
+      "execute": "Laksana",
+      "executing": "Melaksanakan...",
+      "stop": "Henti",
+      "streaming": "Penstriman",
+      "response": "Respons",
+      "responseHeaders": "Pengepala respons",
+      "responseBody": "Badan respons",
+      "snippets": "Coretan kod",
+      "history": "Permintaan terkini",
+      "historyEmpty": "Tiada permintaan terkini.",
+      "loadHistory": "Muat",
+      "deleteHistory": "Padam",
+      "clearHistory": "Kosongkan sejarah",
+      "required": "diperlukan",
+      "confirmTitle": "Laksanakan operasi memusnahkan",
+      "confirmMessage": "Permintaan {{method}} ini mungkin mengubah atau memadam data. Teruskan?",
+      "noSpecTitle": "Dokumen OpenAPI tidak tersedia",
+      "noSpecBody": "Pelayan ini tidak mengembalikan dokumen /openapi.json yang boleh digunakan, jadi penjelajah tidak dapat menyenaraikan operasi."
+    },
+    "settings": {
+      "errors": {
+        "allowed": "Pilih salah satu: {{values}}.",
+        "boolean": "Pilih benar atau palsu.",
+        "max": "Masukkan {{max}} atau kurang.",
+        "min": "Masukkan {{min}} atau lebih.",
+        "range": "Masukkan nilai dari {{min}} hingga {{max}}.",
+        "integer": "Masukkan nombor bulat.",
+        "number": "Masukkan nombor."
+      },
+      "notSaved": "Tiada apa-apa yang disimpan. Betulkan tetapan yang diserlahkan dan simpan semula.",
+      "title": "Tetapan",
+      "subtitle": "Tetapan hugo.json pelayan, dengan penggantian persekitaran dipaparkan sebagai baca sahaja. Sesetengah perubahan berkuat kuasa serta-merta, yang lain selepas dimulakan semula.",
+      "readOnly": "Anda melihat tetapan dalam mod baca sahaja. Hanya pentadbir sistem boleh mengubahnya.",
+      "restartBanner": "Sesetengah perubahan yang disimpan berkuat kuasa selepas dimulakan semula.",
+      "restarting": "Pelayan sedang dimulakan semula. Halaman ini akan menyambung semula secara automatik.",
+      "restarted": "Pelayan kembali dalam talian.",
+      "restartTimeout": "Pelayan tidak kembali dalam masa tiga minit. Semak status bekas dengan docker ps.",
+      "restart": "Mulakan semula pelayan",
+      "restartConfirmTitle": "Mulakan semula pelayan",
+      "restartConfirmMessage": "Mulakan semula pelayan Hugo sekarang? Permintaan yang sedang berjalan dan strim sembang akan terputus; bekas memulakan semula proses dan halaman ini akan menyambung semula.",
+      "savedLive": "Tetapan disimpan dan digunakan.",
+      "savedRestart": "Tetapan disimpan. Mulakan semula pelayan untuk menggunakan setiap perubahan.",
+      "live": "Serta-merta",
+      "restartRequired": "Perlu dimulakan semula",
+      "secretSet": "Ditetapkan (masukkan nilai baharu untuk menggantikan)",
+      "secretNotSet": "Tidak ditetapkan",
+      "range": "Julat yang dibenarkan {{min}} hingga {{max}}",
+      "testDatabase": "Uji sambungan pangkalan data",
+      "testing": "Menguji...",
+      "dbOk": "Sambungan berjaya",
+      "dbFailed": "Sambungan gagal",
+      "unavailableTitle": "Tetapan tidak tersedia",
+      "unavailableBody": "Pelayan ini tidak mengembalikan tetapannya.",
+      "sources": {
+        "File": "Fail tetapan",
+        "Environment": "Persekitaran",
+        "Database": "Pangkalan data"
+      },
+      "lockedBy": {
+        "Environment": "Ditetapkan oleh pemboleh ubah persekitaran. Nilai persekitaran diutamakan.",
+        "other": "Tetapan ini tidak boleh diubah di sini."
+      },
+      "groups": {
+        "General": "Umum",
+        "Rest": "Pendengar REST",
+        "Mcp": "MCP",
+        "Database": "Pangkalan data",
+        "Logging": "Pengelogan",
+        "Auth": "Pengesahan",
+        "RequestHistory": "Sejarah permintaan",
+        "Telemetry": "Telemetri",
+        "Audit": "Audit",
+        "Secrets": "Peti besi rahsia",
+        "Agent": "Gelung ejen",
+        "Approvals": "Kelulusan",
+        "Connectors": "Penyambung",
+        "Models": "Titik akhir model",
+        "A2A": "A2A",
+        "OpenAI": "Titik akhir serasi OpenAI",
+        "Embeddings": "Benaman"
+      },
+      "fields": {
+        "Rest": {
+          "Hostname": "Nama hos pendengar",
+          "Port": "Port pendengar",
+          "Ssl": "Gunakan TLS",
+          "ExternalBaseUrl": "URL asas luaran",
+          "AllowedOrigins": "Asal CORS yang dibenarkan"
+        },
+        "Database": {
+          "Type": "Jenis pangkalan data",
+          "Filename": "Fail SQLite",
+          "Server": "Pelayan pangkalan data",
+          "Port": "Port pangkalan data",
+          "DatabaseName": "Nama pangkalan data",
+          "Username": "Pengguna pangkalan data",
+          "Password": "Kata laluan pangkalan data"
+        },
+        "Auth": {
+          "SigningKey": "Kunci tandatangan token",
+          "UserSessionMinutes": "Tempoh sesi pengguna (minit)",
+          "AdminSessionMinutes": "Tempoh sesi pentadbir (minit)",
+          "SessionAbsoluteMaxHours": "Had mutlak sesi (jam)",
+          "RateLimitPerMinute": "Percubaan log masuk setiap minit"
+        },
+        "Secrets": {
+          "MasterKey": "Kunci induk (pembangunan sahaja)",
+          "RevealReauthMinutes": "Tetingkap pengesahan semula untuk pendedahan (minit)"
+        },
+        "Agent": {
+          "DefaultMaxIterations": "Lelaran maksimum lalai setiap giliran",
+          "DefaultMaxToolCallsPerTurn": "Panggilan alat maksimum lalai setiap giliran",
+          "MaxParallelToolCalls": "Panggilan alat baca selari",
+          "ToolRetrievalThreshold": "Ambang pengambilan alat",
+          "CompactionThresholdRatio": "Ambang pemadatan sejarah"
+        },
+        "Approvals": {
+          "ExpirySeconds": "Tamat tempoh kelulusan (saat)",
+          "McpWaitSeconds": "Tempoh menunggu kelulusan MCP (saat)",
+          "AllowSelfApproval": "Benarkan meluluskan panggilan anda sendiri"
+        },
+        "Connectors": {
+          "EnablePlugins": "Dayakan pemalam penyambung",
+          "PluginDirectory": "Direktori pemalam",
+          "DefaultToolTimeoutSeconds": "Tamat masa alat lalai (saat)",
+          "HealthSweepMinutes": "Sapuan kesihatan sumber (minit)"
+        },
+        "Models": {
+          "HealthIntervalSeconds": "Selang semakan kesihatan model (saat)"
+        }
+      }
+    },
+    "serverInfo": {
+      "title": "Maklumat Pelayan",
+      "subtitle": "Titik akhir, versi dan identiti yang anda gunakan untuk log masuk.",
+      "endpoints": "Titik akhir",
+      "rest": "REST API",
+      "mcp": "MCP",
+      "a2a": "A2A",
+      "openapi": "OpenAPI",
+      "server": "Pelayan",
+      "version": "Versi pelayan",
+      "dashboardVersion": "Versi papan pemuka",
+      "node": "Nod pelayan",
+      "database": "Pangkalan data",
+      "health": "Kesihatan",
+      "routes": "Operasi berdaftar",
+      "serverTime": "Masa pelayan",
+      "principal": "Log masuk sebagai",
+      "principalName": "Prinsipal",
+      "principalType": "Jenis prinsipal",
+      "role": "Peranan",
+      "tenant": "Penyewa",
+      "expires": "Sesi tamat tempoh",
+      "features": "Bendera ciri",
+      "connectors": "Penyambung dimuatkan",
+      "openai": "Serasi OpenAI"
+    },
+    "analytics": {
+      "legend": "Siri dalam {{chart}}",
+      "noDataInChart": "Tiada data untuk carta ini dalam julat yang dipilih.",
+      "dataTable": "Jadual data",
+      "bucketStart": "Permulaan baldi",
+      "title": "Analitik",
+      "subtitle": "Penggunaan token, panggilan alat mengikut kesan dan penyambung, kependaman dan ralat model, serta masa pusingan kelulusan.",
+      "purpose": "Analitik menukar panggilan alat, giliran sembang dan panggilan model kepada trend penggunaan dan kos bagi setiap profil dan model.",
+      "profile": "Profil",
+      "panels": {
+        "overview": "Jumlah",
+        "tokens": "Penggunaan token",
+        "tools": "Panggilan alat mengikut kesan",
+        "models": "Model",
+        "modelLatency": "Kependaman model",
+        "modelErrors": "Ralat model"
+      },
+      "purposes": {
+        "overview": "Jumlah giliran, panggilan alat, kegagalan, token dan kelulusan dalam julat yang dipilih.",
+        "tokens": "Token input dan output dari semasa ke semasa, merentas setiap permukaan yang menjalankan gelung Hugo sendiri.",
+        "tools": "Panggilan alat dari semasa ke semasa dibahagikan mengikut kesan, serta panggilan, kegagalan dan kependaman bagi setiap penyambung.",
+        "models": "Persentil kependaman dan bilangan ralat bagi setiap titik akhir model."
+      },
+      "help": {
+        "tokens": "Token input dan output bagi setiap baldi masa.",
+        "tools": "Panggilan alat bagi setiap baldi masa mengikut kesan: Baca, Tulis dan Memusnahkan.",
+        "modelLatency": "Masa respons model median (p50) dan p95 bagi setiap baldi.",
+        "modelErrors": "Permintaan model yang gagal bagi setiap baldi."
+      },
+      "kpis": {
+        "turns": "Giliran sembang",
+        "toolCalls": "Panggilan alat",
+        "failures": "Panggilan alat yang gagal",
+        "tokens": "Token",
+        "approvals": "Kelulusan",
+        "turnaround": "Tempoh pemprosesan kelulusan",
+        "approvalRate": "Bahagian diluluskan"
+      },
+      "metrics": {
+        "inputTokens": "Token input",
+        "outputTokens": "Token output",
+        "latencyMsP50": "Median (p50)",
+        "latencyMsP95": "p95",
+        "errors": "Ralat",
+        "Read": "Baca",
+        "Write": "Tulis",
+        "Destructive": "Memusnahkan"
+      },
+      "columns": {
+        "connector": "Penyambung",
+        "calls": "Panggilan",
+        "failures": "Kegagalan",
+        "p95": "Tempoh p95"
+      }
+    },
+    "chat": {
+      "title": "Sembang",
+      "subtitle": "Bercakap dengan Agent Smith. Panggilan alat dipaparkan sebaris bersama kesannya, dan panggilan berisiko menunggu kelulusan anda.",
+      "purpose": "Sembang menjalankan gelung ejen Hugo sendiri terhadap profil yang anda pilih: ia membaca sumber terikat anda melalui alatnya, bertanya sebelum tindakan berisiko, dan menstrim jawapan di sini.",
+      "conversations": "Perbualan",
+      "search": "Cari perbualan",
+      "noConversations": "Belum ada perbualan.",
+      "untitled": "Perbualan tanpa tajuk",
+      "new": "Perbualan baharu",
+      "export": "Eksport",
+      "context": "Konteks",
+      "profile": "Profil",
+      "model": "Model: {{model}}",
+      "modelLabel": "Model",
+      "persona": "Persona",
+      "addresses": "Memanggil anda sebagai",
+      "resources": "Sumber terikat",
+      "noResources": "Profil ini tiada sumber yang terikat.",
+      "usage": "Penggunaan token",
+      "pending": "Kelulusan belum selesai",
+      "noPending": "Tiada apa-apa yang menunggu anda.",
+      "noModel": "Profil ini tiada model inferens, jadi Agent Smith belum boleh menjawab. Tambah titik akhir model dan pilih ia pada profil.",
+      "goModels": "Tambah titik akhir model",
+      "noProfilesTitle": "Belum ada profil ejen",
+      "noProfilesBody": "Sembang bercakap dengan profil ejen. Cipta satu (atau biarkan pelayan menyemai profil Hugo lalai) untuk bermula.",
+      "goProfiles": "Buka Profil Ejen",
+      "emptyHint": "Tanya {{persona}} tentang tindanan anda, contohnya \"Mengapa checkout perlahan?\""
+    },
+    "profile": {
+      "title": "Profil ejen",
+      "subtitle": "Persona {{persona}}, memanggil pengguna sebagai {{address}}.",
+      "tabs": {
+        "general": "Umum",
+        "bindings": "Pengikatan",
+        "instructions": "Arahan",
+        "tools": "Alat",
+        "connect": "Sambung"
+      },
+      "bindings": {
+        "body": "Setiap pengikatan melampirkan sumber pada profil ini di bawah alias, dengan mod akses yang menentukan apa yang boleh dilakukan oleh ejen.",
+        "purpose": "Pengikatan melampirkan sumber pada profil dengan mod akses, dasar kelulusan dan peraturan alat.",
+        "add": "Tambah pengikatan",
+        "edit": "Edit pengikatan",
+        "emptyTitle": "Belum ada sumber terikat",
+        "emptyBody": "Profil ini tidak boleh menyentuh mana-mana sistem sehingga anda mengikat sumber padanya. Tambah sumber dahulu, kemudian ikat di sini.",
+        "goResources": "Buka Sumber",
+        "noResources": "Belum ada sumber untuk diikat. Tambah satu pada halaman Sumber dahulu.",
+        "approvalOn": "Kelulusan",
+        "aliasInvalid": "Gunakan huruf, digit, titik, sengkang dan garis bawah, bermula dengan huruf atau digit.",
+        "aliasTaken": "Pengikatan lain pada profil ini sudah menggunakan alias ini.",
+        "deleteTitle": "Alih keluar pengikatan",
+        "deleteBody": "Alih keluar {{alias}} daripada profil ini? Sumber itu sendiri dikekalkan; pemanggil profil ini kehilangan akses kepadanya.",
+        "columns": {
+          "alias": "Alias",
+          "resource": "Sumber",
+          "accessMode": "Mod akses",
+          "approval": "Kelulusan",
+          "enabled": "Keadaan"
+        },
+        "fields": {
+          "resourceId": "Sumber",
+          "alias": "Alias",
+          "accessMode": "Mod akses",
+          "requireApprovalForDestructive": "Perlukan kelulusan untuk panggilan memusnahkan",
+          "instructionMode": "Arahan",
+          "instructionText": "Teks arahan",
+          "maxOutputBytes": "Bait output maksimum",
+          "maxRows": "Baris maksimum",
+          "enabled": "Didayakan"
+        }
+      },
+      "toolRules": {
+        "title": "Peraturan alat untuk {{alias}}",
+        "body": "Tindih alat individu pada pengikatan ini. Alat yang tidak ditetapkan mengikut mod akses.",
+        "open": "Peraturan alat",
+        "rule": "Peraturan",
+        "ruleFor": "Peraturan untuk {{tool}}",
+        "inherit": "Ikut mod akses",
+        "noTools": "Pelayan tidak melaporkan sebarang alat untuk profil ini."
+      },
+      "instructions": {
+        "body": "Arahan yang diterima pemanggil: persona, peraturan keselamatan, dan bahagian setiap sumber terikat, mengikut urutan.",
+        "purpose": "Arahan yang dikompil menunjukkan dengan tepat apa yang diberitahu kepada Agent Smith bagi setiap permukaan, bersama templat asal setiap bahagian.",
+        "surface": "Permukaan",
+        "sourceMap": "Asal setiap bahagian"
+      },
+      "tools": {
+        "body": "Alat tepat seperti yang dilihat oleh pemanggil profil ini, selepas mod akses dan peraturan alat digunakan.",
+        "purpose": "Senarai alat menunjukkan apa yang boleh dipanggil oleh pemanggil profil ini, selepas mod akses dan peraturan alat.",
+        "empty": "Profil ini tidak mendedahkan sebarang alat.",
+        "name": "Alat",
+        "effect": "Kesan",
+        "description": "Penerangan",
+        "perCall": "(dikelaskan bagi setiap panggilan)"
+      },
+      "connect": {
+        "claudeCode": "Claude Code (MCP melalui HTTP)",
+        "claudeCodeBody": "Tambah ini pada tetapan MCP anda. Tetapkan HUGO_TOKEN kepada token sesi, atau gunakan kelayakan yang terikat pada profil ini.",
+        "claudeCli": "Claude Code CLI",
+        "claudeCliBody": "Pelayan yang sama didaftarkan daripada baris arahan.",
+        "stdio": "Geganti stdio",
+        "stdioBody": "Untuk klien MCP yang hanya menggunakan stdio: CLI hugo menggeganti ke titik akhir HTTP.",
+        "a2a": "Kad ejen A2A",
+        "a2aBody": "Ejen lain menemui profil ini melalui kad A2A miliknya.",
+        "a2aOff": "A2A dimatikan untuk profil ini. Hidupkan pendedahan A2A pada tab Umum untuk menerbitkan kad.",
+        "openai": "Titik akhir serasi OpenAI",
+        "openaiBody": "Halakan mana-mana klien serasi OpenAI ke URL asas ini dan gunakan nama model {{model}}.",
+        "openaiOff": "Titik akhir serasi OpenAI dimatikan untuk profil ini.",
+        "credential": "Kelayakan untuk profil ini",
+        "credentialBody": "Abah-abah harus bersambung dengan kelayakan yang terikat pada profil ini, supaya ia sentiasa bertindak sebagai profil ini dan tidak lebih.",
+        "credentialAction": "Cipta kelayakan"
+      }
+    },
+    "resources": {
+      "form": {
+        "chooseConnector": "Pilih penyambung",
+        "connectorsUnavailable": "Pelayan tidak menyenaraikan penyambungnya, jadi tetapan belum boleh dijana.",
+        "settings": "Tetapan",
+        "secrets": "Rahsia",
+        "test": "Uji sambungan",
+        "testing": "Menguji..."
+      },
+      "tryTool": {
+        "title": "Cuba alat pada {{name}}",
+        "body": "Pilih profil yang mengikat sumber ini dan satu alat. Larian kering mengelaskan panggilan tanpa menjalankannya; Laksana menjalankannya melalui semakan keselamatan yang sama seperti setiap permukaan lain.",
+        "profile": "Jalankan sebagai profil",
+        "tool": "Alat",
+        "arguments": "Argumen (JSON)",
+        "dryRun": "Larian kering",
+        "execute": "Laksana",
+        "classification": "Pengelasan",
+        "result": "Hasil",
+        "notBound": "Profil ini tidak mengikat sumber tersebut, jadi alatnya tidak dapat mencapainya.",
+        "pendingApproval": "Panggilan sedang menunggu kelulusan {{id}}. Putuskannya pada halaman Kelulusan."
+      }
+    },
+    "secrets": {
+      "reveal": {
+        "title": "Dedahkan {{name}}",
+        "warning": "Mendedahkan akan menunjukkan nilai teks biasa. Pendedahan diaudit bersama sebab anda, dan nilai akan hilang selepas 30 saat.",
+        "reason": "Sebab",
+        "reasonRequired": "Nyatakan mengapa anda perlu melihat nilai tersebut.",
+        "submit": "Dedahkan",
+        "reauthBody": "Demi keselamatan anda, masukkan kata laluan anda sekali lagi sebelum mendedahkan rahsia.",
+        "password": "Kata laluan anda",
+        "reauthSubmit": "Sahkan dan dedahkan",
+        "hidesIn": "Disembunyikan semula dalam {{seconds}} saat.",
+        "hidden": "Nilai telah disembunyikan semula.",
+        "again": "Dedahkan semula"
+      }
+    },
+    "connectors": {
+      "title": "Penyambung",
+      "subtitle": "Jenis sistem yang boleh dicapai oleh Hugo, bersama tetapan, rahsia, alat dan arahan lalainya.",
+      "purpose": "Katalog penyambung menyenaraikan setiap keluarga perkhidmatan yang boleh dicapai oleh pelayan ini (SSH, storan objek, pangkalan data, perkhidmatan log dan banyak lagi), bersama tetapan dan rahsia yang diperlukan oleh setiap satu serta alat yang ditawarkannya.",
+      "search": "Cari penyambung",
+      "category": "Kategori",
+      "count_one": "{{shown}} penyambung",
+      "count_other": "{{shown}} penyambung",
+      "emptyTitle": "Tiada penyambung yang sepadan",
+      "emptyBody": "Kosongkan carian atau pilih kategori lain.",
+      "noDescription": "Tiada penerangan.",
+      "toolCount_one": "{{count}} alat",
+      "toolCount_other": "{{count}} alat",
+      "loadError": "Ralat memuatkan",
+      "addResource": "Tambah sumber",
+      "tabs": {
+        "overview": "Gambaran keseluruhan",
+        "settings": "Skema tetapan",
+        "tools": "Alat",
+        "instructions": "Arahan lalai"
+      },
+      "fields": {
+        "type": "Jenis",
+        "family": "Keluarga",
+        "category": "Kategori",
+        "version": "Versi",
+        "documentation": "Dokumentasi"
+      },
+      "slots": "Slot rahsia",
+      "noSlots": "Penyambung ini tidak memerlukan rahsia.",
+      "settingsBody": "Ini ialah borang yang diterima oleh sumber baharu jenis ini. Cubanya di sini; tiada apa-apa yang disimpan.",
+      "reference": "Rujukan tetapan",
+      "columns": {
+        "key": "Kunci",
+        "kind": "Jenis",
+        "required": "Wajib",
+        "default": "Lalai",
+        "range": "Nilai yang dibenarkan",
+        "group": "Kumpulan"
+      },
+      "noTools": "Penyambung ini tidak menawarkan sebarang alat.",
+      "instructionsBody": "Setiap sumber jenis ini menambah arahan ini untuk ejen. Editnya bagi setiap penyewa atau secara global di bawah kunci templat {{key}}.",
+      "editInstructions": "Edit dalam Templat Gesaan",
+      "builtInInstructions": "Arahan lalai terbina dalam",
+      "noInstructions": "Penyambung ini tidak disertakan dengan arahan lalai."
+    },
+    "mcpExplorer": {
+      "title": "Penjelajah MCP",
+      "subtitle": "Sambung ke titik akhir MCP Hugo sebagai diri anda, baca arahan, senaraikan alat dan panggilnya.",
+      "purpose": "Penjelajah MCP berkomunikasi dengan /mcp tepat seperti Claude Code, supaya anda boleh menyemak arahan dan senarai alat yang didedahkan oleh profil sebelum menyambungkan abah-abah.",
+      "profile": "Profil",
+      "defaultProfile": "Ditentukan oleh pelayan",
+      "connect": "Sambung",
+      "reconnect": "Sambung semula",
+      "session": "Sesi {{id}}",
+      "failed": "Permintaan MCP gagal",
+      "tools": "Alat",
+      "toolsCount_one": "{{count}} alat",
+      "toolsCount_other": "{{count}} alat",
+      "noTools": "Pelayan tidak menyenaraikan sebarang alat untuk pemanggil ini.",
+      "serverInfo": "Pelayan",
+      "instructions": "Arahan daripada initialize",
+      "noInstructions": "Pelayan tidak menghantar sebarang arahan.",
+      "call": "Panggil alat",
+      "toolOk": "Alat mengembalikan hasil.",
+      "toolError": "Alat melaporkan ralat.",
+      "invalidJson": "Nilai {{field}} bukan JSON yang sah.",
+      "log_one": "Log JSON-RPC ({{count}} mesej)",
+      "log_other": "Log JSON-RPC ({{count}} mesej)"
+    },
+    "a2aExplorer": {
+      "title": "Penjelajah A2A",
+      "subtitle": "Ambil kad ejen profil, hantar mesej kepadanya, strim jawapan dan senaraikan tugas melalui A2A.",
+      "purpose": "Penjelajah A2A memanggil /v1.0/a2a/{tenant}/{profile} dengan kaedah JSON-RPC A2A 1.0, sama seperti yang dilakukan oleh ejen lain.",
+      "profile": "Profil",
+      "fetchCard": "Ambil kad",
+      "listTasks": "Senaraikan tugas",
+      "message": "Mesej",
+      "stream": "Strim jawapan",
+      "send": "Hantar",
+      "context": "Meneruskan konteks {{id}}",
+      "result": "Hasil",
+      "events_one": "Peristiwa strim ({{count}})",
+      "events_other": "Peristiwa strim ({{count}})",
+      "tasks_one": "{{count}} tugas",
+      "tasks_other": "{{count}} tugas",
+      "noTasks": "Belum ada tugas untuk profil ini."
+    }
+  },
+  "tips": {
+    "fieldWarnings": {
+      "dismiss": "Sembunyikan notis ini. Rekod sudah disimpan dengan nilai yang disenaraikan di sini."
+    },
+    "ids": {
+      "deleted": "Rekod ini telah dipadam. ID {{id}}. Butang salin menyalin ID tersebut.",
+      "named": "ID {{id}}. Gunakan butang salin untuk menyalin ID bagi API, SDK atau permintaan sokongan."
+    },
+    "markdown": {
+      "column": "Lajur {{name}} bagi jadual dalam output ejen. Jadual lebar boleh ditatal ke sisi di dalam bingkainya.",
+      "showRaw": "Tunjukkan teks tepat yang dikembalikan oleh ejen, tanpa pemformatan Markdown, supaya anda boleh memeriksa atau menyalinnya.",
+      "showRendered": "Tunjukkan semula teks yang diformat sebagai Markdown, dengan jadual, senarai, blok kod dan pautan.",
+      "copy": "Salin teks hasil mentah, termasuk sintaks Markdown, ke papan keratan.",
+      "link": "Membuka {{href}} dalam tab baharu. Pautan ini datang daripada output ejen, jadi semak alamatnya sebelum anda mempercayainya."
+    },
+    "common": {
+      "fields": {
+        "name": "Nama unik untuk rekod ini dalam penyewa. Rekod lain merujuknya melalui nama ini.",
+        "description": "Nota teks bebas untuk manusia. Ia menerangkan tujuan rekod ini dan tidak digunakan semasa masa jalan.",
+        "active": "Rekod tidak aktif disimpan tetapi diabaikan. Matikan ini untuk menjeda sesuatu tanpa memadamnya.",
+        "id": "Pengecam yang dijana sistem dengan awalan jenis. Gunakannya dalam panggilan API dan skrip; ia tidak pernah berubah.",
+        "createdUtc": "Bila rekod ini dicipta. Letakkan tetikus pada nilai untuk tarikh dan masa yang tepat.",
+        "lastUpdateUtc": "Bila rekod ini terakhir diubah.",
+        "isBuiltIn": "Rekod terbina dalam disertakan dengan Hugo dan hanya boleh dibaca. Rekod tersuai dicipta dalam penyewa ini dan boleh diedit.",
+        "expiresUtc": "Selepas masa ini rekod berhenti berfungsi. Biarkan kosong untuk tiada tarikh luput."
+      }
+    },
+    "explainer": {
+      "reopen": "Tunjukkan semula penerangan tentang {{topic}}: apa yang diuruskan oleh halaman ini dan bagaimana ia berkaitan dengan bahagian lain Hugo.",
+      "dismiss": "Sembunyikan penerangan ini. Butang \"Perihal\" kecil kekal di tempatnya supaya anda boleh memaparkannya semula pada bila-bila masa."
+    },
+    "topbar": {
+      "toggleSidebar": "Runtuhkan atau kembangkan bar sisi navigasi. Pada skrin kecil ia membuka navigasi sebagai tindanan.",
+      "server": "Pelayan Hugo yang digunakan oleh konsol ini: {{url}}. Titik menunjukkan sama ada semakan kesihatannya lulus.",
+      "health": {
+        "healthy": "Pelayan menjawab semakan kesihatannya dalam 30 saat terakhir.",
+        "unhealthy": "Pelayan tidak menjawab semakan kesihatannya. Permintaan daripada halaman ini mungkin akan gagal.",
+        "unknown": "Menunggu hasil semakan kesihatan pertama daripada pelayan."
+      },
+      "copyServer": "Salin URL pelayan, contohnya untuk mengkonfigurasi SDK atau arahan curl.",
+      "switchTenant": "Pentadbir sistem boleh melihat mana-mana penyewa. Setiap halaman menunjukkan data penyewa yang dipilih.",
+      "tenant": "Anda sedang bekerja dalam penyewa {{tenant}}. Setiap rekod yang anda lihat adalah miliknya.",
+      "principal": "Anda log masuk sebagai {{name}}. Tindakan yang anda ambil direkodkan di bawah identiti ini.",
+      "role": "Tahap akses tertinggi anda dalam penyewa ini. Ia menentukan halaman dan tindakan yang tersedia.",
+      "liveOn": "Bersambung ke strim peristiwa pelayan, jadi kelulusan dan panggilan alat muncul sebaik sahaja ia berlaku.",
+      "liveOff": "Tiada sambungan langsung. Halaman meninjau mengikut pemasa, jadi perubahan mungkin mengambil beberapa saat untuk dipaparkan.",
+      "github": "Buka repositori sumber Hugo (AgentSmith) di GitHub dalam tab baharu, untuk dokumentasi dan isu.",
+      "themeLight": "Tukar kepada tema warna cerah. Pilihan ini diingati dalam pelayar ini.",
+      "themeDark": "Tukar kepada tema warna gelap. Pilihan ini diingati dalam pelayar ini.",
+      "logout": "Log keluar dan batalkan sesi pelayar ini. Anda perlu log masuk semula.",
+      "language": "Tukar bahasa paparan. Tarikh dan nombor turut mengikut bahasa, dan pilihan ini diingati.",
+      "approvals_one": "{{count}} kelulusan sedang menunggu seseorang. Buka peti masuk Kelulusan.",
+      "approvals_other": "{{count}} kelulusan sedang menunggu seseorang. Buka peti masuk Kelulusan.",
+      "lockdownOff": "Kenakan sekatan penuh pada penyewa: tolak setiap panggilan tulis dan memusnahkan daripada setiap permukaan sehingga anda menarik baliknya.",
+      "lockdownOn": "Penyewa berada dalam sekatan penuh. Klik untuk menyemak dan menarik balik sekatan penuh.",
+      "lockdownEngage": "Tolak setiap panggilan bukan baca dalam penyewa ini sekarang dan batalkan kelulusan yang belum selesai.",
+      "lockdownLift": "Benarkan semula panggilan tulis dan memusnahkan, tertakluk kepada mod akses dan kelulusan."
+    },
+    "login": {
+      "passwordTab": "Log masuk sebagai seseorang dengan penyewa, e-mel dan kata laluan.",
+      "keyTab": "Log masuk dengan kunci akses dan kunci rahsia, pasangan yang sama digunakan oleh skrip dan SDK.",
+      "serverUrl": "Alamat asas pelayan Hugo, contohnya http://127.0.0.1:8800 secara setempat atau alamat halaman ini sendiri di belakang proksi papan pemuka.",
+      "tenantId": "Penyewa yang memiliki akaun anda. Penyewa lalai setempat dinamakan default.",
+      "email": "Alamat e-mel akaun pengguna anda dalam penyewa ini.",
+      "password": "Kata laluan akaun anda. Ia dihantar sekali untuk mendapatkan token sesi dan tidak pernah disimpan oleh aplikasi pelayar.",
+      "accessKey": "Separuh awam kunci akses, bermula dengan access_. Cipta kunci di bawah Tadbir, Kelayakan.",
+      "secretKey": "Separuh peribadi kunci akses. Ia ditunjukkan sekali semasa kunci dicipta atau diputar.",
+      "submit": "Semak kelayakan dengan pelayan dan buka konsol untuk penyewa anda.",
+      "tenantSelect": "E-mel anda tergolong dalam lebih daripada satu penyewa. Pilih penyewa untuk log masuk.",
+      "useDefaults": "Isikan akaun pentadbir setempat yang disemai. Hanya ditunjukkan apabila pelayan berada pada mesin ini."
+    },
+    "table": {
+      "selectAll": "Pilih atau kosongkan setiap baris pada halaman ini, contohnya untuk memadamnya bersama-sama.",
+      "selectRow": "Pilih baris ini untuk tindakan pukal seperti padam.",
+      "sortServer": "{{tip}} Klik untuk mengisih keseluruhan senarai mengikut lajur ini; klik sekali lagi untuk menterbalikkan urutan.",
+      "sortPageOnly": "{{tip}} Klik untuk mengisih baris pada halaman ini sahaja; pelayan tidak boleh mengisih mengikut lajur ini.",
+      "clearSelection": "Nyahpilih setiap baris yang dipilih tanpa mengubah apa-apa.",
+      "pageSize": "Bilangan baris untuk dimuatkan bagi setiap halaman. Halaman yang lebih besar mengambil masa lebih lama untuk dimuatkan. Pilihan ini diingati bagi setiap jadual.",
+      "first": "Pergi ke halaman pertama hasil.",
+      "prev": "Kembali satu halaman hasil.",
+      "jump": "Taip nombor halaman antara 1 dan {{total}} dan tekan Enter untuk terus melompat ke halaman itu.",
+      "next": "Maju satu halaman hasil.",
+      "last": "Pergi ke halaman terakhir hasil.",
+      "refresh": "Muat semula senarai ini daripada pelayan sekarang, dengan mengekalkan halaman, penapis dan isihan anda.",
+      "autoRefresh": "Muat semula data ini secara automatik mengikut pemasa. Mati mengekalkannya tidak berubah semasa anda membaca.",
+      "selectColumns": "Pilih lajur yang ditunjukkan oleh jadual. Pilihan anda diingati bagi setiap jadual dalam pelayar ini.",
+      "columnPinned": "{{column}} sentiasa ditunjukkan kerana baris tidak dapat dikenal pasti tanpanya.",
+      "columnToggle": "Tunjukkan atau sembunyikan lajur {{column}}. {{tip}}",
+      "actionsFor": "Buka tindakan untuk {{name}}: lihat, edit, salin pendua, lihat JSON, padam dan tindakan khusus rekod.",
+      "actionsMenu": "Buka tindakan yang tersedia untuk baris ini.",
+      "actionsColumn": "Tindakan bagi setiap baris. Klik tiga titik untuk melihat, mengedit, menyalin pendua, memeriksa JSON atau memadam.",
+      "search": "Taip sebahagian nama untuk mengecilkan senarai. Carian dijalankan pada pelayan selepas anda berhenti menaip.",
+      "clearFilters": "Alih keluar teks carian dan setiap penapis serta tunjukkan semula senarai penuh.",
+      "bulkDelete": "Padam setiap baris yang dipilih. Anda akan diminta mengesahkan terlebih dahulu."
+    },
+    "filters": {
+      "status": "Tunjukkan hanya rekod dalam keadaan ini. Pilih Semua untuk mengalih keluar penapis.",
+      "kind": "Tunjukkan hanya rekod satu jenis. Pilih Semua untuk mengalih keluar penapis.",
+      "eventType": "Tunjukkan hanya peristiwa audit satu jenis, seperti log masuk yang gagal atau perubahan rahsia.",
+      "fromUtc": "Tunjukkan hanya rekod yang dicipta pada atau selepas masa ini (zon waktu setempat anda).",
+      "toUtc": "Tunjukkan hanya rekod yang dicipta sebelum masa ini (zon waktu setempat anda).",
+      "method": "Tunjukkan hanya permintaan yang menggunakan kaedah HTTP ini.",
+      "statusCode": "Tunjukkan hanya permintaan yang mengembalikan kod status HTTP ini, contohnya 404 atau 500.",
+      "pathContains": "Tunjukkan hanya permintaan yang laluannya mengandungi teks ini, contohnya /agents.",
+      "tenantId": "Tunjukkan hanya permintaan yang dibuat dalam penyewa ini. Biarkan kosong untuk setiap penyewa.",
+      "apply": "Jalankan carian dengan nilai penapis di atas.",
+      "clear": "Tetapkan semula setiap penapis di atas kepada kosong dan cari semula.",
+      "effect": "Tunjukkan hanya panggilan dengan kesan ini: Baca, Tulis atau Memusnahkan.",
+      "agentProfileId": "Tunjukkan hanya rekod milik satu profil ejen. Pilih Semua untuk mengalih keluar penapis.",
+      "source": "Tunjukkan hanya perbualan yang bermula pada satu permukaan.",
+      "userId": "Tunjukkan hanya rekod satu pengguna. Tampal ID pengguna; senarai dikemas kini apabila anda berhenti menaip.",
+      "connectorType": "Tunjukkan hanya sumber satu jenis penyambung, seperti SSH atau PostgreSQL.",
+      "environment": "Tunjukkan hanya sumber yang ditag dengan persekitaran ini, contohnya prod.",
+      "health": "Tunjukkan hanya sumber dalam keadaan kesihatan ini.",
+      "healthStatus": "Tunjukkan hanya titik akhir model dalam keadaan kesihatan ini.",
+      "provider": "Tunjukkan hanya titik akhir model daripada satu pembekal.",
+      "surface": "Tunjukkan hanya panggilan yang dibuat daripada satu permukaan: sembang, MCP, A2A, serasi OpenAI atau REST.",
+      "decision": "Tunjukkan hanya panggilan dengan keputusan keselamatan ini, seperti ditolak atau memerlukan kelulusan.",
+      "resourceId": "Tunjukkan hanya panggilan terhadap satu sumber.",
+      "toolName": "Tunjukkan hanya panggilan kepada alat ini, contohnya sql_query. Senarai dikemas kini apabila anda berhenti menaip.",
+      "principalId": "Tunjukkan hanya rekod satu prinsipal. Tampal ID; senarai dikemas kini apabila anda berhenti menaip.",
+      "principalType": "Tunjukkan hanya sesi pentadbir, pengguna atau kelayakan.",
+      "visibility": "Tunjukkan hanya rekod peribadi atau seluruh penyewa."
+    },
+    "form": {
+      "option": "Sertakan {{option}} dalam {{field}}. Pilihan yang ditanda disimpan; yang tidak ditanda ditinggalkan.",
+      "reveal": "Tunjukkan nilai yang ditaip dalam teks biasa supaya anda boleh menyemaknya sebelum menyimpan.",
+      "hide": "Sembunyikan semula nilai supaya orang yang melihat skrin anda tidak dapat membacanya.",
+      "key": "Kunci untuk entri {{field}} ini. Kunci mestilah unik dalam senarai.",
+      "value": "Nilai untuk entri {{field}} ini. Templat dan rujukan rahsia dibenarkan di tempat yang dinyatakan.",
+      "removeRow": "Alih keluar entri ini daripada senarai. Tiada apa-apa disimpan sehingga anda klik Simpan.",
+      "addRow": "Tambah entri kunci dan nilai kosong pada {{field}}.",
+      "moveUp": "Alihkan item ini satu kedudukan lebih awal. Urutan penting di sini, contohnya untuk senarai argumen.",
+      "moveDown": "Alihkan item ini satu kedudukan lebih lewat. Urutan penting di sini, contohnya untuk senarai argumen.",
+      "removeItem": "Alih keluar item ini daripada senarai. Tiada apa-apa disimpan sehingga anda klik Simpan.",
+      "addItem": "Tambah item baharu yang kosong pada {{field}} dan isikan medannya."
+    },
+    "actions": {
+      "openDetail": "Buka halaman butiran penuh untuk rekod ini.",
+      "view": "Buka rekod ini dalam mod baca sahaja untuk melihat setiap medan tanpa risiko mengubahnya.",
+      "edit": "Buka rekod ini dalam borang untuk mengubahnya. Perubahan berkuat kuasa apabila anda klik Simpan.",
+      "duplicate": "Mulakan rekod baharu yang diisi dengan nilai rekod ini dan nama -copy. Tiada apa-apa dicipta sehingga anda menyimpan.",
+      "viewJson": "Tunjukkan JSON mentah tepat seperti yang dikembalikan oleh API, untuk penyahpepijatan atau menyalin ke dalam skrip.",
+      "delete": "Padam rekod ini secara kekal. Anda akan diminta mengesahkan, dan ia tidak boleh dibuat asal.",
+      "add": "Cipta rekod baharu jenis ini dalam borang.",
+      "switchToEdit": "Tukar paparan baca sahaja ini kepada borang yang boleh diedit.",
+      "retryLoad": "Cuba muatkan data ini daripada pelayan sekali lagi.",
+      "dismiss": "Sembunyikan mesej ini. Ia akan muncul semula jika masalah berlaku lagi."
+    },
+    "modal": {
+      "close": "Tutup tetingkap ini. Tiada apa-apa berubah pada pelayan.",
+      "dismiss": "Tutup tetingkap ini tanpa menyimpan. Anda juga boleh menekan Escape.",
+      "cancelForm": "Tutup borang dan buang perubahan yang belum disimpan.",
+      "back": "Pergi ke langkah borang sebelumnya. Nilai yang anda masukkan dikekalkan.",
+      "next": "Pergi ke langkah borang seterusnya. Tiada apa-apa disimpan sehingga anda klik Simpan.",
+      "saveEdit": "Simpan perubahan anda pada rekod ini. Pelayan mengesahkannya dan melaporkan sebarang medan yang memerlukan perhatian.",
+      "saveCreate": "Cipta rekod dengan nilai ini. Pelayan mengesahkannya dan melaporkan sebarang medan yang memerlukan perhatian.",
+      "saveValue": "Hantar nilai kepada pelayan. Ia disulitkan sebaik tiba dan tidak akan ditunjukkan lagi."
+    },
+    "confirm": {
+      "delete": "Ya, padam rekod ini secara kekal.",
+      "bulkDelete": "Ya, padam setiap rekod yang dipilih secara kekal.",
+      "cancel": "Kembali tanpa melakukan apa-apa.",
+      "danger": "Laksanakan tindakan memusnahkan ini. Ia tidak boleh dibuat asal.",
+      "confirm": "Laksanakan tindakan yang diterangkan di atas."
+    },
+    "copy": {
+      "id": "Salin ID rekod ke papan keratan, untuk digunakan dengan API REST, SDK atau penapis.",
+      "value": "Salin nilai ini ke papan keratan.",
+      "block": "Salin keseluruhan blok ke papan keratan, sedia untuk ditampal ke dalam terminal atau fail.",
+      "done": "Disalin ke papan keratan."
+    },
+    "chart": {
+      "ranges": {
+        "hour": "Tunjukkan 60 minit terakhir, dalam baldi satu minit.",
+        "day": "Tunjukkan 24 jam terakhir. Saiz baldi dilaraskan supaya carta kekal mudah dibaca.",
+        "week": "Tunjukkan 7 hari terakhir. Saiz baldi dilaraskan supaya carta kekal mudah dibaca.",
+        "month": "Tunjukkan 30 hari terakhir. Saiz baldi dilaraskan supaya carta kekal mudah dibaca.",
+        "custom": "Pilih masa mula dan tamat anda sendiri. Julat yang terlalu panjang akan ditolak oleh pelayan."
+      },
+      "refresh": "Muat semula data carta daripada pelayan sekarang.",
+      "tenant": "Tunjukkan aktiviti permintaan untuk satu penyewa atau untuk setiap penyewa pada pelayan."
+    },
+    "badges": {
+      "active": "Aktif: rekod ini sedang digunakan.",
+      "inactive": "Tidak aktif: rekod ini disimpan tetapi diabaikan sehingga ia dihidupkan semula.",
+      "builtIn": "Terbina dalam: disertakan dengan Hugo dan baca sahaja. Klonkannya untuk membuat versi yang boleh anda edit.",
+      "custom": "Tersuai: dicipta dalam penyewa ini, jadi ia boleh diedit dan dipadam.",
+      "systemAdmin": "Pentadbir sistem: boleh mengurus setiap penyewa dan memintas semakan kebenaran.",
+      "tenantAdmin": "Pentadbir penyewa: boleh mengurus segala-galanya dalam penyewa ini.",
+      "user": "Pengguna biasa: akses hanya datang daripada penugasan peranan.",
+      "role": "Penugasan ini memberikan peranan {{role}} dan setiap kebenaran di dalamnya.",
+      "defaultProfile": "Profil lalai penyewa: pemanggil yang tidak menamakan profil akan mendapat profil ini.",
+      "expiringSoon": "Rahsia ini luput dalam tempoh 14 hari. Gantikan nilainya atau lanjutkan tarikh luput sebelum sumber berhenti berfungsi.",
+      "lockdown": "Penyewa ini berada dalam sekatan penuh: hanya panggilan baca dibenarkan sehingga pentadbir penyewa menarik baliknya.",
+      "locked": "Dikunci pada profilnya: kelayakan hanya boleh bertindak sebagai profil terikat, walau apa pun yang diminta oleh pemanggil."
+    },
+    "permissions": {
+      "source": "Peranan asal pemberian ini. Betulkan akses dengan mengubah peranan itu atau penugasan yang memberikannya.",
+      "type": "Benarkan memberikan operasi; Tolak menyekatnya walaupun peranan lain membenarkannya.",
+      "resources": "Jenis rekod yang diliputi oleh pemberian ini, seperti Sumber, Rahsia atau Profil ejen.",
+      "operations": "Apa yang boleh dilakukan pada rekod tersebut, seperti Baca, Cipta atau Laksana.",
+      "scope": "Skop penyewa meliputi setiap rekod jenis tersebut; skop sumber meliputi satu rekod tertentu."
+    },
+    "secretOnce": {
+      "accessKey": "Kunci akses awam. Ia mengenal pasti kelayakan dan selamat untuk disimpan dalam konfigurasi.",
+      "secretKey": "Kunci rahsia. Ini satu-satunya masa ia ditunjukkan; salin ke dalam pengurus kata laluan atau stor rahsia anda sekarang.",
+      "done": "Tutup tetingkap ini. Kunci rahsia tidak boleh diambil kemudian, hanya diputar.",
+      "snippet": "Konfigurasi klien MCP sedia untuk ditampal yang menggunakan kunci akses ini. Kunci rahsia dibaca daripada pemboleh ubah persekitaran."
+    },
+    "enums": {
+      "promptTemplateKind": {
+        "System": "Gesaan sistem: arahan tetap yang menyediakan ejen.",
+        "Task": "Gesaan tugas: membalut mesej pemanggil menjadi apa yang diterima oleh ejen.",
+        "Fragment": "Kepingan boleh guna semula yang disertakan oleh templat lain dengan {{> name}}.",
+        "ToolDescription": "Teks yang menerangkan ejen sebagai alat MCP atau kemahiran A2A.",
+        "ConfigFile": "Kandungan fail konfigurasi yang dijana, seperti konfigurasi MCP.",
+        "Other": "Sebarang teks lain yang dirender oleh Hugo ke dalam arahan."
+      },
+      "permissionType": {
+        "Permit": "Benarkan: membenarkan operasi yang disenaraikan.",
+        "Deny": "Tolak: menyekat operasi yang disenaraikan, walaupun kebenaran lain membenarkannya."
+      },
+      "effect": {
+        "Read": "Baca: melihat data tanpa mengubah apa-apa, seperti SELECT atau menyenaraikan fail.",
+        "Write": "Tulis: mengubah sesuatu yang boleh dikembalikan, seperti INSERT atau memuat naik fail.",
+        "Destructive": "Memusnahkan: memadam, menggugurkan, memulakan semula, atau tidak boleh dibuat asal. Menunggu kelulusan secara lalai."
+      },
+      "accessMode": {
+        "ReadOnly": "Baca sahaja: ejen boleh melihat tetapi alat tulis dan memusnahkan tidak disenaraikan langsung.",
+        "ReadWriteWithApproval": "Baca dan tulis dengan kelulusan: setiap panggilan tulis atau memusnahkan menunggu seseorang.",
+        "ReadWrite": "Baca dan tulis: penulisan berjalan terus; panggilan memusnahkan masih menunggu melainkan pengikatan memilih untuk tidak menyertainya."
+      },
+      "approvalStatus": {
+        "Pending": "Belum selesai: menunggu seseorang meluluskan atau menolaknya.",
+        "Approved": "Diluluskan: seseorang membenarkan panggilan dan ia telah dijalankan.",
+        "Rejected": "Ditolak: seseorang menolak panggilan; ejen telah dimaklumkan.",
+        "Expired": "Luput: tiada sesiapa membuat keputusan tepat pada masanya, jadi panggilan ditolak.",
+        "Cancelled": "Dibatalkan: giliran tamat atau penyewa dikenakan sekatan penuh sebelum keputusan dibuat."
+      },
+      "toolDecision": {
+        "Allowed": "Dibenarkan: mod akses membenarkan panggilan berjalan tanpa bertanya.",
+        "Denied": "Ditolak: mod akses, peraturan alat atau sekatan penuh menolak panggilan.",
+        "ApprovalRequired": "Kelulusan diperlukan: panggilan menunggu seseorang.",
+        "Approved": "Diluluskan: seseorang membenarkan panggilan.",
+        "Rejected": "Ditolak: seseorang menolak panggilan.",
+        "Expired": "Luput: tiada sesiapa membuat keputusan tepat pada masanya."
+      },
+      "toolStatus": {
+        "Succeeded": "Berjaya: alat dijalankan dan mengembalikan hasil.",
+        "Failed": "Gagal: alat atau sistem sasaran mengembalikan ralat.",
+        "TimedOut": "Tamat masa: alat tidak selesai dalam had masanya.",
+        "Cancelled": "Dibatalkan: giliran dihentikan semasa alat sedang berjalan."
+      },
+      "healthStatus": {
+        "Healthy": "Sihat: semakan terakhir mencapai sistem dan ia menjawab secara normal.",
+        "Degraded": "Merosot: sistem menjawab, tetapi perlahan atau dengan amaran.",
+        "Unhealthy": "Tidak sihat: semakan terakhir tidak dapat mencapai sistem atau ia menjawab dengan ralat.",
+        "Unknown": "Belum disemak: tiada ujian sambungan atau semakan kesihatan telah dijalankan."
+      },
+      "secretKind": {
+        "Password": "Kata laluan, secara pilihan bersama nama penggunanya.",
+        "PrivateKey": "Kunci peribadi SSH atau TLS, secara pilihan bersama frasa laluannya.",
+        "ApiToken": "Token API atau pembawa yang dikeluarkan oleh perkhidmatan.",
+        "AccessKeyPair": "ID kunci akses dan kunci akses rahsia, seperti kunci AWS.",
+        "ServiceAccountJson": "Fail kunci akaun perkhidmatan awan dalam JSON, seperti Google Cloud.",
+        "Kubeconfig": "Fail kubeconfig Kubernetes dengan kelayakan kluster dan pengguna.",
+        "ConnectionString": "Rentetan sambungan penuh yang mengandungi kelayakan.",
+        "Certificate": "Sijil bersama kunci peribadinya, untuk TLS bersama.",
+        "Generic": "Sebarang nilai rahsia tunggal yang lain."
+      },
+      "connectorCategory": {
+        "Compute": "Hos dan mesin yang dicapai melalui SSH atau yang serupa.",
+        "Storage": "Storan objek seperti S3, Azure Blob dan Google Cloud Storage.",
+        "Database": "SQL dan pangkalan data lain.",
+        "Logging": "Perkhidmatan log seperti Papertrail dan Loki.",
+        "Cache": "Cache seperti Redis.",
+        "Cloud": "Satah kawalan awan seperti AWS.",
+        "Orchestration": "Orkestrasi kontena seperti Kubernetes dan Docker.",
+        "Observability": "Metrik dan pemantauan seperti Prometheus dan SolarWinds.",
+        "Http": "API HTTP generik.",
+        "Agent": "Ejen lain yang dicapai melalui MCP atau A2A.",
+        "Other": "Penyambung yang tidak sesuai dengan kategori lain."
+      },
+      "surface": {
+        "Chat": "Sembang papan pemuka dengan gelung ejen Hugo sendiri.",
+        "Mcp": "Klien MCP seperti Claude Code memacu panggilan.",
+        "A2A": "Ejen lain memanggil profil ini melalui A2A.",
+        "OpenAI": "Klien serasi OpenAI berkomunikasi dengan profil.",
+        "Rest": "Seruan alat terus melalui REST atau SDK."
+      },
+      "modelKind": {
+        "Inference": "Menjana jawapan dan panggilan alat.",
+        "Embedding": "Menukar teks menjadi vektor untuk dapatan semula."
+      },
+      "visibility": {
+        "Private": "Hanya pemilik boleh menggunakannya.",
+        "Tenant": "Semua orang yang mempunyai akses dalam penyewa boleh menggunakannya."
+      },
+      "auditEventType": {
+        "AuthorizationDenied": "Prinsipal cuba melakukan sesuatu yang tidak dibenarkan oleh kebenarannya.",
+        "SecretRevealed": "Seseorang mendedahkan teks biasa rahsia, bersama sebab.",
+        "LockdownChanged": "Pentadbir penyewa menghidupkan atau mematikan sekatan penuh.",
+        "HostKeyMismatch": "Hos SSH memberikan kunci yang berbeza daripada kunci yang dipin; sambungan ditolak."
+      }
+    },
+    "resources": {
+      "tenants": {
+        "add": "Cipta penyewa baharu: ruang terasing dengan pengguna, sumber, rahsia dan profilnya sendiri.",
+        "name": "Nama paparan penyewa. Orang memilih penyewa melalui ID-nya semasa log masuk.",
+        "description": "Untuk siapa atau apa penyewa ini, contohnya pasukan atau pelanggan.",
+        "active": "Penyewa tidak aktif tidak boleh log masuk atau memanggil alat. Datanya dikekalkan.",
+        "region": "Label rantau pilihan untuk penyewa ini, untuk simpanan rekod anda sendiri.",
+        "lockdown": "Penyewa dalam sekatan penuh menolak setiap panggilan yang bukan baca."
+      },
+      "users": {
+        "add": "Cipta seseorang yang log masuk dengan e-mel dan kata laluan. Berikan akses kepadanya dengan penugasan peranan selepas itu.",
+        "email": "Alamat yang digunakan oleh orang itu untuk log masuk. Unik dalam penyewa.",
+        "name": "Nama pertama dan nama akhir, ditunjukkan dalam rekod audit dan senarai.",
+        "role": "Tahap pentadbir akaun. Pengguna biasa mendapat akses melalui penugasan peranan.",
+        "password": "Kata laluan log masuk. Semasa mengedit, biarkan kosong untuk mengekalkan kata laluan semasa.",
+        "firstName": "Nama pertama, ditunjukkan dalam senarai dan rekod audit.",
+        "lastName": "Nama keluarga, ditunjukkan dalam senarai dan rekod audit.",
+        "isTenantAdmin": "Pentadbir penyewa boleh mengurus segala-galanya dalam penyewa ini, termasuk pengguna dan rahsia.",
+        "isAdmin": "Pentadbir sistem mengurus setiap penyewa dan memintas kebenaran. Berikan dengan berhati-hati.",
+        "active": "Pengguna tidak aktif tidak boleh log masuk, dan kunci akses mereka berhenti berfungsi.",
+        "actions": {
+          "permissions": "Tunjukkan setiap kebenaran yang dimiliki pengguna ini selepas menggabungkan semua peranan dan penugasan.",
+          "resetPassword": "Tetapkan kata laluan sementara; pengguna mesti menukarnya pada log masuk seterusnya.",
+          "assignRole": "Buka Penugasan yang ditapis kepada pengguna ini untuk memberikan peranan."
+        },
+        "mustChangePassword": "Pengguna mesti memilih kata laluan baharu pada log masuk seterusnya."
+      },
+      "credentials": {
+        "add": "Cipta kunci akses untuk skrip, SDK atau perkhidmatan. Rahsia ditunjukkan sekali selepas disimpan.",
+        "name": "Tujuan kunci ini, contohnya claude-code-laptop. Membantu anda mencarinya sebelum memutar atau memadam.",
+        "accessKey": "Separuh awam kunci, dihantar bersama setiap permintaan. Selamat untuk disimpan dalam konfigurasi.",
+        "secretKeyLast4": "Empat aksara terakhir rahsia, supaya anda boleh memadankan kunci tanpa melihatnya.",
+        "userId": "Pengguna yang memiliki kunci ini. Kunci tidak boleh melakukan lebih daripada pemiliknya.",
+        "lastUsedUtc": "Bila kunci terakhir mengesahkan permintaan. Tarikh lama menunjukkan kunci tidak digunakan yang boleh anda padam.",
+        "authMode": "Cara kunci boleh mengesahkan: dihantar terus, ditandatangani bagi setiap permintaan, ditukar dengan sesi, atau mana-mana daripadanya (Hybrid).",
+        "expiresUtc": "Selepas masa ini kunci berhenti berfungsi. Biarkan kosong untuk kunci yang tidak luput.",
+        "active": "Kunci tidak aktif ditolak tetapi dikekalkan, supaya anda boleh menghidupkannya semula.",
+        "actions": {
+          "rotate": "Gantikan rahsia dengan yang baharu. Rahsia lama berhenti berfungsi serta-merta; yang baharu ditunjukkan sekali.",
+          "permissions": "Tunjukkan setiap kebenaran yang dimiliki kunci ini selepas menggabungkan pemilik, peranan dan penugasannya.",
+          "scopes": "Buka penugasan skop kelayakan yang ditapis kepada kelayakan ini."
+        },
+        "agentProfileId": "Profil yang diwakili oleh kelayakan ini secara lalai. Abah-abah harus menggunakan kelayakan terikat.",
+        "lockToProfile": "Apabila dihidupkan, kelayakan hanya boleh bertindak sebagai profil terikatnya, walau apa pun yang diminta oleh pemanggil."
+      },
+      "roles": {
+        "add": "Cipta peranan tersuai, kemudian tambah kebenaran padanya dan tugaskannya kepada pengguna atau kunci.",
+        "name": "Nama yang dilihat orang semasa menugaskan peranan, contohnya Release Operator.",
+        "description": "Tujuan peranan dan siapa yang patut mendapatnya.",
+        "active": "Peranan tidak aktif tidak memberikan apa-apa, walaupun di tempat ia ditugaskan.",
+        "actions": {
+          "clone": "Buat salinan peranan terbina dalam ini yang boleh diedit dan dilaraskan."
+        }
+      },
+      "permissions": {
+        "add": "Cipta peraturan yang membenarkan atau menolak operasi pada jenis sumber.",
+        "name": "Nama pendek untuk peraturan, ditunjukkan semasa anda membina peranan.",
+        "permissionType": "Benarkan membenarkan operasi di bawah. Tolak menyekatnya dan sentiasa mengatasi pembenaran.",
+        "resourceTypes": "Jenis rekod yang diliputi oleh peraturan. Semua meliputi setiap jenis.",
+        "operationTypes": "Operasi yang diliputi oleh peraturan, seperti Baca, Cipta atau Laksana (seru).",
+        "active": "Kebenaran tidak aktif tidak mempunyai kesan."
+      },
+      "userAssignments": {
+        "add": "Berikan peranan kepada pengguna, untuk seluruh penyewa atau untuk satu rekod tertentu.",
+        "userId": "Orang yang menerima peranan.",
+        "roleName": "Peranan yang diberikan. Orang itu mendapat setiap kebenaran di dalamnya.",
+        "roleId": "Peranan untuk diberikan. Orang itu mendapat setiap kebenaran di dalamnya.",
+        "resourceScope": "Penyewa menggunakan peranan pada setiap rekod. Sumber mengehadkannya kepada satu rekod yang dinamakan di bawah.",
+        "resourceId": "Pengecam satu rekod yang dikenakan peranan, contohnya ID ejen.",
+        "inheritsToChildren": "Gunakan peranan pada setiap rekod dalam penyewa, termasuk yang dicipta kemudian.",
+        "active": "Penugasan tidak aktif tidak memberikan apa-apa tetapi dikekalkan."
+      },
+      "credentialAssignments": {
+        "add": "Berikan peranan kepada kunci akses, untuk seluruh penyewa atau untuk satu rekod tertentu.",
+        "credentialId": "Kunci akses yang menerima peranan. Ia masih tidak boleh melebihi pemiliknya.",
+        "roleName": "Peranan yang diberikan kepada kunci.",
+        "roleId": "Peranan untuk diberikan. Pilih peranan paling sempit yang membolehkan automasi menjalankan tugasnya.",
+        "resourceScope": "Penyewa menggunakan peranan pada setiap rekod. Sumber mengehadkannya kepada satu rekod yang dinamakan di bawah.",
+        "resourceId": "Pengecam satu rekod yang dikenakan peranan, contohnya satu-satunya ejen yang boleh diseru oleh kerja CI.",
+        "inheritsToChildren": "Gunakan peranan pada setiap rekod dalam penyewa, termasuk yang dicipta kemudian.",
+        "active": "Penugasan tidak aktif tidak memberikan apa-apa tetapi dikekalkan."
+      },
+      "promptTemplates": {
+        "actions": {
+          "clone": "Salin templat ini di bawah nama baharu yang anda pilih, kemudian buka salinan dalam editor."
+        },
+        "add": "Tulis templat gesaan baharu dalam editor dengan pratonton langsung. Setiap simpanan menjadi satu versi.",
+        "name": "Nama templat, unik dalam penyewa. Sertaan merujuk templat melalui nama.",
+        "kind": "Kegunaan templat: gesaan sistem, pembalut tugas, serpihan, penerangan alat atau fail konfigurasi.",
+        "currentVersion": "Versi terbaharu yang disimpan. Setiap simpanan mengekalkan teks sebelumnya sebagai versi yang boleh anda pulihkan.",
+        "description": "Apa yang dilakukan oleh templat dan di mana ia digunakan."
+      },
+      "audit": {
+        "createdUtc": "Bila peristiwa berlaku, dalam zon waktu setempat anda.",
+        "eventType": "Jenis peristiwa keselamatan atau konfigurasi ini.",
+        "principalName": "Siapa yang melakukannya: pentadbir, pengguna atau kunci akses.",
+        "resource": "Jenis rekod dan operasi yang terlibat, contohnya Agent / Read.",
+        "reason": "Mengapa peristiwa berlaku atau mengapa akses ditolak.",
+        "sourceIp": "Alamat rangkaian asal permintaan.",
+        "principalType": "Sama ada pelaku ialah pentadbir, pengguna atau kunci akses.",
+        "principalId": "Pengecam pentadbir, pengguna atau kunci akses yang bertindak.",
+        "resourceType": "Jenis rekod yang terlibat, seperti Agent atau Secret.",
+        "resourceId": "Pengecam rekod yang terlibat.",
+        "operation": "Operasi yang dicuba, seperti Read atau Execute.",
+        "method": "Kaedah HTTP permintaan.",
+        "path": "Laluan permintaan yang menyebabkan peristiwa.",
+        "authResult": "Hasil semakan identiti pemanggil.",
+        "authorizationResult": "Hasil semakan apa yang boleh dilakukan oleh pemanggil.",
+        "bypassReason": "Mengapa kebenaran dilangkau, contohnya pentadbir sistem.",
+        "statusCode": "Status HTTP yang dikembalikan kepada pemanggil.",
+        "requestId": "Pengecam permintaan. Cari dalam Sejarah Permintaan atau log pelayan dengannya."
+      },
+      "approvals": {
+        "bulkReject": "Tolak setiap kelulusan yang dipilih sekali gus. Setiap pemanggil dimaklumkan bahawa tindakannya ditolak.",
+        "summary": "Tindakan tepat yang menunggu kelulusan, contohnya menjalankan arahan pada hos.",
+        "effect": "Cara panggilan dikelaskan: Tulis mengubah sesuatu, Memusnahkan memadam atau memulakan semula.",
+        "status": "Belum selesai menunggu seseorang; keadaan lain adalah muktamad.",
+        "agentProfileId": "Profil yang pengikatannya memerlukan kelulusan.",
+        "requestedBy": "Prinsipal (pengguna, kelayakan atau larian ejen) yang membuat panggilan.",
+        "createdUtc": "Bila ejen mencadangkan panggilan.",
+        "expiresUtc": "Bila permintaan luput jika tiada sesiapa membuat keputusan. Panggilan yang luput ditolak.",
+        "decidedBy": "Siapa yang meluluskan atau menolak panggilan.",
+        "decisionNote": "Nota yang ditinggalkan oleh pelulus bersama keputusan.",
+        "fromUtc": "Tunjukkan kelulusan yang diminta pada atau selepas masa ini.",
+        "actions": {
+          "decide": "Buka kad kelulusan untuk meluluskan atau menolak panggilan ini dengan nota.",
+          "invocation": "Buka rekod seruan alat di sebalik kelulusan ini."
+        }
+      },
+      "bindings": {
+        "resourceId": "Sumber yang dilampirkan oleh pengikatan ini. Satu sumber boleh diikat pada banyak profil.",
+        "alias": "Nama yang digunakan oleh ejen untuk sumber ini dalam panggilan alat dan arahan, contohnya prod-db.",
+        "accessMode": "Baca sahaja, baca dan tulis dengan kelulusan untuk panggilan berisiko, atau baca dan tulis. Menentukan apa yang boleh dilakukan oleh ejen.",
+        "requireApprovalForDestructive": "Walaupun dalam mod baca dan tulis, panggilan memusnahkan (padam, mula semula, gugur) menunggu seseorang. Dihidupkan secara lalai.",
+        "instructionMode": "Warisi menggunakan arahan penyambung dan sumber; Tambah menambah teks anda; Ganti hanya menggunakan teks anda.",
+        "instructionText": "Arahan tambahan atau gantian untuk sumber ini dalam profil ini, contohnya skema mana yang penting.",
+        "maxOutputBytes": "Had output alat daripada sumber ini, lebih ketat daripada lalai penyambung. Biarkan kosong untuk lalai.",
+        "maxRows": "Had baris yang dikembalikan oleh pertanyaan pada sumber ini. Biarkan kosong untuk lalai penyambung.",
+        "enabled": "Pengikatan yang dinyahdayakan dikekalkan tetapi disembunyikan daripada ejen, seolah-olah sumber tidak diikat."
+      },
+      "models": {
+        "apiKeySecretId": "Rahsia yang menyimpan kunci API atau kelayakan pembekal ini. Disimpan secara tersulit; tidak pernah ditunjukkan kepada model.",
+        "add": "Tambah titik akhir model inferens atau pembenaman untuk gelung ejen Hugo sendiri.",
+        "kind": "Model inferens menjawab giliran sembang; model pembenaman menukar teks menjadi vektor untuk dapatan semula.",
+        "provider": "API yang digunakan oleh titik akhir. Serasi OpenAI meliputi vLLM, LM Studio dan pelayan yang serupa.",
+        "baseUrl": "Tempat API pembekal mendengar, contohnya http://127.0.0.1:11434 untuk Ollama setempat.",
+        "model": "Nama model pembekal, contohnya llama3.1, gpt-4o atau claude-sonnet.",
+        "apiKey": "Kunci API pembekal. Disimpan sebagai rahsia tersulit dan dirujuk oleh titik akhir.",
+        "region": "Rantau awan untuk pembekal yang memerlukannya, seperti Bedrock atau Vertex.",
+        "deploymentName": "Penggunaan Azure OpenAI yang menyediakan model.",
+        "apiVersion": "Versi API Azure OpenAI untuk dipanggil.",
+        "contextWindowTokens": "Bilangan token yang diterima oleh model. Hugo memadatkan sejarah sebelum mencapainya.",
+        "maxOutputTokens": "Had atas token yang boleh dihasilkan oleh model dalam satu jawapan.",
+        "embeddingDimensions": "Saiz vektor yang dihasilkan oleh model pembenaman. Diisi oleh Sahkan apabila dibiarkan kosong.",
+        "supportsTools": "Sama ada model boleh memanggil alat. Sembang memerlukan ini untuk apa-apa selain jawapan biasa.",
+        "supportsStreaming": "Sama ada jawapan boleh distrim token demi token.",
+        "maxConcurrency": "Bilangan permintaan yang dihantar oleh Hugo ke titik akhir ini serentak.",
+        "timeoutSeconds": "Tempoh maksimum satu permintaan model sebelum ia gagal.",
+        "maxRetries": "Bilangan kali permintaan yang gagal dicuba semula sebelum berputus asa.",
+        "healthStatus": "Hasil pengesahan terakhir atau semakan kesihatan latar belakang.",
+        "lastHealthUtc": "Bila titik akhir terakhir disemak.",
+        "sections": {
+          "endpoint": "Pembekal dan model ini, dan cara untuk mencapainya.",
+          "capabilities": "Apa yang boleh dilakukan oleh model dan berapa banyak teks yang dikendalikannya.",
+          "limits": "Keserentakan, had masa dan cubaan semula untuk panggilan ke titik akhir ini."
+        },
+        "actions": {
+          "validate": "Hantar gesaan kecil (atau benamkan teks pendek) dan rekodkan kependaman serta hasilnya.",
+          "listModels": "Tanya pembekal model yang ditawarkannya, jika pembekal menyokong penyenaraian."
+        }
+      },
+      "resources": {
+        "name": "Nama unik untuk sumber ini dalam penyewa. Pengikatan menggunakannya sebagai alias lalai yang dilihat oleh ejen.",
+        "connectorType": "Jenis sistem ini (SSH, PostgreSQL, S3 dan sebagainya). Ia menentukan tetapan, rahsia dan alat.",
+        "environment": "Tag bebas seperti prod atau staging. Ejen melihatnya, yang membantunya mengendalikan produksi dengan berhati-hati.",
+        "add": "Tambah sambungan ke sistem: pilih penyambung, isikan tetapannya, pilih rahsianya dan ujinya.",
+        "displayName": "Nama mesra pilihan untuk manusia. Ejen menggunakan nama atau alias pengikatan.",
+        "visibility": "Sumber peribadi boleh digunakan oleh pemiliknya; sumber penyewa oleh setiap profil dalam penyewa.",
+        "defaultAccessModeCeiling": "Akses paling tinggi yang boleh diberikan oleh pengikatan pada sumber ini. Biarkan kosong untuk membenarkan sebarang mod akses.",
+        "endpoint": "Ringkasan pendek lokasi sumber. Boleh dicari, dan ditunjukkan kepada ejen.",
+        "description": "Apa sumber ini, untuk orang yang membaca senarai.",
+        "notes": "Nota pengendali yang diterima oleh ejen dalam arahannya, seperti jadual mana yang penting atau apa yang tidak boleh disentuh.",
+        "health": "Hasil ujian sambungan atau sapuan kesihatan terakhir.",
+        "lastTestUtc": "Bila sambungan terakhir diuji.",
+        "sections": {
+          "general": "Nama, persekitaran dan nota yang dibaca oleh ejen.",
+          "connector": "Penyambung, tetapannya dan rahsianya."
+        },
+        "actions": {
+          "test": "Uji tetapan dan rahsia yang disimpan terhadap sistem sebenar sekarang.",
+          "tryTool": "Larian kering dan kemudian laksanakan salah satu alat sumber ini sebagai profil yang dipilih.",
+          "referrers": "Senaraikan profil dan pengikatan yang menggunakan sumber ini."
+        }
+      },
+      "secrets": {
+        "name": "Nama unik untuk rahsia ini dalam penyewa. Sumber dan titik akhir model memilihnya melalui nama.",
+        "kind": "Apa yang disimpan oleh rahsia. Jenis menentukan medan yang dimilikinya dan slot penyambung yang menerimanya.",
+        "saveValue": "Sulitkan dan simpan nilai baharu. Medan yang dibiarkan kosong mengekalkan nilai yang tersimpan.",
+        "add": "Simpan rahsia baharu: pilih jenisnya dan isikan nilainya, atau importnya daripada fail.",
+        "description": "Tujuan rahsia dan siapa pemiliknya. Jangan sekali-kali letakkan nilai rahsia di sini.",
+        "expiresUtc": "Bila kelayakan berhenti berfungsi, supaya Hugo boleh memberi amaran sebelum ia luput.",
+        "fingerprint": "Petunjuk yang tidak boleh diterbalikkan, seperti aksara terakhir atau cap jari kunci SSH, untuk membezakan rahsia.",
+        "referrerCount": "Bilangan sumber dan titik akhir model yang menggunakan rahsia ini.",
+        "lastRotatedUtc": "Bila nilai terakhir diganti.",
+        "lastRevealedUtc": "Bila seseorang terakhir mendedahkan teks biasa melalui pendedahan yang diaudit.",
+        "sections": {
+          "values": "Nilai rahsia untuk jenis ini. Ia disulitkan sebelum disimpan."
+        },
+        "actions": {
+          "replaceValues": "Gantikan sebahagian atau semua nilai; medan yang anda biarkan kosong mengekalkan nilai yang tersimpan.",
+          "reveal": "Tunjukkan nilai teks biasa selepas menyatakan sebab dan memasukkan semula kata laluan anda. Diaudit.",
+          "referrers": "Senaraikan sumber dan titik akhir model yang menggunakan rahsia ini."
+        }
+      },
+      "toolInvocations": {
+        "trace": "Buka jejak teragih panggilan ini dalam Grafana Tempo dalam tab baharu.",
+        "createdUtc": "Bila panggilan dibuat. Letakkan tetikus untuk masa yang tepat.",
+        "toolName": "Alat yang dipanggil, seperti sql_query atau ssh_exec.",
+        "resourceId": "Sumber (alias pengikatan) yang menjadi sasaran panggilan.",
+        "effect": "Cara panggilan dikelaskan: Baca, Tulis atau Memusnahkan.",
+        "decision": "Keputusan saluran keselamatan: dibenarkan, ditolak, atau dihantar untuk kelulusan berserta hasilnya.",
+        "status": "Cara panggilan berakhir: berjaya, gagal, tamat masa atau dibatalkan.",
+        "durationMs": "Tempoh panggilan pada pelayan.",
+        "surface": "Permukaan yang membuat panggilan: sembang, MCP, A2A, serasi OpenAI atau REST.",
+        "agentProfileId": "Profil yang diwakili oleh pemanggil.",
+        "principalId": "Pengguna atau kelayakan di sebalik panggilan.",
+        "fromUtc": "Tunjukkan panggilan yang dibuat pada atau selepas masa ini.",
+        "toUtc": "Tunjukkan panggilan yang dibuat sebelum masa ini.",
+        "accessMode": "Mod akses pengikatan semasa panggilan dibuat.",
+        "outputBytes": "Saiz output alat sebelum dipotong.",
+        "approvalId": "Kelulusan yang ditunggu oleh panggilan, jika ada.",
+        "traceId": "Jejak teragih untuk panggilan, boleh dilihat dalam Grafana Tempo.",
+        "argumentsRedacted": "Argumen seperti yang disimpan, dengan rahsia digantikan oleh penanda.",
+        "outputPreview": "Permulaan output yang diterima oleh ejen, selepas rahsia dibersihkan."
+      },
+      "profiles": {
+        "add": "Cipta profil ejen: persona, model, had dan permukaan yang mendedahkannya.",
+        "name": "Nama selamat URL, unik dalam penyewa. Klien MCP mencapai profil di /mcp/{name} dan A2A di .../{name}.",
+        "displayName": "Nama mesra yang ditunjukkan dalam papan pemuka dan dalam kad ejen A2A.",
+        "description": "Tujuan profil ini. Ditunjukkan kepada manusia dan dalam ringkasan kad A2A.",
+        "personaName": "Nama yang digunakan oleh ejen untuk dirinya dalam perbualan. Profil lalai menggunakan Agent Smith.",
+        "userAddress": "Cara ejen memanggil pemanggil. Profil lalai menyebut Mr. Anderson.",
+        "visibility": "Profil peribadi boleh dilihat oleh pemiliknya; profil penyewa oleh semua orang yang mempunyai akses dalam penyewa.",
+        "inferenceEndpointId": "Model yang menjalankan gelung ejen Hugo sendiri untuk sembang, A2A dan klien OpenAI. Pemanggil MCP membawa model mereka sendiri.",
+        "fallbackInferenceEndpointId": "Digunakan apabila model utama gagal atau tidak tersedia.",
+        "embeddingEndpointId": "Membenamkan penerangan alat dan nota pengetahuan supaya profil besar hanya mendapatkan alat yang relevan.",
+        "maxIterations": "Had atas pusingan model dan alat dalam satu giliran. Pusingan terakhir mesti menjawab tanpa alat.",
+        "maxToolCallsPerTurn": "Had atas panggilan alat dalam satu giliran, merentas setiap pusingan.",
+        "toolTimeoutSeconds": "Tempoh maksimum satu panggilan alat boleh berjalan sebelum ia dibatalkan.",
+        "temperature": "Suhu persampelan untuk model. Nilai lebih rendah menjadikan jawapan lebih deterministik.",
+        "exposeMcp": "Senaraikan alat dan arahan profil ini kepada klien MCP seperti Claude Code.",
+        "exposeA2a": "Terbitkan kad ejen A2A dan terima mesej A2A untuk profil ini.",
+        "exposeOpenai": "Benarkan klien serasi OpenAI menggunakan profil ini sebagai nama model.",
+        "exposeManagementTools": "Turut dedahkan alat pentadbir (cipta sumber, ubah pengikatan) kepada pemanggil yang mempunyai hak pentadbir. Dimatikan secara lalai.",
+        "instructionsAppend": "Teks bebas yang ditambah pada arahan yang dikompil, selepas setiap bahagian sumber.",
+        "bindingCount": "Bilangan sumber yang diikat pada profil ini.",
+        "exposure": "Permukaan protokol yang boleh mencapai profil ini.",
+        "sections": {
+          "identity": "Nama, persona dan keterlihatan.",
+          "models": "Model yang menjawab untuk profil ini dalam gelung Hugo sendiri.",
+          "limits": "Had bagi setiap giliran, supaya gelung yang terlepas kawalan berhenti.",
+          "exposure": "Permukaan protokol yang boleh mencapai profil ini."
+        },
+        "actions": {
+          "chat": "Buka Sembang untuk bercakap dengan profil ini.",
+          "duplicate": "Salin profil ini dan pengikatannya di bawah nama baharu, kemudian buka salinan."
+        }
+      },
+      "conversations": {
+        "title": "Tajuk perbualan, dijana daripada pertukaran pertama.",
+        "agentProfileId": "Profil yang menjadi lawan bicara perbualan.",
+        "userId": "Pemilik perbualan: pengguna atau kelayakan.",
+        "source": "Tempat perbualan bermula: sembang papan pemuka, A2A, MCP atau klien serasi OpenAI.",
+        "messageCount": "Mesej dalam perbualan, daripada pengguna dan ejen.",
+        "tokens": "Token input dan output yang digunakan oleh perbualan setakat ini.",
+        "lastMessageUtc": "Bila mesej terkini ditambah.",
+        "fromUtc": "Tunjukkan perbualan yang aktif pada atau selepas masa ini.",
+        "actions": {
+          "export": "Muat turun perbualan sebagai Markdown, dengan panggilan alat diringkaskan."
+        }
+      },
+      "knowledge": {
+        "add": "Tulis nota tentang tindanan anda yang boleh diambil oleh Hugo ke dalam konteks.",
+        "title": "Tajuk pendek yang menyatakan perihal nota.",
+        "agentProfileId": "Hadkan nota kepada satu profil, atau biarkan kosong supaya setiap profil boleh menggunakannya.",
+        "resourceId": "Kaitkan nota dengan satu sumber, supaya ia digunakan apabila sumber itu terlibat.",
+        "content": "Nota itu sendiri, dalam bahasa mudah, contohnya hos mana yang melayani checkout.",
+        "lastUpdateUtc": "Bila nota terakhir diedit (dan dibenamkan semula)."
+      },
+      "sessions": {
+        "principalName": "Pemilik sesi: pengguna, pentadbir atau kelayakan.",
+        "principalType": "Sama ada sesi milik pentadbir, pengguna atau kelayakan.",
+        "principalId": "Tunjukkan hanya sesi bagi ID prinsipal ini.",
+        "authScheme": "Cara sesi diperoleh: log masuk kata laluan, pertukaran kunci akses atau permintaan bertandatangan.",
+        "sourceIp": "Alamat tempat sesi dicipta.",
+        "issuedUtc": "Bila sesi dikeluarkan.",
+        "lastUsedUtc": "Bila sesi terakhir digunakan untuk permintaan.",
+        "expiresUtc": "Bila sesi luput dengan sendirinya.",
+        "revokedUtc": "Sesi yang dibatalkan tidak lagi berfungsi; sesi aktif masih berfungsi.",
+        "userAgent": "Klien yang mencipta sesi, seperti yang dikenal pasti olehnya sendiri."
+      },
+      "plugins": {
+        "name": "Nama himpunan pemalam.",
+        "version": "Versi pemalam seperti yang diisytiharkan dalam himpunannya.",
+        "connectorTypes": "Jenis penyambung yang ditambah oleh pemalam ini pada katalog.",
+        "enabled": "Pemalam yang dinyahdayakan kekal pada cakera tetapi penyambungnya tidak ditawarkan.",
+        "loadError": "Mengapa pemalam gagal dimuatkan, jika ia gagal.",
+        "sha256": "Hasil tambah semak fail pemalam, untuk mengesahkan binaan mana yang dimuatkan.",
+        "actions": {
+          "enable": "Muatkan penyambung pemalam ini pada mula semula seterusnya.",
+          "disable": "Berhenti menawarkan penyambung pemalam ini selepas mula semula seterusnya."
+        }
+      }
+    },
+    "views": {
+      "home": {
+        "observabilityState": {
+          "reachable": "Pelayan mencapai {{service}} di URL dalamannya dalam 30 saat terakhir.",
+          "unreachable": "Pelayan tidak dapat mencapai {{service}} di URL dalamannya. Semak bahawa perkhidmatan sedang berjalan dan tetapan URL dalaman menghala kepadanya.",
+          "checking": "Bertanya kepada pelayan sama ada {{service}} boleh dicapai.",
+          "unknown": "Pelayan tidak melaporkan sama ada {{service}} boleh dicapai. Semakan status gagal atau pelayan ini belum menyokongnya."
+        },
+        "observabilityVersion": "Versi {{service}} yang dilaporkan kepada semakan kesihatan pelayan.",
+        "kpisGrafana": "Buka papan pemuka gambaran keseluruhan Hugo dalam Grafana dalam tab baharu untuk melihat nombor ini dari semasa ke semasa.",
+        "grafanaDashboards": "Folder Hugo dalam Grafana mempunyai satu papan pemuka bagi setiap bahagian. Setiap pautan membuka papan pemuka itu dalam tab baharu.",
+        "grafanaSections": {
+          "overview": "Kesihatan sekilas pandang: masa operasi, kadar permintaan, nisbah ralat, panggilan alat dan kelulusan belum selesai.",
+          "http": "Trafik HTTP: kadar mengikut laluan dan kelas status, kuantil kependaman dan laluan paling perlahan.",
+          "models": "Permintaan model, ralat, kependaman dan token mengikut pembekal.",
+          "protocols": "Permintaan MCP dan A2A mengikut kaedah dan hasil.",
+          "security": "Log masuk, penolakan kebenaran, pendedahan rahsia, penyuntingan dan sekatan penuh.",
+          "agent": "Gelung ejen dan sembang: giliran, pecahan peringkat, lelaran dan masa ke token pertama.",
+          "tools": "Panggilan alat mengikut penyambung dan kesan, keputusan, kependaman, saiz output dan kegagalan."
+        },
+        "observabilityDocs": "Buka panduan telemetri dalam tab baharu: cara mengikis metrik Hugo dan menyambungkan Grafana, Prometheus, Tempo atau Loki.",
+        "observability": "Pautan ke alat metrik, papan pemuka dan pengesanan yang dilaporkan oleh pelayan Hugo ini sebagai dikonfigurasi. Perkhidmatan yang tidak dikonfigurasi tidak ditunjukkan.",
+        "kpis": {
+          "requests": "Permintaan API yang dikendalikan oleh pelayan dalam 24 jam terakhir. Klik untuk membuka Sejarah Permintaan.",
+          "toolCalls": "Panggilan alat daripada setiap permukaan dalam 24 jam terakhir. Klik untuk membuka Seruan Alat.",
+          "failures": "Permintaan API yang gagal serta panggilan alat yang gagal dalam 24 jam terakhir. Klik untuk melihat panggilan alat yang gagal.",
+          "approvals": "Panggilan alat berpagar yang sedang menunggu seseorang. Klik untuk membuka peti masuk Kelulusan.",
+          "unhealthy": "Sumber yang ujian sambungan atau semakan kesihatan terakhirnya gagal. Klik untuk melihatnya.",
+          "tokens": "Token input dan output yang digunakan oleh panggilan model Hugo sendiri sejak tengah malam. Klik untuk membuka Analitik."
+        },
+        "openFailure": "Buka Seruan Alat yang ditapis kepada alat yang gagal ini.",
+        "cta": {
+          "apiExplorer": "Cuba sebarang panggilan API secara langsung terhadap pelayan ini.",
+          "addResource": "Sambungkan sistem: hos SSH, baldi, pangkalan data atau perkhidmatan log, bersama rahsianya.",
+          "addModel": "Tambah model inferens atau pembenaman supaya Agent Smith boleh menjawab dalam sembang.",
+          "chat": "Buka Sembang dan tanya Agent Smith tentang tindanan anda.",
+          "connect": "Buka tab Sambung profil untuk tetapan Claude Code, A2A dan serasi OpenAI.",
+          "approvals": "Semak panggilan alat berisiko yang sedang menunggu keputusan."
+        },
+        "services": {
+          "loki": "Buka Loki untuk mencari log Hugo dalam tab baharu.",
+          "grafana": "Buka papan pemuka Grafana untuk metrik Hugo dalam tab baharu.",
+          "prometheus": "Buka pelayan Prometheus yang mengikis metrik Hugo dalam tab baharu.",
+          "tempo": "Buka Tempo untuk menyemak imbas jejak dalam tab baharu."
+        },
+        "serviceGeneric": "Buka perkhidmatan terbungkus ini dalam tab baharu."
+      },
+      "templateEditor": {
+        "cloneName": "Nama untuk salinan. Huruf kecil, digit, tanda sempang dan garis condong sesuai digunakan; awalan builtin/ adalah terpelihara.",
+        "cloneConfirm": "Cipta salinan dengan nama ini dan bukanya dalam editor.",
+        "clone": "Buat salinan templat ini yang boleh diedit. Anda memilih nama salinan sebelum ia dicipta.",
+        "reset": "Pulihkan templat terbina dalam ini kepada kandungan asal yang disertakan dengan Hugo.",
+        "delete": "Padam templat ini dan versinya. Apa-apa yang menyertakannya akan kembali kepada lalai terbina dalam.",
+        "create": "Cipta templat dan versi pertamanya.",
+        "save": "Simpan kandungan sebagai versi baharu. Perbualan dan sesi MCP baharu akan menggunakannya.",
+        "changeNote": "Nota pendek yang disimpan bersama versi, menerangkan apa yang berubah dan mengapa.",
+        "columns": {
+          "version": "Nombor versi. Lebih tinggi bermakna lebih baharu.",
+          "note": "Nota perubahan yang disimpan bersama versi.",
+          "author": "Siapa yang menyimpan versi templat ini.",
+          "saved": "Bila versi disimpan."
+        },
+        "diff": "Bandingkan versi ini dengan kandungan dalam editor sekarang.",
+        "restore": "Jadikan versi ini semasa semula. Kandungan semasa kekal dalam sejarah."
+      },
+      "serverInfo": {
+        "rest": "Alamat asas untuk panggilan API REST dan SDK.",
+        "mcp": "Alamat yang disambungkan oleh klien MCP. Setiap ejen yang didedahkan sebagai alat muncul di sana.",
+        "a2a": "Alamat asas get laluan A2A untuk penyewa ini. Setiap ejen mempunyai kadnya sendiri di bawahnya.",
+        "openapi": "Dokumen OpenAPI yang menerangkan setiap operasi REST.",
+        "version": "Versi pelayan Hugo.",
+        "dashboardVersion": "Versi konsol ini.",
+        "node": "Tika pelayan yang menjawab permintaan maklumat pelayan halaman ini.",
+        "database": "Enjin pangkalan data yang digunakan oleh pelayan.",
+        "health": "Hasil semakan kesihatan pelayan.",
+        "routes": "Bilangan operasi API yang didaftarkan oleh pelayan.",
+        "serverTime": "Jam pelayan. Perbezaan besar daripada jam anda boleh merosakkan permintaan bertandatangan.",
+        "principalName": "Identiti yang anda gunakan untuk log masuk.",
+        "principalType": "Sama ada anda log masuk sebagai pengguna atau dengan kunci akses.",
+        "role": "Tahap akses tertinggi anda.",
+        "tenant": "Penyewa yang memiliki sesi anda.",
+        "expires": "Bila sesi anda tamat dan anda mesti log masuk semula.",
+        "rawJson": "Tunjukkan respons maklumat pelayan mentah.",
+        "connectors": "Bilangan jenis penyambung yang dimuatkan oleh pelayan, termasuk pemalam.",
+        "openai": "URL asas titik akhir serasi OpenAI; nama profil ialah ID model."
+      },
+      "requests": {
+        "grafana": "Buka papan pemuka HTTP dalam Grafana dalam tab baharu: kadar permintaan, kependaman dan ralat dari semasa ke semasa daripada metrik Prometheus.",
+        "kpis": {
+          "total": "Permintaan yang disimpan oleh pelayan dalam sejarahnya untuk julat dan penapis yang dipilih.",
+          "success": "Permintaan yang mengembalikan status 2xx atau 3xx.",
+          "failure": "Permintaan yang mengembalikan status 4xx atau 5xx.",
+          "avgDuration": "Purata masa yang diambil oleh pelayan untuk menjawab."
+        },
+        "columns": {
+          "time": "Bila permintaan tiba.",
+          "method": "Kaedah HTTP permintaan.",
+          "path": "Laluan yang dipanggil. Letakkan tetikus pada nilai untuk melihatnya sepenuhnya.",
+          "status": "Status HTTP yang dikembalikan oleh pelayan.",
+          "duration": "Masa yang diambil oleh pelayan untuk menjawab.",
+          "principal": "Siapa yang membuat permintaan: pentadbir, pengguna atau kunci akses."
+        },
+        "viewDetails": "Buka permintaan dengan pengepala, badan dan pemasaan.",
+        "viewJson": "Buka rekod permintaan, termasuk JSON mentahnya.",
+        "deleteOne": "Alih keluar permintaan ini daripada sejarah.",
+        "bulkDeleteAll": "Padam setiap permintaan yang sepadan dengan penapis semasa, bukan hanya halaman ini."
+      },
+      "explorer": {
+        "operations": "Pilih operasi API, dikumpulkan mengikut bidang. Borang di bawah menyesuaikan diri dengan parameternya.",
+        "pathParam": "Parameter laluan {{name}} ({{type}}). Ia digantikan ke dalam URL. {{description}}",
+        "queryParam": "Parameter pertanyaan {{name}} ({{type}}). Ia ditambah pada URL apabila diisi. {{description}}",
+        "copyUrl": "Salin URL permintaan yang telah dileraikan sepenuhnya.",
+        "headerName": "Nama pengepala permintaan. Authorization ditambah untuk anda daripada sesi anda.",
+        "headerValue": "Nilai yang dihantar untuk pengepala ini.",
+        "removeHeader": "Alih keluar pengepala ini daripada permintaan.",
+        "addHeader": "Tambah pengepala permintaan lain.",
+        "body": "Badan permintaan JSON untuk operasi yang mencipta atau mengubah rekod.",
+        "execute": "Hantar permintaan kepada pelayan sekarang dengan sesi anda. Kaedah memusnahkan meminta pengesahan.",
+        "stop": "Batalkan permintaan atau berhenti membaca respons penstriman.",
+        "snippets": {
+          "curl": "Permintaan yang sama sebagai arahan curl untuk terminal.",
+          "fetch": "Permintaan yang sama sebagai kod fetch JavaScript.",
+          "csharp": "Permintaan yang sama sebagai kod HttpClient C#."
+        },
+        "clearHistory": "Lupakan setiap permintaan terkini yang disimpan dalam pelayar ini.",
+        "loadHistory": "Muatkan semula permintaan ini ke dalam borang.",
+        "deleteHistory": "Alih keluar entri ini daripada senarai permintaan terkini.",
+        "confirmExecute": "Hantar permintaan ini walaupun ia mungkin mengubah atau memadam data."
+      },
+      "a2aExplorer": {
+        "profile": "Profil untuk dihubungi. Hanya profil dengan pendedahan A2A dihidupkan yang menjawab.",
+        "fetchCard": "Muat turun kad ejen awam profil daripada URL well-known miliknya.",
+        "listTasks": "Senaraikan tugas A2A milik anda pada profil ini (pentadbir penyewa melihat setiap tugas).",
+        "message": "Teks untuk dihantar sebagai mesej pengguna kepada ejen.",
+        "stream": "Gunakan SendStreamingMessage dan tunjukkan peristiwa sebaik ia tiba, bukannya menunggu jawapan akhir.",
+        "send": "Hantar mesej melalui JSON-RPC A2A sebagai prinsipal anda sendiri.",
+        "context": "Mesej dalam konteks yang sama meneruskan satu perbualan. Tukar profil untuk bermula semula.",
+        "events": "Setiap peristiwa yang distrim seperti yang dihantar oleh pelayan."
+      },
+      "analytics": {
+        "profile": "Hadkan setiap carta kepada satu profil ejen, atau tunjukkan seluruh penyewa.",
+        "kpis": {
+          "turns": "Giliran sembang, A2A dan serasi OpenAI yang menjalankan gelung ejen Hugo sendiri dalam julat.",
+          "toolCalls": "Panggilan alat daripada setiap permukaan dalam julat, termasuk yang ditolak.",
+          "failures": "Panggilan alat yang berakhir dengan Failed atau TimedOut dalam julat.",
+          "tokens": "Token input dan output yang digunakan oleh panggilan model Hugo dalam julat.",
+          "approvals": "Kelulusan yang diminta dalam julat, walau apa pun hasilnya.",
+          "turnaround": "Masa median daripada kelulusan diminta sehingga seseorang memutuskannya.",
+          "approvalRate": "Bahagian kelulusan yang telah diputuskan yang diluluskan dan bukan ditolak."
+        },
+        "columns": {
+          "connector": "Jenis penyambung yang menjadi destinasi panggilan.",
+          "calls": "Panggilan alat kepada penyambung ini dalam julat.",
+          "failures": "Panggilan kepada penyambung ini yang gagal atau tamat masa.",
+          "p95": "95 peratus panggilan kepada penyambung ini selesai dalam masa ini."
+        }
+      },
+      "chat": {
+        "search": "Cari perbualan anda mengikut tajuk.",
+        "profile": "Profil ejen untuk dihubungi. Ia menentukan persona, model dan sumber yang boleh digunakan oleh ejen.",
+        "model": "Model inferens yang digunakan oleh profil ini untuk jawapannya.",
+        "new": "Mulakan perbualan baharu dengan profil yang dipilih.",
+        "export": "Muat turun perbualan ini sebagai Markdown.",
+        "drawer": "Tunjukkan atau sembunyikan laci konteks: profil, sumber terikat, penggunaan token dan kelulusan belum selesai.",
+        "goModels": "Buka Titik Akhir Model untuk menambah model inferens.",
+        "goProfiles": "Buka Profil Ejen untuk mencipta atau memilih profil."
+      },
+      "connectors": {
+        "search": "Tapis penyambung mengikut jenis, keluarga, nama atau penerangan.",
+        "category": "Tunjukkan hanya satu kategori penyambung, seperti pangkalan data atau perkhidmatan log.",
+        "card": "Buka {{name}}: tetapannya, slot rahsia, alat dan arahan lalai.",
+        "back": "Kembali ke katalog penyambung.",
+        "addResource": "Buka Sumber untuk menambah sumber yang menggunakan penyambung.",
+        "editInstructions": "Buka Templat Gesaan yang ditapis kepada templat arahan penyambung ini.",
+        "tabs": {
+          "overview": "Jenis, keluarga, kategori, versi dan slot rahsia yang diperlukan oleh penyambung ini.",
+          "settings": "Borang tetapan yang diterima oleh sumber jenis ini, dan jadual rujukan setiap tetapan.",
+          "tools": "Setiap alat yang ditawarkan oleh penyambung ini, bersama kesan asasnya.",
+          "instructions": "Arahan yang ditambah oleh setiap sumber jenis ini untuk ejen."
+        },
+        "columns": {
+          "key": "Kunci tetapan seperti yang disimpan pada sumber dan diterima oleh API.",
+          "kind": "Jenis nilai: teks, teks panjang, nombor bulat, benar atau palsu, senarai, atau salah satu daripada satu set.",
+          "required": "Sama ada sumber mesti menetapkan nilai untuk tetapan ini.",
+          "default": "Nilai yang digunakan apabila sumber membiarkan tetapan kosong.",
+          "range": "Nilai yang dibenarkan atau minimum dan maksimum untuk nombor.",
+          "group": "Bahagian borang sumber tempat tetapan dipaparkan."
+        }
+      },
+      "mcpExplorer": {
+        "profile": "Sambung ke /mcp/{profile}, atau biarkan pelayan menentukan profil anda daripada kelayakan atau lalai.",
+        "connect": "Jalankan initialize, kemudian senaraikan alat yang boleh dilihat oleh pemanggil ini.",
+        "session": "Sesi MCP yang ditetapkan oleh pelayan. Setiap permintaan dalam penjelajah ini menggunakannya semula.",
+        "instructions": "Arahan yang dikompil yang dikembalikan oleh pelayan daripada initialize, seperti yang diterima oleh klien MCP.",
+        "call": "Panggil alat yang dipilih dengan argumen ini melalui saluran keselamatan penuh.",
+        "log": "Setiap permintaan dan respons JSON-RPC yang ditukar dengan pelayan, mengikut urutan."
+      },
+      "profile": {
+        "back": "Kembali ke senarai profil ejen.",
+        "chat": "Buka Sembang untuk bercakap dengan profil ini.",
+        "tabs": {
+          "general": "Persona, cara ia memanggil pengguna, model, had dan permukaan yang mendedahkan profil ini.",
+          "bindings": "Sumber yang dilampirkan pada profil ini, setiap satu dengan alias dan mod akses.",
+          "instructions": "Arahan yang dikompil yang diterima oleh pemanggil, bersama asal setiap bahagian.",
+          "tools": "Alat yang dilihat oleh pemanggil profil ini, selepas mod akses dan peraturan alat.",
+          "connect": "Coretan untuk menyambungkan Claude Code, klien MCP lain, ejen A2A dan klien serasi OpenAI."
+        },
+        "bindings": {
+          "add": "Lampirkan sumber pada profil ini dengan alias dan mod akses.",
+          "goResources": "Buka Sumber untuk menambah sistem yang patut dicapai oleh profil ini.",
+          "columns": {
+            "alias": "Nama yang digunakan oleh ejen untuk sumber dalam panggilan alat.",
+            "resource": "Sumber yang dilampirkan oleh pengikatan ini.",
+            "accessMode": "Apa yang boleh dilakukan oleh ejen dengan sumber: baca sahaja, baca dan tulis dengan kelulusan, atau baca dan tulis.",
+            "approval": "Sama ada sesetengah panggilan pada pengikatan ini menunggu seseorang.",
+            "enabled": "Pengikatan yang dinyahdayakan disembunyikan daripada ejen."
+          }
+        },
+        "toolRules": {
+          "open": "Benarkan, tolak atau perlukan kelulusan untuk alat individu pada pengikatan ini.",
+          "rule": "Benarkan membiarkan alat berjalan di bawah mod akses; Tolak menyembunyikannya; Perlukan kelulusan sentiasa bertanya kepada seseorang.",
+          "save": "Simpan peraturan alat ini. Ia berkuat kuasa serta-merta pada panggilan baharu."
+        },
+        "instructions": {
+          "surface": "Arahan sedikit berbeza bagi setiap permukaan (sembang, MCP, A2A, OpenAI, REST). Pilih satu untuk pratonton.",
+          "section": "Satu bahagian arahan yang dikompil dan lapisan templat asalnya."
+        },
+        "tools": {
+          "name": "Nama alat yang digunakan oleh pemanggil, biasanya family_operation seperti sql_query.",
+          "effect": "Kesan asas: Baca, Tulis atau Memusnahkan. Sesetengah alat dikelaskan bagi setiap panggilan.",
+          "description": "Apa yang dilakukan oleh alat, seperti yang dilihat oleh model pemanggil."
+        },
+        "connect": {
+          "copyCard": "Salin URL kad ejen untuk ejen A2A lain menemui profil ini.",
+          "copyOpenai": "Salin URL asas serasi OpenAI.",
+          "credential": "Buka Kelayakan untuk mencipta kunci akses yang terikat pada profil ini."
+        }
+      },
+      "resources": {
+        "form": {
+          "test": "Uji tetapan dan rahsia dalam borang ini terhadap sistem sebenar sebelum menyimpan apa-apa."
+        },
+        "tryTool": {
+          "profile": "Profil untuk diwakili. Pengikatannya menentukan mod akses dan kelulusan untuk panggilan.",
+          "tool": "Alat yang didedahkan oleh profil untuk sumber ini.",
+          "arguments": "Argumen alat sebagai JSON. Argumen resource menamakan alias pengikatan.",
+          "dryRun": "Kelaskan panggilan (kesan, keputusan, mod akses) tanpa menjalankannya.",
+          "execute": "Jalankan panggilan melalui saluran penuh. Panggilan berisiko menunggu kelulusan seperti yang lain."
+        }
+      },
+      "secrets": {
+        "reveal": {
+          "reason": "Mengapa anda perlu melihat rahsia ini. Disimpan dalam jejak audit bersama pendedahan.",
+          "submit": "Minta nilai teks biasa daripada pelayan. Memerlukan kebenaran Dedahkan dan diaudit.",
+          "password": "Kata laluan akaun anda, untuk mengesahkan bahawa ia benar-benar anda sebelum menunjukkan rahsia.",
+          "reauth": "Sahkan semula sesi ini dengan kata laluan anda, kemudian dedahkan rahsia.",
+          "copy": "Salin nilai ini ke papan keratan. Ia tidak ditunjukkan lagi selepas disembunyikan.",
+          "again": "Dedahkan nilai sekali lagi. Ini diaudit sebagai pendedahan baharu."
+        }
+      },
+      "settings": {
+        "applyLive": "Berkuat kuasa serta-merta apabila disimpan.",
+        "applyRestart": "Berkuat kuasa selepas pelayan dimulakan semula.",
+        "fieldGeneric": "Tetapan pelayan {{path}}.",
+        "groupGeneric": "Tetapan dalam kumpulan {{group}}.",
+        "restart": "Mulakan semula pelayan Hugo supaya tetapan yang memerlukan mula semula berkuat kuasa. Kontena memulakannya semula secara automatik.",
+        "save": "Simpan setiap tetapan yang diubah. Tetapan langsung berkuat kuasa serta-merta; yang lain menunggu mula semula.",
+        "settingPath": "Laluan tetapan: {{path}}. Gunakan nama ini dalam hugo.json dan dalam API REST tetapan.",
+        "sourceGeneric": "Asal nilai semasa.",
+        "testDatabase": "Cuba bersambung dengan tetapan pangkalan data di atas sebelum menyimpannya.",
+        "viewJson": "Tunjukkan respons tetapan mentah.",
+        "groups": {
+          "Rest": "Tempat pelayan mendengar dan cara ia dicapai dari luar, termasuk di belakang proksi.",
+          "Database": "Pangkalan data tempat Hugo menyimpan datanya sendiri: SQLite atau PostgreSQL.",
+          "Logging": "Pengelogan konsol dan fail untuk proses pelayan.",
+          "Auth": "Tempoh sesi, penandatanganan token dan had kadar log masuk.",
+          "Secrets": "Peti besi rahsia: sumber kunci induk dan tetingkap pengesahan semula untuk pendedahan.",
+          "RequestHistory": "Sama ada permintaan API direkodkan, berapa banyak setiap badan disimpan, dan untuk berapa lama.",
+          "Audit": "Berapa lama peristiwa keselamatan disimpan dan berapa kerap log masuk berjaya disampel.",
+          "Telemetry": "Jejak dan metrik yang dieksport ke Tempo dan Prometheus terbungkus.",
+          "Agent": "Had dan tingkah laku gelung ejen Hugo sendiri untuk sembang, A2A dan klien OpenAI.",
+          "Approvals": "Berapa lama kelulusan menunggu, berapa lama panggilan MCP tersekat menunggunya, dan sama ada kelulusan sendiri dibenarkan.",
+          "Connectors": "Pemalam, had masa alat dan sapuan kesihatan latar belakang bagi sumber.",
+          "Models": "Berapa kerap titik akhir model disemak kesihatannya.",
+          "Mcp": "Titik akhir MCP: hidup atau mati, had masa sesi dan saiz mesej.",
+          "A2A": "Sama ada profil boleh dicapai melalui A2A.",
+          "OpenAI": "Sama ada titik akhir serasi OpenAI dihidupkan.",
+          "Embeddings": "Cara vektor disimpan dan dicari, termasuk pgvector pada PostgreSQL."
+        },
+        "source": {
+          "File": "Ditetapkan dalam hugo.json pada masa ini. Menyimpan di sini mengemas kini fail tersebut.",
+          "Environment": "Ditetapkan oleh pemboleh ubah persekitaran, yang mengatasi sebarang nilai yang disimpan di sini.",
+          "Database": "Disimpan dalam pangkalan data."
+        }
+      }
+    },
+    "export": {
+      "menu": "Muat turun {{name}}: data sebagai CSV atau JSON, atau carta sebagai imej PNG atau SVG bersama tajuk, petunjuk, penapis dan julat masanya.",
+      "csv": "Muat turun data tepat di sebalik paparan ini sebagai CSV: satu baris bagi setiap baldi atau rekod, cap masa UTC ISO 8601, dan nombor perpuluhan titik biasa.",
+      "png": "Muat turun carta sebagai imej PNG pada dua kali resolusi skrin, bersama tajuk, petunjuk, penapis aktif dan julat masa.",
+      "svg": "Muat turun carta sebagai imej SVG boleh skala, bersama tajuk, petunjuk, penapis aktif dan julat masa.",
+      "json": "Muat turun data sebagai JSON, dengan siri, baldi, penapis dan julat masa dalam satu dokumen."
+    },
+    "analytics": {
+      "dataTable": "Tunjukkan nombor di sebalik carta ini sebagai jadual, satu baris bagi setiap baldi masa.",
+      "bucketStart": "Permulaan baldi masa. Setiap baris meliputi satu baldi."
+    },
+    "approvalCard": {
+      "approve": "Benarkan panggilan ini berjalan sekarang. Keputusan dan nota anda direkodkan dalam jejak audit.",
+      "reject": "Tolak panggilan ini. Ejen dimaklumkan bahawa tindakan ditolak dan meneruskan tanpanya.",
+      "note": "Nota pilihan yang disimpan bersama keputusan anda, contohnya mengapa anda meluluskan mula semula."
+    },
+    "chat": {
+      "input": "Taip mesej untuk Agent Smith. Enter menghantar; Shift+Enter memulakan baris baharu. Draf disimpan bagi setiap perbualan.",
+      "send": "Hantar mesej dan strim jawapan, termasuk sebarang panggilan alat yang dibuat oleh Agent Smith.",
+      "stop": "Hentikan jawapan sekarang. Panggilan alat yang sedang berjalan dibatalkan dan jawapan separa dikekalkan.",
+      "thinking": "Penaakulan model untuk jawapan ini, apabila model berkongsinya. Diruntuhkan secara lalai.",
+      "ttft": "Masa ke token pertama: dari penghantaran mesej sehingga bahagian pertama jawapan tiba.",
+      "duration": "Tempoh keseluruhan giliran, termasuk panggilan alat dan menunggu kelulusan.",
+      "tokens": "Token input dan output yang digunakan oleh model, seperti yang dilaporkan oleh pembekal."
+    },
+    "errors": {
+      "status": "Kod status HTTP yang dijawab oleh pelayan.",
+      "requestId": "ID pelayan untuk permintaan ini. Carinya dalam Sejarah Permintaan atau log pelayan.",
+      "copyRequestId": "Salin ID permintaan, contohnya untuk disertakan dalam laporan pepijat.",
+      "traceId": "ID jejak teragih. Cari keseluruhan permintaan dalam Tempo melalui Grafana dengannya."
+    },
+    "nav": {
+      "approvalsBadge_one": "{{count}} panggilan alat sedang menunggu seseorang untuk meluluskan atau menolaknya. Buka Kelulusan untuk membuat keputusan.",
+      "approvalsBadge_other": "{{count}} panggilan alat sedang menunggu seseorang untuk meluluskan atau menolaknya. Buka Kelulusan untuk membuat keputusan.",
+      "setup": "Buka wizard persediaan: sambungkan model, tambah sumber pertama, ikat pada profil Hugo, dan sambungkan Claude Code.",
+      "skipToContent": "Langkau navigasi terus ke kandungan utama halaman ini. Kebanyakannya berguna untuk pengguna papan kekunci.",
+      "tour": "Main semula lawatan berpandu ringkas yang menunjukkan navigasi, konteks dan lokasi segala-galanya.",
+      "environment": {
+        "local": "Papan pemuka sedang berkomunikasi dengan pelayan Hugo pada mesin ini (alamat gelung balik).",
+        "remote": "Papan pemuka sedang berkomunikasi dengan pelayan Hugo pada hos lain. Perubahan di sini menjejaskan pelayan tersebut."
+      },
+      "subtabs": {
+        "roles": "Peranan mengumpulkan kebenaran di bawah satu nama, seperti Operator atau Builder. Tugaskan peranan untuk memberi seseorang semua kebenarannya.",
+        "permissions": "Peraturan individu yang membenarkan atau menolak operasi pada jenis sumber. Peranan terdiri daripada peraturan ini; tolak sentiasa menang.",
+        "userAssignments": "Berikan peranan kepada orang yang log masuk dengan e-mel dan kata laluan, seluruh penyewa atau pada satu sumber.",
+        "credentialAssignments": "Berikan peranan kepada kunci akses yang digunakan oleh abah-abah dan automasi. Pastikan kunci lebih sempit daripada pemiliknya."
+      },
+      "hubs": {
+        "home": "Buka pusat arahan: KPI, aktiviti permintaan, kegagalan terkini, sumber tidak sihat dan aliran kerja biasa.",
+        "chat": "Bercakap dengan Agent Smith tentang tindanan anda. Panggilan alat dipaparkan sebaris, dan panggilan berisiko menunggu kelulusan anda.",
+        "profiles": "Cipta profil ejen dan ikat sumber padanya dengan mod akses; setiap permukaan berkomunikasi dengan profil.",
+        "approvals": "Putuskan panggilan alat tulis dan memusnahkan yang sedang menunggu seseorang, daripada mana-mana permukaan.",
+        "conversations": "Semak perbualan merentas penyewa daripada sembang, A2A, MCP dan klien serasi OpenAI.",
+        "resources": "Tambah dan uji sambungan ke hos SSH, baldi, pangkalan data, perkhidmatan log dan sistem lain.",
+        "secrets": "Simpan kata laluan, kunci dan token secara tersulit. Sumber dan titik akhir model menggunakannya mengikut slot.",
+        "connectors": "Semak imbas keluarga perkhidmatan yang disokong oleh Hugo, alat dan kesannya, serta arahan lalainya.",
+        "models": "Tambah model inferens dan pembenaman yang digunakan oleh gelung ejen Hugo sendiri untuk sembang, A2A dan klien OpenAI.",
+        "prompts": "Edit templat arahan mengikut lapisan (terbina dalam, global, penyewa), dengan pratonton, versi dan tetapan semula.",
+        "knowledge": "Ajar Hugo tentang tindanan anda dengan nota yang diambilnya ke dalam konteks semasa perbualan.",
+        "toolInvocations": "Setiap panggilan alat daripada setiap permukaan, dengan kesannya, keputusan, hasil dan pautan jejak.",
+        "requests": "Periksa setiap permintaan API yang dikendalikan oleh pelayan, dengan pengepala, badan, pemasaan dan status.",
+        "analytics": "Fahami penggunaan token, panggilan alat mengikut kesan dan penyambung, kependaman model dan tempoh pemprosesan kelulusan.",
+        "audit": "Semak peristiwa keselamatan seperti log masuk, penolakan, pendedahan rahsia dan perubahan konfigurasi.",
+        "explorer": "Cuba sebarang laluan REST daripada dokumen OpenAPI langsung pelayan, dengan coretan kod yang dijana.",
+        "mcpExplorer": "Sambung ke titik akhir MCP sebagai diri anda untuk melihat arahan dan alat, serta memanggil alat.",
+        "a2aExplorer": "Ambil kad ejen profil dan hantar mesej kepadanya melalui JSON-RPC A2A.",
+        "tenants": "Cipta dan urus penyewa terasing pada pelayan ini. Hanya pentadbir sistem melihat halaman ini.",
+        "users": "Urus orang yang log masuk ke penyewa ini, tetapkan semula kata laluan dan lihat kebenaran berkesan.",
+        "credentials": "Cipta kunci akses untuk abah-abah dan SDK, ikatnya pada profil dan putarkannya.",
+        "rbac": "Urus peranan, kebenaran yang terkandung di dalamnya, dan siapa yang memegangnya dalam penyewa ini.",
+        "sessions": "Lihat setiap sesi dan token aktif dalam penyewa, dan batalkan mana-mana daripadanya.",
+        "settings": "Edit fail tetapan pelayan, mulakan semula pelayan dan lihat maklumat pelayan.",
+        "plugins": "Dayakan atau nyahdayakan pemalam penyambung dan lihat ralat pemuatan. Hanya pentadbir sistem melihat halaman ini."
+      },
+      "tabs": {
+        "roles": "Peranan dan kebenaran yang terkandung di dalamnya. Klon peranan terbina dalam untuk menyesuaikannya.",
+        "assignments": "Siapa memegang peranan mana: pengguna dan kelayakan, seluruh penyewa atau pada satu sumber.",
+        "settings": "Edit fail tetapan pelayan dengan pengesahan, lencana langsung berbanding mula semula, dan Mulakan Semula Pelayan.",
+        "serverInfo": "Titik akhir yang boleh disalin, versi pelayan dan papan pemuka, ciri, dan identiti anda."
+      }
+    },
+    "passwordChange": {
+      "current": "Kata laluan yang anda gunakan untuk log masuk: yang disemai atau yang ditetapkan oleh pentadbir untuk anda.",
+      "new": "Kata laluan baharu anda. Gunakan frasa laluan yang panjang; pelayan mungkin menguatkuasakan lebih banyak peraturan.",
+      "confirm": "Taip kata laluan baharu sekali lagi supaya kesilapan menaip tidak mengunci anda di luar.",
+      "submit": "Simpan kata laluan baharu dan teruskan ke papan pemuka."
+    },
+    "promptEditor": {
+      "content": "Teks templat. Pemboleh ubah dalam kurungan kerinting berganda diisi apabila arahan dikompil.",
+      "insert": "Sisipkan {{variable}} pada kursor.",
+      "preview": "Render teks dengan konteks sampel untuk melihat apa yang akan dibaca oleh ejen.",
+      "diff": "Bandingkan teks ini dengan versi yang disimpan atau lalai, baris demi baris.",
+      "sampleContext": "Nilai contoh yang digunakan untuk pratonton. Editnya untuk mencuba persona, sumber atau mod akses yang berbeza.",
+      "serverRender": "Pelayan merender pratonton ini dengan perender yang sama yang digunakannya untuk arahan sebenar.",
+      "localRender": "Laluan pratonton pelayan tidak tersedia, jadi pelayar merender anggaran."
+    },
+    "schemaForm": {
+      "setting": "Tetapan penyambung {{label}}. Penyambung mengesahkannya apabila sumber disimpan atau diuji."
+    },
+    "secretField": {
+      "slot": "Rahsia yang dibaca oleh penyambung ini untuk {{slot}}. Hanya rahsia daripada jenis yang diterima disenaraikan.",
+      "createInline": "Cipta rahsia baharu tanpa meninggalkan borang ini. Ia disulitkan dan dipilih untuk slot ini.",
+      "saveInline": "Sulitkan dan simpan rahsia baharu, kemudian pilihnya untuk slot ini.",
+      "import": "Baca fail kunci, sijil, kubeconfig atau JSON daripada komputer anda ke dalam medan ini. Ia hanya dihantar apabila anda menyimpan.",
+      "fields": {
+        "username": "Nama akaun untuk log masuk. Bukan rahsia, tetapi disimpan bersama kata laluan.",
+        "password": "Kata laluan. Disimpan secara tersulit dan tidak pernah ditunjukkan kepada ejen.",
+        "privateKey": "Kunci peribadi dalam format PEM atau OpenSSH. Lepaskan fail kunci di sini atau importnya.",
+        "passphrase": "Frasa laluan yang melindungi kunci peribadi, jika ada.",
+        "token": "Token API atau token pembawa yang dikeluarkan oleh perkhidmatan.",
+        "accessKeyId": "ID kunci akses, contohnya AKIA diikuti huruf dan digit pada AWS.",
+        "secretAccessKey": "Separuh rahsia pasangan kunci akses. Disimpan secara tersulit.",
+        "sessionToken": "Token sesi pilihan untuk kelayakan sementara.",
+        "json": "Keseluruhan fail kunci akaun perkhidmatan sebagai JSON, contohnya daripada Google Cloud.",
+        "kubeconfig": "Fail kubeconfig dengan kluster, pengguna dan konteks untuk digunakan.",
+        "connectionString": "Rentetan sambungan penuh termasuk kelayakan, contohnya untuk SQL Server atau Redis.",
+        "certificate": "Sijil dalam format PEM. Bukan rahsia dengan sendirinya, tetapi disimpan bersama kuncinya.",
+        "value": "Sebarang nilai rahsia untuk penyambung yang menerima satu rahsia legap."
+      }
+    },
+    "toolActivity": {
+      "toggle": "Tunjukkan atau sembunyikan argumen dan output panggilan alat ini.",
+      "resource": "Alias sumber yang menjadi sasaran panggilan, seperti yang diikat pada profil.",
+      "status": "Kedudukan panggilan: dicadangkan, sedang berjalan, menunggu kelulusan, atau selesai.",
+      "duration": "Tempoh panggilan pada pelayan, dari mula hingga hasil."
+    },
+    "tour": {
+      "skip": "Tamatkan lawatan sekarang. Anda boleh memainkannya semula dari bar sisi.",
+      "back": "Tunjukkan hentian sebelumnya dalam lawatan.",
+      "next": "Beralih ke hentian seterusnya dalam lawatan.",
+      "done": "Selesaikan lawatan. Anda boleh memainkannya semula dari bar sisi."
+    },
+    "wizard": {
+      "skip": "Tutup wizard dan jangan tawarkannya lagi untuk penyewa ini. Anda boleh membukanya semula dari bar sisi.",
+      "back": "Kembali ke langkah sebelumnya dalam wizard.",
+      "start": "Mulakan persediaan: sambungkan model, tambah sumber, ikatnya dan sambungkan klien.",
+      "skipStep": "Teruskan tanpa menyelesaikan langkah ini. Anda boleh melakukannya kemudian dari halaman yang sepadan.",
+      "saveModel": "Cipta titik akhir model (dan rahsia kunci API-nya, jika anda memasukkannya) dan teruskan.",
+      "saveResource": "Cipta sumber dengan tetapan ini dan rahsianya, kemudian teruskan untuk mengikatnya.",
+      "bind": "Ikat sumber baharu pada profil Hugo lalai dengan mod akses yang dipilih.",
+      "finish": "Tutup wizard untuk penyewa ini dan buka Sembang untuk bercakap dengan Agent Smith."
+    }
+  },
+  "explainers": {
+    "promptTemplates": {
+      "title": "Templat gesaan dan lapisannya",
+      "p1": "Setiap arahan yang diberikan oleh Hugo kepada ejen ialah templat: persona Agent Smith, peraturan keselamatan dan arahan setiap penyambung. Templat menggunakan pemboleh ubah seperti {{persona.name}} dan {{resource.alias}}, dan setiap simpanan mencipta versi baharu.",
+      "p2": "Templat berlapis: teks terbina dalam disertakan dengan Hugo, lalai global boleh menindihnya untuk setiap penyewa, dan penyewa boleh menindih lalai tersebut. Tetapkan Semula kepada Lalai mengalih keluar tindihan dan kembali satu lapisan."
+    },
+    "tenants": {
+      "title": "Penyewa",
+      "p1": "Penyewa ialah organisasi terasing pada pelayan ini. Pengguna, kunci akses, sumber, rahsia, profil dan perbualan semuanya milik satu penyewa, dan tiada apa-apa yang kelihatan merentas penyewa."
+    },
+    "users": {
+      "title": "Pengguna dan kelayakan",
+      "p1": "Pengguna ialah seseorang yang log masuk dengan e-mel dan kata laluan. Kelayakan (kunci akses) ialah cara automasi log masuk. Setiap kunci akses milik seorang pengguna dan tidak boleh melakukan lebih daripada apa yang boleh dilakukan oleh pengguna itu.",
+      "p2": "Kedua-duanya tidak mendapat akses hanya kerana wujud. Akses datang daripada bendera pentadbir pada pengguna dan daripada penugasan peranan."
+    },
+    "credentials": {
+      "title": "Kelayakan dan pengguna",
+      "p1": "Kelayakan ialah pasangan kunci akses dan kunci rahsia untuk skrip, SDK dan perkhidmatan. Ia milik seorang pengguna. Kebenaran berkesannya ialah pertindihan antara apa yang diberikan oleh penugasan peranannya sendiri dan apa yang boleh dilakukan oleh pemiliknya.",
+      "p2": "Kunci rahsia ditunjukkan sekali, semasa kunci dicipta atau diputar. Putar kunci secara berkala dan padam kunci yang sudah lama tidak digunakan."
+    },
+    "roles": {
+      "title": "Peranan, kebenaran dan penugasan",
+      "p1": "Kebenaran ialah satu peraturan: benarkan atau tolak operasi tertentu (seperti Baca, Laksana atau Dedahkan) pada jenis sumber tertentu (seperti Sumber, Rahsia atau Profil ejen). Peranan ialah himpunan kebenaran yang bernama. Tolak sentiasa mengatasi benarkan.",
+      "p2": "Tiada apa-apa berubah untuk sesiapa sehingga peranan ditugaskan. Penugasan, pada tab seterusnya, menghubungkan peranan kepada pengguna atau kunci akses, untuk seluruh penyewa atau untuk satu rekod."
+    },
+    "assignments": {
+      "title": "Penugasan",
+      "p1": "Penugasan memberikan satu peranan kepada satu pengguna atau kunci akses. Skop penyewa menggunakan peranan pada setiap rekod jenis yang diliputi; skop sumber menggunakannya pada satu rekod, seperti satu profil ejen yang boleh digunakan oleh abah-abah.",
+      "p2": "Gunakan Kebenaran berkesan pada pengguna atau kelayakan untuk melihat hasil gabungan semua penugasan mereka."
+    },
+    "audit": {
+      "title": "Audit dan sejarah permintaan",
+      "p1": "Rekod audit ialah peristiwa keselamatan dan konfigurasi: log masuk, permintaan yang ditolak, pendedahan dan perubahan rahsia, perubahan peranan dan pengikatan, sekatan penuh, dan mula semula. Ia disimpan untuk tempoh pengekalan dalam tetapan.",
+      "p2": "Sejarah Permintaan, pada tab sebelumnya, ialah trafik HTTP mentah. Gunakan audit untuk menjawab siapa mengubah apa, dan sejarah permintaan untuk menyahpepijat apa yang sebenarnya dihantar oleh klien."
+    },
+    "requests": {
+      "title": "Sejarah permintaan",
+      "p1": "Setiap permintaan API yang ditangkap oleh pelayan ini, dengan kaedah, laluan, status, pemasaan, pengepala dan badan (dipotong kepada saiz yang dikonfigurasi). Gunakannya untuk menyahpepijat integrasi dan panggilan SDK. Klik bar dalam carta untuk mengecilkan jadual kepada masa tersebut."
+    },
+    "diagram": {
+      "label": "Hubungan antara rahsia, sumber, pengikatan, profil dan permukaan",
+      "secret": {
+        "title": "Rahsia",
+        "body": "Kelayakan disulitkan",
+        "tip": "Kata laluan, kunci dan token, disulitkan dalam Hugo. Sumber menggunakannya mengikut slot; ejen tidak pernah melihatnya."
+      },
+      "resource": {
+        "title": "Sumber",
+        "body": "Sistem yang dikonfigurasikan",
+        "tip": "Setiap satu ialah sistem yang dikonfigurasikan: hos SSH, baldi, pangkalan data atau perkhidmatan log, bersama tetapannya."
+      },
+      "binding": {
+        "title": "Pengikatan",
+        "body": "Alias dan mod akses",
+        "tip": "Lampirkan sumber pada profil di bawah alias, dengan akses baca sahaja, dengan kelulusan, atau baca dan tulis."
+      },
+      "profile": {
+        "title": "Profil ejen",
+        "body": "Persona, model, had",
+        "tip": "Ejen itu sendiri: Agent Smith secara lalai, dengan model dan hadnya. Setiap antara muka berkomunikasi dengan profil."
+      },
+      "surfaces": {
+        "title": "Antara muka",
+        "body": "MCP, A2A, REST, sembang",
+        "tip": "Claude Code melalui MCP, ejen lain melalui A2A, skrip melalui REST dan SDK, dan anda dalam sembang."
+      }
+    },
+    "profiles": {
+      "title": "Hubungan antara profil, sumber dan permukaan",
+      "p1": "Profil ialah ejen: persona (Agent Smith secara lalai), model yang digunakannya untuk berfikir, dan satu set pengikatan. Setiap pengikatan melampirkan satu sumber di bawah alias dengan mod akses.",
+      "p2": "Setiap permukaan ialah klien kepada profil yang sama. Klien MCP mendapat alat dan arahan profil; sembang, A2A dan klien serasi OpenAI menjalankan gelung Hugo sendiri dengan model profil."
+    },
+    "approvals": {
+      "title": "Bila panggilan menunggu seseorang",
+      "p1": "Setiap panggilan alat dikelaskan sebagai Baca, Tulis atau Memusnahkan. Panggilan memusnahkan menunggu kelulusan secara lalai, dan pada pengikatan dalam mod baca dan tulis dengan kelulusan, setiap penulisan juga menunggu.",
+      "p2": "Luluskan untuk membenarkan panggilan berjalan, atau tolak untuk menolaknya. Ejen dimaklumkan dalam kedua-dua keadaan, dan keputusan direkodkan bersama nota anda."
+    },
+    "conversations": {
+      "title": "Perbualan daripada setiap permukaan",
+      "p1": "Sembang papan pemuka, konteks A2A, delegasi MCP dan sesi serasi OpenAI semuanya menjadi perbualan di sini, jadi sejarah setiap permukaan berada di satu tempat."
+    },
+    "resources": {
+      "title": "Sumber, rahsia dan pengikatan",
+      "p1": "Sumber ialah satu sistem yang dikonfigurasi: penyambungnya, tetapan dan rahsia yang digunakannya. Rahsia kekal tersulit dalam Hugo; ejen tidak pernah melihatnya.",
+      "p2": "Sumber tidak melakukan apa-apa sehingga profil mengikatnya. Pengikatan menentukan alias yang dilihat oleh ejen dan apa yang boleh dilakukannya."
+    },
+    "secrets": {
+      "title": "Cara rahsia dilindungi",
+      "p1": "Nilai disulitkan dengan AES-256-GCM di bawah kunci induk dan diikat pada penyewanya. Sumber dan titik akhir model merujuk rahsia mengikut slot.",
+      "p2": "Tiada sesiapa melihat nilai lagi kecuali melalui Dedahkan, yang memerlukan kebenaran Dedahkan, sebab dan semakan kata laluan baharu, serta sentiasa diaudit."
+    },
+    "models": {
+      "title": "Bila Hugo memerlukan model",
+      "p1": "Klien MCP seperti Claude Code membawa model mereka sendiri; Hugo hanya membekalkan alat dan arahan. Sembang, A2A dan titik akhir serasi OpenAI menjalankan gelung Hugo sendiri dan memerlukan model inferens pada profil."
+    },
+    "knowledge": {
+      "title": "Kegunaan nota pengetahuan",
+      "p1": "Nota ialah fakta yang akan diberitahu oleh pengendali kepada rakan sepasukan. Hugo membenamkannya dan mengambil nota yang relevan ke dalam konteks untuk setiap giliran."
+    },
+    "toolInvocations": {
+      "title": "Satu rekod bagi setiap panggilan alat",
+      "p1": "Setiap panggilan alat daripada setiap permukaan melalui saluran yang sama: pengelasan, mod akses pengikatan, kelulusan jika perlu, penyambung, dan pembersih rahsia. Setiap satu direkodkan di sini."
+    },
+    "connectors": {
+      "title": "Penyambung dan sumber",
+      "p1": "Penyambung ialah kod yang tahu cara berkomunikasi dengan satu keluarga sistem. Sumber ialah satu tika penyambung yang dikonfigurasi, dengan tetapan dan rahsianya sendiri."
+    },
+    "analytics": {
+      "title": "Asal nombor ini",
+      "p1": "Analitik mengagregatkan seruan alat, giliran sembang dan panggilan model pada pelayan, dibaldikan mengikut masa dan diskopkan kepada penyewa ini."
+    },
+    "sessions": {
+      "title": "Sesi dan token",
+      "p1": "Log masuk atau menukar kunci akses mengeluarkan token sesi. Membatalkan sesi menamatkannya serta-merta, di mana sahaja ia digunakan."
+    },
+    "plugins": {
+      "title": "Pemalam penyambung",
+      "p1": "Pemalam menambah jenis penyambung daripada direktori pemalam tanpa membina semula Hugo. Ia hanya dimuatkan apabila Connectors.EnablePlugins dihidupkan."
+    }
+  },
+  "nav": {
+    "primary": "Navigasi utama",
+    "collapseSidebar": "Togol navigasi",
+    "setup": "Wizard persediaan",
+    "skipToContent": "Langkau ke kandungan",
+    "tour": "Lawatan berpandu",
+    "version": "Versi {{version}}",
+    "approvalsPending_one": "{{count}} kelulusan menunggu seseorang",
+    "approvalsPending_other": "{{count}} kelulusan menunggu seseorang",
+    "environment": {
+      "local": "Setempat",
+      "remote": "Jauh"
+    },
+    "sections": {
+      "start": "Mula",
+      "agents": "Ejen",
+      "connect": "Sambung",
+      "configure": "Konfigurasi",
+      "observe": "Pantau",
+      "develop": "Bangunkan",
+      "administer": "Tadbir"
+    },
+    "hubs": {
+      "home": {
+        "label": "Laman Utama",
+        "tip": "Apa yang sedang dilakukan oleh Hugo, apa yang memerlukan perhatian, dan langkah seterusnya yang biasa."
+      },
+      "chat": {
+        "label": "Sembang",
+        "tip": "Bercakap dengan Agent Smith; panggilan alat dan kelulusan dipaparkan sebaris."
+      },
+      "profiles": {
+        "label": "Profil Ejen",
+        "tip": "Persona dengan sumber terikat dan mod akses, boleh dicapai melalui setiap permukaan."
+      },
+      "approvals": {
+        "label": "Kelulusan",
+        "tip": "Panggilan alat berisiko yang menunggu seseorang untuk meluluskan atau menolak."
+      },
+      "conversations": {
+        "label": "Perbualan",
+        "tip": "Setiap perbualan dalam penyewa, daripada sembang, A2A, MCP dan klien OpenAI."
+      },
+      "resources": {
+        "label": "Sumber",
+        "tip": "Sambungan yang dikonfigurasi ke sistem anda: hos, baldi, pangkalan data, perkhidmatan log."
+      },
+      "secrets": {
+        "label": "Rahsia",
+        "tip": "Bahan kelayakan tersulit yang digunakan oleh sumber dan titik akhir model."
+      },
+      "connectors": {
+        "label": "Penyambung",
+        "tip": "Jenis sistem yang boleh dicapai oleh Hugo, alatnya dan arahan lalai."
+      },
+      "models": {
+        "label": "Titik Akhir Model",
+        "tip": "Model inferens dan pembenaman untuk gelung ejen Hugo sendiri."
+      },
+      "prompts": {
+        "label": "Templat Gesaan",
+        "tip": "Setiap templat arahan: persona, peraturan keselamatan dan arahan penyambung."
+      },
+      "knowledge": {
+        "label": "Pengetahuan",
+        "tip": "Nota tentang tindanan anda yang diambil oleh Hugo ke dalam konteks."
+      },
+      "toolInvocations": {
+        "label": "Seruan Alat",
+        "tip": "Setiap tindakan yang diambil oleh mana-mana ejen, dengan kesan, keputusan dan hasilnya."
+      },
+      "requests": {
+        "label": "Sejarah Permintaan",
+        "tip": "Setiap permintaan API yang dikendalikan oleh pelayan, dengan pengepala dan badan."
+      },
+      "analytics": {
+        "label": "Analitik",
+        "tip": "Trend penggunaan, kos, kependaman dan kelulusan dari semasa ke semasa."
+      },
+      "audit": {
+        "label": "Audit",
+        "tip": "Peristiwa keselamatan: log masuk, penolakan, pendedahan rahsia, perubahan konfigurasi."
+      },
+      "explorer": {
+        "label": "Penjelajah API",
+        "tip": "Cuba sebarang laluan REST daripada dokumen OpenAPI langsung."
+      },
+      "mcpExplorer": {
+        "label": "Penjelajah MCP",
+        "tip": "Sambung sebagai klien MCP, senaraikan alat dan panggilnya."
+      },
+      "a2aExplorer": {
+        "label": "Penjelajah A2A",
+        "tip": "Ambil kad ejen dan bercakap dengan profil melalui A2A."
+      },
+      "tenants": {
+        "label": "Penyewa",
+        "tip": "Penyewa terasing pada pelayan ini. Pentadbir sistem sahaja."
+      },
+      "users": {
+        "label": "Pengguna",
+        "tip": "Orang yang log masuk ke penyewa ini."
+      },
+      "credentials": {
+        "label": "Kelayakan",
+        "tip": "Kunci akses untuk abah-abah, SDK dan automasi."
+      },
+      "rbac": {
+        "label": "Peranan dan Kebenaran",
+        "tip": "Peranan, kebenaran dan siapa yang memegangnya."
+      },
+      "sessions": {
+        "label": "Sesi",
+        "tip": "Sesi log masuk dan token aktif; batalkan mana-mana daripadanya."
+      },
+      "settings": {
+        "label": "Tetapan",
+        "tip": "Konfigurasi pelayan, mula semula dan maklumat pelayan."
+      },
+      "plugins": {
+        "label": "Pemalam",
+        "tip": "Pemalam penyambung yang dimuatkan daripada direktori pemalam."
+      }
+    },
+    "items": {
+      "home": {
+        "label": "Laman Utama",
+        "tip": "Apa yang sedang dilakukan oleh Hugo, apa yang memerlukan perhatian, dan langkah seterusnya yang biasa."
+      },
+      "chat": {
+        "label": "Sembang",
+        "tip": "Bercakap dengan Agent Smith; panggilan alat dan kelulusan dipaparkan sebaris."
+      },
+      "profiles": {
+        "label": "Profil Ejen",
+        "tip": "Persona dengan sumber terikat dan mod akses."
+      },
+      "approvals": {
+        "label": "Kelulusan",
+        "tip": "Panggilan alat berisiko yang menunggu seseorang."
+      },
+      "conversations": {
+        "label": "Perbualan",
+        "tip": "Setiap perbualan dalam penyewa."
+      },
+      "resources": {
+        "label": "Sumber",
+        "tip": "Sambungan yang dikonfigurasi ke sistem anda."
+      },
+      "secrets": {
+        "label": "Rahsia",
+        "tip": "Bahan kelayakan tersulit."
+      },
+      "connectors": {
+        "label": "Penyambung",
+        "tip": "Keluarga perkhidmatan yang boleh dicapai oleh Hugo."
+      },
+      "models": {
+        "label": "Titik Akhir Model",
+        "tip": "Model inferens dan pembenaman."
+      },
+      "promptTemplates": {
+        "label": "Templat Gesaan",
+        "tip": "Templat arahan dan lapisannya."
+      },
+      "knowledge": {
+        "label": "Pengetahuan",
+        "tip": "Nota yang diambil oleh Hugo ke dalam konteks."
+      },
+      "toolInvocations": {
+        "label": "Seruan Alat",
+        "tip": "Setiap tindakan yang diambil oleh mana-mana ejen."
+      },
+      "requests": {
+        "label": "Sejarah Permintaan",
+        "tip": "Setiap permintaan API yang dikendalikan oleh pelayan."
+      },
+      "analytics": {
+        "label": "Analitik",
+        "tip": "Trend penggunaan dan kependaman."
+      },
+      "audit": {
+        "label": "Audit",
+        "tip": "Peristiwa keselamatan."
+      },
+      "explorer": {
+        "label": "Penjelajah API",
+        "tip": "Cuba laluan REST secara langsung."
+      },
+      "mcpExplorer": {
+        "label": "Penjelajah MCP",
+        "tip": "Cuba MCP sebagai klien."
+      },
+      "a2aExplorer": {
+        "label": "Penjelajah A2A",
+        "tip": "Cuba A2A sebagai ejen."
+      },
+      "tenants": {
+        "label": "Penyewa",
+        "tip": "Penyewa terasing pada pelayan ini."
+      },
+      "users": {
+        "label": "Pengguna",
+        "tip": "Orang yang log masuk."
+      },
+      "credentials": {
+        "label": "Kelayakan",
+        "tip": "Kunci akses untuk automasi."
+      },
+      "roles": {
+        "label": "Peranan",
+        "tip": "Peranan dan kebenaran yang diberikannya."
+      },
+      "assignments": {
+        "label": "Penugasan",
+        "tip": "Siapa memegang peranan mana, dan di mana."
+      },
+      "sessions": {
+        "label": "Sesi",
+        "tip": "Sesi dan token aktif."
+      },
+      "settings": {
+        "label": "Tetapan",
+        "tip": "Konfigurasi pelayan."
+      },
+      "serverInfo": {
+        "label": "Maklumat Pelayan",
+        "tip": "Titik akhir, versi dan identiti anda."
+      },
+      "plugins": {
+        "label": "Pemalam",
+        "tip": "Pemalam penyambung."
+      }
+    }
+  },
+  "tour": {
+    "title": "Lawatan berpandu",
+    "skip": "Langkau lawatan",
+    "done": "Selesai",
+    "steps": {
+      "sidebar": {
+        "title": "Navigasi",
+        "body": "Segala-galanya dikumpulkan mengikut tugas: mulakan sembang, bina ejen, sambungkan sistem, konfigurasikan gesaan, pantau aktiviti, cuba API dan tadbir penyewa."
+      },
+      "topbar": {
+        "title": "Konteks dan kawalan",
+        "body": "Pelayan, penyewa, identiti dan peranan anda, status langsung, kelulusan belum selesai, sekatan penuh penyewa, bahasa, tema dan log keluar terletak di sini."
+      },
+      "kpis": {
+        "title": "Pusat arahan",
+        "body": "Permintaan, panggilan alat, kegagalan, kelulusan yang menunggu, sumber tidak sihat dan token yang digunakan hari ini. Klik jubin untuk melihat butiran."
+      },
+      "chat": {
+        "title": "Bersembang dengan Agent Smith",
+        "body": "Tanya soalan tentang tindanan anda. Setiap panggilan alat dipaparkan sebaris bersama kesannya, dan panggilan berisiko menunggu kelulusan anda."
+      },
+      "connect": {
+        "title": "Sambungkan sistem anda",
+        "body": "Tambah sumber (hos SSH, baldi, pangkalan data, perkhidmatan log) bersama rahsianya, dan uji setiap sambungan sebelum menyimpan."
+      },
+      "profiles": {
+        "title": "Susun profil ejen",
+        "body": "Ikat sumber pada profil dengan mod akses bagi setiap sumber. Profil ialah apa yang dihubungi oleh MCP, A2A, sembang dan API."
+      },
+      "approvals": {
+        "title": "Luluskan tindakan berisiko",
+        "body": "Panggilan tulis dan memusnahkan yang memerlukan seseorang menunggu di sini, dan dalam sembang, sehingga seseorang meluluskan atau menolaknya."
+      },
+      "observe": {
+        "title": "Lihat segala yang telah berlaku",
+        "body": "Seruan alat, sejarah permintaan, analitik dan audit menunjukkan setiap tindakan, daripada setiap permukaan."
+      }
+    }
+  },
+  "wizard": {
+    "title": "Sediakan Hugo",
+    "stepOf": "Langkah {{step}} daripada {{total}}",
+    "skip": "Langkau persediaan",
+    "skipStep": "Langkau langkah ini",
+    "start": "Mula",
+    "saveModel": "Simpan titik akhir",
+    "saveResource": "Simpan sumber",
+    "bind": "Ikat pada profil",
+    "finish": "Buka sembang",
+    "modelSaved": "Titik akhir model disimpan.",
+    "bound": "{{alias}} kini diikat pada {{profile}}.",
+    "nothingToBind": "Tiada sumber dicipta dalam langkah sebelumnya, jadi belum ada apa-apa untuk diikat. Anda boleh mengikat sumber kemudian pada halaman profil.",
+    "apiKeyHint": "Disimpan sebagai rahsia tersulit; titik akhir merujuknya.",
+    "welcomeItem1": "Sambungkan model supaya Agent Smith boleh berfikir (Ollama, OpenAI, Anthropic dan lain-lain).",
+    "welcomeItem2": "Tambah sumber pertama, seperti hos SSH atau pangkalan data, bersama kelayakannya.",
+    "welcomeItem3": "Ikatnya pada profil Hugo lalai dan sambungkan Claude Code melalui MCP.",
+    "steps": {
+      "welcome": "Selamat datang",
+      "inference": "Model inferens",
+      "embedding": "Pembenaman",
+      "resource": "Sumber pertama",
+      "bind": "Ikat",
+      "connect": "Sambung"
+    },
+    "bodies": {
+      "welcome": "Hugo memegang akses kepada sistem anda dan pertimbangan tentang cara menggunakannya. Wizard ini membawa anda daripada penyewa kosong kepada sembang yang berfungsi dalam beberapa minit.",
+      "inference": "Sembang, A2A dan titik akhir serasi OpenAI menjalankan gelung ejen Hugo sendiri, yang memerlukan model inferens. Klien MCP membawa model mereka sendiri, jadi anda boleh melangkau ini jika anda hanya menggunakan MCP.",
+      "embedding": "Pilihan. Model pembenaman membolehkan Hugo memilih alat yang relevan apabila profil mempunyai banyak alat, dan menggerakkan nota pengetahuan kemudian.",
+      "resource": "Pilih penyambung, isikan tetapannya, pilih atau cipta rahsia yang diperlukan, dan uji sambungan sebelum menyimpan.",
+      "bind": "Lampirkan sumber baharu pada profil Hugo lalai dan pilih apa yang boleh dilakukan oleh ejen dengannya.",
+      "connect": "Tambah Hugo ke Claude Code (atau mana-mana klien MCP) dengan konfigurasi ini, kemudian mula bersembang dengan Agent Smith."
+    }
+  }
+}

@@ -1,0 +1,3583 @@
+{
+  "common": {
+    "fieldCodes": {
+      "ExpiryInPast": "اختر وقتًا في المستقبل.",
+      "SettingsFileReadOnly": "ملف الإعدادات للقراءة فقط، لذا لا يمكن حفظ هذا التغيير.",
+      "OverriddenByEnvironment": "يحدد متغير بيئة هذه القيمة، لذا لا يمكن تغييرها هنا.",
+      "PathRequired": "مسار الإعداد مطلوب.",
+      "UnknownSetting": "لا يحتوي هذا الخادم على هذا الإعداد.",
+      "TooLong": "هذه القيمة طويلة جدًا.",
+      "NotAllowedValue": "اختر إحدى القيم المسموح بها.",
+      "NotABoolean": "اختر true أو false.",
+      "NotAnInteger": "أدخل عددًا صحيحًا.",
+      "OutOfRange": "القيمة خارج النطاق المسموح به."
+    },
+    "appName": "Hugo",
+    "language": {
+      "label": "اللغة"
+    },
+    "theme": {
+      "switchToLight": "التبديل إلى السمة الفاتحة",
+      "switchToDark": "التبديل إلى السمة الداكنة"
+    },
+    "actions": {
+      "apply": "تطبيق",
+      "back": "رجوع",
+      "cancel": "إلغاء",
+      "clear": "مسح",
+      "clone": "استنساخ",
+      "close": "إغلاق",
+      "confirm": "تأكيد",
+      "copied": "تم النسخ",
+      "copy": "نسخ",
+      "delete": "حذف",
+      "duplicate": "تكرار",
+      "edit": "تعديل",
+      "hide": "إخفاء القيمة",
+      "logout": "تسجيل الخروج",
+      "next": "التالي",
+      "openGithub": "فتح مستودع Hugo (AgentSmith) على GitHub",
+      "remove": "إزالة",
+      "retry": "إعادة المحاولة",
+      "reveal": "إظهار القيمة",
+      "save": "حفظ",
+      "view": "عرض",
+      "viewDetails": "عرض التفاصيل",
+      "viewJson": "عرض JSON",
+      "dismiss": "تجاهل"
+    },
+    "boolean": {
+      "yes": "نعم",
+      "no": "لا"
+    },
+    "confirm": {
+      "deleteNamed": "حذف \"{{name}}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+      "bulkDelete": "حذف {{count}} من السجلات المحددة؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "errors": {
+      "listItem": "العنصر {{index}}: {{message}}",
+      "chooseOne": "اختر خيارًا واحدًا على الأقل.",
+      "fixFields": "بعض الحقول تحتاج إلى مراجعة. راجع القيم المميزة.",
+      "invalidEmail": "أدخل عنوان بريد إلكتروني صالحًا.",
+      "invalidJson": "هذا ليس JSON صالحًا.",
+      "loadFailed": "فشل تحميل البيانات.",
+      "requestId": "الطلب {{id}}.",
+      "required": "هذا الحقل مطلوب.",
+      "requiredPermission": "يتطلب {{permission}} على {{resource}}.",
+      "title": "فشل الطلب",
+      "status": "HTTP {{status}}",
+      "requestIdLabel": "معرّف الطلب",
+      "traceIdLabel": "معرّف التتبع"
+    },
+    "generic": {
+      "deletedName": "{{name}} (محذوف)",
+      "actions": "الإجراءات",
+      "active": "نشط",
+      "all": "الكل",
+      "any": "أي",
+      "builtIn": "مضمّن",
+      "custom": "مخصص",
+      "inactive": "غير نشط",
+      "loading": "جارٍ التحميل...",
+      "never": "أبدًا",
+      "none": "لا شيء",
+      "notAvailable": "غير متاح",
+      "saving": "جارٍ الحفظ...",
+      "default": "افتراضي",
+      "disabled": "معطّل",
+      "enabled": "مفعّل",
+      "lockdown": "إغلاق",
+      "locked": "مقفل",
+      "required": "مطلوب"
+    },
+    "relativeTime": {
+      "now": "الآن"
+    },
+    "states": {
+      "forbiddenTitle": "ليس لديك صلاحية الوصول إلى هذه الصفحة",
+      "forbiddenBody": "اطلب من المسؤول دورًا يمنحك صلاحية الوصول، أو اختر صفحة أخرى.",
+      "notExposedTitle": "لا يوفّر هذا الخادم {{feature}} بعد",
+      "notExposedBody": "لوحة التحكم جاهزة لـ {{feature}}، لكن خادم Hugo هذا لا يوفّر المسار الذي تحتاجه. ستعمل هنا فور أن يوفّره الخادم، ولا يلزم تغيير أي شيء في هذه الصفحة.",
+      "notExposedEndpoint": "المسار الذي استدعته لوحة التحكم:"
+    },
+    "toasts": {
+      "bulkDeleted": "تم حذف {{count}} من السجلات (فشل {{failed}}).",
+      "cloned": "تم الاستنساخ.",
+      "created": "تم الإنشاء.",
+      "deleted": "تم الحذف.",
+      "saved": "تم الحفظ."
+    },
+    "units": {
+      "msShort": "مللي ث",
+      "sShort": "ث",
+      "mShort": "د"
+    },
+    "tagline": "Agent Smith في خدمتك",
+    "serverText": {
+      "valueClamped": "القيمة {{given}} للحقل {{field}} خارج النطاق المسموح به من {{minimum}} إلى {{maximum}}؛ وتم تخزين {{stored}}.",
+      "approvalWaitingExpires": "في انتظار موافقة شخص على {{subject}}؛ تنتهي صلاحية الموافقة {{id}} في {{expires}}.",
+      "approvalWaiting": "في انتظار موافقة شخص على {{subject}}؛ الموافقة {{id}}.",
+      "inUse": "{{what}} لا يزال مستخدمًا من قبل {{users}}. أزل تلك المراجع أولًا."
+    }
+  },
+  "errorCodes": {
+    "ApprovalNotPending": "تم البت في هذه الموافقة مسبقًا أو انتهت صلاحيتها، لذا لا يمكن البت فيها مرة أخرى.",
+    "TenantNotFound": "هذا المستأجر غير موجود. تحقق من معرّف المستأجر.",
+    "NetworkError": "تعذّر الوصول إلى الخادم. تحقق من URL الخادم ومن أن الخادم قيد التشغيل.",
+    "AuthenticationRequired": "انتهت صلاحية جلستك. سجّل الدخول مرة أخرى.",
+    "InvalidCredentials": "المستأجر أو البريد الإلكتروني أو كلمة المرور أو المفاتيح غير صحيحة.",
+    "RateLimited": "محاولات تسجيل دخول كثيرة جدًا. انتظر دقيقة ثم حاول مرة أخرى.",
+    "AuthorizationDenied": "ليس لديك إذن لتنفيذ هذا الإجراء.",
+    "NotFound": "لم يتم العثور على السجل.",
+    "RouteNotFound": "لا يدعم هذا الخادم نقطة النهاية هذه بعد.",
+    "ValidationFailed": "بعض القيم غير صالحة.",
+    "InvalidBody": "نص الطلب غير صالح.",
+    "InvalidJson": "نص الطلب ليس JSON صالحًا.",
+    "Conflict": "يتعارض هذا مع سجل موجود.",
+    "BuiltInImmutable": "لا يمكن تغيير السجلات المضمّنة. استنسخه لتخصيصه.",
+    "Protected": "هذا السجل محمي ولا يمكن حذفه.",
+    "InternalError": "واجه الخادم خطأً داخليًا. راجع سجلات الخادم باستخدام معرّف الطلب.",
+    "Http400": "رُفض الطلب لأنه غير صالح.",
+    "Http403": "ليس لديك إذن لتنفيذ هذا الإجراء.",
+    "Http404": "غير موجود.",
+    "Http409": "تعارض مع الحالة الحالية.",
+    "Http500": "واجه الخادم خطأً داخليًا.",
+    "Http503": "الخادم غير متاح.",
+    "ConversationBusy": "لا تزال هذه المحادثة تعمل على دورها السابق. انتظر حتى تنتهي أو أوقفها، ثم حاول مرة أخرى.",
+    "ApprovalExpired": "انتهت صلاحية هذه الموافقة قبل أن يبت فيها أحد.",
+    "ReauthenticationRequired": "أدخل كلمة المرور مرة أخرى قبل إظهار الأسرار.",
+    "SecretInUse": "لا يزال هذا السر مستخدمًا من قبل موارد أو نقاط نهاية نماذج. أزل تلك المراجع أولًا.",
+    "ResourceInUse": "لا يزال هذا المورد مرتبطًا بملفات تعريف. أزل عمليات الربط أولًا.",
+    "LockdownActive": "المستأجر في وضع الإغلاق، لذا يُسمح باستدعاءات القراءة فقط.",
+    "ConnectorNotFound": "لا يحتوي هذا الخادم على موصّل من هذا النوع. ربما فشل تحميل إحدى الإضافات.",
+    "ProfileNotExposed": "ملف التعريف هذا غير متاح على تلك الواجهة.",
+    "NoInferenceEndpoint": "لا يحتوي ملف التعريف هذا على نموذج استدلال، لذا لا يستطيع Hugo تشغيل حلقة الوكيل الخاصة به له."
+  },
+  "enums": {
+    "principalType": {
+      "Administrator": "مسؤول",
+      "User": "مستخدم",
+      "Credential": "بيانات اعتماد"
+    },
+    "credentialAuthMode": {
+      "DirectHeader": "ترويسات مباشرة",
+      "SignedRequest": "طلبات موقّعة",
+      "SessionExchange": "تبادل رمز الجلسة",
+      "Hybrid": "أي طريقة"
+    },
+    "operationType": {
+      "All": "كل شيء",
+      "Create": "إنشاء",
+      "Read": "قراءة",
+      "Write": "كتابة (إنشاء، تحديث، حذف)",
+      "Update": "تحديث",
+      "Delete": "حذف",
+      "Execute": "تنفيذ",
+      "Admin": "إدارة",
+      "Reveal": "إظهار"
+    },
+    "promptTemplateKind": {
+      "System": "النظام",
+      "Task": "مهمة",
+      "Fragment": "جزء",
+      "ToolDescription": "وصف الأداة",
+      "ConfigFile": "ملف تهيئة",
+      "Other": "أخرى"
+    },
+    "permissionType": {
+      "Permit": "سماح",
+      "Deny": "رفض"
+    },
+    "resourceScope": {
+      "Tenant": "مستأجر",
+      "Resource": "مورد"
+    },
+    "resourceType": {
+      "All": "كل شيء",
+      "Tenant": "مستأجر",
+      "Admin": "الإدارة",
+      "User": "مستخدم",
+      "Credential": "بيانات اعتماد",
+      "Session": "جلسة",
+      "Role": "دور",
+      "Permission": "إذن",
+      "Assignment": "تعيين",
+      "Audit": "التدقيق",
+      "Settings": "الإعدادات",
+      "Secret": "سر",
+      "Resource": "مورد",
+      "Connector": "موصّل",
+      "AgentProfile": "ملف تعريف الوكيل",
+      "Binding": "ربط",
+      "PromptTemplate": "قالب موجّه",
+      "ModelEndpoint": "نقطة نهاية النموذج",
+      "Conversation": "محادثة",
+      "ToolInvocation": "استدعاء أداة",
+      "Approval": "موافقة",
+      "RequestHistory": "سجل الطلبات",
+      "Knowledge": "المعرفة",
+      "Plugin": "إضافة",
+      "Analytics": "التحليلات"
+    },
+    "auditEventType": {
+      "AuthSuccess": "نجح تسجيل الدخول",
+      "AuthFailure": "فشل تسجيل الدخول",
+      "SessionIssued": "تم إصدار جلسة",
+      "SessionRevoked": "تم إلغاء جلسة",
+      "CredentialCreated": "تم إنشاء بيانات اعتماد",
+      "CredentialRotated": "تم تدوير بيانات اعتماد",
+      "CredentialUsed": "تم استخدام بيانات اعتماد",
+      "AuthorizationDenied": "تم رفض الوصول",
+      "AuthorizationBypass": "تم تجاوز فحص الوصول",
+      "RoleChanged": "تم تغيير دور",
+      "AssignmentChanged": "تم تغيير تعيين",
+      "SecretCreated": "تم إنشاء سر",
+      "SecretUpdated": "تم تحديث سر",
+      "SecretRevealed": "تم إظهار سر",
+      "SecretDeleted": "تم حذف سر",
+      "MasterKeyRotated": "تم تدوير المفتاح الرئيسي",
+      "ResourceChanged": "تم تغيير مورد",
+      "ProfileChanged": "تم تغيير ملف تعريف",
+      "BindingChanged": "تم تغيير ربط",
+      "PromptTemplateChanged": "تم تغيير قالب موجّه",
+      "ApprovalDecided": "تم البت في موافقة",
+      "LockdownChanged": "تم تغيير الإغلاق",
+      "SettingsChanged": "تم تغيير الإعدادات",
+      "ServerRestarted": "تمت إعادة تشغيل الخادم",
+      "PluginLoaded": "تم تحميل إضافة",
+      "HostKeyPinned": "تم تثبيت مفتاح مضيف SSH",
+      "HostKeyMismatch": "عدم تطابق مفتاح مضيف SSH"
+    },
+    "secretKind": {
+      "Password": "كلمة مرور",
+      "PrivateKey": "مفتاح خاص",
+      "ApiToken": "رمز API",
+      "AccessKeyPair": "زوج مفاتيح الوصول",
+      "ServiceAccountJson": "JSON لحساب الخدمة",
+      "Kubeconfig": "kubeconfig",
+      "ConnectionString": "سلسلة الاتصال",
+      "Certificate": "شهادة",
+      "Generic": "سر عام"
+    },
+    "effect": {
+      "Read": "قراءة",
+      "Write": "كتابة",
+      "Destructive": "مدمّر"
+    },
+    "accessMode": {
+      "ReadOnly": "قراءة فقط",
+      "ReadWriteWithApproval": "قراءة وكتابة مع موافقة",
+      "ReadWrite": "قراءة وكتابة"
+    },
+    "connectorCategory": {
+      "Compute": "الحوسبة",
+      "Storage": "التخزين",
+      "Database": "قواعد البيانات",
+      "Logging": "السجلات",
+      "Cache": "ذاكرات التخزين المؤقت",
+      "Cloud": "السحابة",
+      "Orchestration": "التنسيق",
+      "Observability": "قابلية المراقبة",
+      "Http": "واجهات HTTP API",
+      "Agent": "الوكلاء",
+      "Other": "أخرى"
+    },
+    "settingValueKind": {
+      "String": "نص",
+      "Text": "نص طويل",
+      "Integer": "عدد صحيح",
+      "Boolean": "صواب أو خطأ",
+      "StringList": "قائمة",
+      "Enum": "واحد من مجموعة"
+    },
+    "approvalStatus": {
+      "Pending": "معلّقة",
+      "Approved": "تمت الموافقة",
+      "Rejected": "مرفوضة",
+      "Expired": "منتهية الصلاحية",
+      "Cancelled": "ملغاة"
+    },
+    "toolDecision": {
+      "Allowed": "مسموح",
+      "Denied": "مرفوض",
+      "ApprovalRequired": "تتطلب موافقة",
+      "Approved": "تمت الموافقة",
+      "Rejected": "مرفوض",
+      "Expired": "منتهي الصلاحية"
+    },
+    "toolStatus": {
+      "Succeeded": "نجح",
+      "Failed": "فشل",
+      "TimedOut": "انتهت المهلة",
+      "Cancelled": "ملغى"
+    },
+    "surface": {
+      "Chat": "الدردشة",
+      "Mcp": "MCP",
+      "A2A": "A2A",
+      "OpenAI": "متوافق مع OpenAI",
+      "Rest": "REST"
+    },
+    "conversationSource": {
+      "Dashboard": "لوحة التحكم",
+      "A2A": "A2A",
+      "OpenAI": "متوافق مع OpenAI",
+      "Mcp": "MCP"
+    },
+    "visibility": {
+      "Private": "خاص",
+      "Tenant": "مستأجر"
+    },
+    "instructionMode": {
+      "Inherit": "وراثة",
+      "Append": "إلحاق",
+      "Replace": "استبدال"
+    },
+    "toolRule": {
+      "Allow": "سماح",
+      "Deny": "رفض",
+      "RequireApproval": "طلب موافقة"
+    },
+    "modelKind": {
+      "Inference": "استدلال",
+      "Embedding": "تضمين"
+    },
+    "modelProvider": {
+      "Ollama": "Ollama",
+      "OpenAI": "OpenAI",
+      "OpenAICompatible": "متوافق مع OpenAI",
+      "Anthropic": "Anthropic",
+      "Gemini": "Gemini",
+      "AzureOpenAI": "Azure OpenAI",
+      "Bedrock": "Amazon Bedrock",
+      "VertexAI": "Vertex AI",
+      "VoyageAI": "Voyage AI"
+    },
+    "healthStatus": {
+      "Healthy": "سليم",
+      "Degraded": "متدهور",
+      "Unhealthy": "غير سليم",
+      "Unknown": "لم يُفحص"
+    },
+    "promptLayer": {
+      "BuiltIn": "مضمّن",
+      "Global": "الافتراضي العام",
+      "Tenant": "مستأجر"
+    },
+    "authScheme": {
+      "Password": "تسجيل الدخول بكلمة مرور",
+      "AccessKey": "مفتاح وصول",
+      "SessionToken": "رمز جلسة",
+      "SignedRequest": "طلب موقّع",
+      "ApiKey": "مفتاح API للمسؤول"
+    }
+  },
+  "login": {
+    "title": "تسجيل الدخول إلى Hugo",
+    "subtitle": "Agent Smith في انتظارك، Mr. Anderson.",
+    "tabs": {
+      "password": "البريد الإلكتروني وكلمة المرور",
+      "accessKey": "مفتاح الوصول"
+    },
+    "serverUrl": "URL الخادم",
+    "tenantId": "معرّف المستأجر",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "accessKey": "مفتاح الوصول",
+    "secretKey": "المفتاح السري",
+    "submit": "تسجيل الدخول",
+    "connecting": "جارٍ تسجيل الدخول...",
+    "restoring": "جارٍ استعادة جلستك...",
+    "errorGeneric": "تعذّر تسجيل الدخول. تحقق من URL الخادم ومن بيانات الاعتماد الخاصة بك.",
+    "footerHint": "يخزّن Hugo بيانات الاعتماد الخاصة بأنظمتك مشفّرةً ويتيح للوكلاء استخدامها بأمان.",
+    "tenant": "المستأجر",
+    "tenantFound": "جارٍ تسجيل الدخول إلى المستأجر {{name}}.",
+    "unreachable": "تعذّر الوصول إلى خادم Hugo على {{url}}. تحقق من URL الخادم ومن أن الخادم قيد التشغيل.",
+    "badCredentials": "البريد الإلكتروني أو كلمة المرور أو المستأجر غير صحيح.",
+    "defaultsHint": "الحساب الافتراضي المحلي: {{email}} بكلمة المرور \"{{password}}\". سيُطلب منك تغييرها.",
+    "useDefaults": "استخدام الإعدادات الافتراضية المحلية"
+  },
+  "topbar": {
+    "tenant": "المستأجر",
+    "switchTenant": "تبديل المستأجر",
+    "copyServer": "نسخ URL الخادم",
+    "live": "مباشر",
+    "polling": "استطلاع دوري",
+    "health": {
+      "healthy": "سليم",
+      "unhealthy": "يتعذّر الوصول",
+      "unknown": "جارٍ الفحص"
+    },
+    "lockdown": {
+      "on": "الإغلاق مفعّل",
+      "off": "إغلاق",
+      "banner": "إغلاق المستأجر مفعّل: يُرفض كل استدعاء ليس للقراءة، وأُلغيت الموافقات المعلّقة.",
+      "engageTitle": "إغلاق هذا المستأجر؟",
+      "engageBody": "سيُرفض كل استدعاء أداة يكتب أو يحذف، من كل الواجهات، حتى يُرفع الإغلاق. تُلغى الموافقات المعلّقة. تستمر عمليات القراءة في العمل.",
+      "engage": "إغلاق",
+      "engaged": "إغلاق المستأجر مفعّل.",
+      "liftTitle": "رفع الإغلاق؟",
+      "liftBody": "سيُسمح مجددًا باستدعاءات الأدوات الخاصة بالكتابة والمدمّرة، وفقًا لوضع الوصول في كل ربط والموافقات.",
+      "lift": "رفع الإغلاق",
+      "lifted": "تم رفع إغلاق المستأجر."
+    }
+  },
+  "roles": {
+    "systemAdmin": "مسؤول النظام",
+    "tenantAdmin": "مسؤول المستأجر",
+    "user": "مستخدم",
+    "credential": "مفتاح الوصول"
+  },
+  "components": {
+    "fieldWarnings": {
+      "title_zero": "حُفظ دون قيم معدّلة ({{count}})",
+      "title_one": "حُفظ مع قيمة معدّلة واحدة ({{count}})",
+      "title_two": "حُفظ مع قيمتين معدّلتين ({{count}})",
+      "title_few": "حُفظ مع {{count}} قيم معدّلة",
+      "title_many": "حُفظ مع {{count}} قيمة معدّلة",
+      "title_other": "حُفظ مع {{count}} قيمة معدّلة",
+      "body": "قبل الخادم الطلب لكنه خزّن هذه القيم بشكل مختلف عمّا أُرسل.",
+      "dismiss": "تجاهل",
+      "codes": {
+        "ValueClamped": "تم حصر القيمة ضمن النطاق المسموح به"
+      }
+    },
+    "autoRefresh": {
+      "label": "التحديث التلقائي",
+      "none": "إيقاف",
+      "seconds_zero": "كل {{count}} ثانية",
+      "seconds_one": "كل ثانية ({{count}})",
+      "seconds_two": "كل ثانيتين ({{count}})",
+      "seconds_few": "كل {{count}} ثوانٍ",
+      "seconds_many": "كل {{count}} ثانية",
+      "seconds_other": "كل {{count}} ثانية"
+    },
+    "chart": {
+      "success": "نجاح",
+      "failure": "فشل",
+      "total": "الإجمالي",
+      "avgDuration": "متوسط المدة",
+      "noData": "لا يوجد نشاط في هذا النطاق.",
+      "range": "النطاق الزمني",
+      "ranges": {
+        "hour": "الساعة الأخيرة",
+        "day": "اليوم الأخير",
+        "week": "الأسبوع الأخير",
+        "month": "الشهر الأخير",
+        "custom": "مخصص"
+      }
+    },
+    "confirm": {
+      "title": "يرجى التأكيد",
+      "message": "هل أنت متأكد أنك تريد المتابعة؟"
+    },
+    "diff": {
+      "before": "قبل",
+      "after": "بعد"
+    },
+    "explainer": {
+      "about": "حول {{topic}}",
+      "dismiss": "إخفاء هذا الشرح"
+    },
+    "export": {
+      "label": "تصدير",
+      "csv": "CSV (بيانات)",
+      "png": "صورة PNG",
+      "svg": "صورة SVG",
+      "json": "JSON (بيانات)",
+      "failed": "فشل التصدير. {{message}}",
+      "tableTitle": "الجدول {{table}}"
+    },
+    "filters": {
+      "allTenants": "كل المستأجرين",
+      "clear": "مسح عوامل التصفية",
+      "from": "من",
+      "to": "إلى",
+      "method": "الطريقة",
+      "path": "المسار يحتوي على",
+      "pathPlaceholder": "مثلًا /v1.0/api/tenants",
+      "searchName": "البحث بالاسم",
+      "status": "رمز الحالة",
+      "statusPlaceholder": "مثلًا 404",
+      "tenant": "المستأجر"
+    },
+    "form": {
+      "addItem": "إضافة عنصر",
+      "addRow": "إضافة صف",
+      "key": "المفتاح",
+      "value": "القيمة",
+      "moveUp": "نقل لأعلى",
+      "moveDown": "نقل لأسفل",
+      "noItems": "لا توجد عناصر بعد.",
+      "onePerLine": "قيمة واحدة في كل سطر",
+      "steps": "خطوات النموذج"
+    },
+    "permissions": {
+      "title": "الأذونات الفعلية",
+      "none": "لا توجد منح. يمكن لهذا الكيان استخدام قواعد التجاوز فقط، إن وُجدت.",
+      "source": "الدور",
+      "type": "النوع",
+      "resources": "أنواع الموارد",
+      "operations": "العمليات",
+      "scope": "النطاق"
+    },
+    "requestDetails": {
+      "title": "تفاصيل الطلب",
+      "metadata": "البيانات الوصفية",
+      "requestHeaders": "ترويسات الطلب",
+      "requestBody": "نص الطلب",
+      "responseHeaders": "ترويسات الاستجابة",
+      "responseBody": "نص الاستجابة",
+      "rawJson": "JSON الخام",
+      "truncated": "مقتطع (الأصل {{bytes}} بايت)",
+      "empty": "لا يوجد محتوى.",
+      "fields": {
+        "id": "معرّف الطلب",
+        "method": "الطريقة",
+        "path": "المسار",
+        "url": "URL",
+        "status": "الحالة",
+        "duration": "المدة",
+        "createdUtc": "تاريخ الإنشاء",
+        "completedUtc": "تاريخ الاكتمال",
+        "sourceIp": "IP المصدر",
+        "principal": "الكيان",
+        "tenant": "المستأجر",
+        "user": "المستخدم"
+      }
+    },
+    "secretOnce": {
+      "title": "انسخ هذا السر الآن",
+      "warning": "هذه هي المرة الوحيدة التي يُعرض فيها السر. احفظه في مكان آمن قبل الإغلاق.",
+      "accessKey": "مفتاح الوصول",
+      "secretKey": "المفتاح السري",
+      "done": "لقد حفظته",
+      "snippet": "تهيئة MCP لـ Claude Code",
+      "snippetHint": "الصق هذا في إعدادات عميل MCP، واضبط HUGO_SECRET_KEY على المفتاح السري المعروض أعلاه."
+    },
+    "table": {
+      "bulkActions": "إجراءات جماعية",
+      "bulkDelete": "حذف المحدد",
+      "clearSelection": "مسح التحديد",
+      "empty": "لا توجد سجلات لعرضها.",
+      "first": "الصفحة الأولى",
+      "jump": "الانتقال إلى الصفحة",
+      "last": "الصفحة الأخيرة",
+      "loading": "جارٍ تحميل السجلات...",
+      "next": "الصفحة التالية",
+      "noMatches": "لا توجد سجلات تطابق عوامل التصفية الحالية.",
+      "pageOf": "الصفحة {{page}} من {{total}}",
+      "pageSize": "لكل صفحة",
+      "pinned": "معروض دائمًا",
+      "prev": "الصفحة السابقة",
+      "records_zero": "سجل",
+      "records_one": "سجل",
+      "records_two": "سجلان",
+      "records_few": "سجلات",
+      "records_many": "سجلًا",
+      "records_other": "سجل",
+      "refresh": "تحديث",
+      "selectAll": "تحديد كل الصفوف في هذه الصفحة",
+      "selectColumns": "تحديد الأعمدة",
+      "selected_zero": "تم تحديد {{count}}",
+      "selected_one": "تم تحديد {{count}}",
+      "selected_two": "تم تحديد {{count}}",
+      "selected_few": "تم تحديد {{count}}",
+      "selected_many": "تم تحديد {{count}}",
+      "selected_other": "تم تحديد {{count}}",
+      "selectRow": "تحديد الصف",
+      "showing": "عرض {{from}} إلى {{to}}"
+    },
+    "approvalCard": {
+      "title": "تتطلب موافقة",
+      "approve": "موافقة",
+      "reject": "رفض",
+      "note": "ملاحظة القرار",
+      "notePlaceholder": "ملاحظة اختيارية لسجل التدقيق",
+      "resource": "المورد",
+      "tool": "الأداة",
+      "reason": "سبب الحاجة إلى الموافقة: {{reason}}",
+      "expires": "تنتهي الصلاحية {{time}} إذا لم يبت فيها أحد.",
+      "decided": "القرار: {{status}}.",
+      "by": "بت فيها {{name}}.",
+      "withNote": "ملاحظة: {{note}}"
+    },
+    "chat": {
+      "you": "أنت",
+      "assistant": "Agent Smith",
+      "thinking": "الاستدلال",
+      "waiting": "Agent Smith يفكّر...",
+      "stopped": "توقف قبل اكتمال الإجابة.",
+      "streamError": "فشل بث الإجابة.",
+      "ttft": "أول رمز {{value}}",
+      "duration": "الدور {{value}}",
+      "tokens": "الرموز: {{input}} داخلة، {{output}} خارجة",
+      "transcript": "نص المحادثة",
+      "empty": "لا توجد رسائل بعد. اطرح سؤالًا للبدء.",
+      "message": "الرسالة",
+      "placeholder": "اسأل Agent Smith. يرسل Enter، ويضيف Shift+Enter سطرًا جديدًا.",
+      "send": "إرسال",
+      "stop": "إيقاف"
+    },
+    "passwordChange": {
+      "title": "اختر كلمة مرور جديدة",
+      "body": "لا يزال هذا الحساب يستخدم كلمة المرور الأولية أو المعاد تعيينها. اختر كلمة مرور جديدة لا تقل عن {{min}} حرفًا للمتابعة.",
+      "current": "كلمة المرور الحالية",
+      "new": "كلمة المرور الجديدة",
+      "confirm": "تأكيد كلمة المرور الجديدة",
+      "submit": "تغيير كلمة المرور",
+      "changed": "تم تغيير كلمة المرور.",
+      "tooShort": "استخدم {{min}} حرفًا على الأقل.",
+      "sameAsCurrent": "اختر كلمة مرور مختلفة عن الحالية.",
+      "mismatch": "كلمتا المرور الجديدتان غير متطابقتين."
+    },
+    "progress": {
+      "count": "{{done}} من {{total}}",
+      "deleting_zero": "جارٍ حذف {{count}} سجل",
+      "deleting_one": "جارٍ حذف سجل واحد ({{count}})",
+      "deleting_two": "جارٍ حذف سجلين ({{count}})",
+      "deleting_few": "جارٍ حذف {{count}} سجلات",
+      "deleting_many": "جارٍ حذف {{count}} سجلًا",
+      "deleting_other": "جارٍ حذف {{count}} سجل"
+    },
+    "promptEditor": {
+      "content": "نص القالب",
+      "palette": "إدراج متغير",
+      "used": "المتغيرات في هذا النص",
+      "variables": "المتغيرات",
+      "noVariables": "لا يستخدم هذا النص أي متغيرات.",
+      "preview": "معاينة",
+      "diff": "التغييرات",
+      "sampleContext": "سياق نموذجي (JSON)",
+      "rendered": "النتيجة المعروضة",
+      "serverRender": "عُرض بواسطة الخادم",
+      "localRender": "عُرض في المتصفح",
+      "previewEmpty": "ينتج عن عرض القالب نص فارغ.",
+      "missing": "غير موجود في السياق النموذجي: {{list}}",
+      "current": "النص الحالي",
+      "syntaxHint": "استخدم {{variable}} و{{variable | default: \"text\"}} و{{#if variable}}...{{/if}} و{{#each list}}...{{/each}}."
+    },
+    "result": {
+      "succeeded": "نجح.",
+      "failed": "فشل.",
+      "latency": "استغرق {{value}}."
+    },
+    "schemaForm": {
+      "noSettings": "لا يحتوي هذا الموصّل على إعدادات.",
+      "range": "النطاق المسموح به: من {{minimum}} إلى {{maximum}}.",
+      "groups": {
+        "General": "عام",
+        "Connection": "الاتصال",
+        "Authentication": "المصادقة",
+        "Limits": "الحدود",
+        "Advanced": "متقدم"
+      },
+      "errors": {
+        "Required": "هذا الإعداد مطلوب.",
+        "NotAnInteger": "أدخل عددًا صحيحًا.",
+        "OutOfRange": "أدخل قيمة من {{minimum}} إلى {{maximum}}.",
+        "NotAllowedValue": "اختر واحدًا مما يلي: {{values}}.",
+        "PatternMismatch": "القيمة ليست بالتنسيق المتوقع.",
+        "TooLong": "استخدم {{maximum}} حرفًا كحد أقصى."
+      }
+    },
+    "secretField": {
+      "accepts": "يقبل: {{kinds}}.",
+      "anyKind": "أي نوع من الأسرار",
+      "noneSelected": "لم يتم تحديد سر",
+      "createInline": "إنشاء سر جديد",
+      "saveInline": "حفظ السر",
+      "import": "استيراد من ملف",
+      "importNamed": "استيراد {{field}} من ملف",
+      "replaceHint": "اتركه فارغًا للاحتفاظ بالقيمة المخزنة.",
+      "fields": {
+        "username": "اسم المستخدم",
+        "password": "كلمة المرور",
+        "privateKey": "المفتاح الخاص",
+        "passphrase": "عبارة المرور",
+        "token": "الرمز المميز",
+        "accessKeyId": "معرّف مفتاح الوصول",
+        "secretAccessKey": "مفتاح الوصول السري",
+        "sessionToken": "رمز الجلسة",
+        "json": "JSON لحساب الخدمة",
+        "kubeconfig": "kubeconfig",
+        "connectionString": "سلسلة الاتصال",
+        "certificate": "الشهادة (PEM)",
+        "value": "القيمة"
+      },
+      "file": {
+        "pem": "يحتوي الملف على كتلة PEM من النوع {{type}}.",
+        "serviceAccount": "حساب خدمة للمشروع {{project}} ({{email}}).",
+        "kubeconfig": "سياقات kubeconfig: {{contexts}}.",
+        "kubeconfigNone": "لم يتم العثور على أي سياقات في ملف kubeconfig هذا.",
+        "invalidJson": "هذا الملف ليس JSON صالحًا."
+      }
+    },
+    "toolActivity": {
+      "arguments": "الوسائط (مع إخفاء الأسرار)",
+      "output": "معاينة المخرجات",
+      "error": "خطأ",
+      "noArguments": "لا توجد وسائط.",
+      "noOutput": "لا توجد مخرجات بعد.",
+      "truncated": "تم اقتطاع المخرجات إلى الحد المسموح به في الربط.",
+      "effectReason": "سبب التصنيف: {{reason}}",
+      "status": {
+        "proposed": "مقترح",
+        "running": "قيد التشغيل",
+        "awaitingApproval": "في انتظار الموافقة"
+      }
+    }
+  },
+  "resources": {
+    "tenants": {
+      "title": "المستأجرون",
+      "subtitle": "مستأجرون معزولون على هذا الخادم. كل شيء باستثناء الأدوار المضمّنة والإعدادات الافتراضية العامة يتبع مستأجرًا واحدًا بالضبط.",
+      "add": "إضافة مستأجر",
+      "create": "إنشاء مستأجر",
+      "edit": "تعديل المستأجر",
+      "view": "تفاصيل المستأجر",
+      "deleteTitle": "حذف المستأجر",
+      "emptyTitle": "لا يوجد مستأجرون بعد",
+      "emptyBody": "أنشئ مستأجرًا لعزل فريق أو عميل.",
+      "columns": {
+        "name": "الاسم",
+        "id": "المعرّف",
+        "description": "الوصف",
+        "active": "نشط",
+        "createdUtc": "تاريخ الإنشاء",
+        "region": "المنطقة",
+        "lockdown": "الإغلاق"
+      },
+      "fields": {
+        "name": "الاسم",
+        "description": "الوصف",
+        "active": "نشط",
+        "region": "المنطقة"
+      }
+    },
+    "users": {
+      "title": "المستخدمون",
+      "subtitle": "الأشخاص الذين يسجّلون الدخول إلى هذا المستأجر باستخدام بريد إلكتروني وكلمة مرور.",
+      "add": "إضافة مستخدم",
+      "create": "إنشاء مستخدم",
+      "edit": "تعديل المستخدم",
+      "view": "تفاصيل المستخدم",
+      "deleteTitle": "حذف المستخدم",
+      "emptyTitle": "لا يوجد مستخدمون بعد",
+      "emptyBody": "أضف مستخدمًا ليتمكن شخص من تسجيل الدخول إلى هذا المستأجر.",
+      "columns": {
+        "email": "البريد الإلكتروني",
+        "name": "الاسم",
+        "id": "المعرّف",
+        "role": "الدور",
+        "active": "نشط",
+        "createdUtc": "تاريخ الإنشاء"
+      },
+      "fields": {
+        "email": "البريد الإلكتروني",
+        "password": "كلمة المرور",
+        "firstName": "الاسم الأول",
+        "lastName": "اسم العائلة",
+        "isTenantAdmin": "مسؤول المستأجر",
+        "isAdmin": "مسؤول النظام",
+        "active": "نشط",
+        "mustChangePassword": "يجب تغيير كلمة المرور عند تسجيل الدخول التالي"
+      },
+      "hints": {
+        "isAdmin": "يمكن لمسؤولي النظام إدارة كل المستأجرين وتجاوز جميع عمليات التفويض.",
+        "password": "اتركه فارغًا عند التعديل للاحتفاظ بكلمة المرور الحالية."
+      },
+      "actions": {
+        "permissions": "الأذونات الفعلية",
+        "resetPassword": "إعادة تعيين كلمة المرور",
+        "assignRole": "تعيين دور"
+      },
+      "passwordReset": "تمت إعادة تعيين كلمة المرور. يجب على المستخدم تغييرها عند تسجيل الدخول التالي."
+    },
+    "credentials": {
+      "title": "بيانات الاعتماد",
+      "subtitle": "مفاتيح الوصول التي تستخدمها الأتمتة وحزم SDK والتكاملات. تُعرض الأسرار مرة واحدة.",
+      "add": "إضافة بيانات اعتماد",
+      "create": "إنشاء بيانات اعتماد",
+      "edit": "تعديل بيانات الاعتماد",
+      "view": "تفاصيل بيانات الاعتماد",
+      "deleteTitle": "حذف بيانات الاعتماد",
+      "emptyTitle": "لا توجد بيانات اعتماد بعد",
+      "emptyBody": "أنشئ مفتاح وصول ليتمكن برنامج نصي أو خدمة من استدعاء Hugo.",
+      "columns": {
+        "name": "الاسم",
+        "accessKey": "مفتاح الوصول",
+        "secretKeyLast4": "السر",
+        "userId": "المالك",
+        "lastUsedUtc": "آخر استخدام",
+        "expiresUtc": "تاريخ الانتهاء",
+        "active": "نشط",
+        "id": "المعرّف",
+        "agentProfileId": "ملف التعريف",
+        "lockToProfile": "مقفل"
+      },
+      "fields": {
+        "name": "الاسم",
+        "userId": "المالك",
+        "authMode": "وضع المصادقة",
+        "expiresUtc": "تاريخ الانتهاء",
+        "active": "نشط",
+        "agentProfileId": "ملف التعريف المرتبط",
+        "lockToProfile": "القفل على ملف التعريف هذا"
+      },
+      "hints": {
+        "userId": "لا يمكن لبيانات الاعتماد أبدًا أن تتجاوز أذونات مالكها."
+      },
+      "actions": {
+        "rotate": "تدوير السر",
+        "scopes": "تعيينات النطاق"
+      }
+    },
+    "roles": {
+      "title": "الأدوار",
+      "subtitle": "تجمع الأدوار الأذونات. الأدوار المضمّنة للقراءة فقط؛ استنسخ أحدها لتخصيصه.",
+      "add": "إضافة دور",
+      "create": "إنشاء دور",
+      "edit": "تعديل الدور",
+      "view": "تفاصيل الدور",
+      "deleteTitle": "حذف الدور",
+      "emptyTitle": "لا توجد أدوار بعد",
+      "emptyBody": "أنشئ دورًا مخصصًا، أو استنسخ دورًا مضمّنًا.",
+      "columns": {
+        "name": "الاسم",
+        "description": "الوصف",
+        "isBuiltIn": "النوع",
+        "active": "نشط",
+        "id": "المعرّف",
+        "createdUtc": "تاريخ الإنشاء"
+      },
+      "fields": {
+        "name": "الاسم",
+        "description": "الوصف",
+        "active": "نشط"
+      }
+    },
+    "permissions": {
+      "title": "الأذونات",
+      "subtitle": "اسمح بالعمليات على أنواع الموارد أو ارفضها. الرفض هو الغالب دائمًا.",
+      "add": "إضافة إذن",
+      "create": "إنشاء إذن",
+      "edit": "تعديل الإذن",
+      "view": "تفاصيل الإذن",
+      "deleteTitle": "حذف الإذن",
+      "emptyTitle": "لا توجد أذونات بعد",
+      "emptyBody": "أنشئ إذنًا واربطه بدور.",
+      "columns": {
+        "name": "الاسم",
+        "permissionType": "النوع",
+        "resourceTypes": "أنواع الموارد",
+        "operationTypes": "العمليات",
+        "isBuiltIn": "المصدر",
+        "id": "المعرّف"
+      },
+      "fields": {
+        "name": "الاسم",
+        "permissionType": "النوع",
+        "resourceTypes": "أنواع الموارد",
+        "operationTypes": "العمليات",
+        "active": "نشط"
+      }
+    },
+    "userAssignments": {
+      "title": "تعيينات المستخدمين",
+      "subtitle": "امنح الأدوار للمستخدمين على نطاق المستأجر أو المورد.",
+      "add": "إضافة تعيين مستخدم",
+      "create": "إنشاء تعيين مستخدم",
+      "edit": "تعديل تعيين المستخدم",
+      "view": "تفاصيل تعيين المستخدم",
+      "deleteTitle": "حذف تعيين المستخدم",
+      "emptyTitle": "لا توجد تعيينات مستخدمين بعد",
+      "emptyBody": "عيّن دورًا لمستخدم.",
+      "columns": {
+        "userId": "المستخدم",
+        "roleName": "الدور",
+        "resourceScope": "النطاق",
+        "resourceId": "المورد",
+        "active": "نشط",
+        "createdUtc": "تاريخ الإنشاء",
+        "id": "المعرّف"
+      },
+      "fields": {
+        "userId": "المستخدم",
+        "roleId": "الدور",
+        "resourceScope": "النطاق",
+        "resourceId": "معرّف المورد",
+        "inheritsToChildren": "ينطبق على الموارد في المستأجر",
+        "active": "نشط"
+      }
+    },
+    "credentialAssignments": {
+      "title": "تعيينات بيانات الاعتماد",
+      "subtitle": "امنح الأدوار لمفاتيح الوصول. اجعل بيانات الاعتماد أضيق نطاقًا من مالكيها.",
+      "add": "إضافة تعيين بيانات اعتماد",
+      "create": "إنشاء تعيين بيانات اعتماد",
+      "edit": "تعديل تعيين بيانات الاعتماد",
+      "view": "تفاصيل تعيين بيانات الاعتماد",
+      "deleteTitle": "حذف تعيين بيانات الاعتماد",
+      "emptyTitle": "لا توجد تعيينات بيانات اعتماد بعد",
+      "emptyBody": "عيّن دورًا لبيانات اعتماد.",
+      "columns": {
+        "credentialId": "بيانات الاعتماد",
+        "roleName": "الدور",
+        "resourceScope": "النطاق",
+        "resourceId": "المورد",
+        "active": "نشط",
+        "createdUtc": "تاريخ الإنشاء",
+        "id": "المعرّف"
+      },
+      "fields": {
+        "credentialId": "بيانات الاعتماد",
+        "roleId": "الدور",
+        "resourceScope": "النطاق",
+        "resourceId": "معرّف المورد",
+        "inheritsToChildren": "ينطبق على الموارد في المستأجر",
+        "active": "نشط"
+      }
+    },
+    "promptTemplates": {
+      "deleteUnbound": "حذف \"{{name}}\" وجميع إصداراته؟ ستعود ملفات التعريف التي تتضمنه إلى الإعداد الافتراضي المضمّن. لا يمكن التراجع عن هذا الإجراء.",
+      "title": "قوالب الموجّهات",
+      "subtitle": "كل موجّه وملف تهيئة يعرضه Hugo. كل عملية حفظ تُنشئ إصدارًا.",
+      "add": "قالب جديد",
+      "create": "إنشاء قالب",
+      "edit": "تعديل القالب",
+      "view": "تفاصيل القالب",
+      "deleteTitle": "حذف القالب",
+      "emptyTitle": "لا توجد قوالب موجّهات بعد",
+      "emptyBody": "أنشئ قالبًا، أو استنسخ قالبًا مضمّنًا.",
+      "columns": {
+        "name": "الاسم",
+        "kind": "النوع",
+        "currentVersion": "الإصدار",
+        "description": "الوصف",
+        "isBuiltIn": "المصدر",
+        "id": "المعرّف",
+        "lastUpdateUtc": "تاريخ التحديث"
+      },
+      "fields": {
+        "name": "الاسم",
+        "kind": "النوع",
+        "description": "الوصف"
+      }
+    },
+    "audit": {
+      "title": "التدقيق",
+      "subtitle": "أحداث المصادقة والتفويض والتهيئة لهذا المستأجر.",
+      "add": "إضافة سجل تدقيق",
+      "create": "إنشاء سجل تدقيق",
+      "edit": "تعديل سجل التدقيق",
+      "view": "تفاصيل سجل التدقيق",
+      "deleteTitle": "حذف سجل التدقيق",
+      "emptyTitle": "لا توجد سجلات تدقيق بعد",
+      "emptyBody": "تظهر الأحداث الأمنية هنا عندما يستخدم الأشخاص والوكلاء Hugo.",
+      "columns": {
+        "createdUtc": "الوقت",
+        "eventType": "الحدث",
+        "principalName": "الكيان",
+        "resource": "المورد",
+        "reason": "السبب",
+        "sourceIp": "IP المصدر",
+        "id": "المعرّف"
+      },
+      "fields": {
+        "eventType": "الحدث",
+        "principalType": "نوع الكيان",
+        "principalName": "الكيان",
+        "principalId": "معرّف الكيان",
+        "resourceType": "نوع المورد",
+        "resourceId": "معرّف المورد",
+        "operation": "العملية",
+        "method": "الطريقة",
+        "path": "المسار",
+        "authResult": "نتيجة المصادقة",
+        "authorizationResult": "نتيجة التفويض",
+        "reason": "السبب",
+        "bypassReason": "سبب التجاوز",
+        "statusCode": "رمز الحالة",
+        "sourceIp": "IP المصدر",
+        "requestId": "معرّف الطلب",
+        "createdUtc": "الوقت"
+      }
+    },
+    "approvals": {
+      "approved": "تمت الموافقة. يتم تشغيل الاستدعاء الآن.",
+      "rejected": "تم الرفض. يُبلَّغ المستدعي بأن الإجراء رُفض.",
+      "notPending": "تم البت في هذه الموافقة مسبقًا أو انتهت صلاحيتها.",
+      "bulkNote": "رُفضت بشكل جماعي من صندوق الموافقات.",
+      "bulkRejected_zero": "تم رفض {{count}} موافقة (فشل {{failed}}).",
+      "bulkRejected_one": "تم رفض موافقة واحدة ({{count}}) (فشل {{failed}}).",
+      "bulkRejected_two": "تم رفض موافقتين ({{count}}) (فشل {{failed}}).",
+      "bulkRejected_few": "تم رفض {{count}} موافقات (فشل {{failed}}).",
+      "bulkRejected_many": "تم رفض {{count}} موافقة (فشل {{failed}}).",
+      "bulkRejected_other": "تم رفض {{count}} موافقة (فشل {{failed}}).",
+      "title": "الموافقات",
+      "subtitle": "استدعاءات الأدوات الخاصة بالكتابة والمدمّرة التي تنتظر شخصًا. وافق لتشغيلها، أو ارفض لمنعها.",
+      "add": "إضافة موافقة",
+      "create": "إنشاء موافقة",
+      "edit": "تعديل الموافقة",
+      "view": "تفاصيل الموافقة",
+      "deleteTitle": "حذف الموافقة",
+      "emptyTitle": "لا توجد موافقات بعد",
+      "emptyBody": "لا شيء في الانتظار. تظهر الاستدعاءات التي تحتاج إلى موافقة هنا وفي الدردشة بمجرد أن يقترحها وكيل.",
+      "purpose": "يحتوي صندوق الموافقات على استدعاءات الأدوات التي تحتاج إلى شخص: الاستدعاءات المدمّرة، وكل عملية كتابة على عمليات الربط التي تتطلب موافقة.",
+      "columns": {
+        "summary": "الإجراء",
+        "effect": "التأثير",
+        "status": "الحالة",
+        "agentProfileId": "ملف التعريف",
+        "requestedBy": "طلبها",
+        "createdUtc": "تاريخ الطلب",
+        "expiresUtc": "تاريخ الانتهاء",
+        "decidedBy": "بت فيها",
+        "id": "المعرّف"
+      },
+      "fields": {
+        "summary": "الإجراء",
+        "effect": "التأثير",
+        "status": "الحالة",
+        "decisionNote": "ملاحظة القرار",
+        "agentProfileId": "ملف التعريف",
+        "fromUtc": "من"
+      },
+      "actions": {
+        "decide": "موافقة أو رفض",
+        "invocation": "عرض استدعاء الأداة",
+        "bulkReject": "رفض المحدد"
+      }
+    },
+    "resources": {
+      "deleteReferenced_zero": "{{name}} مرتبط بـ {{count}} من ملفات التعريف أو نقاط النهاية. أزل عمليات الربط تلك أولًا؛ يرفض الخادم الحذف ما دام مُشارًا إليه.",
+      "deleteReferenced_one": "{{name}} مرتبط بملف تعريف أو نقطة نهاية واحدة ({{count}}). أزل عمليات الربط تلك أولًا؛ يرفض الخادم الحذف ما دام مُشارًا إليه.",
+      "deleteReferenced_two": "{{name}} مرتبط بـ {{count}} من ملفات التعريف أو نقاط النهاية. أزل عمليات الربط تلك أولًا؛ يرفض الخادم الحذف ما دام مُشارًا إليه.",
+      "deleteReferenced_few": "{{name}} مرتبط بـ {{count}} من ملفات التعريف أو نقاط النهاية. أزل عمليات الربط تلك أولًا؛ يرفض الخادم الحذف ما دام مُشارًا إليه.",
+      "deleteReferenced_many": "{{name}} مرتبط بـ {{count}} من ملفات التعريف أو نقاط النهاية. أزل عمليات الربط تلك أولًا؛ يرفض الخادم الحذف ما دام مُشارًا إليه.",
+      "deleteReferenced_other": "{{name}} مرتبط بـ {{count}} من ملفات التعريف أو نقاط النهاية. أزل عمليات الربط تلك أولًا؛ يرفض الخادم الحذف ما دام مُشارًا إليه.",
+      "noReferrers": "لا شيء يستخدم هذا بعد.",
+      "referrerTypes": {
+        "profiles": "ملف تعريف",
+        "bindings": "ربط",
+        "resources": "مورد",
+        "modelEndpoints": "نقطة نهاية النموذج"
+      },
+      "title": "الموارد",
+      "subtitle": "اتصالات بأنظمتك مع إعداداتها وأسرارها. اربطها بملفات التعريف للسماح للوكلاء باستخدامها.",
+      "add": "إضافة مورد",
+      "create": "إنشاء مورد",
+      "edit": "تعديل المورد",
+      "view": "تفاصيل المورد",
+      "deleteTitle": "حذف المورد",
+      "emptyTitle": "لا توجد موارد بعد",
+      "emptyBody": "أضف مضيف SSH أو حاوية تخزين أو قاعدة بيانات أو خدمة سجلات. يأتي كل نموذج من مخطط الموصّل ويمكن اختباره قبل الحفظ.",
+      "purpose": "الموارد هي اتصالات مهيأة بأنظمة حقيقية: مضيف SSH، أو حاوية S3، أو قاعدة بيانات PostgreSQL، أو حساب Papertrail. تبقى أسرارها مشفّرة في Hugo.",
+      "sections": {
+        "general": "عام",
+        "connector": "الموصّل"
+      },
+      "columns": {
+        "name": "الاسم",
+        "connectorType": "الموصّل",
+        "environment": "البيئة",
+        "endpoint": "نقطة النهاية",
+        "health": "السلامة",
+        "lastTestUtc": "آخر اختبار",
+        "visibility": "الرؤية",
+        "id": "المعرّف",
+        "createdUtc": "تاريخ الإنشاء"
+      },
+      "fields": {
+        "name": "الاسم",
+        "displayName": "الاسم المعروض",
+        "environment": "البيئة",
+        "visibility": "الرؤية",
+        "defaultAccessModeCeiling": "أعلى وضع وصول مسموح به",
+        "endpoint": "ملخص نقطة النهاية",
+        "description": "الوصف",
+        "notes": "ملاحظات للوكيل",
+        "connectorType": "الموصّل"
+      },
+      "hints": {
+        "notes": "تُضاف إلى تعليمات كل ملف تعريف يرتبط بهذا المورد.",
+        "endpoint": "يُعرض في القوائم والتعليمات، مثلًا web-01.example.com:22."
+      },
+      "actions": {
+        "test": "اختبار الاتصال",
+        "testTitle": "اختبار الاتصال: {{name}}",
+        "tryTool": "تجربة أداة",
+        "referrers": "أماكن الاستخدام",
+        "referrersTitle": "أماكن استخدام {{name}}"
+      }
+    },
+    "secrets": {
+      "deleteReferenced_zero": "{{name}} مستخدم من قبل {{count}} من الموارد أو نقاط نهاية النماذج. يرفض الخادم حذفه ما دام مُشارًا إليه.",
+      "deleteReferenced_one": "{{name}} مستخدم من قبل مورد أو نقطة نهاية نموذج واحدة ({{count}}). يرفض الخادم حذفه ما دام مُشارًا إليه.",
+      "deleteReferenced_two": "{{name}} مستخدم من قبل {{count}} من الموارد أو نقاط نهاية النماذج. يرفض الخادم حذفه ما دام مُشارًا إليه.",
+      "deleteReferenced_few": "{{name}} مستخدم من قبل {{count}} من الموارد أو نقاط نهاية النماذج. يرفض الخادم حذفه ما دام مُشارًا إليه.",
+      "deleteReferenced_many": "{{name}} مستخدم من قبل {{count}} من الموارد أو نقاط نهاية النماذج. يرفض الخادم حذفه ما دام مُشارًا إليه.",
+      "deleteReferenced_other": "{{name}} مستخدم من قبل {{count}} من الموارد أو نقاط نهاية النماذج. يرفض الخادم حذفه ما دام مُشارًا إليه.",
+      "expired": "منتهي الصلاحية",
+      "expiringSoon": "تنتهي صلاحيته قريبًا",
+      "errors": {
+        "expiryPast": "اختر وقتًا في المستقبل.",
+        "noValues": "املأ قيمة واحدة على الأقل لاستبدالها."
+      },
+      "title": "الأسرار",
+      "subtitle": "كلمات المرور والمفاتيح والرموز والشهادات، مشفّرة بالمفتاح الرئيسي. لا تُعرض القيم أبدًا إلا عبر عملية إظهار خاضعة للتدقيق.",
+      "add": "إضافة سر",
+      "create": "إنشاء سر",
+      "edit": "تعديل السر",
+      "view": "تفاصيل السر",
+      "deleteTitle": "حذف السر",
+      "emptyTitle": "لا توجد أسرار بعد",
+      "emptyBody": "أضف بيانات الاعتماد التي تحتاجها مواردك. يمكنك أيضًا إنشاؤها مباشرةً أثناء إضافة مورد.",
+      "purpose": "يخزّن مستودع الأسرار مواد بيانات الاعتماد مشفّرة (AES-256-GCM). تشير الموارد ونقاط نهاية النماذج إلى الأسرار عبر الخانات؛ ولا يرى الوكلاء القيم أبدًا.",
+      "sections": {
+        "values": "القيم"
+      },
+      "columns": {
+        "name": "الاسم",
+        "kind": "النوع",
+        "fingerprint": "البصمة",
+        "referrerCount": "مستخدم من قبل",
+        "lastRotatedUtc": "آخر تدوير",
+        "expiresUtc": "تاريخ الانتهاء",
+        "lastRevealedUtc": "آخر إظهار",
+        "id": "المعرّف",
+        "createdUtc": "تاريخ الإنشاء"
+      },
+      "fields": {
+        "name": "الاسم",
+        "kind": "النوع",
+        "description": "الوصف",
+        "expiresUtc": "تاريخ الانتهاء"
+      },
+      "actions": {
+        "replaceValues": "استبدال القيم",
+        "reveal": "إظهار",
+        "referrers": "أماكن الاستخدام",
+        "referrersTitle": "أماكن استخدام {{name}}"
+      }
+    },
+    "toolInvocations": {
+      "openTrace": "فتح التتبع في Grafana",
+      "truncated": "مقتطع",
+      "title": "استدعاءات الأدوات",
+      "subtitle": "كل استدعاء أداة من كل واجهة: ما الذي تم تشغيله، وعلى أي مورد، وكيف صُنّف، وما القرار المتخذ، وكيف انتهى.",
+      "add": "إضافة استدعاء أداة",
+      "create": "إنشاء استدعاء أداة",
+      "edit": "تعديل استدعاء الأداة",
+      "view": "تفاصيل استدعاء الأداة",
+      "deleteTitle": "حذف استدعاء الأداة",
+      "emptyTitle": "لا توجد استدعاءات أدوات بعد",
+      "emptyBody": "تظهر استدعاءات الأدوات هنا بمجرد أن يستخدم وكيل موردًا، من الدردشة أو MCP أو A2A أو نقطة نهاية OpenAI أو REST API.",
+      "purpose": "استدعاءات الأدوات هي السجل الخاضع للتدقيق لكل استدعاء أداة، من كل واجهة، عبر مسار الاستدعاء الموحّد في Hugo.",
+      "columns": {
+        "createdUtc": "الوقت",
+        "toolName": "الأداة",
+        "resourceId": "المورد",
+        "effect": "التأثير",
+        "decision": "القرار",
+        "status": "الحالة",
+        "durationMs": "المدة",
+        "surface": "الواجهة",
+        "agentProfileId": "ملف التعريف",
+        "principalId": "الكيان",
+        "id": "المعرّف"
+      },
+      "fields": {
+        "surface": "الواجهة",
+        "effect": "التأثير",
+        "decision": "القرار",
+        "status": "الحالة",
+        "agentProfileId": "ملف التعريف",
+        "resourceId": "المورد",
+        "toolName": "اسم الأداة",
+        "principalId": "معرّف الكيان",
+        "fromUtc": "من",
+        "toUtc": "إلى",
+        "accessMode": "وضع الوصول",
+        "outputBytes": "حجم المخرجات",
+        "approvalId": "الموافقة",
+        "traceId": "التتبع",
+        "argumentsRedacted": "الوسائط (مع إخفاء الأسرار)",
+        "outputPreview": "معاينة المخرجات"
+      }
+    },
+    "models": {
+      "lastHealth": "آخر فحص سلامة {{time}}: {{message}}",
+      "title": "نقاط نهاية النماذج",
+      "subtitle": "نماذج الاستدلال والتضمين لحلقة الوكيل الخاصة بـ Hugo. تحتاج الدردشة وA2A والعملاء المتوافقون مع OpenAI إلى نموذج استدلال.",
+      "add": "إضافة نقطة نهاية نموذج",
+      "create": "إنشاء نقطة نهاية نموذج",
+      "edit": "تعديل نقطة نهاية النموذج",
+      "view": "تفاصيل نقطة نهاية النموذج",
+      "deleteTitle": "حذف نقطة نهاية النموذج",
+      "emptyTitle": "لا توجد نقاط نهاية نماذج بعد",
+      "emptyBody": "تحتاج الدردشة إلى نموذج استدلال. أضف نموذج Ollama محليًا أو مزوّدًا مستضافًا مثل OpenAI أو Anthropic.",
+      "purpose": "نقاط نهاية النماذج هي مزوّدو الاستدلال والتضمين الذين تستدعيهم حلقة الوكيل في Hugo: Ollama وOpenAI وAnthropic وGemini وAzure OpenAI وBedrock وVertex وVoyageAI.",
+      "sections": {
+        "endpoint": "نقطة النهاية",
+        "capabilities": "الإمكانات",
+        "limits": "الحدود"
+      },
+      "columns": {
+        "name": "الاسم",
+        "kind": "النوع",
+        "provider": "المزوّد",
+        "model": "النموذج",
+        "baseUrl": "URL الأساسي",
+        "healthStatus": "السلامة",
+        "lastHealthUtc": "آخر فحص",
+        "id": "المعرّف"
+      },
+      "fields": {
+        "name": "الاسم",
+        "kind": "النوع",
+        "provider": "المزوّد",
+        "baseUrl": "URL الأساسي",
+        "model": "النموذج",
+        "apiKey": "مفتاح API",
+        "apiKeySecretId": "سر مفتاح API",
+        "region": "المنطقة",
+        "deploymentName": "اسم النشر",
+        "apiVersion": "إصدار API",
+        "contextWindowTokens": "نافذة السياق (رموز)",
+        "maxOutputTokens": "الحد الأقصى لرموز المخرجات",
+        "embeddingDimensions": "أبعاد التضمين",
+        "supportsTools": "يدعم استدعاءات الأدوات",
+        "supportsStreaming": "يدعم البث",
+        "maxConcurrency": "الحد الأقصى للطلبات المتزامنة",
+        "timeoutSeconds": "المهلة (ثوانٍ)",
+        "maxRetries": "الحد الأقصى لإعادة المحاولات"
+      },
+      "errors": {
+        "baseUrl": "أدخل URL يبدأ بـ http:// أو https://."
+      },
+      "actions": {
+        "validate": "التحقق",
+        "validateTitle": "التحقق: {{name}}",
+        "listModels": "عرض نماذج المزوّد",
+        "listModelsTitle": "النماذج التي يقدمها {{name}}"
+      }
+    },
+    "knowledge": {
+      "allProfiles": "كل ملفات التعريف",
+      "title": "المعرفة",
+      "subtitle": "ملاحظات حول بنيتك التقنية يسترجعها Hugo إلى السياق، لملف تعريف أو مورد واحد أو لكل ملفات التعريف.",
+      "add": "إضافة ملاحظة",
+      "create": "إنشاء ملاحظة",
+      "edit": "تعديل الملاحظة",
+      "view": "تفاصيل الملاحظة",
+      "deleteTitle": "حذف الملاحظة",
+      "emptyTitle": "لا توجد معرفة بعد",
+      "emptyBody": "دوّن ما قد يخبر به المشغّل زميلًا جديدًا: أي المضيفين يخدمون عملية الدفع، ومتى لا يجب إعادة تشغيل خدمة المدفوعات.",
+      "purpose": "ملاحظات المعرفة هي حقائق يكتبها المشغّلون حول بنيتك التقنية، تُضمَّن وتُسترجع إلى السياق أثناء المحادثات (المرحلة M2).",
+      "columns": {
+        "title": "العنوان",
+        "agentProfileId": "ملف التعريف",
+        "resourceId": "المورد",
+        "lastUpdateUtc": "تاريخ التحديث",
+        "id": "المعرّف"
+      },
+      "fields": {
+        "title": "العنوان",
+        "agentProfileId": "ملف التعريف",
+        "resourceId": "المورد",
+        "content": "الملاحظة"
+      }
+    },
+    "profiles": {
+      "noModel": "لا يوجد نموذج",
+      "title": "ملفات تعريف الوكلاء",
+      "subtitle": "كل ملف تعريف هو وكيل: شخصية ونماذج والموارد التي يمكنه استخدامها، ويمكن الوصول إليه عبر MCP وA2A وREST وOpenAI والدردشة.",
+      "add": "إضافة ملف تعريف",
+      "create": "إنشاء ملف تعريف",
+      "edit": "تعديل ملف التعريف",
+      "view": "تفاصيل ملف التعريف",
+      "deleteTitle": "حذف ملف التعريف",
+      "emptyTitle": "لا توجد ملفات تعريف وكلاء بعد",
+      "emptyBody": "أنشئ ملف تعريف، أو ابدأ من ملف تعريف Hugo الافتراضي واربط الموارد به.",
+      "purpose": "تجمع ملفات تعريف الوكلاء شخصية (Agent Smith افتراضيًا) ونماذج وموارد مع أوضاع الوصول. كل واجهة (MCP وA2A وREST والدردشة) تتواصل مع ملف تعريف.",
+      "sections": {
+        "identity": "الهوية",
+        "models": "النماذج",
+        "limits": "الحدود",
+        "exposure": "الإتاحة"
+      },
+      "columns": {
+        "name": "ملف التعريف",
+        "personaName": "الشخصية",
+        "visibility": "الرؤية",
+        "inferenceEndpointId": "نموذج الاستدلال",
+        "bindingCount": "عمليات الربط",
+        "exposure": "متاح عبر",
+        "id": "المعرّف",
+        "createdUtc": "تاريخ الإنشاء"
+      },
+      "fields": {
+        "name": "الاسم",
+        "displayName": "الاسم المعروض",
+        "description": "الوصف",
+        "personaName": "اسم الشخصية",
+        "userAddress": "يخاطب المستخدم بـ",
+        "visibility": "الرؤية",
+        "inferenceEndpointId": "نموذج الاستدلال",
+        "fallbackInferenceEndpointId": "نموذج الاستدلال الاحتياطي",
+        "embeddingEndpointId": "نموذج التضمين",
+        "maxIterations": "الحد الأقصى للتكرارات في كل دور",
+        "maxToolCallsPerTurn": "الحد الأقصى لاستدعاءات الأدوات في كل دور",
+        "toolTimeoutSeconds": "مهلة الأداة (ثوانٍ)",
+        "temperature": "درجة الحرارة",
+        "exposeMcp": "الإتاحة عبر MCP",
+        "exposeA2a": "الإتاحة عبر A2A",
+        "exposeOpenai": "الإتاحة عبر نقطة النهاية المتوافقة مع OpenAI",
+        "exposeManagementTools": "إتاحة أدوات الإدارة",
+        "instructionsAppend": "تعليمات إضافية"
+      },
+      "hints": {
+        "name": "أحرف وأرقام ونقاط وشرطات وشرطات سفلية. يُستخدم في عناوين URL مثل /mcp/{name}."
+      },
+      "errors": {
+        "urlSafe": "استخدم أحرفًا وأرقامًا ونقاطًا وشرطات وشرطات سفلية، على أن يبدأ بحرف أو رقم."
+      },
+      "actions": {
+        "chat": "الدردشة مع ملف التعريف هذا",
+        "duplicate": "تكرار"
+      }
+    },
+    "sessions": {
+      "revoked": "ملغاة",
+      "title": "الجلسات",
+      "subtitle": "جلسات تسجيل الدخول والرموز النشطة في هذا المستأجر. ألغِ إحداها لتسجيل خروج ذلك العميل فورًا.",
+      "add": "إضافة جلسة",
+      "create": "إنشاء جلسة",
+      "edit": "تعديل الجلسة",
+      "view": "تفاصيل الجلسة",
+      "deleteTitle": "حذف الجلسة",
+      "emptyTitle": "لا توجد جلسات بعد",
+      "emptyBody": "لا توجد جلسات نشطة. يؤدي تسجيل الدخول أو تبادل مفتاح وصول إلى إنشاء جلسة.",
+      "purpose": "الجلسات هي رموز الحامل الصادرة عند تسجيل الدخول أو عبر تبادل مفتاح وصول. يؤدي إلغاء إحداها إلى إنهائها فورًا.",
+      "columns": {
+        "principalName": "الكيان",
+        "principalType": "النوع",
+        "authScheme": "المخطط",
+        "sourceIp": "IP المصدر",
+        "issuedUtc": "تاريخ الإصدار",
+        "lastUsedUtc": "آخر استخدام",
+        "expiresUtc": "تاريخ الانتهاء",
+        "revokedUtc": "الحالة",
+        "userAgent": "العميل",
+        "id": "المعرّف"
+      },
+      "fields": {
+        "principalName": "الكيان",
+        "authScheme": "المخطط",
+        "sourceIp": "IP المصدر",
+        "userAgent": "العميل",
+        "principalType": "نوع الكيان",
+        "principalId": "معرّف الكيان"
+      }
+    },
+    "conversations": {
+      "title": "المحادثات",
+      "subtitle": "المحادثات من كل الواجهات في هذا المستأجر. افتح إحداها لمتابعتها في الدردشة.",
+      "add": "إضافة محادثة",
+      "create": "إنشاء محادثة",
+      "edit": "تعديل المحادثة",
+      "view": "تفاصيل المحادثة",
+      "deleteTitle": "حذف المحادثة",
+      "emptyTitle": "لا توجد محادثات بعد",
+      "emptyBody": "تظهر المحادثات هنا بمجرد أن يدردش شخص ما مع ملف تعريف، من لوحة التحكم أو أي عميل.",
+      "purpose": "المحادثات هي السلاسل المحفوظة بين المستدعين وملفات التعريف، من دردشة لوحة التحكم وسياقات A2A وMCP والجلسات المتوافقة مع OpenAI.",
+      "columns": {
+        "title": "العنوان",
+        "agentProfileId": "ملف التعريف",
+        "userId": "المستخدم",
+        "source": "المصدر",
+        "messageCount": "الرسائل",
+        "tokens": "الرموز",
+        "lastMessageUtc": "آخر رسالة",
+        "id": "المعرّف"
+      },
+      "fields": {
+        "source": "المصدر",
+        "agentProfileId": "ملف التعريف",
+        "userId": "معرّف المستخدم",
+        "fromUtc": "من"
+      },
+      "actions": {
+        "export": "تصدير بتنسيق Markdown"
+      }
+    },
+    "plugins": {
+      "title": "الإضافات",
+      "subtitle": "إضافات الموصّلات المحمّلة من دليل الإضافات. فعّلها أو عطّلها، واعرف سبب فشل تحميل إحداها.",
+      "add": "إضافة إضافة",
+      "create": "إنشاء إضافة",
+      "edit": "تعديل الإضافة",
+      "view": "تفاصيل الإضافة",
+      "deleteTitle": "حذف الإضافة",
+      "emptyTitle": "لا توجد إضافات بعد",
+      "emptyBody": "لا توجد إضافات مثبتة. ضع إضافة موصّل في دليل الإضافات وفعّل Connectors.EnablePlugins.",
+      "purpose": "تضيف الإضافات أنواع موصّلات دون إعادة بناء Hugo. تُحمَّل من دليل الإضافات في سياق معزول.",
+      "columns": {
+        "name": "الاسم",
+        "version": "الإصدار",
+        "connectorTypes": "أنواع الموصّلات",
+        "enabled": "الحالة",
+        "loadError": "خطأ التحميل",
+        "sha256": "SHA-256",
+        "id": "المعرّف"
+      },
+      "fields": {
+        "name": "الاسم",
+        "version": "الإصدار",
+        "enabled": "مفعّلة"
+      },
+      "actions": {
+        "enable": "تفعيل",
+        "disable": "تعطيل"
+      }
+    }
+  },
+  "views": {
+    "home": {
+      "observabilityState": {
+        "reachable": "يمكن الوصول إليه",
+        "unreachable": "يتعذّر الوصول إليه",
+        "checking": "جارٍ الفحص",
+        "unknown": "الحالة غير معروفة"
+      },
+      "observabilityVersion": "الإصدار {{version}}",
+      "observabilityOpen": "فتح {{service}}",
+      "kpisGrafana": "فتح النظرة العامة في Grafana",
+      "grafanaDashboards": "لوحات معلومات Grafana",
+      "grafanaSections": {
+        "overview": "نظرة عامة",
+        "http": "HTTP API",
+        "models": "النماذج",
+        "protocols": "MCP وA2A",
+        "security": "الأمان",
+        "agent": "الوكيل والدردشة",
+        "tools": "الأدوات والموصّلات"
+      },
+      "observabilitySetup": "إعداد قابلية المراقبة",
+      "observabilityNone": "لم تُهيأ أي خدمات لقابلية المراقبة (Grafana أو Prometheus أو Tempo أو Loki) لخادم Hugo هذا.",
+      "observability": "قابلية المراقبة",
+      "title": "الرئيسية",
+      "subtitle": "ما يفعله Hugo الآن، وما يحتاج إلى انتباهك، وإلى أين تتجه بعد ذلك.",
+      "lastLoaded": "تم التحديث {{time}}",
+      "getStartedTitle": "تشغيل Agent Smith",
+      "getStartedBody": "لا يحتوي هذا المستأجر على نقطة نهاية نموذج ولا على موارد بعد. يربط معالج الإعداد نموذجًا وأول نظام في بضع دقائق.",
+      "runSetup": "تشغيل الإعداد",
+      "kpis": {
+        "last24h": "آخر 24 ساعة",
+        "requests": "الطلبات",
+        "toolCalls": "استدعاءات الأدوات",
+        "failures": "الإخفاقات",
+        "approvals": "موافقات في الانتظار",
+        "unhealthy": "موارد غير سليمة",
+        "tokens": "الرموز اليوم",
+        "today": "منذ منتصف الليل"
+      },
+      "requestActivity": "نشاط طلبات API",
+      "recentFailures": "استدعاءات الأدوات الفاشلة مؤخرًا",
+      "noFailures": "لا توجد استدعاءات أدوات فاشلة مؤخرًا.",
+      "cta": {
+        "title": "مهام سير العمل الشائعة",
+        "apiExplorer": "فتح مستكشف API",
+        "addResource": "إضافة مورد",
+        "addModel": "إضافة نقطة نهاية نموذج",
+        "chat": "الدردشة مع Agent Smith",
+        "connect": "ربط Claude Code",
+        "approvals": "مراجعة الموافقات"
+      },
+      "services": {
+        "loki": "Loki",
+        "grafana": "Grafana",
+        "prometheus": "Prometheus",
+        "tempo": "Tempo"
+      },
+      "partial_zero": "تعذّر تحميل {{count}} لوحة، لذا بعض الأرقام أدناه مفقودة. بقية الصفحة محدّثة.",
+      "partial_one": "تعذّر تحميل لوحة واحدة ({{count}})، لذا بعض الأرقام أدناه مفقودة. بقية الصفحة محدّثة.",
+      "partial_two": "تعذّر تحميل لوحتين ({{count}})، لذا بعض الأرقام أدناه مفقودة. بقية الصفحة محدّثة.",
+      "partial_few": "تعذّر تحميل {{count}} لوحات، لذا بعض الأرقام أدناه مفقودة. بقية الصفحة محدّثة.",
+      "partial_many": "تعذّر تحميل {{count}} لوحة، لذا بعض الأرقام أدناه مفقودة. بقية الصفحة محدّثة.",
+      "partial_other": "تعذّر تحميل {{count}} لوحة، لذا بعض الأرقام أدناه مفقودة. بقية الصفحة محدّثة.",
+      "failuresUnavailable": "لا يُبلغ هذا الخادم عن استدعاءات الأدوات بعد.",
+      "unhealthyTitle": "موارد غير سليمة",
+      "allHealthy": "اجتاز كل مورد آخر فحص سلامة له.",
+      "resourcesUnavailable": "لا يُبلغ هذا الخادم عن الموارد بعد."
+    },
+    "markdown": {
+      "showRaw": "عرض النص الخام",
+      "showRendered": "عرض المنسّق"
+    },
+    "templateEditor": {
+      "cloneToEdit": "استنساخ للتعديل",
+      "builtInReadOnly": "القوالب المضمّنة للقراءة فقط، لذا كل حقل هنا مقفل. استنسخه للحصول على نسخة قابلة للتعديل.",
+      "renameHint": "يمكنك إعادة تسمية هذا القالب. يجب تحديث القوالب التي تتضمنه بالاسم يدويًا.",
+      "cloneDialog": {
+        "taken": "يوجد قالب باسم {{name}} بالفعل. اختر اسمًا آخر.",
+        "reserved": "الأسماء التي تبدأ بـ builtin/ محجوزة للقوالب المضمّنة.",
+        "hint": "يمكنك إعادة تسمية النسخة لاحقًا من صفحتها.",
+        "name": "اسم النسخة",
+        "body": "تبدأ النسخة بالمحتوى الحالي بوصفه الإصدار 1، ويمكن تعديلها وإعادة تسميتها وحذفها.",
+        "title": "استنساخ {{name}}"
+      },
+      "newTitle": "قالب موجّه جديد",
+      "subtitle": "اكتب القالب، وعاينه باستخدام سياق نموذجي، ثم احفظه.",
+      "changeNote": "ملاحظة التغيير",
+      "versions_zero": "الإصدارات ({{count}})",
+      "versions_one": "الإصدارات ({{count}})",
+      "versions_two": "الإصدارات ({{count}})",
+      "versions_few": "الإصدارات ({{count}})",
+      "versions_many": "الإصدارات ({{count}})",
+      "versions_other": "الإصدارات ({{count}})",
+      "noVersions": "لا توجد إصدارات محفوظة بعد.",
+      "version": "الإصدار",
+      "note": "ملاحظة",
+      "author": "المؤلف",
+      "diff": "الفروق",
+      "restore": "استعادة",
+      "diffTitle": "الإصدار {{version}} مقارنةً بالمحرر",
+      "current": "المحرر",
+      "reset": "إعادة التعيين إلى الافتراضي",
+      "savedVersion": "تم حفظ إصدار جديد.",
+      "restored": "تمت استعادة الإصدار {{version}}.",
+      "resetDone": "تمت إعادة التعيين إلى المحتوى الأصلي.",
+      "confirm": {
+        "restoreTitle": "استعادة الإصدار",
+        "restoreMessage": "استعادة الإصدار {{version}}؟ يُحتفظ بالمحتوى الحالي في السجل.",
+        "resetTitle": "إعادة تعيين القالب",
+        "resetMessage": "إعادة تعيين \"{{name}}\" إلى المحتوى الأصلي؟",
+        "deleteTitle": "حذف القالب",
+        "deleteMessage": "حذف \"{{name}}\"؟ ستعود ملفات التعريف والموصّلات التي تستخدمه إلى الإعداد الافتراضي المضمّن."
+      },
+      "saved": "النص المحفوظ"
+    },
+    "requests": {
+      "grafana": "لوحة معلومات HTTP في Grafana",
+      "title": "سجل الطلبات",
+      "subtitle": "حركة مرور API الملتقطة. تعمّق في أي طلب وأدِر مدة الاحتفاظ.",
+      "kpis": {
+        "total": "الطلبات المحتفظ بها",
+        "success": "الناجحة",
+        "failure": "الإخفاقات",
+        "avgDuration": "متوسط المدة"
+      },
+      "columns": {
+        "time": "الوقت",
+        "method": "الطريقة",
+        "path": "المسار",
+        "status": "الحالة",
+        "duration": "المدة",
+        "principal": "الكيان"
+      },
+      "bulkDeleteTitle": "حذف سجل الطلبات",
+      "bulkDeleteMessage": "حذف كل الطلبات ({{count}}) المطابقة لعوامل التصفية الحالية؟",
+      "bulkDeleteAll": "حذف كل المطابق",
+      "deleteOneTitle": "حذف الطلب",
+      "deleteOneMessage": "حذف الطلب {{id}}؟",
+      "deleted": "تم الحذف.",
+      "emptyTitle": "لا يوجد سجل طلبات",
+      "emptyBodyNoTraffic": "لم يُحتفظ بأي حركة مرور API بعد.",
+      "emptyBodyNoMatch": "لا توجد طلبات تطابق عوامل التصفية الحالية."
+    },
+    "explorer": {
+      "title": "مستكشف API",
+      "subtitle": "نفّذ استدعاءات حية على هذا الخادم، استنادًا إلى مستند OpenAPI الخاص به.",
+      "operations": "العمليات",
+      "selectOperation": "اختر عملية لإنشاء طلب.",
+      "selectOperationOption": "اختر عملية...",
+      "pathParams": "معلمات المسار",
+      "queryParams": "معلمات الاستعلام",
+      "headers": "الترويسات",
+      "addHeader": "إضافة ترويسة",
+      "headerName": "اسم الترويسة",
+      "headerValue": "قيمة الترويسة {{name}}",
+      "removeHeader": "إزالة الترويسة {{name}}",
+      "body": "نص الطلب",
+      "resolvedUrl": "URL المحلول",
+      "copyUrl": "نسخ URL",
+      "execute": "تنفيذ",
+      "executing": "جارٍ التنفيذ...",
+      "stop": "إيقاف",
+      "streaming": "جارٍ البث",
+      "response": "الاستجابة",
+      "responseHeaders": "ترويسات الاستجابة",
+      "responseBody": "نص الاستجابة",
+      "snippets": "مقتطفات التعليمات البرمجية",
+      "history": "الطلبات الأخيرة",
+      "historyEmpty": "لا توجد طلبات حديثة.",
+      "loadHistory": "تحميل",
+      "deleteHistory": "حذف",
+      "clearHistory": "مسح السجل",
+      "required": "مطلوب",
+      "confirmTitle": "تنفيذ عملية مدمّرة",
+      "confirmMessage": "قد يعدّل طلب {{method}} هذا البيانات أو يحذفها. هل تريد المتابعة؟",
+      "noSpecTitle": "مستند OpenAPI غير متاح",
+      "noSpecBody": "لم يُرجع هذا الخادم مستند /openapi.json صالحًا للاستخدام، لذا لا يستطيع المستكشف عرض العمليات."
+    },
+    "settings": {
+      "errors": {
+        "allowed": "اختر واحدًا مما يلي: {{values}}.",
+        "boolean": "اختر true أو false.",
+        "max": "أدخل {{max}} أو أقل.",
+        "min": "أدخل {{min}} أو أكثر.",
+        "range": "أدخل قيمة من {{min}} إلى {{max}}.",
+        "integer": "أدخل عددًا صحيحًا.",
+        "number": "أدخل رقمًا."
+      },
+      "notSaved": "لم يُحفظ أي شيء. أصلح الإعدادات المميزة واحفظ مرة أخرى.",
+      "title": "الإعدادات",
+      "subtitle": "إعدادات hugo.json الخاصة بالخادم، مع عرض تجاوزات البيئة للقراءة فقط. تُطبَّق بعض التغييرات مباشرةً، وأخرى بعد إعادة التشغيل.",
+      "readOnly": "أنت تعرض الإعدادات للقراءة فقط. يمكن لمسؤولي النظام فقط تغييرها.",
+      "restartBanner": "تسري بعض التغييرات المحفوظة بعد إعادة التشغيل.",
+      "restarting": "تتم إعادة تشغيل الخادم. ستعيد هذه الصفحة الاتصال تلقائيًا.",
+      "restarted": "عاد الخادم إلى العمل.",
+      "restartTimeout": "لم يعد الخادم خلال ثلاث دقائق. تحقق من حالة الحاوية باستخدام docker ps.",
+      "restart": "إعادة تشغيل الخادم",
+      "restartConfirmTitle": "إعادة تشغيل الخادم",
+      "restartConfirmMessage": "إعادة تشغيل خادم Hugo الآن؟ ستنقطع الطلبات الجارية وتدفقات الدردشة؛ تعيد الحاوية تشغيل العملية وتعيد هذه الصفحة الاتصال.",
+      "savedLive": "تم حفظ الإعدادات وتطبيقها.",
+      "savedRestart": "تم حفظ الإعدادات. أعد تشغيل الخادم لتطبيق كل التغييرات.",
+      "live": "مباشر",
+      "restartRequired": "تتطلب إعادة التشغيل",
+      "secretSet": "مضبوط (أدخل قيمة جديدة للاستبدال)",
+      "secretNotSet": "غير مضبوط",
+      "range": "النطاق المسموح به من {{min}} إلى {{max}}",
+      "testDatabase": "اختبار الاتصال بقاعدة البيانات",
+      "testing": "جارٍ الاختبار...",
+      "dbOk": "نجح الاتصال",
+      "dbFailed": "فشل الاتصال",
+      "unavailableTitle": "الإعدادات غير متاحة",
+      "unavailableBody": "لم يُرجع هذا الخادم إعداداته.",
+      "sources": {
+        "File": "ملف الإعدادات",
+        "Environment": "البيئة",
+        "Database": "قاعدة البيانات"
+      },
+      "lockedBy": {
+        "Environment": "مضبوط بواسطة متغير بيئة. قيمة البيئة هي الغالبة.",
+        "other": "لا يمكن تغيير هذا الإعداد هنا."
+      },
+      "groups": {
+        "General": "عام",
+        "Rest": "مستمع REST",
+        "Mcp": "MCP",
+        "Database": "قاعدة البيانات",
+        "Logging": "السجلات",
+        "Auth": "المصادقة",
+        "RequestHistory": "سجل الطلبات",
+        "Telemetry": "القياس عن بُعد",
+        "Audit": "التدقيق",
+        "Secrets": "مستودع الأسرار",
+        "Agent": "حلقة الوكيل",
+        "Approvals": "الموافقات",
+        "Connectors": "الموصّلات",
+        "Models": "نقاط نهاية النماذج",
+        "A2A": "A2A",
+        "OpenAI": "نقطة النهاية المتوافقة مع OpenAI",
+        "Embeddings": "التضمينات"
+      },
+      "fields": {
+        "Rest": {
+          "Hostname": "اسم مضيف المستمع",
+          "Port": "منفذ المستمع",
+          "Ssl": "استخدام TLS",
+          "ExternalBaseUrl": "URL الأساسي الخارجي",
+          "AllowedOrigins": "أصول CORS المسموح بها"
+        },
+        "Database": {
+          "Type": "نوع قاعدة البيانات",
+          "Filename": "ملف SQLite",
+          "Server": "خادم قاعدة البيانات",
+          "Port": "منفذ قاعدة البيانات",
+          "DatabaseName": "اسم قاعدة البيانات",
+          "Username": "مستخدم قاعدة البيانات",
+          "Password": "كلمة مرور قاعدة البيانات"
+        },
+        "Auth": {
+          "SigningKey": "مفتاح توقيع الرموز",
+          "UserSessionMinutes": "مدة جلسة المستخدم (دقائق)",
+          "AdminSessionMinutes": "مدة جلسة المسؤول (دقائق)",
+          "SessionAbsoluteMaxHours": "الحد المطلق للجلسة (ساعات)",
+          "RateLimitPerMinute": "محاولات تسجيل الدخول في الدقيقة"
+        },
+        "Secrets": {
+          "MasterKey": "المفتاح الرئيسي (للتطوير فقط)",
+          "RevealReauthMinutes": "نافذة إعادة المصادقة لعمليات الإظهار (دقائق)"
+        },
+        "Agent": {
+          "DefaultMaxIterations": "الحد الأقصى الافتراضي للتكرارات في كل دور",
+          "DefaultMaxToolCallsPerTurn": "الحد الأقصى الافتراضي لاستدعاءات الأدوات في كل دور",
+          "MaxParallelToolCalls": "استدعاءات أدوات القراءة المتوازية",
+          "ToolRetrievalThreshold": "عتبة استرجاع الأدوات",
+          "CompactionThresholdRatio": "عتبة ضغط السجل"
+        },
+        "Approvals": {
+          "ExpirySeconds": "مدة صلاحية الموافقة (ثوانٍ)",
+          "McpWaitSeconds": "مدة انتظار موافقة MCP (ثوانٍ)",
+          "AllowSelfApproval": "السماح بالموافقة على استدعاءاتك الخاصة"
+        },
+        "Connectors": {
+          "EnablePlugins": "تفعيل إضافات الموصّلات",
+          "PluginDirectory": "دليل الإضافات",
+          "DefaultToolTimeoutSeconds": "مهلة الأداة الافتراضية (ثوانٍ)",
+          "HealthSweepMinutes": "فحص سلامة الموارد الدوري (دقائق)"
+        },
+        "Models": {
+          "HealthIntervalSeconds": "الفاصل الزمني لفحص سلامة النماذج (ثوانٍ)"
+        }
+      }
+    },
+    "serverInfo": {
+      "title": "معلومات الخادم",
+      "subtitle": "نقاط النهاية والإصدارات والهوية التي سجّلت الدخول بها.",
+      "endpoints": "نقاط النهاية",
+      "rest": "REST API",
+      "mcp": "MCP",
+      "a2a": "A2A",
+      "openapi": "OpenAPI",
+      "server": "الخادم",
+      "version": "إصدار الخادم",
+      "dashboardVersion": "إصدار لوحة التحكم",
+      "node": "عقدة الخادم",
+      "database": "قاعدة البيانات",
+      "health": "السلامة",
+      "routes": "العمليات المسجّلة",
+      "serverTime": "وقت الخادم",
+      "principal": "مسجّل الدخول باسم",
+      "principalName": "الكيان",
+      "principalType": "نوع الكيان",
+      "role": "الدور",
+      "tenant": "المستأجر",
+      "expires": "تنتهي الجلسة",
+      "features": "علامات الميزات",
+      "connectors": "الموصّلات المحمّلة",
+      "openai": "متوافق مع OpenAI"
+    },
+    "analytics": {
+      "legend": "السلاسل في {{chart}}",
+      "noDataInChart": "لا توجد بيانات لهذا المخطط في النطاق المحدد.",
+      "dataTable": "جدول البيانات",
+      "bucketStart": "بداية الفترة",
+      "title": "التحليلات",
+      "subtitle": "استخدام الرموز، واستدعاءات الأدوات حسب التأثير والموصّل، وزمن استجابة النماذج وأخطاؤها، ومدة إنجاز الموافقات.",
+      "purpose": "تحوّل التحليلات استدعاءات الأدوات وأدوار الدردشة واستدعاءات النماذج إلى اتجاهات للاستخدام والتكلفة لكل ملف تعريف ونموذج.",
+      "profile": "ملف التعريف",
+      "panels": {
+        "overview": "الإجماليات",
+        "tokens": "استهلاك الرموز",
+        "tools": "استدعاءات الأدوات حسب التأثير",
+        "models": "النماذج",
+        "modelLatency": "زمن استجابة النموذج",
+        "modelErrors": "أخطاء النموذج"
+      },
+      "purposes": {
+        "overview": "إجماليات الأدوار واستدعاءات الأدوات والإخفاقات والرموز والموافقات ضمن النطاق المحدد.",
+        "tokens": "رموز الإدخال والإخراج عبر الزمن، في كل واجهة تشغّل حلقة Hugo الخاصة.",
+        "tools": "استدعاءات الأدوات عبر الزمن مقسّمة حسب التأثير، مع الاستدعاءات والإخفاقات وزمن الاستجابة لكل موصّل.",
+        "models": "النسب المئوية لزمن الاستجابة وأعداد الأخطاء لكل نقطة نهاية نموذج."
+      },
+      "help": {
+        "tokens": "رموز الإدخال والإخراج لكل فترة زمنية.",
+        "tools": "استدعاءات الأدوات لكل فترة زمنية حسب التأثير: قراءة وكتابة ومدمّر.",
+        "modelLatency": "الوسيط (p50) وp95 لزمن استجابة النموذج لكل فترة.",
+        "modelErrors": "طلبات النموذج التي أخفقت في كل فترة."
+      },
+      "kpis": {
+        "turns": "أدوار المحادثة",
+        "toolCalls": "استدعاءات الأدوات",
+        "failures": "استدعاءات الأدوات الفاشلة",
+        "tokens": "الرموز",
+        "approvals": "الموافقات",
+        "turnaround": "مدة البت في الموافقة",
+        "approvalRate": "نسبة الموافق عليه"
+      },
+      "metrics": {
+        "inputTokens": "رموز الإدخال",
+        "outputTokens": "رموز الإخراج",
+        "latencyMsP50": "الوسيط (p50)",
+        "latencyMsP95": "p95",
+        "errors": "الأخطاء",
+        "Read": "قراءة",
+        "Write": "كتابة",
+        "Destructive": "مدمّر"
+      },
+      "columns": {
+        "connector": "الموصّل",
+        "calls": "الاستدعاءات",
+        "failures": "الإخفاقات",
+        "p95": "المدة p95"
+      }
+    },
+    "chat": {
+      "title": "المحادثة",
+      "subtitle": "تحدّث إلى Agent Smith. تظهر استدعاءات الأدوات ضمن المحادثة مع تأثيرها، وتنتظر الاستدعاءات الخطرة موافقتك.",
+      "purpose": "تشغّل المحادثة حلقة الوكيل الخاصة بـ Hugo وفق ملف التعريف الذي تختاره: يقرأ مواردك المربوطة عبر أدواتها، ويستأذن قبل الإجراءات الخطرة، ويبث الإجابة هنا.",
+      "conversations": "المحادثات",
+      "search": "البحث في المحادثات",
+      "noConversations": "لا توجد محادثات بعد.",
+      "untitled": "محادثة بلا عنوان",
+      "new": "محادثة جديدة",
+      "export": "تصدير",
+      "context": "السياق",
+      "profile": "ملف التعريف",
+      "model": "النموذج: {{model}}",
+      "modelLabel": "النموذج",
+      "persona": "الشخصية",
+      "addresses": "يخاطبك باسم",
+      "resources": "الموارد المربوطة",
+      "noResources": "لا توجد موارد مربوطة بملف التعريف هذا.",
+      "usage": "استهلاك الرموز",
+      "pending": "الموافقات المعلّقة",
+      "noPending": "لا شيء بانتظارك.",
+      "noModel": "لا يملك ملف التعريف هذا نموذج استدلال، لذا لا يستطيع Agent Smith الإجابة بعد. أضف نقطة نهاية نموذج واخترها في ملف التعريف.",
+      "goModels": "إضافة نقطة نهاية نموذج",
+      "noProfilesTitle": "لا توجد ملفات تعريف وكيل بعد",
+      "noProfilesBody": "تتواصل المحادثة مع ملف تعريف وكيل. أنشئ واحدًا (أو دع الخادم ينشئ ملف تعريف Hugo الافتراضي) للبدء.",
+      "goProfiles": "فتح ملفات تعريف الوكلاء",
+      "emptyHint": "اسأل {{persona}} عن منظومتك، مثلًا \"لماذا عملية الدفع بطيئة؟\""
+    },
+    "profile": {
+      "title": "ملف تعريف الوكيل",
+      "subtitle": "الشخصية {{persona}}، تخاطب المستخدم باسم {{address}}.",
+      "tabs": {
+        "general": "عام",
+        "bindings": "الروابط",
+        "instructions": "التعليمات",
+        "tools": "الأدوات",
+        "connect": "الاتصال"
+      },
+      "bindings": {
+        "body": "يربط كل ربط موردًا بملف التعريف هذا تحت اسم مستعار، مع وضع وصول يحدد ما يُسمح للوكيل بفعله.",
+        "purpose": "تربط الروابط الموارد بملف تعريف مع وضع وصول وسياسة موافقة وقواعد أدوات.",
+        "add": "إضافة ربط",
+        "edit": "تعديل الربط",
+        "emptyTitle": "لا توجد موارد مربوطة بعد",
+        "emptyBody": "لا يستطيع ملف التعريف هذا الوصول إلى أي نظام حتى تربط به موارد. أضف الموارد أولًا ثم اربطها هنا.",
+        "goResources": "فتح الموارد",
+        "noResources": "لا توجد موارد لربطها بعد. أضف موردًا في صفحة الموارد أولًا.",
+        "approvalOn": "الموافقة",
+        "aliasInvalid": "استخدم الأحرف والأرقام والنقاط والشرطات والشرطات السفلية، على أن يبدأ بحرف أو رقم.",
+        "aliasTaken": "يستخدم ربط آخر في ملف التعريف هذا الاسم المستعار نفسه.",
+        "deleteTitle": "إزالة الربط",
+        "deleteBody": "هل تريد إزالة {{alias}} من ملف التعريف هذا؟ يبقى المورد نفسه، لكن مستدعي ملف التعريف هذا يفقدون الوصول إليه.",
+        "columns": {
+          "alias": "الاسم المستعار",
+          "resource": "المورد",
+          "accessMode": "وضع الوصول",
+          "approval": "الموافقة",
+          "enabled": "الحالة"
+        },
+        "fields": {
+          "resourceId": "المورد",
+          "alias": "الاسم المستعار",
+          "accessMode": "وضع الوصول",
+          "requireApprovalForDestructive": "طلب الموافقة على الاستدعاءات المدمّرة",
+          "instructionMode": "التعليمات",
+          "instructionText": "نص التعليمات",
+          "maxOutputBytes": "الحد الأقصى لبايتات الإخراج",
+          "maxRows": "الحد الأقصى للصفوف",
+          "enabled": "مفعّل"
+        }
+      },
+      "toolRules": {
+        "title": "قواعد الأدوات لـ {{alias}}",
+        "body": "تجاوز إعدادات أدوات بعينها في هذا الربط. الأدوات غير المحددة تتبع وضع الوصول.",
+        "open": "قواعد الأدوات",
+        "rule": "القاعدة",
+        "ruleFor": "قاعدة {{tool}}",
+        "inherit": "اتباع وضع الوصول",
+        "noTools": "لم يُبلغ الخادم عن أي أدوات لملف التعريف هذا."
+      },
+      "instructions": {
+        "body": "التعليمات التي يتلقاها المستدعي: الشخصية وقواعد الأمان وقسم كل مورد مربوط، بالترتيب.",
+        "purpose": "تعرض التعليمات المجمّعة بدقة ما يُقال لـ Agent Smith في كل واجهة، مع القالب الذي جاء منه كل قسم.",
+        "surface": "الواجهة",
+        "sourceMap": "مصدر كل قسم"
+      },
+      "tools": {
+        "body": "الأدوات كما يراها مستدعي ملف التعريف هذا تمامًا، بعد تطبيق أوضاع الوصول وقواعد الأدوات.",
+        "purpose": "تعرض قائمة الأدوات ما يمكن لمستدعي ملف التعريف هذا استدعاؤه، بعد أوضاع الوصول وقواعد الأدوات.",
+        "empty": "لا يتيح ملف التعريف هذا أي أدوات.",
+        "name": "الأداة",
+        "effect": "التأثير",
+        "description": "الوصف",
+        "perCall": "(يُصنَّف لكل استدعاء)"
+      },
+      "connect": {
+        "claudeCode": "Claude Code (MCP عبر HTTP)",
+        "claudeCodeBody": "أضف هذا إلى إعدادات MCP. اضبط HUGO_TOKEN على رمز جلسة، أو استخدم بيانات اعتماد مربوطة بملف التعريف هذا.",
+        "claudeCli": "Claude Code CLI",
+        "claudeCliBody": "الخادم نفسه مسجّلًا من سطر الأوامر.",
+        "stdio": "مرحّل Stdio",
+        "stdioBody": "لعملاء MCP الذين لا يدعمون سوى stdio: يرحّل hugo CLI الطلبات إلى نقطة نهاية HTTP.",
+        "a2a": "بطاقة وكيل A2A",
+        "a2aBody": "تكتشف الوكلاء الأخرى ملف التعريف هذا عبر بطاقة A2A الخاصة به.",
+        "a2aOff": "A2A معطّل لملف التعريف هذا. فعّل إتاحة A2A في علامة التبويب عام لنشر البطاقة.",
+        "openai": "نقطة نهاية متوافقة مع OpenAI",
+        "openaiBody": "وجّه أي عميل متوافق مع OpenAI إلى عنوان URL الأساسي هذا واستخدم اسم النموذج {{model}}.",
+        "openaiOff": "نقطة النهاية المتوافقة مع OpenAI معطّلة لملف التعريف هذا.",
+        "credential": "بيانات اعتماد لملف التعريف هذا",
+        "credentialBody": "ينبغي أن تتصل أدوات التشغيل ببيانات اعتماد مربوطة بملف التعريف هذا، حتى تعمل دائمًا بصفته ولا شيء أكثر.",
+        "credentialAction": "إنشاء بيانات اعتماد"
+      }
+    },
+    "resources": {
+      "form": {
+        "chooseConnector": "اختر موصّلًا",
+        "connectorsUnavailable": "لم يعرض الخادم موصّلاته، لذا لا يمكن إنشاء الإعدادات بعد.",
+        "settings": "الإعدادات",
+        "secrets": "الأسرار",
+        "test": "اختبار الاتصال",
+        "testing": "جارٍ الاختبار..."
+      },
+      "tryTool": {
+        "title": "تجربة أداة على {{name}}",
+        "body": "اختر ملف تعريف يربط هذا المورد واختر أداة. يصنّف التشغيل التجريبي الاستدعاء دون تنفيذه، أما التنفيذ فيشغّله عبر فحوص الأمان نفسها المطبقة في كل واجهة أخرى.",
+        "profile": "التشغيل بملف التعريف",
+        "tool": "الأداة",
+        "arguments": "الوسائط (JSON)",
+        "dryRun": "تشغيل تجريبي",
+        "execute": "تنفيذ",
+        "classification": "التصنيف",
+        "result": "النتيجة",
+        "notBound": "لا يربط ملف التعريف هذا المورد، لذا لا تستطيع أدواته الوصول إليه.",
+        "pendingApproval": "الاستدعاء بانتظار الموافقة {{id}}. اتخذ القرار بشأنه في صفحة الموافقات."
+      }
+    },
+    "secrets": {
+      "reveal": {
+        "title": "كشف {{name}}",
+        "warning": "يعرض الكشف القيمة كنص صريح. يُسجَّل الكشف في التدقيق مع السبب الذي تذكره، وتختفي القيم بعد 30 ثانية.",
+        "reason": "السبب",
+        "reasonRequired": "اذكر سبب حاجتك إلى رؤية القيمة.",
+        "submit": "كشف",
+        "reauthBody": "حفاظًا على أمانك، أدخل كلمة المرور مرة أخرى قبل كشف الأسرار.",
+        "password": "كلمة المرور",
+        "reauthSubmit": "تأكيد وكشف",
+        "hidesIn": "ستُخفى مجددًا خلال {{seconds}} ثانية.",
+        "hidden": "أُخفيت القيم مجددًا.",
+        "again": "كشف مرة أخرى"
+      }
+    },
+    "connectors": {
+      "title": "الموصّلات",
+      "subtitle": "أنواع الأنظمة التي يستطيع Hugo الوصول إليها، مع إعداداتها وأسرارها وأدواتها وتعليماتها الافتراضية.",
+      "purpose": "يسرد كتالوج الموصّلات كل عائلة خدمات يستطيع هذا الخادم الوصول إليها (SSH وتخزين الكائنات وقواعد البيانات وخدمات السجلات وغيرها)، مع الإعدادات والأسرار التي يحتاجها كل منها والأدوات التي يوفرها.",
+      "search": "البحث في الموصّلات",
+      "category": "الفئة",
+      "count_zero": "{{shown}} موصّل",
+      "count_one": "{{shown}} موصّل",
+      "count_two": "{{shown}} موصّلان",
+      "count_few": "{{shown}} موصّلات",
+      "count_many": "{{shown}} موصّلًا",
+      "count_other": "{{shown}} موصّل",
+      "emptyTitle": "لا توجد موصّلات مطابقة",
+      "emptyBody": "امسح البحث أو اختر فئة أخرى.",
+      "noDescription": "لا يوجد وصف.",
+      "toolCount_zero": "{{count}} أداة",
+      "toolCount_one": "{{count}} أداة",
+      "toolCount_two": "{{count}} أداتان",
+      "toolCount_few": "{{count}} أدوات",
+      "toolCount_many": "{{count}} أداة",
+      "toolCount_other": "{{count}} أداة",
+      "loadError": "خطأ في التحميل",
+      "addResource": "إضافة مورد",
+      "tabs": {
+        "overview": "نظرة عامة",
+        "settings": "مخطط الإعدادات",
+        "tools": "الأدوات",
+        "instructions": "التعليمات الافتراضية"
+      },
+      "fields": {
+        "type": "النوع",
+        "family": "العائلة",
+        "category": "الفئة",
+        "version": "الإصدار",
+        "documentation": "التوثيق"
+      },
+      "slots": "خانات الأسرار",
+      "noSlots": "لا يحتاج هذا الموصّل إلى أسرار.",
+      "settingsBody": "هذا هو النموذج الذي يحصل عليه أي مورد جديد من هذا النوع. جرّبه هنا، فلن يُحفظ شيء.",
+      "reference": "مرجع الإعدادات",
+      "columns": {
+        "key": "المفتاح",
+        "kind": "النوع",
+        "required": "مطلوب",
+        "default": "الافتراضي",
+        "range": "القيم المسموح بها",
+        "group": "المجموعة"
+      },
+      "noTools": "لا يوفر هذا الموصّل أي أدوات.",
+      "instructionsBody": "يضيف كل مورد من هذا النوع هذه التعليمات للوكيل. عدّلها لكل مستأجر أو على المستوى العام تحت مفتاح القالب {{key}}.",
+      "editInstructions": "التعديل في قوالب الموجّهات",
+      "builtInInstructions": "التعليمات الافتراضية المدمجة",
+      "noInstructions": "لا يأتي هذا الموصّل بتعليمات افتراضية."
+    },
+    "mcpExplorer": {
+      "title": "مستكشف MCP",
+      "subtitle": "اتصل بنقطة نهاية MCP الخاصة بـ Hugo بهويتك، واقرأ التعليمات، واعرض الأدوات واستدعها.",
+      "purpose": "يتواصل مستكشف MCP مع /mcp تمامًا كما يفعل Claude Code، لتتمكن من التحقق من التعليمات وقائمة الأدوات التي يتيحها ملف التعريف قبل توصيل أداة تشغيل.",
+      "profile": "ملف التعريف",
+      "defaultProfile": "يحدده الخادم",
+      "connect": "اتصال",
+      "reconnect": "إعادة الاتصال",
+      "session": "الجلسة {{id}}",
+      "failed": "فشل طلب MCP",
+      "tools": "الأدوات",
+      "toolsCount_zero": "{{count}} أداة",
+      "toolsCount_one": "{{count}} أداة",
+      "toolsCount_two": "{{count}} أداتان",
+      "toolsCount_few": "{{count}} أدوات",
+      "toolsCount_many": "{{count}} أداة",
+      "toolsCount_other": "{{count}} أداة",
+      "noTools": "لم يعرض الخادم أي أدوات لهذا المستدعي.",
+      "serverInfo": "الخادم",
+      "instructions": "التعليمات من initialize",
+      "noInstructions": "لم يرسل الخادم أي تعليمات.",
+      "call": "استدعاء الأداة",
+      "toolOk": "أعادت الأداة نتيجة.",
+      "toolError": "أبلغت الأداة عن خطأ.",
+      "invalidJson": "قيمة {{field}} ليست JSON صالحًا.",
+      "log_zero": "سجل JSON-RPC ({{count}} رسالة)",
+      "log_one": "سجل JSON-RPC ({{count}} رسالة)",
+      "log_two": "سجل JSON-RPC ({{count}} رسالتان)",
+      "log_few": "سجل JSON-RPC ({{count}} رسائل)",
+      "log_many": "سجل JSON-RPC ({{count}} رسالة)",
+      "log_other": "سجل JSON-RPC ({{count}} رسالة)"
+    },
+    "a2aExplorer": {
+      "title": "مستكشف A2A",
+      "subtitle": "اجلب بطاقة الوكيل لملف تعريف، وأرسل إليه رسالة، وابثّ الإجابة، واعرض المهام عبر A2A.",
+      "purpose": "يستدعي مستكشف A2A المسار /v1.0/a2a/{tenant}/{profile} بأساليب JSON-RPC الخاصة بـ A2A 1.0، كما يفعل أي وكيل آخر.",
+      "profile": "ملف التعريف",
+      "fetchCard": "جلب البطاقة",
+      "listTasks": "عرض المهام",
+      "message": "الرسالة",
+      "stream": "بث الإجابة",
+      "send": "إرسال",
+      "context": "متابعة السياق {{id}}",
+      "result": "النتيجة",
+      "events_zero": "أحداث البث ({{count}})",
+      "events_one": "أحداث البث ({{count}})",
+      "events_two": "أحداث البث ({{count}})",
+      "events_few": "أحداث البث ({{count}})",
+      "events_many": "أحداث البث ({{count}})",
+      "events_other": "أحداث البث ({{count}})",
+      "tasks_zero": "{{count}} مهمة",
+      "tasks_one": "{{count}} مهمة",
+      "tasks_two": "{{count}} مهمتان",
+      "tasks_few": "{{count}} مهام",
+      "tasks_many": "{{count}} مهمة",
+      "tasks_other": "{{count}} مهمة",
+      "noTasks": "لا توجد مهام لملف التعريف هذا بعد."
+    }
+  },
+  "tips": {
+    "fieldWarnings": {
+      "dismiss": "إخفاء هذا التنبيه. السجل محفوظ بالفعل بالقيم المذكورة هنا."
+    },
+    "ids": {
+      "deleted": "حُذف هذا السجل. المعرّف {{id}}. ينسخ زر النسخ المعرّف.",
+      "named": "المعرّف {{id}}. استخدم زر النسخ لنسخ المعرّف لاستخدامه في API أو SDK أو طلب دعم."
+    },
+    "markdown": {
+      "column": "العمود {{name}} من جدول في مخرجات الوكيل. تُمرَّر الجداول العريضة أفقيًا داخل إطارها.",
+      "showRaw": "عرض النص الذي أعاده الوكيل كما هو، دون تنسيق Markdown، لتتمكن من فحصه أو نسخه.",
+      "showRendered": "عرض النص منسقًا بـ Markdown مجددًا، مع الجداول والقوائم وكتل الشيفرة والروابط.",
+      "copy": "نسخ نص النتيجة الخام، بما في ذلك صيغة Markdown، إلى الحافظة.",
+      "link": "يفتح {{href}} في علامة تبويب جديدة. الرابط مصدره مخرجات الوكيل، لذا تحقق من العنوان قبل أن تثق به."
+    },
+    "common": {
+      "fields": {
+        "name": "اسم فريد لهذا السجل داخل المستأجر. تشير إليه السجلات الأخرى بهذا الاسم.",
+        "description": "ملاحظة نصية حرة للأشخاص. توضح الغرض من هذا السجل ولا تُستخدم أثناء التشغيل.",
+        "active": "تُحفظ السجلات غير النشطة لكنها تُتجاهل. عطّل هذا الخيار لإيقاف شيء مؤقتًا دون حذفه.",
+        "id": "معرّف يولّده النظام ببادئة تدل على النوع. استخدمه في استدعاءات API والبرامج النصية، فهو لا يتغير أبدًا.",
+        "createdUtc": "وقت إنشاء هذا السجل. مرّر المؤشر فوق القيمة لرؤية التاريخ والوقت بدقة.",
+        "lastUpdateUtc": "آخر وقت تغيّر فيه هذا السجل.",
+        "isBuiltIn": "السجلات المدمجة تأتي مع Hugo وهي للقراءة فقط. السجلات المخصصة أُنشئت في هذا المستأجر ويمكن تعديلها.",
+        "expiresUtc": "يتوقف السجل عن العمل بعد هذا الوقت. اتركه فارغًا لعدم الانتهاء."
+      }
+    },
+    "explainer": {
+      "reopen": "عرض شرح {{topic}} مجددًا: ما تديره هذه الصفحة وعلاقتها ببقية Hugo.",
+      "dismiss": "إخفاء هذا الشرح. يبقى زر \"حول\" صغير في مكانه لتتمكن من إعادته في أي وقت."
+    },
+    "topbar": {
+      "toggleSidebar": "طي الشريط الجانبي للتنقل أو توسيعه. على الشاشات الصغيرة يفتح التنقل كطبقة فوق الصفحة.",
+      "server": "خادم Hugo الذي تتواصل معه وحدة التحكم هذه: {{url}}. تبيّن النقطة ما إذا كان فحص سلامته ناجحًا.",
+      "health": {
+        "healthy": "أجاب الخادم على فحص السلامة خلال آخر 30 ثانية.",
+        "unhealthy": "لم يُجب الخادم على فحص السلامة. ستفشل الطلبات من هذه الصفحة على الأرجح.",
+        "unknown": "بانتظار أول نتيجة لفحص السلامة من الخادم."
+      },
+      "copyServer": "نسخ عنوان URL للخادم، مثلًا لتهيئة SDK أو أمر curl.",
+      "switchTenant": "يستطيع مسؤولو النظام عرض أي مستأجر. تعرض كل صفحة بيانات المستأجر المحدد.",
+      "tenant": "أنت تعمل في المستأجر {{tenant}}. كل سجل تراه ينتمي إليه.",
+      "principal": "سجّلت الدخول باسم {{name}}. تُسجَّل الإجراءات التي تتخذها تحت هذه الهوية.",
+      "role": "أعلى مستوى وصول لديك في هذا المستأجر. يحدد الصفحات والإجراءات المتاحة.",
+      "liveOn": "متصل بتدفق أحداث الخادم، لذا تظهر الموافقات واستدعاءات الأدوات فور حدوثها.",
+      "liveOff": "لا يوجد اتصال مباشر. تستعلم الصفحات بشكل دوري بدلًا من ذلك، لذا قد تستغرق التغييرات بضع ثوانٍ لتظهر.",
+      "github": "فتح مستودع شيفرة Hugo المصدرية (AgentSmith) على GitHub في علامة تبويب جديدة، للاطلاع على التوثيق والمشكلات.",
+      "themeLight": "التبديل إلى نسق الألوان الفاتح. يُحفظ الاختيار في هذا المتصفح.",
+      "themeDark": "التبديل إلى نسق الألوان الداكن. يُحفظ الاختيار في هذا المتصفح.",
+      "logout": "تسجيل الخروج وإلغاء جلسة هذا المتصفح. ستحتاج إلى تسجيل الدخول مجددًا.",
+      "language": "تغيير لغة العرض. تتبع التواريخ والأرقام اللغة أيضًا، ويُحفظ الاختيار.",
+      "approvals_zero": "لا توجد موافقات ({{count}}) بانتظار شخص. افتح صندوق الموافقات.",
+      "approvals_one": "موافقة واحدة ({{count}}) بانتظار شخص. افتح صندوق الموافقات.",
+      "approvals_two": "موافقتان ({{count}}) بانتظار شخص. افتح صندوق الموافقات.",
+      "approvals_few": "{{count}} موافقات بانتظار شخص. افتح صندوق الموافقات.",
+      "approvals_many": "{{count}} موافقة بانتظار شخص. افتح صندوق الموافقات.",
+      "approvals_other": "{{count}} موافقة بانتظار شخص. افتح صندوق الموافقات.",
+      "lockdownOff": "إغلاق المستأجر: رفض كل استدعاء كتابة أو مدمّر من كل واجهة حتى ترفع الإغلاق.",
+      "lockdownOn": "المستأجر في حالة إغلاق. انقر لمراجعة الإغلاق ورفعه.",
+      "lockdownEngage": "رفض كل استدعاء غير قرائي في هذا المستأجر الآن وإلغاء الموافقات المعلّقة.",
+      "lockdownLift": "السماح باستدعاءات الكتابة والاستدعاءات المدمّرة مجددًا، وفق أوضاع الوصول والموافقات."
+    },
+    "login": {
+      "passwordTab": "تسجيل الدخول كشخص باستخدام المستأجر والبريد الإلكتروني وكلمة المرور.",
+      "keyTab": "تسجيل الدخول بمفتاح وصول ومفتاح سري، وهو الزوج نفسه الذي تستخدمه البرامج النصية وSDK.",
+      "serverUrl": "العنوان الأساسي لخادم Hugo، مثل http://127.0.0.1:8800 محليًا، أو عنوان هذه الصفحة نفسها خلف وكيل لوحة التحكم.",
+      "tenantId": "المستأجر الذي ينتمي إليه حسابك. المستأجر المحلي الافتراضي اسمه default.",
+      "email": "عنوان البريد الإلكتروني لحساب المستخدم الخاص بك في هذا المستأجر.",
+      "password": "كلمة مرور حسابك. تُرسل مرة واحدة للحصول على رمز جلسة ولا يخزنها تطبيق المتصفح أبدًا.",
+      "accessKey": "الجزء العام من مفتاح الوصول، ويبدأ بـ access_. أنشئ المفاتيح من الإدارة، بيانات الاعتماد.",
+      "secretKey": "الجزء الخاص من مفتاح الوصول. عُرض مرة واحدة عند إنشاء المفتاح أو تدويره.",
+      "submit": "التحقق من بيانات الاعتماد مع الخادم وفتح وحدة التحكم للمستأجر الخاص بك.",
+      "tenantSelect": "ينتمي بريدك الإلكتروني إلى أكثر من مستأجر. اختر المستأجر الذي تريد تسجيل الدخول إليه.",
+      "useDefaults": "تعبئة حساب المسؤول المحلي المُهيأ مسبقًا. يظهر فقط عندما يعمل الخادم على هذا الجهاز."
+    },
+    "table": {
+      "selectAll": "تحديد كل الصفوف في هذه الصفحة أو إلغاء تحديدها، مثلًا لحذفها معًا.",
+      "selectRow": "تحديد هذا الصف لإجراء جماعي مثل الحذف.",
+      "sortServer": "{{tip}} انقر لفرز القائمة كاملة حسب هذا العمود، وانقر مجددًا لعكس الترتيب.",
+      "sortPageOnly": "{{tip}} انقر لفرز صفوف هذه الصفحة فقط، إذ لا يستطيع الخادم الفرز حسب هذا العمود.",
+      "clearSelection": "إلغاء تحديد كل الصفوف المحددة دون تغيير أي شيء.",
+      "pageSize": "عدد الصفوف التي تُحمَّل في كل صفحة. تستغرق الصفحات الأكبر وقتًا أطول للتحميل. يُحفظ الاختيار لكل جدول.",
+      "first": "الانتقال إلى الصفحة الأولى من النتائج.",
+      "prev": "الرجوع صفحة واحدة من النتائج.",
+      "jump": "اكتب رقم صفحة بين 1 و{{total}} واضغط Enter للانتقال إليها مباشرة.",
+      "next": "التقدم صفحة واحدة من النتائج.",
+      "last": "الانتقال إلى الصفحة الأخيرة من النتائج.",
+      "refresh": "إعادة تحميل هذه القائمة من الخادم الآن، مع الإبقاء على الصفحة وعوامل التصفية والفرز.",
+      "autoRefresh": "إعادة تحميل هذه البيانات تلقائيًا وفق مؤقت. الإيقاف يُبقيها ثابتة أثناء القراءة.",
+      "selectColumns": "اختيار الأعمدة التي يعرضها الجدول. يُحفظ اختيارك لكل جدول في هذا المتصفح.",
+      "columnPinned": "يُعرض {{column}} دائمًا لأنه لا يمكن تمييز الصفوف بدونه.",
+      "columnToggle": "إظهار العمود {{column}} أو إخفاؤه. {{tip}}",
+      "actionsFor": "فتح إجراءات {{name}}: العرض والتعديل والنسخ وعرض JSON والحذف والإجراءات الخاصة بالسجل.",
+      "actionsMenu": "فتح الإجراءات المتاحة لهذا الصف.",
+      "actionsColumn": "إجراءات كل صف. انقر النقاط الثلاث للعرض أو التعديل أو النسخ أو فحص JSON أو الحذف.",
+      "search": "اكتب جزءًا من اسم لتضييق القائمة. يجري البحث على الخادم بعد توقفك عن الكتابة.",
+      "clearFilters": "إزالة نص البحث وكل عوامل التصفية وعرض القائمة الكاملة مجددًا.",
+      "bulkDelete": "حذف كل الصفوف المحددة. سيُطلب منك التأكيد أولًا."
+    },
+    "filters": {
+      "status": "عرض السجلات في هذه الحالة فقط. اختر الكل لإزالة عامل التصفية.",
+      "kind": "عرض السجلات من نوع واحد فقط. اختر الكل لإزالة عامل التصفية.",
+      "eventType": "عرض أحداث التدقيق من نوع واحد فقط، مثل محاولات تسجيل الدخول الفاشلة أو تغييرات الأسرار.",
+      "fromUtc": "عرض السجلات التي أُنشئت في هذا الوقت أو بعده فقط (بتوقيتك المحلي).",
+      "toUtc": "عرض السجلات التي أُنشئت قبل هذا الوقت فقط (بتوقيتك المحلي).",
+      "method": "عرض الطلبات التي استخدمت أسلوب HTTP هذا فقط.",
+      "statusCode": "عرض الطلبات التي أعادت رمز حالة HTTP هذا فقط، مثل 404 أو 500.",
+      "pathContains": "عرض الطلبات التي يحتوي مسارها على هذا النص فقط، مثل /agents.",
+      "tenantId": "عرض الطلبات التي جرت في هذا المستأجر فقط. اتركه فارغًا لكل المستأجرين.",
+      "apply": "تشغيل البحث بقيم عوامل التصفية أعلاه.",
+      "clear": "إعادة تعيين كل عوامل التصفية أعلاه إلى فارغة والبحث مجددًا.",
+      "effect": "عرض الاستدعاءات ذات هذا التأثير فقط: قراءة أو كتابة أو مدمّر.",
+      "agentProfileId": "عرض السجلات التابعة لملف تعريف وكيل واحد فقط. اختر الكل لإزالة عامل التصفية.",
+      "source": "عرض المحادثات التي بدأت من واجهة واحدة فقط.",
+      "userId": "عرض سجلات مستخدم واحد فقط. الصق معرّف مستخدم، وتتحدث القائمة عند توقفك عن الكتابة.",
+      "connectorType": "عرض موارد نوع موصّل واحد فقط، مثل SSH أو PostgreSQL.",
+      "environment": "عرض الموارد الموسومة بهذه البيئة فقط، مثل prod.",
+      "health": "عرض الموارد في حالة السلامة هذه فقط.",
+      "healthStatus": "عرض نقاط نهاية النماذج في حالة السلامة هذه فقط.",
+      "provider": "عرض نقاط نهاية النماذج لمزوّد واحد فقط.",
+      "surface": "عرض الاستدعاءات الصادرة من واجهة واحدة فقط: المحادثة أو MCP أو A2A أو المتوافقة مع OpenAI أو REST.",
+      "decision": "عرض الاستدعاءات ذات قرار الأمان هذا فقط، مثل مرفوض أو تتطلب موافقة.",
+      "resourceId": "عرض الاستدعاءات الموجهة إلى مورد واحد فقط.",
+      "toolName": "عرض الاستدعاءات لهذه الأداة فقط، مثل sql_query. تتحدث القائمة عند توقفك عن الكتابة.",
+      "principalId": "عرض سجلات جهة أمنية واحدة فقط. الصق معرّفًا، وتتحدث القائمة عند توقفك عن الكتابة.",
+      "principalType": "عرض جلسات المسؤولين أو المستخدمين أو بيانات الاعتماد فقط.",
+      "visibility": "عرض السجلات الخاصة أو السجلات على مستوى المستأجر فقط."
+    },
+    "form": {
+      "option": "تضمين {{option}} في {{field}}. تُحفظ الخيارات المحددة وتُستبعد غير المحددة.",
+      "reveal": "عرض القيمة المكتوبة كنص صريح لتتحقق منها قبل الحفظ.",
+      "hide": "إخفاء القيمة مجددًا حتى لا يتمكن من ينظر إلى شاشتك من قراءتها.",
+      "key": "مفتاح هذا الإدخال في {{field}}. يجب أن تكون المفاتيح فريدة داخل القائمة.",
+      "value": "قيمة هذا الإدخال في {{field}}. القوالب ومراجع الأسرار مسموح بها حيث يُشار إلى ذلك.",
+      "removeRow": "إزالة هذا الإدخال من القائمة. لا يُحفظ شيء حتى تنقر حفظ.",
+      "addRow": "إضافة إدخال مفتاح وقيمة فارغ إلى {{field}}.",
+      "moveUp": "نقل هذا العنصر مكانًا واحدًا إلى الأعلى. الترتيب مهم هنا، مثلًا في قوائم الوسائط.",
+      "moveDown": "نقل هذا العنصر مكانًا واحدًا إلى الأسفل. الترتيب مهم هنا، مثلًا في قوائم الوسائط.",
+      "removeItem": "إزالة هذا العنصر من القائمة. لا يُحفظ شيء حتى تنقر حفظ.",
+      "addItem": "إضافة عنصر جديد فارغ إلى {{field}} وتعبئة حقوله."
+    },
+    "actions": {
+      "openDetail": "فتح صفحة التفاصيل الكاملة لهذا السجل.",
+      "view": "فتح هذا السجل للقراءة فقط لرؤية كل الحقول دون خطر تغييرها.",
+      "edit": "فتح هذا السجل في نموذج لتغييره. تُطبَّق التغييرات عند النقر على حفظ.",
+      "duplicate": "بدء سجل جديد معبأ مسبقًا بقيم هذا السجل واسم ينتهي بـ -copy. لا يُنشأ شيء حتى تحفظ.",
+      "viewJson": "عرض JSON الخام تمامًا كما تعيده API، لتصحيح الأخطاء أو النسخ إلى البرامج النصية.",
+      "delete": "حذف هذا السجل نهائيًا. سيُطلب منك التأكيد، ولا يمكن التراجع عن ذلك.",
+      "add": "إنشاء سجل جديد من هذا النوع في نموذج.",
+      "switchToEdit": "تحويل طريقة العرض هذه للقراءة فقط إلى نموذج قابل للتعديل.",
+      "retryLoad": "محاولة تحميل هذه البيانات من الخادم مجددًا.",
+      "dismiss": "إخفاء هذه الرسالة. تعود إذا تكررت المشكلة."
+    },
+    "modal": {
+      "close": "إغلاق هذه النافذة. لا يتغير شيء على الخادم.",
+      "dismiss": "إغلاق هذه النافذة دون حفظ. يمكنك أيضًا الضغط على Escape.",
+      "cancelForm": "إغلاق النموذج وتجاهل التغييرات غير المحفوظة.",
+      "back": "الانتقال إلى الخطوة السابقة من النموذج. تُحفظ القيم التي أدخلتها.",
+      "next": "الانتقال إلى الخطوة التالية من النموذج. لا يُحفظ شيء حتى تنقر حفظ.",
+      "saveEdit": "حفظ تغييراتك على هذا السجل. يتحقق الخادم منها ويبلغ عن أي حقل يحتاج إلى انتباه.",
+      "saveCreate": "إنشاء السجل بهذه القيم. يتحقق الخادم منها ويبلغ عن أي حقل يحتاج إلى انتباه.",
+      "saveValue": "إرسال القيمة إلى الخادم. تُشفَّر عند وصولها ولا تُعرض مجددًا أبدًا."
+    },
+    "confirm": {
+      "delete": "نعم، احذف هذا السجل نهائيًا.",
+      "bulkDelete": "نعم، احذف كل السجلات المحددة نهائيًا.",
+      "cancel": "الرجوع دون فعل أي شيء.",
+      "danger": "تنفيذ هذا الإجراء المدمّر. لا يمكن التراجع عنه.",
+      "confirm": "تنفيذ الإجراء الموضح أعلاه."
+    },
+    "copy": {
+      "id": "نسخ معرّف السجل إلى الحافظة، لاستخدامه مع REST API أو SDK أو عوامل التصفية.",
+      "value": "نسخ هذه القيمة إلى الحافظة.",
+      "block": "نسخ الكتلة كاملة إلى الحافظة، جاهزة للصق في طرفية أو ملف.",
+      "done": "تم النسخ إلى الحافظة."
+    },
+    "chart": {
+      "ranges": {
+        "hour": "عرض آخر 60 دقيقة، بفترات مدتها دقيقة واحدة.",
+        "day": "عرض آخر 24 ساعة. يُضبط حجم الفترات ليبقى المخطط مقروءًا.",
+        "week": "عرض آخر 7 أيام. يُضبط حجم الفترات ليبقى المخطط مقروءًا.",
+        "month": "عرض آخر 30 يومًا. يُضبط حجم الفترات ليبقى المخطط مقروءًا.",
+        "custom": "اختر وقت البداية والنهاية بنفسك. يرفض الخادم النطاقات الطويلة جدًا."
+      },
+      "refresh": "إعادة تحميل بيانات المخطط من الخادم الآن.",
+      "tenant": "عرض نشاط الطلبات لمستأجر واحد أو لكل المستأجرين على الخادم."
+    },
+    "badges": {
+      "active": "نشط: هذا السجل قيد الاستخدام.",
+      "inactive": "غير نشط: يُحفظ هذا السجل لكنه يُتجاهل حتى يُعاد تفعيله.",
+      "builtIn": "مدمج: يأتي مع Hugo وهو للقراءة فقط. انسخه لإنشاء إصدار يمكنك تعديله.",
+      "custom": "مخصص: أُنشئ في هذا المستأجر، لذا يمكن تعديله وحذفه.",
+      "systemAdmin": "مسؤول النظام: يستطيع إدارة كل المستأجرين ويتجاوز فحوص التفويض.",
+      "tenantAdmin": "مسؤول المستأجر: يستطيع إدارة كل شيء داخل هذا المستأجر.",
+      "user": "مستخدم عادي: يأتي الوصول من تعيينات الأدوار فقط.",
+      "role": "يمنح هذا التعيين الدور {{role}} وكل الأذونات التي يتضمنها.",
+      "defaultProfile": "ملف التعريف الافتراضي للمستأجر: يحصل عليه المستدعون الذين لا يحددون ملف تعريف.",
+      "expiringSoon": "تنتهي صلاحية هذا السر خلال 14 يومًا. استبدل قيمه أو مدّد صلاحيته قبل أن تتوقف الموارد عن العمل.",
+      "lockdown": "هذا المستأجر في حالة إغلاق: لا يُسمح إلا باستدعاءات القراءة حتى يرفع مسؤول المستأجر الإغلاق.",
+      "locked": "مقفل على ملف تعريفه: لا تستطيع بيانات الاعتماد العمل إلا بصفة ملف التعريف المربوط، أيًا كان ما يطلبه المستدعي."
+    },
+    "permissions": {
+      "source": "الدور الذي يأتي منه هذا المنح. أصلح الوصول بتغيير ذلك الدور أو التعيين الذي يمنحه.",
+      "type": "السماح يمنح العمليات، والرفض يحظرها حتى عندما يسمح بها دور آخر.",
+      "resources": "أنواع السجلات التي يشملها هذا المنح، مثل المورد أو السر أو ملف تعريف الوكيل.",
+      "operations": "ما يمكن فعله بتلك السجلات، مثل القراءة أو الإنشاء أو التنفيذ.",
+      "scope": "نطاق المستأجر يشمل كل سجل من النوع، ونطاق المورد يشمل سجلًا محددًا واحدًا."
+    },
+    "secretOnce": {
+      "accessKey": "مفتاح الوصول العام. يعرّف بيانات الاعتماد وتخزينه في الإعدادات آمن.",
+      "secretKey": "المفتاح السري. هذه هي المرة الوحيدة التي يُعرض فيها، فانسخه الآن إلى مدير كلمات المرور أو مخزن الأسرار.",
+      "done": "إغلاق هذه النافذة. لا يمكن استرداد المفتاح السري لاحقًا، بل يمكن تدويره فقط.",
+      "snippet": "إعدادات عميل MCP جاهزة للصق تستخدم مفتاح الوصول هذا. يُقرأ المفتاح السري من متغير بيئة."
+    },
+    "enums": {
+      "promptTemplateKind": {
+        "System": "موجّه نظام: التعليمات الدائمة التي تهيئ الوكيل.",
+        "Task": "موجّه مهمة: يغلّف رسالة المستدعي فيما يتلقاه الوكيل.",
+        "Fragment": "جزء قابل لإعادة الاستخدام تضمّنه قوالب أخرى عبر {{> name}}.",
+        "ToolDescription": "نص يصف وكيلًا كأداة MCP أو مهارة A2A.",
+        "ConfigFile": "محتوى ملف إعدادات مُولَّد، مثل إعدادات MCP.",
+        "Other": "أي نص آخر يدرجه Hugo في التعليمات."
+      },
+      "permissionType": {
+        "Permit": "سماح: يتيح العمليات المذكورة.",
+        "Deny": "رفض: يحظر العمليات المذكورة، حتى عندما يسمح بها إذن آخر."
+      },
+      "effect": {
+        "Read": "قراءة: يطّلع على البيانات دون تغيير أي شيء، مثل SELECT أو عرض الملفات.",
+        "Write": "كتابة: يغيّر شيئًا يمكن إعادته، مثل INSERT أو رفع ملف.",
+        "Destructive": "مدمّر: يحذف أو يُسقط أو يعيد التشغيل، أو لا يمكن التراجع عنه بطريقة أخرى. ينتظر الموافقة افتراضيًا."
+      },
+      "accessMode": {
+        "ReadOnly": "قراءة فقط: يستطيع الوكيل الاطلاع، لكن أدوات الكتابة والأدوات المدمّرة لا تُعرض أصلًا.",
+        "ReadWriteWithApproval": "قراءة وكتابة مع موافقة: ينتظر كل استدعاء كتابة أو مدمّر قرار شخص.",
+        "ReadWrite": "قراءة وكتابة: تُنفَّذ عمليات الكتابة مباشرة، وتبقى الاستدعاءات المدمّرة بانتظار الموافقة ما لم يُلغِ الربط ذلك."
+      },
+      "approvalStatus": {
+        "Pending": "معلّقة: بانتظار شخص ليوافق عليها أو يرفضها.",
+        "Approved": "موافق عليها: سمح شخص بالاستدعاء ونُفّذ.",
+        "Rejected": "مرفوضة: رفض شخص الاستدعاء، وأُبلغ الوكيل بذلك.",
+        "Expired": "منتهية: لم يتخذ أحد قرارًا في الوقت المحدد، فرُفض الاستدعاء.",
+        "Cancelled": "ملغاة: انتهى الدور أو أُغلق المستأجر قبل اتخاذ قرار."
+      },
+      "toolDecision": {
+        "Allowed": "مسموح: سمح وضع الوصول بتنفيذ الاستدعاء دون سؤال.",
+        "Denied": "مرفوض: رفض وضع الوصول أو قاعدة أداة أو الإغلاق الاستدعاء.",
+        "ApprovalRequired": "تتطلب موافقة: انتظر الاستدعاء قرار شخص.",
+        "Approved": "موافق عليه: سمح شخص بالاستدعاء.",
+        "Rejected": "مرفوض: رفض شخص الاستدعاء.",
+        "Expired": "منتهٍ: لم يتخذ أحد قرارًا في الوقت المحدد."
+      },
+      "toolStatus": {
+        "Succeeded": "نجح: نُفّذت الأداة وأعادت نتيجة.",
+        "Failed": "فشل: أعادت الأداة أو النظام المستهدف خطأ.",
+        "TimedOut": "انتهت المهلة: لم تنتهِ الأداة ضمن مهلتها.",
+        "Cancelled": "ملغى: أُوقف الدور أثناء تشغيل الأداة."
+      },
+      "healthStatus": {
+        "Healthy": "سليم: وصل آخر فحص إلى النظام وأجاب بشكل طبيعي.",
+        "Degraded": "متدهور: أجاب النظام، لكن ببطء أو مع تحذيرات.",
+        "Unhealthy": "غير سليم: تعذّر على آخر فحص الوصول إلى النظام أو أجاب بخطأ.",
+        "Unknown": "لم يُفحص بعد: لم يُجرَ أي اختبار اتصال أو فحص سلامة."
+      },
+      "secretKind": {
+        "Password": "كلمة مرور، مع اسم المستخدم الخاص بها اختياريًا.",
+        "PrivateKey": "مفتاح خاص لـ SSH أو TLS، مع عبارة المرور الخاصة به اختياريًا.",
+        "ApiToken": "رمز API أو رمز bearer صادر عن خدمة.",
+        "AccessKeyPair": "معرّف مفتاح وصول ومفتاح وصول سري، مثل مفاتيح AWS.",
+        "ServiceAccountJson": "ملف مفتاح حساب خدمة سحابية بصيغة JSON، مثل Google Cloud.",
+        "Kubeconfig": "ملف kubeconfig لـ Kubernetes يتضمن بيانات اعتماد المجموعة والمستخدم.",
+        "ConnectionString": "سلسلة اتصال كاملة تتضمن بيانات الاعتماد.",
+        "Certificate": "شهادة مع مفتاحها الخاص، لـ TLS المتبادل.",
+        "Generic": "أي قيمة سرية مفردة أخرى."
+      },
+      "connectorCategory": {
+        "Compute": "مضيفات وأجهزة يُوصل إليها عبر SSH أو ما شابه.",
+        "Storage": "تخزين الكائنات مثل S3 وAzure Blob وGoogle Cloud Storage.",
+        "Database": "قواعد بيانات SQL وغيرها.",
+        "Logging": "خدمات السجلات مثل Papertrail وLoki.",
+        "Cache": "ذاكرات التخزين المؤقت مثل Redis.",
+        "Cloud": "مستويات التحكم السحابية مثل AWS.",
+        "Orchestration": "تنسيق الحاويات مثل Kubernetes وDocker.",
+        "Observability": "المقاييس والمراقبة مثل Prometheus وSolarWinds.",
+        "Http": "واجهات HTTP API عامة.",
+        "Agent": "وكلاء آخرون يُوصل إليهم عبر MCP أو A2A.",
+        "Other": "موصّلات لا تندرج تحت أي فئة أخرى."
+      },
+      "surface": {
+        "Chat": "محادثة لوحة التحكم مع حلقة الوكيل الخاصة بـ Hugo.",
+        "Mcp": "أجرى الاستدعاء عميل MCP مثل Claude Code.",
+        "A2A": "استدعى وكيل آخر ملف التعريف هذا عبر A2A.",
+        "OpenAI": "تواصل عميل متوافق مع OpenAI مع ملف التعريف.",
+        "Rest": "استدعاء أداة مباشر عبر REST أو SDK."
+      },
+      "modelKind": {
+        "Inference": "يولّد الإجابات واستدعاءات الأدوات.",
+        "Embedding": "يحوّل النص إلى متجهات للاسترجاع."
+      },
+      "visibility": {
+        "Private": "لا يستطيع استخدامه إلا المالك.",
+        "Tenant": "يستطيع استخدامه كل من لديه وصول في المستأجر."
+      },
+      "auditEventType": {
+        "AuthorizationDenied": "حاولت جهة أمنية تنفيذ شيء لا تسمح به أذوناتها.",
+        "SecretRevealed": "كشف أحدهم النص الصريح لسر، مع ذكر السبب.",
+        "LockdownChanged": "فعّل مسؤول مستأجر الإغلاق أو عطّله.",
+        "HostKeyMismatch": "قدّم مضيف SSH مفتاحًا مختلفًا عن المفتاح المثبّت، فرُفض الاتصال."
+      }
+    },
+    "resources": {
+      "tenants": {
+        "add": "إنشاء مستأجر جديد: مساحة معزولة لها مستخدموها ومواردها وأسرارها وملفات تعريفها.",
+        "name": "اسم العرض للمستأجر. يختار الأشخاص المستأجر بمعرّفه عند تسجيل الدخول.",
+        "description": "لمن أو لماذا هذا المستأجر، مثل فريق أو عميل.",
+        "active": "لا يمكن للمستأجرين غير النشطين تسجيل الدخول أو استدعاء الأدوات. تُحفظ بياناتهم.",
+        "region": "تسمية منطقة اختيارية لهذا المستأجر، لأغراض التنظيم الخاصة بك.",
+        "lockdown": "يرفض المستأجر المغلق كل استدعاء ليس قراءة."
+      },
+      "users": {
+        "add": "إنشاء شخص يسجّل الدخول بالبريد الإلكتروني وكلمة المرور. امنحه الوصول بعد ذلك عبر تعيين دور.",
+        "email": "العنوان الذي يسجّل به الشخص الدخول. فريد داخل المستأجر.",
+        "name": "الاسم الأول واسم العائلة، ويظهران في سجلات التدقيق والقوائم.",
+        "role": "مستوى الإدارة للحساب. يحصل المستخدمون العاديون على الوصول عبر تعيينات الأدوار.",
+        "password": "كلمة مرور تسجيل الدخول. عند التعديل، اتركها فارغة للإبقاء على كلمة المرور الحالية.",
+        "firstName": "الاسم الأول، ويظهر في القوائم وسجلات التدقيق.",
+        "lastName": "اسم العائلة، ويظهر في القوائم وسجلات التدقيق.",
+        "isTenantAdmin": "يستطيع مسؤولو المستأجر إدارة كل شيء داخل هذا المستأجر، بما في ذلك المستخدمون والأسرار.",
+        "isAdmin": "يدير مسؤولو النظام كل المستأجرين ويتجاوزون التفويض. امنح هذه الصلاحية بحذر.",
+        "active": "لا يمكن للمستخدمين غير النشطين تسجيل الدخول، وتتوقف مفاتيح الوصول الخاصة بهم عن العمل.",
+        "actions": {
+          "permissions": "عرض كل الأذونات التي يحصل عليها هذا المستخدم بعد دمج كل الأدوار والتعيينات.",
+          "resetPassword": "تعيين كلمة مرور مؤقتة، ويجب على المستخدم تغييرها عند تسجيل الدخول التالي.",
+          "assignRole": "فتح التعيينات مصفّاة على هذا المستخدم لمنحه دورًا."
+        },
+        "mustChangePassword": "يجب على المستخدم اختيار كلمة مرور جديدة عند تسجيل الدخول التالي."
+      },
+      "credentials": {
+        "add": "إنشاء مفتاح وصول لبرنامج نصي أو SDK أو خدمة. يُعرض السر مرة واحدة بعد الحفظ.",
+        "name": "الغرض من هذا المفتاح، مثل claude-code-laptop. يساعدك على إيجاده قبل تدويره أو حذفه.",
+        "accessKey": "الجزء العام من المفتاح، ويُرسل مع كل طلب. تخزينه في الإعدادات آمن.",
+        "secretKeyLast4": "آخر أربعة أحرف من السر، لتتمكن من مطابقة المفتاح دون رؤيته.",
+        "userId": "المستخدم الذي يملك هذا المفتاح. لا يمكن للمفتاح أن يتجاوز صلاحيات مالكه أبدًا.",
+        "lastUsedUtc": "آخر وقت صادق فيه المفتاح على طلب. التواريخ القديمة تشير إلى مفاتيح غير مستخدمة يمكنك حذفها.",
+        "authMode": "طريقة مصادقة المفتاح: يُرسل مباشرة، أو يُوقّع لكل طلب، أو يُستبدل بجلسة، أو أي من ذلك (مختلط).",
+        "expiresUtc": "يتوقف المفتاح عن العمل بعد هذا الوقت. اتركه فارغًا لمفتاح لا تنتهي صلاحيته.",
+        "active": "تُرفض المفاتيح غير النشطة لكنها تُحفظ، لتتمكن من إعادة تفعيلها.",
+        "actions": {
+          "rotate": "استبدال السر بسر جديد. يتوقف السر القديم عن العمل فورًا، ويُعرض الجديد مرة واحدة.",
+          "permissions": "عرض كل الأذونات التي يحصل عليها هذا المفتاح بعد دمج مالكه وأدواره وتعييناته.",
+          "scopes": "فتح تعيينات نطاق بيانات الاعتماد مصفّاة على بيانات الاعتماد هذه."
+        },
+        "agentProfileId": "ملف التعريف الذي تعمل بيانات الاعتماد هذه بصفته افتراضيًا. ينبغي أن تستخدم أدوات التشغيل بيانات اعتماد مربوطة.",
+        "lockToProfile": "عند التفعيل، لا تستطيع بيانات الاعتماد العمل إلا بصفة ملف التعريف المربوط، أيًا كان ما يطلبه المستدعي."
+      },
+      "roles": {
+        "add": "إنشاء دور مخصص، ثم إضافة أذونات إليه وتعيينه لمستخدمين أو مفاتيح.",
+        "name": "الاسم الذي يراه الأشخاص عند تعيين الدور، مثل مشغّل الإصدارات.",
+        "description": "الغرض من الدور ومن ينبغي أن يحصل عليه.",
+        "active": "الأدوار غير النشطة لا تمنح شيئًا، حتى حيث تكون معيّنة.",
+        "actions": {
+          "clone": "إنشاء نسخة قابلة للتعديل من هذا الدور المدمج يمكنك ضبطها."
+        }
+      },
+      "permissions": {
+        "add": "إنشاء قاعدة تسمح بعمليات على أنواع الموارد أو ترفضها.",
+        "name": "اسم قصير للقاعدة، يظهر عند بناء الأدوار.",
+        "permissionType": "السماح يتيح العمليات أدناه. الرفض يحظرها ويتغلب دائمًا على السماح.",
+        "resourceTypes": "أنواع السجلات التي تشملها القاعدة. الكل يشمل كل الأنواع.",
+        "operationTypes": "العمليات التي تشملها القاعدة، مثل القراءة أو الإنشاء أو التنفيذ (الاستدعاء).",
+        "active": "الأذونات غير النشطة ليس لها أي أثر."
+      },
+      "userAssignments": {
+        "add": "منح مستخدم دورًا، على مستوى المستأجر كله أو لسجل محدد واحد.",
+        "userId": "الشخص الذي يحصل على الدور.",
+        "roleName": "الدور الممنوح. يحصل الشخص على كل الأذونات التي يتضمنها.",
+        "roleId": "الدور المراد منحه. يحصل الشخص على كل الأذونات التي يتضمنها.",
+        "resourceScope": "المستأجر يطبّق الدور على كل سجل. المورد يقصره على السجل الواحد المحدد أدناه.",
+        "resourceId": "معرّف السجل الواحد الذي ينطبق عليه الدور، مثل معرّف وكيل.",
+        "inheritsToChildren": "تطبيق الدور على كل سجل في المستأجر، بما في ذلك السجلات التي تُنشأ لاحقًا.",
+        "active": "التعيينات غير النشطة لا تمنح شيئًا لكنها تُحفظ."
+      },
+      "credentialAssignments": {
+        "add": "منح مفتاح وصول دورًا، على مستوى المستأجر كله أو لسجل محدد واحد.",
+        "credentialId": "مفتاح الوصول الذي يحصل على الدور. لا يمكنه مع ذلك تجاوز صلاحيات مالكه.",
+        "roleName": "الدور الممنوح للمفتاح.",
+        "roleId": "الدور المراد منحه. اختر أضيق دور يتيح للأتمتة أداء عملها.",
+        "resourceScope": "المستأجر يطبّق الدور على كل سجل. المورد يقصره على السجل الواحد المحدد أدناه.",
+        "resourceId": "معرّف السجل الواحد الذي ينطبق عليه الدور، مثل الوكيل الوحيد الذي يجوز لمهمة CI استدعاؤه.",
+        "inheritsToChildren": "تطبيق الدور على كل سجل في المستأجر، بما في ذلك السجلات التي تُنشأ لاحقًا.",
+        "active": "التعيينات غير النشطة لا تمنح شيئًا لكنها تُحفظ."
+      },
+      "promptTemplates": {
+        "actions": {
+          "clone": "نسخ هذا القالب باسم جديد تختاره، ثم فتح النسخة في المحرر."
+        },
+        "add": "كتابة قالب موجّه جديد في المحرر مع معاينة مباشرة. يصبح كل حفظ إصدارًا.",
+        "name": "اسم القالب، فريد في المستأجر. تشير عمليات التضمين إلى القوالب بأسمائها.",
+        "kind": "استخدام القالب: موجّه نظام، أو مغلّف مهمة، أو جزء، أو وصف أداة، أو ملف إعدادات.",
+        "currentVersion": "أحدث إصدار محفوظ. يحتفظ كل حفظ بالنص السابق كإصدار يمكنك استعادته.",
+        "description": "ما يفعله القالب وأين يُستخدم."
+      },
+      "audit": {
+        "createdUtc": "وقت وقوع الحدث، بتوقيتك المحلي.",
+        "eventType": "نوع حدث الأمان أو الإعدادات.",
+        "principalName": "من قام به: مسؤول أو مستخدم أو مفتاح وصول.",
+        "resource": "نوع السجل والعملية المعنية، مثل Agent / Read.",
+        "reason": "سبب وقوع الحدث أو سبب رفض الوصول.",
+        "sourceIp": "عنوان الشبكة الذي جاء منه الطلب.",
+        "principalType": "ما إذا كان الفاعل مسؤولًا أو مستخدمًا أو مفتاح وصول.",
+        "principalId": "معرّف المسؤول أو المستخدم أو مفتاح الوصول الذي تصرّف.",
+        "resourceType": "نوع السجل المعني، مثل Agent أو Secret.",
+        "resourceId": "معرّف السجل المعني.",
+        "operation": "العملية التي جرت محاولتها، مثل Read أو Execute.",
+        "method": "أسلوب HTTP للطلب.",
+        "path": "مسار الطلب الذي تسبب في الحدث.",
+        "authResult": "نتيجة التحقق من هوية المستدعي.",
+        "authorizationResult": "نتيجة التحقق مما يُسمح للمستدعي بفعله.",
+        "bypassReason": "سبب تخطي التفويض، مثل كون المستدعي مسؤول نظام.",
+        "statusCode": "حالة HTTP المُعادة إلى المستدعي.",
+        "requestId": "معرّف الطلب. استخدمه للبحث في سجل الطلبات أو سجلات الخادم."
+      },
+      "approvals": {
+        "bulkReject": "رفض كل الموافقات المحددة دفعة واحدة. يُبلَّغ كل مستدعٍ بأن إجراءه رُفض.",
+        "summary": "الإجراء الدقيق الذي ينتظر الموافقة، مثل تشغيل أمر على مضيف.",
+        "effect": "كيف صُنّف الاستدعاء: الكتابة تغيّر شيئًا، والمدمّر يحذف أو يعيد التشغيل.",
+        "status": "المعلّقة تنتظر شخصًا، والحالات الأخرى نهائية.",
+        "agentProfileId": "ملف التعريف الذي تطلّب ربطه الموافقة.",
+        "requestedBy": "الجهة الأمنية (مستخدم أو بيانات اعتماد أو تشغيل وكيل) التي أجرت الاستدعاء.",
+        "createdUtc": "وقت اقتراح الوكيل للاستدعاء.",
+        "expiresUtc": "وقت انتهاء الطلب إذا لم يتخذ أحد قرارًا. تُرفض الاستدعاءات المنتهية.",
+        "decidedBy": "من وافق على الاستدعاء أو رفضه.",
+        "decisionNote": "الملاحظة التي تركها صاحب القرار مع قراره.",
+        "fromUtc": "عرض الموافقات المطلوبة في هذا الوقت أو بعده.",
+        "actions": {
+          "decide": "فتح بطاقة الموافقة للموافقة على هذا الاستدعاء أو رفضه مع ملاحظة.",
+          "invocation": "فتح سجل استدعاء الأداة المرتبط بهذه الموافقة."
+        }
+      },
+      "bindings": {
+        "resourceId": "المورد الذي يربطه هذا الربط. يمكن ربط مورد واحد بملفات تعريف عديدة.",
+        "alias": "الاسم الذي يستخدمه الوكيل لهذا المورد في استدعاءات الأدوات والتعليمات، مثل prod-db.",
+        "accessMode": "قراءة فقط، أو قراءة وكتابة مع موافقة على الاستدعاءات الخطرة، أو قراءة وكتابة. يحدد ما يُسمح للوكيل بفعله.",
+        "requireApprovalForDestructive": "حتى في وضع القراءة والكتابة، تنتظر الاستدعاءات المدمّرة (الحذف وإعادة التشغيل والإسقاط) قرار شخص. مفعّل افتراضيًا.",
+        "instructionMode": "الوراثة تستخدم تعليمات الموصّل والمورد، والإلحاق يضيف نصك، والاستبدال يستخدم نصك فقط.",
+        "instructionText": "تعليمات إضافية أو بديلة لهذا المورد في ملف التعريف هذا، مثل المخططات المهمة.",
+        "maxOutputBytes": "حد أقصى لمخرجات الأدوات من هذا المورد، أضيق من الافتراضي للموصّل. اتركه فارغًا للقيمة الافتراضية.",
+        "maxRows": "حد أقصى للصفوف التي تعيدها الاستعلامات على هذا المورد. اتركه فارغًا للقيمة الافتراضية للموصّل.",
+        "enabled": "تُحفظ الروابط المعطّلة لكنها تُخفى عن الوكيل، كأن المورد غير مربوط."
+      },
+      "models": {
+        "apiKeySecretId": "السر الذي يحمل مفتاح API أو بيانات اعتماد هذا المزوّد. يُخزَّن مشفرًا ولا يُعرض على النموذج أبدًا.",
+        "add": "إضافة نقطة نهاية نموذج استدلال أو تضمين لحلقة الوكيل الخاصة بـ Hugo.",
+        "kind": "نماذج الاستدلال تجيب على أدوار المحادثة، ونماذج التضمين تحوّل النص إلى متجهات للاسترجاع.",
+        "provider": "واجهة API التي تتحدث بها نقطة النهاية. المتوافق مع OpenAI يشمل vLLM وLM Studio والخوادم المشابهة.",
+        "baseUrl": "مكان استماع واجهة API للمزوّد، مثل http://127.0.0.1:11434 لـ Ollama محلي.",
+        "model": "اسم النموذج لدى المزوّد، مثل llama3.1 أو gpt-4o أو claude-sonnet.",
+        "apiKey": "مفتاح API للمزوّد. يُخزَّن كسر مشفّر وتشير إليه نقطة النهاية.",
+        "region": "المنطقة السحابية للمزوّدين الذين يحتاجون إليها، مثل Bedrock أو Vertex.",
+        "deploymentName": "نشر Azure OpenAI الذي يقدّم النموذج.",
+        "apiVersion": "إصدار API الخاص بـ Azure OpenAI المراد استدعاؤه.",
+        "contextWindowTokens": "عدد الرموز التي يقبلها النموذج. يضغط Hugo السجل قبل بلوغ هذا الحد.",
+        "maxOutputTokens": "الحد الأعلى للرموز التي يمكن للنموذج إنتاجها في إجابة واحدة.",
+        "embeddingDimensions": "حجم المتجه الذي ينتجه نموذج التضمين. يُعبّأ عبر التحقق إذا تُرك فارغًا.",
+        "supportsTools": "ما إذا كان النموذج قادرًا على استدعاء الأدوات. تحتاج المحادثة إلى ذلك لأي شيء يتجاوز الإجابات البسيطة.",
+        "supportsStreaming": "ما إذا كان يمكن بث الإجابات رمزًا تلو الآخر.",
+        "maxConcurrency": "عدد الطلبات التي يرسلها Hugo إلى نقطة النهاية هذه في الوقت نفسه.",
+        "timeoutSeconds": "المدة التي يمكن أن يستغرقها طلب نموذج واحد قبل أن يفشل.",
+        "maxRetries": "عدد مرات إعادة محاولة الطلب الفاشل قبل الاستسلام.",
+        "healthStatus": "نتيجة آخر تحقق أو فحص سلامة في الخلفية.",
+        "lastHealthUtc": "آخر وقت فُحصت فيه نقطة النهاية.",
+        "sections": {
+          "endpoint": "المزوّد والنموذج، وكيفية الوصول إليه.",
+          "capabilities": "ما يستطيع النموذج فعله وكمية النص التي يعالجها.",
+          "limits": "التزامن والمهل وإعادة المحاولات للاستدعاءات الموجهة إلى نقطة النهاية هذه."
+        },
+        "actions": {
+          "validate": "إرسال موجّه صغير (أو تضمين نص قصير) وتسجيل زمن الاستجابة والنتيجة.",
+          "listModels": "سؤال المزوّد عن النماذج التي يوفرها، حيث يدعم المزوّد ذلك."
+        }
+      },
+      "resources": {
+        "name": "اسم فريد لهذا المورد في المستأجر. تستخدمه الروابط كاسم مستعار افتراضي يراه الوكيل.",
+        "connectorType": "نوع النظام (SSH أو PostgreSQL أو S3 وغيرها). يحدد الإعدادات والأسرار والأدوات.",
+        "environment": "وسم حر مثل prod أو staging. يراه الوكيل، مما يساعده على التعامل مع بيئة الإنتاج بحذر.",
+        "add": "إضافة اتصال بنظام: اختر موصّلًا، واملأ إعداداته، واختر أسراره، واختبره.",
+        "displayName": "اسم ودّي اختياري للأشخاص. يستخدم الوكيل الاسم أو الاسم المستعار للربط.",
+        "visibility": "الموارد الخاصة يستخدمها مالكها، وموارد المستأجر يستخدمها كل ملف تعريف في المستأجر.",
+        "defaultAccessModeCeiling": "أقصى ما يمكن أن يمنحه ربط على هذا المورد. اتركه فارغًا للسماح بأي وضع وصول.",
+        "endpoint": "ملخص قصير لمكان وجود المورد. قابل للبحث، ويُعرض على الوكيل.",
+        "description": "ماهية هذا المورد، للأشخاص الذين يقرؤون القائمة.",
+        "notes": "ملاحظات المشغّل التي يتلقاها الوكيل في تعليماته، مثل الجداول المهمة أو ما لا يجب لمسه أبدًا.",
+        "health": "نتيجة آخر اختبار اتصال أو مسح سلامة.",
+        "lastTestUtc": "آخر وقت اختُبر فيه الاتصال.",
+        "sections": {
+          "general": "الاسم والبيئة والملاحظات التي يقرؤها الوكيل.",
+          "connector": "الموصّل وإعداداته وأسراره."
+        },
+        "actions": {
+          "test": "اختبار الإعدادات والأسرار المحفوظة مقابل النظام الحقيقي الآن.",
+          "tryTool": "تشغيل تجريبي ثم تنفيذ إحدى أدوات هذا المورد بصفة ملف تعريف مختار.",
+          "referrers": "عرض ملفات التعريف والروابط التي تستخدم هذا المورد."
+        }
+      },
+      "secrets": {
+        "name": "اسم فريد لهذا السر في المستأجر. تختاره الموارد ونقاط نهاية النماذج بالاسم.",
+        "kind": "ما يحمله السر. يحدد النوع الحقول التي يتضمنها وخانات الموصّلات التي تقبله.",
+        "saveValue": "تشفير القيم الجديدة وتخزينها. الحقول المتروكة فارغة تحتفظ بقيمها المخزنة.",
+        "add": "تخزين سر جديد: اختر نوعه واملأ القيم، أو استوردها من ملف.",
+        "description": "الغرض من السر ومن يملكه. لا تضع قيمًا سرية هنا أبدًا.",
+        "expiresUtc": "وقت توقف بيانات الاعتماد عن العمل، ليتمكن Hugo من التنبيه قبل انتهاء صلاحيتها.",
+        "fingerprint": "تلميح غير قابل للعكس، مثل الأحرف الأخيرة أو بصمة مفتاح SSH، للتمييز بين الأسرار.",
+        "referrerCount": "عدد الموارد ونقاط نهاية النماذج التي تستخدم هذا السر.",
+        "lastRotatedUtc": "آخر وقت استُبدلت فيه القيم.",
+        "lastRevealedUtc": "آخر وقت كشف فيه أحدهم النص الصريح عبر الكشف الخاضع للتدقيق.",
+        "sections": {
+          "values": "القيم السرية لهذا النوع. تُشفَّر قبل تخزينها."
+        },
+        "actions": {
+          "replaceValues": "استبدال بعض القيم أو كلها، والحقول التي تتركها فارغة تحتفظ بقيمها المخزنة.",
+          "reveal": "عرض القيم كنص صريح بعد ذكر السبب وإعادة إدخال كلمة المرور. يخضع للتدقيق.",
+          "referrers": "عرض الموارد ونقاط نهاية النماذج التي تستخدم هذا السر."
+        }
+      },
+      "toolInvocations": {
+        "trace": "فتح التتبع الموزّع لهذا الاستدعاء في Grafana Tempo في علامة تبويب جديدة.",
+        "createdUtc": "وقت إجراء الاستدعاء. مرّر المؤشر لرؤية الوقت بدقة.",
+        "toolName": "الأداة التي استُدعيت، مثل sql_query أو ssh_exec.",
+        "resourceId": "المورد (الاسم المستعار للربط) الذي نُفّذ عليه الاستدعاء.",
+        "effect": "كيف صُنّف الاستدعاء: قراءة أو كتابة أو مدمّر.",
+        "decision": "ما قررته منظومة الأمان: مسموح، أو مرفوض، أو أُرسل للموافقة مع نتيجتها.",
+        "status": "كيف انتهى الاستدعاء: نجح أو فشل أو انتهت مهلته أو أُلغي.",
+        "durationMs": "المدة التي استغرقها الاستدعاء على الخادم.",
+        "surface": "الواجهة التي أجرت الاستدعاء: المحادثة أو MCP أو A2A أو المتوافقة مع OpenAI أو REST.",
+        "agentProfileId": "ملف التعريف الذي تصرّف المستدعي بصفته.",
+        "principalId": "المستخدم أو بيانات الاعتماد وراء الاستدعاء.",
+        "fromUtc": "عرض الاستدعاءات التي أُجريت في هذا الوقت أو بعده.",
+        "toUtc": "عرض الاستدعاءات التي أُجريت قبل هذا الوقت.",
+        "accessMode": "وضع الوصول للربط وقت إجراء الاستدعاء.",
+        "outputBytes": "حجم مخرجات الأداة قبل الاقتطاع.",
+        "approvalId": "الموافقة التي انتظرها الاستدعاء، إن وُجدت.",
+        "traceId": "التتبع الموزّع للاستدعاء، ويمكن عرضه في Grafana Tempo.",
+        "argumentsRedacted": "الوسائط كما خُزّنت، مع استبدال الأسرار بعلامات.",
+        "outputPreview": "بداية المخرجات التي تلقاها الوكيل، بعد تنقيتها من الأسرار."
+      },
+      "profiles": {
+        "add": "إنشاء ملف تعريف وكيل: شخصية ونماذج وحدود والواجهات التي تتيحه.",
+        "name": "اسم آمن للاستخدام في URL، فريد في المستأجر. تصل عملاء MCP إلى ملف التعريف عبر /mcp/{name} وA2A عبر .../{name}.",
+        "displayName": "اسم ودّي يظهر في لوحة التحكم وفي بطاقة وكيل A2A.",
+        "description": "الغرض من ملف التعريف هذا. يُعرض للأشخاص وفي ملخص بطاقة A2A.",
+        "personaName": "الاسم الذي يطلقه الوكيل على نفسه في المحادثة. يستخدم ملف التعريف الافتراضي Agent Smith.",
+        "userAddress": "كيف يخاطب الوكيل المستدعي. يقول ملف التعريف الافتراضي Mr. Anderson.",
+        "visibility": "ملفات التعريف الخاصة يراها مالكها، وملفات تعريف المستأجر يراها كل من لديه وصول في المستأجر.",
+        "inferenceEndpointId": "النموذج الذي يشغّل حلقة الوكيل الخاصة بـ Hugo للمحادثة وA2A وعملاء OpenAI. يجلب مستدعو MCP نموذجهم الخاص.",
+        "fallbackInferenceEndpointId": "يُستخدم عند فشل النموذج الأساسي أو عدم توفره.",
+        "embeddingEndpointId": "يضمّن أوصاف الأدوات وملاحظات المعرفة حتى تسترجع ملفات التعريف الكبيرة الأدوات ذات الصلة فقط.",
+        "maxIterations": "الحد الأعلى لجولات النموذج والأدوات في دور واحد. يجب أن تجيب الجولة الأخيرة دون أدوات.",
+        "maxToolCallsPerTurn": "الحد الأعلى لاستدعاءات الأدوات في دور واحد، عبر كل الجولات.",
+        "toolTimeoutSeconds": "المدة التي يمكن أن يعمل فيها استدعاء أداة واحد قبل إلغائه.",
+        "temperature": "درجة حرارة أخذ العينات للنموذج. القيم الأدنى تجعل الإجابات أكثر حتمية.",
+        "exposeMcp": "عرض أدوات ملف التعريف هذا وتعليماته لعملاء MCP مثل Claude Code.",
+        "exposeA2a": "نشر بطاقة وكيل A2A وقبول رسائل A2A لملف التعريف هذا.",
+        "exposeOpenai": "السماح للعملاء المتوافقين مع OpenAI باستخدام ملف التعريف هذا كاسم نموذج.",
+        "exposeManagementTools": "إتاحة أدوات الإدارة أيضًا (إنشاء الموارد وتغيير الروابط) للمستدعين ذوي صلاحيات الإدارة. معطّل افتراضيًا.",
+        "instructionsAppend": "نص حر يُلحق بالتعليمات المجمّعة، بعد كل أقسام الموارد.",
+        "bindingCount": "عدد الموارد المربوطة بملف التعريف هذا.",
+        "exposure": "واجهات البروتوكولات التي يمكنها الوصول إلى ملف التعريف هذا.",
+        "sections": {
+          "identity": "الاسم والشخصية ومستوى الظهور.",
+          "models": "النماذج التي تجيب عن ملف التعريف هذا في حلقة Hugo الخاصة.",
+          "limits": "حدود لكل دور، حتى تتوقف أي حلقة منفلتة.",
+          "exposure": "واجهات البروتوكولات التي يمكنها الوصول إلى ملف التعريف هذا."
+        },
+        "actions": {
+          "chat": "فتح المحادثة للتحدث إلى ملف التعريف هذا.",
+          "duplicate": "نسخ ملف التعريف هذا وروابطه باسم جديد، ثم فتح النسخة."
+        }
+      },
+      "conversations": {
+        "title": "عنوان المحادثة، المولَّد من أول تبادل.",
+        "agentProfileId": "ملف التعريف الذي تتحدث إليه المحادثة.",
+        "userId": "لمن تنتمي المحادثة: مستخدم أو بيانات اعتماد.",
+        "source": "مكان بدء المحادثة: محادثة لوحة التحكم أو A2A أو MCP أو عميل متوافق مع OpenAI.",
+        "messageCount": "الرسائل في المحادثة، من المستخدم والوكيل.",
+        "tokens": "رموز الإدخال والإخراج التي استخدمتها المحادثة حتى الآن.",
+        "lastMessageUtc": "وقت إضافة أحدث رسالة.",
+        "fromUtc": "عرض المحادثات النشطة في هذا الوقت أو بعده.",
+        "actions": {
+          "export": "تنزيل المحادثة بصيغة Markdown، مع تلخيص استدعاءات الأدوات."
+        }
+      },
+      "knowledge": {
+        "add": "كتابة ملاحظة عن منظومتك يستطيع Hugo استرجاعها إلى السياق.",
+        "title": "عنوان قصير يوضح موضوع الملاحظة.",
+        "agentProfileId": "قصر الملاحظة على ملف تعريف واحد، أو اتركه فارغًا ليتمكن كل ملف تعريف من استخدامها.",
+        "resourceId": "ربط الملاحظة بمورد واحد، لتُستخدم عندما يكون ذلك المورد معنيًا.",
+        "content": "الملاحظة نفسها بلغة بسيطة، مثل المضيفات التي تخدم عملية الدفع.",
+        "lastUpdateUtc": "آخر وقت عُدّلت فيه الملاحظة (وأُعيد تضمينها)."
+      },
+      "sessions": {
+        "principalName": "لمن تنتمي الجلسة: مستخدم أو مسؤول أو بيانات اعتماد.",
+        "principalType": "ما إذا كانت الجلسة تنتمي إلى مسؤول أو مستخدم أو بيانات اعتماد.",
+        "principalId": "عرض جلسات معرّف الجهة الأمنية هذا فقط.",
+        "authScheme": "كيف حُصل على الجلسة: تسجيل دخول بكلمة مرور، أو استبدال مفتاح وصول، أو طلب موقّع.",
+        "sourceIp": "العنوان الذي أُنشئت منه الجلسة.",
+        "issuedUtc": "وقت إصدار الجلسة.",
+        "lastUsedUtc": "آخر وقت استُخدمت فيه الجلسة لطلب.",
+        "expiresUtc": "وقت انتهاء الجلسة تلقائيًا.",
+        "revokedUtc": "الجلسات الملغاة لم تعد تعمل، أما النشطة فما زالت تعمل.",
+        "userAgent": "العميل الذي أنشأ الجلسة، كما عرّف عن نفسه."
+      },
+      "plugins": {
+        "name": "اسم تجميعة المكوّن الإضافي.",
+        "version": "إصدار المكوّن الإضافي كما هو مصرّح به في تجميعته.",
+        "connectorTypes": "أنواع الموصّلات التي يضيفها هذا المكوّن الإضافي إلى الكتالوج.",
+        "enabled": "تبقى المكوّنات الإضافية المعطّلة على القرص لكن موصّلاتها لا تُعرض.",
+        "loadError": "سبب فشل تحميل المكوّن الإضافي، إن فشل.",
+        "sha256": "المجموع الاختباري لملف المكوّن الإضافي، لتأكيد الإصدار المُحمَّل.",
+        "actions": {
+          "enable": "تحميل موصّلات هذا المكوّن الإضافي عند إعادة التشغيل التالية.",
+          "disable": "التوقف عن عرض موصّلات هذا المكوّن الإضافي بعد إعادة التشغيل التالية."
+        }
+      }
+    },
+    "views": {
+      "home": {
+        "observabilityState": {
+          "reachable": "وصل الخادم إلى {{service}} عبر عنوان URL الداخلي خلال آخر 30 ثانية.",
+          "unreachable": "تعذّر على الخادم الوصول إلى {{service}} عبر عنوان URL الداخلي. تحقق من أن الخدمة تعمل وأن إعداد عنوان URL الداخلي يشير إليها.",
+          "checking": "جارٍ سؤال الخادم عما إذا كان {{service}} قابلًا للوصول.",
+          "unknown": "لم يُبلغ الخادم عما إذا كان {{service}} قابلًا للوصول. فشل فحص الحالة أو أن هذا الخادم لا يدعمه بعد."
+        },
+        "observabilityVersion": "الإصدار الذي أبلغ عنه {{service}} لفحص سلامة الخادم.",
+        "kpisGrafana": "فتح لوحة معلومات Hugo العامة في Grafana في علامة تبويب جديدة لرؤية هذه الأرقام عبر الزمن.",
+        "grafanaDashboards": "يحتوي مجلد Hugo في Grafana على لوحة معلومات لكل قسم. يفتح كل رابط لوحته في علامة تبويب جديدة.",
+        "grafanaSections": {
+          "overview": "السلامة بنظرة سريعة: مدة التشغيل ومعدل الطلبات ونسبة الأخطاء واستدعاءات الأدوات والموافقات المعلّقة.",
+          "http": "حركة HTTP: المعدل حسب المسار وفئة الحالة، وكمّيات زمن الاستجابة، وأبطأ المسارات.",
+          "models": "طلبات النماذج والأخطاء وزمن الاستجابة والرموز حسب المزوّد.",
+          "protocols": "طلبات MCP وA2A حسب الأسلوب والنتيجة.",
+          "security": "عمليات تسجيل الدخول ورفض التفويض وكشف الأسرار والتنقيح والإغلاق.",
+          "agent": "حلقة الوكيل والمحادثة: الأدوار وتفصيل المراحل والتكرارات والوقت حتى أول رمز.",
+          "tools": "استدعاءات الأدوات حسب الموصّل والتأثير، والقرارات وزمن الاستجابة وأحجام المخرجات والإخفاقات."
+        },
+        "observabilityDocs": "فتح دليل القياس عن بُعد في علامة تبويب جديدة: كيفية جمع مقاييس Hugo وربط Grafana أو Prometheus أو Tempo أو Loki.",
+        "observability": "روابط إلى أدوات المقاييس ولوحات المعلومات والتتبع التي يُبلغ خادم Hugo هذا أنها مهيأة. الخدمات غير المهيأة لا تظهر.",
+        "kpis": {
+          "requests": "طلبات API التي عالجها الخادم خلال آخر 24 ساعة. انقر لفتح سجل الطلبات.",
+          "toolCalls": "استدعاءات الأدوات من كل الواجهات خلال آخر 24 ساعة. انقر لفتح استدعاءات الأدوات.",
+          "failures": "طلبات API الفاشلة واستدعاءات الأدوات الفاشلة خلال آخر 24 ساعة. انقر لرؤية استدعاءات الأدوات الفاشلة.",
+          "approvals": "استدعاءات الأدوات الخاضعة للموافقة التي تنتظر شخصًا الآن. انقر لفتح صندوق الموافقات.",
+          "unhealthy": "الموارد التي فشل آخر اختبار اتصال أو فحص سلامة لها. انقر لرؤيتها.",
+          "tokens": "رموز الإدخال والإخراج التي استخدمتها استدعاءات النماذج الخاصة بـ Hugo منذ منتصف الليل. انقر لفتح التحليلات."
+        },
+        "openFailure": "فتح استدعاءات الأدوات مصفّاة على هذه الأداة الفاشلة.",
+        "cta": {
+          "apiExplorer": "جرّب أي استدعاء API مباشرة على هذا الخادم.",
+          "addResource": "ربط نظام: مضيف SSH أو حاوية تخزين أو قاعدة بيانات أو خدمة سجلات، مع أسراره.",
+          "addModel": "إضافة نموذج استدلال أو تضمين ليتمكن Agent Smith من الإجابة في المحادثة.",
+          "chat": "فتح المحادثة وسؤال Agent Smith عن منظومتك.",
+          "connect": "فتح علامة تبويب الاتصال في ملف تعريف للحصول على إعدادات Claude Code وA2A والمتوافقة مع OpenAI.",
+          "approvals": "مراجعة استدعاءات الأدوات الخطرة التي تنتظر قرارًا."
+        },
+        "services": {
+          "loki": "فتح Loki للبحث في سجلات Hugo في علامة تبويب جديدة.",
+          "grafana": "فتح لوحات معلومات Grafana لمقاييس Hugo في علامة تبويب جديدة.",
+          "prometheus": "فتح خادم Prometheus الذي يجمع مقاييس Hugo في علامة تبويب جديدة.",
+          "tempo": "فتح Tempo لتصفح التتبعات في علامة تبويب جديدة."
+        },
+        "serviceGeneric": "فتح هذه الخدمة المضمّنة في علامة تبويب جديدة."
+      },
+      "templateEditor": {
+        "cloneName": "اسم النسخة. تصلح الأحرف الصغيرة والأرقام والشرطات والشرطات المائلة، والبادئة builtin/ محجوزة.",
+        "cloneConfirm": "إنشاء النسخة بهذا الاسم وفتحها في المحرر.",
+        "clone": "إنشاء نسخة قابلة للتعديل من هذا القالب. تختار اسم النسخة قبل إنشائها.",
+        "reset": "استعادة هذا القالب المدمج إلى المحتوى الذي يأتي مع Hugo.",
+        "delete": "حذف هذا القالب وإصداراته. أي شيء كان يتضمنه يعود إلى القالب الافتراضي المدمج.",
+        "create": "إنشاء القالب وإصداره الأول.",
+        "save": "حفظ المحتوى كإصدار جديد. تعتمده المحادثات وجلسات MCP الجديدة.",
+        "changeNote": "ملاحظة قصيرة تُحفظ مع الإصدار، توضح ما تغيّر ولماذا.",
+        "columns": {
+          "version": "رقم الإصدار. الأعلى هو الأحدث.",
+          "note": "ملاحظة التغيير المحفوظة مع الإصدار.",
+          "author": "من حفظ هذا الإصدار من القالب.",
+          "saved": "وقت حفظ الإصدار."
+        },
+        "diff": "مقارنة هذا الإصدار بما هو موجود في المحرر الآن.",
+        "restore": "جعل هذا الإصدار الحالي مجددًا. يبقى المحتوى الحالي في السجل."
+      },
+      "serverInfo": {
+        "rest": "العنوان الأساسي لاستدعاءات REST API وSDK.",
+        "mcp": "العنوان الذي تتصل به عملاء MCP. يظهر هناك كل وكيل متاح كأداة.",
+        "a2a": "العنوان الأساسي لبوابة A2A لهذا المستأجر. لكل وكيل بطاقته الخاصة تحته.",
+        "openapi": "مستند OpenAPI الذي يصف كل عملية REST.",
+        "version": "إصدار خادم Hugo.",
+        "dashboardVersion": "إصدار وحدة التحكم هذه.",
+        "node": "نسخة الخادم التي أجابت على طلب معلومات الخادم لهذه الصفحة.",
+        "database": "محرك قاعدة البيانات الذي يستخدمه الخادم.",
+        "health": "نتيجة فحص سلامة الخادم.",
+        "routes": "عدد عمليات API التي سجّلها الخادم.",
+        "serverTime": "ساعة الخادم. قد تؤدي الفروق الكبيرة عن ساعتك إلى تعطيل الطلبات الموقّعة.",
+        "principalName": "الهوية التي سجّلت الدخول بها.",
+        "principalType": "ما إذا كنت سجّلت الدخول كمستخدم أو بمفتاح وصول.",
+        "role": "أعلى مستوى وصول لديك.",
+        "tenant": "المستأجر الذي تنتمي إليه جلستك.",
+        "expires": "وقت انتهاء جلستك ووجوب تسجيل الدخول مجددًا.",
+        "rawJson": "عرض استجابة معلومات الخادم الخام.",
+        "connectors": "عدد أنواع الموصّلات التي حمّلها الخادم، بما في ذلك المكوّنات الإضافية.",
+        "openai": "عنوان URL الأساسي لنقطة النهاية المتوافقة مع OpenAI، وأسماء ملفات التعريف هي معرّفات النماذج."
+      },
+      "requests": {
+        "grafana": "فتح لوحة معلومات HTTP في Grafana في علامة تبويب جديدة: معدلات الطلبات وزمن الاستجابة والأخطاء عبر الزمن من مقاييس Prometheus.",
+        "kpis": {
+          "total": "الطلبات التي احتفظ بها الخادم في سجله للنطاق وعوامل التصفية المحددة.",
+          "success": "الطلبات التي أعادت حالة 2xx أو 3xx.",
+          "failure": "الطلبات التي أعادت حالة 4xx أو 5xx.",
+          "avgDuration": "متوسط الوقت الذي استغرقه الخادم للإجابة."
+        },
+        "columns": {
+          "time": "وقت وصول الطلب.",
+          "method": "أسلوب HTTP للطلب.",
+          "path": "المسار الذي استُدعي. مرّر المؤشر فوق قيمة لرؤيتها كاملة.",
+          "status": "حالة HTTP التي أعادها الخادم.",
+          "duration": "المدة التي استغرقها الخادم للإجابة.",
+          "principal": "من أجرى الطلب: مسؤول أو مستخدم أو مفتاح وصول."
+        },
+        "viewDetails": "فتح الطلب مع الترويسات والمحتوى والتوقيت.",
+        "viewJson": "فتح سجل الطلب، بما في ذلك JSON الخام.",
+        "deleteOne": "إزالة هذا الطلب من السجل.",
+        "bulkDeleteAll": "حذف كل طلب يطابق عوامل التصفية الحالية، وليس هذه الصفحة فقط."
+      },
+      "explorer": {
+        "operations": "اختر عملية API، مجمّعة حسب المجال. يتكيف النموذج أدناه مع معلماتها.",
+        "pathParam": "معلمة المسار {{name}} ({{type}}). تُستبدل في عنوان URL. {{description}}",
+        "queryParam": "معلمة الاستعلام {{name}} ({{type}}). تُلحق بعنوان URL عند تعبئتها. {{description}}",
+        "copyUrl": "نسخ عنوان URL للطلب بعد حلّه بالكامل.",
+        "headerName": "اسم ترويسة طلب. تُضاف Authorization تلقائيًا من جلستك.",
+        "headerValue": "القيمة المرسلة لهذه الترويسة.",
+        "removeHeader": "إزالة هذه الترويسة من الطلب.",
+        "addHeader": "إضافة ترويسة طلب أخرى.",
+        "body": "محتوى الطلب بصيغة JSON للعمليات التي تنشئ السجلات أو تغيّرها.",
+        "execute": "إرسال الطلب إلى الخادم الآن بجلستك. تطلب الأساليب المدمّرة التأكيد.",
+        "stop": "إيقاف الطلب أو التوقف عن قراءة استجابة متدفقة.",
+        "snippets": {
+          "curl": "الطلب نفسه كأمر curl للطرفية.",
+          "fetch": "الطلب نفسه كشيفرة JavaScript fetch.",
+          "csharp": "الطلب نفسه كشيفرة C# HttpClient."
+        },
+        "clearHistory": "نسيان كل الطلبات الأخيرة المخزنة في هذا المتصفح.",
+        "loadHistory": "تحميل هذا الطلب مجددًا في النموذج.",
+        "deleteHistory": "إزالة هذا الإدخال من قائمة الطلبات الأخيرة.",
+        "confirmExecute": "إرسال هذا الطلب رغم أنه قد يغيّر البيانات أو يحذفها."
+      },
+      "a2aExplorer": {
+        "profile": "ملف التعريف المراد التحدث إليه. لا تجيب إلا ملفات التعريف المفعّل فيها إتاحة A2A.",
+        "fetchCard": "تنزيل بطاقة الوكيل العامة لملف التعريف من عنوان URL المعروف الخاص بها.",
+        "listTasks": "عرض مهام A2A التي تملكها على ملف التعريف هذا (يرى مسؤولو المستأجر كل المهام).",
+        "message": "النص المراد إرساله كرسالة مستخدم إلى الوكيل.",
+        "stream": "استخدام SendStreamingMessage وعرض الأحداث فور وصولها، بدلًا من انتظار الإجابة النهائية.",
+        "send": "إرسال الرسالة عبر A2A JSON-RPC بصفتك الجهة الأمنية الخاصة بك.",
+        "context": "الرسائل في السياق نفسه تواصل محادثة واحدة. غيّر ملف التعريف للبدء من جديد.",
+        "events": "كل حدث مبثوث كما أرسله الخادم."
+      },
+      "analytics": {
+        "profile": "قصر كل المخططات على ملف تعريف وكيل واحد، أو عرض المستأجر كاملًا.",
+        "kpis": {
+          "turns": "أدوار المحادثة وA2A والمتوافقة مع OpenAI التي شغّلت حلقة الوكيل الخاصة بـ Hugo ضمن النطاق.",
+          "toolCalls": "استدعاءات الأدوات من كل الواجهات ضمن النطاق، بما في ذلك المرفوضة.",
+          "failures": "استدعاءات الأدوات التي انتهت بحالة Failed أو TimedOut ضمن النطاق.",
+          "tokens": "رموز الإدخال والإخراج التي استخدمتها استدعاءات النماذج الخاصة بـ Hugo ضمن النطاق.",
+          "approvals": "الموافقات المطلوبة ضمن النطاق، أيًا كانت نتيجتها.",
+          "turnaround": "الوقت الوسيط من طلب الموافقة حتى بتّ شخص فيها.",
+          "approvalRate": "نسبة الموافقات المبتوت فيها التي قُبلت بدلًا من رفضها."
+        },
+        "columns": {
+          "connector": "نوع الموصّل الذي وُجّهت إليه الاستدعاءات.",
+          "calls": "استدعاءات الأدوات لهذا الموصّل ضمن النطاق.",
+          "failures": "الاستدعاءات لهذا الموصّل التي فشلت أو انتهت مهلتها.",
+          "p95": "انتهت 95 بالمئة من الاستدعاءات لهذا الموصّل خلال هذا الوقت."
+        }
+      },
+      "chat": {
+        "search": "البحث في محادثاتك حسب العنوان.",
+        "profile": "ملف تعريف الوكيل المراد التحدث إليه. يحدد الشخصية والنموذج والموارد التي يمكن للوكيل استخدامها.",
+        "model": "نموذج الاستدلال الذي يستخدمه ملف التعريف هذا في إجاباته.",
+        "new": "بدء محادثة جديدة مع ملف التعريف المحدد.",
+        "export": "تنزيل هذه المحادثة بصيغة Markdown.",
+        "drawer": "إظهار لوحة السياق أو إخفاؤها: ملف التعريف والموارد المربوطة واستهلاك الرموز والموافقات المعلّقة.",
+        "goModels": "فتح نقاط نهاية النماذج لإضافة نموذج استدلال.",
+        "goProfiles": "فتح ملفات تعريف الوكلاء لإنشاء ملف تعريف أو اختياره."
+      },
+      "connectors": {
+        "search": "تصفية الموصّلات حسب النوع أو العائلة أو الاسم أو الوصف.",
+        "category": "عرض فئة واحدة من الموصّلات فقط، مثل قواعد البيانات أو خدمات السجلات.",
+        "card": "فتح {{name}}: إعداداته وخانات أسراره وأدواته وتعليماته الافتراضية.",
+        "back": "الرجوع إلى كتالوج الموصّلات.",
+        "addResource": "فتح الموارد لإضافة مورد يستخدم موصّلًا.",
+        "editInstructions": "فتح قوالب الموجّهات مصفّاة على قالب تعليمات هذا الموصّل.",
+        "tabs": {
+          "overview": "النوع والعائلة والفئة والإصدار وخانات الأسرار التي يحتاجها هذا الموصّل.",
+          "settings": "نموذج الإعدادات الذي يحصل عليه مورد من هذا النوع، وجدول مرجعي لكل إعداد.",
+          "tools": "كل أداة يوفرها هذا الموصّل، مع تأثيرها الأساسي.",
+          "instructions": "التعليمات التي يضيفها كل مورد من هذا النوع للوكيل."
+        },
+        "columns": {
+          "key": "مفتاح الإعداد كما يُخزَّن في المورد وتقبله API.",
+          "kind": "نوع القيمة: نص، أو نص طويل، أو عدد صحيح، أو صحيح أو خطأ، أو قائمة، أو قيمة من مجموعة.",
+          "required": "ما إذا كان يجب على المورد تعيين قيمة لهذا الإعداد.",
+          "default": "القيمة المستخدمة عندما يترك المورد الإعداد فارغًا.",
+          "range": "القيم المسموح بها أو الحد الأدنى والأقصى للأرقام.",
+          "group": "قسم نموذج المورد الذي يظهر فيه الإعداد."
+        }
+      },
+      "mcpExplorer": {
+        "profile": "الاتصال بـ /mcp/{profile}، أو ترك الخادم يحدد ملف تعريفك من بيانات الاعتماد أو الإعدادات الافتراضية.",
+        "connect": "تشغيل initialize، ثم عرض الأدوات التي يراها هذا المستدعي.",
+        "session": "جلسة MCP التي خصصها الخادم. يعيد كل طلب في هذا المستكشف استخدامها.",
+        "instructions": "التعليمات المجمّعة التي يعيدها الخادم من initialize، كما يتلقاها عميل MCP.",
+        "call": "استدعاء الأداة المحددة بهذه الوسائط عبر منظومة الأمان الكاملة.",
+        "log": "كل طلب واستجابة JSON-RPC جرى تبادلهما مع الخادم، بالترتيب."
+      },
+      "profile": {
+        "back": "الرجوع إلى قائمة ملفات تعريف الوكلاء.",
+        "chat": "فتح المحادثة للتحدث إلى ملف التعريف هذا.",
+        "tabs": {
+          "general": "الشخصية، وكيفية مخاطبة المستخدم، والنماذج، والحدود، والواجهات التي تتيح ملف التعريف هذا.",
+          "bindings": "الموارد المربوطة بملف التعريف هذا، لكل منها اسم مستعار ووضع وصول.",
+          "instructions": "التعليمات المجمّعة التي يتلقاها المستدعي، مع مصدر كل قسم.",
+          "tools": "الأدوات التي يراها مستدعي ملف التعريف هذا، بعد أوضاع الوصول وقواعد الأدوات.",
+          "connect": "مقتطفات لربط Claude Code وعملاء MCP الآخرين ووكلاء A2A والعملاء المتوافقين مع OpenAI."
+        },
+        "bindings": {
+          "add": "ربط مورد بملف التعريف هذا مع اسم مستعار ووضع وصول.",
+          "goResources": "فتح الموارد لإضافة الأنظمة التي ينبغي أن يصل إليها ملف التعريف هذا.",
+          "columns": {
+            "alias": "الاسم الذي يستخدمه الوكيل للمورد في استدعاءات الأدوات.",
+            "resource": "المورد الذي يربطه هذا الربط.",
+            "accessMode": "ما يُسمح للوكيل بفعله بالمورد: قراءة فقط، أو قراءة وكتابة مع موافقة، أو قراءة وكتابة.",
+            "approval": "ما إذا كانت بعض الاستدعاءات على هذا الربط تنتظر قرار شخص.",
+            "enabled": "تُخفى الروابط المعطّلة عن الوكيل."
+          }
+        },
+        "toolRules": {
+          "open": "السماح بأدوات بعينها على هذا الربط أو رفضها أو طلب الموافقة عليها.",
+          "rule": "السماح يتيح تشغيل الأداة وفق وضع الوصول، والرفض يخفيها، وطلب الموافقة يسأل شخصًا دائمًا.",
+          "save": "حفظ قواعد الأدوات هذه. تُطبَّق على الاستدعاءات الجديدة فورًا."
+        },
+        "instructions": {
+          "surface": "تختلف التعليمات قليلًا حسب الواجهة (المحادثة وMCP وA2A وOpenAI وREST). اختر واحدة للمعاينة.",
+          "section": "قسم واحد من التعليمات المجمّعة وطبقة القالب التي جاء منها."
+        },
+        "tools": {
+          "name": "اسم الأداة الذي يستخدمه المستدعي، وعادةً يكون بصيغة family_operation مثل sql_query.",
+          "effect": "التأثير الأساسي: قراءة أو كتابة أو مدمّر. بعض الأدوات تُصنَّف لكل استدعاء.",
+          "description": "ما تفعله الأداة، كما يراها نموذج المستدعي."
+        },
+        "connect": {
+          "copyCard": "نسخ عنوان URL لبطاقة الوكيل ليكتشف وكيل A2A آخر ملف التعريف هذا.",
+          "copyOpenai": "نسخ عنوان URL الأساسي المتوافق مع OpenAI.",
+          "credential": "فتح بيانات الاعتماد لإنشاء مفتاح وصول مربوط بملف التعريف هذا."
+        }
+      },
+      "resources": {
+        "form": {
+          "test": "اختبار الإعدادات والأسرار في هذا النموذج مقابل النظام الحقيقي قبل حفظ أي شيء."
+        },
+        "tryTool": {
+          "profile": "ملف التعريف المراد العمل بصفته. يحدد ربطه وضع الوصول والموافقات للاستدعاء.",
+          "tool": "أداة يتيحها ملف التعريف لهذا المورد.",
+          "arguments": "وسائط الأداة بصيغة JSON. وسيط resource يحدد الاسم المستعار للربط.",
+          "dryRun": "تصنيف الاستدعاء (التأثير والقرار ووضع الوصول) دون تشغيله.",
+          "execute": "تشغيل الاستدعاء عبر المنظومة الكاملة. تنتظر الاستدعاءات الخطرة الموافقة كغيرها."
+        }
+      },
+      "secrets": {
+        "reveal": {
+          "reason": "سبب حاجتك إلى رؤية هذا السر. يُحفظ في سجل التدقيق مع الكشف.",
+          "submit": "طلب القيم كنص صريح من الخادم. يتطلب إذن الكشف ويخضع للتدقيق.",
+          "password": "كلمة مرور حسابك، للتأكد من أنك أنت فعلًا قبل عرض الأسرار.",
+          "reauth": "إعادة مصادقة هذه الجلسة بكلمة مرورك، ثم كشف السر.",
+          "copy": "نسخ هذه القيمة إلى الحافظة. لن تُعرض مجددًا بعد إخفائها.",
+          "again": "كشف القيم مرة أخرى. يُسجَّل ذلك في التدقيق ككشف جديد."
+        }
+      },
+      "settings": {
+        "applyLive": "يُطبَّق فور الحفظ.",
+        "applyRestart": "يسري بعد إعادة تشغيل الخادم.",
+        "fieldGeneric": "إعداد الخادم {{path}}.",
+        "groupGeneric": "الإعدادات في المجموعة {{group}}.",
+        "restart": "إعادة تشغيل خادم Hugo لتسري الإعدادات التي تتطلب إعادة التشغيل. تعيد الحاوية تشغيله تلقائيًا.",
+        "save": "حفظ كل إعداد متغيّر. تُطبَّق الإعدادات المباشرة فورًا، وتنتظر الأخرى إعادة التشغيل.",
+        "settingPath": "مسار الإعداد: {{path}}. استخدم هذا الاسم في hugo.json وفي REST API للإعدادات.",
+        "sourceGeneric": "مصدر القيمة الحالية.",
+        "testDatabase": "تجربة الاتصال بإعدادات قاعدة البيانات أعلاه قبل حفظها.",
+        "viewJson": "عرض استجابة الإعدادات الخام.",
+        "groups": {
+          "Rest": "مكان استماع الخادم وكيفية الوصول إليه من الخارج، بما في ذلك من خلف الوكلاء العكسيين.",
+          "Database": "قاعدة البيانات التي يخزّن فيها Hugo بياناته: SQLite أو PostgreSQL.",
+          "Logging": "تسجيل وحدة التحكم والملفات لعملية الخادم.",
+          "Auth": "مدد الجلسات وتوقيع الرموز وحدود معدل تسجيل الدخول.",
+          "Secrets": "خزنة الأسرار: مصدر المفتاح الرئيسي ونافذة إعادة المصادقة لعمليات الكشف.",
+          "RequestHistory": "ما إذا كانت طلبات API تُسجَّل، وكم يُحفظ من محتوى كل طلب، ولأي مدة.",
+          "Audit": "مدة الاحتفاظ بأحداث الأمان ومعدل أخذ عينات من عمليات تسجيل الدخول الناجحة.",
+          "Telemetry": "التتبعات والمقاييس المُصدَّرة إلى Tempo وPrometheus المضمّنين.",
+          "Agent": "حدود وسلوك حلقة الوكيل الخاصة بـ Hugo للمحادثة وA2A وعملاء OpenAI.",
+          "Approvals": "مدة انتظار الموافقات، ومدة حجب استدعاءات MCP بانتظارها، وما إذا كانت الموافقة الذاتية مسموحة.",
+          "Connectors": "المكوّنات الإضافية ومهل الأدوات ومسح السلامة الخلفي للموارد.",
+          "Models": "عدد مرات فحص سلامة نقاط نهاية النماذج.",
+          "Mcp": "نقطة نهاية MCP: التفعيل أو التعطيل ومهل الجلسات وحجم الرسائل.",
+          "A2A": "ما إذا كان يمكن الوصول إلى ملفات التعريف عبر A2A.",
+          "OpenAI": "ما إذا كانت نقطة النهاية المتوافقة مع OpenAI مفعّلة.",
+          "Embeddings": "كيفية تخزين المتجهات والبحث فيها، بما في ذلك pgvector على PostgreSQL."
+        },
+        "source": {
+          "File": "مُعيَّن حاليًا في hugo.json. الحفظ هنا يحدّث الملف.",
+          "Environment": "مُعيَّن بمتغير بيئة، وله الأولوية على أي قيمة تُحفظ هنا.",
+          "Database": "مخزّن في قاعدة البيانات."
+        }
+      }
+    },
+    "export": {
+      "menu": "تنزيل {{name}}: البيانات بصيغة CSV أو JSON، أو المخطط كصورة PNG أو SVG مع العنوان ومفتاح الرموز وعوامل التصفية والنطاق الزمني.",
+      "csv": "تنزيل البيانات الدقيقة وراء هذا العرض بصيغة CSV: صف لكل فترة أو سجل، وطوابع زمنية بتنسيق ISO 8601 UTC، وأرقام عادية بفاصلة عشرية نقطية.",
+      "png": "تنزيل المخطط كصورة PNG بضعف دقة الشاشة، مع العنوان ومفتاح الرموز وعوامل التصفية النشطة والنطاق الزمني.",
+      "svg": "تنزيل المخطط كصورة SVG قابلة للتحجيم، مع العنوان ومفتاح الرموز وعوامل التصفية النشطة والنطاق الزمني.",
+      "json": "تنزيل البيانات بصيغة JSON، مع السلاسل والفترات وعوامل التصفية والنطاق الزمني في مستند واحد."
+    },
+    "analytics": {
+      "dataTable": "عرض الأرقام وراء هذا المخطط كجدول، صف لكل فترة زمنية.",
+      "bucketStart": "بداية الفترة الزمنية. يغطي كل صف فترة واحدة."
+    },
+    "approvalCard": {
+      "approve": "السماح بتنفيذ هذا الاستدعاء الآن. يُسجَّل القرار وملاحظتك في سجل التدقيق.",
+      "reject": "رفض هذا الاستدعاء. يُبلَّغ الوكيل بأن الإجراء رُفض ويواصل دونه.",
+      "note": "ملاحظة اختيارية تُحفظ مع قرارك، مثل سبب موافقتك على إعادة تشغيل."
+    },
+    "chat": {
+      "input": "اكتب رسالة إلى Agent Smith. يرسل Enter، ويبدأ Shift+Enter سطرًا جديدًا. تُحفظ المسودات لكل محادثة.",
+      "send": "إرسال الرسالة وبث الإجابة، بما في ذلك أي استدعاءات أدوات يجريها Agent Smith.",
+      "stop": "إيقاف الإجابة الآن. تُلغى استدعاءات الأدوات الجارية ويُحتفظ بالإجابة الجزئية.",
+      "thinking": "استدلال النموذج لهذه الإجابة، عندما يشاركه النموذج. مطويّ افتراضيًا.",
+      "ttft": "الوقت حتى أول رمز: من إرسال الرسالة حتى وصول الجزء الأول من الإجابة.",
+      "duration": "المدة التي استغرقها الدور كاملًا، بما في ذلك استدعاءات الأدوات وانتظار الموافقات.",
+      "tokens": "رموز الإدخال والإخراج التي استخدمها النموذج، كما أبلغ عنها المزوّد."
+    },
+    "errors": {
+      "status": "رمز حالة HTTP الذي أجاب به الخادم.",
+      "requestId": "معرّف الخادم لهذا الطلب. ابحث عنه في سجل الطلبات أو سجلات الخادم.",
+      "copyRequestId": "نسخ معرّف الطلب، مثلًا لتضمينه في تقرير خطأ.",
+      "traceId": "معرّف التتبع الموزّع. استخدمه للعثور على الطلب كاملًا في Tempo عبر Grafana."
+    },
+    "nav": {
+      "approvalsBadge_zero": "{{count}} استدعاء أداة بانتظار شخص ليوافق عليه أو يرفضه. افتح الموافقات لاتخاذ القرار.",
+      "approvalsBadge_one": "{{count}} استدعاء أداة بانتظار شخص ليوافق عليه أو يرفضه. افتح الموافقات لاتخاذ القرار.",
+      "approvalsBadge_two": "{{count}} استدعاءا أداة بانتظار شخص ليوافق عليهما أو يرفضهما. افتح الموافقات لاتخاذ القرار.",
+      "approvalsBadge_few": "{{count}} استدعاءات أدوات بانتظار شخص ليوافق عليها أو يرفضها. افتح الموافقات لاتخاذ القرار.",
+      "approvalsBadge_many": "{{count}} استدعاء أداة بانتظار شخص ليوافق عليها أو يرفضها. افتح الموافقات لاتخاذ القرار.",
+      "approvalsBadge_other": "{{count}} استدعاء أداة بانتظار شخص ليوافق عليها أو يرفضها. افتح الموافقات لاتخاذ القرار.",
+      "setup": "فتح معالج الإعداد: ربط نموذج، وإضافة أول مورد، وربطه بملف تعريف Hugo، وتوصيل Claude Code.",
+      "skipToContent": "تجاوز التنقل والانتقال مباشرة إلى المحتوى الرئيسي لهذه الصفحة. مفيد غالبًا لمستخدمي لوحة المفاتيح.",
+      "tour": "إعادة تشغيل الجولة الإرشادية القصيرة التي توضح التنقل والسياق وموقع كل شيء.",
+      "environment": {
+        "local": "تتواصل لوحة التحكم مع خادم Hugo على هذا الجهاز (عنوان استرجاع محلي).",
+        "remote": "تتواصل لوحة التحكم مع خادم Hugo على مضيف آخر. التغييرات هنا تؤثر على ذلك الخادم."
+      },
+      "subtabs": {
+        "roles": "تجمع الأدوار الأذونات تحت اسم واحد، مثل Operator أو Builder. عيّن دورًا لمنح شخص كل أذوناته.",
+        "permissions": "قواعد فردية تسمح بعمليات على أنواع الموارد أو ترفضها. تتكون الأدوار منها، والرفض يتغلب دائمًا.",
+        "userAssignments": "منح الأدوار للأشخاص الذين يسجّلون الدخول بالبريد الإلكتروني وكلمة المرور، على مستوى المستأجر أو على مورد واحد.",
+        "credentialAssignments": "منح الأدوار لمفاتيح الوصول التي تستخدمها أدوات التشغيل والأتمتة. اجعل صلاحيات المفاتيح أضيق من صلاحيات مالكيها."
+      },
+      "hubs": {
+        "home": "فتح مركز القيادة: مؤشرات الأداء ونشاط الطلبات والإخفاقات الأخيرة والموارد غير السليمة وسير العمل الشائعة.",
+        "chat": "تحدّث إلى Agent Smith عن منظومتك. تظهر استدعاءات الأدوات ضمن المحادثة، وتنتظر الاستدعاءات الخطرة موافقتك.",
+        "profiles": "إنشاء ملفات تعريف الوكلاء وربط الموارد بها مع أوضاع الوصول، فكل واجهة تتواصل مع ملف تعريف.",
+        "approvals": "البت في استدعاءات الأدوات الكتابية والمدمّرة التي تنتظر شخصًا، من أي واجهة.",
+        "conversations": "مراجعة المحادثات في المستأجر كله من المحادثة وA2A وMCP والعملاء المتوافقين مع OpenAI.",
+        "resources": "إضافة الاتصالات واختبارها مع مضيفات SSH وحاويات التخزين وقواعد البيانات وخدمات السجلات والأنظمة الأخرى.",
+        "secrets": "تخزين كلمات المرور والمفاتيح والرموز مشفّرة. تستخدمها الموارد ونقاط نهاية النماذج حسب الخانة.",
+        "connectors": "تصفح عائلات الخدمات التي يدعمها Hugo وأدواتها وتأثيراتها وتعليماتها الافتراضية.",
+        "models": "إضافة نماذج الاستدلال والتضمين التي تستخدمها حلقة الوكيل الخاصة بـ Hugo للمحادثة وA2A وعملاء OpenAI.",
+        "prompts": "تعديل قوالب التعليمات لكل طبقة (مدمجة وعامة وخاصة بالمستأجر)، مع المعاينة والإصدارات وإعادة التعيين.",
+        "knowledge": "تعريف Hugo بمنظومتك عبر ملاحظات يسترجعها إلى السياق أثناء المحادثات.",
+        "toolInvocations": "كل استدعاء أداة من كل واجهة، مع تأثيره والقرار والنتيجة ورابط التتبع.",
+        "requests": "فحص كل طلب API عالجه الخادم، مع الترويسات والمحتوى والتوقيت والحالة.",
+        "analytics": "فهم استهلاك الرموز، واستدعاءات الأدوات حسب التأثير والموصّل، وزمن استجابة النماذج، ومدة البت في الموافقات.",
+        "audit": "مراجعة أحداث الأمان مثل عمليات تسجيل الدخول والرفض وكشف الأسرار وتغييرات الإعدادات.",
+        "explorer": "تجربة أي مسار REST من مستند OpenAPI المباشر للخادم، مع مقتطفات شيفرة مُولَّدة.",
+        "mcpExplorer": "الاتصال بنقطة نهاية MCP بهويتك لرؤية التعليمات والأدوات واستدعاء الأدوات.",
+        "a2aExplorer": "جلب بطاقة الوكيل لملف تعريف وإرسال رسائل إليه عبر A2A JSON-RPC.",
+        "tenants": "إنشاء المستأجرين المعزولين على هذا الخادم وإدارتهم. لا يرى هذه الصفحة إلا مسؤولو النظام.",
+        "users": "إدارة الأشخاص الذين يسجّلون الدخول إلى هذا المستأجر، وإعادة تعيين كلمات المرور، ورؤية الأذونات الفعلية.",
+        "credentials": "إنشاء مفاتيح وصول لأدوات التشغيل وSDK، وربطها بملف تعريف، وتدويرها.",
+        "rbac": "إدارة الأدوار والأذونات التي تتضمنها ومن يحملها في هذا المستأجر.",
+        "sessions": "رؤية كل جلسة ورمز نشط في المستأجر، وإلغاء أي منها.",
+        "settings": "تعديل ملف إعدادات الخادم، وإعادة تشغيل الخادم، ورؤية معلومات الخادم.",
+        "plugins": "تفعيل المكوّنات الإضافية للموصّلات أو تعطيلها ورؤية أخطاء التحميل. لا يرى هذه الصفحة إلا مسؤولو النظام."
+      },
+      "tabs": {
+        "roles": "الأدوار والأذونات التي تتضمنها. انسخ دورًا مدمجًا لتخصيصه.",
+        "assignments": "من يحمل أي دور: المستخدمون وبيانات الاعتماد، على مستوى المستأجر أو على مورد واحد.",
+        "settings": "تعديل ملف إعدادات الخادم مع التحقق، وشارات التطبيق المباشر مقابل إعادة التشغيل، وإعادة تشغيل الخادم.",
+        "serverInfo": "نقاط نهاية قابلة للنسخ، وإصدارات الخادم ولوحة التحكم، والميزات، وهويتك."
+      }
+    },
+    "passwordChange": {
+      "current": "كلمة المرور التي سجّلت الدخول بها: المُهيأة مسبقًا أو التي عيّنها لك مسؤول.",
+      "new": "كلمة مرورك الجديدة. استخدم عبارة مرور طويلة، فقد يفرض الخادم قواعد إضافية.",
+      "confirm": "اكتب كلمة المرور الجديدة مرة أخرى حتى لا يمنعك خطأ مطبعي من الدخول.",
+      "submit": "حفظ كلمة المرور الجديدة والمتابعة إلى لوحة التحكم."
+    },
+    "promptEditor": {
+      "content": "نص القالب. تُعبّأ المتغيرات بين الأقواس المزدوجة عند تجميع التعليمات.",
+      "insert": "إدراج {{variable}} عند المؤشر.",
+      "preview": "عرض النص مع السياق النموذجي لرؤية ما سيقرؤه الوكيل.",
+      "diff": "مقارنة هذا النص بالإصدار المحفوظ أو الافتراضي، سطرًا بسطر.",
+      "sampleContext": "قيم نموذجية تُستخدم للمعاينة. عدّلها لتجربة شخصيات أو موارد أو أوضاع وصول مختلفة.",
+      "serverRender": "عرض الخادم هذه المعاينة بالمحرك نفسه الذي يستخدمه للتعليمات الحقيقية.",
+      "localRender": "مسار المعاينة في الخادم غير متاح، لذا عرض المتصفح نسخة تقريبية."
+    },
+    "schemaForm": {
+      "setting": "إعداد الموصّل {{label}}. يتحقق منه الموصّل عند حفظ المورد أو اختباره."
+    },
+    "secretField": {
+      "slot": "السر الذي يقرؤه هذا الموصّل لـ {{slot}}. لا تُعرض إلا الأسرار من نوع مقبول.",
+      "createInline": "إنشاء سر جديد دون مغادرة هذا النموذج. يُشفَّر ويُحدَّد لهذه الخانة.",
+      "saveInline": "تشفير السر الجديد وتخزينه، ثم تحديده لهذه الخانة.",
+      "import": "قراءة ملف مفتاح أو شهادة أو kubeconfig أو JSON من جهازك إلى هذا الحقل. لا يُرسل إلا عند الحفظ.",
+      "fields": {
+        "username": "اسم الحساب لتسجيل الدخول. ليس سريًا، لكنه يُخزَّن مع كلمة المرور.",
+        "password": "كلمة المرور. تُخزَّن مشفّرة ولا تُعرض على الوكيل أبدًا.",
+        "privateKey": "مفتاح خاص بتنسيق PEM أو OpenSSH. أفلت ملف المفتاح هنا أو استورده.",
+        "passphrase": "عبارة المرور التي تحمي المفتاح الخاص، إن وُجدت.",
+        "token": "رمز API أو رمز bearer الذي أصدرته الخدمة.",
+        "accessKeyId": "معرّف مفتاح الوصول، مثل AKIA متبوعًا بأحرف وأرقام في AWS.",
+        "secretAccessKey": "الجزء السري من زوج مفاتيح الوصول. يُخزَّن مشفّرًا.",
+        "sessionToken": "رمز جلسة اختياري لبيانات الاعتماد المؤقتة.",
+        "json": "ملف مفتاح حساب الخدمة كاملًا بصيغة JSON، مثلًا من Google Cloud.",
+        "kubeconfig": "ملف kubeconfig يتضمن المجموعة والمستخدم والسياق المراد استخدامه.",
+        "connectionString": "سلسلة اتصال كاملة تتضمن بيانات الاعتماد، مثلًا لـ SQL Server أو Redis.",
+        "certificate": "الشهادة بتنسيق PEM. ليست سرية بحد ذاتها، لكنها تُحفظ مع مفتاحها.",
+        "value": "أي قيمة سرية للموصّلات التي تأخذ سرًا مبهمًا واحدًا."
+      }
+    },
+    "toolActivity": {
+      "toggle": "إظهار وسائط استدعاء الأداة هذا ومخرجاته أو إخفاؤها.",
+      "resource": "الاسم المستعار للمورد الذي نُفّذ عليه الاستدعاء، كما هو مربوط في ملف التعريف.",
+      "status": "مرحلة الاستدعاء: مقترح، أو قيد التشغيل، أو بانتظار الموافقة، أو منتهٍ.",
+      "duration": "المدة التي استغرقها الاستدعاء على الخادم، من البداية حتى النتيجة."
+    },
+    "tour": {
+      "skip": "إنهاء الجولة الآن. يمكنك إعادة تشغيلها من الشريط الجانبي.",
+      "back": "عرض المحطة السابقة في الجولة.",
+      "next": "الانتقال إلى المحطة التالية في الجولة.",
+      "done": "إنهاء الجولة. يمكنك إعادة تشغيلها من الشريط الجانبي."
+    },
+    "wizard": {
+      "skip": "إغلاق المعالج وعدم عرضه مجددًا لهذا المستأجر. يمكنك إعادة فتحه من الشريط الجانبي.",
+      "back": "الرجوع إلى الخطوة السابقة في المعالج.",
+      "start": "بدء الإعداد: ربط نموذج، وإضافة مورد، وربطه، وتوصيل عميل.",
+      "skipStep": "المتابعة دون إنهاء هذه الخطوة. يمكنك إتمامها لاحقًا من الصفحة المقابلة.",
+      "saveModel": "إنشاء نقطة نهاية النموذج (وسر مفتاح API الخاص بها، إن أدخلته) والمتابعة.",
+      "saveResource": "إنشاء المورد بهذه الإعدادات وسره، ثم المتابعة إلى ربطه.",
+      "bind": "ربط المورد الجديد بملف تعريف Hugo الافتراضي بوضع الوصول المختار.",
+      "finish": "إغلاق المعالج لهذا المستأجر وفتح المحادثة للتحدث إلى Agent Smith."
+    }
+  },
+  "explainers": {
+    "promptTemplates": {
+      "title": "قوالب الموجّهات وطبقاتها",
+      "p1": "كل تعليمات يعطيها Hugo لوكيل هي قالب: شخصية Agent Smith وقواعد الأمان وتعليمات كل موصّل. تستخدم القوالب متغيرات مثل {{persona.name}} و{{resource.alias}}، وكل حفظ ينشئ إصدارًا جديدًا.",
+      "p2": "القوالب متعددة الطبقات: النص المدمج يأتي مع Hugo، ويمكن لقيمة افتراضية عامة أن تتجاوزه لكل المستأجرين، ويمكن لمستأجر أن يتجاوز ذلك. تزيل إعادة التعيين إلى الافتراضي التجاوز وتعود طبقة واحدة إلى الوراء."
+    },
+    "tenants": {
+      "title": "المستأجرون",
+      "p1": "المستأجر مؤسسة معزولة على هذا الخادم. ينتمي المستخدمون ومفاتيح الوصول والموارد والأسرار وملفات التعريف والمحادثات جميعها إلى مستأجر واحد، ولا يظهر شيء عبر المستأجرين."
+    },
+    "users": {
+      "title": "المستخدمون وبيانات الاعتماد",
+      "p1": "المستخدم شخص يسجّل الدخول بالبريد الإلكتروني وكلمة المرور. بيانات الاعتماد (مفتاح الوصول) هي طريقة تسجيل دخول الأتمتة. ينتمي كل مفتاح وصول إلى مستخدم ولا يمكنه أبدًا أن يفعل أكثر مما يستطيعه ذلك المستخدم.",
+      "p2": "لا يحصل أي منهما على الوصول بمجرد وجوده. يأتي الوصول من علامات الإدارة على المستخدم ومن تعيينات الأدوار."
+    },
+    "credentials": {
+      "title": "بيانات الاعتماد والمستخدمون",
+      "p1": "بيانات الاعتماد زوج من مفتاح وصول ومفتاح سري للبرامج النصية وSDK والخدمات. تنتمي إلى مستخدم. أذوناتها الفعلية هي التقاطع بين ما تمنحه تعيينات أدوارها وما يُسمح لمالكها بفعله.",
+      "p2": "يُعرض المفتاح السري مرة واحدة، عند إنشاء المفتاح أو تدويره. دوّر المفاتيح بانتظام واحذف التي لم تُستخدم منذ مدة طويلة."
+    },
+    "roles": {
+      "title": "الأدوار والأذونات والتعيينات",
+      "p1": "الإذن قاعدة واحدة: السماح بعمليات معينة (مثل القراءة أو التنفيذ أو الكشف) أو رفضها على أنواع موارد معينة (مثل المورد أو السر أو ملف تعريف الوكيل). الدور حزمة مسماة من الأذونات. الرفض يتغلب دائمًا على السماح.",
+      "p2": "لا يتغير شيء لأي أحد حتى يُعيَّن دور. التعيينات، في علامة التبويب التالية، تربط دورًا بمستخدم أو مفتاح وصول، على مستوى المستأجر كله أو لسجل واحد."
+    },
+    "assignments": {
+      "title": "التعيينات",
+      "p1": "يمنح التعيين دورًا واحدًا لمستخدم واحد أو مفتاح وصول واحد. نطاق المستأجر يطبّق الدور على كل سجل من الأنواع المشمولة، ونطاق المورد يطبّقه على سجل واحد، مثل ملف تعريف وكيل واحد يجوز لأداة تشغيل استخدامه.",
+      "p2": "استخدم الأذونات الفعلية على مستخدم أو بيانات اعتماد لرؤية النتيجة المجمّعة لكل تعييناته."
+    },
+    "audit": {
+      "title": "التدقيق وسجل الطلبات",
+      "p1": "سجلات التدقيق هي أحداث الأمان والإعدادات: عمليات تسجيل الدخول والطلبات المرفوضة وكشف الأسرار وتغييرها وتغييرات الأدوار والروابط وعمليات الإغلاق وإعادة التشغيل. تُحفظ طوال فترة الاحتفاظ المحددة في الإعدادات.",
+      "p2": "سجل الطلبات، في علامة التبويب السابقة، هو حركة HTTP الخام. استخدم التدقيق لمعرفة من غيّر ماذا، وسجل الطلبات لتصحيح ما أرسله العميل فعلًا."
+    },
+    "requests": {
+      "title": "سجل الطلبات",
+      "p1": "كل طلب API التقطه هذا الخادم، مع الأسلوب والمسار والحالة والتوقيت والترويسات والمحتوى (مقتطعًا إلى الحجم المهيأ). استخدمه لتصحيح عمليات التكامل واستدعاءات SDK. انقر شريطًا في المخطط لتضييق الجدول إلى ذلك الوقت."
+    },
+    "diagram": {
+      "label": "العلاقة بين الأسرار والموارد والروابط وملفات التعريف والواجهات",
+      "secret": {
+        "title": "الأسرار",
+        "body": "بيانات اعتماد مشفّرة",
+        "tip": "كلمات المرور والمفاتيح والرموز، مشفّرة داخل Hugo. تستخدمها الموارد عبر الخانات، ولا يراها الوكلاء أبدًا."
+      },
+      "resource": {
+        "title": "الموارد",
+        "body": "أنظمة مُهيّأة",
+        "tip": "كل مورد نظام مُهيّأ واحد: مضيف SSH أو حاوية تخزين أو قاعدة بيانات أو خدمة سجلات، مع إعداداته."
+      },
+      "binding": {
+        "title": "الروابط",
+        "body": "الاسم المستعار ووضع الوصول",
+        "tip": "اربط موردًا بملف تعريف تحت اسم مستعار، مع وصول للقراءة فقط أو بموافقة أو للقراءة والكتابة."
+      },
+      "profile": {
+        "title": "ملف تعريف الوكيل",
+        "body": "الشخصية والنماذج والحدود",
+        "tip": "الوكيل نفسه: Agent Smith افتراضيًا، مع نماذجه وحدوده. كل واجهة تتحدث إلى ملف تعريف."
+      },
+      "surfaces": {
+        "title": "الواجهات",
+        "body": "MCP وA2A وREST والدردشة",
+        "tip": "Claude Code عبر MCP، والوكلاء الآخرون عبر A2A، والبرامج النصية عبر REST وحزم SDK، وأنت عبر الدردشة."
+      }
+    },
+    "profiles": {
+      "title": "العلاقة بين ملفات التعريف والموارد والواجهات",
+      "p1": "ملف التعريف وكيل: شخصية (Agent Smith افتراضيًا) والنماذج التي يفكر بها ومجموعة من الروابط. يربط كل ربط موردًا واحدًا تحت اسم مستعار مع وضع وصول.",
+      "p2": "كل واجهة هي عميل لملف التعريف نفسه. تحصل عملاء MCP على أدوات ملف التعريف وتعليماته، أما المحادثة وA2A والعملاء المتوافقون مع OpenAI فيشغّلون حلقة Hugo الخاصة بنموذج ملف التعريف."
+    },
+    "approvals": {
+      "title": "متى ينتظر الاستدعاء قرار شخص",
+      "p1": "يُصنَّف كل استدعاء أداة كقراءة أو كتابة أو مدمّر. تنتظر الاستدعاءات المدمّرة الموافقة افتراضيًا، وفي الروابط ذات وضع القراءة والكتابة مع الموافقة تنتظر كل عملية كتابة أيضًا.",
+      "p2": "وافق للسماح بتنفيذ الاستدعاء، أو ارفض لمنعه. يُبلَّغ الوكيل في الحالتين، ويُسجَّل القرار مع ملاحظتك."
+    },
+    "conversations": {
+      "title": "المحادثات من كل الواجهات",
+      "p1": "محادثة لوحة التحكم وسياقات A2A وتفويض MCP والجلسات المتوافقة مع OpenAI تصبح كلها محادثات هنا، ليكون سجل كل الواجهات في مكان واحد."
+    },
+    "resources": {
+      "title": "الموارد والأسرار والروابط",
+      "p1": "المورد نظام واحد مهيأ: موصّله وإعداداته والأسرار التي يستخدمها. تبقى الأسرار مشفّرة في Hugo ولا يراها الوكلاء أبدًا.",
+      "p2": "لا يفعل المورد شيئًا حتى يربطه ملف تعريف. يحدد الربط الاسم المستعار الذي يراه الوكيل وما يُسمح له بفعله."
+    },
+    "secrets": {
+      "title": "كيف تُحمى الأسرار",
+      "p1": "تُشفَّر القيم بـ AES-256-GCM تحت المفتاح الرئيسي وتُربط بمستأجرها. تشير الموارد ونقاط نهاية النماذج إلى الأسرار حسب الخانة.",
+      "p2": "لا يرى أحد قيمة مجددًا إلا عبر الكشف، الذي يتطلب إذن الكشف وسببًا وتحققًا جديدًا من كلمة المرور، ويخضع دائمًا للتدقيق."
+    },
+    "models": {
+      "title": "متى يحتاج Hugo إلى نموذج",
+      "p1": "تجلب عملاء MCP مثل Claude Code نموذجها الخاص، ويوفر Hugo الأدوات والتعليمات فقط. المحادثة وA2A ونقطة النهاية المتوافقة مع OpenAI تشغّل حلقة Hugo الخاصة وتحتاج إلى نموذج استدلال في ملف التعريف."
+    },
+    "knowledge": {
+      "title": "الغرض من ملاحظات المعرفة",
+      "p1": "الملاحظات حقائق قد يخبر بها المشغّل زميلًا في الفريق. يضمّنها Hugo ويسترجع ذات الصلة منها إلى السياق في كل دور."
+    },
+    "toolInvocations": {
+      "title": "سجل واحد لكل استدعاء أداة",
+      "p1": "يمر كل استدعاء أداة من كل واجهة عبر المنظومة نفسها: التصنيف، ووضع الوصول للربط، والموافقة عند الحاجة، والموصّل، ومنقّي الأسرار. يُسجَّل كل منها هنا."
+    },
+    "connectors": {
+      "title": "الموصّلات والموارد",
+      "p1": "الموصّل شيفرة تعرف كيف تتواصل مع عائلة واحدة من الأنظمة. المورد نسخة واحدة مهيأة من موصّل، بإعداداتها وأسرارها الخاصة."
+    },
+    "analytics": {
+      "title": "مصدر هذه الأرقام",
+      "p1": "تجمّع التحليلات استدعاءات الأدوات وأدوار المحادثة واستدعاءات النماذج على الخادم، مقسّمة حسب الوقت ومحصورة في هذا المستأجر."
+    },
+    "sessions": {
+      "title": "الجلسات والرموز",
+      "p1": "يُصدر تسجيل الدخول أو استبدال مفتاح وصول رمز جلسة. إلغاء الجلسة ينهيها فورًا، أينما كانت تُستخدم."
+    },
+    "plugins": {
+      "title": "المكوّنات الإضافية للموصّلات",
+      "p1": "تضيف المكوّنات الإضافية أنواع موصّلات من مجلد المكوّنات الإضافية دون إعادة بناء Hugo. لا تُحمَّل إلا عند تفعيل Connectors.EnablePlugins."
+    }
+  },
+  "nav": {
+    "primary": "التنقل الرئيسي",
+    "collapseSidebar": "تبديل التنقل",
+    "setup": "معالج الإعداد",
+    "skipToContent": "تخطٍّ إلى المحتوى",
+    "tour": "جولة إرشادية",
+    "version": "الإصدار {{version}}",
+    "approvalsPending_zero": "{{count}} موافقة بانتظار شخص",
+    "approvalsPending_one": "{{count}} موافقة بانتظار شخص",
+    "approvalsPending_two": "{{count}} موافقتان بانتظار شخص",
+    "approvalsPending_few": "{{count}} موافقات بانتظار شخص",
+    "approvalsPending_many": "{{count}} موافقة بانتظار شخص",
+    "approvalsPending_other": "{{count}} موافقة بانتظار شخص",
+    "environment": {
+      "local": "محلي",
+      "remote": "بعيد"
+    },
+    "sections": {
+      "start": "البداية",
+      "agents": "الوكلاء",
+      "connect": "الاتصال",
+      "configure": "التهيئة",
+      "observe": "المراقبة",
+      "develop": "التطوير",
+      "administer": "الإدارة"
+    },
+    "hubs": {
+      "home": {
+        "label": "الرئيسية",
+        "tip": "ما يفعله Hugo، وما يحتاج إلى انتباه، والخطوات التالية الشائعة."
+      },
+      "chat": {
+        "label": "المحادثة",
+        "tip": "تحدّث إلى Agent Smith، وتظهر استدعاءات الأدوات والموافقات ضمن المحادثة."
+      },
+      "profiles": {
+        "label": "ملفات تعريف الوكلاء",
+        "tip": "شخصيات مع موارد مربوطة وأوضاع وصول، يمكن الوصول إليها عبر كل واجهة."
+      },
+      "approvals": {
+        "label": "الموافقات",
+        "tip": "استدعاءات أدوات خطرة تنتظر شخصًا ليوافق عليها أو يرفضها."
+      },
+      "conversations": {
+        "label": "المحادثات",
+        "tip": "كل محادثة في المستأجر، من المحادثة وA2A وMCP وعملاء OpenAI."
+      },
+      "resources": {
+        "label": "الموارد",
+        "tip": "اتصالات مهيأة بأنظمتك: مضيفات وحاويات تخزين وقواعد بيانات وخدمات سجلات."
+      },
+      "secrets": {
+        "label": "الأسرار",
+        "tip": "مواد بيانات اعتماد مشفّرة تستخدمها الموارد ونقاط نهاية النماذج."
+      },
+      "connectors": {
+        "label": "الموصّلات",
+        "tip": "أنواع الأنظمة التي يستطيع Hugo الوصول إليها، وأدواتها، وتعليماتها الافتراضية."
+      },
+      "models": {
+        "label": "نقاط نهاية النماذج",
+        "tip": "نماذج الاستدلال والتضمين لحلقة الوكيل الخاصة بـ Hugo."
+      },
+      "prompts": {
+        "label": "قوالب الموجّهات",
+        "tip": "كل قوالب التعليمات: الشخصيات وقواعد الأمان وتعليمات الموصّلات."
+      },
+      "knowledge": {
+        "label": "المعرفة",
+        "tip": "ملاحظات عن منظومتك يسترجعها Hugo إلى السياق."
+      },
+      "toolInvocations": {
+        "label": "استدعاءات الأدوات",
+        "tip": "كل إجراء اتخذه أي وكيل، مع تأثيره وقراره ونتيجته."
+      },
+      "requests": {
+        "label": "سجل الطلبات",
+        "tip": "كل طلب API عالجه الخادم، مع الترويسات والمحتوى."
+      },
+      "analytics": {
+        "label": "التحليلات",
+        "tip": "اتجاهات الاستخدام والتكلفة وزمن الاستجابة والموافقات عبر الزمن."
+      },
+      "audit": {
+        "label": "التدقيق",
+        "tip": "أحداث الأمان: عمليات تسجيل الدخول والرفض وكشف الأسرار وتغييرات الإعدادات."
+      },
+      "explorer": {
+        "label": "مستكشف API",
+        "tip": "تجربة أي مسار REST من مستند OpenAPI المباشر."
+      },
+      "mcpExplorer": {
+        "label": "مستكشف MCP",
+        "tip": "الاتصال كعميل MCP، وعرض الأدوات، واستدعاؤها."
+      },
+      "a2aExplorer": {
+        "label": "مستكشف A2A",
+        "tip": "جلب بطاقات الوكلاء والتحدث إلى ملفات التعريف عبر A2A."
+      },
+      "tenants": {
+        "label": "المستأجرون",
+        "tip": "المستأجرون المعزولون على هذا الخادم. لمسؤولي النظام فقط."
+      },
+      "users": {
+        "label": "المستخدمون",
+        "tip": "الأشخاص الذين يسجّلون الدخول إلى هذا المستأجر."
+      },
+      "credentials": {
+        "label": "بيانات الاعتماد",
+        "tip": "مفاتيح الوصول لأدوات التشغيل وSDK والأتمتة."
+      },
+      "rbac": {
+        "label": "الأدوار والأذونات",
+        "tip": "الأدوار والأذونات ومن يحملها."
+      },
+      "sessions": {
+        "label": "الجلسات",
+        "tip": "جلسات تسجيل الدخول والرموز النشطة، مع إمكانية إلغاء أي منها."
+      },
+      "settings": {
+        "label": "الإعدادات",
+        "tip": "إعدادات الخادم، وإعادة التشغيل، ومعلومات الخادم."
+      },
+      "plugins": {
+        "label": "المكوّنات الإضافية",
+        "tip": "المكوّنات الإضافية للموصّلات المحمّلة من مجلد المكوّنات الإضافية."
+      }
+    },
+    "items": {
+      "home": {
+        "label": "الرئيسية",
+        "tip": "ما يفعله Hugo، وما يحتاج إلى انتباه، والخطوات التالية الشائعة."
+      },
+      "chat": {
+        "label": "المحادثة",
+        "tip": "تحدّث إلى Agent Smith، وتظهر استدعاءات الأدوات والموافقات ضمن المحادثة."
+      },
+      "profiles": {
+        "label": "ملفات تعريف الوكلاء",
+        "tip": "شخصيات مع موارد مربوطة وأوضاع وصول."
+      },
+      "approvals": {
+        "label": "الموافقات",
+        "tip": "استدعاءات أدوات خطرة تنتظر شخصًا."
+      },
+      "conversations": {
+        "label": "المحادثات",
+        "tip": "كل محادثة في المستأجر."
+      },
+      "resources": {
+        "label": "الموارد",
+        "tip": "اتصالات مهيأة بأنظمتك."
+      },
+      "secrets": {
+        "label": "الأسرار",
+        "tip": "مواد بيانات اعتماد مشفّرة."
+      },
+      "connectors": {
+        "label": "الموصّلات",
+        "tip": "عائلات الخدمات التي يستطيع Hugo الوصول إليها."
+      },
+      "models": {
+        "label": "نقاط نهاية النماذج",
+        "tip": "نماذج الاستدلال والتضمين."
+      },
+      "promptTemplates": {
+        "label": "قوالب الموجّهات",
+        "tip": "قوالب التعليمات وطبقاتها."
+      },
+      "knowledge": {
+        "label": "المعرفة",
+        "tip": "ملاحظات يسترجعها Hugo إلى السياق."
+      },
+      "toolInvocations": {
+        "label": "استدعاءات الأدوات",
+        "tip": "كل إجراء اتخذه أي وكيل."
+      },
+      "requests": {
+        "label": "سجل الطلبات",
+        "tip": "كل طلب API عالجه الخادم."
+      },
+      "analytics": {
+        "label": "التحليلات",
+        "tip": "اتجاهات الاستخدام وزمن الاستجابة."
+      },
+      "audit": {
+        "label": "التدقيق",
+        "tip": "أحداث الأمان."
+      },
+      "explorer": {
+        "label": "مستكشف API",
+        "tip": "تجربة مسارات REST مباشرة."
+      },
+      "mcpExplorer": {
+        "label": "مستكشف MCP",
+        "tip": "تجربة MCP كعميل."
+      },
+      "a2aExplorer": {
+        "label": "مستكشف A2A",
+        "tip": "تجربة A2A كوكيل."
+      },
+      "tenants": {
+        "label": "المستأجرون",
+        "tip": "المستأجرون المعزولون على هذا الخادم."
+      },
+      "users": {
+        "label": "المستخدمون",
+        "tip": "الأشخاص الذين يسجّلون الدخول."
+      },
+      "credentials": {
+        "label": "بيانات الاعتماد",
+        "tip": "مفاتيح الوصول للأتمتة."
+      },
+      "roles": {
+        "label": "الأدوار",
+        "tip": "الأدوار والأذونات التي تمنحها."
+      },
+      "assignments": {
+        "label": "التعيينات",
+        "tip": "من يحمل أي دور، وأين."
+      },
+      "sessions": {
+        "label": "الجلسات",
+        "tip": "الجلسات والرموز النشطة."
+      },
+      "settings": {
+        "label": "الإعدادات",
+        "tip": "إعدادات الخادم."
+      },
+      "serverInfo": {
+        "label": "معلومات الخادم",
+        "tip": "نقاط النهاية والإصدار وهويتك."
+      },
+      "plugins": {
+        "label": "المكوّنات الإضافية",
+        "tip": "المكوّنات الإضافية للموصّلات."
+      }
+    }
+  },
+  "tour": {
+    "title": "جولة إرشادية",
+    "skip": "تخطي الجولة",
+    "done": "تم",
+    "steps": {
+      "sidebar": {
+        "title": "التنقل",
+        "body": "كل شيء مجمّع حسب المهمة: بدء محادثة، وبناء الوكلاء، وربط الأنظمة، وتهيئة الموجّهات، ومراقبة النشاط، وتجربة واجهات API، وإدارة المستأجر."
+      },
+      "topbar": {
+        "title": "السياق وعناصر التحكم",
+        "body": "هنا تجد الخادم والمستأجر وهويتك ودورك والحالة المباشرة والموافقات المعلّقة وإغلاق المستأجر واللغة والنسق وتسجيل الخروج."
+      },
+      "kpis": {
+        "title": "مركز القيادة",
+        "body": "الطلبات واستدعاءات الأدوات والإخفاقات والموافقات المنتظرة والموارد غير السليمة والرموز المستخدمة اليوم. انقر على أي بطاقة للتعمق."
+      },
+      "chat": {
+        "title": "المحادثة مع Agent Smith",
+        "body": "اطرح أسئلة عن منظومتك. يظهر كل استدعاء أداة ضمن المحادثة مع تأثيره، وتنتظر الاستدعاءات الخطرة موافقتك."
+      },
+      "connect": {
+        "title": "ربط أنظمتك",
+        "body": "أضف الموارد (مضيفات SSH وحاويات التخزين وقواعد البيانات وخدمات السجلات) مع أسرارها، واختبر كل اتصال قبل الحفظ."
+      },
+      "profiles": {
+        "title": "تكوين ملفات تعريف الوكلاء",
+        "body": "اربط الموارد بملف تعريف مع وضع وصول لكل مورد. ملف التعريف هو ما تتواصل معه MCP وA2A والمحادثة وواجهات API."
+      },
+      "approvals": {
+        "title": "الموافقة على الإجراءات الخطرة",
+        "body": "تنتظر هنا، وفي المحادثة، استدعاءات الكتابة والاستدعاءات المدمّرة التي تحتاج إلى شخص، حتى يوافق عليها أحد أو يرفضها."
+      },
+      "observe": {
+        "title": "رؤية كل ما حدث",
+        "body": "تعرض استدعاءات الأدوات وسجل الطلبات والتحليلات والتدقيق كل إجراء، من كل واجهة."
+      }
+    }
+  },
+  "wizard": {
+    "title": "إعداد Hugo",
+    "stepOf": "الخطوة {{step}} من {{total}}",
+    "skip": "تخطي الإعداد",
+    "skipStep": "تخطي هذه الخطوة",
+    "start": "ابدأ",
+    "saveModel": "حفظ نقطة النهاية",
+    "saveResource": "حفظ المورد",
+    "bind": "الربط بملف التعريف",
+    "finish": "فتح المحادثة",
+    "modelSaved": "حُفظت نقطة نهاية النموذج.",
+    "bound": "أصبح {{alias}} مربوطًا الآن بـ {{profile}}.",
+    "nothingToBind": "لم يُنشأ أي مورد في الخطوة السابقة، لذا لا يوجد ما يُربط بعد. يمكنك ربط الموارد لاحقًا في صفحة ملف التعريف.",
+    "apiKeyHint": "يُخزَّن كسر مشفّر، وتشير إليه نقطة النهاية.",
+    "welcomeItem1": "ربط نموذج ليتمكن Agent Smith من التفكير (Ollama وOpenAI وAnthropic وغيرها).",
+    "welcomeItem2": "إضافة أول مورد، مثل مضيف SSH أو قاعدة بيانات، مع بيانات اعتماده.",
+    "welcomeItem3": "ربطه بملف تعريف Hugo الافتراضي وتوصيل Claude Code عبر MCP.",
+    "steps": {
+      "welcome": "مرحبًا",
+      "inference": "نموذج الاستدلال",
+      "embedding": "التضمينات",
+      "resource": "المورد الأول",
+      "bind": "الربط",
+      "connect": "الاتصال"
+    },
+    "bodies": {
+      "welcome": "يحتفظ Hugo بالوصول إلى أنظمتك وبالحكمة في كيفية استخدامه. ينقلك هذا المعالج من مستأجر فارغ إلى محادثة عاملة في بضع دقائق.",
+      "inference": "تشغّل المحادثة وA2A ونقطة النهاية المتوافقة مع OpenAI حلقة الوكيل الخاصة بـ Hugo، وهي تحتاج إلى نموذج استدلال. تجلب عملاء MCP نموذجها الخاص، لذا يمكنك تخطي هذه الخطوة إذا كنت تستخدم MCP فقط.",
+      "embedding": "اختياري. يتيح نموذج التضمين لـ Hugo اختيار الأدوات ذات الصلة عندما يكون لملف التعريف أدوات كثيرة، ويشغّل ملاحظات المعرفة لاحقًا.",
+      "resource": "اختر موصّلًا، واملأ إعداداته، واختر السر الذي يحتاجه أو أنشئه، واختبر الاتصال قبل الحفظ.",
+      "bind": "اربط المورد الجديد بملف تعريف Hugo الافتراضي واختر ما يُسمح للوكيل بفعله به.",
+      "connect": "أضف Hugo إلى Claude Code (أو أي عميل MCP) بهذه الإعدادات، ثم ابدأ المحادثة مع Agent Smith."
+    }
+  }
+}
