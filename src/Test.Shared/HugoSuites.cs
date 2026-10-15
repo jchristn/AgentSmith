@@ -39,6 +39,9 @@ namespace Test.Shared
                 suites.AddRange(LoggingSuites.Build());
                 suites.AddRange(Test.Shared.Integration.PipelineSuite.Build());
                 suites.AddRange(Test.Shared.Integration.ConfigurationIntegrationSuite.Build());
+                suites.AddRange(Test.Shared.Integration.ModelAgentSuite.Build());
+                suites.AddRange(Test.Shared.Integration.IntegrationUnitSuite.Build());
+                suites.AddRange(Test.Shared.Integration.IntegrationDataSuite.Build());
                 return suites;
             }
         }
