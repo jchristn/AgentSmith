@@ -37,6 +37,7 @@ namespace Test.Shared
                 suites.AddRange(StorageSuites.Build());
                 suites.AddRange(SqlSuites.Build());
                 suites.AddRange(LoggingSuites.Build());
+                suites.AddRange(RedisSuites.Build());
                 return suites;
             }
         }

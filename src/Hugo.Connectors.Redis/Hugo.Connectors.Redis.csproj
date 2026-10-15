@@ -12,5 +12,8 @@
   <ItemGroup>
     <EmbeddedResource Include="Instructions\**\*.md" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="StackExchange.Redis" Version="3.4.5" />
+  </ItemGroup>
 
 </Project>

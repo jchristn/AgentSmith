@@ -1,0 +1,79 @@
+# Hugo Redis connector testbed: Redis 7 with a password, a read-only ACL user, and seeded keys of every type
+# (see seed.sh). Test-only credentials; never reuse them.
+#
+#   docker compose -f docker/testbed/redis/compose.yaml up -d --wait
+#   HUGO_TESTBED=1 dotnet run --project src/Test.Automated -f net10.0 -- --suites testbed.redis
+#   docker compose -f docker/testbed/redis/compose.yaml down -v
+#
+# Port (loopback only): 127.0.0.1:28379 (override with HUGO_TESTBED_REDIS_PORT; the suites read the same variable).
+#   default user      password hugo-testbed-redis
+#   hugo-reader       password hugo-reader-password, read-only commands (+@read +@connection +info +client|list ...)
+# DEBUG is enabled so the suites can force a slow command (DEBUG SLEEP) to test timeouts, and the slow log records
+# every command (slowlog-log-slower-than 0) so redis_slowlog always has entries.
+
+name: hugo-testbed-redis
+
+services:
+  redis:
+    image: redis:7.4.8-alpine
+    command:
+      - redis-server
+      - --requirepass
+      - hugo-testbed-redis
+      - --user
+      - hugo-reader
+      - "on"
+      - ">hugo-reader-password"
+      - "~*"
+      - "&*"
+      - "+@read"
+      - "+@connection"
+      - "+info"
+      - "+client|list"
+      - "+slowlog"
+      - "+latency"
+      - "+memory"
+      - "+config|get"
+      - "+dbsize"
+      - --enable-debug-command
+      - "yes"
+      - --slowlog-log-slower-than
+      - "0"
+      - --slowlog-max-len
+      - "256"
+      - --latency-monitor-threshold
+      - "1"
+      - --save
+      - ""
+      - --appendonly
+      - "no"
+    ports:
+      - "127.0.0.1:${HUGO_TESTBED_REDIS_PORT:-28379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "hugo-testbed-redis", "--no-auth-warning", "ping"]
+      interval: 5s
+      timeout: 4s
+      retries: 2
+      start_period: 20s
+      start_interval: 1s
+
+  redis-seed:
+    image: redis:7.4.8-alpine
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      REDIS_HOST: redis
+      REDISCLI_AUTH: hugo-testbed-redis
+    volumes:
+      - ./seed.sh:/seed.sh:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - /bin/sh /seed.sh && touch /tmp/seeded && exec sleep infinity
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/seeded"]
+      interval: 5s
+      timeout: 4s
+      retries: 2
+      start_period: 30s
+      start_interval: 1s
