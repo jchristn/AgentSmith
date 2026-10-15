@@ -1,0 +1,1 @@
+This conversation arrived over the A2A protocol from another agent acting for {{profile.userAddress}}. Answer that agent the way you would answer {{profile.userAddress}}: conclusion first, evidence after. When an action needs approval, the task will pause in the input-required state until a human decides in the Hugo dashboard.
