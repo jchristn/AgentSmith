@@ -31,16 +31,38 @@ namespace Hugo.Server.Routes
         }
 
         /// <summary>
-        /// Tenant identifier from the {tenantId} path parameter.
+        /// Tenant a request acts on. Tenant-scoped paths use the {tenantId} path parameter. Flat paths
+        /// (/v1.0/api/resources and similar) take the tenant from the request context; a system administrator may pass
+        /// ?tenantId= to act on another tenant (the authorization layer audits that bypass). A tenantId query parameter
+        /// from anyone else is ignored, so a caller can never choose its tenant.
         /// </summary>
         /// <param name="context">HTTP context.</param>
         /// <returns>Tenant identifier.</returns>
-        /// <exception cref="ArgumentException">Thrown when the route has no tenantId parameter.</exception>
+        /// <exception cref="ArgumentException">Thrown when no tenant can be determined.</exception>
         public static string Tenant(HttpContextBase context)
         {
-            string? tenantId = Param(context, "tenantId");
-            if (String.IsNullOrEmpty(tenantId)) throw new ArgumentException("The route requires a tenantId path parameter.");
+            string? tenantId = TargetTenant(context);
+            if (String.IsNullOrEmpty(tenantId)) tenantId = Context(context).TenantId;
+            if (String.IsNullOrEmpty(tenantId)) throw new ArgumentException("No tenant could be determined for this request.");
             return tenantId;
+        }
+
+        /// <summary>
+        /// Tenant named explicitly by the request: the {tenantId} path parameter, or, for system administrators only, the
+        /// tenantId query parameter. Null when the request names no tenant (the caller's own tenant applies).
+        /// </summary>
+        /// <param name="context">HTTP context.</param>
+        /// <returns>Tenant identifier or null.</returns>
+        public static string? TargetTenant(HttpContextBase context)
+        {
+            string? tenantId = Param(context, "tenantId");
+            if (!String.IsNullOrEmpty(tenantId)) return tenantId;
+            if (Context(context).IsAdmin)
+            {
+                string? query = Query(context, "tenantId");
+                if (!String.IsNullOrWhiteSpace(query)) return query.Trim();
+            }
+            return null;
         }
 
         /// <summary>

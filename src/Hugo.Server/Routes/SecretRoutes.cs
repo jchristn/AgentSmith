@@ -40,6 +40,7 @@ namespace Hugo.Server.Routes
         #region Private-Members
 
         private static readonly string _Base = "/v1.0/api/tenants/{tenantId}/secrets";
+        private static readonly string _FlatBase = "/v1.0/api/secrets";
         private readonly ServerContext _Server;
         private readonly SecretService _Secrets;
         private readonly AuthRateLimiter _RevealIpLimiter;
@@ -77,20 +78,26 @@ namespace Hugo.Server.Routes
         public void Register(RouteRegistrar routes)
         {
             if (routes == null) throw new ArgumentNullException(nameof(routes));
-            routes.Scoped(HttpMethod.GET, _Base, ResourceTypeEnum.Secret, OperationTypeEnum.Read, ListAsync, "List secrets (metadata and field names only)", "Secrets", null, typeof(EnumerationResult<Secret>));
-            routes.Scoped(HttpMethod.POST, _Base, ResourceTypeEnum.Secret, OperationTypeEnum.Create, CreateAsync, "Create a secret with its field values; returns metadata only", "Secrets", typeof(SecretRequest), typeof(Secret));
-            routes.Scoped(HttpMethod.POST, _Base + "/parse", ResourceTypeEnum.Secret, OperationTypeEnum.Create, ParseAsync, "Describe an uploaded SSH key, GCP service account JSON, kubeconfig, or PEM certificate without storing it", "Secrets", typeof(SecretImportRequest), typeof(SecretImportResult));
-            routes.Scoped(HttpMethod.GET, _Base + "/{id}", ResourceTypeEnum.Secret, OperationTypeEnum.Read, ReadAsync, "Read secret metadata, field names, fingerprint, and referrers (never values)", "Secrets", null, typeof(Secret));
-            routes.Scoped(HttpMethod.PUT, _Base + "/{id}", ResourceTypeEnum.Secret, OperationTypeEnum.Update, UpdateAsync, "Update secret name, description, and expiry", "Secrets", typeof(SecretRequest), typeof(Secret));
-            routes.Scoped(HttpMethod.PUT, _Base + "/{id}/values", ResourceTypeEnum.Secret, OperationTypeEnum.Update, ValuesAsync, "Replace the supplied field values (omitted fields and the mask placeholder keep stored values)", "Secrets", typeof(SecretValueRequest), typeof(Secret));
-            routes.Scoped(HttpMethod.GET, _Base + "/{id}/referrers", ResourceTypeEnum.Secret, OperationTypeEnum.Read, ReferrersAsync, "Resources and model endpoints that use the secret", "Secrets", null, typeof(List<SecretReferrer>));
-            routes.Scoped(HttpMethod.POST, _Base + "/{id}/reveal", ResourceTypeEnum.Secret, OperationTypeEnum.Reveal, RevealAsync, "Reveal plaintext values (Reveal permission, reason, and re-authentication within Secrets.RevealReauthMinutes required; audited; never captured in request history)", "Secrets", typeof(SecretRevealRequest), typeof(SecretRevealResponse));
-            routes.Scoped(HttpMethod.DELETE, _Base + "/{id}", ResourceTypeEnum.Secret, OperationTypeEnum.Delete, DeleteAsync, "Delete a secret (409 while referenced)", "Secrets");
+            RegisterAt(routes, _Base);
+            RegisterAt(routes, _FlatBase);
         }
 
         #endregion
 
         #region Private-Methods
+
+        private void RegisterAt(RouteRegistrar routes, string basePath)
+        {
+            routes.Scoped(HttpMethod.GET, basePath, ResourceTypeEnum.Secret, OperationTypeEnum.Read, ListAsync, "List secrets (metadata and field names only)", "Secrets", null, typeof(EnumerationResult<Secret>));
+            routes.Scoped(HttpMethod.POST, basePath, ResourceTypeEnum.Secret, OperationTypeEnum.Create, CreateAsync, "Create a secret with its field values; returns metadata only", "Secrets", typeof(SecretRequest), typeof(Secret));
+            routes.Scoped(HttpMethod.POST, basePath + "/parse", ResourceTypeEnum.Secret, OperationTypeEnum.Create, ParseAsync, "Describe an uploaded SSH key, GCP service account JSON, kubeconfig, or PEM certificate without storing it", "Secrets", typeof(SecretImportRequest), typeof(SecretImportResult));
+            routes.Scoped(HttpMethod.GET, basePath + "/{id}", ResourceTypeEnum.Secret, OperationTypeEnum.Read, ReadAsync, "Read secret metadata, field names, fingerprint, and referrers (never values)", "Secrets", null, typeof(Secret));
+            routes.Scoped(HttpMethod.PUT, basePath + "/{id}", ResourceTypeEnum.Secret, OperationTypeEnum.Update, UpdateAsync, "Update secret name, description, and expiry", "Secrets", typeof(SecretRequest), typeof(Secret));
+            routes.Scoped(HttpMethod.PUT, basePath + "/{id}/values", ResourceTypeEnum.Secret, OperationTypeEnum.Update, ValuesAsync, "Replace the supplied field values (omitted fields and the mask placeholder keep stored values)", "Secrets", typeof(SecretValueRequest), typeof(Secret));
+            routes.Scoped(HttpMethod.GET, basePath + "/{id}/referrers", ResourceTypeEnum.Secret, OperationTypeEnum.Read, ReferrersAsync, "Resources and model endpoints that use the secret", "Secrets", null, typeof(List<SecretReferrer>));
+            routes.Scoped(HttpMethod.POST, basePath + "/{id}/reveal", ResourceTypeEnum.Secret, OperationTypeEnum.Reveal, RevealAsync, "Reveal plaintext values (Reveal permission, reason, and re-authentication within Secrets.RevealReauthMinutes required; audited; never captured in request history)", "Secrets", typeof(SecretRevealRequest), typeof(SecretRevealResponse));
+            routes.Scoped(HttpMethod.DELETE, basePath + "/{id}", ResourceTypeEnum.Secret, OperationTypeEnum.Delete, DeleteAsync, "Delete a secret (409 while referenced)", "Secrets");
+        }
 
         private async Task ListAsync(HttpContextBase http)
         {

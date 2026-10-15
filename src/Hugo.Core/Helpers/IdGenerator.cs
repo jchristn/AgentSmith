@@ -109,6 +109,58 @@ namespace Hugo.Core.Helpers
         /// <returns>Identifier.</returns>
         public static string NewChildRowId() { return New(Constants.ChildRowIdPrefix); }
 
+        /// <summary>New resource identifier.</summary>
+        /// <returns>Identifier.</returns>
+        public static string NewResourceId() { return New(Constants.ResourceIdPrefix); }
+
+        /// <summary>New resource setting identifier.</summary>
+        /// <returns>Identifier.</returns>
+        public static string NewResourceSettingId() { return New(Constants.ResourceSettingIdPrefix); }
+
+        /// <summary>New resource secret slot binding identifier.</summary>
+        /// <returns>Identifier.</returns>
+        public static string NewResourceSecretBindingId() { return New(Constants.ResourceSecretBindingIdPrefix); }
+
+        /// <summary>New agent profile identifier.</summary>
+        /// <returns>Identifier.</returns>
+        public static string NewAgentProfileId() { return New(Constants.AgentProfileIdPrefix); }
+
+        /// <summary>New binding identifier.</summary>
+        /// <returns>Identifier.</returns>
+        public static string NewBindingId() { return New(Constants.BindingIdPrefix); }
+
+        /// <summary>New binding tool rule identifier.</summary>
+        /// <returns>Identifier.</returns>
+        public static string NewBindingToolRuleId() { return New(Constants.BindingToolRuleIdPrefix); }
+
+        /// <summary>New tool invocation identifier.</summary>
+        /// <returns>Identifier.</returns>
+        public static string NewToolInvocationId() { return New(Constants.ToolInvocationIdPrefix); }
+
+        /// <summary>New approval identifier.</summary>
+        /// <returns>Identifier.</returns>
+        public static string NewApprovalId() { return New(Constants.ApprovalIdPrefix); }
+
+        /// <summary>New model endpoint identifier.</summary>
+        /// <returns>Identifier.</returns>
+        public static string NewModelEndpointId() { return New(Constants.ModelEndpointIdPrefix); }
+
+        /// <summary>New plugin record identifier.</summary>
+        /// <returns>Identifier.</returns>
+        public static string NewPluginId() { return New(Constants.PluginIdPrefix); }
+
+        /// <summary>New resource knowledge identifier.</summary>
+        /// <returns>Identifier.</returns>
+        public static string NewResourceKnowledgeId() { return New(Constants.ResourceKnowledgeIdPrefix); }
+
+        /// <summary>New resource knowledge version identifier.</summary>
+        /// <returns>Identifier.</returns>
+        public static string NewResourceKnowledgeVersionId() { return New(Constants.ResourceKnowledgeVersionIdPrefix); }
+
+        /// <summary>New connector schema cache identifier.</summary>
+        /// <returns>Identifier.</returns>
+        public static string NewConnectorSchemaCacheId() { return New(Constants.ConnectorSchemaCacheIdPrefix); }
+
         #endregion
     }
 }

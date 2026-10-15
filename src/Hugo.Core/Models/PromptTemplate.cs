@@ -89,6 +89,13 @@ namespace Hugo.Core.Models
         public string? BuiltInKey { get; set; } = null;
 
         /// <summary>
+        /// SHA-256 of the content of the layer below (the built-in for a Global row, the resolved Global or built-in for a
+        /// Tenant row) when this row was last synchronized or reset. A different hash of the current lower layer means the
+        /// default changed since this row was customized. Null for templates that are not template layers.
+        /// </summary>
+        public string? BaseHash { get; set; } = null;
+
+        /// <summary>
         /// Whether the record is active.
         /// </summary>
         public bool Active { get; set; } = true;

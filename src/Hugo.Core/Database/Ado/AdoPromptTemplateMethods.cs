@@ -118,7 +118,7 @@ namespace Hugo.Core.Database.Ado
             if (obj == null) throw new ArgumentNullException(nameof(obj));
             obj.LastUpdateUtc = DateTime.UtcNow;
 
-            string sql = "UPDATE " + _Table + " SET tenant_id = @tenant_id, name = @name, description = @description, kind = @kind, content = @content, current_version = @current_version, is_builtin = @is_builtin, builtin_key = @builtin_key, active = @active, is_protected = @is_protected, last_update_utc = @last_update_utc WHERE id = @id;";
+            string sql = "UPDATE " + _Table + " SET tenant_id = @tenant_id, name = @name, description = @description, kind = @kind, content = @content, current_version = @current_version, is_builtin = @is_builtin, builtin_key = @builtin_key, base_hash = @base_hash, active = @active, is_protected = @is_protected, last_update_utc = @last_update_utc WHERE id = @id;";
 
             await _Driver.ExecuteInTransactionAsync(async (connection, transaction, ct) =>
             {
@@ -133,6 +133,7 @@ namespace Hugo.Core.Database.Ado
                     AdoDatabaseDriver.Add(command, "current_version", obj.CurrentVersion);
                     AdoDatabaseDriver.Add(command, "is_builtin", obj.IsBuiltIn);
                     AdoDatabaseDriver.Add(command, "builtin_key", obj.BuiltInKey);
+                    AdoDatabaseDriver.Add(command, "base_hash", obj.BaseHash);
                     AdoDatabaseDriver.Add(command, "active", obj.Active);
                     AdoDatabaseDriver.Add(command, "is_protected", obj.IsProtected);
                     AdoDatabaseDriver.Add(command, "last_update_utc", obj.LastUpdateUtc);
@@ -222,6 +223,7 @@ namespace Hugo.Core.Database.Ado
             obj.CurrentVersion = AdoConverters.Int(reader, "current_version");
             obj.IsBuiltIn = AdoConverters.Bool(reader, "is_builtin");
             obj.BuiltInKey = AdoConverters.NullableStr(reader, "builtin_key");
+            obj.BaseHash = AdoConverters.NullableStr(reader, "base_hash");
             obj.Active = AdoConverters.Bool(reader, "active");
             obj.IsProtected = AdoConverters.Bool(reader, "is_protected");
             obj.CreatedUtc = AdoConverters.Date(reader, "created_utc");
@@ -252,7 +254,7 @@ namespace Hugo.Core.Database.Ado
 
         private async Task InsertRowAsync(DbConnection connection, DbTransaction transaction, PromptTemplate obj, CancellationToken token)
         {
-            string sql = "INSERT INTO " + _Table + " (id, tenant_id, name, description, kind, content, current_version, is_builtin, builtin_key, active, is_protected, created_utc, last_update_utc) VALUES (@id, @tenant_id, @name, @description, @kind, @content, @current_version, @is_builtin, @builtin_key, @active, @is_protected, @created_utc, @last_update_utc);";
+            string sql = "INSERT INTO " + _Table + " (id, tenant_id, name, description, kind, content, current_version, is_builtin, builtin_key, base_hash, active, is_protected, created_utc, last_update_utc) VALUES (@id, @tenant_id, @name, @description, @kind, @content, @current_version, @is_builtin, @builtin_key, @base_hash, @active, @is_protected, @created_utc, @last_update_utc);";
             await AdoDatabaseDriver.ExecuteAsync(connection, transaction, sql, command =>
             {
                 AdoDatabaseDriver.Add(command, "id", obj.Id);
@@ -264,6 +266,7 @@ namespace Hugo.Core.Database.Ado
                 AdoDatabaseDriver.Add(command, "current_version", obj.CurrentVersion);
                 AdoDatabaseDriver.Add(command, "is_builtin", obj.IsBuiltIn);
                 AdoDatabaseDriver.Add(command, "builtin_key", obj.BuiltInKey);
+                    AdoDatabaseDriver.Add(command, "base_hash", obj.BaseHash);
                 AdoDatabaseDriver.Add(command, "active", obj.Active);
                 AdoDatabaseDriver.Add(command, "is_protected", obj.IsProtected);
                 AdoDatabaseDriver.Add(command, "created_utc", obj.CreatedUtc);
