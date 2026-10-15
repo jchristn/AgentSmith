@@ -185,6 +185,8 @@ namespace Test.Automated.Suites
                 CredentialRequest create = new CredentialRequest();
                 create.Name = Unique("signed");
                 create.AuthMode = CredentialAuthModeEnum.SignedRequest;
+                // A credential gets only its own scope, never the owner's administrator bypass.
+                create.RoleName = "Viewer";
                 CredentialCreateResponse created = await ctx.Owner.Credentials.CreateAsync(create).ConfigureAwait(false);
                 try
                 {

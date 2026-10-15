@@ -88,7 +88,7 @@ def test_access_key_direct_and_session_exchange(client, harness):
 
 
 def test_signed_requests(client, harness):
-    created = client.credentials.create({"name": unique("signed"), "userId": harness.owner_id, "authMode": "SignedRequest"})
+    created = client.credentials.create({"name": unique("signed"), "userId": harness.owner_id, "authMode": "SignedRequest", "roleName": "Viewer"})
     try:
         with HugoClient(SERVER) as c:
             c.use_signed_requests(created.access_key, created.secret_key, harness.tenant_id)
