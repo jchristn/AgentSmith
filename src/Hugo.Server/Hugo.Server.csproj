@@ -20,6 +20,12 @@
     <ProjectReference Include="..\Hugo.Connectors.Storage\Hugo.Connectors.Storage.csproj" />
     <ProjectReference Include="..\Hugo.Connectors.Sql\Hugo.Connectors.Sql.csproj" />
     <ProjectReference Include="..\Hugo.Connectors.Logging\Hugo.Connectors.Logging.csproj" />
+    <ProjectReference Include="..\Hugo.Connectors.Redis\Hugo.Connectors.Redis.csproj" />
+    <ProjectReference Include="..\Hugo.Connectors.Http\Hugo.Connectors.Http.csproj" />
+    <ProjectReference Include="..\Hugo.Connectors.Observability\Hugo.Connectors.Observability.csproj" />
+    <ProjectReference Include="..\Hugo.Connectors.Aws\Hugo.Connectors.Aws.csproj" />
+    <ProjectReference Include="..\Hugo.Connectors.Kubernetes\Hugo.Connectors.Kubernetes.csproj" />
+    <ProjectReference Include="..\Hugo.Connectors.Docker\Hugo.Connectors.Docker.csproj" />
   </ItemGroup>
 
   <ItemGroup>

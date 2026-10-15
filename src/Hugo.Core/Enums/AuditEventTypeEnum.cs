@@ -128,6 +128,56 @@ namespace Hugo.Core.Enums
         /// <summary>
         /// The server started after a restart.
         /// </summary>
-        ServerRestarted
+        ServerRestarted,
+
+        /// <summary>
+        /// A resource, its settings, or its secret slot bindings changed.
+        /// </summary>
+        ResourceChanged,
+
+        /// <summary>
+        /// An agent profile changed.
+        /// </summary>
+        ProfileChanged,
+
+        /// <summary>
+        /// A binding, its tool rules, or its deny patterns changed.
+        /// </summary>
+        BindingChanged,
+
+        /// <summary>
+        /// An approval was approved, rejected, or cancelled.
+        /// </summary>
+        ApprovalDecided,
+
+        /// <summary>
+        /// Resource knowledge changed.
+        /// </summary>
+        KnowledgeChanged,
+
+        /// <summary>
+        /// A connector pinned an SSH host key on first use (D-028).
+        /// </summary>
+        HostKeyPinned,
+
+        /// <summary>
+        /// A connector saw a host key that does not match the pinned one.
+        /// </summary>
+        HostKeyMismatch,
+
+        /// <summary>
+        /// A model endpoint changed.
+        /// </summary>
+        ModelEndpointChanged,
+
+        /// <summary>
+        /// A connector plugin was loaded, refused, or unloaded.
+        /// </summary>
+        PluginLoaded,
+
+        /// <summary>
+        /// A connector learned and persisted a resource setting other than a host key.
+        /// </summary>
+        SettingLearned
     }
 }

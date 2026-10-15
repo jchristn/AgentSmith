@@ -115,6 +115,15 @@ namespace Hugo.Core.Database.Ado
             Nonces = new AdoRequestNonceMethods(this);
             RateLimits = new AdoRateLimitBucketMethods(this);
             MasterKeys = new AdoMasterKeyVersionMethods(this);
+            Resources = new AdoResourceMethods(this);
+            AgentProfiles = new AdoAgentProfileMethods(this);
+            Bindings = new AdoBindingMethods(this);
+            ToolInvocations = new AdoToolInvocationMethods(this);
+            Approvals = new AdoApprovalMethods(this);
+            ResourceKnowledge = new AdoResourceKnowledgeMethods(this);
+            ModelEndpoints = new AdoModelEndpointMethods(this);
+            Plugins = new AdoPluginMethods(this);
+            SchemaCache = new AdoConnectorSchemaCacheMethods(this);
         }
 
         #endregion

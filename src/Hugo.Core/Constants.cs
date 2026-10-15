@@ -148,6 +148,21 @@ namespace Hugo.Core
         /// <summary>Knowledge note identifier prefix.</summary>
         public const string KnowledgeNoteIdPrefix = "kno_";
 
+        /// <summary>
+        /// Resource knowledge entry identifier prefix.
+        /// </summary>
+        public const string ResourceKnowledgeIdPrefix = "rkn_";
+
+        /// <summary>
+        /// Resource knowledge version identifier prefix.
+        /// </summary>
+        public const string ResourceKnowledgeVersionIdPrefix = "rkv_";
+
+        /// <summary>
+        /// Connector schema cache entry identifier prefix.
+        /// </summary>
+        public const string ConnectorSchemaCacheIdPrefix = "csc_";
+
         /// <summary>Signed-request nonce identifier prefix.</summary>
         public const string NonceIdPrefix = "non_";
 

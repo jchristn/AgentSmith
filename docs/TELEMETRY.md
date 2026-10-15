@@ -8,6 +8,7 @@ Hugo records metrics through the `Hugo` meter and spans through the `Hugo` activ
 
 | Metric (Prometheus) | Type | Labels | Category | Meaning |
 |---|---|---|---|---|
+| `hugo_instructions_compile_duration_seconds` | histogram | `cached` | Agent and Chat | Time to compile a profile's instructions (cached is true when served from the compile cache) |
 | `hugo_background_job_duration_seconds` | histogram | `job` | Background | Duration of one background job run |
 | `hugo_background_jobs_total` | counter | `job`, `outcome` | Background | Background job runs (retention, master key rotation, and so on) by outcome (ok, error) |
 | `hugo_background_duration_seconds` | histogram | `service`, `operation`, `result` | Control plane | Duration of one iteration of a background service (retention, settings refresh, key rotation) |
@@ -28,6 +29,9 @@ Hugo records metrics through the `Hugo` meter and spans through the `Hugo` activ
 | `hugo_observability_reachable` | gauge | `service` | Integrations | 1 when the server's last probe reached the observability service (Grafana, Prometheus, Loki, Tempo), 0 when not; absent when not configured |
 | `hugo_outbound_duration_seconds` | histogram | `service`, `operation`, `result` | Integrations | Outbound call duration |
 | `hugo_outbound_requests_total` | counter | `service`, `operation`, `result` | Integrations | Outbound calls (observability probes, metrics relay, and later connectors) by result (ok, error, status class) |
+| `hugo_model_connector_requests_total` | counter | `provider`, `purpose`, `outcome` | Models | Model calls made by connector tools through the calling profile's inference endpoint (IConnectorModel), by purpose and outcome (ok, error, budget_exhausted) |
+| `hugo_model_connector_tokens_total` | counter | `provider`, `purpose`, `direction` | Models | Tokens used by connector model calls, by purpose and direction (input, output) |
+| `hugo_model_health_checks_total` | counter | `provider`, `kind`, `outcome` | Models | Model endpoint validations and health sweep checks by outcome (healthy, unhealthy) |
 | `hugo_sse_events_total` | counter | `stream` | Protocols | Server-sent events written |
 | `hugo_sse_streams_active` | gauge | `stream` | Protocols | Server-sent event streams open on this server (events, chat, A2A) |
 | `hugo_audit_events_total` | counter | `type` | Security | Audit records written, by event type |
@@ -42,3 +46,8 @@ Hugo records metrics through the `Hugo` meter and spans through the `Hugo` activ
 | `hugo_secret_redactions_total` | counter | `kind` | Security | Values replaced by the secret scrubber, by kind (known, private_key, aws_access_key, bearer, connection_string, password_pair, generic) |
 | `hugo_telemetry_diagnostics_total` | counter | `severity` | Telemetry | Diagnostics reported by the telemetry pipeline (export failures and the like) |
 | `hugo_telemetry_labels_folded_total` | counter | `label` | Telemetry | Measurements whose label value was replaced by other because the label already had Telemetry.MaxLabelValues distinct values |
+| `hugo_approval_wait_seconds` | histogram | `effect` | Tools and Connectors | Time from an approval request to its decision or expiry |
+| `hugo_approvals_total` | counter | `outcome` | Tools and Connectors | Approvals by outcome (requested, approved, rejected, expired, cancelled) |
+| `hugo_tool_duration_seconds` | histogram | `connector`, `tool` | Tools and Connectors | Tool execution time, excluding approval waits |
+| `hugo_tool_invocations_total` | counter | `connector`, `tool`, `effect`, `decision`, `status`, `surface` | Tools and Connectors | Tool calls through the invocation pipeline by connector, tool, classified effect, decision (Allowed, Denied, ApprovalRequired, Approved, Rejected, Expired, Cancelled), execution status, and surface |
+| `hugo_tool_output_bytes_bytes` | histogram | `connector` | Tools and Connectors | Tool output returned to the caller, after scrubbing and limits |

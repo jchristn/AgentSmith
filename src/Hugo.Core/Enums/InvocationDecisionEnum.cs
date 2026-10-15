@@ -18,6 +18,26 @@ namespace Hugo.Core.Enums
         /// <summary>
         /// The call may run only after a human approves it.
         /// </summary>
-        ApprovalRequired = 2
+        ApprovalRequired = 2,
+
+        /// <summary>
+        /// Approval was required and a human approved the call (recorded on tool invocations).
+        /// </summary>
+        Approved = 3,
+
+        /// <summary>
+        /// Approval was required and a human rejected the call (recorded on tool invocations).
+        /// </summary>
+        Rejected = 4,
+
+        /// <summary>
+        /// Approval was required and expired before a decision (recorded on tool invocations).
+        /// </summary>
+        Expired = 5,
+
+        /// <summary>
+        /// Approval was required and was cancelled (recorded on tool invocations).
+        /// </summary>
+        Cancelled = 6
     }
 }

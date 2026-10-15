@@ -185,10 +185,7 @@ namespace Hugo.Core.Database.Ado
         public async Task<int> DeleteCascadeAsync(string tenantId, CancellationToken token = default)
         {
             if (String.IsNullOrEmpty(tenantId)) throw new ArgumentNullException(nameof(tenantId));
-            HashSet<string> withoutTenant = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                "tenants", "cluster_settings", "request_nonces", "rate_limit_buckets", "master_key_versions"
-            };
+            HashSet<string> withoutTenant = new HashSet<string>(Hugo.Core.Database.TableCatalog.GlobalTables, StringComparer.OrdinalIgnoreCase);
 
             int total = 0;
             await _Driver.ExecuteInTransactionAsync(async (connection, transaction, ct) =>

@@ -85,17 +85,17 @@ These rules keep the plan honest:
 | 0 | Repository bootstrap | M1 | In progress | 11 / 16 |
 | 1 | Core foundation: settings, data layer, identity, RBAC, sessions, audit, history, telemetry base | M1 | In progress | 38 / 44 |
 | 2 | Secrets vault | M1 | In progress | 11 / 12 |
-| 3 | Connector framework and tool invocation pipeline | M1 | In progress | 4 / 26 |
-| 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | In progress | 32 / 37 |
-| 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | In progress | 0 / 21 |
-| 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | In progress | 10 / 24 |
+| 3 | Connector framework and tool invocation pipeline | M1 | Complete | 26 / 26 |
+| 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | In progress | 33 / 37 |
+| 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | In progress | 18 / 21 |
+| 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | In progress | 12 / 24 |
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Not started | 0 / 22 |
 | 8 | Dashboard | M1 | In progress | 47 / 53 |
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | Not started | 0 / 15 |
-| 10 | Docker, testbed, and observability stack | M1 | In progress | 6 / 24 |
+| 10 | Docker, testbed, and observability stack | M1 | In progress | 13 / 24 |
 | 11 | Documentation and Postman | M1 | Not started | 0 / 18 |
 | 12 | MVP verification (milestone M1) | M1 | Not started | 0 / 14 |
-| 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | In progress | 24 / 38 |
+| 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | In progress | 25 / 38 |
 | 14 | Knowledge, runbooks, and operator conveniences | M2 | Not started | 0 / 12 |
 | 15 | Benchmarking | M3 | Not started | 0 / 16 |
 | 16 | Hardening, simulated user testing, and 1.0 release | M4 | Not started | 0 / 18 |
@@ -113,6 +113,13 @@ Milestones:
 
 - Execution started 2026-10-14. Phase 0 skeleton is committed: solution, connector contract (P3.1), CI workflow, assets. The foundation is being forked from Garrison (D-032).
 - In flight 2026-10-14 (parallel agents, one git worktree each, merged by the coordinator):
+  1. Chat, conversations, A2A, OpenAI-compatible surface, delegation service: P6 remainder, P7.13 to P7.19, A2A part of P7.22.
+  2. MCP surface: P7.1 to P7.12, MCP part of P7.22.
+  3. Dashboard wiring to the real routes and the live primary-journey test: P8.33, P8.34, P8.35, P8.38, P8.53.
+  4. MCP and A2A agent connectors: P13.26 to P13.31.
+  5. hugo CLI with stdio MCP relay: P7.20, P7.21.
+  6. SDKs in C#, Python, and JavaScript: Phase 9, now verifying domain routes against the server.
+  7. Connector bug fixes from the documentation review (SSH command wrapper classification, Redis deny list, Kubernetes, AWS, logs, storage paging, SQL Server TLS, Elasticsearch aliases).
 - Follow-ups recorded from connector work (fold into the named tasks):
   - P3.13: the pipeline applies binding-level command deny patterns (the invocation context has no binding policy).
   - P3.8: audit every `LearnSetting` call (pinned host keys, D-028) as `HostKeyPinned`.
@@ -124,7 +131,7 @@ Milestones:
   - Knowledge contract follow-ups from the SQL intelligence work: compare-and-swap put (expected version) for append races, `FinishReason` on `ConnectorModelResponse`, a JSON-mode hint, reason and reviewed fields on entries, `ToolArguments.GetDouble`, a crawl cache persistence hook, and a per-invocation model-call budget (`sql_generate_context` can make up to 51 calls; invocation timeouts for RequiresModel tools need to be longer than 120 seconds).
   - SSH `jumpResourceName` (reuse another resource as bastion) needs a related-resource resolver; the jump settings cover the case today.
 - Next after the merges: Phase 3 pipeline (resources, invocation service, approvals), Phase 5 profiles and instructions, Phase 6 runtime, Phase 7 protocols.
-- Decisions D-001 through D-041 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
+- Decisions D-001 through D-042 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
 - Before P0.1, confirm the open questions in [section 23](#23-risks-and-open-questions) that are marked "before Phase 0".
 
 ---
@@ -252,6 +259,7 @@ This journey is the acceptance story for M1. Phase 12 replays it end to end.
 | D-039 | The forked foundation keeps Garrison's REST shapes, so the forked dashboard works unchanged. Tenant-owned routes are `/v1.0/api/tenants/{tenantId}/...` (for example `/v1.0/api/tenants/{tenantId}/secrets`), not the flat `/v1.0/api/secrets` style in section 14.2. Enumeration uses `maxResults`, `skip`, and `objects` instead of `pageNumber`, `pageSize`, and `items`. System administrators are users with `is_admin`; there is no separate `admins` table. The default tenant's ID is the fixed string `default`. Prompt templates keep Garrison's two layers (a global layer with a null tenant, and tenant overrides by name). Section 14.2 paths are read through this mapping, and Phase 3 onward uses the tenant-scoped shape. | Consistency with the forked dashboard and the tested Garrison code outweighs the plan's original path style. | 7, 14, 18 |
 | D-040 | Dashboard i18n and packaging deviations from section 18.1: catalogs live in `dashboard/src/i18n/locales/*.json` (English bundled, others lazy loaded) instead of `public/i18n`; plain i18next interpolation and plurals instead of `i18next-icu`; `zh` means Simplified Chinese and `pt` means Brazilian Portuguese; the build stage uses `node:22-alpine`. Non-English catalogs are machine-generated and listed for review in `dashboard/I18N.md`. Hugo domain routes are flat with the tenant taken from the request context (section 14.2), while identity and admin routes keep Garrison's tenant-scoped shape (D-039). | Matches the forked Garrison dashboard; the review list keeps translation quality visible. | 18 |
 | D-041 | The Docker connector uses `Docker.DotNet.Enhanced` (the maintained fork, supports engine 29.x) instead of `Docker.DotNet`, whose last release was in 2023. Scaling a Kubernetes workload or an ECS service to zero is classified Destructive, not Write, because it takes the workload down. | Maintained dependency; classification follows impact rather than verb. | 9.2 |
+| D-042 | Integration details. Binding deny patterns apply only to per-call classified tools and match the primary argument (`x-hugo-primary`, else the first of command, sql, statement, query, script, expression, else the first required string); an invalid or timed-out pattern counts as a match. `allowKnowledgeUpdates` is enforced by the knowledge store, so a tool can still return a draft when writes are refused. Validation errors return 400 `SettingsInvalid` (not 422) to match the existing error shape. Tenant-layer template resets deactivate the override and keep history. The instruction compiler shifts connector instruction headings under each resource heading. Admin direct invoke (`/resources/{id}/invoke`) needs Execute on Resource and uses the resource ceiling as the access mode. | Recorded from the integration work. | 8.6, 10, 14 |
 
 ---
 
@@ -1768,29 +1776,29 @@ Tests and runners
 
 - [x] P3.1 `Hugo.Connectors.Abstractions`: interfaces and supporting types in section 8.1, one per file, fully documented.  | claude 2026-10-14 Hugo.Connectors.Abstractions: IConnector, IConnectorTool, descriptors, schema, slots, contexts, ToolArguments, ToolResult, EffectClassification, OutputLimiter, TextTable, EmbeddedText; helper suite passes
 - [x] P3.2 `ConnectorSettingsSchema` validation engine (required, ranges, enums, patterns, lists) with field-level errors and i18n keys.  | claude 2026-10-14 Hugo.Core/Connectors/ConnectorSettingsValidator (required, kinds, ranges, enums, patterns with timeout, unknown keys, slot kinds) plus ApplyDefaults; framework.settings suite
-- [~] P3.3 `ConnectorRegistry` and `ConnectorRegistrations.cs`. `GET /v1.0/api/connectors` and `/{type}`.  | claude 2026-10-14 Hugo.Core/Connectors/ConnectorRegistry with type/tool naming rules and family schema parity (verified with the logs family); ConnectorRegistrations and REST routes pending the server foundation
-- [ ] P3.4 Migration 3: `resources`, `resource_settings`, `resource_secret_bindings`, `connector_schema_cache`.
-- [ ] P3.5 `IResourceMethods` and implementations (both providers), including settings and slot child rows.
-- [ ] P3.6 `ResourceService`: create and update with schema validation, secret slot validation (kind and field), visibility, ceiling, duplicate, referrers.
-- [ ] P3.7 Resource routes, including test of saved and unsaved settings.
-- [ ] P3.8 `ConnectorResourceContext` builder (settings accessor, `SecretAccessor` that decrypts lazily and zeroes after use).
-- [ ] P3.9 `ConnectorSessionPool` (LRU idle eviction, per-resource Padlock caps, disposal on resource change).
-- [ ] P3.10 `ToolArguments` JSON schema validation (2020-12 subset used by tool schemas).
-- [ ] P3.11 `OutputLimiter` (bytes, rows, lines, with truncation metadata).
-- [ ] P3.12 Migration 4: `tool_invocations`, `approvals`.
-- [ ] P3.13 `ToolInvocationService` pipeline steps 1 to 12 (section 8.6), with lockdown support.
+- [x] P3.3 `ConnectorRegistry` and `ConnectorRegistrations.cs`. `GET /v1.0/api/connectors` and `/{type}`.  | claude 2026-10-14 ConnectorRegistrations: all 18 connector types; connector routes return schema, slots, tools
+- [x] P3.4 Migration 3: `resources`, `resource_settings`, `resource_secret_bindings`, `connector_schema_cache`.  | claude 2026-10-14 migration 3: resources, settings, secret slots, schema cache, resource knowledge and versions
+- [x] P3.5 `IResourceMethods` and implementations (both providers), including settings and slot child rows.  | claude 2026-10-14 resource methods on both providers with typed setting columns
+- [x] P3.6 `ResourceService`: create and update with schema validation, secret slot validation (kind and field), visibility, ceiling, duplicate, referrers.  | claude 2026-10-14 ResourceService: schema plus connector validation, slot kinds, visibility, ceiling, duplicate, referrers, cascade, secret referrer provider
+- [x] P3.7 Resource routes, including test of saved and unsaved settings.  | claude 2026-10-14 flat resource routes incl. test of saved and unsaved settings (Connectors.TestTimeoutSeconds)
+- [x] P3.8 `ConnectorResourceContext` builder (settings accessor, `SecretAccessor` that decrypts lazily and zeroes after use).  | claude 2026-10-14 ConnectorContextBuilder: secrets decrypted per call, zeroed on dispose; LearnSetting persisted and audited (HostKeyPinned)
+- [x] P3.9 `ConnectorSessionPool` (LRU idle eviction, per-resource Padlock caps, disposal on resource change).  | claude 2026-10-14 ConnectorSessionPool: idle eviction, per-resource invalidation and concurrency cap (SemaphoreSlim)
+- [x] P3.10 `ToolArguments` JSON schema validation (2020-12 subset used by tool schemas).  | claude 2026-10-14 ToolArgumentValidator over a typed JSON Schema subset
+- [x] P3.11 `OutputLimiter` (bytes, rows, lines, with truncation metadata).  | claude 2026-10-14 pipeline output backstop tightened by binding limits
+- [x] P3.12 Migration 4: `tool_invocations`, `approvals`.  | claude 2026-10-14 migration 4: tool_invocations, approvals, plugins
+- [x] P3.13 `ToolInvocationService` pipeline steps 1 to 12 (section 8.6), with lockdown support.  | claude 2026-10-14 ToolInvocationService: all 12 steps, binding deny patterns on the primary argument (x-hugo-primary, else command/sql/statement/query/script/expression), lockdown, profile model on context
 - [x] P3.14 Access mode matrix plus binding tool rules plus resource ceiling (pure function, exhaustively tested).  | claude 2026-10-14 Hugo.Core/Safety/AccessPolicy: matrix, ceiling, tool rules, lockdown, classifier rejection, always-approve; framework.policy suite
-- [ ] P3.15 `ApprovalService`: create, decide, expire, cancel, wait handles (database-backed with in-process signal), events.
-- [ ] P3.16 Approval routes and the expiry background job.
-- [ ] P3.17 Tool invocation routes: list, get, summary, dry run, direct invoke (202 on approval).
-- [ ] P3.18 Tool invocation telemetry (metrics and spans per section 21).
-- [ ] P3.19 Plugin loader (collectible `AssemblyLoadContext` per plugin, type discovery, collision checks, `plugins` table, settings toggle, audit).
-- [ ] P3.20 A test connector `echo` in `Test.Shared` (tools `echo_read` R, `echo_write` W, `echo_delete` D, `echo_classify` C) used by pipeline and protocol tests.
-- [ ] P3.21 A test plugin assembly built in CI and loaded by a suite. *Accept:* loads, registers, executes, and unloads.
-- [ ] P3.22 Pipeline suites: matrix, tool rules, ceiling, lockdown, approval approve, reject, expire, cancel, scrubbing, limits, timeouts, cancellation.
-- [ ] P3.23 Tenant lockdown routes and behavior.
-- [ ] P3.25 Resource knowledge persistence: `resource_knowledge` table (tenant, resource, scope, key, content, source, updated_by, version) with version history; server `IResourceKnowledgeStore` implementation (scrubbed, audited as `KnowledgeChanged`); routes `GET/PUT/DELETE /v1.0/api/resources/{id}/knowledge[/{scope}[/{key}]]`; binding flag `allow_knowledge_updates` (default true) enforced by the pipeline.
-- [ ] P3.26 Server `IConnectorModel` implementation bound to the calling profile's inference endpoint (metered, traced, `hugo_model_*` metrics with a `purpose` label); tools with `RequiresModel` hidden from profiles without an endpoint.
+- [x] P3.15 `ApprovalService`: create, decide, expire, cancel, wait handles (database-backed with in-process signal), events.  | claude 2026-10-14 ApprovalService: database-backed, in-process signal plus polling, atomic decisions, events, self-approval setting, resume after restart
+- [x] P3.16 Approval routes and the expiry background job.  | claude 2026-10-14 approval routes and expiry job
+- [x] P3.17 Tool invocation routes: list, get, summary, dry run, direct invoke (202 on approval).  | claude 2026-10-14 tool invocation routes incl. dry run and invoke (202 while pending)
+- [x] P3.18 Tool invocation telemetry (metrics and spans per section 21).  | claude 2026-10-14 hugo_tool_* and hugo_approval* metrics, <connector> <tool> spans, tool.completed events
+- [x] P3.19 Plugin loader (collectible `AssemblyLoadContext` per plugin, type discovery, collision checks, `plugins` table, settings toggle, audit).  | claude 2026-10-14 plugin loader with collectible load contexts, collision refusal, plugins table, audit
+- [x] P3.20 A test connector `echo` in `Test.Shared` (tools `echo_read` R, `echo_write` W, `echo_delete` D, `echo_classify` C) used by pipeline and protocol tests.  | claude 2026-10-14 echo connector in Test.Shared
+- [x] P3.21 A test plugin assembly built in CI and loaded by a suite. *Accept:* loads, registers, executes, and unloads.  | claude 2026-10-14 Test.Plugin project loaded, executed, unloaded by suite
+- [x] P3.22 Pipeline suites: matrix, tool rules, ceiling, lockdown, approval approve, reject, expire, cancel, scrubbing, limits, timeouts, cancellation.  | claude 2026-10-14 pipeline suites on SQLite and PostgreSQL
+- [x] P3.23 Tenant lockdown routes and behavior.  | claude 2026-10-14 lockdown routes; pending approvals cancelled
+- [x] P3.25 Resource knowledge persistence: `resource_knowledge` table (tenant, resource, scope, key, content, source, updated_by, version) with version history; server `IResourceKnowledgeStore` implementation (scrubbed, audited as `KnowledgeChanged`); routes `GET/PUT/DELETE /v1.0/api/resources/{id}/knowledge[/{scope}[/{key}]]`; binding flag `allow_knowledge_updates` (default true) enforced by the pipeline.  | claude 2026-10-14 knowledge store (scrubbed, versioned, audited), routes, allowKnowledgeUpdates enforced at the store
+- [x] P3.26 Server `IConnectorModel` implementation bound to the calling profile's inference endpoint (metered, traced, `hugo_model_*` metrics with a `purpose` label); tools with `RequiresModel` hidden from profiles without an endpoint.  | claude 2026-10-14 ServerConnectorModel with per-invocation budget and purpose metrics; RequiresModel tools hidden without an endpoint
 - [x] P3.24 `docs/CONNECTOR_AUTHORING.md` draft from section 8.5, with the `echo` connector as the worked example.  | claude 2026-10-14 docs/CONNECTOR_AUTHORING.md with contract walkthrough, effect rules, worked example, checklist
 
 ### Phase 4: Connectors wave 1 (M1)
@@ -1836,7 +1844,7 @@ SolarWinds Observability
 
 Wrap-up
 - [ ] P4.28 Health sweep background job: periodic `TestConnectionAsync` per active resource (configurable, off by default for expensive connectors), `hugo_resource_health` gauge.
-- [ ] P4.29 `docs/CONNECTORS.md` sections for every wave 1 connector (settings, slots, tools, effects, least-privilege setup guidance for the upstream credential).
+- [x] P4.29 `docs/CONNECTORS.md` sections for every wave 1 connector (settings, slots, tools, effects, least-privilege setup guidance for the upstream credential).  | claude 2026-10-14 docs/CONNECTORS.md (18 connector types, generated from descriptors), docs/MCP_CONNECTOR_TOOLS.md (111 tools with schemas and examples)
 Database intelligence (D-038)
 - [x] P4.31 Port Tablix `SchemaProjection` and `DatabaseIntelligenceBuilder` into `Hugo.Connectors.Sql/Intelligence` (attribution in `VENDORED.md`); full crawl cache with refresh.  | claude 2026-10-14 Intelligence/ port of DatabaseIntelligenceBuilder and SchemaProjection (Tablix 450bc76, VENDORED.md); one shared crawl cache, refresh:true recrawls
 - [x] P4.32 Paged compact indexes for `sql_list_tables` (search, schema filter, cursor) and a new `sql_list_relationships` (declared plus inferred candidates with confidence and evidence).  | claude 2026-10-14 sql_list_tables paged index (search, schema, cursor, pageSize); sql_list_relationships with declared plus inferred candidates, confidence and evidence
@@ -1849,36 +1857,36 @@ Database intelligence (D-038)
 
 ### Phase 5: Agent profiles, bindings, prompt templates, instruction composition (M1)
 
-- [ ] P5.1 Migration 5: `agent_profiles`, `bindings`, `binding_tool_rules`, `prompt_templates`, `prompt_template_versions`.
-- [ ] P5.2 `I*Methods` and implementations for profiles, bindings, tool rules, templates, and versions (both providers).
-- [ ] P5.3 Built-in template loader (embedded resources from Core and every connector assembly, content hashes).
-- [ ] P5.4 Global default seeding from Built-in, with the "built-in updated since customized" detection by hash.
-- [ ] P5.5 `PromptTemplateService`: resolve by layer, save (creates a version), reset per layer, versions, diff, built-in view.
-- [ ] P5.6 Template renderer integration (variables in section 10.3, include support, failure fallback).
-- [ ] P5.7 Prompt template routes, including render preview.
-- [ ] P5.8 `AgentProfileService`: CRUD, duplicate, default profile per tenant (provisioned with the tenant), visibility, credential and user default profile references.
-- [ ] P5.9 `BindingService`: CRUD, alias uniqueness, access mode, ceiling enforcement, tool rules.
-- [ ] P5.10 Profile and binding routes.
-- [ ] P5.11 `InstructionCompiler` with source map, token estimate, and cache invalidation on every relevant change.
-- [ ] P5.12 Compiled instruction and caller tool-view routes (`compiled-instructions`, `tools`).
-- [ ] P5.13 Profile resolution service (D-018) used by every surface, with credential `lock_to_profile`.
-- [~] P5.14 Write `persona.agent-smith` (Appendix A), `persona.neutral`, `system.safety`, `system.tool-usage`, the preambles, `section.resource`, and the A2A skill text.  | claude 2026-10-14 Built-in templates drafted in src/Hugo.Core/Seed/Prompts (instructions.root, personas, safety, tool usage, preambles, section.resource, a2a skill); wiring in P5.3
-- [ ] P5.15 Review every wave 1 connector's default instructions against the compiled output for the joel scenario. *Accept:* snapshot committed and reviewed by the user.
-- [ ] P5.16 Tool visibility filter (section 11.3) shared by MCP, chat, and the tools route.
-- [ ] P5.17 Suites: layer resolution, reset at each layer, versions, append and replace, compiled snapshot, visibility, profile resolution order.
-- [ ] P5.18 Credential profile binding fields and routes (bind, lock).
-- [ ] P5.19 Profile, binding, and template audit events.
-- [ ] P5.21 The instruction compiler includes each bound resource's root knowledge entry (for SQL, the database context summary) in its resource section, bounded by `Instructions.MaxKnowledgeCharsPerResource` (default 2000).
+- [x] P5.1 Migration 5: `agent_profiles`, `bindings`, `binding_tool_rules`, `prompt_templates`, `prompt_template_versions`.  | claude 2026-10-14 migration 5: profiles, bindings, tool rules, deny patterns, prompt_templates.base_hash
+- [x] P5.2 `I*Methods` and implementations for profiles, bindings, tool rules, templates, and versions (both providers).  | claude 2026-10-14 profile and binding methods on both providers
+- [x] P5.3 Built-in template loader (embedded resources from Core and every connector assembly, content hashes).  | claude 2026-10-14 built-in catalog: embedded Seed/Prompts (WithCulture=false) and connector DefaultInstructions
+- [x] P5.4 Global default seeding from Built-in, with the "built-in updated since customized" detection by hash.  | claude 2026-10-14 Global layer seeded; base_hash detects built-in updates since customization
+- [x] P5.5 `PromptTemplateService`: resolve by layer, save (creates a version), reset per layer, versions, diff, built-in view.  | claude 2026-10-14 PromptTemplateService: resolve, versioned save, reset per layer (tenant reset deactivates), diff, built-in view
+- [x] P5.6 Template renderer integration (variables in section 10.3, include support, failure fallback).  | claude 2026-10-14 renderer with section 10.3 variables
+- [x] P5.7 Prompt template routes, including render preview.  | claude 2026-10-14 /v1.0/api/prompt-templates layered routes incl. render preview
+- [x] P5.8 `AgentProfileService`: CRUD, duplicate, default profile per tenant (provisioned with the tenant), visibility, credential and user default profile references.  | claude 2026-10-14 AgentProfileService; default Hugo profile at tenant provisioning and boot
+- [x] P5.9 `BindingService`: CRUD, alias uniqueness, access mode, ceiling enforcement, tool rules.  | claude 2026-10-14 BindingService
+- [x] P5.10 Profile and binding routes.  | claude 2026-10-14 profile and binding routes
+- [x] P5.11 `InstructionCompiler` with source map, token estimate, and cache invalidation on every relevant change.  | claude 2026-10-14 InstructionCompiler with source map, token estimate, cache invalidation; connector headings shifted under resource headings
+- [x] P5.12 Compiled instruction and caller tool-view routes (`compiled-instructions`, `tools`).  | claude 2026-10-14 compiled-instructions and tools routes
+- [x] P5.13 Profile resolution service (D-018) used by every surface, with credential `lock_to_profile`.  | claude 2026-10-14 ProfileResolver (D-018)
+- [~] P5.14 Write `persona.agent-smith` (Appendix A), `persona.neutral`, `system.safety`, `system.tool-usage`, the preambles, `section.resource`, and the A2A skill text.  | claude 2026-10-14 templates wired; section.resource extended for knowledge and destructive-only approvals
+- [~] P5.15 Review every wave 1 connector's default instructions against the compiled output for the joel scenario. *Accept:* snapshot committed and reviewed by the user.  | claude 2026-10-14 golden snapshot src/Test.Shared/Fixtures/golden/joel-mcp-instructions.md (about 530 lines; SQL instructions about 8 KB each): needs user review and probably a compact connector variant for multi-binding profiles
+- [x] P5.16 Tool visibility filter (section 11.3) shared by MCP, chat, and the tools route.  | claude 2026-10-14 tool visibility filter
+- [x] P5.17 Suites: layer resolution, reset at each layer, versions, append and replace, compiled snapshot, visibility, profile resolution order.  | claude 2026-10-14 configuration suites
+- [x] P5.18 Credential profile binding fields and routes (bind, lock).  | claude 2026-10-14 credential agentProfileId and lockToProfile
+- [x] P5.19 Profile, binding, and template audit events.  | claude 2026-10-14 profile, binding, template audit events
+- [x] P5.21 The instruction compiler includes each bound resource's root knowledge entry (for SQL, the database context summary) in its resource section, bounded by `Instructions.MaxKnowledgeCharsPerResource` (default 2000).  | claude 2026-10-14 root knowledge entry per binding, bounded by Instructions.MaxKnowledgeCharsPerResource
 - [ ] P5.20 `docs/PROMPTS.md`: layers, variables, how to customize defaults, reset semantics.
 
 ### Phase 6: Model endpoints and agent runtime (M1)
 
-- [ ] P6.1 Migration 6: `model_endpoints`, `conversations`, `messages`, `a2a_tasks`, `a2a_task_artifacts`.
-- [ ] P6.2 `I*Methods` and implementations for model endpoints, conversations, messages (both providers).
+- [~] P6.1 Migration 6: `model_endpoints`, `conversations`, `messages`, `a2a_tasks`, `a2a_task_artifacts`.  | claude 2026-10-14 migration 6: model_endpoints; conversations and messages pending (Phase 7 chat work)
+- [~] P6.2 `I*Methods` and implementations for model endpoints, conversations, messages (both providers).  | claude 2026-10-14 model endpoint methods; conversation and message methods pending
 - [x] P6.3 `ModelClientFactory` (PolyPrompt) for all nine providers, API keys via secret references.  | claude 2026-10-14 Hugo.Core/Inference/ModelClientFactory: nine providers via PolyPrompt 3.2.0; keys supplied per call, never logged
 - [x] P6.4 Endpoint gate (concurrency), retry with backoff, circuit breaker, fallback endpoint.  | claude 2026-10-14 EndpointGate, RetryPolicy (429/5xx jitter, Retry-After captured by an HTTP handler under PolyPrompt), CircuitBreaker, fallback endpoint in ModelGateway
-- [~] P6.5 Model endpoint routes, validate, provider model list.  | claude 2026-10-14 ModelGateway.ValidateAsync done; routes and provider model listing remain
-- [ ] P6.6 Model health sweep job and metrics.
+- [x] P6.5 Model endpoint routes, validate, provider model list.  | claude 2026-10-14 model endpoint routes, validate, provider model list
+- [x] P6.6 Model health sweep job and metrics.  | claude 2026-10-14 model health sweep and metric
 - [x] P6.7 Deterministic LLM stub (`Test.Shared/Stubs/StubLlm`, OpenAI-compatible and Ollama-compatible) that scripts tool calls from a fixture, for tests and benchmarks.  | claude 2026-10-14 Test.Shared/Agent/StubLlm: OpenAI-compatible chat (stream and non-stream, tool calls) and feature-hashing embeddings, scripted, configurable latency; no Ollama mode
 - [x] P6.8 `AgentRuntime.RunTurnAsync`: context build, tool definitions, streaming loop, think-block parsing, parallel reads, forced final answer.  | claude 2026-10-14 AgentRuntime.RunTurnAsync: streaming loop, think parsing, parallel calls only for KnownEffect Read tools, forced final answer
 - [~] P6.9 Tool output wrapping as data, and the prompt-injection posture text in the persona.  | claude 2026-10-14 tool outputs wrapped as <tool_output> data and cannot close their block; persona text lands with the instruction compiler (P5.14)
@@ -2023,14 +2031,14 @@ Quality
 - [~] P10.10 Tempo config (OTLP gRPC and HTTP), pinned to 2.6.1.  | claude 2026-10-14 docker/observability/tempo.yaml from Garrison; Alloy OTLP receiver forwards to Tempo
 - [~] P10.11 Loki config and Radiant log export.  | claude 2026-10-14 docker/observability/loki.yaml and Alloy container log shipping
 - [x] P10.12 Grafana provisioning (datasources with UIDs `prometheus`, `tempo`, `loki`; dashboards provider folder `Hugo`).  | claude 2026-10-14 Grafana healthy with provisioned datasources; Hugo dashboards land with P10.13 onward
-- [ ] P10.13 Grafana dashboard: Overview.
-- [ ] P10.14 Grafana dashboard: HTTP.
-- [ ] P10.15 Grafana dashboard: Agent and Chat.
-- [ ] P10.16 Grafana dashboard: Tools and Connectors.
-- [ ] P10.17 Grafana dashboard: Models.
-- [ ] P10.18 Grafana dashboards: MCP and A2A, Security.
-- [ ] P10.19 Dashboard JSON mirrored into `assets/grafana/` and `docker/factory/`, with a CI check that they match.
-- [ ] P10.20 Telemetry verifier script (`scripts/verify-telemetry.sh`): every catalog metric appears in Prometheus after a scripted workload.
+- [x] P10.13 Grafana dashboard: Overview.  | claude 2026-10-14 hugo-overview
+- [x] P10.14 Grafana dashboard: HTTP.  | claude 2026-10-14 hugo-http
+- [x] P10.15 Grafana dashboard: Agent and Chat.  | claude 2026-10-14 hugo-agent
+- [x] P10.16 Grafana dashboard: Tools and Connectors.  | claude 2026-10-14 hugo-tools
+- [x] P10.17 Grafana dashboard: Models.  | claude 2026-10-14 hugo-models
+- [x] P10.18 Grafana dashboards: MCP and A2A, Security.  | claude 2026-10-14 hugo-protocols and hugo-security, plus hugo-database, hugo-integrations, hugo-control-plane, hugo-logs; docs/GRAFANA.md
+- [~] P10.19 Dashboard JSON mirrored into `assets/grafana/` and `docker/factory/`, with a CI check that they match.  | claude 2026-10-14 scripts/check-grafana-mirror.sh validates JSON, UIDs, datasources, descriptions, and mirrors when present; CI wiring and factory mirror pending
+- [x] P10.20 Telemetry verifier script (`scripts/verify-telemetry.sh`): every catalog metric appears in Prometheus after a scripted workload.  | claude 2026-10-14 scripts/verify-telemetry.sh/.bat: PASS on a fresh stack (21 required families); hugo_authz_requests_total has no call site (gap)
 - [ ] P10.21 `compose.docker-socket.yaml` override for the Docker connector, documented.
 - [ ] P10.22 Multi-arch image build scripts (`build-server`, `build-dashboard`, `build-all`, `.sh` and `.bat`).
 - [ ] P10.23 Image publication to Docker Hub (`jchristn/hugo-server`, `jchristn/hugo-dashboard`) when the user approves.
@@ -2128,7 +2136,7 @@ Wrap-up
 - [ ] P13.33 `docs/CONNECTORS.md`, `MCP_API.md`, and Postman updated for wave 2.
 - [ ] P13.34 Factory demo profile extended with wave 2 resources.
 - [ ] P13.35 Tool retrieval verified on a profile with more than 100 tools (latency and selection quality noted).
-- [~] P13.36 Least-privilege guides: IAM policy examples (read-only and operator), Kubernetes RBAC manifests, a Redis ACL example.  | claude 2026-10-14 AWS IAM and Kubernetes RBAC guides done (docs/connectors); Redis ACL example pending
+- [x] P13.36 Least-privilege guides: IAM policy examples (read-only and operator), Kubernetes RBAC manifests, a Redis ACL example.  | claude 2026-10-14 AWS IAM, Kubernetes RBAC, and Redis ACL guides in docs/connectors
 - [ ] P13.37 Grafana Tools and Connectors dashboard updated for wave 2 labels.
 - [ ] P13.38 M2 connector sign-off by the user.
 
