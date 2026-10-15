@@ -87,13 +87,13 @@ These rules keep the plan honest:
 | 2 | Secrets vault | M1 | In progress | 11 / 12 |
 | 3 | Connector framework and tool invocation pipeline | M1 | Complete | 26 / 26 |
 | 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | In progress | 33 / 37 |
-| 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | In progress | 19 / 21 |
+| 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | In progress | 20 / 21 |
 | 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | In progress | 23 / 24 |
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | In progress | 21 / 22 |
 | 8 | Dashboard | M1 | In progress | 51 / 53 |
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | In progress | 14 / 15 |
 | 10 | Docker, testbed, and observability stack | M1 | In progress | 18 / 24 |
-| 11 | Documentation and Postman | M1 | In progress | 0 / 18 |
+| 11 | Documentation and Postman | M1 | Complete | 18 / 18 |
 | 12 | MVP verification (milestone M1) | M1 | Not started | 0 / 14 |
 | 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | In progress | 30 / 38 |
 | 14 | Knowledge, runbooks, and operator conveniences | M2 | Not started | 0 / 12 |
@@ -1918,7 +1918,7 @@ Database intelligence (D-038)
 - [x] P5.18 Credential profile binding fields and routes (bind, lock).  | claude 2026-10-14 credential agentProfileId and lockToProfile
 - [x] P5.19 Profile, binding, and template audit events.  | claude 2026-10-14 profile, binding, template audit events
 - [x] P5.21 The instruction compiler includes each bound resource's root knowledge entry (for SQL, the database context summary) in its resource section, bounded by `Instructions.MaxKnowledgeCharsPerResource` (default 2000).  | claude 2026-10-14 root knowledge entry per binding, bounded by Instructions.MaxKnowledgeCharsPerResource
-- [ ] P5.20 `docs/PROMPTS.md`: layers, variables, how to customize defaults, reset semantics.
+- [x] P5.20 `docs/PROMPTS.md`: layers, variables, how to customize defaults, reset semantics.  | claude 2026-10-14 docs/PROMPTS.md: layers, variable roots, {{> key}} includes, compact instructions, reset semantics
 
 ### Phase 6: Model endpoints and agent runtime (M1)
 
@@ -2087,24 +2087,24 @@ Quality
 
 ### Phase 11: Documentation and Postman (M1)
 
-- [~] P11.1 `README.md`: what Hugo is, the Mr. Anderson journey, quick start (docker compose), connect Claude Code, architecture, connectors, safety model, links. Benchmarks section added in Phase 15.  | claude 2026-10-14 README rewritten: Docker is the only deployment (D-045), dashboard and service URLs, update and reset; logo uses a relative path (raw URLs break while the repository is private); developer instructions moved to docs/DEVELOPMENT.md
-- [ ] P11.2 `DOCKERHUB_README.md` from the README, with explicit asset URLs.
-- [ ] P11.3 `REST_API.md`: every route with method, path, parameters, bodies, status codes, auth, and examples.
-- [ ] P11.4 `MCP_API.md`: every tool with name, purpose, input schema, output shape, effect, and examples, plus prompts and resources, the approval flow, and client configuration for Claude Code and others.
-- [ ] P11.5 `A2A_API.md`: routes, card, methods, task states, approvals, examples.
-- [ ] P11.6 Postman collection: folders by area, collection, folder, and request descriptions, variables (`baseUrl`, `port`, `tenantId`, `email`, `password`, `token`, `accessKey`, `secretKey`, `profileName`), a token pre-request script, MCP and A2A JSON-RPC examples, a dry-run example per connector.
-- [ ] P11.7 Postman environment file and a Newman run script (`scripts/newman.sh`/`.bat`).
-- [ ] P11.8 `docs/ARCHITECTURE.md`.
-- [ ] P11.9 `docs/CONFIGURATION.md` (every setting, default, range, live or restart, env var).
-- [ ] P11.10 `docs/CONNECTORS.md` completed for wave 1.
-- [ ] P11.11 `docs/SECURITY.md` (tenancy, auth schemes, RBAC, built-in roles, secrets, reveal, master key handling and rotation).
-- [ ] P11.12 `docs/SAFETY_MODEL.md` (effects, access modes, approvals per surface, lockdown, least-privilege upstream guidance).
-- [ ] P11.13 `docs/TELEMETRY.md` (generated catalog plus dashboards).
-- [~] P11.14 `docs/DEVELOPMENT.md` (build, test on both providers, testbed, stub LLM, adding a connector).  | claude 2026-10-14 docs/DEVELOPMENT.md: build, tests on both providers, testbed, rebuilding images, dashboard dev server as a development aid only
-- [ ] P11.15 `docs/I18N.md` (adding locales, extraction, pseudo-locales, glossary).
-- [ ] P11.16 `docs/TROUBLESHOOTING.md` and `docs/UPGRADING.md`.
-- [ ] P11.17 `CHANGELOG.md` for `0.1.0-alpha`.
-- [ ] P11.18 Writing review: every document passes the WRITING_DOCUMENTS.md checklist. *Accept:* no em-dashes (CI), and a human-voice review recorded in the annotation.
+- [x] P11.1 `README.md`: what Hugo is, the Mr. Anderson journey, quick start (docker compose), connect Claude Code, architecture, connectors, safety model, links. Benchmarks section added in Phase 15.  | claude 2026-10-14 README: Docker Compose, Kubernetes, minikube; Mr. Anderson journey, factory demo, Claude Code, architecture diagram, connectors, safety model, Discord
+- [x] P11.2 `DOCKERHUB_README.md` from the README, with explicit asset URLs.  | claude 2026-10-14 DOCKERHUB_README mirrors README with absolute URLs; docker run example verified against the published image
+- [x] P11.3 `REST_API.md`: every route with method, path, parameters, bodies, status codes, auth, and examples.  | claude 2026-10-14 REST_API.md: all 205 routes with auth, parameters, fields, status codes, recorded curl examples; doc-vs-code mismatches noted
+- [x] P11.4 `MCP_API.md`: every tool with name, purpose, input schema, output shape, effect, and examples, plus prompts and resources, the approval flow, and client configuration for Claude Code and others.  | claude 2026-10-14 MCP_API.md: meta, delegation, management, mcp_* and a2a_* tools, prompts, resources, sessions vs stateless, approvals, errors; connector tools summarized and linked
+- [x] P11.5 `A2A_API.md`: routes, card, methods, task states, approvals, examples.  | claude 2026-10-14 A2A_API.md
+- [x] P11.6 Postman collection: folders by area, collection, folder, and request descriptions, variables (`baseUrl`, `port`, `tenantId`, `email`, `password`, `token`, `accessKey`, `secretKey`, `profileName`), a token pre-request script, MCP and A2A JSON-RPC examples, a dry-run example per connector.  | claude 2026-10-14 Postman collection: 21 folders, descriptions at every level, token pre-request flow, MCP and A2A examples, dry runs for 14 connector families
+- [x] P11.7 Postman environment file and a Newman run script (`scripts/newman.sh`/`.bat`).  | claude 2026-10-14 environment file and scripts/newman.sh/.bat; Newman 308 requests, 364 assertions, 0 failures on a fresh server (322/385 with a model endpoint)
+- [x] P11.8 `docs/ARCHITECTURE.md`.  | claude 2026-10-14 docs/ARCHITECTURE.md
+- [x] P11.9 `docs/CONFIGURATION.md` (every setting, default, range, live or restart, env var).  | claude 2026-10-14 docs/CONFIGURATION.md
+- [x] P11.10 `docs/CONNECTORS.md` completed for wave 1.  | claude 2026-10-14 docs/CONNECTORS.md (earlier) plus factual fixes
+- [x] P11.11 `docs/SECURITY.md` (tenancy, auth schemes, RBAC, built-in roles, secrets, reveal, master key handling and rotation).  | claude 2026-10-14 docs/SECURITY.md
+- [x] P11.12 `docs/SAFETY_MODEL.md` (effects, access modes, approvals per surface, lockdown, least-privilege upstream guidance).  | claude 2026-10-14 docs/SAFETY_MODEL.md
+- [x] P11.13 `docs/TELEMETRY.md` (generated catalog plus dashboards).  | claude 2026-10-14 docs/TELEMETRY.md generated catalog and docs/GRAFANA.md
+- [x] P11.14 `docs/DEVELOPMENT.md` (build, test on both providers, testbed, stub LLM, adding a connector).  | claude 2026-10-14 docs/DEVELOPMENT.md
+- [x] P11.15 `docs/I18N.md` (adding locales, extraction, pseudo-locales, glossary).  | claude 2026-10-14 docs/I18N.md
+- [x] P11.16 `docs/TROUBLESHOOTING.md` and `docs/UPGRADING.md`.  | claude 2026-10-14 docs/TROUBLESHOOTING.md and docs/UPGRADING.md
+- [x] P11.17 `CHANGELOG.md` for `0.1.0-alpha`.  | claude 2026-10-14 CHANGELOG.md for 0.1.0-alpha
+- [x] P11.18 Writing review: every document passes the WRITING_DOCUMENTS.md checklist. *Accept:* no em-dashes (CI), and a human-voice review recorded in the annotation.  | claude 2026-10-14 em-dash check, banned-opener lint (four fixed), link check, human-voice skim
 
 ### Phase 12: MVP verification (M1)
 
