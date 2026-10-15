@@ -30,7 +30,7 @@ namespace Hugo.Connectors.Sql
         public SqlDialect Dialect { get; }
 
         /// <summary>
-        /// Schema cache used by <c>sql_describe_schema</c>.
+        /// Full-crawl cache shared by the discovery, intelligence, context, and question tools.
         /// </summary>
         public SchemaCache SchemaCache { get; }
 
@@ -78,7 +78,14 @@ namespace Hugo.Connectors.Sql
                 new SqlExplainTool(dialect, SchemaCache),
                 new SqlActivityTool(dialect, SchemaCache),
                 new SqlTableSizesTool(dialect, SchemaCache),
-                new SqlLocksTool(dialect, SchemaCache)
+                new SqlLocksTool(dialect, SchemaCache),
+                new SqlGetAgentPackTool(dialect, SchemaCache),
+                new SqlListRelationshipsTool(dialect, SchemaCache),
+                new SqlGetIntelligenceTool(dialect, SchemaCache),
+                new SqlGetContextTool(dialect, SchemaCache),
+                new SqlUpdateContextTool(dialect, SchemaCache),
+                new SqlGenerateContextTool(dialect, SchemaCache),
+                new SqlAskTool(dialect, SchemaCache)
             };
         }
 

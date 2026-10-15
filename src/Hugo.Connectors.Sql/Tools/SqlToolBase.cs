@@ -7,6 +7,8 @@ namespace Hugo.Connectors.Sql.Tools
     using System.Threading;
     using System.Threading.Tasks;
     using Hugo.Connectors.Abstractions;
+    using Hugo.Connectors.Sql.Intelligence;
+    using Hugo.Connectors.Sql.Vendored.Tablix;
 
     /// <summary>
     /// Shared plumbing for SQL tools: options, timeouts, cancellation, sessions, error mapping, and output limits.
@@ -110,6 +112,137 @@ namespace Hugo.Connectors.Sql.Tools
                     return result;
                 }
             }
+        }
+
+        /// <summary>
+        /// Run a body against the full crawl of the requested schema (argument <c>schema</c>, default the resource's
+        /// default schema). A cached crawl is served without opening a session; <c>refresh=true</c> recrawls.
+        /// Connector errors become tool errors.
+        /// </summary>
+        /// <param name="context">Invocation context.</param>
+        /// <param name="arguments">Arguments (reads <c>schema</c> and <c>refresh</c>).</param>
+        /// <param name="body">Body receiving the crawl and the effective token.</param>
+        /// <param name="token">Caller token.</param>
+        /// <returns>Result.</returns>
+        /// <exception cref="OperationCanceledException">Thrown when the caller cancels.</exception>
+        protected async Task<ToolResult> WithCrawlAsync(ConnectorInvocationContext context, ToolArguments arguments, Func<CrawlSnapshot, CancellationToken, Task<ToolResult>> body, CancellationToken token)
+        {
+            ArgumentNullException.ThrowIfNull(context);
+            ArgumentNullException.ThrowIfNull(arguments);
+            ArgumentNullException.ThrowIfNull(body);
+            bool refresh = arguments.GetBool("refresh", false);
+            string? schema = arguments.GetString("schema");
+
+            if (!refresh)
+            {
+                CrawlSnapshot? hit = TryCachedCrawl(context, schema);
+                if (hit != null)
+                {
+                    try
+                    {
+                        return await body(hit, token).ConfigureAwait(false);
+                    }
+                    catch (ConnectorException e)
+                    {
+                        return ToolResult.Error(e.Code, e.Message);
+                    }
+                }
+            }
+
+            return await RunAsync(context, true, async (session, timeoutSeconds, ct) =>
+            {
+                CrawlSnapshot snapshot = await CrawlAsync(context, session, schema, refresh, ct).ConfigureAwait(false);
+                return await body(snapshot, ct).ConfigureAwait(false);
+            }, token).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// A cached crawl for the schema (or the remembered default schema), or null.
+        /// </summary>
+        /// <param name="context">Invocation context.</param>
+        /// <param name="schema">Schema, or null for the default.</param>
+        /// <returns>Snapshot or null.</returns>
+        protected CrawlSnapshot? TryCachedCrawl(ConnectorInvocationContext context, string? schema)
+        {
+            ArgumentNullException.ThrowIfNull(context);
+            string? resolved = String.IsNullOrWhiteSpace(schema) ? Cache.DefaultSchema(context.Resource.SessionKey()) : schema.Trim();
+            if (resolved == null) return null;
+            SchemaCacheEntry? hit = Cache.Get(CrawlKey(context, resolved));
+            return hit == null ? null : new CrawlSnapshot(hit.Detail, true);
+        }
+
+        /// <summary>
+        /// Crawl a schema on an open session, using the cache unless refresh is requested, and store the result.
+        /// </summary>
+        /// <param name="context">Invocation context.</param>
+        /// <param name="session">Open session.</param>
+        /// <param name="schema">Schema, or null for the default.</param>
+        /// <param name="refresh">Whether to bypass the cache.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Snapshot.</returns>
+        /// <exception cref="System.Data.Common.DbException">Thrown for catalog errors.</exception>
+        protected async Task<CrawlSnapshot> CrawlAsync(ConnectorInvocationContext context, SqlSession session, string? schema, bool refresh, CancellationToken token)
+        {
+            ArgumentNullException.ThrowIfNull(context);
+            ArgumentNullException.ThrowIfNull(session);
+            string resolved;
+            if (String.IsNullOrWhiteSpace(schema))
+            {
+                resolved = Dialect.DefaultSchema(session.Options, session.Connection);
+                Cache.RememberDefaultSchema(context.Resource.SessionKey(), resolved);
+            }
+            else
+            {
+                resolved = schema.Trim();
+            }
+
+            string key = CrawlKey(context, resolved);
+            if (!refresh)
+            {
+                SchemaCacheEntry? hit = Cache.Get(key);
+                if (hit != null) return new CrawlSnapshot(hit.Detail, true);
+            }
+
+            SchemaDetail detail = await Dialect.Crawler.CrawlAsync(session.Connection, session.Transaction, resolved, token).ConfigureAwait(false);
+            if (String.IsNullOrEmpty(detail.DatabaseName)) detail.DatabaseName = session.Options.Database ?? session.Options.Filename;
+            Cache.Set(key, detail, TimeSpan.FromMinutes(session.Options.SchemaCacheMinutes));
+            return new CrawlSnapshot(detail, false);
+        }
+
+        /// <summary>
+        /// Cache key of a resource's crawl of one schema.
+        /// </summary>
+        /// <param name="context">Invocation context.</param>
+        /// <param name="schema">Schema.</param>
+        /// <returns>Key.</returns>
+        protected static string CrawlKey(ConnectorInvocationContext context, string schema)
+        {
+            ArgumentNullException.ThrowIfNull(context);
+            return context.Resource.SessionKey("schema:" + schema);
+        }
+
+        /// <summary>
+        /// Load the durable SQL context of the resource.
+        /// </summary>
+        /// <param name="context">Invocation context.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Snapshot.</returns>
+        protected static Task<SchemaKnowledge> LoadKnowledgeAsync(ConnectorInvocationContext context, CancellationToken token)
+        {
+            ArgumentNullException.ThrowIfNull(context);
+            return SchemaKnowledge.LoadAsync(context.Resource.Knowledge, token);
+        }
+
+        /// <summary>
+        /// Non-secret description of the caller for <see cref="ResourceKnowledgeEntry.UpdatedBy"/>.
+        /// </summary>
+        /// <param name="context">Invocation context.</param>
+        /// <param name="kind">Kind prefix (for example <c>agent</c>).</param>
+        /// <returns>Text.</returns>
+        protected static string Actor(ConnectorInvocationContext context, string kind)
+        {
+            string who = String.IsNullOrWhiteSpace(context.PrincipalSummary) ? context.BindingAlias : context.PrincipalSummary;
+            return String.IsNullOrWhiteSpace(who) ? kind : kind + " (" + who + ")";
         }
 
         /// <summary>

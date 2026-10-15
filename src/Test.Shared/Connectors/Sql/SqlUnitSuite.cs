@@ -26,11 +26,12 @@ namespace Test.Shared.Connectors.Sql
             const string suite = "connectors.sql.unit";
             List<TestCaseDescriptor> cases = new List<TestCaseDescriptor>();
 
-            cases.Add(new TestCaseDescriptor(suite, "descriptors", "Four connectors share family sql, category Database, icon database, and nine tools", ct =>
+            cases.Add(new TestCaseDescriptor(suite, "descriptors", "Four connectors share family sql, category Database, icon database, and sixteen tools", ct =>
             {
                 List<SqlConnectorBase> connectors = AllConnectors();
                 string[] types = { "sqlite", "mysql", "sqlserver", "postgresql" };
-                string[] tools = { "sql_list_schemas", "sql_list_tables", "sql_describe_table", "sql_describe_schema", "sql_query", "sql_explain", "sql_activity", "sql_table_sizes", "sql_locks" };
+                string[] tools = { "sql_list_schemas", "sql_list_tables", "sql_describe_table", "sql_describe_schema", "sql_query", "sql_explain", "sql_activity", "sql_table_sizes", "sql_locks",
+                    "sql_get_agent_pack", "sql_list_relationships", "sql_get_intelligence", "sql_get_context", "sql_update_context", "sql_generate_context", "sql_ask" };
                 SqlTestSupport.Check(connectors.Select(c => c.Descriptor.Type).SequenceEqual(types), "types");
                 foreach (SqlConnectorBase c in connectors)
                 {
@@ -43,7 +44,10 @@ namespace Test.Shared.Connectors.Sql
                     SqlTestSupport.Check(!d.DefaultInstructions.Contains((char)0x2014), d.Type + " instructions contain no em-dash");
                     SqlTestSupport.Check(c.Tools.Select(t => t.Descriptor.Name).SequenceEqual(tools), d.Type + " tools");
                     SqlTestSupport.Check(c.Tools.Single(t => t.Descriptor.Name == "sql_query").Descriptor.ClassifiedPerCall, d.Type + " sql_query classified per call");
-                    SqlTestSupport.Check(c.Tools.Where(t => t.Descriptor.Name != "sql_query").All(t => t.Descriptor.BaseEffect == EffectEnum.Read), d.Type + " other tools are Read");
+                    SqlTestSupport.Check(c.Tools.Where(t => t.Descriptor.Name != "sql_query").All(t => t.Descriptor.BaseEffect == EffectEnum.Read && !t.Descriptor.ClassifiedPerCall), d.Type + " other tools are Read");
+                    SqlTestSupport.Check(c.Tools.Where(t => t.Descriptor.UpdatesKnowledge).Select(t => t.Descriptor.Name).OrderBy(n => n).SequenceEqual(new[] { "sql_generate_context", "sql_update_context" }), d.Type + " knowledge-updating tools");
+                    SqlTestSupport.Check(c.Tools.Where(t => t.Descriptor.RequiresModel).Select(t => t.Descriptor.Name).OrderBy(n => n).SequenceEqual(new[] { "sql_ask", "sql_generate_context" }), d.Type + " model-requiring tools");
+                    SqlTestSupport.Check(d.DefaultInstructions.Contains("sql_get_agent_pack", StringComparison.Ordinal) && d.DefaultInstructions.Contains("sql_update_context", StringComparison.Ordinal) && d.DefaultInstructions.Contains("sql_ask", StringComparison.Ordinal), d.Type + " instructions center the intelligence workflow");
                     foreach (IConnectorTool tool in c.Tools)
                     {
                         using (System.Text.Json.JsonDocument schema = System.Text.Json.JsonDocument.Parse(tool.Descriptor.InputSchemaJson))

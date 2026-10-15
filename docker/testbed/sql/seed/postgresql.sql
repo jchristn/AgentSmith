@@ -1,5 +1,6 @@
 -- Hugo testbed "shop" schema (PostgreSQL). Generated from one dataset so every engine holds identical rows:
--- 8 customers, 10 products, 12 orders, 22 order items, one view, two secondary indexes, three foreign keys.
+-- 8 customers, 10 products, 12 orders, 22 order items, one view, two secondary indexes, three foreign keys,
+-- plus legacy_accounts (4 rows) and legacy_invoices (6 rows) joined by naming convention only.
 -- Runs as the hugo user in the shop database through docker-entrypoint-initdb.d.
 
 CREATE TABLE customers (
@@ -107,6 +108,44 @@ INSERT INTO order_items (order_item_id, order_id, product_id, quantity, unit_pri
     (20, 11, 4, 1, 39.95),
     (21, 12, 10, 1, 45.00),
     (22, 12, 2, 1, 29.50);
+
+-- Legacy pair with no declared foreign keys: legacy_invoices.account_id joins legacy_accounts.account_id by naming
+-- convention only, so relationship inference has something to find. Its status, activity, owner, amount, and
+-- timestamp columns also make terms such as status, active, owner, and latest ambiguous across the schema.
+CREATE TABLE legacy_accounts (
+    account_id INTEGER NOT NULL PRIMARY KEY,
+    account_name VARCHAR(100) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    is_active BOOLEAN NOT NULL,
+    owner_name VARCHAR(100) NOT NULL,
+    opened_at TIMESTAMP NOT NULL,
+    deleted_at TIMESTAMP NULL
+);
+
+CREATE TABLE legacy_invoices (
+    invoice_id INTEGER NOT NULL PRIMARY KEY,
+    account_id INTEGER NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    amount NUMERIC(10,2) NOT NULL,
+    issued_at TIMESTAMP NOT NULL,
+    created_by VARCHAR(100) NOT NULL
+);
+
+CREATE INDEX idx_legacy_invoices_account_id ON legacy_invoices (account_id);
+
+INSERT INTO legacy_accounts (account_id, account_name, status, is_active, owner_name, opened_at, deleted_at) VALUES
+    (1, 'Northwind Traders', 'open', TRUE, 'Ada Lovelace', '2024-01-10 09:00:00', NULL),
+    (2, 'Contoso Ltd', 'open', TRUE, 'Grace Hopper', '2024-02-14 10:30:00', NULL),
+    (3, 'Fabrikam Inc', 'closed', FALSE, 'Alan Turing', '2024-03-01 08:15:00', '2025-01-15 17:00:00'),
+    (4, 'Tailspin Toys', 'suspended', TRUE, 'Grace Hopper', '2024-05-20 14:45:00', NULL);
+
+INSERT INTO legacy_invoices (invoice_id, account_id, status, amount, issued_at, created_by) VALUES
+    (1, 1, 'paid', 1200.00, '2025-01-05 12:00:00', 'billing'),
+    (2, 1, 'paid', 800.00, '2025-02-05 12:00:00', 'billing'),
+    (3, 2, 'open', 450.50, '2025-02-10 12:00:00', 'billing'),
+    (4, 3, 'void', 300.00, '2025-01-20 12:00:00', 'ops'),
+    (5, 4, 'paid', 99.99, '2025-03-01 12:00:00', 'billing'),
+    (6, 2, 'paid', 150.00, '2025-03-03 12:00:00', 'ops');
 
 CREATE SEQUENCE order_number_seq START 1000;
 

@@ -71,6 +71,15 @@ namespace Hugo.Connectors.Sql
             }
         }
 
+        /// <inheritdoc />
+        public override string PromptNotes
+        {
+            get
+            {
+                return "SQLite: quote identifiers with double quotes; use LIMIT n; dates are usually stored as ISO-8601 text, so use date(), datetime(), strftime('%Y-%m', col) and compare text timestamps lexically; concatenate with ||; group_concat(expr, ', ') aggregates strings; boolean flags are 0 or 1.";
+            }
+        }
+
         #endregion
 
         #region Private-Members

@@ -3,6 +3,7 @@ namespace Hugo.Connectors.Sql
     using System;
     using System.Collections.Generic;
     using System.Data.Common;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Hugo.Connectors.Sql.Vendored.Tablix;
@@ -68,6 +69,28 @@ namespace Hugo.Connectors.Sql
         /// Query listing schemas (databases for MySQL, attached databases for SQLite).
         /// </summary>
         public abstract string ListSchemasSql { get; }
+
+        /// <summary>
+        /// Row-limiting syntax, as shown to agents and models. Default <c>LIMIT n</c>.
+        /// </summary>
+        public virtual string LimitSyntax
+        {
+            get
+            {
+                return "LIMIT n";
+            }
+        }
+
+        /// <summary>
+        /// Short dialect notes for SQL planning prompts (quoting, limits, dates, string functions).
+        /// </summary>
+        public virtual string PromptNotes
+        {
+            get
+            {
+                return "Quote identifiers with double quotes only when needed. Use LIMIT n to bound rows.";
+            }
+        }
 
         #endregion
 
@@ -258,6 +281,45 @@ namespace Hugo.Connectors.Sql
             if (String.IsNullOrEmpty(raw)) return String.Empty;
             int newline = raw.IndexOf('\n');
             return (newline < 0 ? raw : raw.Substring(0, newline)).Trim();
+        }
+
+        /// <summary>
+        /// Quote an identifier for this engine, doubling embedded quote characters. Default ANSI double quotes.
+        /// </summary>
+        /// <param name="identifier">Identifier.</param>
+        /// <returns>Quoted identifier.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when identifier is null.</exception>
+        public virtual string QuoteIdentifier(string identifier)
+        {
+            ArgumentNullException.ThrowIfNull(identifier);
+            return "\"" + identifier.Replace("\"", "\"\"", StringComparison.Ordinal) + "\"";
+        }
+
+        /// <summary>
+        /// Build a bounded sample query over explicit columns of one table. Identifiers come from the crawl and are
+        /// quoted; no values are interpolated.
+        /// </summary>
+        /// <param name="schema">Schema.</param>
+        /// <param name="table">Table.</param>
+        /// <param name="columns">Columns to select; at least one.</param>
+        /// <param name="rows">Row bound. Minimum 1.</param>
+        /// <returns>SQL.</returns>
+        /// <exception cref="ArgumentException">Thrown when no columns are given.</exception>
+        public virtual string BuildSampleSql(string schema, string table, IList<string> columns, int rows)
+        {
+            if (columns == null || columns.Count == 0) throw new ArgumentException("At least one column is required.", nameof(columns));
+            return "SELECT " + String.Join(", ", columns.Select(QuoteIdentifier)) + " FROM " + QualifiedName(schema, table) + " LIMIT " + Math.Max(1, rows).ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Quoted, schema-qualified table name.
+        /// </summary>
+        /// <param name="schema">Schema, or empty.</param>
+        /// <param name="table">Table.</param>
+        /// <returns>Qualified name.</returns>
+        public virtual string QualifiedName(string? schema, string table)
+        {
+            return String.IsNullOrWhiteSpace(schema) ? QuoteIdentifier(table) : QuoteIdentifier(schema) + "." + QuoteIdentifier(table);
         }
 
         #endregion

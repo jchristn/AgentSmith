@@ -1,0 +1,3507 @@
+{
+  "common": {
+    "fieldCodes": {
+      "ExpiryInPast": "未来の日時を選んでください。",
+      "SettingsFileReadOnly": "設定ファイルが読み取り専用のため、この変更は保存できません。",
+      "OverriddenByEnvironment": "環境変数がこの値を設定しているため、ここでは変更できません。",
+      "PathRequired": "設定パスが必要です。",
+      "UnknownSetting": "このサーバーにはこの設定がありません。",
+      "TooLong": "値が長すぎます。",
+      "NotAllowedValue": "許可された値のいずれかを選んでください。",
+      "NotABoolean": "true または false を選んでください。",
+      "NotAnInteger": "整数を入力してください。",
+      "OutOfRange": "値が許可された範囲外です。"
+    },
+    "appName": "Hugo",
+    "language": {
+      "label": "言語"
+    },
+    "theme": {
+      "switchToLight": "ライトテーマに切り替え",
+      "switchToDark": "ダークテーマに切り替え"
+    },
+    "actions": {
+      "apply": "適用",
+      "back": "戻る",
+      "cancel": "キャンセル",
+      "clear": "クリア",
+      "clone": "複製して作成",
+      "close": "閉じる",
+      "confirm": "確認",
+      "copied": "コピーしました",
+      "copy": "コピー",
+      "delete": "削除",
+      "duplicate": "複製",
+      "edit": "編集",
+      "hide": "値を隠す",
+      "logout": "ログアウト",
+      "next": "次へ",
+      "openGithub": "GitHub で Hugo リポジトリ (AgentSmith) を開く",
+      "remove": "削除",
+      "retry": "再試行",
+      "reveal": "値を表示",
+      "save": "保存",
+      "view": "表示",
+      "viewDetails": "詳細を表示",
+      "viewJson": "JSON を表示",
+      "dismiss": "閉じる"
+    },
+    "boolean": {
+      "yes": "はい",
+      "no": "いいえ"
+    },
+    "confirm": {
+      "deleteNamed": "「{{name}}」を削除しますか? この操作は元に戻せません。",
+      "bulkDelete": "選択した {{count}} 件を削除しますか? この操作は元に戻せません。"
+    },
+    "errors": {
+      "listItem": "項目 {{index}}: {{message}}",
+      "chooseOne": "少なくとも 1 つ選択してください。",
+      "fixFields": "確認が必要な項目があります。強調表示された値を確認してください。",
+      "invalidEmail": "有効なメールアドレスを入力してください。",
+      "invalidJson": "有効な JSON ではありません。",
+      "loadFailed": "データを読み込めませんでした。",
+      "requestId": "リクエスト {{id}}。",
+      "required": "この項目は必須です。",
+      "requiredPermission": "{{resource}} に対する {{permission}} 権限が必要です。",
+      "title": "リクエストが失敗しました",
+      "status": "HTTP {{status}}",
+      "requestIdLabel": "リクエスト ID",
+      "traceIdLabel": "トレース ID"
+    },
+    "generic": {
+      "deletedName": "{{name}} (削除済み)",
+      "actions": "操作",
+      "active": "有効",
+      "all": "すべて",
+      "any": "任意",
+      "builtIn": "組み込み",
+      "custom": "カスタム",
+      "inactive": "無効",
+      "loading": "読み込み中...",
+      "never": "なし",
+      "none": "なし",
+      "notAvailable": "該当なし",
+      "saving": "保存中...",
+      "default": "既定",
+      "disabled": "無効",
+      "enabled": "有効",
+      "lockdown": "ロックダウン",
+      "locked": "ロック済み",
+      "required": "必須"
+    },
+    "relativeTime": {
+      "now": "たった今"
+    },
+    "states": {
+      "forbiddenTitle": "このページへのアクセス権がありません",
+      "forbiddenBody": "管理者にアクセス権を付与するロールを依頼するか、別のページを選択してください。",
+      "notExposedTitle": "このサーバーはまだ {{feature}} を提供していません",
+      "notExposedBody": "ダッシュボードは {{feature}} に対応していますが、この Hugo サーバーは必要なルートを公開していません。サーバーが提供し次第ここで動作します。このページ側の変更は不要です。",
+      "notExposedEndpoint": "ダッシュボードが呼び出したルート:"
+    },
+    "toasts": {
+      "bulkDeleted": "{{count}} 件を削除しました ({{failed}} 件失敗)。",
+      "cloned": "複製しました。",
+      "created": "作成しました。",
+      "deleted": "削除しました。",
+      "saved": "保存しました。"
+    },
+    "units": {
+      "msShort": "ミリ秒",
+      "sShort": "秒",
+      "mShort": "分"
+    },
+    "tagline": "Agent Smith がお手伝いします",
+    "serverText": {
+      "valueClamped": "{{field}} の値 {{given}} は許容範囲 {{minimum}} から {{maximum}} の外にあるため、{{stored}} を保存しました。",
+      "approvalWaitingExpires": "{{subject}} の承認を人が行うのを待っています。承認 {{id}} は {{expires}} に期限切れになります。",
+      "approvalWaiting": "{{subject}} の承認を人が行うのを待っています。承認 {{id}}。",
+      "inUse": "{{what}} はまだ {{users}} で使用されています。先にそれらの参照を削除してください。"
+    }
+  },
+  "errorCodes": {
+    "ApprovalNotPending": "この承認はすでに判断済みか期限切れのため、再度判断することはできません。",
+    "TenantNotFound": "そのテナントは存在しません。テナント ID を確認してください。",
+    "NetworkError": "サーバーに接続できません。サーバー URL とサーバーの稼働状況を確認してください。",
+    "AuthenticationRequired": "セッションの有効期限が切れました。再度サインインしてください。",
+    "InvalidCredentials": "テナント、メール、パスワード、またはキーが正しくありません。",
+    "RateLimited": "サインインの試行回数が多すぎます。1 分待ってから再試行してください。",
+    "AuthorizationDenied": "この操作を行う権限がありません。",
+    "NotFound": "レコードが見つかりません。",
+    "RouteNotFound": "このサーバーはそのエンドポイントにまだ対応していません。",
+    "ValidationFailed": "一部の値が無効です。",
+    "InvalidBody": "リクエスト本文が無効です。",
+    "InvalidJson": "リクエスト本文が有効な JSON ではありません。",
+    "Conflict": "既存のレコードと競合しています。",
+    "BuiltInImmutable": "組み込みのレコードは変更できません。カスタマイズするには複製してください。",
+    "Protected": "このレコードは保護されているため削除できません。",
+    "InternalError": "サーバー内部エラーが発生しました。リクエスト ID でサーバーログを確認してください。",
+    "Http400": "リクエストは無効として拒否されました。",
+    "Http403": "この操作を行う権限がありません。",
+    "Http404": "見つかりません。",
+    "Http409": "現在の状態と競合しています。",
+    "Http500": "サーバー内部エラーが発生しました。",
+    "Http503": "サーバーを利用できません。",
+    "ConversationBusy": "この会話は前のターンをまだ処理中です。完了を待つか停止してから、もう一度お試しください。",
+    "ApprovalExpired": "この承認は誰も判断しないまま期限切れになりました。",
+    "ReauthenticationRequired": "シークレットを表示する前に、パスワードを再入力してください。",
+    "SecretInUse": "このシークレットはまだリソースまたはモデルエンドポイントで使用されています。先にそれらの参照を削除してください。",
+    "ResourceInUse": "このリソースはまだプロファイルにバインドされています。先にバインディングを削除してください。",
+    "LockdownActive": "テナントがロックダウン中のため、読み取りの呼び出しのみ許可されています。",
+    "ConnectorNotFound": "このサーバーにはその種類のコネクタがありません。プラグインの読み込みに失敗した可能性があります。",
+    "ProfileNotExposed": "このプロファイルはそのサーフェスで公開されていません。",
+    "NoInferenceEndpoint": "このプロファイルには推論モデルがないため、Hugo は独自のエージェントループを実行できません。"
+  },
+  "enums": {
+    "principalType": {
+      "Administrator": "システム管理者",
+      "User": "ユーザー",
+      "Credential": "認証情報"
+    },
+    "credentialAuthMode": {
+      "DirectHeader": "直接ヘッダー",
+      "SignedRequest": "署名付きリクエスト",
+      "SessionExchange": "セッショントークン交換",
+      "Hybrid": "すべての方式"
+    },
+    "operationType": {
+      "All": "すべて",
+      "Create": "作成",
+      "Read": "読み取り",
+      "Write": "書き込み (作成、更新、削除)",
+      "Update": "更新",
+      "Delete": "削除",
+      "Execute": "実行",
+      "Admin": "管理",
+      "Reveal": "表示"
+    },
+    "promptTemplateKind": {
+      "System": "システム",
+      "Task": "タスク",
+      "Fragment": "フラグメント",
+      "ToolDescription": "ツール説明",
+      "ConfigFile": "設定ファイル",
+      "Other": "その他"
+    },
+    "permissionType": {
+      "Permit": "許可",
+      "Deny": "拒否"
+    },
+    "resourceScope": {
+      "Tenant": "テナント",
+      "Resource": "リソース"
+    },
+    "resourceType": {
+      "All": "すべて",
+      "Tenant": "テナント",
+      "Admin": "管理",
+      "User": "ユーザー",
+      "Credential": "認証情報",
+      "Session": "セッション",
+      "Role": "ロール",
+      "Permission": "権限",
+      "Assignment": "割り当て",
+      "Audit": "監査",
+      "Settings": "設定",
+      "Secret": "シークレット",
+      "Resource": "リソース",
+      "Connector": "コネクタ",
+      "AgentProfile": "エージェントプロファイル",
+      "Binding": "バインディング",
+      "PromptTemplate": "プロンプトテンプレート",
+      "ModelEndpoint": "モデルエンドポイント",
+      "Conversation": "会話",
+      "ToolInvocation": "ツール呼び出し",
+      "Approval": "承認",
+      "RequestHistory": "リクエスト履歴",
+      "Knowledge": "ナレッジ",
+      "Plugin": "プラグイン",
+      "Analytics": "分析"
+    },
+    "auditEventType": {
+      "AuthSuccess": "サインイン成功",
+      "AuthFailure": "サインイン失敗",
+      "SessionIssued": "セッション発行",
+      "SessionRevoked": "セッション失効",
+      "CredentialCreated": "認証キー作成",
+      "CredentialRotated": "認証キーのローテーション",
+      "CredentialUsed": "認証キー使用",
+      "AuthorizationDenied": "アクセス拒否",
+      "AuthorizationBypass": "アクセスチェックのバイパス",
+      "RoleChanged": "ロール変更",
+      "AssignmentChanged": "割り当て変更",
+      "SecretCreated": "シークレット作成",
+      "SecretUpdated": "シークレット更新",
+      "SecretRevealed": "シークレット表示",
+      "SecretDeleted": "シークレット削除",
+      "MasterKeyRotated": "マスターキーのローテーション",
+      "ResourceChanged": "リソース変更",
+      "ProfileChanged": "プロファイル変更",
+      "BindingChanged": "バインディング変更",
+      "PromptTemplateChanged": "プロンプトテンプレート変更",
+      "ApprovalDecided": "承認を決定",
+      "LockdownChanged": "ロックダウン変更",
+      "SettingsChanged": "設定変更",
+      "ServerRestarted": "サーバー再起動",
+      "PluginLoaded": "プラグイン読み込み",
+      "HostKeyPinned": "SSH ホストキー固定",
+      "HostKeyMismatch": "SSH ホストキー不一致"
+    },
+    "secretKind": {
+      "Password": "パスワード",
+      "PrivateKey": "秘密鍵",
+      "ApiToken": "API トークン",
+      "AccessKeyPair": "アクセスキーペア",
+      "ServiceAccountJson": "サービスアカウント JSON",
+      "Kubeconfig": "Kubeconfig",
+      "ConnectionString": "接続文字列",
+      "Certificate": "証明書",
+      "Generic": "汎用シークレット"
+    },
+    "effect": {
+      "Read": "読み取り",
+      "Write": "書き込み",
+      "Destructive": "破壊的"
+    },
+    "accessMode": {
+      "ReadOnly": "読み取り専用",
+      "ReadWriteWithApproval": "承認付き読み書き",
+      "ReadWrite": "読み書き"
+    },
+    "connectorCategory": {
+      "Compute": "コンピュート",
+      "Storage": "ストレージ",
+      "Database": "データベース",
+      "Logging": "ログ",
+      "Cache": "キャッシュ",
+      "Cloud": "クラウド",
+      "Orchestration": "オーケストレーション",
+      "Observability": "オブザーバビリティ",
+      "Http": "HTTP API",
+      "Agent": "エージェント",
+      "Other": "その他"
+    },
+    "settingValueKind": {
+      "String": "テキスト",
+      "Text": "長いテキスト",
+      "Integer": "整数",
+      "Boolean": "真偽値",
+      "StringList": "リスト",
+      "Enum": "選択肢"
+    },
+    "approvalStatus": {
+      "Pending": "保留中",
+      "Approved": "許可済み",
+      "Rejected": "却下",
+      "Expired": "期限切れ",
+      "Cancelled": "キャンセル済み"
+    },
+    "toolDecision": {
+      "Allowed": "許可",
+      "Denied": "拒否",
+      "ApprovalRequired": "承認が必要",
+      "Approved": "承認済み",
+      "Rejected": "却下",
+      "Expired": "期限切れ"
+    },
+    "toolStatus": {
+      "Succeeded": "成功",
+      "Failed": "失敗",
+      "TimedOut": "タイムアウト",
+      "Cancelled": "キャンセル"
+    },
+    "surface": {
+      "Chat": "チャット",
+      "Mcp": "MCP",
+      "A2A": "A2A",
+      "OpenAI": "OpenAI 互換",
+      "Rest": "REST"
+    },
+    "conversationSource": {
+      "Dashboard": "ダッシュボード",
+      "A2A": "A2A",
+      "OpenAI": "OpenAI 互換",
+      "Mcp": "MCP"
+    },
+    "visibility": {
+      "Private": "非公開",
+      "Tenant": "テナント"
+    },
+    "instructionMode": {
+      "Inherit": "継承",
+      "Append": "追加",
+      "Replace": "置換"
+    },
+    "toolRule": {
+      "Allow": "許可",
+      "Deny": "拒否",
+      "RequireApproval": "承認を要求"
+    },
+    "modelKind": {
+      "Inference": "推論",
+      "Embedding": "埋め込み"
+    },
+    "modelProvider": {
+      "Ollama": "Ollama",
+      "OpenAI": "OpenAI",
+      "OpenAICompatible": "OpenAI 互換",
+      "Anthropic": "Anthropic",
+      "Gemini": "Gemini",
+      "AzureOpenAI": "Azure OpenAI",
+      "Bedrock": "Amazon Bedrock",
+      "VertexAI": "Vertex AI",
+      "VoyageAI": "Voyage AI"
+    },
+    "healthStatus": {
+      "Healthy": "正常",
+      "Degraded": "低下",
+      "Unhealthy": "異常",
+      "Unknown": "未確認"
+    },
+    "promptLayer": {
+      "BuiltIn": "組み込み",
+      "Global": "グローバル既定",
+      "Tenant": "テナント"
+    },
+    "authScheme": {
+      "Password": "パスワードでサインイン",
+      "AccessKey": "アクセスキー",
+      "SessionToken": "セッショントークン",
+      "SignedRequest": "署名付きリクエスト",
+      "ApiKey": "管理者 API キー"
+    }
+  },
+  "login": {
+    "title": "Hugo にサインイン",
+    "subtitle": "Agent Smith がお待ちしていました、Mr. Anderson。",
+    "tabs": {
+      "password": "メールとパスワード",
+      "accessKey": "アクセスキー"
+    },
+    "serverUrl": "サーバー URL",
+    "tenantId": "テナント ID",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "accessKey": "アクセスキー",
+    "secretKey": "シークレットキー",
+    "submit": "サインイン",
+    "connecting": "サインイン中...",
+    "restoring": "セッションを復元しています...",
+    "errorGeneric": "サインインできません。サーバー URL と認証情報を確認してください。",
+    "footerHint": "Hugo はシステムの認証情報を暗号化して保存し、エージェントが安全に使用できるようにします。",
+    "tenant": "テナント",
+    "tenantFound": "テナント {{name}} にサインインします。",
+    "unreachable": "{{url}} の Hugo サーバーに接続できませんでした。サーバー URL とサーバーが稼働していることを確認してください。",
+    "badCredentials": "メールアドレス、パスワード、またはテナントが正しくありません。",
+    "defaultsHint": "ローカルの既定アカウント: {{email}}、パスワード「{{password}}」。変更を求められます。",
+    "useDefaults": "ローカルの既定値を使用"
+  },
+  "topbar": {
+    "tenant": "テナント",
+    "switchTenant": "テナントを切り替え",
+    "copyServer": "サーバー URL をコピー",
+    "live": "ライブ",
+    "polling": "ポーリング",
+    "health": {
+      "healthy": "正常",
+      "unhealthy": "接続不可",
+      "unknown": "確認中"
+    },
+    "lockdown": {
+      "on": "ロックダウン中",
+      "off": "ロックダウン",
+      "banner": "テナントのロックダウンが有効です。読み取り以外の呼び出しはすべて拒否され、保留中の承認はキャンセルされました。",
+      "engageTitle": "このテナントをロックダウンしますか?",
+      "engageBody": "ロックダウンが解除されるまで、すべてのサーフェスからの書き込みまたは削除を行うツール呼び出しが拒否されます。保留中の承認はキャンセルされます。読み取りは引き続き動作します。",
+      "engage": "ロックダウン",
+      "engaged": "テナントのロックダウンが有効になりました。",
+      "liftTitle": "ロックダウンを解除しますか?",
+      "liftBody": "書き込みおよび破壊的なツール呼び出しが、各バインディングのアクセスモードと承認に従って再び許可されます。",
+      "lift": "ロックダウンを解除",
+      "lifted": "テナントのロックダウンを解除しました。"
+    }
+  },
+  "roles": {
+    "systemAdmin": "システム管理者",
+    "tenantAdmin": "テナント管理者",
+    "user": "ユーザー",
+    "credential": "アクセスキー"
+  },
+  "components": {
+    "fieldWarnings": {
+      "title_one": "{{count}} 件の値を調整して保存しました",
+      "title_other": "{{count}} 件の値を調整して保存しました",
+      "body": "サーバーはリクエストを受け付けましたが、次の値は送信した内容とは異なる値で保存されました。",
+      "dismiss": "閉じる",
+      "codes": {
+        "ValueClamped": "値を許容範囲に制限しました"
+      }
+    },
+    "autoRefresh": {
+      "label": "自動更新",
+      "none": "オフ",
+      "seconds_one": "{{count}} 秒ごと",
+      "seconds_other": "{{count}} 秒ごと"
+    },
+    "chart": {
+      "success": "成功",
+      "failure": "失敗",
+      "total": "合計",
+      "avgDuration": "平均所要時間",
+      "noData": "この期間のアクティビティはありません。",
+      "range": "期間",
+      "ranges": {
+        "hour": "過去 1 時間",
+        "day": "過去 1 日",
+        "week": "過去 1 週間",
+        "month": "過去 1 か月",
+        "custom": "カスタム"
+      }
+    },
+    "confirm": {
+      "title": "確認してください",
+      "message": "続行してもよろしいですか?"
+    },
+    "diff": {
+      "before": "変更前",
+      "after": "変更後"
+    },
+    "explainer": {
+      "about": "{{topic}} について",
+      "dismiss": "この説明を隠す"
+    },
+    "export": {
+      "label": "エクスポート",
+      "csv": "CSV (データ)",
+      "png": "PNG 画像",
+      "svg": "SVG 画像",
+      "json": "JSON (データ)",
+      "failed": "エクスポートに失敗しました。{{message}}",
+      "tableTitle": "表 {{table}}"
+    },
+    "filters": {
+      "allTenants": "すべてのテナント",
+      "clear": "フィルターをクリア",
+      "from": "開始",
+      "to": "終了",
+      "method": "メソッド",
+      "path": "パスに含む",
+      "pathPlaceholder": "例: /v1.0/api/tenants",
+      "searchName": "名前で検索",
+      "status": "ステータスコード",
+      "statusPlaceholder": "例: 404",
+      "tenant": "テナント"
+    },
+    "form": {
+      "addItem": "項目を追加",
+      "addRow": "行を追加",
+      "key": "キー",
+      "value": "値",
+      "moveUp": "上へ移動",
+      "moveDown": "下へ移動",
+      "noItems": "項目はまだありません。",
+      "onePerLine": "1 行に 1 つの値",
+      "steps": "フォームの手順"
+    },
+    "permissions": {
+      "title": "有効な権限",
+      "none": "付与はありません。このプリンシパルはバイパスルールのみ利用できます (存在する場合)。",
+      "source": "ロール",
+      "type": "種別",
+      "resources": "リソース種別",
+      "operations": "操作",
+      "scope": "スコープ"
+    },
+    "requestDetails": {
+      "title": "リクエストの詳細",
+      "metadata": "メタデータ",
+      "requestHeaders": "リクエストヘッダー",
+      "requestBody": "リクエスト本文",
+      "responseHeaders": "レスポンスヘッダー",
+      "responseBody": "レスポンス本文",
+      "rawJson": "生の JSON",
+      "truncated": "切り詰め済み (元のサイズ {{bytes}} バイト)",
+      "empty": "内容はありません。",
+      "fields": {
+        "id": "リクエスト ID",
+        "method": "メソッド",
+        "path": "パス",
+        "url": "URL",
+        "status": "ステータス",
+        "duration": "所要時間",
+        "createdUtc": "作成日時",
+        "completedUtc": "完了日時",
+        "sourceIp": "送信元 IP",
+        "principal": "プリンシパル",
+        "tenant": "テナント",
+        "user": "ユーザー"
+      }
+    },
+    "secretOnce": {
+      "title": "このシークレットを今すぐコピーしてください",
+      "warning": "シークレットが表示されるのは今回だけです。閉じる前に安全な場所に保存してください。",
+      "accessKey": "アクセスキー",
+      "secretKey": "シークレットキー",
+      "done": "保存しました",
+      "snippet": "Claude Code 用の MCP 設定",
+      "snippetHint": "これを MCP クライアントの設定に貼り付け、HUGO_SECRET_KEY に上に表示されたシークレットキーを設定してください。"
+    },
+    "table": {
+      "bulkActions": "一括操作",
+      "bulkDelete": "選択項目を削除",
+      "clearSelection": "選択を解除",
+      "empty": "表示するレコードはありません。",
+      "first": "最初のページ",
+      "jump": "ページへ移動",
+      "last": "最後のページ",
+      "loading": "レコードを読み込み中...",
+      "next": "次のページ",
+      "noMatches": "現在のフィルターに一致するレコードはありません。",
+      "pageOf": "{{page}} / {{total}} ページ",
+      "pageSize": "表示件数",
+      "pinned": "常に表示",
+      "prev": "前のページ",
+      "records_one": "件",
+      "records_other": "件",
+      "refresh": "更新",
+      "selectAll": "このページの行をすべて選択",
+      "selectColumns": "列を選択",
+      "selected_one": "{{count}} 件選択中",
+      "selected_other": "{{count}} 件選択中",
+      "selectRow": "行を選択",
+      "showing": "{{from}} から {{to}} 件を表示"
+    },
+    "approvalCard": {
+      "title": "承認が必要",
+      "approve": "承認",
+      "reject": "却下",
+      "note": "判断メモ",
+      "notePlaceholder": "監査証跡用のメモ (任意)",
+      "resource": "リソース",
+      "tool": "ツール",
+      "reason": "承認が必要な理由: {{reason}}",
+      "expires": "誰も判断しない場合、{{time}} に期限切れになります。",
+      "decided": "判断: {{status}}。",
+      "by": "判断者: {{name}}。",
+      "withNote": "メモ: {{note}}"
+    },
+    "chat": {
+      "you": "あなた",
+      "assistant": "Agent Smith",
+      "thinking": "推論",
+      "waiting": "Agent Smith が考えています...",
+      "stopped": "回答が完了する前に停止しました。",
+      "streamError": "回答のストリームが失敗しました。",
+      "ttft": "最初のトークン {{value}}",
+      "duration": "ターン {{value}}",
+      "tokens": "トークン: 入力 {{input}}、出力 {{output}}",
+      "transcript": "会話の記録",
+      "empty": "メッセージはまだありません。質問して始めましょう。",
+      "message": "メッセージ",
+      "placeholder": "Agent Smith に質問してください。Enter で送信、Shift+Enter で改行します。",
+      "send": "送信",
+      "stop": "停止"
+    },
+    "passwordChange": {
+      "title": "新しいパスワードを設定",
+      "body": "このアカウントは初期パスワードまたはリセットされたパスワードのままです。続行するには {{min}} 文字以上の新しいパスワードを設定してください。",
+      "current": "現在のパスワード",
+      "new": "新しいパスワード",
+      "confirm": "新しいパスワード (確認)",
+      "submit": "パスワードを変更",
+      "changed": "パスワードを変更しました。",
+      "tooShort": "{{min}} 文字以上で入力してください。",
+      "sameAsCurrent": "現在のパスワードとは異なるパスワードを設定してください。",
+      "mismatch": "2 つの新しいパスワードが一致しません。"
+    },
+    "progress": {
+      "count": "{{done}} / {{total}}",
+      "deleting_one": "{{count}} 件のレコードを削除中",
+      "deleting_other": "{{count}} 件のレコードを削除中"
+    },
+    "promptEditor": {
+      "content": "テンプレートテキスト",
+      "palette": "変数を挿入",
+      "used": "このテキストの変数",
+      "variables": "変数",
+      "noVariables": "このテキストは変数を使用していません。",
+      "preview": "プレビュー",
+      "diff": "変更点",
+      "sampleContext": "サンプルコンテキスト (JSON)",
+      "rendered": "レンダリング結果",
+      "serverRender": "サーバーでレンダリング",
+      "localRender": "ブラウザーでレンダリング",
+      "previewEmpty": "テンプレートのレンダリング結果は空です。",
+      "missing": "サンプルコンテキストにありません: {{list}}",
+      "current": "現在のテキスト",
+      "syntaxHint": "{{variable}}、{{variable | default: \"text\"}}、{{#if variable}}...{{/if}}、{{#each list}}...{{/each}} を使用できます。"
+    },
+    "result": {
+      "succeeded": "成功しました。",
+      "failed": "失敗しました。",
+      "latency": "所要時間 {{value}}。"
+    },
+    "schemaForm": {
+      "noSettings": "このコネクタには設定がありません。",
+      "range": "許可される範囲: {{minimum}} から {{maximum}}。",
+      "groups": {
+        "General": "一般",
+        "Connection": "接続",
+        "Authentication": "認証",
+        "Limits": "制限",
+        "Advanced": "詳細"
+      },
+      "errors": {
+        "Required": "この設定は必須です。",
+        "NotAnInteger": "整数を入力してください。",
+        "OutOfRange": "{{minimum}} から {{maximum}} の値を入力してください。",
+        "NotAllowedValue": "次のいずれかを選んでください: {{values}}。",
+        "PatternMismatch": "値が想定された形式ではありません。",
+        "TooLong": "{{maximum}} 文字以内で入力してください。"
+      }
+    },
+    "secretField": {
+      "accepts": "対応: {{kinds}}。",
+      "anyKind": "任意の種類のシークレット",
+      "noneSelected": "シークレットが選択されていません",
+      "createInline": "新しいシークレットを作成",
+      "saveInline": "シークレットを保存",
+      "import": "ファイルからインポート",
+      "importNamed": "ファイルから {{field}} をインポート",
+      "replaceHint": "保存済みの値を維持するには空のままにしてください。",
+      "fields": {
+        "username": "ユーザー名",
+        "password": "パスワード",
+        "privateKey": "秘密鍵",
+        "passphrase": "パスフレーズ",
+        "token": "トークン",
+        "accessKeyId": "アクセスキー ID",
+        "secretAccessKey": "シークレットアクセスキー",
+        "sessionToken": "セッショントークン",
+        "json": "サービスアカウント JSON",
+        "kubeconfig": "Kubeconfig",
+        "connectionString": "接続文字列",
+        "certificate": "証明書 (PEM)",
+        "value": "値"
+      },
+      "file": {
+        "pem": "ファイルには種類 {{type}} の PEM ブロックが含まれています。",
+        "serviceAccount": "プロジェクト {{project}} のサービスアカウント ({{email}})。",
+        "kubeconfig": "Kubeconfig のコンテキスト: {{contexts}}。",
+        "kubeconfigNone": "この kubeconfig にコンテキストが見つかりませんでした。",
+        "invalidJson": "このファイルは有効な JSON ではありません。"
+      }
+    },
+    "toolActivity": {
+      "arguments": "引数 (シークレットは秘匿)",
+      "output": "出力プレビュー",
+      "error": "エラー",
+      "noArguments": "引数はありません。",
+      "noOutput": "まだ出力はありません。",
+      "truncated": "出力はバインディングの上限まで切り詰められました。",
+      "effectReason": "分類の理由: {{reason}}",
+      "status": {
+        "proposed": "提案済み",
+        "running": "実行中",
+        "awaitingApproval": "承認待ち"
+      }
+    }
+  },
+  "resources": {
+    "tenants": {
+      "title": "テナント",
+      "subtitle": "このサーバー上の分離されたテナントです。組み込みロールとグローバル既定値以外のすべては、いずれか 1 つのテナントに属します。",
+      "add": "テナントを追加",
+      "create": "テナントを作成",
+      "edit": "テナントを編集",
+      "view": "テナントの詳細",
+      "deleteTitle": "テナントを削除",
+      "emptyTitle": "テナントはまだありません",
+      "emptyBody": "チームや顧客を分離するためにテナントを作成してください。",
+      "columns": {
+        "name": "名前",
+        "id": "ID",
+        "description": "説明",
+        "active": "有効",
+        "createdUtc": "作成日時",
+        "region": "リージョン",
+        "lockdown": "ロックダウン"
+      },
+      "fields": {
+        "name": "名前",
+        "description": "説明",
+        "active": "有効",
+        "region": "リージョン"
+      }
+    },
+    "users": {
+      "title": "ユーザー",
+      "subtitle": "メールとパスワードでこのテナントにサインインする人です。",
+      "add": "ユーザーを追加",
+      "create": "ユーザーを作成",
+      "edit": "ユーザーを編集",
+      "view": "ユーザーの詳細",
+      "deleteTitle": "ユーザーを削除",
+      "emptyTitle": "ユーザーはまだいません",
+      "emptyBody": "このテナントにサインインできるようにユーザーを追加してください。",
+      "columns": {
+        "email": "メールアドレス",
+        "name": "名前",
+        "id": "ID",
+        "role": "ロール",
+        "active": "有効",
+        "createdUtc": "作成日時"
+      },
+      "fields": {
+        "email": "メールアドレス",
+        "password": "パスワード",
+        "firstName": "名",
+        "lastName": "姓",
+        "isTenantAdmin": "テナント管理者",
+        "isAdmin": "システム管理者",
+        "active": "有効",
+        "mustChangePassword": "次回サインイン時にパスワード変更を必須にする"
+      },
+      "hints": {
+        "isAdmin": "システム管理者はすべてのテナントを管理でき、すべての認可をバイパスします。",
+        "password": "編集時に空欄のままにすると現在のパスワードが維持されます。"
+      },
+      "actions": {
+        "permissions": "有効な権限",
+        "resetPassword": "パスワードをリセット",
+        "assignRole": "ロールを割り当て"
+      },
+      "passwordReset": "パスワードをリセットしました。ユーザーは次回サインイン時に変更する必要があります。"
+    },
+    "credentials": {
+      "title": "認証キー",
+      "subtitle": "自動化、SDK、連携で使うアクセスキーです。シークレットは一度だけ表示されます。",
+      "add": "認証キーを追加",
+      "create": "認証キーを作成",
+      "edit": "認証キーを編集",
+      "view": "認証キーの詳細",
+      "deleteTitle": "認証キーを削除",
+      "emptyTitle": "認証キーはまだありません",
+      "emptyBody": "スクリプトやサービスが Hugo を呼び出せるように、アクセスキーを作成してください。",
+      "columns": {
+        "name": "名前",
+        "accessKey": "アクセスキー",
+        "secretKeyLast4": "シークレット",
+        "userId": "所有者",
+        "lastUsedUtc": "最終使用",
+        "expiresUtc": "有効期限",
+        "active": "有効",
+        "id": "ID",
+        "agentProfileId": "プロファイル",
+        "lockToProfile": "ロック"
+      },
+      "fields": {
+        "name": "名前",
+        "userId": "所有者",
+        "authMode": "認証モード",
+        "expiresUtc": "有効期限",
+        "active": "有効",
+        "agentProfileId": "バインドされたプロファイル",
+        "lockToProfile": "このプロファイルに固定"
+      },
+      "hints": {
+        "userId": "認証キーの権限が所有者の権限を超えることはありません。"
+      },
+      "actions": {
+        "rotate": "シークレットをローテーション",
+        "scopes": "スコープの割り当て"
+      }
+    },
+    "roles": {
+      "title": "ロール",
+      "subtitle": "ロールは権限をまとめたものです。組み込みロールは読み取り専用のため、カスタマイズするには複製してください。",
+      "add": "ロールを追加",
+      "create": "ロールを作成",
+      "edit": "ロールを編集",
+      "view": "ロールの詳細",
+      "deleteTitle": "ロールを削除",
+      "emptyTitle": "ロールはまだありません",
+      "emptyBody": "カスタムロールを作成するか、組み込みロールを複製してください。",
+      "columns": {
+        "name": "名前",
+        "description": "説明",
+        "isBuiltIn": "種別",
+        "active": "有効",
+        "id": "ID",
+        "createdUtc": "作成日時"
+      },
+      "fields": {
+        "name": "名前",
+        "description": "説明",
+        "active": "有効"
+      }
+    },
+    "permissions": {
+      "title": "権限",
+      "subtitle": "リソース種別への操作を許可または拒否します。拒否が常に優先されます。",
+      "add": "権限を追加",
+      "create": "権限を作成",
+      "edit": "権限を編集",
+      "view": "権限の詳細",
+      "deleteTitle": "権限を削除",
+      "emptyTitle": "権限はまだありません",
+      "emptyBody": "権限を作成してロールに割り当ててください。",
+      "columns": {
+        "name": "名前",
+        "permissionType": "種別",
+        "resourceTypes": "リソース種別",
+        "operationTypes": "操作",
+        "isBuiltIn": "由来",
+        "id": "ID"
+      },
+      "fields": {
+        "name": "名前",
+        "permissionType": "種別",
+        "resourceTypes": "リソース種別",
+        "operationTypes": "操作",
+        "active": "有効"
+      }
+    },
+    "userAssignments": {
+      "title": "ユーザーの割り当て",
+      "subtitle": "テナントまたはリソースのスコープでユーザーにロールを付与します。",
+      "add": "割り当てを追加",
+      "create": "割り当てを作成",
+      "edit": "割り当てを編集",
+      "view": "割り当ての詳細",
+      "deleteTitle": "割り当てを削除",
+      "emptyTitle": "ユーザーの割り当てはまだありません",
+      "emptyBody": "ユーザーにロールを割り当ててください。",
+      "columns": {
+        "userId": "ユーザー",
+        "roleName": "ロール",
+        "resourceScope": "スコープ",
+        "resourceId": "リソース",
+        "active": "有効",
+        "createdUtc": "作成日時",
+        "id": "ID"
+      },
+      "fields": {
+        "userId": "ユーザー",
+        "roleId": "ロール",
+        "resourceScope": "スコープ",
+        "resourceId": "リソース ID",
+        "inheritsToChildren": "テナント内のリソースにも適用",
+        "active": "有効"
+      }
+    },
+    "credentialAssignments": {
+      "title": "認証キーの割り当て",
+      "subtitle": "アクセスキーにロールを付与します。認証キーの権限は所有者より狭く保ってください。",
+      "add": "割り当てを追加",
+      "create": "割り当てを作成",
+      "edit": "割り当てを編集",
+      "view": "割り当ての詳細",
+      "deleteTitle": "割り当てを削除",
+      "emptyTitle": "認証キーの割り当てはまだありません",
+      "emptyBody": "認証キーにロールを割り当ててください。",
+      "columns": {
+        "credentialId": "認証キー",
+        "roleName": "ロール",
+        "resourceScope": "スコープ",
+        "resourceId": "リソース",
+        "active": "有効",
+        "createdUtc": "作成日時",
+        "id": "ID"
+      },
+      "fields": {
+        "credentialId": "認証キー",
+        "roleId": "ロール",
+        "resourceScope": "スコープ",
+        "resourceId": "リソース ID",
+        "inheritsToChildren": "テナント内のリソースにも適用",
+        "active": "有効"
+      }
+    },
+    "promptTemplates": {
+      "deleteUnbound": "「{{name}}」とそのすべてのバージョンを削除しますか? これを含むプロファイルは組み込みの既定値に戻ります。この操作は元に戻せません。",
+      "title": "プロンプトテンプレート",
+      "subtitle": "Hugo がレンダリングするすべてのプロンプトと設定ファイルです。保存するたびにバージョンが作成されます。",
+      "add": "新しいテンプレート",
+      "create": "テンプレートを作成",
+      "edit": "テンプレートを編集",
+      "view": "テンプレートの詳細",
+      "deleteTitle": "テンプレートを削除",
+      "emptyTitle": "プロンプトテンプレートはまだありません",
+      "emptyBody": "テンプレートを作成するか、組み込みテンプレートを複製してください。",
+      "columns": {
+        "name": "名前",
+        "kind": "種類",
+        "currentVersion": "バージョン",
+        "description": "説明",
+        "isBuiltIn": "由来",
+        "id": "ID",
+        "lastUpdateUtc": "更新日時"
+      },
+      "fields": {
+        "name": "名前",
+        "kind": "種類",
+        "description": "説明"
+      }
+    },
+    "audit": {
+      "title": "監査",
+      "subtitle": "このテナントの認証、認可、構成のイベントです。",
+      "add": "記録を追加",
+      "create": "記録を作成",
+      "edit": "記録を編集",
+      "view": "監査記録の詳細",
+      "deleteTitle": "記録を削除",
+      "emptyTitle": "監査記録はまだありません",
+      "emptyBody": "ユーザーやエージェントが Hugo を使用すると、セキュリティイベントがここに表示されます。",
+      "columns": {
+        "createdUtc": "日時",
+        "eventType": "イベント",
+        "principalName": "プリンシパル",
+        "resource": "リソース",
+        "reason": "理由",
+        "sourceIp": "送信元 IP",
+        "id": "ID"
+      },
+      "fields": {
+        "eventType": "イベント",
+        "principalType": "プリンシパル種別",
+        "principalName": "プリンシパル",
+        "principalId": "プリンシパル ID",
+        "resourceType": "リソース種別",
+        "resourceId": "リソース ID",
+        "operation": "操作",
+        "method": "メソッド",
+        "path": "パス",
+        "authResult": "認証結果",
+        "authorizationResult": "認可結果",
+        "reason": "理由",
+        "bypassReason": "バイパスの理由",
+        "statusCode": "ステータスコード",
+        "sourceIp": "送信元 IP",
+        "requestId": "リクエスト ID",
+        "createdUtc": "日時"
+      }
+    },
+    "approvals": {
+      "approved": "承認しました。呼び出しが実行されます。",
+      "rejected": "却下しました。呼び出し元には操作が拒否されたことが通知されます。",
+      "notPending": "この承認はすでに判断済みか期限切れです。",
+      "bulkNote": "承認受信箱から一括で却下しました。",
+      "bulkRejected_one": "{{count}} 件の承認を却下しました ({{failed}} 件失敗)。",
+      "bulkRejected_other": "{{count}} 件の承認を却下しました ({{failed}} 件失敗)。",
+      "title": "承認",
+      "subtitle": "人の判断を待っている書き込みおよび破壊的なツール呼び出しです。承認すると実行され、却下すると拒否されます。",
+      "add": "承認を追加",
+      "create": "承認を作成",
+      "edit": "承認を編集",
+      "view": "承認の詳細",
+      "deleteTitle": "承認を削除",
+      "emptyTitle": "承認はまだありません",
+      "emptyBody": "待機中のものはありません。承認が必要な呼び出しは、エージェントが提案するとすぐにこことチャットに表示されます。",
+      "purpose": "承認受信箱には、人の判断が必要なツール呼び出し (破壊的な呼び出しと、承認必須のバインディングでのすべての書き込み) が入ります。",
+      "columns": {
+        "summary": "操作",
+        "effect": "影響",
+        "status": "状態",
+        "agentProfileId": "プロファイル",
+        "requestedBy": "リクエスト元",
+        "createdUtc": "要求日時",
+        "expiresUtc": "期限",
+        "decidedBy": "決定者",
+        "id": "ID"
+      },
+      "fields": {
+        "summary": "操作",
+        "effect": "影響",
+        "status": "状態",
+        "decisionNote": "判断メモ",
+        "agentProfileId": "プロファイル",
+        "fromUtc": "開始"
+      },
+      "actions": {
+        "decide": "承認または却下",
+        "invocation": "ツール呼び出しを表示",
+        "bulkReject": "選択項目を却下"
+      }
+    },
+    "resources": {
+      "deleteReferenced_one": "{{name}} は {{count}} 件のプロファイルまたはエンドポイントにバインドされています。先にそれらのバインディングを削除してください。参照されている間、サーバーは削除を拒否します。",
+      "deleteReferenced_other": "{{name}} は {{count}} 件のプロファイルまたはエンドポイントにバインドされています。先にそれらのバインディングを削除してください。参照されている間、サーバーは削除を拒否します。",
+      "noReferrers": "まだ何もこれを使用していません。",
+      "referrerTypes": {
+        "profiles": "プロファイル",
+        "bindings": "バインディング",
+        "resources": "リソース",
+        "modelEndpoints": "モデルエンドポイント"
+      },
+      "title": "リソース",
+      "subtitle": "設定とシークレットを持つ、各システムへの接続です。プロファイルにバインドするとエージェントが使用できるようになります。",
+      "add": "リソースを追加",
+      "create": "リソースを作成",
+      "edit": "リソースを編集",
+      "view": "リソースの詳細",
+      "deleteTitle": "リソースを削除",
+      "emptyTitle": "リソースはまだありません",
+      "emptyBody": "SSH ホスト、バケット、データベース、またはログサービスを追加してください。各フォームはコネクタのスキーマから生成され、保存前にテストできます。",
+      "purpose": "リソースは実際のシステムへの設定済み接続です (SSH ホスト、S3 バケット、PostgreSQL データベース、Papertrail アカウントなど)。シークレットは Hugo 内で暗号化されたまま保持されます。",
+      "sections": {
+        "general": "一般",
+        "connector": "コネクタ"
+      },
+      "columns": {
+        "name": "名前",
+        "connectorType": "コネクタ",
+        "environment": "環境",
+        "endpoint": "エンドポイント",
+        "health": "状態",
+        "lastTestUtc": "最終テスト",
+        "visibility": "公開範囲",
+        "id": "ID",
+        "createdUtc": "作成日時"
+      },
+      "fields": {
+        "name": "名前",
+        "displayName": "表示名",
+        "environment": "環境",
+        "visibility": "公開範囲",
+        "defaultAccessModeCeiling": "許可する最高のアクセスモード",
+        "endpoint": "エンドポイントの概要",
+        "description": "説明",
+        "notes": "エージェント向けメモ",
+        "connectorType": "コネクタ"
+      },
+      "hints": {
+        "notes": "このリソースをバインドするすべてのプロファイルの指示に挿入されます。",
+        "endpoint": "一覧と指示に表示されます (例: web-01.example.com:22)。"
+      },
+      "actions": {
+        "test": "接続をテスト",
+        "testTitle": "接続テスト: {{name}}",
+        "tryTool": "ツールを試す",
+        "referrers": "使用箇所",
+        "referrersTitle": "{{name}} の使用箇所"
+      }
+    },
+    "secrets": {
+      "deleteReferenced_one": "{{name}} は {{count}} 件のリソースまたはモデルエンドポイントで使用されています。参照されている間、サーバーは削除を拒否します。",
+      "deleteReferenced_other": "{{name}} は {{count}} 件のリソースまたはモデルエンドポイントで使用されています。参照されている間、サーバーは削除を拒否します。",
+      "expired": "期限切れ",
+      "expiringSoon": "まもなく期限切れ",
+      "errors": {
+        "expiryPast": "未来の日時を選んでください。",
+        "noValues": "置き換える値を少なくとも 1 つ入力してください。"
+      },
+      "title": "シークレット",
+      "subtitle": "マスターキーで暗号化されたパスワード、キー、トークン、証明書です。値は監査される表示操作を通じてのみ表示されます。",
+      "add": "シークレットを追加",
+      "create": "シークレットを作成",
+      "edit": "シークレットを編集",
+      "view": "シークレットの詳細",
+      "deleteTitle": "シークレットを削除",
+      "emptyTitle": "シークレットはまだありません",
+      "emptyBody": "リソースに必要な認証情報を追加してください。リソースの追加中にその場で作成することもできます。",
+      "purpose": "シークレット保管庫は認証情報を暗号化して保存します (AES-256-GCM)。リソースとモデルエンドポイントはスロットでシークレットを参照し、エージェントが値を見ることはありません。",
+      "sections": {
+        "values": "値"
+      },
+      "columns": {
+        "name": "名前",
+        "kind": "種類",
+        "fingerprint": "フィンガープリント",
+        "referrerCount": "使用元",
+        "lastRotatedUtc": "最終ローテーション",
+        "expiresUtc": "有効期限",
+        "lastRevealedUtc": "最終表示",
+        "id": "ID",
+        "createdUtc": "作成日時"
+      },
+      "fields": {
+        "name": "名前",
+        "kind": "種類",
+        "description": "説明",
+        "expiresUtc": "有効期限"
+      },
+      "actions": {
+        "replaceValues": "値を置き換え",
+        "reveal": "表示",
+        "referrers": "使用箇所",
+        "referrersTitle": "{{name}} の使用箇所"
+      }
+    },
+    "toolInvocations": {
+      "openTrace": "Grafana でトレースを開く",
+      "truncated": "切り詰め済み",
+      "title": "ツール呼び出し",
+      "subtitle": "すべてのサーフェスからのすべてのツール呼び出し: 何がどのリソースで実行され、どう分類・判断され、どう終了したか。",
+      "add": "ツール呼び出しを追加",
+      "create": "ツール呼び出しを作成",
+      "edit": "ツール呼び出しを編集",
+      "view": "ツール呼び出しの詳細",
+      "deleteTitle": "ツール呼び出しを削除",
+      "emptyTitle": "ツール呼び出しはまだありません",
+      "emptyBody": "エージェントがチャット、MCP、A2A、OpenAI エンドポイント、または REST API からリソースを使用すると、ツール呼び出しがここに表示されます。",
+      "purpose": "ツール呼び出しは、すべてのサーフェスからのすべてのツール呼び出しを Hugo の単一の呼び出しパイプラインを通じて監査した記録です。",
+      "columns": {
+        "createdUtc": "日時",
+        "toolName": "ツール",
+        "resourceId": "リソース",
+        "effect": "影響",
+        "decision": "判断",
+        "status": "ステータス",
+        "durationMs": "所要時間",
+        "surface": "サーフェス",
+        "agentProfileId": "プロファイル",
+        "principalId": "プリンシパル",
+        "id": "ID"
+      },
+      "fields": {
+        "surface": "サーフェス",
+        "effect": "影響",
+        "decision": "判断",
+        "status": "ステータス",
+        "agentProfileId": "プロファイル",
+        "resourceId": "リソース",
+        "toolName": "ツール名",
+        "principalId": "プリンシパル ID",
+        "fromUtc": "開始",
+        "toUtc": "終了",
+        "accessMode": "アクセスモード",
+        "outputBytes": "出力サイズ",
+        "approvalId": "承認",
+        "traceId": "トレース",
+        "argumentsRedacted": "引数 (シークレットは秘匿)",
+        "outputPreview": "出力プレビュー"
+      }
+    },
+    "models": {
+      "lastHealth": "最終ヘルスチェック {{time}}: {{message}}",
+      "title": "モデルエンドポイント",
+      "subtitle": "Hugo 独自のエージェントループで使用する推論モデルと埋め込みモデルです。チャット、A2A、OpenAI 互換クライアントには推論モデルが必要です。",
+      "add": "モデルエンドポイントを追加",
+      "create": "モデルエンドポイントを作成",
+      "edit": "モデルエンドポイントを編集",
+      "view": "モデルエンドポイントの詳細",
+      "deleteTitle": "モデルエンドポイントを削除",
+      "emptyTitle": "モデルエンドポイントはまだありません",
+      "emptyBody": "チャットには推論モデルが必要です。ローカルの Ollama モデル、または OpenAI や Anthropic などのホスト型プロバイダーを追加してください。",
+      "purpose": "モデルエンドポイントは、Hugo のエージェントループが呼び出す推論および埋め込みプロバイダーです: Ollama、OpenAI、Anthropic、Gemini、Azure OpenAI、Bedrock、Vertex、VoyageAI。",
+      "sections": {
+        "endpoint": "エンドポイント",
+        "capabilities": "機能",
+        "limits": "制限"
+      },
+      "columns": {
+        "name": "名前",
+        "kind": "種類",
+        "provider": "プロバイダー",
+        "model": "モデル",
+        "baseUrl": "ベース URL",
+        "healthStatus": "状態",
+        "lastHealthUtc": "最終確認",
+        "id": "ID"
+      },
+      "fields": {
+        "name": "名前",
+        "kind": "種類",
+        "provider": "プロバイダー",
+        "baseUrl": "ベース URL",
+        "model": "モデル",
+        "apiKey": "API キー",
+        "apiKeySecretId": "API キーのシークレット",
+        "region": "リージョン",
+        "deploymentName": "デプロイ名",
+        "apiVersion": "API バージョン",
+        "contextWindowTokens": "コンテキストウィンドウ (トークン)",
+        "maxOutputTokens": "最大出力トークン数",
+        "embeddingDimensions": "埋め込みの次元数",
+        "supportsTools": "ツール呼び出しに対応",
+        "supportsStreaming": "ストリーミングに対応",
+        "maxConcurrency": "最大同時リクエスト数",
+        "timeoutSeconds": "タイムアウト (秒)",
+        "maxRetries": "最大再試行回数"
+      },
+      "errors": {
+        "baseUrl": "http:// または https:// で始まる URL を入力してください。"
+      },
+      "actions": {
+        "validate": "検証",
+        "validateTitle": "検証: {{name}}",
+        "listModels": "プロバイダーのモデルを一覧表示",
+        "listModelsTitle": "{{name}} が提供するモデル"
+      }
+    },
+    "knowledge": {
+      "allProfiles": "すべてのプロファイル",
+      "title": "ナレッジ",
+      "subtitle": "Hugo がコンテキストに取り込むスタックに関するメモです。1 つのプロファイルまたはリソース、あるいはすべてのプロファイルに適用されます。",
+      "add": "メモを追加",
+      "create": "メモを作成",
+      "edit": "メモを編集",
+      "view": "メモの詳細",
+      "deleteTitle": "メモを削除",
+      "emptyTitle": "ナレッジはまだありません",
+      "emptyBody": "オペレーターが新しいチームメンバーに伝えることを書き留めてください (例: どのホストが checkout を担当しているか、payments を再起動してはいけないのはいつか)。",
+      "purpose": "ナレッジメモは、オペレーターが書いたスタックに関する事実です。埋め込まれ、会話中にコンテキストに取り込まれます (マイルストーン M2)。",
+      "columns": {
+        "title": "タイトル",
+        "agentProfileId": "プロファイル",
+        "resourceId": "リソース",
+        "lastUpdateUtc": "更新日時",
+        "id": "ID"
+      },
+      "fields": {
+        "title": "タイトル",
+        "agentProfileId": "プロファイル",
+        "resourceId": "リソース",
+        "content": "メモ"
+      }
+    },
+    "profiles": {
+      "noModel": "モデルなし",
+      "title": "エージェントプロファイル",
+      "subtitle": "各プロファイルは 1 つのエージェントです。ペルソナ、モデル、使用できるリソースを持ち、MCP、A2A、REST、OpenAI、チャットから利用できます。",
+      "add": "プロファイルを追加",
+      "create": "プロファイルを作成",
+      "edit": "プロファイルを編集",
+      "view": "プロファイルの詳細",
+      "deleteTitle": "プロファイルを削除",
+      "emptyTitle": "エージェントプロファイルはまだありません",
+      "emptyBody": "プロファイルを作成するか、既定の Hugo プロファイルから始めてリソースをバインドしてください。",
+      "purpose": "エージェントプロファイルは、ペルソナ (既定は Agent Smith)、モデル、アクセスモード付きのリソースをまとめたものです。すべてのサーフェス (MCP、A2A、REST、チャット) はプロファイルと通信します。",
+      "sections": {
+        "identity": "ID 情報",
+        "models": "モデル",
+        "limits": "制限",
+        "exposure": "公開"
+      },
+      "columns": {
+        "name": "プロファイル",
+        "personaName": "ペルソナ",
+        "visibility": "公開範囲",
+        "inferenceEndpointId": "推論モデル",
+        "bindingCount": "バインディング",
+        "exposure": "公開先",
+        "id": "ID",
+        "createdUtc": "作成日時"
+      },
+      "fields": {
+        "name": "名前",
+        "displayName": "表示名",
+        "description": "説明",
+        "personaName": "ペルソナ名",
+        "userAddress": "ユーザーの呼び方",
+        "visibility": "公開範囲",
+        "inferenceEndpointId": "推論モデル",
+        "fallbackInferenceEndpointId": "フォールバック推論モデル",
+        "embeddingEndpointId": "埋め込みモデル",
+        "maxIterations": "1 ターンあたりの最大反復回数",
+        "maxToolCallsPerTurn": "1 ターンあたりの最大ツール呼び出し数",
+        "toolTimeoutSeconds": "ツールのタイムアウト (秒)",
+        "temperature": "Temperature",
+        "exposeMcp": "MCP で公開",
+        "exposeA2a": "A2A で公開",
+        "exposeOpenai": "OpenAI 互換エンドポイントで公開",
+        "exposeManagementTools": "管理ツールを公開",
+        "instructionsAppend": "追加の指示"
+      },
+      "hints": {
+        "name": "英字、数字、ドット、ハイフン、アンダースコアを使用できます。/mcp/{name} などの URL で使われます。"
+      },
+      "errors": {
+        "urlSafe": "英字、数字、ドット、ハイフン、アンダースコアを使用し、英字または数字で始めてください。"
+      },
+      "actions": {
+        "chat": "このプロファイルとチャット",
+        "duplicate": "複製"
+      }
+    },
+    "sessions": {
+      "revoked": "失効済み",
+      "title": "セッション",
+      "subtitle": "このテナントで有効なサインインセッションとトークンです。失効させると、そのクライアントは即座にサインアウトされます。",
+      "add": "セッションを追加",
+      "create": "セッションを作成",
+      "edit": "セッションを編集",
+      "view": "セッションの詳細",
+      "deleteTitle": "セッションを削除",
+      "emptyTitle": "セッションはまだありません",
+      "emptyBody": "有効なセッションはありません。サインインするかアクセスキーを交換すると作成されます。",
+      "purpose": "セッションは、サインイン時またはアクセスキーの交換によって発行されるベアラートークンです。失効させると即座に終了します。",
+      "columns": {
+        "principalName": "プリンシパル",
+        "principalType": "種類",
+        "authScheme": "方式",
+        "sourceIp": "送信元 IP",
+        "issuedUtc": "発行日時",
+        "lastUsedUtc": "最終使用",
+        "expiresUtc": "有効期限",
+        "revokedUtc": "状態",
+        "userAgent": "クライアント",
+        "id": "ID"
+      },
+      "fields": {
+        "principalName": "プリンシパル",
+        "authScheme": "方式",
+        "sourceIp": "送信元 IP",
+        "userAgent": "クライアント",
+        "principalType": "プリンシパルの種類",
+        "principalId": "プリンシパル ID"
+      }
+    },
+    "conversations": {
+      "title": "会話",
+      "subtitle": "このテナントのすべてのサーフェスからの会話です。開くとチャットで続けられます。",
+      "add": "会話を追加",
+      "create": "会話を作成",
+      "edit": "会話を編集",
+      "view": "会話の詳細",
+      "deleteTitle": "会話を削除",
+      "emptyTitle": "会話はまだありません",
+      "emptyBody": "ダッシュボードや任意のクライアントからプロファイルとチャットすると、会話がここに表示されます。",
+      "purpose": "会話は、呼び出し元とプロファイルの間で保存されたスレッドです (ダッシュボードのチャット、A2A コンテキスト、MCP、OpenAI 互換セッション)。",
+      "columns": {
+        "title": "タイトル",
+        "agentProfileId": "プロファイル",
+        "userId": "ユーザー",
+        "source": "ソース",
+        "messageCount": "メッセージ",
+        "tokens": "トークン",
+        "lastMessageUtc": "最終メッセージ",
+        "id": "ID"
+      },
+      "fields": {
+        "source": "ソース",
+        "agentProfileId": "プロファイル",
+        "userId": "ユーザー ID",
+        "fromUtc": "開始"
+      },
+      "actions": {
+        "export": "Markdown としてエクスポート"
+      }
+    },
+    "plugins": {
+      "title": "プラグイン",
+      "subtitle": "プラグインディレクトリから読み込まれたコネクタプラグインです。有効化・無効化したり、読み込みに失敗した理由を確認したりできます。",
+      "add": "プラグインを追加",
+      "create": "プラグインを作成",
+      "edit": "プラグインを編集",
+      "view": "プラグインの詳細",
+      "deleteTitle": "プラグインを削除",
+      "emptyTitle": "プラグインはまだありません",
+      "emptyBody": "プラグインはインストールされていません。コネクタプラグインをプラグインディレクトリに配置し、Connectors.EnablePlugins を有効にしてください。",
+      "purpose": "プラグインを使うと、Hugo を再ビルドせずにコネクタの種類を追加できます。プラグインディレクトリから分離されたコンテキストで読み込まれます。",
+      "columns": {
+        "name": "名前",
+        "version": "バージョン",
+        "connectorTypes": "コネクタの種類",
+        "enabled": "状態",
+        "loadError": "読み込みエラー",
+        "sha256": "SHA-256",
+        "id": "ID"
+      },
+      "fields": {
+        "name": "名前",
+        "version": "バージョン",
+        "enabled": "有効"
+      },
+      "actions": {
+        "enable": "有効化",
+        "disable": "無効化"
+      }
+    }
+  },
+  "views": {
+    "home": {
+      "observabilityState": {
+        "reachable": "到達可能",
+        "unreachable": "到達不可",
+        "checking": "確認中",
+        "unknown": "状態不明"
+      },
+      "observabilityVersion": "バージョン {{version}}",
+      "observabilityOpen": "{{service}} を開く",
+      "kpisGrafana": "概要を Grafana で開く",
+      "grafanaDashboards": "Grafana ダッシュボード",
+      "grafanaSections": {
+        "overview": "概要",
+        "http": "HTTP API",
+        "models": "モデル",
+        "protocols": "MCP と A2A",
+        "security": "セキュリティ",
+        "agent": "エージェントとチャット",
+        "tools": "ツールとコネクタ"
+      },
+      "observabilitySetup": "オブザーバビリティを設定する",
+      "observabilityNone": "この Hugo サーバーにはオブザーバビリティサービス (Grafana、Prometheus、Tempo、Loki) が設定されていません。",
+      "observability": "オブザーバビリティ",
+      "title": "ホーム",
+      "subtitle": "Hugo が現在行っていること、対応が必要なこと、次に進むべき場所を示します。",
+      "lastLoaded": "{{time}} に更新",
+      "getStartedTitle": "Agent Smith を動かしましょう",
+      "getStartedBody": "このテナントにはまだモデルエンドポイントもリソースもありません。セットアップウィザードを使えば、数分でモデルと最初のシステムを接続できます。",
+      "runSetup": "セットアップを開始",
+      "kpis": {
+        "last24h": "過去 24 時間",
+        "requests": "リクエスト",
+        "toolCalls": "ツール呼び出し",
+        "failures": "失敗",
+        "approvals": "承認待ち",
+        "unhealthy": "異常なリソース",
+        "tokens": "本日のトークン",
+        "today": "午前 0 時以降"
+      },
+      "requestActivity": "API リクエストのアクティビティ",
+      "recentFailures": "最近失敗したツール呼び出し",
+      "noFailures": "最近失敗したツール呼び出しはありません。",
+      "cta": {
+        "title": "よく使うワークフロー",
+        "apiExplorer": "API エクスプローラーを開く",
+        "addResource": "リソースを追加",
+        "addModel": "モデルエンドポイントを追加",
+        "chat": "Agent Smith とチャット",
+        "connect": "Claude Code を接続",
+        "approvals": "承認を確認"
+      },
+      "services": {
+        "loki": "Loki",
+        "grafana": "Grafana",
+        "prometheus": "Prometheus",
+        "tempo": "Tempo"
+      },
+      "partial_one": "{{count}} 個のパネルを読み込めなかったため、以下の一部の数値が欠けています。ページのその他の部分は最新です。",
+      "partial_other": "{{count}} 個のパネルを読み込めなかったため、以下の一部の数値が欠けています。ページのその他の部分は最新です。",
+      "failuresUnavailable": "このサーバーはまだツール呼び出しを報告していません。",
+      "unhealthyTitle": "異常なリソース",
+      "allHealthy": "すべてのリソースが前回のヘルスチェックに合格しました。",
+      "resourcesUnavailable": "このサーバーはまだリソースを報告していません。"
+    },
+    "markdown": {
+      "showRaw": "生のテキストを表示",
+      "showRendered": "整形して表示"
+    },
+    "templateEditor": {
+      "cloneToEdit": "複製して編集",
+      "builtInReadOnly": "組み込みテンプレートは読み取り専用のため、ここのフィールドはすべてロックされています。編集可能なコピーを作るには複製してください。",
+      "renameHint": "このテンプレートの名前は変更できます。名前でこれを含むテンプレートは手動で更新する必要があります。",
+      "cloneDialog": {
+        "taken": "{{name}} という名前のテンプレートはすでに存在します。別の名前を選んでください。",
+        "reserved": "builtin/ で始まる名前は組み込みテンプレート用に予約されています。",
+        "hint": "コピーの名前は、あとでそのページで変更できます。",
+        "name": "コピーの名前",
+        "body": "コピーは現在の内容をバージョン 1 として開始し、編集、名前の変更、削除ができます。",
+        "title": "{{name}} を複製"
+      },
+      "newTitle": "新しいプロンプトテンプレート",
+      "subtitle": "テンプレートを書き、サンプルコンテキストでプレビューして保存します。",
+      "changeNote": "変更メモ",
+      "versions_one": "バージョン ({{count}})",
+      "versions_other": "バージョン ({{count}})",
+      "noVersions": "保存されたバージョンはまだありません。",
+      "version": "バージョン",
+      "note": "メモ",
+      "author": "作成者",
+      "diff": "差分",
+      "restore": "復元",
+      "diffTitle": "バージョン {{version}} とエディターの比較",
+      "current": "エディター",
+      "reset": "既定に戻す",
+      "savedVersion": "新しいバージョンを保存しました。",
+      "restored": "バージョン {{version}} を復元しました。",
+      "resetDone": "出荷時の内容に戻しました。",
+      "confirm": {
+        "restoreTitle": "バージョンを復元",
+        "restoreMessage": "バージョン {{version}} を復元しますか? 現在の内容は履歴に残ります。",
+        "resetTitle": "テンプレートをリセット",
+        "resetMessage": "「{{name}}」を出荷時の内容に戻しますか?",
+        "deleteTitle": "テンプレートを削除",
+        "deleteMessage": "「{{name}}」を削除しますか? これを使用するプロファイルとコネクタは組み込みの既定値に戻ります。"
+      },
+      "saved": "保存済みのテキスト"
+    },
+    "requests": {
+      "grafana": "Grafana の HTTP ダッシュボード",
+      "title": "リクエスト履歴",
+      "subtitle": "記録された API トラフィックです。各リクエストを詳しく調べ、保持期間を管理できます。",
+      "kpis": {
+        "total": "保持中のリクエスト",
+        "success": "成功",
+        "failure": "失敗",
+        "avgDuration": "平均所要時間"
+      },
+      "columns": {
+        "time": "日時",
+        "method": "メソッド",
+        "path": "パス",
+        "status": "ステータス",
+        "duration": "所要時間",
+        "principal": "プリンシパル"
+      },
+      "bulkDeleteTitle": "リクエスト履歴を削除",
+      "bulkDeleteMessage": "現在のフィルターに一致する {{count}} 件のリクエストをすべて削除しますか?",
+      "bulkDeleteAll": "一致するものをすべて削除",
+      "deleteOneTitle": "リクエストを削除",
+      "deleteOneMessage": "リクエスト {{id}} を削除しますか?",
+      "deleted": "削除しました。",
+      "emptyTitle": "リクエスト履歴はありません",
+      "emptyBodyNoTraffic": "まだ API トラフィックは記録されていません。",
+      "emptyBodyNoMatch": "現在のフィルターに一致するリクエストはありません。"
+    },
+    "explorer": {
+      "title": "API エクスプローラー",
+      "subtitle": "OpenAPI ドキュメントに基づいて、このサーバーに対して API をその場で実行します。",
+      "operations": "操作",
+      "selectOperation": "リクエストを作成するには操作を選択してください。",
+      "selectOperationOption": "操作を選択...",
+      "pathParams": "パスパラメーター",
+      "queryParams": "クエリパラメーター",
+      "headers": "ヘッダー",
+      "addHeader": "ヘッダーを追加",
+      "headerName": "ヘッダー名",
+      "headerValue": "ヘッダー {{name}} の値",
+      "removeHeader": "ヘッダー {{name}} を削除",
+      "body": "リクエスト本文",
+      "resolvedUrl": "解決された URL",
+      "copyUrl": "URL をコピー",
+      "execute": "実行",
+      "executing": "実行中...",
+      "stop": "停止",
+      "streaming": "ストリーミング中",
+      "response": "レスポンス",
+      "responseHeaders": "レスポンスヘッダー",
+      "responseBody": "レスポンス本文",
+      "snippets": "コードスニペット",
+      "history": "最近のリクエスト",
+      "historyEmpty": "最近のリクエストはありません。",
+      "loadHistory": "読み込み",
+      "deleteHistory": "削除",
+      "clearHistory": "履歴をクリア",
+      "required": "必須",
+      "confirmTitle": "破壊的な操作を実行",
+      "confirmMessage": "この {{method}} リクエストはデータを変更または削除する可能性があります。続行しますか?",
+      "noSpecTitle": "OpenAPI ドキュメントを利用できません",
+      "noSpecBody": "このサーバーが利用可能な /openapi.json を返さなかったため、操作を一覧表示できません。"
+    },
+    "settings": {
+      "errors": {
+        "allowed": "次のいずれかを選んでください: {{values}}。",
+        "boolean": "true または false を選んでください。",
+        "max": "{{max}} 以下の値を入力してください。",
+        "min": "{{min}} 以上の値を入力してください。",
+        "range": "{{min}} から {{max}} までの値を入力してください。",
+        "integer": "整数を入力してください。",
+        "number": "数値を入力してください。"
+      },
+      "notSaved": "何も保存されていません。強調表示された設定を修正してから、もう一度保存してください。",
+      "title": "設定",
+      "subtitle": "サーバーの hugo.json 設定です。環境変数による上書きは読み取り専用で表示されます。即時に反映される変更と、再起動後に反映される変更があります。",
+      "readOnly": "設定を読み取り専用で表示しています。変更できるのはシステム管理者のみです。",
+      "restartBanner": "保存した変更の一部は再起動後に反映されます。",
+      "restarting": "サーバーを再起動しています。このページは自動的に再接続します。",
+      "restarted": "サーバーがオンラインに戻りました。",
+      "restartTimeout": "サーバーが 3 分以内に復帰しませんでした。docker ps でコンテナの状態を確認してください。",
+      "restart": "サーバーを再起動",
+      "restartConfirmTitle": "サーバーを再起動",
+      "restartConfirmMessage": "Hugo サーバーを今すぐ再起動しますか? 処理中のリクエストとチャットストリームは切断されます。コンテナがプロセスを再起動し、このページは再接続されます。",
+      "savedLive": "設定を保存して反映しました。",
+      "savedRestart": "設定を保存しました。すべての変更を反映するにはサーバーを再起動してください。",
+      "live": "即時反映",
+      "restartRequired": "再起動が必要",
+      "secretSet": "設定済み (置き換えるには新しい値を入力)",
+      "secretNotSet": "未設定",
+      "range": "許容範囲 {{min}} から {{max}}",
+      "testDatabase": "データベース接続をテスト",
+      "testing": "テスト中...",
+      "dbOk": "接続に成功しました",
+      "dbFailed": "接続に失敗しました",
+      "unavailableTitle": "設定を利用できません",
+      "unavailableBody": "このサーバーは設定を返しませんでした。",
+      "sources": {
+        "File": "設定ファイル",
+        "Environment": "環境変数",
+        "Database": "データベース"
+      },
+      "lockedBy": {
+        "Environment": "環境変数で設定されています。環境変数の値が優先されます。",
+        "other": "この設定はここでは変更できません。"
+      },
+      "groups": {
+        "General": "全般",
+        "Rest": "REST リスナー",
+        "Mcp": "MCP",
+        "Database": "データベース",
+        "Logging": "ログ",
+        "Auth": "認証",
+        "RequestHistory": "リクエスト履歴",
+        "Telemetry": "テレメトリー",
+        "Audit": "監査",
+        "Secrets": "シークレット保管庫",
+        "Agent": "エージェントループ",
+        "Approvals": "承認",
+        "Connectors": "コネクタ",
+        "Models": "モデルエンドポイント",
+        "A2A": "A2A",
+        "OpenAI": "OpenAI 互換エンドポイント",
+        "Embeddings": "埋め込み"
+      },
+      "fields": {
+        "Rest": {
+          "Hostname": "リスナーのホスト名",
+          "Port": "リスナーのポート",
+          "Ssl": "TLS を使用",
+          "ExternalBaseUrl": "外部ベース URL",
+          "AllowedOrigins": "許可する CORS オリジン"
+        },
+        "Database": {
+          "Type": "データベースの種類",
+          "Filename": "SQLite ファイル",
+          "Server": "データベースサーバー",
+          "Port": "データベースポート",
+          "DatabaseName": "データベース名",
+          "Username": "データベースユーザー",
+          "Password": "データベースのパスワード"
+        },
+        "Auth": {
+          "SigningKey": "トークンの署名鍵",
+          "UserSessionMinutes": "ユーザーセッションの長さ (分)",
+          "AdminSessionMinutes": "管理者セッションの長さ (分)",
+          "SessionAbsoluteMaxHours": "セッションの絶対上限 (時間)",
+          "RateLimitPerMinute": "1 分あたりのサインイン試行回数"
+        },
+        "Secrets": {
+          "MasterKey": "マスターキー (開発専用)",
+          "RevealReauthMinutes": "表示時の再認証の有効時間 (分)"
+        },
+        "Agent": {
+          "DefaultMaxIterations": "1 ターンあたりの既定の最大反復回数",
+          "DefaultMaxToolCallsPerTurn": "1 ターンあたりの既定の最大ツール呼び出し数",
+          "MaxParallelToolCalls": "並列の読み取りツール呼び出し数",
+          "ToolRetrievalThreshold": "ツール取得のしきい値",
+          "CompactionThresholdRatio": "履歴圧縮のしきい値"
+        },
+        "Approvals": {
+          "ExpirySeconds": "承認の有効期限 (秒)",
+          "McpWaitSeconds": "MCP の承認待機時間 (秒)",
+          "AllowSelfApproval": "自分の呼び出しの承認を許可"
+        },
+        "Connectors": {
+          "EnablePlugins": "コネクタプラグインを有効化",
+          "PluginDirectory": "プラグインディレクトリ",
+          "DefaultToolTimeoutSeconds": "既定のツールタイムアウト (秒)",
+          "HealthSweepMinutes": "リソースのヘルスチェック間隔 (分)"
+        },
+        "Models": {
+          "HealthIntervalSeconds": "モデルのヘルスチェック間隔 (秒)"
+        }
+      }
+    },
+    "serverInfo": {
+      "title": "サーバー情報",
+      "subtitle": "エンドポイント、バージョン、サインイン中の ID です。",
+      "endpoints": "エンドポイント",
+      "rest": "REST API",
+      "mcp": "MCP",
+      "a2a": "A2A",
+      "openapi": "OpenAPI",
+      "server": "サーバー",
+      "version": "サーバーのバージョン",
+      "dashboardVersion": "ダッシュボードのバージョン",
+      "node": "サーバーノード",
+      "database": "データベース",
+      "health": "状態",
+      "routes": "登録済みの操作",
+      "serverTime": "サーバー時刻",
+      "principal": "サインイン中の ID",
+      "principalName": "プリンシパル",
+      "principalType": "プリンシパル種別",
+      "role": "ロール",
+      "tenant": "テナント",
+      "expires": "セッションの有効期限",
+      "features": "機能フラグ",
+      "connectors": "読み込まれたコネクタ",
+      "openai": "OpenAI 互換"
+    },
+    "analytics": {
+      "legend": "{{chart}} の系列",
+      "noDataInChart": "選択した期間には、このグラフのデータはありません。",
+      "dataTable": "データ表",
+      "bucketStart": "区間の開始",
+      "title": "分析",
+      "subtitle": "トークン使用量、影響別・コネクタ別のツール呼び出し、モデルのレイテンシとエラー、承認の所要時間です。",
+      "purpose": "分析は、ツール呼び出し、チャットのターン、モデル呼び出しを、プロファイル別・モデル別の使用量とコストの傾向にまとめます。",
+      "profile": "プロファイル",
+      "panels": {
+        "overview": "合計",
+        "tokens": "トークン使用量",
+        "tools": "影響別のツール呼び出し",
+        "models": "モデル",
+        "modelLatency": "モデルのレイテンシ",
+        "modelErrors": "モデルのエラー"
+      },
+      "purposes": {
+        "overview": "選択した期間のターン、ツール呼び出し、失敗、トークン、承認の合計です。",
+        "tokens": "Hugo 独自のループを実行するすべてのサーフェスにおける、入力・出力トークンの推移です。",
+        "tools": "影響別のツール呼び出しの推移と、コネクタ別の呼び出し数、失敗数、レイテンシです。",
+        "models": "各モデルエンドポイントのレイテンシのパーセンタイルとエラー数です。"
+      },
+      "help": {
+        "tokens": "時間区間ごとの入力・出力トークン数です。",
+        "tools": "時間区間ごとの影響別ツール呼び出し数 (読み取り、書き込み、破壊的) です。",
+        "modelLatency": "区間ごとのモデル応答時間の中央値 (p50) と p95 です。",
+        "modelErrors": "区間ごとに失敗したモデルリクエストです。"
+      },
+      "kpis": {
+        "turns": "チャットのターン",
+        "toolCalls": "ツール呼び出し",
+        "failures": "失敗したツール呼び出し",
+        "tokens": "トークン",
+        "approvals": "承認",
+        "turnaround": "承認の所要時間",
+        "approvalRate": "承認率"
+      },
+      "metrics": {
+        "inputTokens": "入力トークン",
+        "outputTokens": "出力トークン",
+        "latencyMsP50": "中央値 (p50)",
+        "latencyMsP95": "p95",
+        "errors": "エラー",
+        "Read": "読み取り",
+        "Write": "書き込み",
+        "Destructive": "破壊的"
+      },
+      "columns": {
+        "connector": "コネクタ",
+        "calls": "呼び出し",
+        "failures": "失敗",
+        "p95": "p95 所要時間"
+      }
+    },
+    "chat": {
+      "title": "チャット",
+      "subtitle": "Agent Smith と話しましょう。ツール呼び出しは影響とともにインラインで表示され、リスクのあるものはあなたの承認を待ちます。",
+      "purpose": "チャットは選択したプロファイルに対して Hugo 独自のエージェントループを実行します。バインドされたリソースをそのツールで読み取り、リスクのある操作の前には確認し、回答をここにストリーミングします。",
+      "conversations": "会話",
+      "search": "会話を検索",
+      "noConversations": "会話はまだありません。",
+      "untitled": "無題の会話",
+      "new": "新しい会話",
+      "export": "エクスポート",
+      "context": "コンテキスト",
+      "profile": "プロファイル",
+      "model": "モデル: {{model}}",
+      "modelLabel": "モデル",
+      "persona": "ペルソナ",
+      "addresses": "あなたの呼び方",
+      "resources": "バインドされたリソース",
+      "noResources": "このプロファイルにはリソースがバインドされていません。",
+      "usage": "トークン使用量",
+      "pending": "保留中の承認",
+      "noPending": "あなたを待っているものはありません。",
+      "noModel": "このプロファイルには推論モデルがないため、Agent Smith はまだ回答できません。モデルエンドポイントを追加し、プロファイルで選択してください。",
+      "goModels": "モデルエンドポイントを追加",
+      "noProfilesTitle": "エージェントプロファイルはまだありません",
+      "noProfilesBody": "チャットはエージェントプロファイルと通信します。始めるにはプロファイルを作成してください (またはサーバーに既定の Hugo プロファイルを作成させてください)。",
+      "goProfiles": "エージェントプロファイルを開く",
+      "emptyHint": "スタックについて {{persona}} に質問してください (例: 「checkout が遅いのはなぜ?」)"
+    },
+    "profile": {
+      "title": "エージェントプロファイル",
+      "subtitle": "ペルソナ {{persona}}、ユーザーの呼び方 {{address}}。",
+      "tabs": {
+        "general": "一般",
+        "bindings": "バインディング",
+        "instructions": "指示",
+        "tools": "ツール",
+        "connect": "接続"
+      },
+      "bindings": {
+        "body": "各バインディングは、エイリアスとアクセスモードを指定してリソースをこのプロファイルに接続します。アクセスモードはエージェントに許可される操作を決めます。",
+        "purpose": "バインディングは、アクセスモード、承認ポリシー、ツールルールとともにリソースをプロファイルに接続します。",
+        "add": "バインディングを追加",
+        "edit": "バインディングを編集",
+        "emptyTitle": "バインドされたリソースはまだありません",
+        "emptyBody": "リソースをバインドするまで、このプロファイルはどのシステムにも触れられません。先にリソースを追加し、ここでバインドしてください。",
+        "goResources": "リソースを開く",
+        "noResources": "バインドできるリソースがまだありません。先にリソースページで追加してください。",
+        "approvalOn": "承認",
+        "aliasInvalid": "英字、数字、ドット、ハイフン、アンダースコアを使用し、英字または数字で始めてください。",
+        "aliasTaken": "このプロファイルの別のバインディングがすでにこのエイリアスを使用しています。",
+        "deleteTitle": "バインディングを削除",
+        "deleteBody": "このプロファイルから {{alias}} を削除しますか? リソース自体は残りますが、このプロファイルの呼び出し元はアクセスできなくなります。",
+        "columns": {
+          "alias": "エイリアス",
+          "resource": "リソース",
+          "accessMode": "アクセスモード",
+          "approval": "承認",
+          "enabled": "状態"
+        },
+        "fields": {
+          "resourceId": "リソース",
+          "alias": "エイリアス",
+          "accessMode": "アクセスモード",
+          "requireApprovalForDestructive": "破壊的な呼び出しに承認を必須にする",
+          "instructionMode": "指示",
+          "instructionText": "指示テキスト",
+          "maxOutputBytes": "最大出力バイト数",
+          "maxRows": "最大行数",
+          "enabled": "有効"
+        }
+      },
+      "toolRules": {
+        "title": "{{alias}} のツールルール",
+        "body": "このバインディングで個々のツールを上書きします。未設定のツールはアクセスモードに従います。",
+        "open": "ツールルール",
+        "rule": "ルール",
+        "ruleFor": "{{tool}} のルール",
+        "inherit": "アクセスモードに従う",
+        "noTools": "サーバーはこのプロファイルのツールを報告しませんでした。"
+      },
+      "instructions": {
+        "body": "呼び出し元が受け取る指示です: ペルソナ、安全ルール、各バインド済みリソースのセクションの順に並びます。",
+        "purpose": "コンパイルされた指示は、各サーフェスで Agent Smith に伝えられる内容と、各セクションの元になったテンプレートを正確に示します。",
+        "surface": "サーフェス",
+        "sourceMap": "各セクションの出典"
+      },
+      "tools": {
+        "body": "アクセスモードとツールルールを適用した後、このプロファイルの呼び出し元に見えるとおりのツールです。",
+        "purpose": "ツール一覧は、アクセスモードとツールルールの適用後に、このプロファイルの呼び出し元が呼び出せるものを示します。",
+        "empty": "このプロファイルはツールを公開していません。",
+        "name": "ツール",
+        "effect": "影響",
+        "description": "説明",
+        "perCall": "(呼び出しごとに分類)"
+      },
+      "connect": {
+        "claudeCode": "Claude Code (HTTP 経由の MCP)",
+        "claudeCodeBody": "これを MCP 設定に追加してください。HUGO_TOKEN にセッショントークンを設定するか、このプロファイルにバインドされた認証情報を使用してください。",
+        "claudeCli": "Claude Code CLI",
+        "claudeCliBody": "同じサーバーをコマンドラインから登録します。",
+        "stdio": "Stdio リレー",
+        "stdioBody": "stdio のみに対応する MCP クライアント向け: hugo CLI が HTTP エンドポイントへ中継します。",
+        "a2a": "A2A エージェントカード",
+        "a2aBody": "他のエージェントは A2A カードを通じてこのプロファイルを検出します。",
+        "a2aOff": "このプロファイルでは A2A がオフになっています。カードを公開するには、一般タブで A2A の公開をオンにしてください。",
+        "openai": "OpenAI 互換エンドポイント",
+        "openaiBody": "任意の OpenAI 互換クライアントをこのベース URL に向け、モデル名 {{model}} を使用してください。",
+        "openaiOff": "このプロファイルでは OpenAI 互換エンドポイントがオフになっています。",
+        "credential": "このプロファイル用の認証情報",
+        "credentialBody": "ハーネスはこのプロファイルにバインドされた認証情報で接続してください。そうすれば常にこのプロファイルとしてのみ動作します。",
+        "credentialAction": "認証情報を作成"
+      }
+    },
+    "resources": {
+      "form": {
+        "chooseConnector": "コネクタを選択",
+        "connectorsUnavailable": "サーバーがコネクタを一覧表示しなかったため、まだ設定を生成できません。",
+        "settings": "設定",
+        "secrets": "シークレット",
+        "test": "接続をテスト",
+        "testing": "テスト中..."
+      },
+      "tryTool": {
+        "title": "{{name}} でツールを試す",
+        "body": "このリソースをバインドしているプロファイルとツールを選んでください。ドライランは実行せずに呼び出しを分類します。実行は、他のすべてのサーフェスと同じ安全チェックを経て実行します。",
+        "profile": "実行するプロファイル",
+        "tool": "ツール",
+        "arguments": "引数 (JSON)",
+        "dryRun": "ドライラン",
+        "execute": "実行",
+        "classification": "分類",
+        "result": "結果",
+        "notBound": "このプロファイルはリソースをバインドしていないため、そのツールはリソースにアクセスできません。",
+        "pendingApproval": "呼び出しは承認 {{id}} を待っています。承認ページで判断してください。"
+      }
+    },
+    "secrets": {
+      "reveal": {
+        "title": "{{name}} を表示",
+        "warning": "表示すると平文の値が表示されます。表示操作は理由とともに監査され、値は 30 秒後に非表示になります。",
+        "reason": "理由",
+        "reasonRequired": "値を確認する必要がある理由を入力してください。",
+        "submit": "表示",
+        "reauthBody": "安全のため、シークレットを表示する前にパスワードを再入力してください。",
+        "password": "パスワード",
+        "reauthSubmit": "確認して表示",
+        "hidesIn": "{{seconds}} 秒後に再び非表示になります。",
+        "hidden": "値は再び非表示になりました。",
+        "again": "もう一度表示"
+      }
+    },
+    "connectors": {
+      "title": "コネクタ",
+      "subtitle": "Hugo が接続できるシステムの種類と、その設定、シークレット、ツール、既定の指示です。",
+      "purpose": "コネクタカタログには、このサーバーが接続できるすべてのサービスファミリー (SSH、オブジェクトストレージ、データベース、ログサービスなど) が、それぞれに必要な設定とシークレット、提供するツールとともに一覧表示されます。",
+      "search": "コネクタを検索",
+      "category": "カテゴリ",
+      "count_one": "{{shown}} 個のコネクタ",
+      "count_other": "{{shown}} 個のコネクタ",
+      "emptyTitle": "一致するコネクタはありません",
+      "emptyBody": "検索をクリアするか、別のカテゴリを選んでください。",
+      "noDescription": "説明はありません。",
+      "toolCount_one": "{{count}} 個のツール",
+      "toolCount_other": "{{count}} 個のツール",
+      "loadError": "読み込みエラー",
+      "addResource": "リソースを追加",
+      "tabs": {
+        "overview": "概要",
+        "settings": "設定スキーマ",
+        "tools": "ツール",
+        "instructions": "既定の指示"
+      },
+      "fields": {
+        "type": "種類",
+        "family": "ファミリー",
+        "category": "カテゴリ",
+        "version": "バージョン",
+        "documentation": "ドキュメント"
+      },
+      "slots": "シークレットスロット",
+      "noSlots": "このコネクタにシークレットは不要です。",
+      "settingsBody": "この種類の新しいリソースで使われるフォームです。ここで試せます (何も保存されません)。",
+      "reference": "設定リファレンス",
+      "columns": {
+        "key": "キー",
+        "kind": "種類",
+        "required": "必須",
+        "default": "既定値",
+        "range": "許可される値",
+        "group": "グループ"
+      },
+      "noTools": "このコネクタはツールを提供していません。",
+      "instructionsBody": "この種類のすべてのリソースは、エージェント向けにこれらの指示を追加します。テンプレートキー {{key}} で、テナントごとまたはグローバルに編集できます。",
+      "editInstructions": "プロンプトテンプレートで編集",
+      "builtInInstructions": "組み込みの既定の指示",
+      "noInstructions": "このコネクタには既定の指示が付属していません。"
+    },
+    "mcpExplorer": {
+      "title": "MCP エクスプローラー",
+      "subtitle": "自分として Hugo の MCP エンドポイントに接続し、指示を読み、ツールを一覧表示して呼び出します。",
+      "purpose": "MCP エクスプローラーは Claude Code と同じように /mcp と通信するため、ハーネスを接続する前に、プロファイルが公開する指示とツール一覧を確認できます。",
+      "profile": "プロファイル",
+      "defaultProfile": "サーバーが決定",
+      "connect": "接続",
+      "reconnect": "再接続",
+      "session": "セッション {{id}}",
+      "failed": "MCP リクエストが失敗しました",
+      "tools": "ツール",
+      "toolsCount_one": "{{count}} 個のツール",
+      "toolsCount_other": "{{count}} 個のツール",
+      "noTools": "サーバーはこの呼び出し元にツールを提示しませんでした。",
+      "serverInfo": "サーバー",
+      "instructions": "initialize からの指示",
+      "noInstructions": "サーバーは指示を送信しませんでした。",
+      "call": "ツールを呼び出す",
+      "toolOk": "ツールが結果を返しました。",
+      "toolError": "ツールがエラーを報告しました。",
+      "invalidJson": "{{field}} の値は有効な JSON ではありません。",
+      "log_one": "JSON-RPC ログ ({{count}} 件のメッセージ)",
+      "log_other": "JSON-RPC ログ ({{count}} 件のメッセージ)"
+    },
+    "a2aExplorer": {
+      "title": "A2A エクスプローラー",
+      "subtitle": "プロファイルのエージェントカードを取得し、メッセージを送信し、回答をストリーミングし、A2A でタスクを一覧表示します。",
+      "purpose": "A2A エクスプローラーは、他のエージェントと同じように A2A 1.0 の JSON-RPC メソッドで /v1.0/a2a/{tenant}/{profile} を呼び出します。",
+      "profile": "プロファイル",
+      "fetchCard": "カードを取得",
+      "listTasks": "タスクを一覧表示",
+      "message": "メッセージ",
+      "stream": "回答をストリーミング",
+      "send": "送信",
+      "context": "コンテキスト {{id}} を継続中",
+      "result": "結果",
+      "events_one": "ストリームイベント ({{count}})",
+      "events_other": "ストリームイベント ({{count}})",
+      "tasks_one": "{{count}} 件のタスク",
+      "tasks_other": "{{count}} 件のタスク",
+      "noTasks": "このプロファイルのタスクはまだありません。"
+    }
+  },
+  "tips": {
+    "fieldWarnings": {
+      "dismiss": "この通知を閉じます。レコードはここに示した値ですでに保存されています。"
+    },
+    "ids": {
+      "deleted": "このレコードは削除されています。ID {{id}}。コピーボタンで ID をコピーできます。",
+      "named": "ID {{id}}。コピーボタンで、API、SDK、サポート依頼に使う ID をコピーできます。"
+    },
+    "markdown": {
+      "column": "エージェントの出力に含まれる表の列 {{name}} です。幅の広い表は枠内で横にスクロールします。",
+      "showRaw": "エージェントが返したテキストを Markdown の書式なしでそのまま表示します。確認やコピーに使います。",
+      "showRendered": "テキストを再び Markdown として整形して表示します（表、リスト、コードブロック、リンク）。",
+      "copy": "Markdown 記法を含む生の結果テキストをクリップボードにコピーします。",
+      "link": "{{href}} を新しいタブで開きます。リンクはエージェントの出力に由来するため、信頼する前にアドレスを確認してください。"
+    },
+    "common": {
+      "fields": {
+        "name": "テナント内で一意のこのレコードの名前です。他のレコードはこの名前で参照します。",
+        "description": "人向けの自由記述のメモです。このレコードの用途を説明するもので、実行時には使われません。",
+        "active": "無効なレコードは保持されますが無視されます。削除せずに一時停止したい場合はオフにしてください。",
+        "id": "システムが生成する、種類を示す接頭辞付きの識別子です。API 呼び出しやスクリプトで使用します。変更されることはありません。",
+        "createdUtc": "このレコードが作成された日時です。値にカーソルを合わせると正確な日時が表示されます。",
+        "lastUpdateUtc": "このレコードが最後に変更された日時です。",
+        "isBuiltIn": "組み込みレコードは Hugo に付属し、読み取り専用です。カスタムレコードはこのテナントで作成されたもので、編集できます。",
+        "expiresUtc": "この日時を過ぎるとレコードは機能しなくなります。期限を設けない場合は空欄にしてください。"
+      }
+    },
+    "explainer": {
+      "reopen": "{{topic}} の説明 (このページで管理するものと、Hugo の他の部分との関係) をもう一度表示します。",
+      "dismiss": "この説明を隠します。代わりに小さな説明ボタンが残るので、いつでも再表示できます。"
+    },
+    "topbar": {
+      "toggleSidebar": "ナビゲーションのサイドバーを折りたたむか展開します。小さい画面ではナビゲーションがオーバーレイとして開きます。",
+      "server": "このコンソールが通信する Hugo サーバー: {{url}}。ドットはヘルスチェックに合格しているかどうかを示します。",
+      "health": {
+        "healthy": "サーバーは過去 30 秒以内にヘルスチェックに応答しました。",
+        "unhealthy": "サーバーがヘルスチェックに応答しませんでした。このページからのリクエストは失敗する可能性が高いです。",
+        "unknown": "サーバーからの最初のヘルスチェック結果を待っています。"
+      },
+      "copyServer": "サーバー URL をコピーします。SDK や curl コマンドの設定などに使えます。",
+      "switchTenant": "システム管理者は任意のテナントを表示できます。すべてのページに選択したテナントのデータが表示されます。",
+      "tenant": "テナント {{tenant}} で作業しています。表示されるすべてのレコードはこのテナントに属します。",
+      "principal": "{{name}} としてサインインしています。行った操作はこの ID で記録されます。",
+      "role": "このテナントでの最も高いアクセスレベルです。利用できるページと操作はこれによって決まります。",
+      "liveOn": "サーバーのイベントストリームに接続中のため、承認とツール呼び出しは発生と同時に表示されます。",
+      "liveOff": "ライブ接続がありません。ページはタイマーでポーリングするため、変更の表示に数秒かかる場合があります。",
+      "github": "ドキュメントと Issue を確認するため、GitHub の Hugo ソースリポジトリ (AgentSmith) を新しいタブで開きます。",
+      "themeLight": "ライトカラーテーマに切り替えます。選択はこのブラウザーに保存されます。",
+      "themeDark": "ダークカラーテーマに切り替えます。選択はこのブラウザーに保存されます。",
+      "logout": "サインアウトして、このブラウザーのセッションを失効させます。再度サインインが必要になります。",
+      "language": "表示言語を変更します。日付と数値の形式も言語に合わせて変わり、選択は保存されます。",
+      "approvals_one": "{{count}} 件の承認が人の判断を待っています。承認受信箱を開きます。",
+      "approvals_other": "{{count}} 件の承認が人の判断を待っています。承認受信箱を開きます。",
+      "lockdownOff": "テナントをロックダウンします。解除するまで、すべてのサーフェスからの書き込みおよび破壊的な呼び出しをすべて拒否します。",
+      "lockdownOn": "テナントはロックダウン中です。クリックして確認し、ロックダウンを解除します。",
+      "lockdownEngage": "このテナントで読み取り以外のすべての呼び出しを今すぐ拒否し、保留中の承認をキャンセルします。",
+      "lockdownLift": "アクセスモードと承認に従って、書き込みおよび破壊的な呼び出しを再び許可します。"
+    },
+    "login": {
+      "passwordTab": "テナント、メールアドレス、パスワードを使って個人としてサインインします。",
+      "keyTab": "スクリプトや SDK と同じ、アクセスキーとシークレットキーの組でサインインします。",
+      "serverUrl": "Hugo サーバーのベースアドレスです (例: ローカルでは http://127.0.0.1:8800、ダッシュボードのプロキシ経由ではこのページ自身のアドレス)。",
+      "tenantId": "アカウントが属するテナントです。ローカルの既定のテナントは default という名前です。",
+      "email": "このテナントでのユーザーアカウントのメールアドレスです。",
+      "password": "アカウントのパスワードです。セッショントークンの取得時に一度だけ送信され、ブラウザーアプリには保存されません。",
+      "accessKey": "access_ で始まるアクセスキーの公開部分です。キーは「管理」の「認証情報」で作成します。",
+      "secretKey": "アクセスキーの非公開部分です。キーの作成時またはローテーション時に一度だけ表示されました。",
+      "submit": "サーバーで認証情報を確認し、テナントのコンソールを開きます。",
+      "tenantSelect": "このメールアドレスは複数のテナントに属しています。サインインするテナントを選んでください。",
+      "useDefaults": "初期作成されたローカル管理者アカウントを入力します。サーバーがこのマシン上にある場合にのみ表示されます。"
+    },
+    "table": {
+      "selectAll": "このページのすべての行を選択または選択解除します。まとめて削除する場合などに使います。",
+      "selectRow": "削除などの一括操作のためにこの行を選択します。",
+      "sortServer": "{{tip}} クリックするとリスト全体をこの列で並べ替えます。もう一度クリックすると順序が逆になります。",
+      "sortPageOnly": "{{tip}} クリックするとこのページの行だけを並べ替えます。サーバーはこの列で並べ替えできません。",
+      "clearSelection": "何も変更せずに、選択中のすべての行の選択を解除します。",
+      "pageSize": "1 ページに読み込む行数です。大きくすると読み込みに時間がかかります。選択はテーブルごとに保存されます。",
+      "first": "結果の最初のページへ移動します。",
+      "prev": "結果の前のページへ戻ります。",
+      "jump": "1 から {{total}} までのページ番号を入力して Enter キーを押すと、そのページへ直接移動します。",
+      "next": "結果の次のページへ進みます。",
+      "last": "結果の最後のページへ移動します。",
+      "refresh": "ページ、フィルター、並べ替えを維持したまま、このリストを今すぐサーバーから再読み込みします。",
+      "autoRefresh": "タイマーでこのデータを自動的に再読み込みします。オフにすると、読んでいる間に表示が変わりません。",
+      "selectColumns": "テーブルに表示する列を選びます。選択はこのブラウザーにテーブルごとに保存されます。",
+      "columnPinned": "{{column}} は行を識別するために必要なため、常に表示されます。",
+      "columnToggle": "{{column}} 列の表示と非表示を切り替えます。{{tip}}",
+      "actionsFor": "{{name}} の操作を開きます。表示、編集、複製、JSON の表示、削除、レコード固有の操作があります。",
+      "actionsMenu": "この行で利用できる操作を開きます。",
+      "actionsColumn": "行ごとの操作です。3 つの点をクリックすると、表示、編集、複製、JSON の確認、削除を行えます。",
+      "search": "名前の一部を入力してリストを絞り込みます。入力を止めるとサーバーで検索が実行されます。",
+      "clearFilters": "検索テキストとすべてのフィルターを解除し、リスト全体を再表示します。",
+      "bulkDelete": "選択したすべての行を削除します。実行前に確認を求められます。"
+    },
+    "filters": {
+      "status": "この状態のレコードだけを表示します。フィルターを解除するには「すべて」を選びます。",
+      "kind": "1 つの種類のレコードだけを表示します。フィルターを解除するには「すべて」を選びます。",
+      "eventType": "サインインの失敗やシークレットの変更など、1 つの種類の監査イベントだけを表示します。",
+      "fromUtc": "この日時以降に作成されたレコードだけを表示します (ローカルのタイムゾーン)。",
+      "toUtc": "この日時より前に作成されたレコードだけを表示します (ローカルのタイムゾーン)。",
+      "method": "この HTTP メソッドを使ったリクエストだけを表示します。",
+      "statusCode": "この HTTP ステータスコードを返したリクエストだけを表示します。例: 404 や 500。",
+      "pathContains": "パスにこのテキストを含むリクエストだけを表示します。例: /agents。",
+      "tenantId": "このテナントで行われたリクエストだけを表示します。すべてのテナントを対象にするには空欄にします。",
+      "apply": "上のフィルター値で検索を実行します。",
+      "clear": "上のすべてのフィルターを空に戻して再検索します。",
+      "effect": "この影響を持つ呼び出しのみ表示します: 読み取り、書き込み、破壊的。",
+      "agentProfileId": "1 つのエージェントプロファイルに属するレコードのみ表示します。フィルターを解除するには「すべて」を選んでください。",
+      "source": "1 つのサーフェスで開始された会話のみ表示します。",
+      "userId": "1 人のユーザーのレコードのみ表示します。ユーザー ID を貼り付けると、入力を止めた時点で一覧が更新されます。",
+      "connectorType": "1 つのコネクタの種類 (SSH や PostgreSQL など) のリソースのみ表示します。",
+      "environment": "この環境タグ (例: prod) が付いたリソースのみ表示します。",
+      "health": "この状態のリソースのみ表示します。",
+      "healthStatus": "この状態のモデルエンドポイントのみ表示します。",
+      "provider": "1 つのプロバイダーのモデルエンドポイントのみ表示します。",
+      "surface": "1 つのサーフェス (チャット、MCP、A2A、OpenAI 互換、REST) からの呼び出しのみ表示します。",
+      "decision": "この安全性の判断 (拒否、承認が必要など) を受けた呼び出しのみ表示します。",
+      "resourceId": "1 つのリソースに対する呼び出しのみ表示します。",
+      "toolName": "このツール (例: sql_query) の呼び出しのみ表示します。入力を止めた時点で一覧が更新されます。",
+      "principalId": "1 つのプリンシパルのレコードのみ表示します。ID を貼り付けると、入力を止めた時点で一覧が更新されます。",
+      "principalType": "管理者、ユーザー、または認証情報のセッションのみ表示します。",
+      "visibility": "非公開またはテナント全体のレコードのみ表示します。"
+    },
+    "form": {
+      "option": "{{field}} に {{option}} を含めます。チェックしたオプションは保存され、チェックしていないものは除外されます。",
+      "reveal": "入力した値を平文で表示し、保存前に確認できるようにします。",
+      "hide": "画面をのぞき見られても読まれないよう、値を再び伏せ字にします。",
+      "key": "{{field}} のこの項目のキーです。キーはリスト内で一意である必要があります。",
+      "value": "{{field}} のこの項目の値です。記載がある場合はテンプレートとシークレット参照を使えます。",
+      "removeRow": "この項目をリストから削除します。「保存」をクリックするまで何も保存されません。",
+      "addRow": "{{field}} に空のキーと値の項目を追加します。",
+      "moveUp": "この項目を 1 つ前に移動します。引数リストなど、ここでは順序が意味を持ちます。",
+      "moveDown": "この項目を 1 つ後ろに移動します。引数リストなど、ここでは順序が意味を持ちます。",
+      "removeItem": "この項目をリストから削除します。「保存」をクリックするまで何も保存されません。",
+      "addItem": "{{field}} に新しい空の項目を追加し、その各項目を入力します。"
+    },
+    "actions": {
+      "openDetail": "このレコードの詳細ページを開きます。",
+      "view": "このレコードを読み取り専用で開き、誤って変更することなくすべての項目を確認します。",
+      "edit": "このレコードをフォームで開いて変更します。変更は「保存」をクリックすると反映されます。",
+      "duplicate": "このレコードの値と -copy 付きの名前があらかじめ入力された新しいレコードを開始します。保存するまで何も作成されません。",
+      "viewJson": "API が返すとおりの生の JSON を表示します。デバッグやスクリプトへのコピーに使えます。",
+      "delete": "このレコードを完全に削除します。確認を求められ、元に戻すことはできません。",
+      "add": "この種類の新しいレコードをフォームで作成します。",
+      "switchToEdit": "この読み取り専用の表示を編集可能なフォームに切り替えます。",
+      "retryLoad": "サーバーからこのデータの読み込みを再試行します。",
+      "dismiss": "このメッセージを非表示にします。問題が再発すると再び表示されます。"
+    },
+    "modal": {
+      "close": "このウィンドウを閉じます。サーバー上では何も変更されません。",
+      "dismiss": "保存せずにこのウィンドウを閉じます。Esc キーでも閉じられます。",
+      "cancelForm": "フォームを閉じ、保存していない変更を破棄します。",
+      "back": "フォームの前の手順に戻ります。入力した値は保持されます。",
+      "next": "フォームの次の手順に進みます。「保存」をクリックするまで何も保存されません。",
+      "saveEdit": "このレコードへの変更を保存します。サーバーが値を検証し、確認が必要な項目があれば報告します。",
+      "saveCreate": "これらの値でレコードを作成します。サーバーが値を検証し、確認が必要な項目があれば報告します。",
+      "saveValue": "値をサーバーに送信します。受信時に暗号化され、再び表示されることはありません。"
+    },
+    "confirm": {
+      "delete": "はい、このレコードを完全に削除します。",
+      "bulkDelete": "はい、選択したすべてのレコードを完全に削除します。",
+      "cancel": "何もせずに戻ります。",
+      "danger": "この破壊的な操作を実行します。元に戻すことはできません。",
+      "confirm": "上で説明した操作を実行します。"
+    },
+    "copy": {
+      "id": "レコードの ID をクリップボードにコピーします。REST API、SDK、フィルターで使えます。",
+      "value": "この値をクリップボードにコピーします。",
+      "block": "ブロック全体をクリップボードにコピーします。そのままターミナルやファイルに貼り付けられます。",
+      "done": "クリップボードにコピーしました。"
+    },
+    "chart": {
+      "ranges": {
+        "hour": "過去 60 分間を 1 分単位の区間で表示します。",
+        "day": "過去 24 時間を表示します。グラフが読みやすくなるよう区間の幅が調整されます。",
+        "week": "過去 7 日間を表示します。グラフが読みやすくなるよう区間の幅が調整されます。",
+        "month": "過去 30 日間を表示します。グラフが読みやすくなるよう区間の幅が調整されます。",
+        "custom": "開始日時と終了日時を自由に指定します。極端に長い期間はサーバーに拒否されます。"
+      },
+      "refresh": "グラフのデータを今すぐサーバーから再読み込みします。",
+      "tenant": "1 つのテナント、またはサーバー上のすべてのテナントのリクエストのアクティビティを表示します。"
+    },
+    "badges": {
+      "active": "有効: このレコードは使用中です。",
+      "inactive": "無効: このレコードは保持されていますが、再び有効にするまで無視されます。",
+      "builtIn": "組み込み: Hugo に付属し、読み取り専用です。編集可能なバージョンを作るには複製してください。",
+      "custom": "カスタム: このテナントで作成されたため、編集と削除ができます。",
+      "systemAdmin": "システム管理者: すべてのテナントを管理でき、認可チェックをバイパスします。",
+      "tenantAdmin": "テナント管理者: このテナント内のすべてを管理できます。",
+      "user": "一般ユーザー: アクセス権はロールの割り当てによってのみ付与されます。",
+      "role": "この割り当ては {{role}} ロールとそのすべての権限を付与します。",
+      "defaultProfile": "テナントの既定プロファイル: プロファイルを指定しない呼び出し元にはこれが使われます。",
+      "expiringSoon": "このシークレットは 14 日以内に期限切れになります。リソースが動作しなくなる前に、値を置き換えるか有効期限を延長してください。",
+      "lockdown": "このテナントはロックダウン中です。テナント管理者が解除するまで、読み取りの呼び出しのみ許可されます。",
+      "locked": "プロファイルに固定: 呼び出し元の要求にかかわらず、この認証情報はバインドされたプロファイルとしてのみ動作します。"
+    },
+    "permissions": {
+      "source": "この付与の元になっているロールです。アクセスを修正するには、そのロールか、それを付与している割り当てを変更します。",
+      "type": "許可は操作を付与します。拒否は、他のロールが許可している場合でも操作をブロックします。",
+      "resources": "この権限付与が対象とするレコードの種類 (リソース、シークレット、エージェントプロファイルなど) です。",
+      "operations": "それらのレコードに対して行える操作です。例: Read、Create、Execute。",
+      "scope": "テナントスコープはその種類のすべてのレコードを対象とし、リソーススコープは特定の 1 つのレコードを対象とします。"
+    },
+    "secretOnce": {
+      "accessKey": "公開アクセスキーです。認証キーを識別するもので、構成に保存しても安全です。",
+      "secretKey": "シークレットキーです。表示されるのは今回だけなので、今すぐパスワードマネージャーやシークレットストアにコピーしてください。",
+      "done": "このウィンドウを閉じます。シークレットキーは後から取得できず、ローテーションのみ可能です。",
+      "snippet": "このアクセスキーを使用する、貼り付けてすぐ使える MCP クライアント設定です。シークレットキーは環境変数から読み込まれます。"
+    },
+    "enums": {
+      "promptTemplateKind": {
+        "System": "システムプロンプト: エージェントの前提となる常設の指示です。",
+        "Task": "タスクプロンプト: 呼び出し元のメッセージを、エージェントが受け取る形に包みます。",
+        "Fragment": "他のテンプレートから {{> name}} で読み込まれる再利用可能な部品です。",
+        "ToolDescription": "エージェントを MCP ツールまたは A2A スキルとして説明するテキストです。",
+        "ConfigFile": "MCP 設定など、生成される設定ファイルの内容です。",
+        "Other": "Hugo が指示にレンダリングするその他のテキストです。"
+      },
+      "permissionType": {
+        "Permit": "許可: 記載された操作を許可します。",
+        "Deny": "拒否: 他の権限が許可している場合でも、記載された操作をブロックします。"
+      },
+      "effect": {
+        "Read": "読み取り: 何も変更せずにデータを参照します (SELECT やファイル一覧の取得など)。",
+        "Write": "書き込み: 元に戻せる変更を行います (INSERT やファイルのアップロードなど)。",
+        "Destructive": "破壊的: 削除、ドロップ、再起動など、元に戻せない操作です。既定では承認を待ちます。"
+      },
+      "accessMode": {
+        "ReadOnly": "読み取り専用: エージェントは参照できますが、書き込みおよび破壊的なツールは一覧にも表示されません。",
+        "ReadWriteWithApproval": "承認付き読み書き: すべての書き込みおよび破壊的な呼び出しが人の判断を待ちます。",
+        "ReadWrite": "読み書き: 書き込みは直接実行されます。破壊的な呼び出しは、バインディングで除外しない限り引き続き承認を待ちます。"
+      },
+      "approvalStatus": {
+        "Pending": "保留中: 人が承認または却下するのを待っています。",
+        "Approved": "承認済み: 人が呼び出しを許可し、実行されました。",
+        "Rejected": "却下: 人が呼び出しを拒否し、エージェントに通知されました。",
+        "Expired": "期限切れ: 時間内に誰も判断しなかったため、呼び出しは拒否されました。",
+        "Cancelled": "キャンセル: 判断前にターンが終了したか、テナントがロックダウンされました。"
+      },
+      "toolDecision": {
+        "Allowed": "許可: アクセスモードにより、確認なしで呼び出しが実行されました。",
+        "Denied": "拒否: アクセスモード、ツールルール、またはロックダウンにより呼び出しが拒否されました。",
+        "ApprovalRequired": "承認が必要: 呼び出しは人の判断を待ちました。",
+        "Approved": "承認済み: 人が呼び出しを許可しました。",
+        "Rejected": "却下: 人が呼び出しを拒否しました。",
+        "Expired": "期限切れ: 時間内に誰も判断しませんでした。"
+      },
+      "toolStatus": {
+        "Succeeded": "成功: ツールが実行され、結果を返しました。",
+        "Failed": "失敗: ツールまたは対象システムがエラーを返しました。",
+        "TimedOut": "タイムアウト: ツールがタイムアウト内に完了しませんでした。",
+        "Cancelled": "キャンセル: ツールの実行中にターンが停止されました。"
+      },
+      "healthStatus": {
+        "Healthy": "正常: 前回のチェックでシステムに到達し、正常に応答しました。",
+        "Degraded": "低下: システムは応答しましたが、遅いか警告がありました。",
+        "Unhealthy": "異常: 前回のチェックでシステムに到達できないか、エラーが返されました。",
+        "Unknown": "未確認: 接続テストもヘルスチェックもまだ実行されていません。"
+      },
+      "secretKind": {
+        "Password": "パスワード (任意でユーザー名付き)。",
+        "PrivateKey": "SSH または TLS の秘密鍵 (任意でパスフレーズ付き)。",
+        "ApiToken": "サービスが発行した API トークンまたはベアラートークン。",
+        "AccessKeyPair": "アクセスキー ID とシークレットアクセスキー (AWS キーなど)。",
+        "ServiceAccountJson": "JSON 形式のクラウドサービスアカウントキーファイル (Google Cloud など)。",
+        "Kubeconfig": "クラスターとユーザーの認証情報を含む Kubernetes の kubeconfig ファイル。",
+        "ConnectionString": "認証情報を含む完全な接続文字列。",
+        "Certificate": "相互 TLS 用の、秘密鍵付き証明書。",
+        "Generic": "その他の単一のシークレット値。"
+      },
+      "connectorCategory": {
+        "Compute": "SSH などで接続するホストやマシン。",
+        "Storage": "S3、Azure Blob、Google Cloud Storage などのオブジェクトストレージ。",
+        "Database": "SQL やその他のデータベース。",
+        "Logging": "Papertrail や Loki などのログサービス。",
+        "Cache": "Redis などのキャッシュ。",
+        "Cloud": "AWS などのクラウドコントロールプレーン。",
+        "Orchestration": "Kubernetes や Docker などのコンテナオーケストレーション。",
+        "Observability": "Prometheus や SolarWinds などのメトリクスと監視。",
+        "Http": "汎用 HTTP API。",
+        "Agent": "MCP または A2A で接続する他のエージェント。",
+        "Other": "他のどのカテゴリにも当てはまらないコネクタ。"
+      },
+      "surface": {
+        "Chat": "Hugo 独自のエージェントループを使うダッシュボードのチャット。",
+        "Mcp": "Claude Code などの MCP クライアントが呼び出しを行いました。",
+        "A2A": "別のエージェントが A2A でこのプロファイルを呼び出しました。",
+        "OpenAI": "OpenAI 互換クライアントがプロファイルと通信しました。",
+        "Rest": "REST または SDK による直接のツール呼び出し。"
+      },
+      "modelKind": {
+        "Inference": "回答とツール呼び出しを生成します。",
+        "Embedding": "検索用にテキストをベクトルに変換します。"
+      },
+      "visibility": {
+        "Private": "所有者のみが使用できます。",
+        "Tenant": "テナント内でアクセス権を持つ全員が使用できます。"
+      },
+      "auditEventType": {
+        "AuthorizationDenied": "プリンシパルが権限で許可されていない操作を試みました。",
+        "SecretRevealed": "誰かが理由を添えてシークレットの平文を表示しました。",
+        "LockdownChanged": "テナント管理者がロックダウンをオンまたはオフにしました。",
+        "HostKeyMismatch": "SSH ホストが固定されたキーと異なるキーを提示したため、接続は拒否されました。"
+      }
+    },
+    "resources": {
+      "tenants": {
+        "add": "新しいテナントを作成します。独自のユーザー、リソース、シークレット、プロファイルを持つ分離された空間です。",
+        "name": "テナントの表示名です。サインイン時にはテナントの ID で選択します。",
+        "description": "このテナントの対象です。例: チームや顧客。",
+        "active": "非アクティブなテナントはサインインもツール呼び出しもできません。データは保持されます。",
+        "region": "管理用の、このテナントのリージョンラベル (任意) です。",
+        "lockdown": "ロックダウン中のテナントは、読み取り以外のすべての呼び出しを拒否します。"
+      },
+      "users": {
+        "add": "メールアドレスとパスワードでサインインする人を作成します。その後、ロールの割り当てでアクセス権を付与してください。",
+        "email": "サインインに使うメールアドレスです。テナント内で一意です。",
+        "name": "姓名です。監査記録や一覧に表示されます。",
+        "role": "アカウントの管理者レベルです。一般ユーザーはロールの割り当てによってアクセス権を得ます。",
+        "password": "サインイン用のパスワードです。編集時に空欄のままにすると現在のパスワードが維持されます。",
+        "firstName": "名です。一覧や監査記録に表示されます。",
+        "lastName": "姓です。一覧や監査記録に表示されます。",
+        "isTenantAdmin": "テナント管理者は、ユーザーやシークレットを含め、このテナント内のすべてを管理できます。",
+        "isAdmin": "システム管理者はすべてのテナントを管理し、認可をバイパスします。付与は最小限にしてください。",
+        "active": "無効なユーザーはサインインできず、そのアクセスキーも機能しなくなります。",
+        "actions": {
+          "permissions": "すべてのロールと割り当てを組み合わせた結果、このユーザーが持つすべての権限を表示します。",
+          "resetPassword": "一時パスワードを設定します。ユーザーは次回サインイン時に変更する必要があります。",
+          "assignRole": "このユーザーで絞り込んだ割り当てを開き、ロールを付与します。"
+        },
+        "mustChangePassword": "ユーザーは次回サインイン時に新しいパスワードを設定する必要があります。"
+      },
+      "credentials": {
+        "add": "スクリプト、SDK、サービス用のアクセスキーを作成します。シークレットは保存後に一度だけ表示されます。",
+        "name": "このキーの用途 (例: claude-code-laptop)。ローテーションや削除の前に見つけやすくなります。",
+        "accessKey": "キーの公開部分で、すべてのリクエストとともに送信されます。構成に保存しても安全です。",
+        "secretKeyLast4": "シークレットの末尾 4 文字です。値を見ずにキーを照合できます。",
+        "userId": "このキーを所有するユーザーです。キーが所有者以上の操作を行うことはできません。",
+        "lastUsedUtc": "キーが最後にリクエストを認証した日時です。古い日付は削除できる未使用のキーを示します。",
+        "authMode": "キーの認証方法です。直接送信、リクエストごとの署名、セッションとの交換、またはそのいずれでも可 (Hybrid) から選びます。",
+        "expiresUtc": "この日時を過ぎるとキーは機能しなくなります。期限のないキーにするには空欄にします。",
+        "active": "無効なキーは拒否されますが保持されるため、再び有効にできます。",
+        "actions": {
+          "rotate": "シークレットを新しいものに置き換えます。古いシークレットはすぐに使えなくなり、新しいシークレットは一度だけ表示されます。",
+          "permissions": "所有者、ロール、割り当てを組み合わせた結果、このキーが持つすべての権限を表示します。",
+          "scopes": "この認証情報で絞り込んだ認証情報のスコープ割り当てを開きます。"
+        },
+        "agentProfileId": "この認証情報が既定で動作するプロファイルです。ハーネスにはバインドされた認証情報を使用してください。",
+        "lockToProfile": "オンにすると、呼び出し元の要求にかかわらず、この認証情報はバインドされたプロファイルとしてのみ動作します。"
+      },
+      "roles": {
+        "add": "カスタムロールを作成し、権限を追加してユーザーやキーに割り当てます。",
+        "name": "ロールを割り当てる際に表示される名前です。例: Release Operator。",
+        "description": "ロールの用途と、誰に付与すべきかを記述します。",
+        "active": "無効なロールは、割り当てられていても何も付与しません。",
+        "actions": {
+          "clone": "この組み込みロールを、調整できる編集可能なコピーとして複製します。"
+        }
+      },
+      "permissions": {
+        "add": "リソース種別への操作を許可または拒否するルールを作成します。",
+        "name": "ルールの短い名前です。ロールを構成する際に表示されます。",
+        "permissionType": "許可は下記の操作を許可します。拒否はそれらをブロックし、常に許可より優先されます。",
+        "resourceTypes": "ルールが対象とするレコードの種類です。All はすべての種類を対象とします。",
+        "operationTypes": "ルールが対象とする操作です。例: Read、Create、Execute (呼び出し)。",
+        "active": "無効な権限は効果を持ちません。"
+      },
+      "userAssignments": {
+        "add": "テナント全体または特定の 1 つのレコードを対象に、ユーザーにロールを付与します。",
+        "userId": "ロールを受け取る人です。",
+        "roleName": "付与されたロールです。その人はロールのすべての権限を得ます。",
+        "roleId": "付与するロールです。その人はロールのすべての権限を得ます。",
+        "resourceScope": "テナントはロールをすべてのレコードに適用します。リソースは下記の 1 つのレコードに限定します。",
+        "resourceId": "ロールを適用する単一のレコードの識別子です。例: エージェント ID。",
+        "inheritsToChildren": "後から作成されるものも含め、テナント内のすべてのレコードにロールを適用します。",
+        "active": "無効な割り当ては何も付与しませんが、保持されます。"
+      },
+      "credentialAssignments": {
+        "add": "テナント全体または特定の 1 つのレコードを対象に、アクセスキーにロールを付与します。",
+        "credentialId": "ロールを受け取るアクセスキーです。それでも所有者の権限を超えることはできません。",
+        "roleName": "キーに付与されたロールです。",
+        "roleId": "付与するロールです。自動化が処理を行える範囲で、最も狭いロールを選んでください。",
+        "resourceScope": "テナントはロールをすべてのレコードに適用します。リソースは下記の 1 つのレコードに限定します。",
+        "resourceId": "ロールを適用する単一のレコードの識別子です。例: CI ジョブが呼び出せる 1 つのエージェント。",
+        "inheritsToChildren": "後から作成されるものも含め、テナント内のすべてのレコードにロールを適用します。",
+        "active": "無効な割り当ては何も付与しませんが、保持されます。"
+      },
+      "promptTemplates": {
+        "actions": {
+          "clone": "選んだ新しい名前でこのテンプレートをコピーし、コピーをエディターで開きます。"
+        },
+        "add": "ライブプレビュー付きのエディターで新しいプロンプトテンプレートを作成します。保存するたびにバージョンになります。",
+        "name": "テナント内で一意のテンプレート名です。インクルードは名前でテンプレートを参照します。",
+        "kind": "テンプレートの用途です。システムプロンプト、タスクのラッパー、フラグメント、ツール説明、設定ファイルのいずれかです。",
+        "currentVersion": "最新の保存バージョンです。保存するたびに、以前のテキストが復元可能なバージョンとして保持されます。",
+        "description": "テンプレートの役割と使用箇所です。"
+      },
+      "audit": {
+        "createdUtc": "イベントが発生した日時です (ローカルのタイムゾーン)。",
+        "eventType": "セキュリティまたは構成のイベントの種類です。",
+        "principalName": "実行者: 管理者、ユーザー、またはアクセスキー。",
+        "resource": "関係するレコードの種類と操作です。例: Agent / Read。",
+        "reason": "イベントが発生した理由、またはアクセスが拒否された理由です。",
+        "sourceIp": "リクエストの送信元ネットワークアドレスです。",
+        "principalType": "実行者が管理者、ユーザー、アクセスキーのいずれであったか。",
+        "principalId": "操作した管理者、ユーザー、またはアクセスキーの識別子です。",
+        "resourceType": "関係するレコードの種類です。例: Agent や Secret。",
+        "resourceId": "関係するレコードの識別子です。",
+        "operation": "試みられた操作です。例: Read や Execute。",
+        "method": "リクエストの HTTP メソッドです。",
+        "path": "イベントの原因となったリクエストのパスです。",
+        "authResult": "呼び出し元が誰かを確認した結果です。",
+        "authorizationResult": "呼び出し元に何が許可されているかを確認した結果です。",
+        "bypassReason": "認可がスキップされた理由です。例: システム管理者。",
+        "statusCode": "呼び出し元に返された HTTP ステータスです。",
+        "requestId": "リクエストの識別子です。これを使ってリクエスト履歴やサーバーログを検索できます。"
+      },
+      "approvals": {
+        "bulkReject": "選択したすべての承認を一度に却下します。各呼び出し元には操作が拒否されたことが通知されます。",
+        "summary": "承認を待っている具体的な操作 (例: ホストでのコマンド実行) です。",
+        "effect": "呼び出しの分類: 書き込みは何かを変更し、破壊的は削除や再起動を行います。",
+        "status": "保留中は人の判断を待っています。その他の状態は確定済みです。",
+        "agentProfileId": "承認を必要としたバインディングを持つプロファイルです。",
+        "requestedBy": "呼び出しを行ったプリンシパル (ユーザー、認証情報、またはエージェントの実行) です。",
+        "createdUtc": "エージェントが呼び出しを提案した日時です。",
+        "expiresUtc": "誰も判断しない場合にリクエストが期限切れになる日時です。期限切れの呼び出しは拒否されます。",
+        "decidedBy": "呼び出しを承認または却下した人です。",
+        "decisionNote": "承認者が判断とともに残したメモです。",
+        "fromUtc": "この日時以降にリクエストされた承認を表示します。",
+        "actions": {
+          "decide": "承認カードを開き、メモを添えてこの呼び出しを承認または却下します。",
+          "invocation": "この承認の元になったツール呼び出しのレコードを開きます。"
+        }
+      },
+      "bindings": {
+        "resourceId": "このバインディングが接続するリソースです。1 つのリソースを複数のプロファイルにバインドできます。",
+        "alias": "ツール呼び出しや指示でエージェントがこのリソースに使う名前です (例: prod-db)。",
+        "accessMode": "読み取り専用、リスクのある呼び出しに承認が必要な読み書き、または読み書き。エージェントに許可される操作を決めます。",
+        "requireApprovalForDestructive": "読み書きモードでも、破壊的な呼び出し (削除、再起動、ドロップ) は人の判断を待ちます。既定でオンです。",
+        "instructionMode": "継承はコネクタとリソースの指示を使用し、追加はあなたのテキストを加え、置換はあなたのテキストのみを使用します。",
+        "instructionText": "このプロファイルにおけるこのリソースの追加または置換用の指示です (例: 重要なスキーマ)。",
+        "maxOutputBytes": "このリソースからのツール出力の上限で、コネクタの既定値より厳しく設定します。既定値を使うには空のままにしてください。",
+        "maxRows": "このリソースに対するクエリが返す行数の上限です。コネクタの既定値を使うには空のままにしてください。",
+        "enabled": "無効なバインディングは保持されますが、リソースがバインドされていないかのようにエージェントからは隠されます。"
+      },
+      "models": {
+        "apiKeySecretId": "このプロバイダーの API キーまたは認証情報を保持するシークレットです。暗号化して保存され、モデルに表示されることはありません。",
+        "add": "Hugo 独自のエージェントループ用に、推論または埋め込みモデルのエンドポイントを追加します。",
+        "kind": "推論モデルはチャットのターンに回答し、埋め込みモデルは検索用にテキストをベクトルに変換します。",
+        "provider": "エンドポイントが使用する API です。OpenAI 互換は vLLM、LM Studio などのサーバーに対応します。",
+        "baseUrl": "プロバイダー API の待ち受けアドレスです (例: ローカルの Ollama なら http://127.0.0.1:11434)。",
+        "model": "プロバイダーのモデル名です (例: llama3.1、gpt-4o、claude-sonnet)。",
+        "apiKey": "プロバイダーの API キーです。暗号化されたシークレットとして保存され、エンドポイントから参照されます。",
+        "region": "リージョンが必要なプロバイダー (Bedrock や Vertex など) のクラウドリージョンです。",
+        "deploymentName": "モデルを提供する Azure OpenAI のデプロイです。",
+        "apiVersion": "呼び出す Azure OpenAI の API バージョンです。",
+        "contextWindowTokens": "モデルが受け付けるトークン数です。Hugo は上限に達する前に履歴を圧縮します。",
+        "maxOutputTokens": "1 回の回答でモデルが生成できるトークン数の上限です。",
+        "embeddingDimensions": "埋め込みモデルが生成するベクトルのサイズです。空の場合は検証時に自動入力されます。",
+        "supportsTools": "モデルがツールを呼び出せるかどうか。単純な回答以上のことをするには、チャットでこれが必要です。",
+        "supportsStreaming": "回答をトークン単位でストリーミングできるかどうか。",
+        "maxConcurrency": "Hugo がこのエンドポイントに同時に送信するリクエスト数です。",
+        "timeoutSeconds": "1 回のモデルリクエストが失敗とみなされるまでの時間です。",
+        "maxRetries": "失敗したリクエストをあきらめるまでに再試行する回数です。",
+        "healthStatus": "前回の検証またはバックグラウンドのヘルスチェックの結果です。",
+        "lastHealthUtc": "エンドポイントを最後に確認した日時です。",
+        "sections": {
+          "endpoint": "どのプロバイダーとモデルか、およびその接続方法です。",
+          "capabilities": "モデルにできることと、扱えるテキストの量です。",
+          "limits": "このエンドポイントへの呼び出しの同時実行数、タイムアウト、再試行です。"
+        },
+        "actions": {
+          "validate": "短いプロンプトを送信 (または短いテキストを埋め込み) し、レイテンシと結果を記録します。",
+          "listModels": "プロバイダーが一覧表示に対応している場合、提供されるモデルを問い合わせます。"
+        }
+      },
+      "resources": {
+        "name": "テナント内で一意のこのリソースの名前です。バインディングはこれをエージェントに見える既定のエイリアスとして使用します。",
+        "connectorType": "システムの種類 (SSH、PostgreSQL、S3 など) です。設定、シークレット、ツールが決まります。",
+        "environment": "prod や staging などの自由なタグです。エージェントにも見えるため、本番環境を慎重に扱う助けになります。",
+        "add": "システムへの接続を追加します: コネクタを選び、設定を入力し、シークレットを選んでテストします。",
+        "displayName": "人向けのわかりやすい名前 (任意) です。エージェントは名前またはバインディングのエイリアスを使用します。",
+        "visibility": "非公開リソースは所有者が、テナントリソースはテナント内のすべてのプロファイルが使用できます。",
+        "defaultAccessModeCeiling": "このリソースでバインディングが付与できる上限です。任意のアクセスモードを許可するには空のままにしてください。",
+        "endpoint": "リソースの場所の短い概要です。検索可能で、エージェントにも表示されます。",
+        "description": "一覧を読む人向けの、このリソースの説明です。",
+        "notes": "エージェントが指示として受け取るオペレーターのメモです (重要なテーブルや、決して触れてはいけないものなど)。",
+        "health": "前回の接続テストまたはヘルスチェックの結果です。",
+        "lastTestUtc": "接続を最後にテストした日時です。",
+        "sections": {
+          "general": "名前、環境、エージェントが読むメモです。",
+          "connector": "コネクタとその設定、シークレットです。"
+        },
+        "actions": {
+          "test": "保存済みの設定とシークレットを、実際のシステムに対して今すぐテストします。",
+          "tryTool": "選択したプロファイルとして、このリソースのツールを 1 つドライランしてから実行します。",
+          "referrers": "このリソースを使用するプロファイルとバインディングを一覧表示します。"
+        }
+      },
+      "secrets": {
+        "name": "テナント内で一意のこのシークレットの名前です。リソースとモデルエンドポイントは名前で選択します。",
+        "kind": "シークレットが保持するものです。種類によって、持つフィールドと受け付けるコネクタのスロットが決まります。",
+        "saveValue": "新しい値を暗号化して保存します。空のフィールドは保存済みの値を維持します。",
+        "add": "新しいシークレットを保存します: 種類を選んで値を入力するか、ファイルからインポートします。",
+        "description": "シークレットの用途と所有者です。ここにシークレットの値を入力しないでください。",
+        "expiresUtc": "認証情報が使えなくなる日時です。Hugo が期限切れの前に警告できます。",
+        "fingerprint": "シークレットを区別するための不可逆なヒント (末尾の数文字や SSH キーのフィンガープリントなど) です。",
+        "referrerCount": "このシークレットを使用するリソースとモデルエンドポイントの数です。",
+        "lastRotatedUtc": "値を最後に置き換えた日時です。",
+        "lastRevealedUtc": "監査対象の表示操作で誰かが最後に平文を表示した日時です。",
+        "sections": {
+          "values": "この種類のシークレット値です。保存前に暗号化されます。"
+        },
+        "actions": {
+          "replaceValues": "値の一部またはすべてを置き換えます。空のフィールドは保存済みの値を維持します。",
+          "reveal": "理由を入力してパスワードを再入力した後、平文の値を表示します。監査されます。",
+          "referrers": "このシークレットを使用するリソースとモデルエンドポイントを一覧表示します。"
+        }
+      },
+      "toolInvocations": {
+        "trace": "この呼び出しの分散トレースを Grafana Tempo で新しいタブに開きます。",
+        "createdUtc": "呼び出しが行われた日時です。正確な時刻はホバーで表示されます。",
+        "toolName": "呼び出されたツール (sql_query や ssh_exec など) です。",
+        "resourceId": "呼び出しの対象となったリソース (バインディングのエイリアス) です。",
+        "effect": "呼び出しの分類: 読み取り、書き込み、破壊的。",
+        "decision": "安全パイプラインの判断: 許可、拒否、または承認に回されたかとその結果。",
+        "status": "呼び出しの終了状態: 成功、失敗、タイムアウト、キャンセル。",
+        "durationMs": "サーバーでの呼び出しの所要時間です。",
+        "surface": "呼び出しを行ったサーフェス: チャット、MCP、A2A、OpenAI 互換、REST。",
+        "agentProfileId": "呼び出し元が動作したプロファイルです。",
+        "principalId": "呼び出しを行ったユーザーまたは認証情報です。",
+        "fromUtc": "この日時以降に行われた呼び出しを表示します。",
+        "toUtc": "この日時より前に行われた呼び出しを表示します。",
+        "accessMode": "呼び出し時のバインディングのアクセスモードです。",
+        "outputBytes": "切り詰め前のツール出力のサイズです。",
+        "approvalId": "呼び出しが待った承認です (ある場合)。",
+        "traceId": "呼び出しの分散トレースです。Grafana Tempo で確認できます。",
+        "argumentsRedacted": "保存された引数です。シークレットはマーカーに置き換えられています。",
+        "outputPreview": "シークレット除去後に、エージェントが受け取った出力の先頭部分です。"
+      },
+      "profiles": {
+        "add": "エージェントプロファイルを作成します: ペルソナ、モデル、制限、公開するサーフェスを設定します。",
+        "name": "テナント内で一意の URL セーフな名前です。MCP クライアントは /mcp/{name}、A2A は .../{name} でプロファイルにアクセスします。",
+        "displayName": "ダッシュボードと A2A エージェントカードに表示されるわかりやすい名前です。",
+        "description": "このプロファイルの用途です。人向けに、また A2A カードの概要に表示されます。",
+        "personaName": "会話でエージェントが名乗る名前です。既定のプロファイルは Agent Smith を使用します。",
+        "userAddress": "エージェントが呼び出し元を呼ぶ方法です。既定のプロファイルは Mr. Anderson と呼びます。",
+        "visibility": "非公開プロファイルは所有者に、テナントプロファイルはテナント内でアクセス権を持つ全員に表示されます。",
+        "inferenceEndpointId": "チャット、A2A、OpenAI クライアント向けに Hugo 独自のエージェントループを実行するモデルです。MCP の呼び出し元は独自のモデルを使用します。",
+        "fallbackInferenceEndpointId": "プライマリモデルが失敗した場合や利用できない場合に使用されます。",
+        "embeddingEndpointId": "ツールの説明とナレッジメモを埋め込み、大規模なプロファイルが関連するツールだけを取得できるようにします。",
+        "maxIterations": "1 ターン内のモデルとツールのラウンド数の上限です。最後のラウンドはツールなしで回答する必要があります。",
+        "maxToolCallsPerTurn": "すべてのラウンドを通じた、1 ターン内のツール呼び出し数の上限です。",
+        "toolTimeoutSeconds": "1 回のツール呼び出しがキャンセルされるまでに実行できる時間です。",
+        "temperature": "モデルのサンプリング温度です。値を低くすると回答がより決定的になります。",
+        "exposeMcp": "このプロファイルのツールと指示を、Claude Code などの MCP クライアントに提示します。",
+        "exposeA2a": "このプロファイルの A2A エージェントカードを公開し、A2A メッセージを受け付けます。",
+        "exposeOpenai": "OpenAI 互換クライアントがこのプロファイルをモデル名として使用できるようにします。",
+        "exposeManagementTools": "管理権限を持つ呼び出し元に管理ツール (リソースの作成、バインディングの変更) も公開します。既定でオフです。",
+        "instructionsAppend": "すべてのリソースセクションの後に、コンパイルされた指示に追加される自由なテキストです。",
+        "bindingCount": "このプロファイルにバインドされているリソースの数です。",
+        "exposure": "このプロファイルにアクセスできるプロトコルのサーフェスです。",
+        "sections": {
+          "identity": "名前、ペルソナ、公開範囲です。",
+          "models": "Hugo 独自のループでこのプロファイルの回答に使うモデルです。",
+          "limits": "暴走したループを止めるための、各ターンの上限です。",
+          "exposure": "このプロファイルにアクセスできるプロトコルのサーフェスです。"
+        },
+        "actions": {
+          "chat": "チャットを開いてこのプロファイルと話します。",
+          "duplicate": "このプロファイルとそのバインディングを新しい名前でコピーし、コピーを開きます。"
+        }
+      },
+      "conversations": {
+        "title": "最初のやり取りから生成された会話のタイトルです。",
+        "agentProfileId": "会話の相手となるプロファイルです。",
+        "userId": "会話の所有者: ユーザーまたは認証情報。",
+        "source": "会話が開始された場所: ダッシュボードのチャット、A2A、MCP、または OpenAI 互換クライアント。",
+        "messageCount": "ユーザーとエージェントからの、会話内のメッセージ数です。",
+        "tokens": "この会話でこれまでに使用された入力と出力のトークン数の合計です。",
+        "lastMessageUtc": "最新のメッセージが追加された日時です。",
+        "fromUtc": "この日時以降にアクティブだった会話を表示します。",
+        "actions": {
+          "export": "ツール呼び出しを要約した形で、会話を Markdown としてダウンロードします。"
+        }
+      },
+      "knowledge": {
+        "add": "Hugo がコンテキストに取り込めるスタックに関するメモを書きます。",
+        "title": "メモの内容を示す短いタイトルです。",
+        "agentProfileId": "メモを 1 つのプロファイルに限定するか、すべてのプロファイルで使えるように空のままにします。",
+        "resourceId": "メモを 1 つのリソースに関連付け、そのリソースが関わるときに使用されるようにします。",
+        "content": "わかりやすい言葉で書いたメモ本文です (例: どのホストが checkout を担当しているか)。",
+        "lastUpdateUtc": "メモを最後に編集 (および再埋め込み) した日時です。"
+      },
+      "sessions": {
+        "principalName": "セッションの所有者: ユーザー、管理者、または認証情報。",
+        "principalType": "セッションの所有者が管理者、ユーザー、認証情報のいずれか。",
+        "principalId": "このプリンシパル ID のセッションのみ表示します。",
+        "authScheme": "セッションの取得方法: パスワードでのサインイン、アクセスキーの交換、または署名付きリクエスト。",
+        "sourceIp": "セッションが作成された送信元アドレスです。",
+        "issuedUtc": "セッションが発行された日時です。",
+        "lastUsedUtc": "セッションがリクエストに最後に使用された日時です。",
+        "expiresUtc": "セッションが自動的に期限切れになる日時です。",
+        "revokedUtc": "失効したセッションは使えなくなります。アクティブなセッションは引き続き使えます。",
+        "userAgent": "セッションを作成したクライアントが名乗った識別情報です。"
+      },
+      "plugins": {
+        "name": "プラグインのアセンブリ名です。",
+        "version": "アセンブリで宣言されたプラグインのバージョンです。",
+        "connectorTypes": "このプラグインがカタログに追加するコネクタの種類です。",
+        "enabled": "無効なプラグインはディスク上に残りますが、そのコネクタは提供されません。",
+        "loadError": "プラグインの読み込みに失敗した場合、その理由です。",
+        "sha256": "読み込まれたビルドを確認するための、プラグインファイルのチェックサムです。",
+        "actions": {
+          "enable": "次回の再起動時にこのプラグインのコネクタを読み込みます。",
+          "disable": "次回の再起動後、このプラグインのコネクタの提供を停止します。"
+        }
+      }
+    },
+    "views": {
+      "home": {
+        "observabilityState": {
+          "reachable": "サーバーは直近 30 秒以内に内部 URL で {{service}} に到達しました。",
+          "unreachable": "サーバーは内部 URL で {{service}} に到達できませんでした。サービスが動作していること、内部 URL の設定がそのサービスを指していることを確認してください。",
+          "checking": "{{service}} に到達できるかサーバーに確認しています。",
+          "unknown": "サーバーは {{service}} に到達できるかを報告しませんでした。状態確認が失敗したか、このサーバーがまだ対応していません。"
+        },
+        "observabilityVersion": "{{service}} がサーバーのヘルスチェックで報告したバージョンです。",
+        "kpisGrafana": "Grafana の Hugo 概要ダッシュボードを新しいタブで開き、これらの数値の推移を確認します。",
+        "grafanaDashboards": "Grafana の Hugo フォルダーには、セクションごとに 1 つのダッシュボードがあります。各リンクはそのダッシュボードを新しいタブで開きます。",
+        "grafanaSections": {
+          "overview": "状態の概要: 稼働時間、リクエストレート、エラー率、ツール呼び出し、保留中の承認。",
+          "http": "HTTP トラフィック: ルート別・ステータスクラス別のレート、レイテンシの分位数、最も遅いルート。",
+          "models": "プロバイダー別のモデルリクエスト、エラー、レイテンシ、トークン。",
+          "protocols": "メソッド別・結果別の MCP および A2A リクエスト。",
+          "security": "サインイン、認可の拒否、シークレットの表示、秘匿処理、ロックダウン。",
+          "agent": "エージェントループとチャット: ターン、ステージの内訳、反復、最初のトークンまでの時間。",
+          "tools": "コネクタ別・影響別のツール呼び出し、判断、レイテンシ、出力サイズ、失敗。"
+        },
+        "observabilityDocs": "テレメトリーガイドを新しいタブで開きます: Hugo のメトリクスの収集方法と、Grafana、Prometheus、Tempo、Loki の接続方法。",
+        "observability": "この Hugo サーバーが設定済みとして報告するメトリクス、ダッシュボード、トレースツールへのリンクです。設定されていないサービスは表示されません。",
+        "kpis": {
+          "requests": "過去 24 時間にサーバーが処理した API リクエストです。クリックするとリクエスト履歴を開きます。",
+          "toolCalls": "過去 24 時間のすべてのサーフェスからのツール呼び出しです。クリックするとツール呼び出しを開きます。",
+          "failures": "過去 24 時間に失敗した API リクエストとツール呼び出しの合計です。クリックすると失敗したツール呼び出しを表示します。",
+          "approvals": "現在、人の判断を待っている制御対象のツール呼び出しです。クリックすると承認受信箱を開きます。",
+          "unhealthy": "前回の接続テストまたはヘルスチェックに失敗したリソースです。クリックすると表示します。",
+          "tokens": "午前 0 時以降に Hugo 独自のモデル呼び出しで使用された入力と出力のトークン数の合計です。クリックすると分析を開きます。"
+        },
+        "openFailure": "この失敗したツールで絞り込んだツール呼び出しを開きます。",
+        "cta": {
+          "apiExplorer": "このサーバーに対して任意の API 呼び出しをその場で試します。",
+          "addResource": "システムを接続します: SSH ホスト、バケット、データベース、またはログサービスとそのシークレット。",
+          "addModel": "Agent Smith がチャットで回答できるように、推論または埋め込みモデルを追加します。",
+          "chat": "チャットを開き、スタックについて Agent Smith に質問します。",
+          "connect": "プロファイルの接続タブを開き、Claude Code、A2A、OpenAI 互換の設定を確認します。",
+          "approvals": "判断を待っているリスクのあるツール呼び出しを確認します。"
+        },
+        "services": {
+          "loki": "Loki を新しいタブで開き、Hugo のログを検索します。",
+          "grafana": "Hugo のメトリクスの Grafana ダッシュボードを新しいタブで開きます。",
+          "prometheus": "Hugo のメトリクスを収集する Prometheus サーバーを新しいタブで開きます。",
+          "tempo": "トレースを参照するための Tempo を新しいタブで開きます。"
+        },
+        "serviceGeneric": "この同梱サービスを新しいタブで開きます。"
+      },
+      "templateEditor": {
+        "cloneName": "コピーの名前です。英小文字、数字、ハイフン、スラッシュが使いやすく、builtin/ という接頭辞は予約されています。",
+        "cloneConfirm": "この名前でコピーを作成し、エディターで開きます。",
+        "clone": "このテンプレートの編集可能なコピーを作成します。作成前にコピーの名前を選べます。",
+        "reset": "この組み込みテンプレートを Hugo に付属する内容に戻します。",
+        "delete": "このテンプレートとそのバージョンを削除します。これを含んでいたものはすべて組み込みの既定値に戻ります。",
+        "create": "テンプレートとその最初のバージョンを作成します。",
+        "save": "内容を新しいバージョンとして保存します。新しい会話と MCP セッションに反映されます。",
+        "changeNote": "バージョンとともに保存される短いメモです。何をなぜ変更したかを説明します。",
+        "columns": {
+          "version": "バージョン番号です。大きいほど新しいバージョンです。",
+          "note": "バージョンとともに保存された変更メモです。",
+          "author": "このバージョンのテンプレートを保存した人です。",
+          "saved": "バージョンが保存された日時です。"
+        },
+        "diff": "このバージョンと、現在エディターにある内容を比較します。",
+        "restore": "このバージョンを再び現在のバージョンにします。現在の内容は履歴に残ります。"
+      },
+      "serverInfo": {
+        "rest": "REST API 呼び出しと SDK で使うベースアドレスです。",
+        "mcp": "MCP クライアントが接続するアドレスです。ツールとして公開された各エージェントがここに表示されます。",
+        "a2a": "このテナントの A2A ゲートウェイのベースアドレスです。各エージェントはその下に専用のカードを持ちます。",
+        "openapi": "すべての REST 操作を記述した OpenAPI ドキュメントです。",
+        "version": "Hugo サーバーのバージョンです。",
+        "dashboardVersion": "このコンソールのバージョンです。",
+        "node": "このページのサーバー情報リクエストに応答したサーバーインスタンスです。",
+        "database": "サーバーが使用しているデータベースエンジンです。",
+        "health": "サーバーのヘルスチェックの結果です。",
+        "routes": "サーバーが登録した API 操作の数です。",
+        "serverTime": "サーバーの時刻です。お使いの時刻と大きく異なると、署名付きリクエストが失敗する場合があります。",
+        "principalName": "サインイン中の ID です。",
+        "principalType": "ユーザーとしてサインインしたか、アクセスキーでサインインしたかを示します。",
+        "role": "最も高いアクセスレベルです。",
+        "tenant": "セッションが属するテナントです。",
+        "expires": "セッションが終了し、再度サインインが必要になる日時です。",
+        "rawJson": "サーバー情報の生のレスポンスを表示します。",
+        "connectors": "サーバーが読み込んだコネクタの種類の数 (プラグインを含む) です。",
+        "openai": "OpenAI 互換エンドポイントのベース URL です。プロファイル名がモデル ID になります。"
+      },
+      "requests": {
+        "grafana": "Grafana の HTTP ダッシュボードを新しいタブに開きます。Prometheus メトリクスに基づくリクエスト数、レイテンシ、エラーの推移を表示します。",
+        "kpis": {
+          "total": "選択した期間とフィルターについて、サーバーが履歴に保持しているリクエストです。",
+          "success": "2xx または 3xx のステータスを返したリクエストです。",
+          "failure": "4xx または 5xx のステータスを返したリクエストです。",
+          "avgDuration": "サーバーが応答するまでにかかった平均時間です。"
+        },
+        "columns": {
+          "time": "リクエストが到着した日時です。",
+          "method": "リクエストの HTTP メソッドです。",
+          "path": "呼び出されたパスです。値にカーソルを合わせると全体が表示されます。",
+          "status": "サーバーが返した HTTP ステータスです。",
+          "duration": "サーバーが応答するまでにかかった時間です。",
+          "principal": "リクエストを行った者: 管理者、ユーザー、またはアクセスキー。"
+        },
+        "viewDetails": "ヘッダー、本文、所要時間を含むリクエストを開きます。",
+        "viewJson": "生の JSON を含むリクエストのレコードを開きます。",
+        "deleteOne": "このリクエストを履歴から削除します。",
+        "bulkDeleteAll": "このページだけでなく、現在のフィルターに一致するすべてのリクエストを削除します。"
+      },
+      "explorer": {
+        "operations": "領域ごとにまとめられた API 操作を選びます。下のフォームはそのパラメーターに合わせて変わります。",
+        "pathParam": "パスパラメーター {{name}} ({{type}}) です。URL に埋め込まれます。{{description}}",
+        "queryParam": "クエリパラメーター {{name}} ({{type}}) です。入力すると URL に追加されます。{{description}}",
+        "copyUrl": "完全に解決されたリクエスト URL をコピーします。",
+        "headerName": "リクエストヘッダーの名前です。Authorization はセッションから自動的に追加されます。",
+        "headerValue": "このヘッダーで送信する値です。",
+        "removeHeader": "このヘッダーをリクエストから削除します。",
+        "addHeader": "リクエストヘッダーを追加します。",
+        "body": "レコードを作成または変更する操作の JSON リクエスト本文です。",
+        "execute": "セッションを使ってリクエストを今すぐサーバーに送信します。破壊的なメソッドでは確認を求めます。",
+        "stop": "リクエストを中止するか、ストリーミングレスポンスの読み取りを停止します。",
+        "snippets": {
+          "curl": "同じリクエストを、ターミナル用の curl コマンドとして表示します。",
+          "fetch": "同じリクエストを、JavaScript の fetch コードとして表示します。",
+          "csharp": "同じリクエストを、C# の HttpClient コードとして表示します。"
+        },
+        "clearHistory": "このブラウザーに保存されている最近のリクエストをすべて消去します。",
+        "loadHistory": "このリクエストをフォームに読み込み直します。",
+        "deleteHistory": "この項目を最近のリクエストの一覧から削除します。",
+        "confirmExecute": "データを変更または削除する可能性がありますが、このリクエストを送信します。"
+      },
+      "a2aExplorer": {
+        "profile": "通信するプロファイルです。A2A の公開がオンのプロファイルのみ応答します。",
+        "fetchCard": "プロファイルの公開エージェントカードを well-known URL からダウンロードします。",
+        "listTasks": "このプロファイルで自分が所有する A2A タスクを一覧表示します (テナント管理者はすべてのタスクを表示できます)。",
+        "message": "ユーザーメッセージとしてエージェントに送信するテキストです。",
+        "stream": "最終的な回答を待たずに、SendStreamingMessage を使用してイベントを到着順に表示します。",
+        "send": "自分のプリンシパルとして A2A JSON-RPC でメッセージを送信します。",
+        "context": "同じコンテキストのメッセージは 1 つの会話として続きます。最初からやり直すにはプロファイルを変更してください。",
+        "events": "サーバーが送信したとおりの、すべてのストリームイベントです。"
+      },
+      "analytics": {
+        "profile": "すべてのグラフを 1 つのエージェントプロファイルに限定するか、テナント全体を表示します。",
+        "kpis": {
+          "turns": "期間内に Hugo 独自のエージェントループを実行したチャット、A2A、OpenAI 互換のターンです。",
+          "toolCalls": "期間内のすべてのサーフェスからのツール呼び出しです (拒否・却下されたものを含む)。",
+          "failures": "期間内に失敗またはタイムアウトで終了したツール呼び出しです。",
+          "tokens": "期間内に Hugo のモデル呼び出しで使用された入力と出力のトークン数の合計です。",
+          "approvals": "結果にかかわらず、期間内にリクエストされた承認です。",
+          "turnaround": "承認がリクエストされてから人が判断するまでの時間の中央値です。",
+          "approvalRate": "判断済みの承認のうち、却下ではなく承認されたものの割合です。"
+        },
+        "columns": {
+          "connector": "呼び出し先のコネクタの種類です。",
+          "calls": "期間内のこのコネクタへのツール呼び出しです。",
+          "failures": "このコネクタへの呼び出しのうち、失敗またはタイムアウトしたものです。",
+          "p95": "このコネクタへの呼び出しの 95% がこの時間内に完了しました。"
+        }
+      },
+      "chat": {
+        "search": "タイトルで会話を検索します。",
+        "profile": "通信するエージェントプロファイルです。ペルソナ、モデル、エージェントが使用できるリソースが決まります。",
+        "model": "このプロファイルが回答に使用する推論モデルです。",
+        "new": "選択したプロファイルで新しい会話を開始します。",
+        "export": "この会話を Markdown としてダウンロードします。",
+        "drawer": "コンテキストドロワー (プロファイル、バインドされたリソース、トークン使用量、保留中の承認) を表示または非表示にします。",
+        "goModels": "モデルエンドポイントを開いて推論モデルを追加します。",
+        "goProfiles": "エージェントプロファイルを開いてプロファイルを作成または選択します。"
+      },
+      "connectors": {
+        "search": "種類、ファミリー、名前、説明でコネクタを絞り込みます。",
+        "category": "1 つのカテゴリ (データベースやログサービスなど) のコネクタのみ表示します。",
+        "card": "{{name}} を開きます: 設定、シークレットスロット、ツール、既定の指示。",
+        "back": "コネクタカタログに戻ります。",
+        "addResource": "リソースを開いて、コネクタを使用するリソースを追加します。",
+        "editInstructions": "このコネクタの指示テンプレートで絞り込んだプロンプトテンプレートを開きます。",
+        "tabs": {
+          "overview": "種類、ファミリー、カテゴリ、バージョン、このコネクタに必要なシークレットスロットです。",
+          "settings": "この種類のリソースで使われる設定フォームと、すべての設定のリファレンス表です。",
+          "tools": "このコネクタが提供するすべてのツールと、その基本の影響です。",
+          "instructions": "この種類のすべてのリソースがエージェント向けに追加する指示です。"
+        },
+        "columns": {
+          "key": "リソースに保存され、API で受け付けられる設定キーです。",
+          "kind": "値の型: テキスト、長いテキスト、整数、真偽値、リスト、選択肢。",
+          "required": "リソースがこの設定に値を設定する必要があるかどうか。",
+          "default": "リソースで設定が空の場合に使用される値です。",
+          "range": "許可される値、または数値の最小値と最大値です。",
+          "group": "設定が表示されるリソースフォームのセクションです。"
+        }
+      },
+      "mcpExplorer": {
+        "profile": "/mcp/{profile} に接続するか、認証情報または既定値からプロファイルを決定するようサーバーに任せます。",
+        "connect": "initialize を実行し、この呼び出し元に見えるツールを一覧表示します。",
+        "session": "サーバーが割り当てた MCP セッションです。このエクスプローラーのすべてのリクエストで再利用されます。",
+        "instructions": "MCP クライアントが受け取るとおりの、サーバーが initialize から返すコンパイル済みの指示です。",
+        "call": "選択したツールをこれらの引数で、完全な安全パイプラインを通じて呼び出します。",
+        "log": "サーバーとやり取りしたすべての JSON-RPC リクエストとレスポンスを順に表示します。"
+      },
+      "profile": {
+        "back": "エージェントプロファイルの一覧に戻ります。",
+        "chat": "チャットを開いてこのプロファイルと話します。",
+        "tabs": {
+          "general": "ペルソナ、ユーザーの呼び方、モデル、制限、このプロファイルを公開するサーフェスです。",
+          "bindings": "このプロファイルに接続されたリソースで、それぞれエイリアスとアクセスモードを持ちます。",
+          "instructions": "呼び出し元が受け取るコンパイル済みの指示と、各セクションの出典です。",
+          "tools": "アクセスモードとツールルールの適用後に、このプロファイルの呼び出し元に見えるツールです。",
+          "connect": "Claude Code、その他の MCP クライアント、A2A エージェント、OpenAI 互換クライアントを接続するためのスニペットです。"
+        },
+        "bindings": {
+          "add": "エイリアスとアクセスモードを指定して、リソースをこのプロファイルに接続します。",
+          "goResources": "リソースを開いて、このプロファイルがアクセスすべきシステムを追加します。",
+          "columns": {
+            "alias": "ツール呼び出しでエージェントがリソースに使う名前です。",
+            "resource": "このバインディングが接続するリソースです。",
+            "accessMode": "エージェントがリソースに対して行える操作: 読み取り専用、承認付き読み書き、読み書き。",
+            "approval": "このバインディングで一部の呼び出しが人の判断を待つかどうか。",
+            "enabled": "無効なバインディングはエージェントから隠されます。"
+          }
+        },
+        "toolRules": {
+          "open": "このバインディングで個々のツールを許可、拒否、または承認必須にします。",
+          "rule": "許可はアクセスモードに従ってツールを実行させ、拒否はツールを隠し、承認を要求は常に人に確認します。",
+          "save": "これらのツールルールを保存します。新しい呼び出しにすぐ適用されます。"
+        },
+        "instructions": {
+          "surface": "指示はサーフェス (チャット、MCP、A2A、OpenAI、REST) ごとに少し異なります。プレビューするサーフェスを選んでください。",
+          "section": "コンパイル済みの指示の 1 セクションと、その元になったテンプレートのレイヤーです。"
+        },
+        "tools": {
+          "name": "呼び出し元が使うツール名です。通常は sql_query のような family_operation 形式です。",
+          "effect": "基本の影響: 読み取り、書き込み、破壊的。一部のツールは呼び出しごとに分類されます。",
+          "description": "呼び出し元のモデルに見えるとおりの、ツールの機能説明です。"
+        },
+        "connect": {
+          "copyCard": "他の A2A エージェントがこのプロファイルを検出できるように、エージェントカードの URL をコピーします。",
+          "copyOpenai": "OpenAI 互換のベース URL をコピーします。",
+          "credential": "認証情報を開いて、このプロファイルにバインドされたアクセスキーを作成します。"
+        }
+      },
+      "resources": {
+        "form": {
+          "test": "保存する前に、このフォームの設定とシークレットを実際のシステムに対してテストします。"
+        },
+        "tryTool": {
+          "profile": "動作するプロファイルです。そのバインディングにより、呼び出しのアクセスモードと承認が決まります。",
+          "tool": "プロファイルがこのリソース用に公開しているツールです。",
+          "arguments": "JSON 形式のツール引数です。resource 引数にはバインディングのエイリアスを指定します。",
+          "dryRun": "実行せずに呼び出しを分類します (影響、判断、アクセスモード)。",
+          "execute": "完全なパイプラインを通じて呼び出しを実行します。リスクのある呼び出しは他と同様に承認を待ちます。"
+        }
+      },
+      "secrets": {
+        "reveal": {
+          "reason": "このシークレットを確認する必要がある理由です。表示操作とともに監査証跡に保存されます。",
+          "submit": "サーバーに平文の値を要求します。表示権限が必要で、監査されます。",
+          "password": "シークレットを表示する前に本人確認をするための、アカウントのパスワードです。",
+          "reauth": "パスワードでこのセッションを再認証してから、シークレットを表示します。",
+          "copy": "この値をクリップボードにコピーします。非表示になった後は再表示されません。",
+          "again": "値をもう一度表示します。新しい表示操作として監査されます。"
+        }
+      },
+      "settings": {
+        "applyLive": "保存するとすぐに適用されます。",
+        "applyRestart": "サーバーの再起動後に有効になります。",
+        "fieldGeneric": "サーバー設定 {{path}} です。",
+        "groupGeneric": "{{group}} グループの設定です。",
+        "restart": "再起動が必要な設定を反映するため、Hugo サーバーを再起動します。コンテナが自動的に再起動します。",
+        "save": "変更したすべての設定を保存します。即時反映の設定はすぐに適用され、その他は再起動を待ちます。",
+        "settingPath": "設定パス: {{path}}。hugo.json と設定 REST API ではこの名前を使用してください。",
+        "sourceGeneric": "現在の値の取得元です。",
+        "testDatabase": "保存する前に、上のデータベース設定で接続を試します。",
+        "viewJson": "設定の生のレスポンスを表示します。",
+        "groups": {
+          "Rest": "サーバーの待ち受け場所と、プロキシ経由を含む外部からのアクセス方法です。",
+          "Database": "Hugo が独自のデータを保存するデータベース: SQLite または PostgreSQL。",
+          "Logging": "サーバープロセスのコンソールおよびファイルへのログ出力です。",
+          "Auth": "セッションの長さ、トークンの署名、サインインのレート制限です。",
+          "Secrets": "シークレット保管庫: マスターキーの取得元と、表示時の再認証の有効時間です。",
+          "RequestHistory": "API リクエストを記録するかどうか、各本文をどれだけ保持するか、保持期間です。",
+          "Audit": "セキュリティイベントの保持期間と、成功したサインインのサンプリング頻度です。",
+          "Telemetry": "同梱の Tempo と Prometheus にエクスポートされるトレースとメトリクスです。",
+          "Agent": "チャット、A2A、OpenAI クライアント向けの Hugo 独自のエージェントループの制限と動作です。",
+          "Approvals": "承認の待機時間、MCP 呼び出しが承認でブロックされる時間、自己承認を許可するかどうかです。",
+          "Connectors": "プラグイン、ツールのタイムアウト、リソースのバックグラウンドヘルスチェックです。",
+          "Models": "モデルエンドポイントのヘルスチェックの頻度です。",
+          "Mcp": "MCP エンドポイント: オン/オフ、セッションのタイムアウト、メッセージサイズです。",
+          "A2A": "プロファイルに A2A でアクセスできるかどうかです。",
+          "OpenAI": "OpenAI 互換エンドポイントがオンかどうかです。",
+          "Embeddings": "ベクトルの保存方法と検索方法です (PostgreSQL の pgvector を含む)。"
+        },
+        "source": {
+          "File": "現在 hugo.json で設定されています。ここで保存するとファイルが更新されます。",
+          "Environment": "環境変数で設定されており、ここで保存した値より優先されます。",
+          "Database": "データベースに保存されています。"
+        }
+      }
+    },
+    "export": {
+      "menu": "{{name}} をダウンロードします。データは CSV または JSON で、グラフはタイトル、凡例、フィルター、期間を含む PNG または SVG 画像で取得できます。",
+      "csv": "この表示の元になっているデータを、そのまま CSV でダウンロードします。区間またはレコードごとに 1 行、ISO 8601 形式の UTC タイムスタンプ、小数点にドットを使った数値で出力します。",
+      "png": "グラフを画面の 2 倍の解像度の PNG 画像としてダウンロードします。タイトル、凡例、適用中のフィルター、期間を含みます。",
+      "svg": "グラフを拡大縮小できる SVG 画像としてダウンロードします。タイトル、凡例、適用中のフィルター、期間を含みます。",
+      "json": "データを JSON でダウンロードします。系列、区間、フィルター、期間を 1 つのドキュメントにまとめて含みます。"
+    },
+    "analytics": {
+      "dataTable": "このグラフの元になっている数値を、時間区間ごとに 1 行の表で表示します。",
+      "bucketStart": "時間区間の開始日時です。各行が 1 つの区間に対応します。"
+    },
+    "approvalCard": {
+      "approve": "この呼び出しを今すぐ実行させます。判断とメモは監査証跡に記録されます。",
+      "reject": "この呼び出しを拒否します。エージェントには操作が却下されたことが通知され、それなしで続行します。",
+      "note": "判断とともに保存されるメモ (任意) です (例: 再起動を承認した理由)。"
+    },
+    "chat": {
+      "input": "Agent Smith へのメッセージを入力します。Enter で送信、Shift+Enter で改行します。下書きは会話ごとに保持されます。",
+      "send": "メッセージを送信し、Agent Smith が行うツール呼び出しを含めて回答をストリーミングします。",
+      "stop": "回答を今すぐ停止します。実行中のツール呼び出しはキャンセルされ、途中までの回答は保持されます。",
+      "thinking": "モデルが共有した場合の、この回答に対するモデルの推論です。既定では折りたたまれています。",
+      "ttft": "最初のトークンまでの時間: メッセージを送信してから回答の最初の部分が届くまでの時間です。",
+      "duration": "ツール呼び出しや承認待ちを含めた、ターン全体の所要時間です。",
+      "tokens": "プロバイダーが報告した、モデルが使用した入力と出力のトークン数です。"
+    },
+    "errors": {
+      "status": "サーバーが応答した HTTP ステータスコードです。",
+      "requestId": "このリクエストのサーバー側 ID です。リクエスト履歴やサーバーログで検索できます。",
+      "copyRequestId": "リクエスト ID をコピーします (バグ報告に含める場合など)。",
+      "traceId": "分散トレース ID です。これを使って Grafana 経由で Tempo からリクエスト全体を確認できます。"
+    },
+    "nav": {
+      "approvalsBadge_one": "{{count}} 件のツール呼び出しが人による承認または却下を待っています。承認を開いて判断してください。",
+      "approvalsBadge_other": "{{count}} 件のツール呼び出しが人による承認または却下を待っています。承認を開いて判断してください。",
+      "setup": "セットアップウィザードを開きます: モデルを接続し、最初のリソースを追加して Hugo プロファイルにバインドし、Claude Code を接続します。",
+      "skipToContent": "ナビゲーションを飛ばして、このページのメインコンテンツへ直接移動します。主にキーボードで操作する方向けです。",
+      "tour": "ナビゲーション、コンテキスト、各機能の場所を案内する短いガイドツアーを再生します。",
+      "environment": {
+        "local": "ダッシュボードはこのマシン上の Hugo サーバー (ループバックアドレス) と通信しています。",
+        "remote": "ダッシュボードは別のホスト上の Hugo サーバーと通信しています。ここでの変更はそのサーバーに影響します。"
+      },
+      "subtabs": {
+        "roles": "ロールは権限を 1 つの名前 (Operator や Builder など) でまとめたものです。ロールを割り当てると、そのすべての権限が付与されます。",
+        "permissions": "リソース種別への操作を許可または拒否する個々のルールです。ロールはこれらで構成され、常に拒否が優先されます。",
+        "userAssignments": "メールアドレスとパスワードでサインインするユーザーに、テナント全体または 1 つのリソースに対してロールを付与します。",
+        "credentialAssignments": "ハーネスや自動化で使うアクセスキーにロールを付与します。キーの権限は所有者より狭くしてください。"
+      },
+      "hubs": {
+        "home": "コマンドセンターを開きます: KPI、リクエストのアクティビティ、最近の失敗、異常なリソース、よく使うワークフロー。",
+        "chat": "スタックについて Agent Smith と話します。ツール呼び出しはインラインで表示され、リスクのあるものはあなたの承認を待ちます。",
+        "profiles": "エージェントプロファイルを作成し、アクセスモードを指定してリソースをバインドします。すべてのサーフェスはプロファイルと通信します。",
+        "approvals": "あらゆるサーフェスから、人の判断を待っている書き込みおよび破壊的なツール呼び出しを判断します。",
+        "conversations": "チャット、A2A、MCP、OpenAI 互換クライアントからの、テナント全体の会話を確認します。",
+        "resources": "SSH ホスト、バケット、データベース、ログサービスなどのシステムへの接続を追加・テストします。",
+        "secrets": "パスワード、キー、トークンを暗号化して保存します。リソースとモデルエンドポイントはスロットで使用します。",
+        "connectors": "Hugo が対応するサービスファミリーと、そのツールと影響、既定の指示を参照します。",
+        "models": "チャット、A2A、OpenAI クライアント向けに Hugo 独自のエージェントループが使う推論モデルと埋め込みモデルを追加します。",
+        "prompts": "レイヤー (組み込み、グローバル、テナント) ごとに指示テンプレートを編集します。プレビュー、バージョン、リセットに対応しています。",
+        "knowledge": "会話中にコンテキストに取り込まれるメモで、スタックについて Hugo に教えます。",
+        "toolInvocations": "すべてのサーフェスからのすべてのツール呼び出しを、影響、判断、結果、トレースリンクとともに表示します。",
+        "requests": "サーバーが処理したすべての API リクエストを、ヘッダー、本文、タイミング、ステータスとともに確認します。",
+        "analytics": "トークン使用量、影響別・コネクタ別のツール呼び出し、モデルのレイテンシ、承認の所要時間を把握します。",
+        "audit": "サインイン、拒否、シークレットの表示、設定変更などのセキュリティイベントを確認します。",
+        "explorer": "サーバーのライブ OpenAPI ドキュメントから任意の REST ルートを試し、コードスニペットを生成します。",
+        "mcpExplorer": "自分として MCP エンドポイントに接続し、指示とツールを確認してツールを呼び出します。",
+        "a2aExplorer": "プロファイルのエージェントカードを取得し、A2A JSON-RPC でメッセージを送信します。",
+        "tenants": "このサーバー上の分離されたテナントを作成・管理します。このページはシステム管理者にのみ表示されます。",
+        "users": "このテナントにサインインするユーザーを管理し、パスワードをリセットし、有効な権限を確認します。",
+        "credentials": "ハーネスや SDK 用のアクセスキーを作成し、プロファイルにバインドしてローテーションします。",
+        "rbac": "このテナントのロール、ロールに含まれる権限、ロールの保持者を管理します。",
+        "sessions": "テナント内のすべてのアクティブなセッションとトークンを確認し、任意のものを失効させます。",
+        "settings": "サーバーの設定ファイルを編集し、サーバーを再起動し、サーバー情報を確認します。",
+        "plugins": "コネクタプラグインを有効化・無効化し、読み込みエラーを確認します。このページはシステム管理者にのみ表示されます。"
+      },
+      "tabs": {
+        "roles": "ロールとそれに含まれる権限です。組み込みロールを複製してカスタマイズできます。",
+        "assignments": "誰がどのロールを持っているか: ユーザーと認証情報、テナント全体または 1 つのリソース。",
+        "settings": "検証付きでサーバーの設定ファイルを編集します。即時反映か再起動が必要かを示すバッジと、サーバーの再起動があります。",
+        "serverInfo": "コピー可能なエンドポイント、サーバーとダッシュボードのバージョン、機能、あなたの ID 情報です。"
+      }
+    },
+    "passwordChange": {
+      "current": "サインインに使ったパスワード: 初期パスワード、または管理者が設定したパスワードです。",
+      "new": "新しいパスワードです。長いパスフレーズを使用してください。サーバーが追加のルールを適用する場合があります。",
+      "confirm": "入力ミスでロックアウトされないよう、新しいパスワードをもう一度入力してください。",
+      "submit": "新しいパスワードを保存してダッシュボードに進みます。"
+    },
+    "promptEditor": {
+      "content": "テンプレートテキストです。二重波かっこ内の変数は、指示のコンパイル時に値が入ります。",
+      "insert": "カーソル位置に {{variable}} を挿入します。",
+      "preview": "サンプルコンテキストでテキストをレンダリングし、エージェントが読む内容を確認します。",
+      "diff": "このテキストを保存済みまたは既定のバージョンと行単位で比較します。",
+      "sampleContext": "プレビューに使うサンプル値です。編集して、さまざまなペルソナ、リソース、アクセスモードを試せます。",
+      "serverRender": "サーバーが実際の指示と同じレンダラーでこのプレビューをレンダリングしました。",
+      "localRender": "サーバーのプレビュールートが利用できないため、ブラウザーが近似的にレンダリングしました。"
+    },
+    "schemaForm": {
+      "setting": "コネクタの設定 {{label}}。リソースの保存時またはテスト時にコネクタが検証します。"
+    },
+    "secretField": {
+      "slot": "このコネクタが {{slot}} に読み込むシークレットです。受け付けられる種類のシークレットのみ表示されます。",
+      "createInline": "このフォームを離れずに新しいシークレットを作成します。暗号化され、このスロットに選択されます。",
+      "saveInline": "新しいシークレットを暗号化して保存し、このスロットに選択します。",
+      "import": "コンピューター上のキー、証明書、kubeconfig、または JSON ファイルをこのフィールドに読み込みます。送信されるのは保存時のみです。",
+      "fields": {
+        "username": "サインインに使うアカウント名です。シークレットではありませんが、パスワードとともに保存されます。",
+        "password": "パスワードです。暗号化して保存され、エージェントに表示されることはありません。",
+        "privateKey": "PEM または OpenSSH 形式の秘密鍵です。キーファイルをここにドロップするか、インポートしてください。",
+        "passphrase": "秘密鍵を保護するパスフレーズです (ある場合)。",
+        "token": "サービスが発行した API トークンまたはベアラートークンです。",
+        "accessKeyId": "アクセスキー ID です (例: AWS では AKIA に英数字が続きます)。",
+        "secretAccessKey": "アクセスキーペアのシークレット部分です。暗号化して保存されます。",
+        "sessionToken": "一時的な認証情報用のセッショントークン (任意) です。",
+        "json": "JSON 形式のサービスアカウントキーファイル全体です (例: Google Cloud のもの)。",
+        "kubeconfig": "使用するクラスター、ユーザー、コンテキストを含む kubeconfig ファイルです。",
+        "connectionString": "認証情報を含む完全な接続文字列です (例: SQL Server や Redis 用)。",
+        "certificate": "PEM 形式の証明書です。それ自体はシークレットではありませんが、キーとともに保持されます。",
+        "value": "単一の不透明なシークレットを受け取るコネクタ用の、任意のシークレット値です。"
+      }
+    },
+    "toolActivity": {
+      "toggle": "このツール呼び出しの引数と出力を表示または非表示にします。",
+      "resource": "プロファイルでバインドされている、呼び出し対象のリソースのエイリアスです。",
+      "status": "呼び出しの状態: 提案済み、実行中、承認待ち、または完了。",
+      "duration": "サーバーでの呼び出しの開始から結果までの所要時間です。"
+    },
+    "tour": {
+      "skip": "ツアーを今すぐ終了します。サイドバーから再生できます。",
+      "back": "ツアーの前の項目を表示します。",
+      "next": "ツアーの次の項目に進みます。",
+      "done": "ツアーを終了します。サイドバーから再生できます。"
+    },
+    "wizard": {
+      "skip": "ウィザードを閉じ、このテナントでは再表示しないようにします。サイドバーからいつでも再度開けます。",
+      "back": "ウィザードの前の手順に戻ります。",
+      "start": "セットアップを開始します: モデルを接続し、リソースを追加してバインドし、クライアントを接続します。",
+      "skipStep": "この手順を完了せずに続行します。後で対応するページから実行できます。",
+      "saveModel": "モデルエンドポイント (と、入力した場合はその API キーのシークレット) を作成して次に進みます。",
+      "saveResource": "これらの設定とシークレットでリソースを作成し、バインドの手順に進みます。",
+      "bind": "選択したアクセスモードで、新しいリソースを既定の Hugo プロファイルにバインドします。",
+      "finish": "このテナントのウィザードを閉じ、チャットを開いて Agent Smith と話します。"
+    }
+  },
+  "explainers": {
+    "promptTemplates": {
+      "title": "プロンプトテンプレートとそのレイヤー",
+      "p1": "Hugo がエージェントに与える指示はすべてテンプレートです: Agent Smith のペルソナ、安全ルール、各コネクタの指示。テンプレートでは {{persona.name}} や {{resource.alias}} などの変数を使用し、保存するたびに新しいバージョンが作成されます。",
+      "p2": "テンプレートはレイヤー構造です。組み込みテキストは Hugo に付属し、グローバル既定値はすべてのテナントでそれを上書きでき、テナントはさらにそれを上書きできます。「既定に戻す」は上書きを削除し、1 つ下のレイヤーに戻します。"
+    },
+    "tenants": {
+      "title": "テナント",
+      "p1": "テナントは、このサーバー上の分離された組織です。ユーザー、アクセスキー、リソース、シークレット、プロファイル、会話はすべて 1 つのテナントに属し、テナント間では何も見えません。"
+    },
+    "users": {
+      "title": "ユーザーと認証キー",
+      "p1": "ユーザーは、メールアドレスとパスワードでサインインする人です。認証キー (アクセスキー) は、自動化がサインインする手段です。すべてのアクセスキーはユーザーに属し、そのユーザーができる以上のことはできません。",
+      "p2": "どちらも、存在するだけではアクセス権を持ちません。アクセス権は、ユーザーの管理者フラグとロールの割り当てによって付与されます。"
+    },
+    "credentials": {
+      "title": "認証キーとユーザー",
+      "p1": "認証キーは、スクリプト、SDK、サービス用のアクセスキーとシークレットキーの組です。ユーザーに属します。実際の権限は、キー自身のロールの割り当てが付与する権限と、所有者が行える操作の重なる部分です。",
+      "p2": "シークレットキーが表示されるのは、キーの作成時またはローテーション時の一度だけです。キーは定期的にローテーションし、長期間使われていないキーは削除してください。"
+    },
+    "roles": {
+      "title": "ロール、権限、割り当て",
+      "p1": "権限は単一のルールです: 特定のリソースの種類 (リソース、シークレット、エージェントプロファイルなど) に対する特定の操作 (読み取り、実行、表示など) を許可または拒否します。ロールは名前付きの権限の集まりです。拒否は常に許可より優先されます。",
+      "p2": "ロールが割り当てられるまで、誰に対しても何も変わりません。次のタブの割り当てで、ロールをユーザーまたはアクセスキーに、テナント全体または 1 つのレコードを対象として結び付けます。"
+    },
+    "assignments": {
+      "title": "割り当て",
+      "p1": "割り当ては、1 つのロールを 1 人のユーザーまたは 1 つのアクセスキーに付与します。テナントスコープは対象の種類のすべてのレコードにロールを適用し、リソーススコープは単一のレコード (ハーネスが使用できる 1 つのエージェントプロファイルなど) に適用します。",
+      "p2": "ユーザーまたは認証キーの「有効な権限」を使うと、すべての割り当てを組み合わせた結果を確認できます。"
+    },
+    "audit": {
+      "title": "監査とリクエスト履歴",
+      "p1": "監査レコードは、セキュリティと設定に関するイベントです: サインイン、拒否されたリクエスト、シークレットの表示と変更、ロールとバインディングの変更、ロックダウン、再起動。設定の保持期間の間保存されます。",
+      "p2": "前のタブのリクエスト履歴は、生の HTTP トラフィックです。誰が何を変更したかを調べるには監査を、クライアントが実際に何を送ったかをデバッグするにはリクエスト履歴を使ってください。"
+    },
+    "requests": {
+      "title": "リクエスト履歴",
+      "p1": "このサーバーが記録したすべての API リクエストです。メソッド、パス、ステータス、所要時間、ヘッダー、本文 (設定されたサイズで切り詰め) を含みます。連携や SDK 呼び出しのデバッグに使えます。グラフの棒をクリックすると、表をその時間帯に絞り込めます。"
+    },
+    "diagram": {
+      "label": "シークレット、リソース、バインディング、プロファイル、サーフェスの関係",
+      "secret": {
+        "title": "シークレット",
+        "body": "暗号化された認証情報",
+        "tip": "パスワード、キー、トークンを Hugo 内で暗号化して保存します。リソースはスロット経由で使用し、エージェントが目にすることはありません。"
+      },
+      "resource": {
+        "title": "リソース",
+        "body": "設定済みのシステム",
+        "tip": "設定済みのシステム 1 つ分です。SSH ホスト、バケット、データベース、ログサービスなどと、その設定を表します。"
+      },
+      "binding": {
+        "title": "バインディング",
+        "body": "エイリアスとアクセスモード",
+        "tip": "リソースをエイリアス付きでプロファイルに割り当て、読み取り専用、承認付き、または読み書きのアクセスを設定します。"
+      },
+      "profile": {
+        "title": "エージェントプロファイル",
+        "body": "ペルソナ、モデル、制限",
+        "tip": "エージェントそのものです。既定は Agent Smith で、モデルと制限を持ちます。すべてのサーフェスはプロファイルと対話します。"
+      },
+      "surfaces": {
+        "title": "サーフェス",
+        "body": "MCP、A2A、REST、チャット",
+        "tip": "Claude Code は MCP 経由、他のエージェントは A2A 経由、スクリプトは REST と SDK 経由、そしてあなたはチャットで利用します。"
+      }
+    },
+    "profiles": {
+      "title": "プロファイル、リソース、サーフェスの関係",
+      "p1": "プロファイルは 1 つのエージェントです: ペルソナ (既定は Agent Smith)、思考に使うモデル、バインディングのセット。各バインディングは、エイリアスとアクセスモードを指定して 1 つのリソースを接続します。",
+      "p2": "すべてのサーフェスは同じプロファイルのクライアントです。MCP クライアントはプロファイルのツールと指示を受け取り、チャット、A2A、OpenAI 互換クライアントはプロファイルのモデルで Hugo 独自のループを実行します。"
+    },
+    "approvals": {
+      "title": "呼び出しが人の判断を待つとき",
+      "p1": "すべてのツール呼び出しは、読み取り、書き込み、破壊的のいずれかに分類されます。破壊的な呼び出しは既定で承認を待ち、承認付き読み書きモードのバインディングではすべての書き込みも待ちます。",
+      "p2": "承認すると呼び出しが実行され、却下すると拒否されます。いずれの場合もエージェントに通知され、判断はあなたのメモとともに記録されます。"
+    },
+    "conversations": {
+      "title": "すべてのサーフェスからの会話",
+      "p1": "ダッシュボードのチャット、A2A コンテキスト、MCP の委任、OpenAI 互換セッションはすべてここで会話になるため、すべてのサーフェスの履歴を 1 か所で確認できます。"
+    },
+    "resources": {
+      "title": "リソース、シークレット、バインディング",
+      "p1": "リソースは設定済みの 1 つのシステムです: コネクタ、設定、使用するシークレット。シークレットは Hugo 内で暗号化されたまま保持され、エージェントが見ることはありません。",
+      "p2": "リソースはプロファイルにバインドされるまで何もしません。バインディングによって、エージェントに見えるエイリアスと許可される操作が決まります。"
+    },
+    "secrets": {
+      "title": "シークレットの保護方法",
+      "p1": "値はマスターキーのもとで AES-256-GCM により暗号化され、テナントに紐付けられます。リソースとモデルエンドポイントはスロットでシークレットを参照します。",
+      "p2": "値を再び見るには表示操作を使うしかありません。表示には表示権限、理由、新たなパスワード確認が必要で、常に監査されます。"
+    },
+    "models": {
+      "title": "Hugo にモデルが必要なとき",
+      "p1": "Claude Code などの MCP クライアントは独自のモデルを使用し、Hugo はツールと指示のみを提供します。チャット、A2A、OpenAI 互換エンドポイントは Hugo 独自のループを実行するため、プロファイルに推論モデルが必要です。"
+    },
+    "knowledge": {
+      "title": "ナレッジメモの用途",
+      "p1": "メモは、オペレーターがチームメンバーに伝えるような事実です。Hugo はそれらを埋め込み、ターンごとに関連するものをコンテキストに取り込みます。"
+    },
+    "toolInvocations": {
+      "title": "ツール呼び出しごとに 1 つのレコード",
+      "p1": "すべてのサーフェスからのすべてのツール呼び出しは、同じパイプラインを通ります: 分類、バインディングのアクセスモード、必要に応じた承認、コネクタ、シークレットの除去。それぞれがここに記録されます。"
+    },
+    "connectors": {
+      "title": "コネクタとリソース",
+      "p1": "コネクタは、1 つのシステムファミリーとの通信方法を知っているコードです。リソースは、独自の設定とシークレットを持つ、コネクタの設定済みインスタンスです。"
+    },
+    "analytics": {
+      "title": "これらの数値の出典",
+      "p1": "分析は、サーバー上のツール呼び出し、チャットのターン、モデル呼び出しを、時間区間ごとにこのテナントの範囲で集計します。"
+    },
+    "sessions": {
+      "title": "セッションとトークン",
+      "p1": "サインインまたはアクセスキーの交換により、セッショントークンが発行されます。セッションを失効させると、どこで使われていても即座に終了します。"
+    },
+    "plugins": {
+      "title": "コネクタプラグイン",
+      "p1": "プラグインは、Hugo を再ビルドせずにプラグインディレクトリからコネクタの種類を追加します。Connectors.EnablePlugins がオンの場合にのみ読み込まれます。"
+    }
+  },
+  "nav": {
+    "primary": "メインナビゲーション",
+    "collapseSidebar": "ナビゲーションの切り替え",
+    "setup": "セットアップウィザード",
+    "skipToContent": "本文へ移動",
+    "tour": "ガイドツアー",
+    "version": "バージョン {{version}}",
+    "approvalsPending_one": "{{count}} 件の承認が人の判断を待っています",
+    "approvalsPending_other": "{{count}} 件の承認が人の判断を待っています",
+    "environment": {
+      "local": "ローカル",
+      "remote": "リモート"
+    },
+    "sections": {
+      "start": "スタート",
+      "agents": "エージェント",
+      "connect": "接続",
+      "configure": "構成",
+      "observe": "監視",
+      "develop": "開発",
+      "administer": "管理"
+    },
+    "hubs": {
+      "home": {
+        "label": "ホーム",
+        "tip": "Hugo が行っていること、対応が必要なこと、よく使う次の手順です。"
+      },
+      "chat": {
+        "label": "チャット",
+        "tip": "Agent Smith と話します。ツール呼び出しと承認はインラインで表示されます。"
+      },
+      "profiles": {
+        "label": "エージェントプロファイル",
+        "tip": "バインドされたリソースとアクセスモードを持つペルソナで、すべてのサーフェスから利用できます。"
+      },
+      "approvals": {
+        "label": "承認",
+        "tip": "人による承認または却下を待っているリスクのあるツール呼び出しです。"
+      },
+      "conversations": {
+        "label": "会話",
+        "tip": "チャット、A2A、MCP、OpenAI クライアントからの、テナント内のすべての会話です。"
+      },
+      "resources": {
+        "label": "リソース",
+        "tip": "ホスト、バケット、データベース、ログサービスなど、システムへの設定済み接続です。"
+      },
+      "secrets": {
+        "label": "シークレット",
+        "tip": "リソースとモデルエンドポイントが使用する、暗号化された認証情報です。"
+      },
+      "connectors": {
+        "label": "コネクタ",
+        "tip": "Hugo が接続できるシステムの種類、そのツール、既定の指示です。"
+      },
+      "models": {
+        "label": "モデルエンドポイント",
+        "tip": "Hugo 独自のエージェントループ用の推論モデルと埋め込みモデルです。"
+      },
+      "prompts": {
+        "label": "プロンプトテンプレート",
+        "tip": "すべての指示テンプレート: ペルソナ、安全ルール、コネクタの指示。"
+      },
+      "knowledge": {
+        "label": "ナレッジ",
+        "tip": "Hugo がコンテキストに取り込む、スタックに関するメモです。"
+      },
+      "toolInvocations": {
+        "label": "ツール呼び出し",
+        "tip": "エージェントが行ったすべての操作を、影響、判断、結果とともに表示します。"
+      },
+      "requests": {
+        "label": "リクエスト履歴",
+        "tip": "サーバーが処理したすべての API リクエストを、ヘッダーと本文とともに表示します。"
+      },
+      "analytics": {
+        "label": "分析",
+        "tip": "使用量、コスト、レイテンシ、承認の推移です。"
+      },
+      "audit": {
+        "label": "監査",
+        "tip": "セキュリティイベント: サインイン、拒否、シークレットの表示、設定変更。"
+      },
+      "explorer": {
+        "label": "API エクスプローラー",
+        "tip": "ライブの OpenAPI ドキュメントから任意の REST ルートを試します。"
+      },
+      "mcpExplorer": {
+        "label": "MCP エクスプローラー",
+        "tip": "MCP クライアントとして接続し、ツールを一覧表示して呼び出します。"
+      },
+      "a2aExplorer": {
+        "label": "A2A エクスプローラー",
+        "tip": "エージェントカードを取得し、A2A でプロファイルと通信します。"
+      },
+      "tenants": {
+        "label": "テナント",
+        "tip": "このサーバー上の分離されたテナントです。システム管理者専用です。"
+      },
+      "users": {
+        "label": "ユーザー",
+        "tip": "このテナントにサインインするユーザーです。"
+      },
+      "credentials": {
+        "label": "認証情報",
+        "tip": "ハーネス、SDK、自動化用のアクセスキーです。"
+      },
+      "rbac": {
+        "label": "ロールと権限",
+        "tip": "ロール、権限、およびその保持者です。"
+      },
+      "sessions": {
+        "label": "セッション",
+        "tip": "アクティブなサインインセッションとトークンです。任意のものを失効させられます。"
+      },
+      "settings": {
+        "label": "設定",
+        "tip": "サーバーの構成、再起動、サーバー情報です。"
+      },
+      "plugins": {
+        "label": "プラグイン",
+        "tip": "プラグインディレクトリから読み込まれたコネクタプラグインです。"
+      }
+    },
+    "items": {
+      "home": {
+        "label": "ホーム",
+        "tip": "Hugo が行っていること、対応が必要なこと、よく使う次の手順です。"
+      },
+      "chat": {
+        "label": "チャット",
+        "tip": "Agent Smith と話します。ツール呼び出しと承認はインラインで表示されます。"
+      },
+      "profiles": {
+        "label": "エージェントプロファイル",
+        "tip": "バインドされたリソースとアクセスモードを持つペルソナです。"
+      },
+      "approvals": {
+        "label": "承認",
+        "tip": "人の判断を待っているリスクのあるツール呼び出しです。"
+      },
+      "conversations": {
+        "label": "会話",
+        "tip": "テナント内のすべての会話です。"
+      },
+      "resources": {
+        "label": "リソース",
+        "tip": "システムへの設定済み接続です。"
+      },
+      "secrets": {
+        "label": "シークレット",
+        "tip": "暗号化された認証情報です。"
+      },
+      "connectors": {
+        "label": "コネクタ",
+        "tip": "Hugo が接続できるサービスファミリーです。"
+      },
+      "models": {
+        "label": "モデルエンドポイント",
+        "tip": "推論モデルと埋め込みモデルです。"
+      },
+      "promptTemplates": {
+        "label": "プロンプトテンプレート",
+        "tip": "指示テンプレートとそのレイヤーです。"
+      },
+      "knowledge": {
+        "label": "ナレッジ",
+        "tip": "Hugo がコンテキストに取り込むメモです。"
+      },
+      "toolInvocations": {
+        "label": "ツール呼び出し",
+        "tip": "エージェントが行ったすべての操作です。"
+      },
+      "requests": {
+        "label": "リクエスト履歴",
+        "tip": "サーバーが処理したすべての API リクエストです。"
+      },
+      "analytics": {
+        "label": "分析",
+        "tip": "使用量とレイテンシの推移です。"
+      },
+      "audit": {
+        "label": "監査",
+        "tip": "セキュリティイベントです。"
+      },
+      "explorer": {
+        "label": "API エクスプローラー",
+        "tip": "REST ルートをライブで試します。"
+      },
+      "mcpExplorer": {
+        "label": "MCP エクスプローラー",
+        "tip": "クライアントとして MCP を試します。"
+      },
+      "a2aExplorer": {
+        "label": "A2A エクスプローラー",
+        "tip": "エージェントとして A2A を試します。"
+      },
+      "tenants": {
+        "label": "テナント",
+        "tip": "このサーバー上の分離されたテナントです。"
+      },
+      "users": {
+        "label": "ユーザー",
+        "tip": "サインインするユーザーです。"
+      },
+      "credentials": {
+        "label": "認証キー",
+        "tip": "自動化用のアクセスキーです。"
+      },
+      "roles": {
+        "label": "ロール",
+        "tip": "ロールと、ロールが付与する権限です。"
+      },
+      "assignments": {
+        "label": "割り当て",
+        "tip": "誰がどのロールをどこで持っているかです。"
+      },
+      "sessions": {
+        "label": "セッション",
+        "tip": "アクティブなセッションとトークンです。"
+      },
+      "settings": {
+        "label": "設定",
+        "tip": "サーバーの構成です。"
+      },
+      "serverInfo": {
+        "label": "サーバー情報",
+        "tip": "エンドポイント、バージョン、あなたの ID 情報です。"
+      },
+      "plugins": {
+        "label": "プラグイン",
+        "tip": "コネクタプラグインです。"
+      }
+    }
+  },
+  "tour": {
+    "title": "ガイドツアー",
+    "skip": "ツアーをスキップ",
+    "done": "完了",
+    "steps": {
+      "sidebar": {
+        "title": "ナビゲーション",
+        "body": "すべては作業ごとにまとめられています: チャットの開始、エージェントの構築、システムの接続、プロンプトの構成、アクティビティの監視、API の試用、テナントの管理。"
+      },
+      "topbar": {
+        "title": "コンテキストとコントロール",
+        "body": "サーバー、テナント、あなたの ID とロール、ライブ状態、保留中の承認、テナントのロックダウン、言語、テーマ、ログアウトはここにあります。"
+      },
+      "kpis": {
+        "title": "コマンドセンター",
+        "body": "本日のリクエスト、ツール呼び出し、失敗、承認待ち、異常なリソース、使用トークンです。タイルをクリックすると詳細を表示します。"
+      },
+      "chat": {
+        "title": "Agent Smith とチャット",
+        "body": "スタックについて質問してください。すべてのツール呼び出しは影響とともにインラインで表示され、リスクのあるものはあなたの承認を待ちます。"
+      },
+      "connect": {
+        "title": "システムを接続",
+        "body": "リソース (SSH ホスト、バケット、データベース、ログサービス) をシークレットとともに追加し、保存前に各接続をテストします。"
+      },
+      "profiles": {
+        "title": "エージェントプロファイルを構成",
+        "body": "リソースごとにアクセスモードを指定して、リソースをプロファイルにバインドします。MCP、A2A、チャット、API はプロファイルと通信します。"
+      },
+      "approvals": {
+        "title": "リスクのある操作を承認",
+        "body": "人の判断が必要な書き込みおよび破壊的な呼び出しは、誰かが承認または却下するまで、こことチャットで待機します。"
+      },
+      "observe": {
+        "title": "発生したすべてを確認",
+        "body": "ツール呼び出し、リクエスト履歴、分析、監査で、すべてのサーフェスからのすべての操作を確認できます。"
+      }
+    }
+  },
+  "wizard": {
+    "title": "Hugo のセットアップ",
+    "stepOf": "手順 {{step}} / {{total}}",
+    "skip": "セットアップをスキップ",
+    "skipStep": "この手順をスキップ",
+    "start": "開始",
+    "saveModel": "エンドポイントを保存",
+    "saveResource": "リソースを保存",
+    "bind": "プロファイルにバインド",
+    "finish": "チャットを開く",
+    "modelSaved": "モデルエンドポイントを保存しました。",
+    "bound": "{{alias}} を {{profile}} にバインドしました。",
+    "nothingToBind": "前の手順でリソースが作成されなかったため、まだバインドするものはありません。後でプロファイルページからリソースをバインドできます。",
+    "apiKeyHint": "暗号化されたシークレットとして保存され、エンドポイントから参照されます。",
+    "welcomeItem1": "Agent Smith が思考できるようにモデルを接続します (Ollama、OpenAI、Anthropic など)。",
+    "welcomeItem2": "SSH ホストやデータベースなどの最初のリソースを、認証情報とともに追加します。",
+    "welcomeItem3": "既定の Hugo プロファイルにバインドし、MCP で Claude Code を接続します。",
+    "steps": {
+      "welcome": "ようこそ",
+      "inference": "推論モデル",
+      "embedding": "埋め込み",
+      "resource": "最初のリソース",
+      "bind": "バインド",
+      "connect": "接続"
+    },
+    "bodies": {
+      "welcome": "Hugo はシステムへのアクセス権と、それをどう使うかの判断を担います。このウィザードで、空のテナントから数分でチャットが使える状態にできます。",
+      "inference": "チャット、A2A、OpenAI 互換エンドポイントは Hugo 独自のエージェントループを実行するため、推論モデルが必要です。MCP クライアントは独自のモデルを使うため、MCP のみを使用する場合はスキップできます。",
+      "embedding": "任意です。埋め込みモデルがあると、プロファイルに多数のツールがある場合に Hugo が関連するツールを選べるようになり、後でナレッジメモにも使われます。",
+      "resource": "コネクタを選び、設定を入力し、必要なシークレットを選択または作成して、保存前に接続をテストします。",
+      "bind": "新しいリソースを既定の Hugo プロファイルに接続し、エージェントに許可する操作を選びます。",
+      "connect": "この設定で Hugo を Claude Code (または任意の MCP クライアント) に追加し、Agent Smith とのチャットを始めましょう。"
+    }
+  }
+}

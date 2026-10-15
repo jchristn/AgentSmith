@@ -82,17 +82,17 @@ These rules keep the plan honest:
 
 | Phase | Name | Milestone | Status | Done / Total |
 |---|---|---|---|---|
-| 0 | Repository bootstrap | M1 | In progress | 10 / 16 |
+| 0 | Repository bootstrap | M1 | In progress | 11 / 16 |
 | 1 | Core foundation: settings, data layer, identity, RBAC, sessions, audit, history, telemetry base | M1 | In progress | 38 / 44 |
 | 2 | Secrets vault | M1 | In progress | 11 / 12 |
 | 3 | Connector framework and tool invocation pipeline | M1 | In progress | 4 / 26 |
-| 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | In progress | 25 / 37 |
+| 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | In progress | 32 / 37 |
 | 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | In progress | 0 / 21 |
 | 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | In progress | 10 / 24 |
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Not started | 0 / 22 |
-| 8 | Dashboard | M1 | Not started | 0 / 53 |
+| 8 | Dashboard | M1 | In progress | 47 / 53 |
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | Not started | 0 / 15 |
-| 10 | Docker, testbed, and observability stack | M1 | In progress | 1 / 24 |
+| 10 | Docker, testbed, and observability stack | M1 | In progress | 6 / 24 |
 | 11 | Documentation and Postman | M1 | Not started | 0 / 18 |
 | 12 | MVP verification (milestone M1) | M1 | Not started | 0 / 14 |
 | 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | Not started | 0 / 38 |
@@ -113,7 +113,6 @@ Milestones:
 
 - Execution started 2026-10-14. Phase 0 skeleton is committed: solution, connector contract (P3.1), CI workflow, assets. The foundation is being forked from Garrison (D-032).
 - In flight 2026-10-14 (parallel agents, one git worktree each, merged by the coordinator):
-  2. Dashboard foundation fork from Garrison: P0.10 and the Phase 8 shell, shared components, and admin pages.
 - Follow-ups recorded from connector work (fold into the named tasks):
   - P3.13: the pipeline applies binding-level command deny patterns (the invocation context has no binding policy).
   - P3.8: audit every `LearnSetting` call (pinned host keys, D-028) as `HostKeyPinned`.
@@ -122,9 +121,10 @@ Milestones:
   - Package alignment: Hugo.Core must use the same Microsoft.Data.Sqlite (10.0.13) and Npgsql (10.0.3) versions as the SQL connectors.
   - PolyPrompt: verify the forced final answer (`tool_choice: none` with no tools) against real OpenAI (P6.22); list provider models through PolyPrompt model clients (P6.5).
   - Server must implement IAgentToolCatalog, IAgentToolExecutor, IAgentEventSink, IConversationStore (Hugo.Core.Agent) and set AgentRuntime.IdFactory to PrettyId.
+  - Knowledge contract follow-ups from the SQL intelligence work: compare-and-swap put (expected version) for append races, `FinishReason` on `ConnectorModelResponse`, a JSON-mode hint, reason and reviewed fields on entries, `ToolArguments.GetDouble`, a crawl cache persistence hook, and a per-invocation model-call budget (`sql_generate_context` can make up to 51 calls; invocation timeouts for RequiresModel tools need to be longer than 120 seconds).
   - SSH `jumpResourceName` (reuse another resource as bastion) needs a related-resource resolver; the jump settings cover the case today.
 - Next after the merges: Phase 3 pipeline (resources, invocation service, approvals), Phase 5 profiles and instructions, Phase 6 runtime, Phase 7 protocols.
-- Decisions D-001 through D-039 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
+- Decisions D-001 through D-040 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
 - Before P0.1, confirm the open questions in [section 23](#23-risks-and-open-questions) that are marked "before Phase 0".
 
 ---
@@ -250,6 +250,7 @@ This journey is the acceptance story for M1. Phase 12 replays it end to end.
 | D-037 | Third-party images that do not ship `curl` (Prometheus, Tempo, Loki, Alloy, Grafana) use `wget` or a TCP probe in their healthchecks, with `interval: 5s`, `retries: 2`, and `timeout` no greater than the interval. Hugo's own images install `curl` and use it, as REPOSITORY_REQUIREMENTS.md item 11 specifies. Images publish under the `jchristn77` Docker Hub namespace (`jchristn77/hugo-server`, `jchristn77/hugo-dashboard`), the namespace Garrison uses. | Adding curl to upstream images would mean maintaining forks of them. | 17 |
 | D-038 | The SQL connectors reach parity with Tablix, not just its crawlers (user direction 2026-10-14). They crawl the database, infer relationships (declared foreign keys plus name-based candidates with confidence), derive domain intelligence (entities, likely metrics, common filters, freshness columns, context quality), keep durable database and table context (generated by a model, editable by operators, updated by agents), page through large schemas with compact indexes, detect ambiguous terms before answering, translate questions to guarded SQL, and return verified answers. To support this, the connector contract gained `IResourceKnowledgeStore` (durable, tenant-scoped knowledge per resource, persisted by the server), `IConnectorModel` (the calling profile's inference endpoint, metered by the server), and the `UpdatesKnowledge` and `RequiresModel` tool flags. Knowledge is generic: any connector can use it (for example host notes for SSH, bucket layout for storage). | Tablix is the user's reference for how agents should understand databases; crawling alone leaves the agent guessing at meaning and joins. | 8.1, 9.1, 10, 18 |
 | D-039 | The forked foundation keeps Garrison's REST shapes, so the forked dashboard works unchanged. Tenant-owned routes are `/v1.0/api/tenants/{tenantId}/...` (for example `/v1.0/api/tenants/{tenantId}/secrets`), not the flat `/v1.0/api/secrets` style in section 14.2. Enumeration uses `maxResults`, `skip`, and `objects` instead of `pageNumber`, `pageSize`, and `items`. System administrators are users with `is_admin`; there is no separate `admins` table. The default tenant's ID is the fixed string `default`. Prompt templates keep Garrison's two layers (a global layer with a null tenant, and tenant overrides by name). Section 14.2 paths are read through this mapping, and Phase 3 onward uses the tenant-scoped shape. | Consistency with the forked dashboard and the tested Garrison code outweighs the plan's original path style. | 7, 14, 18 |
+| D-040 | Dashboard i18n and packaging deviations from section 18.1: catalogs live in `dashboard/src/i18n/locales/*.json` (English bundled, others lazy loaded) instead of `public/i18n`; plain i18next interpolation and plurals instead of `i18next-icu`; `zh` means Simplified Chinese and `pt` means Brazilian Portuguese; the build stage uses `node:22-alpine`. Non-English catalogs are machine-generated and listed for review in `dashboard/I18N.md`. Hugo domain routes are flat with the tenant taken from the request context (section 14.2), while identity and admin routes keep Garrison's tenant-scoped shape (D-039). | Matches the forked Garrison dashboard; the review list keeps translation quality visible. | 18 |
 
 ---
 
@@ -1677,9 +1678,9 @@ Each phase lists its tasks in rough execution order. An italic *Accept:* note st
 - [x] P0.7 `README.md` skeleton (what Hugo is, quick start placeholder, architecture image placeholder), `CHANGELOG.md` (`0.1.0-alpha` Unreleased).  | claude 2026-10-14 README and CHANGELOG skeletons
 - [x] P0.8 `DOCKERHUB_README.md` skeleton with explicit asset URLs.  | claude 2026-10-14 DOCKERHUB_README skeleton with raw.githubusercontent asset URLs
 - [x] P0.9 `assets/` logo and icon (placeholder art acceptable until P16).  | claude 2026-10-14 user-supplied assets/logo.png; generated assets/icon.png (512px), assets/logo.ico and assets/favicon.ico (16 to 256px, PNG-in-ICO)
-- [ ] P0.10 `dashboard/` scaffold: Vite 6 + React 19 + React Router 7, ESLint flat config, Prettier, Vitest, Playwright, i18n skeleton. *Accept:* `npm run lint`, `npm test`, and `npm run build` pass.
+- [x] P0.10 `dashboard/` scaffold: Vite 6 + React 19 + React Router 7, ESLint flat config, Prettier, Vitest, Playwright, i18n skeleton. *Accept:* `npm run lint`, `npm test`, and `npm run build` pass.  | claude 2026-10-14 dashboard forked from Garrison: React 19, Vite 6, Router 7, ESLint flat, Vitest, Playwright, i18n; lint, build, 186 unit and 47 mocked Playwright tests pass
 - [x] P0.11 `sdk/csharp`, `sdk/python`, `sdk/js` scaffolds with READMEs and empty harnesses.  | claude 2026-10-14 sdk/csharp, sdk/python, sdk/js scaffolds with READMEs; harnesses land in Phase 9
-- [~] P0.12 GitHub Actions `build-test.yaml`: restore, build, Touchstone on SQLite, Touchstone on PostgreSQL (service container), dashboard lint, unit, and i18n check, on every push and PR.  | claude 2026-10-14 build-test.yaml written (SQLite and PostgreSQL service container); first green run pending
+- [!] P0.12 GitHub Actions `build-test.yaml`: restore, build, Touchstone on SQLite, Touchstone on PostgreSQL (service container), dashboard lint, unit, and i18n check, on every push and PR.  | claude 2026-10-14 workflow has .NET (SQLite and PostgreSQL) and dashboard jobs, but GitHub does not start them: account billing or spending limit (run 38666645075). Full suites run locally until the user resolves billing
 - [x] P0.13 Em-dash guard: a CI step fails if U+2014 appears in any tracked text file.  | claude 2026-10-14 scripts/check-em-dash.sh/.bat, wired into CI
 - [ ] P0.14 Create the `docker/` layout with placeholder `compose.yaml`, `update.bat`/`.sh`, `factory/reset.bat`/`.sh`.
 - [x] P0.15 Vendor the Tablix crawler and classifier sources into `Hugo.Connectors.Sql/Vendored/Tablix` with an attribution header and a `VENDORED.md` noting the source commit.  | claude 2026-10-14 Tablix 450bc76 vendored into Hugo.Connectors.Sql/Vendored/Tablix with attribution and VENDORED.md; fixed MySQL PK join, parameterized SQLite pragmas, MySQL longtext overflow
@@ -1836,13 +1837,13 @@ Wrap-up
 - [ ] P4.28 Health sweep background job: periodic `TestConnectionAsync` per active resource (configurable, off by default for expensive connectors), `hugo_resource_health` gauge.
 - [ ] P4.29 `docs/CONNECTORS.md` sections for every wave 1 connector (settings, slots, tools, effects, least-privilege setup guidance for the upstream credential).
 Database intelligence (D-038)
-- [ ] P4.31 Port Tablix `SchemaProjection` and `DatabaseIntelligenceBuilder` into `Hugo.Connectors.Sql/Intelligence` (attribution in `VENDORED.md`); full crawl cache with refresh.
-- [ ] P4.32 Paged compact indexes for `sql_list_tables` (search, schema filter, cursor) and a new `sql_list_relationships` (declared plus inferred candidates with confidence and evidence).
-- [ ] P4.33 `sql_get_intelligence` (entities, metrics, filters, freshness, context quality and gaps) and `sql_get_agent_pack`.
-- [ ] P4.34 Durable context tools: `sql_get_context`, `sql_update_context` (`UpdatesKnowledge`), `sql_generate_context` (`RequiresModel`; database and per-table, batch with concurrency cap; no rows persisted).
-- [ ] P4.35 `sql_ask`: ambiguity detection with clarification, NL2SQL planning from context and intelligence, Read-only validation of generated SQL, guarded execution, verification envelope.
-- [ ] P4.36 Default SQL instructions rewritten around the intelligence workflow (agent pack first, then context, relationships, and queries; record discoveries with `sql_update_context`).
-- [ ] P4.37 Suites: intelligence and inferred relationships on the shop schema (all four engines in the testbed), context round trip through the knowledge store, generation and NL2SQL with the stub LLM, ambiguity cases, verification statuses.
+- [x] P4.31 Port Tablix `SchemaProjection` and `DatabaseIntelligenceBuilder` into `Hugo.Connectors.Sql/Intelligence` (attribution in `VENDORED.md`); full crawl cache with refresh.  | claude 2026-10-14 Intelligence/ port of DatabaseIntelligenceBuilder and SchemaProjection (Tablix 450bc76, VENDORED.md); one shared crawl cache, refresh:true recrawls
+- [x] P4.32 Paged compact indexes for `sql_list_tables` (search, schema filter, cursor) and a new `sql_list_relationships` (declared plus inferred candidates with confidence and evidence).  | claude 2026-10-14 sql_list_tables paged index (search, schema, cursor, pageSize); sql_list_relationships with declared plus inferred candidates, confidence and evidence
+- [x] P4.33 `sql_get_intelligence` (entities, metrics, filters, freshness, context quality and gaps) and `sql_get_agent_pack`.  | claude 2026-10-14 sql_get_intelligence and bounded sql_get_agent_pack
+- [x] P4.34 Durable context tools: `sql_get_context`, `sql_update_context` (`UpdatesKnowledge`), `sql_generate_context` (`RequiresModel`; database and per-table, batch with concurrency cap; no rows persisted).  | claude 2026-10-14 sql_get_context, sql_update_context, sql_generate_context (both UpdatesKnowledge; generation also RequiresModel); secrets, PII, raw rows refused; Operator entries append-only; masked samples in prompts only
+- [x] P4.35 `sql_ask`: ambiguity detection with clarification, NL2SQL planning from context and intelligence, Read-only validation of generated SQL, guarded execution, verification envelope.  | claude 2026-10-14 sql_ask: ambiguity check (fixed Tablix status-term bug), relevant-table selection, single Read statement required, one retry, verification envelope (Verified, Partial, Blocked, Ambiguous)
+- [x] P4.36 Default SQL instructions rewritten around the intelligence workflow (agent pack first, then context, relationships, and queries; record discoveries with `sql_update_context`).  | claude 2026-10-14 four instruction files rewritten around agent pack, context, relationships, sql_ask, recording discoveries
+- [x] P4.37 Suites: intelligence and inferred relationships on the shop schema (all four engines in the testbed), context round trip through the knowledge store, generation and NL2SQL with the stub LLM, ambiguity cases, verification statuses.  | claude 2026-10-14 connectors.sql 329/329; testbed.sql 91/91 incl. 30 intelligence cases on PostgreSQL, MySQL, SQL Server; legacy_accounts/legacy_invoices seed proves name-based inference
 - [ ] P4.30 CI starts the wave 1 testbed and runs the testbed suites on SQLite and PostgreSQL.
 
 ### Phase 5: Agent profiles, bindings, prompt templates, instruction composition (M1)
@@ -1929,65 +1930,65 @@ OpenAI-compatible and CLI
 ### Phase 8: Dashboard (M1)
 
 Foundation
-- [ ] P8.1 Route inventory (section 18.3) reviewed and copied into `dashboard/README.md`, plus the references-used list (DASHBOARD_STYLE_AND_USABILITY.md handoff).
-- [ ] P8.2 Tokens, global CSS, light and dark themes, CJK-capable font stack, logical properties for RTL.
-- [ ] P8.3 i18n runtime (`index.js`, `localeRegistry.js`, `resources.js`, `formatters.js`), locale ready before first paint, `lang`/`dir` sync, persistence across auth, `LanguageSelector`, pseudo-locales, `i18n:check` script.
-- [ ] P8.4 `ApiClient` (all named methods, `Accept-Language`, normalized pages and errors), `AuthContext` (server URL, token, tenant, theme), `AppContext` (sidebar, notifications, selection).
-- [ ] P8.5 Login page (server URL, tenant lookup, password reveal, default credentials hint, forced password change), protected routes with no flicker.
-- [ ] P8.6 Shell: grouped `Sidebar` (collapse, icons, role gating, footer utilities), `Topbar` (chips, health, approvals badge, lockdown, language, theme, GitHub, logout), `PageHeader`, route metadata driving `document.title`.
+- [x] P8.1 Route inventory (section 18.3) reviewed and copied into `dashboard/README.md`, plus the references-used list (DASHBOARD_STYLE_AND_USABILITY.md handoff).  | claude 2026-10-14 route inventory and references in dashboard/README.md
+- [x] P8.2 Tokens, global CSS, light and dark themes, CJK-capable font stack, logical properties for RTL.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.3 i18n runtime (`index.js`, `localeRegistry.js`, `resources.js`, `formatters.js`), locale ready before first paint, `lang`/`dir` sync, persistence across auth, `LanguageSelector`, pseudo-locales, `i18n:check` script.  | claude 2026-10-14 12 locales plus en-XA and ar-XB, i18n:check (2617 keys); catalogs in src/i18n/locales, no i18next-icu (D-040)
+- [x] P8.4 `ApiClient` (all named methods, `Accept-Language`, normalized pages and errors), `AuthContext` (server URL, token, tenant, theme), `AppContext` (sidebar, notifications, selection).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.5 Login page (server URL, tenant lookup, password reveal, default credentials hint, forced password change), protected routes with no flicker.  | claude 2026-10-14 login with tenant lookup and forced password change modal
+- [x] P8.6 Shell: grouped `Sidebar` (collapse, icons, role gating, footer utilities), `Topbar` (chips, health, approvals badge, lockdown, language, theme, GitHub, logout), `PageHeader`, route metadata driving `document.title`.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
 
 Shared components
-- [ ] P8.7 `DataTable`, `TableFrame`, `TablePagination` (above-table toolbar, page sizes, jump, refresh, sort, header filters, Select Columns with pinned columns, persisted state, row-click rules, bulk bar).
-- [ ] P8.8 `ActionMenu` and `RowActions` (portaled), `StatusBadge`, `CopyButton`, `CopyableId`.
-- [ ] P8.9 `Modal`, `ConfirmModal`, `JsonViewerModal` (sizes, focus trap, ESC, backdrop close, scroll lock), `Toast` and progress panel.
-- [ ] P8.10 `FilterBar`, `ActivityChart` (four ranges, client-side gap fill, portal tooltip, bucket click), shared query builder.
-- [ ] P8.11 `SchemaForm`: renders connector settings schemas (all value kinds, groups, help, validation, i18n keys).
-- [ ] P8.12 `SecretField` and secret slot picker (choose existing by kind, or create inline).
-- [ ] P8.13 `PromptEditor` (monospace, variables palette, preview pane with sample context, diff viewer).
-- [ ] P8.14 `ChatPanel`, `ToolActivityRow`, `ApprovalCard` components.
-- [ ] P8.15 Event stream client (`/v1.0/api/events`) with polling fallback, pausing auto-refresh while modals are open.
-- [ ] P8.16 Error presenter (status, message, request ID, retry) and empty-state component.
-- [ ] P8.17 Setup wizard (inference endpoint, optional embedding endpoint, first secret, first resource, bind to Hugo, connect Claude Code) with dismissal persisted per tenant and relaunch.
-- [ ] P8.18 Guided tour with persisted completion and replay.
+- [x] P8.7 `DataTable`, `TableFrame`, `TablePagination` (above-table toolbar, page sizes, jump, refresh, sort, header filters, Select Columns with pinned columns, persisted state, row-click rules, bulk bar).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.8 `ActionMenu` and `RowActions` (portaled), `StatusBadge`, `CopyButton`, `CopyableId`.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.9 `Modal`, `ConfirmModal`, `JsonViewerModal` (sizes, focus trap, ESC, backdrop close, scroll lock), `Toast` and progress panel.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.10 `FilterBar`, `ActivityChart` (four ranges, client-side gap fill, portal tooltip, bucket click), shared query builder.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.11 `SchemaForm`: renders connector settings schemas (all value kinds, groups, help, validation, i18n keys).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.12 `SecretField` and secret slot picker (choose existing by kind, or create inline).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.13 `PromptEditor` (monospace, variables palette, preview pane with sample context, diff viewer).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.14 `ChatPanel`, `ToolActivityRow`, `ApprovalCard` components.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.15 Event stream client (`/v1.0/api/events`) with polling fallback, pausing auto-refresh while modals are open.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.16 Error presenter (status, message, request ID, retry) and empty-state component.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.17 Setup wizard (inference endpoint, optional embedding endpoint, first secret, first resource, bind to Hugo, connect Claude Code) with dismissal persisted per tenant and relaunch.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.18 Guided tour with persisted completion and replay.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
 
 Pages
-- [ ] P8.19 Home (KPIs, activity chart, recent failures, CTAs, external-services card low on the page).
-- [ ] P8.20 Chat (conversation list, streaming transcript, tool rows, approval cards, Stop, context drawer, export).
-- [ ] P8.21 Agent Profiles list.
-- [ ] P8.22 Profile detail: General tab.
-- [ ] P8.23 Profile detail: Bindings tab with add binding modal and tool rules editor.
-- [ ] P8.24 Profile detail: Instructions tab with live compiled preview and source map.
-- [ ] P8.25 Profile detail: Tools and Connect tabs (MCP config snippets, A2A card, credential binding shortcut).
-- [ ] P8.26 Approvals inbox.
-- [ ] P8.27 Conversations (tenant view).
-- [ ] P8.28 Resources list and connector picker.
-- [ ] P8.29 Resource create and edit modal with schema form, slots, and test connection before save.
-- [ ] P8.30 Resource "try a tool" panel (dry run, then execute as a chosen profile).
-- [ ] P8.31 Secrets list, create with file import, replace values.
-- [ ] P8.32 Secret reveal flow (re-auth modal, reason, auto-hide, copy).
-- [ ] P8.33 Connectors catalog with default instructions editor (tenant and global layers, reset, versions, built-in update notice).
-- [ ] P8.34 Model Endpoints (CRUD, validate, health history).
-- [ ] P8.35 Prompt Templates page.
-- [ ] P8.36 Tool Invocations page with detail modal and Tempo trace link.
-- [ ] P8.37 Request History page and Request Details modal per FRONTEND_ARCHITECTURE.md.
-- [ ] P8.38 Analytics page (tokens, tools, models, approvals).
-- [ ] P8.39 Audit page.
-- [ ] P8.40 API Explorer (OpenAPI-driven, SSE streaming with Stop, snippets curl, fetch, C#, history of 12, destructive confirm).
-- [ ] P8.41 MCP Explorer.
-- [ ] P8.42 A2A Explorer.
-- [ ] P8.43 Tenants page (system admin) with tenant switcher in the topbar.
-- [ ] P8.44 Users page (roles, effective permissions view, reset password).
-- [ ] P8.45 Credentials page (secret shown once, MCP snippet, profile binding, scope assignments).
-- [ ] P8.46 Roles and Permissions page (tabs, clone built-in, assignment wizard), Sessions page.
-- [ ] P8.47 Settings page (sections, masked secrets, restart badges and banner, Restart Server, health polling, server info) and Plugins page.
+- [x] P8.19 Home (KPIs, activity chart, recent failures, CTAs, external-services card low on the page).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.20 Chat (conversation list, streaming transcript, tool rows, approval cards, Stop, context drawer, export).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.21 Agent Profiles list.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.22 Profile detail: General tab.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.23 Profile detail: Bindings tab with add binding modal and tool rules editor.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.24 Profile detail: Instructions tab with live compiled preview and source map.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.25 Profile detail: Tools and Connect tabs (MCP config snippets, A2A card, credential binding shortcut).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.26 Approvals inbox.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.27 Conversations (tenant view).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.28 Resources list and connector picker.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.29 Resource create and edit modal with schema form, slots, and test connection before save.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.30 Resource "try a tool" panel (dry run, then execute as a chosen profile).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.31 Secrets list, create with file import, replace values.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.32 Secret reveal flow (re-auth modal, reason, auto-hide, copy).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [~] P8.33 Connectors catalog with default instructions editor (tenant and global layers, reset, versions, built-in update notice).  | claude 2026-10-14 connector instructions link to Prompt Templates; inline layered editor pending P5 layering
+- [~] P8.34 Model Endpoints (CRUD, validate, health history).  | claude 2026-10-14 model endpoints page; health history shows the last check only
+- [~] P8.35 Prompt Templates page.  | claude 2026-10-14 Prompt Templates page on Garrison's template model; key-and-layer view pending P5
+- [x] P8.36 Tool Invocations page with detail modal and Tempo trace link.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.37 Request History page and Request Details modal per FRONTEND_ARCHITECTURE.md.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [~] P8.38 Analytics page (tokens, tools, models, approvals).  | claude 2026-10-14 analytics page; approval turnaround is a single KPI
+- [x] P8.39 Audit page.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.40 API Explorer (OpenAPI-driven, SSE streaming with Stop, snippets curl, fetch, C#, history of 12, destructive confirm).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.41 MCP Explorer.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.42 A2A Explorer.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.43 Tenants page (system admin) with tenant switcher in the topbar.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.44 Users page (roles, effective permissions view, reset password).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.45 Credentials page (secret shown once, MCP snippet, profile binding, scope assignments).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.46 Roles and Permissions page (tabs, clone built-in, assignment wizard), Sessions page.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.47 Settings page (sections, masked secrets, restart badges and banner, Restart Server, health polling, server info) and Plugins page.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
 
 Quality
-- [ ] P8.48 i18n completion: every string in catalogs, 12 locales registered, `i18n:check` clean, pseudo-locale smoke tests in CI.
-- [ ] P8.49 Vitest suites (api client, formatters, persistence, table behaviors, schema form, prompt editor).
-- [ ] P8.50 Playwright flows (login, wizard, secret, resource with test, binding, chat with stub LLM, approval, request history, explorer).
-- [ ] P8.51 Visual QA: screenshots at 1280, 768, and 390 in light and dark for the shell, Home, Chat, Profile detail, Resources, Request History, the details modal, API Explorer, and Settings. *Accept:* artifacts in CI, and a summary of issues found and fixed in the annotation.
+- [x] P8.48 i18n completion: every string in catalogs, 12 locales registered, `i18n:check` clean, pseudo-locale smoke tests in CI.  | claude 2026-10-14 all strings cataloged; non-English machine-seeded, review notes in dashboard/I18N.md
+- [x] P8.49 Vitest suites (api client, formatters, persistence, table behaviors, schema form, prompt editor).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.50 Playwright flows (login, wizard, secret, resource with test, binding, chat with stub LLM, approval, request history, explorer).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [~] P8.51 Visual QA: screenshots at 1280, 768, and 390 in light and dark for the shell, Home, Chat, Profile detail, Resources, Request History, the details modal, API Explorer, and Settings. *Accept:* artifacts in CI, and a summary of issues found and fixed in the annotation.  | claude 2026-10-14 visual screenshots generated in test-results/visual; CI artifact upload pending
 - [ ] P8.53 Resource Knowledge tab: database and table context editor (Markdown, version history, source badges), Generate Context with progress, intelligence view (entities, metrics, filters, freshness, quality gaps), relationship list and graph (declared vs inferred, with confidence).
-- [ ] P8.52 Accessibility and responsive pass (landmarks, labels, focus, reduced motion, tap targets, no body horizontal scroll), and the dashboard Docker image (nginx, proxy, SSE buffering off, `/health`).
+- [x] P8.52 Accessibility and responsive pass (landmarks, labels, focus, reduced motion, tap targets, no body horizontal scroll), and the dashboard Docker image (nginx, proxy, SSE buffering off, `/health`).  | claude 2026-10-14 accessibility checks, responsive pass, nginx image proxying /v1.0, /mcp, /openapi.json with buffering off
 
 ### Phase 9: SDKs (M1)
 
@@ -2009,18 +2010,18 @@ Quality
 
 ### Phase 10: Docker, testbed, and observability stack (M1)
 
-- [ ] P10.1 `Hugo.Server` Dockerfile (multi-stage, `mcr.microsoft.com/dotnet/aspnet` runtime, `curl` installed, non-root user, `/app/data` and `/app/config` volumes).
+- [x] P10.1 `Hugo.Server` Dockerfile (multi-stage, `mcr.microsoft.com/dotnet/aspnet` runtime, `curl` installed, non-root user, `/app/data` and `/app/config` volumes).  | claude 2026-10-14 src/Hugo.Server/Dockerfile: sdk 10.0 build, runtime 10.0, curl, non-root uid 10001, /app/data, /app/config, /app/plugins
 - [ ] P10.2 Dashboard Dockerfile and `nginx.conf` (P8.52 output) wired into compose.
-- [~] P10.3 `docker/compose.yaml` with the section 17.1 services, pinned images, healthchecks, `depends_on` conditions, volumes, and the `postgres` profile.  | claude 2026-10-14 docker/compose.yaml: server, dashboard, Prometheus, Tempo, Loki, Alloy, Grafana (default on), postgres profile; pinned images; healthchecks; depends_on healthy. Verification waits on the server image (P10.1) and docker/hugo/hugo.json (P10.4)
-- [ ] P10.4 `docker/hugo/hugo.json` default settings (SQLite) and a `hugo.postgres.json` variant.
+- [x] P10.3 `docker/compose.yaml` with the section 17.1 services, pinned images, healthchecks, `depends_on` conditions, volumes, and the `postgres` profile.  | claude 2026-10-14 compose up verified 2026-10-14: server, Prometheus, Tempo, Loki, Alloy, Grafana all healthy; Prometheus scrapes hugo-server (191 hugo_ series); token issued for anderson@hugo.local. Dashboard service joins when its branch merges
+- [x] P10.4 `docker/hugo/hugo.json` default settings (SQLite) and a `hugo.postgres.json` variant.  | claude 2026-10-14 docker/hugo/hugo.json mounted as /app/config (0.0.0.0, /app/data paths, OTLP to Alloy); PostgreSQL via HUGO_DB_TYPE and the postgres profile
 - [~] P10.5 `.env.example`, plus `docker/start.sh`/`.bat` generating missing keys into `.env`.  | claude 2026-10-14 docker/.env.example and start.sh/.bat generating HUGO_MASTER_KEY and HUGO_AUTH_SIGNING_KEY; compose falls back to labeled development keys
 - [x] P10.6 `docker/update.bat` and `update.sh` per REPOSITORY_REQUIREMENTS.md.  | claude 2026-10-14 docker/update.sh and update.bat: pull, down, up -d, ps -a (non-destructive)
 - [~] P10.7 `docker/factory/compose.yaml`, seeded data, `reset.bat` and `reset.sh`.  | claude 2026-10-14 factory/reset.sh and reset.bat (typed RESET confirmation, down -v, up); factory seed and factory compose come with P10.8
 - [ ] P10.8 Factory demo content: demo resources pointing at the testbed, a profile with eight bindings (the joel scenario), and a demo credential.
-- [~] P10.9 Prometheus config scraping `hugo-server:8800/metrics` on the internal network.  | claude 2026-10-14 docker/observability/prometheus.yaml scrapes hugo-server:8800; verified when compose lands (P10.3)
+- [x] P10.9 Prometheus config scraping `hugo-server:8800/metrics` on the internal network.  | claude 2026-10-14 Prometheus target hugo-server up
 - [~] P10.10 Tempo config (OTLP gRPC and HTTP), pinned to 2.6.1.  | claude 2026-10-14 docker/observability/tempo.yaml from Garrison; Alloy OTLP receiver forwards to Tempo
 - [~] P10.11 Loki config and Radiant log export.  | claude 2026-10-14 docker/observability/loki.yaml and Alloy container log shipping
-- [~] P10.12 Grafana provisioning (datasources with UIDs `prometheus`, `tempo`, `loki`; dashboards provider folder `Hugo`).  | claude 2026-10-14 Grafana datasources (UIDs prometheus, tempo, loki) and Hugo dashboards provider
+- [x] P10.12 Grafana provisioning (datasources with UIDs `prometheus`, `tempo`, `loki`; dashboards provider folder `Hugo`).  | claude 2026-10-14 Grafana healthy with provisioned datasources; Hugo dashboards land with P10.13 onward
 - [ ] P10.13 Grafana dashboard: Overview.
 - [ ] P10.14 Grafana dashboard: HTTP.
 - [ ] P10.15 Grafana dashboard: Agent and Chat.

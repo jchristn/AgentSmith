@@ -8,6 +8,7 @@ namespace Hugo.Connectors.Sql.Tools
     using System.Threading;
     using System.Threading.Tasks;
     using Hugo.Connectors.Abstractions;
+    using Hugo.Connectors.Sql.Intelligence;
     using Hugo.Connectors.Sql.Vendored.Tablix;
 
     /// <summary>
@@ -36,31 +37,7 @@ namespace Hugo.Connectors.Sql.Tools
         {
             ArgumentNullException.ThrowIfNull(context);
             ArgumentNullException.ThrowIfNull(arguments);
-            bool refresh = arguments.GetBool("refresh", false);
-            SqlResourceOptions options = SqlResourceOptions.FromResource(context.Resource);
-            TimeSpan ttl = TimeSpan.FromMinutes(options.SchemaCacheMinutes);
-
-            string? requested = arguments.GetString("schema");
-            if (!String.IsNullOrWhiteSpace(requested) && !refresh)
-            {
-                SchemaCacheEntry? hit = Cache.Get(CacheKey(context, requested.Trim()));
-                if (hit != null) return Build(context, hit.Detail, true);
-            }
-
-            return await RunAsync(context, true, async (session, timeoutSeconds, ct) =>
-            {
-                string schema = ResolveSchema(session, arguments);
-                string key = CacheKey(context, schema);
-                if (!refresh)
-                {
-                    SchemaCacheEntry? hit = Cache.Get(key);
-                    if (hit != null) return Build(context, hit.Detail, true);
-                }
-                SchemaDetail detail = await Dialect.Crawler.CrawlAsync(session.Connection, session.Transaction, schema, ct).ConfigureAwait(false);
-                if (String.IsNullOrEmpty(detail.DatabaseName)) detail.DatabaseName = session.Options.Database ?? session.Options.Filename;
-                Cache.Set(key, detail, ttl);
-                return Build(context, detail, false);
-            }, token).ConfigureAwait(false);
+            return await WithCrawlAsync(context, arguments, (snapshot, ct) => Task.FromResult(Build(context, snapshot.Detail, snapshot.Cached)), token).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -71,8 +48,7 @@ namespace Hugo.Connectors.Sql.Tools
         /// <returns>Key.</returns>
         public static string CacheKey(ConnectorInvocationContext context, string schema)
         {
-            ArgumentNullException.ThrowIfNull(context);
-            return context.Resource.SessionKey("schema:" + schema);
+            return CrawlKey(context, schema);
         }
 
         #endregion
@@ -110,7 +86,7 @@ namespace Hugo.Connectors.Sql.Tools
                 Name = "sql_describe_schema",
                 Title = "Describe schema",
                 Description = "Crawl a whole schema: every table and view with columns, keys, foreign keys, indexes, and row estimates, in one compact listing. "
-                    + "Results are cached for a few minutes; pass refresh=true after DDL changes. Prefer sql_describe_table when you only need one table.",
+                    + "Results are cached for a few minutes and shared with the other discovery tools; pass refresh=true after DDL changes. On large schemas prefer sql_get_agent_pack, the paged sql_list_tables and sql_list_relationships, and sql_describe_table for single tables.",
                 InputSchemaJson = "{\"type\":\"object\",\"properties\":{"
                     + "\"schema\":{\"type\":\"string\",\"description\":\"Schema (MySQL: database). Optional.\"},"
                     + "\"refresh\":{\"type\":\"boolean\",\"description\":\"Bypass the cache. Default false.\"}"

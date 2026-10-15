@@ -1,0 +1,3507 @@
+{
+  "common": {
+    "fieldCodes": {
+      "ExpiryInPast": "Elige un momento en el futuro.",
+      "SettingsFileReadOnly": "El archivo de ajustes es de solo lectura, así que este cambio no se puede guardar.",
+      "OverriddenByEnvironment": "Una variable de entorno fija este valor, así que no se puede cambiar aquí.",
+      "PathRequired": "Hace falta la ruta del ajuste.",
+      "UnknownSetting": "Este servidor no tiene este ajuste.",
+      "TooLong": "Este valor es demasiado largo.",
+      "NotAllowedValue": "Elige uno de los valores permitidos.",
+      "NotABoolean": "Elige verdadero o falso.",
+      "NotAnInteger": "Escribe un número entero.",
+      "OutOfRange": "El valor está fuera del rango permitido."
+    },
+    "appName": "Hugo",
+    "language": {
+      "label": "Idioma"
+    },
+    "theme": {
+      "switchToLight": "Cambiar al tema claro",
+      "switchToDark": "Cambiar al tema oscuro"
+    },
+    "actions": {
+      "apply": "Aplicar",
+      "back": "Atrás",
+      "cancel": "Cancelar",
+      "clear": "Borrar",
+      "clone": "Clonar",
+      "close": "Cerrar",
+      "confirm": "Confirmar",
+      "copied": "Copiado",
+      "copy": "Copiar",
+      "delete": "Eliminar",
+      "duplicate": "Duplicar",
+      "edit": "Editar",
+      "hide": "Ocultar valor",
+      "logout": "Cerrar sesión",
+      "next": "Siguiente",
+      "openGithub": "Abrir el repositorio de Hugo (AgentSmith) en GitHub",
+      "remove": "Quitar",
+      "retry": "Reintentar",
+      "reveal": "Mostrar valor",
+      "save": "Guardar",
+      "view": "Ver",
+      "viewDetails": "Ver detalles",
+      "viewJson": "Ver JSON",
+      "dismiss": "Descartar"
+    },
+    "boolean": {
+      "yes": "Sí",
+      "no": "No"
+    },
+    "confirm": {
+      "deleteNamed": "¿Eliminar \"{{name}}\"? Esta acción no se puede deshacer.",
+      "bulkDelete": "¿Eliminar {{count}} registros seleccionados? Esta acción no se puede deshacer."
+    },
+    "errors": {
+      "listItem": "Elemento {{index}}: {{message}}",
+      "chooseOne": "Elige al menos una opción.",
+      "fixFields": "Algunos campos requieren atención. Revisa los valores resaltados.",
+      "invalidEmail": "Introduce una dirección de correo electrónico válida.",
+      "invalidJson": "No es un JSON válido.",
+      "loadFailed": "No se pudieron cargar los datos.",
+      "requestId": "Solicitud {{id}}.",
+      "required": "Este campo es obligatorio.",
+      "requiredPermission": "Requiere {{permission}} sobre {{resource}}.",
+      "title": "La solicitud falló",
+      "status": "HTTP {{status}}",
+      "requestIdLabel": "ID de solicitud",
+      "traceIdLabel": "ID de traza"
+    },
+    "generic": {
+      "deletedName": "{{name}} (eliminado)",
+      "actions": "Acciones",
+      "active": "Activo",
+      "all": "Todos",
+      "any": "Cualquiera",
+      "builtIn": "Integrado",
+      "custom": "Personalizado",
+      "inactive": "Inactivo",
+      "loading": "Cargando...",
+      "never": "Nunca",
+      "none": "Ninguno",
+      "notAvailable": "n/d",
+      "saving": "Guardando...",
+      "default": "Predeterminado",
+      "disabled": "Deshabilitado",
+      "enabled": "Habilitado",
+      "lockdown": "Bloqueo",
+      "locked": "Bloqueado",
+      "required": "Obligatorio"
+    },
+    "relativeTime": {
+      "now": "ahora mismo"
+    },
+    "states": {
+      "forbiddenTitle": "No tienes acceso a esta página",
+      "forbiddenBody": "Pide a un administrador un rol que conceda acceso, o elige otra página.",
+      "notExposedTitle": "Este servidor aún no ofrece {{feature}}",
+      "notExposedBody": "El panel está preparado para {{feature}}, pero este servidor Hugo no expone la ruta que necesita. Funcionará aquí en cuanto el servidor la proporcione; no hace falta cambiar nada en esta página.",
+      "notExposedEndpoint": "Ruta a la que llamó el panel:"
+    },
+    "toasts": {
+      "bulkDeleted": "Se eliminaron {{count}} registros ({{failed}} con error).",
+      "cloned": "Clonado.",
+      "created": "Creado.",
+      "deleted": "Eliminado.",
+      "saved": "Guardado."
+    },
+    "units": {
+      "msShort": "ms",
+      "sShort": "s",
+      "mShort": "min"
+    },
+    "tagline": "Agent Smith a su servicio",
+    "serverText": {
+      "valueClamped": "El valor {{given}} de {{field}} está fuera del rango permitido de {{minimum}} a {{maximum}}; se guardó {{stored}}.",
+      "approvalWaitingExpires": "Esperando a que una persona apruebe {{subject}}; la aprobación {{id}} caduca el {{expires}}.",
+      "approvalWaiting": "Esperando a que una persona apruebe {{subject}}; aprobación {{id}}.",
+      "inUse": "{{what}} todavía se usa en {{users}}. Elimine primero esas referencias."
+    }
+  },
+  "errorCodes": {
+    "ApprovalNotPending": "Esta aprobación ya se decidió o ha caducado, por lo que no se puede volver a decidir.",
+    "TenantNotFound": "Ese inquilino no existe. Revisa el ID del inquilino.",
+    "NetworkError": "No se pudo contactar con el servidor. Comprueba la URL del servidor y que esté en ejecución.",
+    "AuthenticationRequired": "Tu sesión ha caducado. Vuelve a iniciar sesión.",
+    "InvalidCredentials": "El inquilino, el correo electrónico, la contraseña o las claves son incorrectos.",
+    "RateLimited": "Demasiados intentos de inicio de sesión. Espera un minuto e inténtalo de nuevo.",
+    "AuthorizationDenied": "No tienes permiso para esta acción.",
+    "NotFound": "No se encontró el registro.",
+    "RouteNotFound": "Este servidor todavía no admite ese endpoint.",
+    "ValidationFailed": "Algunos valores no son válidos.",
+    "InvalidBody": "El cuerpo de la solicitud no es válido.",
+    "InvalidJson": "El cuerpo de la solicitud no es un JSON válido.",
+    "Conflict": "Entra en conflicto con un registro existente.",
+    "BuiltInImmutable": "Los registros integrados no se pueden modificar. Clónalo para personalizarlo.",
+    "Protected": "Este registro está protegido y no se puede eliminar.",
+    "InternalError": "El servidor sufrió un error interno. Revisa los registros del servidor con el ID de la solicitud.",
+    "Http400": "La solicitud se rechazó por no ser válida.",
+    "Http403": "No tienes permiso para esta acción.",
+    "Http404": "No encontrado.",
+    "Http409": "Conflicto con el estado actual.",
+    "Http500": "El servidor sufrió un error interno.",
+    "Http503": "El servidor no está disponible.",
+    "ConversationBusy": "Esta conversación todavía está procesando su turno anterior. Espere a que termine, o deténgala, e inténtelo de nuevo.",
+    "ApprovalExpired": "Esta aprobación caducó antes de que nadie la decidiera.",
+    "ReauthenticationRequired": "Vuelva a introducir su contraseña antes de mostrar secretos.",
+    "SecretInUse": "Este secreto todavía lo usan recursos o endpoints de modelo. Elimine primero esas referencias.",
+    "ResourceInUse": "Este recurso todavía está vinculado a perfiles. Elimine primero los vínculos.",
+    "LockdownActive": "El inquilino está bloqueado, por lo que solo se permiten llamadas de lectura.",
+    "ConnectorNotFound": "Este servidor no tiene ningún conector de ese tipo. Es posible que un plugin no se haya cargado.",
+    "ProfileNotExposed": "Este perfil no está expuesto en esa superficie.",
+    "NoInferenceEndpoint": "Este perfil no tiene modelo de inferencia, por lo que Hugo no puede ejecutar su propio bucle de agente para él."
+  },
+  "enums": {
+    "principalType": {
+      "Administrator": "Administrador del sistema",
+      "User": "Usuario",
+      "Credential": "Credencial"
+    },
+    "credentialAuthMode": {
+      "DirectHeader": "Cabeceras directas",
+      "SignedRequest": "Solicitudes firmadas",
+      "SessionExchange": "Intercambio por token de sesión",
+      "Hybrid": "Cualquier método"
+    },
+    "operationType": {
+      "All": "Todo",
+      "Create": "Crear",
+      "Read": "Leer",
+      "Write": "Escritura (crear, actualizar, eliminar)",
+      "Update": "Actualizar",
+      "Delete": "Eliminar",
+      "Execute": "Ejecutar",
+      "Admin": "Administrar",
+      "Reveal": "Mostrar"
+    },
+    "promptTemplateKind": {
+      "System": "Sistema",
+      "Task": "Tarea",
+      "Fragment": "Fragmento",
+      "ToolDescription": "Descripción de herramienta",
+      "ConfigFile": "Archivo de configuración",
+      "Other": "Otro"
+    },
+    "permissionType": {
+      "Permit": "Permitir",
+      "Deny": "Denegar"
+    },
+    "resourceScope": {
+      "Tenant": "Inquilino",
+      "Resource": "Recurso"
+    },
+    "resourceType": {
+      "All": "Todo",
+      "Tenant": "Inquilino",
+      "Admin": "Administración",
+      "User": "Usuario",
+      "Credential": "Credencial",
+      "Session": "Sesión",
+      "Role": "Rol",
+      "Permission": "Permiso",
+      "Assignment": "Asignación",
+      "Audit": "Auditoría",
+      "Settings": "Ajustes",
+      "Secret": "Secreto",
+      "Resource": "Recurso",
+      "Connector": "Conector",
+      "AgentProfile": "Perfil de agente",
+      "Binding": "Vínculo",
+      "PromptTemplate": "Plantilla de prompt",
+      "ModelEndpoint": "Endpoint de modelo",
+      "Conversation": "Conversación",
+      "ToolInvocation": "Invocación de herramienta",
+      "Approval": "Aprobación",
+      "RequestHistory": "Historial de solicitudes",
+      "Knowledge": "Conocimiento",
+      "Plugin": "Plugin",
+      "Analytics": "Analítica"
+    },
+    "auditEventType": {
+      "AuthSuccess": "Inicio de sesión correcto",
+      "AuthFailure": "Inicio de sesión fallido",
+      "SessionIssued": "Sesión emitida",
+      "SessionRevoked": "Sesión revocada",
+      "CredentialCreated": "Clave de acceso creada",
+      "CredentialRotated": "Clave de acceso rotada",
+      "CredentialUsed": "Clave de acceso usada",
+      "AuthorizationDenied": "Acceso denegado",
+      "AuthorizationBypass": "Comprobación de acceso omitida",
+      "RoleChanged": "Rol modificado",
+      "AssignmentChanged": "Asignación modificada",
+      "SecretCreated": "Secreto creado",
+      "SecretUpdated": "Secreto actualizado",
+      "SecretRevealed": "Secreto mostrado",
+      "SecretDeleted": "Secreto eliminado",
+      "MasterKeyRotated": "Clave maestra rotada",
+      "ResourceChanged": "Recurso modificado",
+      "ProfileChanged": "Perfil modificado",
+      "BindingChanged": "Vínculo modificado",
+      "PromptTemplateChanged": "Plantilla de prompt modificada",
+      "ApprovalDecided": "Aprobación decidida",
+      "LockdownChanged": "Bloqueo modificado",
+      "SettingsChanged": "Ajustes del servidor modificados",
+      "ServerRestarted": "Servidor reiniciado",
+      "PluginLoaded": "Plugin cargado",
+      "HostKeyPinned": "Clave de host SSH fijada",
+      "HostKeyMismatch": "Discrepancia en la clave de host SSH"
+    },
+    "secretKind": {
+      "Password": "Contraseña",
+      "PrivateKey": "Clave privada",
+      "ApiToken": "Token de API",
+      "AccessKeyPair": "Par de claves de acceso",
+      "ServiceAccountJson": "JSON de cuenta de servicio",
+      "Kubeconfig": "Kubeconfig",
+      "ConnectionString": "Cadena de conexión",
+      "Certificate": "Certificado",
+      "Generic": "Secreto genérico"
+    },
+    "effect": {
+      "Read": "Lectura",
+      "Write": "Escritura",
+      "Destructive": "Destructivo"
+    },
+    "accessMode": {
+      "ReadOnly": "Solo lectura",
+      "ReadWriteWithApproval": "Lectura y escritura con aprobación",
+      "ReadWrite": "Lectura y escritura"
+    },
+    "connectorCategory": {
+      "Compute": "Cómputo",
+      "Storage": "Almacenamiento",
+      "Database": "Bases de datos",
+      "Logging": "Registros",
+      "Cache": "Cachés",
+      "Cloud": "Nube",
+      "Orchestration": "Orquestación",
+      "Observability": "Observabilidad",
+      "Http": "APIs HTTP",
+      "Agent": "Agentes",
+      "Other": "Otros"
+    },
+    "settingValueKind": {
+      "String": "Texto",
+      "Text": "Texto largo",
+      "Integer": "Número entero",
+      "Boolean": "Verdadero o falso",
+      "StringList": "Lista",
+      "Enum": "Uno de un conjunto"
+    },
+    "approvalStatus": {
+      "Pending": "Pendiente",
+      "Approved": "Aprobada",
+      "Rejected": "Rechazada",
+      "Expired": "Caducada",
+      "Cancelled": "Cancelada"
+    },
+    "toolDecision": {
+      "Allowed": "Permitida",
+      "Denied": "Denegada",
+      "ApprovalRequired": "Requiere aprobación",
+      "Approved": "Aprobada",
+      "Rejected": "Rechazada",
+      "Expired": "Caducada"
+    },
+    "toolStatus": {
+      "Succeeded": "Correcta",
+      "Failed": "Fallida",
+      "TimedOut": "Tiempo agotado",
+      "Cancelled": "Cancelada"
+    },
+    "surface": {
+      "Chat": "Chat",
+      "Mcp": "MCP",
+      "A2A": "A2A",
+      "OpenAI": "Compatible con OpenAI",
+      "Rest": "REST"
+    },
+    "conversationSource": {
+      "Dashboard": "Panel",
+      "A2A": "A2A",
+      "OpenAI": "Compatible con OpenAI",
+      "Mcp": "MCP"
+    },
+    "visibility": {
+      "Private": "Privado",
+      "Tenant": "Inquilino"
+    },
+    "instructionMode": {
+      "Inherit": "Heredar",
+      "Append": "Añadir",
+      "Replace": "Reemplazar"
+    },
+    "toolRule": {
+      "Allow": "Permitir",
+      "Deny": "Denegar",
+      "RequireApproval": "Requerir aprobación"
+    },
+    "modelKind": {
+      "Inference": "Inferencia",
+      "Embedding": "Embedding"
+    },
+    "modelProvider": {
+      "Ollama": "Ollama",
+      "OpenAI": "OpenAI",
+      "OpenAICompatible": "Compatible con OpenAI",
+      "Anthropic": "Anthropic",
+      "Gemini": "Gemini",
+      "AzureOpenAI": "Azure OpenAI",
+      "Bedrock": "Amazon Bedrock",
+      "VertexAI": "Vertex AI",
+      "VoyageAI": "Voyage AI"
+    },
+    "healthStatus": {
+      "Healthy": "Correcto",
+      "Degraded": "Degradado",
+      "Unhealthy": "Con fallos",
+      "Unknown": "Sin comprobar"
+    },
+    "promptLayer": {
+      "BuiltIn": "Integrada",
+      "Global": "Predeterminada global",
+      "Tenant": "Inquilino"
+    },
+    "authScheme": {
+      "Password": "Inicio de sesión con contraseña",
+      "AccessKey": "Clave de acceso",
+      "SessionToken": "Token de sesión",
+      "SignedRequest": "Solicitud firmada",
+      "ApiKey": "Clave de API de administrador"
+    }
+  },
+  "login": {
+    "title": "Iniciar sesión en Hugo",
+    "subtitle": "Agent Smith le estaba esperando, Mr. Anderson.",
+    "tabs": {
+      "password": "Correo electrónico y contraseña",
+      "accessKey": "Clave de acceso"
+    },
+    "serverUrl": "URL del servidor",
+    "tenantId": "ID del inquilino",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "accessKey": "Clave de acceso",
+    "secretKey": "Clave secreta",
+    "submit": "Iniciar sesión",
+    "connecting": "Iniciando sesión...",
+    "restoring": "Restaurando tu sesión...",
+    "errorGeneric": "No se pudo iniciar sesión. Comprueba la URL del servidor y tus credenciales.",
+    "footerHint": "Hugo almacena cifradas las credenciales de sus sistemas y permite que los agentes las usen de forma segura.",
+    "tenant": "Inquilino",
+    "tenantFound": "Iniciando sesión en el inquilino {{name}}.",
+    "unreachable": "No se pudo conectar con el servidor Hugo en {{url}}. Compruebe la URL del servidor y que este esté en ejecución.",
+    "badCredentials": "El correo electrónico, la contraseña o el inquilino no son correctos.",
+    "defaultsHint": "Cuenta local predeterminada: {{email}} con la contraseña \"{{password}}\". Se le pedirá que la cambie.",
+    "useDefaults": "Usar valores locales predeterminados"
+  },
+  "topbar": {
+    "tenant": "Inquilino",
+    "switchTenant": "Cambiar de inquilino",
+    "copyServer": "Copiar la URL del servidor",
+    "live": "En vivo",
+    "polling": "Sondeo",
+    "health": {
+      "healthy": "Correcto",
+      "unhealthy": "Inaccesible",
+      "unknown": "Comprobando"
+    },
+    "lockdown": {
+      "on": "Bloqueo activo",
+      "off": "Bloqueo",
+      "banner": "El bloqueo del inquilino está activo: se deniega toda llamada que no sea de lectura y se cancelaron las aprobaciones pendientes.",
+      "engageTitle": "¿Bloquear este inquilino?",
+      "engageBody": "Toda llamada a herramienta que escriba o elimine, desde cualquier superficie, se denegará hasta que se levante el bloqueo. Las aprobaciones pendientes se cancelan. Las lecturas siguen funcionando.",
+      "engage": "Bloquear",
+      "engaged": "El bloqueo del inquilino está activo.",
+      "liftTitle": "¿Levantar el bloqueo?",
+      "liftBody": "Las llamadas a herramientas de escritura y destructivas volverán a permitirse, sujetas al modo de acceso y las aprobaciones de cada vínculo.",
+      "lift": "Levantar bloqueo",
+      "lifted": "Bloqueo del inquilino levantado."
+    }
+  },
+  "roles": {
+    "systemAdmin": "Administrador del sistema",
+    "tenantAdmin": "Administrador del inquilino",
+    "user": "Usuario",
+    "credential": "Clave de acceso"
+  },
+  "components": {
+    "fieldWarnings": {
+      "title_one": "Guardado con {{count}} valor ajustado",
+      "title_other": "Guardado con {{count}} valores ajustados",
+      "body": "El servidor aceptó la solicitud, pero guardó estos valores de forma distinta a como se enviaron.",
+      "dismiss": "Descartar",
+      "codes": {
+        "ValueClamped": "Valor ajustado al rango permitido"
+      }
+    },
+    "autoRefresh": {
+      "label": "Actualización automática",
+      "none": "Desactivada",
+      "seconds_one": "Cada {{count}} segundo",
+      "seconds_other": "Cada {{count}} segundos"
+    },
+    "chart": {
+      "success": "Correctas",
+      "failure": "Fallidas",
+      "total": "Total",
+      "avgDuration": "Duración media",
+      "noData": "No hay actividad en este intervalo.",
+      "range": "Intervalo de tiempo",
+      "ranges": {
+        "hour": "Última hora",
+        "day": "Último día",
+        "week": "Última semana",
+        "month": "Último mes",
+        "custom": "Personalizado"
+      }
+    },
+    "confirm": {
+      "title": "Confirma la acción",
+      "message": "¿Seguro que quieres continuar?"
+    },
+    "diff": {
+      "before": "Antes",
+      "after": "Después"
+    },
+    "explainer": {
+      "about": "Acerca de {{topic}}",
+      "dismiss": "Ocultar esta explicación"
+    },
+    "export": {
+      "label": "Exportar",
+      "csv": "CSV (datos)",
+      "png": "Imagen PNG",
+      "svg": "Imagen SVG",
+      "json": "JSON (datos)",
+      "failed": "Error al exportar. {{message}}",
+      "tableTitle": "tabla {{table}}"
+    },
+    "filters": {
+      "allTenants": "Todos los inquilinos",
+      "clear": "Borrar filtros",
+      "from": "Desde",
+      "to": "Hasta",
+      "method": "Método",
+      "path": "La ruta contiene",
+      "pathPlaceholder": "por ejemplo /v1.0/api/tenants",
+      "searchName": "Buscar por nombre",
+      "status": "Código de estado",
+      "statusPlaceholder": "por ejemplo 404",
+      "tenant": "Inquilino"
+    },
+    "form": {
+      "addItem": "Añadir elemento",
+      "addRow": "Añadir fila",
+      "key": "Clave",
+      "value": "Valor",
+      "moveUp": "Subir",
+      "moveDown": "Bajar",
+      "noItems": "Aún no hay elementos.",
+      "onePerLine": "Un valor por línea",
+      "steps": "Pasos del formulario"
+    },
+    "permissions": {
+      "title": "Permisos efectivos",
+      "none": "Sin concesiones. Esta entidad solo puede usar reglas de omisión, si las hay.",
+      "source": "Rol",
+      "type": "Tipo",
+      "resources": "Tipos de recurso",
+      "operations": "Operaciones",
+      "scope": "Ámbito"
+    },
+    "requestDetails": {
+      "title": "Detalles de la solicitud",
+      "metadata": "Metadatos",
+      "requestHeaders": "Encabezados de la solicitud",
+      "requestBody": "Cuerpo de la solicitud",
+      "responseHeaders": "Encabezados de la respuesta",
+      "responseBody": "Cuerpo de la respuesta",
+      "rawJson": "JSON sin procesar",
+      "truncated": "Truncado ({{bytes}} bytes en el original)",
+      "empty": "Sin contenido.",
+      "fields": {
+        "id": "ID de la solicitud",
+        "method": "Método",
+        "path": "Ruta",
+        "url": "URL",
+        "status": "Estado",
+        "duration": "Duración",
+        "createdUtc": "Creada",
+        "completedUtc": "Completada",
+        "sourceIp": "IP de origen",
+        "principal": "Entidad",
+        "tenant": "Inquilino",
+        "user": "Usuario"
+      }
+    },
+    "secretOnce": {
+      "title": "Copia este secreto ahora",
+      "warning": "Es la única vez que se muestra el secreto. Guárdalo en un lugar seguro antes de cerrar.",
+      "accessKey": "Clave de acceso",
+      "secretKey": "Clave secreta",
+      "done": "Ya lo he guardado",
+      "snippet": "Configuración MCP para Claude Code",
+      "snippetHint": "Pegue esto en la configuración de su cliente MCP y asigne a HUGO_SECRET_KEY la clave secreta mostrada arriba."
+    },
+    "table": {
+      "bulkActions": "Acciones masivas",
+      "bulkDelete": "Eliminar seleccionados",
+      "clearSelection": "Borrar selección",
+      "empty": "No hay registros que mostrar.",
+      "first": "Primera página",
+      "jump": "Ir a la página",
+      "last": "Última página",
+      "loading": "Cargando registros...",
+      "next": "Página siguiente",
+      "noMatches": "Ningún registro coincide con los filtros actuales.",
+      "pageOf": "Página {{page}} de {{total}}",
+      "pageSize": "Por página",
+      "pinned": "Siempre visible",
+      "prev": "Página anterior",
+      "records_one": "registro",
+      "records_other": "registros",
+      "refresh": "Actualizar",
+      "selectAll": "Seleccionar todas las filas de esta página",
+      "selectColumns": "Seleccionar columnas",
+      "selected_one": "{{count}} seleccionado",
+      "selected_other": "{{count}} seleccionados",
+      "selectRow": "Seleccionar fila",
+      "showing": "Mostrando del {{from}} al {{to}}"
+    },
+    "approvalCard": {
+      "title": "Aprobación requerida",
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "note": "Nota de la decisión",
+      "notePlaceholder": "Nota opcional para el registro de auditoría",
+      "resource": "Recurso",
+      "tool": "Herramienta",
+      "reason": "Por qué necesita aprobación: {{reason}}",
+      "expires": "Caduca {{time}} si nadie decide.",
+      "decided": "Decisión: {{status}}.",
+      "by": "Decidido por {{name}}.",
+      "withNote": "Nota: {{note}}"
+    },
+    "chat": {
+      "you": "Usted",
+      "assistant": "Agent Smith",
+      "thinking": "Razonamiento",
+      "waiting": "Agent Smith está pensando...",
+      "stopped": "Se detuvo antes de completar la respuesta.",
+      "streamError": "Falló el flujo de la respuesta.",
+      "ttft": "Primer token {{value}}",
+      "duration": "Turno {{value}}",
+      "tokens": "Tokens: {{input}} de entrada, {{output}} de salida",
+      "transcript": "Transcripción de la conversación",
+      "empty": "Todavía no hay mensajes. Haga una pregunta para empezar.",
+      "message": "Mensaje",
+      "placeholder": "Pregunte a Agent Smith. Intro envía, Mayús+Intro añade una línea.",
+      "send": "Enviar",
+      "stop": "Detener"
+    },
+    "passwordChange": {
+      "title": "Elija una contraseña nueva",
+      "body": "Esta cuenta todavía tiene su contraseña inicial o restablecida. Elija una nueva de al menos {{min}} caracteres para continuar.",
+      "current": "Contraseña actual",
+      "new": "Contraseña nueva",
+      "confirm": "Confirmar contraseña nueva",
+      "submit": "Cambiar contraseña",
+      "changed": "Contraseña cambiada.",
+      "tooShort": "Use al menos {{min}} caracteres.",
+      "sameAsCurrent": "Elija una contraseña distinta de la actual.",
+      "mismatch": "Las dos contraseñas nuevas no coinciden."
+    },
+    "progress": {
+      "count": "{{done}} de {{total}}",
+      "deleting_one": "Eliminando {{count}} registro",
+      "deleting_other": "Eliminando {{count}} registros"
+    },
+    "promptEditor": {
+      "content": "Texto de la plantilla",
+      "palette": "Insertar una variable",
+      "used": "Variables en este texto",
+      "variables": "Variables",
+      "noVariables": "Este texto no usa variables.",
+      "preview": "Vista previa",
+      "diff": "Cambios",
+      "sampleContext": "Contexto de ejemplo (JSON)",
+      "rendered": "Renderizado",
+      "serverRender": "renderizado por el servidor",
+      "localRender": "renderizado en el navegador",
+      "previewEmpty": "La plantilla se renderiza como texto vacío.",
+      "missing": "No está en el contexto de ejemplo: {{list}}",
+      "current": "Texto actual",
+      "syntaxHint": "Use {{variable}}, {{variable | default: \"text\"}}, {{#if variable}}...{{/if}} y {{#each list}}...{{/each}}."
+    },
+    "result": {
+      "succeeded": "Correcto.",
+      "failed": "Error.",
+      "latency": "Tardó {{value}}."
+    },
+    "schemaForm": {
+      "noSettings": "Este conector no tiene ajustes.",
+      "range": "Rango permitido: de {{minimum}} a {{maximum}}.",
+      "groups": {
+        "General": "General",
+        "Connection": "Conexión",
+        "Authentication": "Autenticación",
+        "Limits": "Límites",
+        "Advanced": "Avanzado"
+      },
+      "errors": {
+        "Required": "Este ajuste es obligatorio.",
+        "NotAnInteger": "Introduzca un número entero.",
+        "OutOfRange": "Introduzca un valor entre {{minimum}} y {{maximum}}.",
+        "NotAllowedValue": "Elija uno de: {{values}}.",
+        "PatternMismatch": "El valor no tiene el formato esperado.",
+        "TooLong": "Use como máximo {{maximum}} caracteres."
+      }
+    },
+    "secretField": {
+      "accepts": "Admite: {{kinds}}.",
+      "anyKind": "cualquier tipo de secreto",
+      "noneSelected": "Ningún secreto seleccionado",
+      "createInline": "Crear un secreto nuevo",
+      "saveInline": "Guardar secreto",
+      "import": "Importar desde archivo",
+      "importNamed": "Importar {{field}} desde un archivo",
+      "replaceHint": "Déjelo vacío para conservar el valor almacenado.",
+      "fields": {
+        "username": "Nombre de usuario",
+        "password": "Contraseña",
+        "privateKey": "Clave privada",
+        "passphrase": "Frase de contraseña",
+        "token": "Token",
+        "accessKeyId": "ID de clave de acceso",
+        "secretAccessKey": "Clave de acceso secreta",
+        "sessionToken": "Token de sesión",
+        "json": "JSON de cuenta de servicio",
+        "kubeconfig": "Kubeconfig",
+        "connectionString": "Cadena de conexión",
+        "certificate": "Certificado (PEM)",
+        "value": "Valor"
+      },
+      "file": {
+        "pem": "El archivo contiene un bloque PEM de tipo {{type}}.",
+        "serviceAccount": "Cuenta de servicio del proyecto {{project}} ({{email}}).",
+        "kubeconfig": "Contextos de kubeconfig: {{contexts}}.",
+        "kubeconfigNone": "No se encontraron contextos en este kubeconfig.",
+        "invalidJson": "Este archivo no es JSON válido."
+      }
+    },
+    "toolActivity": {
+      "arguments": "Argumentos (secretos ocultos)",
+      "output": "Vista previa de la salida",
+      "error": "Error",
+      "noArguments": "Sin argumentos.",
+      "noOutput": "Todavía no hay salida.",
+      "truncated": "La salida se truncó al límite del vínculo.",
+      "effectReason": "Clasificado así porque: {{reason}}",
+      "status": {
+        "proposed": "Propuesta",
+        "running": "En ejecución",
+        "awaitingApproval": "Pendiente de aprobación"
+      }
+    }
+  },
+  "resources": {
+    "tenants": {
+      "title": "Inquilinos",
+      "subtitle": "Inquilinos aislados en este servidor. Todo, salvo los roles integrados y los valores predeterminados globales, pertenece a exactamente un inquilino.",
+      "add": "Añadir inquilino",
+      "create": "Crear inquilino",
+      "edit": "Editar inquilino",
+      "view": "Detalles del inquilino",
+      "deleteTitle": "Eliminar inquilino",
+      "emptyTitle": "Aún no hay inquilinos",
+      "emptyBody": "Crea un inquilino para aislar un equipo o un cliente.",
+      "columns": {
+        "name": "Nombre",
+        "id": "ID",
+        "description": "Descripción",
+        "active": "Activo",
+        "createdUtc": "Creado",
+        "region": "Región",
+        "lockdown": "Bloqueo"
+      },
+      "fields": {
+        "name": "Nombre",
+        "description": "Descripción",
+        "active": "Activo",
+        "region": "Región"
+      }
+    },
+    "users": {
+      "title": "Usuarios",
+      "subtitle": "Personas que inician sesión en este inquilino con un correo electrónico y una contraseña.",
+      "add": "Añadir usuario",
+      "create": "Crear usuario",
+      "edit": "Editar usuario",
+      "view": "Detalles del usuario",
+      "deleteTitle": "Eliminar usuario",
+      "emptyTitle": "Aún no hay usuarios",
+      "emptyBody": "Añade un usuario para que una persona pueda iniciar sesión en este inquilino.",
+      "columns": {
+        "email": "Correo electrónico",
+        "name": "Nombre",
+        "id": "ID",
+        "role": "Rol",
+        "active": "Activo",
+        "createdUtc": "Creado"
+      },
+      "fields": {
+        "email": "Correo electrónico",
+        "password": "Contraseña",
+        "firstName": "Nombre",
+        "lastName": "Apellidos",
+        "isTenantAdmin": "Administrador del inquilino",
+        "isAdmin": "Administrador del sistema",
+        "active": "Activo",
+        "mustChangePassword": "Debe cambiar la contraseña en el próximo inicio de sesión"
+      },
+      "hints": {
+        "isAdmin": "Los administradores del sistema pueden gestionar todos los inquilinos y omitir toda autorización.",
+        "password": "Déjalo en blanco al editar para conservar la contraseña actual."
+      },
+      "actions": {
+        "permissions": "Permisos efectivos",
+        "resetPassword": "Restablecer contraseña",
+        "assignRole": "Asignar un rol"
+      },
+      "passwordReset": "Contraseña restablecida. El usuario debe cambiarla en el próximo inicio de sesión."
+    },
+    "credentials": {
+      "title": "Claves de acceso",
+      "subtitle": "Claves de acceso que usan la automatización, los SDK y las integraciones. Los secretos se muestran una sola vez.",
+      "add": "Añadir clave de acceso",
+      "create": "Crear clave de acceso",
+      "edit": "Editar clave de acceso",
+      "view": "Detalles de la clave de acceso",
+      "deleteTitle": "Eliminar clave de acceso",
+      "emptyTitle": "Aún no hay claves de acceso",
+      "emptyBody": "Cree una clave de acceso para que un script o servicio pueda llamar a Hugo.",
+      "columns": {
+        "name": "Nombre",
+        "accessKey": "Clave de acceso",
+        "secretKeyLast4": "Secreto",
+        "userId": "Propietario",
+        "lastUsedUtc": "Último uso",
+        "expiresUtc": "Caduca",
+        "active": "Activa",
+        "id": "ID",
+        "agentProfileId": "Perfil",
+        "lockToProfile": "Bloqueada"
+      },
+      "fields": {
+        "name": "Nombre",
+        "userId": "Propietario",
+        "authMode": "Modo de autenticación",
+        "expiresUtc": "Caduca",
+        "active": "Activa",
+        "agentProfileId": "Perfil vinculado",
+        "lockToProfile": "Restringir a este perfil"
+      },
+      "hints": {
+        "userId": "Una clave de acceso nunca puede superar los permisos de su propietario."
+      },
+      "actions": {
+        "rotate": "Rotar secreto",
+        "scopes": "Asignaciones de ámbito"
+      }
+    },
+    "roles": {
+      "title": "Roles",
+      "subtitle": "Los roles agrupan permisos. Los roles integrados son de solo lectura; clona uno para personalizarlo.",
+      "add": "Añadir rol",
+      "create": "Crear rol",
+      "edit": "Editar rol",
+      "view": "Detalles del rol",
+      "deleteTitle": "Eliminar rol",
+      "emptyTitle": "Aún no hay roles",
+      "emptyBody": "Crea un rol personalizado o clona un rol integrado.",
+      "columns": {
+        "name": "Nombre",
+        "description": "Descripción",
+        "isBuiltIn": "Tipo",
+        "active": "Activo",
+        "id": "ID",
+        "createdUtc": "Creado"
+      },
+      "fields": {
+        "name": "Nombre",
+        "description": "Descripción",
+        "active": "Activo"
+      }
+    },
+    "permissions": {
+      "title": "Permisos",
+      "subtitle": "Permite o deniega operaciones sobre tipos de recurso. Denegar siempre prevalece.",
+      "add": "Añadir permiso",
+      "create": "Crear permiso",
+      "edit": "Editar permiso",
+      "view": "Detalles del permiso",
+      "deleteTitle": "Eliminar permiso",
+      "emptyTitle": "Aún no hay permisos",
+      "emptyBody": "Crea un permiso y asócialo a un rol.",
+      "columns": {
+        "name": "Nombre",
+        "permissionType": "Tipo",
+        "resourceTypes": "Tipos de recurso",
+        "operationTypes": "Operaciones",
+        "isBuiltIn": "Origen",
+        "id": "ID"
+      },
+      "fields": {
+        "name": "Nombre",
+        "permissionType": "Tipo",
+        "resourceTypes": "Tipos de recurso",
+        "operationTypes": "Operaciones",
+        "active": "Activo"
+      }
+    },
+    "userAssignments": {
+      "title": "Asignaciones de usuario",
+      "subtitle": "Concede roles a usuarios en el ámbito del inquilino o de un recurso.",
+      "add": "Añadir asignación de usuario",
+      "create": "Crear asignación de usuario",
+      "edit": "Editar asignación de usuario",
+      "view": "Detalles de la asignación de usuario",
+      "deleteTitle": "Eliminar asignación de usuario",
+      "emptyTitle": "Aún no hay asignaciones de usuario",
+      "emptyBody": "Asigna un rol a un usuario.",
+      "columns": {
+        "userId": "Usuario",
+        "roleName": "Rol",
+        "resourceScope": "Ámbito",
+        "resourceId": "Recurso",
+        "active": "Activa",
+        "createdUtc": "Creada",
+        "id": "ID"
+      },
+      "fields": {
+        "userId": "Usuario",
+        "roleId": "Rol",
+        "resourceScope": "Ámbito",
+        "resourceId": "ID del recurso",
+        "inheritsToChildren": "Se aplica a los recursos del inquilino",
+        "active": "Activa"
+      }
+    },
+    "credentialAssignments": {
+      "title": "Asignaciones de clave de acceso",
+      "subtitle": "Concede roles a claves de acceso. Dales menos permisos que a sus propietarios.",
+      "add": "Añadir asignación de clave de acceso",
+      "create": "Crear asignación de clave de acceso",
+      "edit": "Editar asignación de clave de acceso",
+      "view": "Detalles de la asignación de clave de acceso",
+      "deleteTitle": "Eliminar asignación de clave de acceso",
+      "emptyTitle": "Aún no hay asignaciones de clave de acceso",
+      "emptyBody": "Asigna un rol a una clave de acceso.",
+      "columns": {
+        "credentialId": "Clave de acceso",
+        "roleName": "Rol",
+        "resourceScope": "Ámbito",
+        "resourceId": "Recurso",
+        "active": "Activa",
+        "createdUtc": "Creada",
+        "id": "ID"
+      },
+      "fields": {
+        "credentialId": "Clave de acceso",
+        "roleId": "Rol",
+        "resourceScope": "Ámbito",
+        "resourceId": "ID del recurso",
+        "inheritsToChildren": "Se aplica a los recursos del inquilino",
+        "active": "Activa"
+      }
+    },
+    "promptTemplates": {
+      "deleteUnbound": "¿Eliminar \"{{name}}\" y todas sus versiones? Los perfiles que la incluyen volverán a la predeterminada integrada. Esta acción no se puede deshacer.",
+      "title": "Plantillas de prompt",
+      "subtitle": "Todos los prompts y archivos de configuración que renderiza Hugo. Cada guardado crea una versión.",
+      "add": "Nueva plantilla",
+      "create": "Crear plantilla",
+      "edit": "Editar plantilla",
+      "view": "Detalles de la plantilla",
+      "deleteTitle": "Eliminar plantilla",
+      "emptyTitle": "Aún no hay plantillas de prompt",
+      "emptyBody": "Crea una plantilla o clona una integrada.",
+      "columns": {
+        "name": "Nombre",
+        "kind": "Tipo",
+        "currentVersion": "Versión",
+        "description": "Descripción",
+        "isBuiltIn": "Origen",
+        "id": "ID",
+        "lastUpdateUtc": "Actualizada"
+      },
+      "fields": {
+        "name": "Nombre",
+        "kind": "Tipo",
+        "description": "Descripción"
+      }
+    },
+    "audit": {
+      "title": "Auditoría",
+      "subtitle": "Eventos de autenticación, autorización y configuración de este inquilino.",
+      "add": "Añadir registro de auditoría",
+      "create": "Crear registro de auditoría",
+      "edit": "Editar registro de auditoría",
+      "view": "Detalles del registro de auditoría",
+      "deleteTitle": "Eliminar registro de auditoría",
+      "emptyTitle": "Aún no hay registros de auditoría",
+      "emptyBody": "Los eventos de seguridad aparecen aquí a medida que personas y agentes usan Hugo.",
+      "columns": {
+        "createdUtc": "Hora",
+        "eventType": "Evento",
+        "principalName": "Entidad",
+        "resource": "Recurso",
+        "reason": "Motivo",
+        "sourceIp": "IP de origen",
+        "id": "ID"
+      },
+      "fields": {
+        "eventType": "Evento",
+        "principalType": "Tipo de entidad",
+        "principalName": "Entidad",
+        "principalId": "ID de la entidad",
+        "resourceType": "Tipo de recurso",
+        "resourceId": "ID del recurso",
+        "operation": "Operación",
+        "method": "Método",
+        "path": "Ruta",
+        "authResult": "Resultado de la autenticación",
+        "authorizationResult": "Resultado de la autorización",
+        "reason": "Motivo",
+        "bypassReason": "Motivo de la omisión",
+        "statusCode": "Código de estado",
+        "sourceIp": "IP de origen",
+        "requestId": "ID de la solicitud",
+        "createdUtc": "Hora"
+      }
+    },
+    "approvals": {
+      "approved": "Aprobada. La llamada se ejecuta ahora.",
+      "rejected": "Rechazada. Se informa al llamante de que la acción fue denegada.",
+      "notPending": "Esta aprobación ya se decidió o ha caducado.",
+      "bulkNote": "Rechazada en bloque desde la bandeja de aprobaciones.",
+      "bulkRejected_one": "Se rechazó {{count}} aprobación ({{failed}} con error).",
+      "bulkRejected_other": "Se rechazaron {{count}} aprobaciones ({{failed}} con error).",
+      "title": "Aprobaciones",
+      "subtitle": "Llamadas a herramientas de escritura y destructivas que esperan a una persona. Apruébelas para ejecutarlas o recháchelas para denegarlas.",
+      "add": "Añadir aprobación",
+      "create": "Crear aprobación",
+      "edit": "Editar aprobación",
+      "view": "Detalles de la aprobación",
+      "deleteTitle": "Eliminar aprobación",
+      "emptyTitle": "Aún no hay aprobaciones",
+      "emptyBody": "No hay nada pendiente. Las llamadas que necesitan aprobación aparecen aquí y en el chat en cuanto un agente las propone.",
+      "purpose": "La bandeja de aprobaciones contiene las llamadas a herramientas que necesitan a una persona: las llamadas destructivas y toda escritura en vínculos que requieren aprobación.",
+      "columns": {
+        "summary": "Acción",
+        "effect": "Efecto",
+        "status": "Estado",
+        "agentProfileId": "Perfil",
+        "requestedBy": "Solicitada por",
+        "createdUtc": "Solicitada",
+        "expiresUtc": "Caduca",
+        "decidedBy": "Decidida por",
+        "id": "ID"
+      },
+      "fields": {
+        "summary": "Acción",
+        "effect": "Efecto",
+        "status": "Estado",
+        "decisionNote": "Nota de la decisión",
+        "agentProfileId": "Perfil",
+        "fromUtc": "Desde"
+      },
+      "actions": {
+        "decide": "Aprobar o rechazar",
+        "invocation": "Ver invocación de herramienta",
+        "bulkReject": "Rechazar seleccionadas"
+      }
+    },
+    "resources": {
+      "deleteReferenced_one": "{{name}} está vinculado a {{count}} perfil o endpoint. Elimine primero esos vínculos; el servidor rechaza la eliminación mientras esté referenciado.",
+      "deleteReferenced_other": "{{name}} está vinculado a {{count}} perfiles o endpoints. Elimine primero esos vínculos; el servidor rechaza la eliminación mientras esté referenciado.",
+      "noReferrers": "Todavía no se usa en ningún sitio.",
+      "referrerTypes": {
+        "profiles": "Perfil",
+        "bindings": "Vínculo",
+        "resources": "Recurso",
+        "modelEndpoints": "Endpoint de modelo"
+      },
+      "title": "Recursos",
+      "subtitle": "Conexiones a sus sistemas con sus ajustes y secretos. Vincúlelas a perfiles para que los agentes puedan usarlas.",
+      "add": "Añadir recurso",
+      "create": "Crear recurso",
+      "edit": "Editar recurso",
+      "view": "Detalles del recurso",
+      "deleteTitle": "Eliminar recurso",
+      "emptyTitle": "Todavía no hay recursos",
+      "emptyBody": "Añada un host SSH, un bucket, una base de datos o un servicio de registros. Cada formulario se genera a partir del esquema del conector y se puede probar antes de guardar.",
+      "purpose": "Los recursos son conexiones configuradas a sistemas reales: un host SSH, un bucket S3, una base de datos PostgreSQL, una cuenta de Papertrail. Sus secretos permanecen cifrados en Hugo.",
+      "sections": {
+        "general": "General",
+        "connector": "Conector"
+      },
+      "columns": {
+        "name": "Nombre",
+        "connectorType": "Conector",
+        "environment": "Entorno",
+        "endpoint": "Endpoint",
+        "health": "Estado",
+        "lastTestUtc": "Última prueba",
+        "visibility": "Visibilidad",
+        "id": "ID",
+        "createdUtc": "Creado"
+      },
+      "fields": {
+        "name": "Nombre",
+        "displayName": "Nombre visible",
+        "environment": "Entorno",
+        "visibility": "Visibilidad",
+        "defaultAccessModeCeiling": "Modo de acceso máximo permitido",
+        "endpoint": "Resumen del endpoint",
+        "description": "Descripción",
+        "notes": "Notas para el agente",
+        "connectorType": "Conector"
+      },
+      "hints": {
+        "notes": "Se insertan en las instrucciones de cada perfil que vincula este recurso.",
+        "endpoint": "Se muestra en listas e instrucciones, por ejemplo web-01.example.com:22."
+      },
+      "actions": {
+        "test": "Probar conexión",
+        "testTitle": "Prueba de conexión: {{name}}",
+        "tryTool": "Probar una herramienta",
+        "referrers": "Dónde se usa",
+        "referrersTitle": "Dónde se usa {{name}}"
+      }
+    },
+    "secrets": {
+      "deleteReferenced_one": "{{name}} lo usa {{count}} recurso o endpoint de modelo. El servidor rechaza eliminarlo mientras esté referenciado.",
+      "deleteReferenced_other": "{{name}} lo usan {{count}} recursos o endpoints de modelo. El servidor rechaza eliminarlo mientras esté referenciado.",
+      "expired": "Caducado",
+      "expiringSoon": "Caduca pronto",
+      "errors": {
+        "expiryPast": "Elija un momento en el futuro.",
+        "noValues": "Rellene al menos un valor para reemplazar."
+      },
+      "title": "Secretos",
+      "subtitle": "Contraseñas, claves, tokens y certificados, cifrados con la clave maestra. Los valores nunca se muestran, salvo mediante una revelación auditada.",
+      "add": "Añadir secreto",
+      "create": "Crear secreto",
+      "edit": "Editar secreto",
+      "view": "Detalles del secreto",
+      "deleteTitle": "Eliminar secreto",
+      "emptyTitle": "Aún no hay secretos",
+      "emptyBody": "Añada las credenciales que necesitan sus recursos. También puede crearlas directamente al añadir un recurso.",
+      "purpose": "El almacén de secretos guarda el material de credenciales cifrado (AES-256-GCM). Los recursos y endpoints de modelo hacen referencia a los secretos por ranura; los agentes nunca ven los valores.",
+      "sections": {
+        "values": "Valores"
+      },
+      "columns": {
+        "name": "Nombre",
+        "kind": "Tipo",
+        "fingerprint": "Huella digital",
+        "referrerCount": "Usado por",
+        "lastRotatedUtc": "Última rotación",
+        "expiresUtc": "Caduca",
+        "lastRevealedUtc": "Última revelación",
+        "id": "ID",
+        "createdUtc": "Creado"
+      },
+      "fields": {
+        "name": "Nombre",
+        "kind": "Tipo",
+        "description": "Descripción",
+        "expiresUtc": "Caduca"
+      },
+      "actions": {
+        "replaceValues": "Reemplazar valores",
+        "reveal": "Mostrar",
+        "referrers": "Dónde se usa",
+        "referrersTitle": "Dónde se usa {{name}}"
+      }
+    },
+    "toolInvocations": {
+      "openTrace": "Abrir traza en Grafana",
+      "truncated": "Truncada",
+      "title": "Invocaciones de herramientas",
+      "subtitle": "Cada llamada a herramienta desde cualquier superficie: qué se ejecutó, en qué recurso, cómo se clasificó, qué se decidió y cómo terminó.",
+      "add": "Añadir invocación de herramienta",
+      "create": "Crear invocación de herramienta",
+      "edit": "Editar invocación de herramienta",
+      "view": "Detalles de la invocación de herramienta",
+      "deleteTitle": "Eliminar invocación de herramienta",
+      "emptyTitle": "Todavía no hay invocaciones de herramientas",
+      "emptyBody": "Las llamadas a herramientas aparecen aquí en cuanto un agente usa un recurso, desde el chat, MCP, A2A, el endpoint de OpenAI o la API REST.",
+      "purpose": "Las invocaciones de herramientas son el registro auditado de cada llamada a herramienta, desde cualquier superficie, a través del canal de invocación único de Hugo.",
+      "columns": {
+        "createdUtc": "Cuándo",
+        "toolName": "Herramienta",
+        "resourceId": "Recurso",
+        "effect": "Efecto",
+        "decision": "Decisión",
+        "status": "Estado",
+        "durationMs": "Duración",
+        "surface": "Superficie",
+        "agentProfileId": "Perfil",
+        "principalId": "Entidad",
+        "id": "ID"
+      },
+      "fields": {
+        "surface": "Superficie",
+        "effect": "Efecto",
+        "decision": "Decisión",
+        "status": "Estado",
+        "agentProfileId": "Perfil",
+        "resourceId": "Recurso",
+        "toolName": "Nombre de la herramienta",
+        "principalId": "ID de la entidad",
+        "fromUtc": "Desde",
+        "toUtc": "Hasta",
+        "accessMode": "Modo de acceso",
+        "outputBytes": "Tamaño de la salida",
+        "approvalId": "Aprobación",
+        "traceId": "Traza",
+        "argumentsRedacted": "Argumentos (secretos ocultos)",
+        "outputPreview": "Vista previa de la salida"
+      }
+    },
+    "models": {
+      "lastHealth": "Última comprobación de estado {{time}}: {{message}}",
+      "title": "Endpoints de modelo",
+      "subtitle": "Modelos de inferencia y embedding para el bucle de agente propio de Hugo. El chat, A2A y los clientes compatibles con OpenAI necesitan un modelo de inferencia.",
+      "add": "Añadir endpoint de modelo",
+      "create": "Crear endpoint de modelo",
+      "edit": "Editar endpoint de modelo",
+      "view": "Detalles del endpoint de modelo",
+      "deleteTitle": "Eliminar endpoint de modelo",
+      "emptyTitle": "Todavía no hay endpoints de modelo",
+      "emptyBody": "El chat necesita un modelo de inferencia. Añada un modelo local de Ollama o un proveedor alojado como OpenAI o Anthropic.",
+      "purpose": "Los endpoints de modelo son los proveedores de inferencia y embedding a los que llama el bucle de agente de Hugo: Ollama, OpenAI, Anthropic, Gemini, Azure OpenAI, Bedrock, Vertex y VoyageAI.",
+      "sections": {
+        "endpoint": "Endpoint",
+        "capabilities": "Capacidades",
+        "limits": "Límites"
+      },
+      "columns": {
+        "name": "Nombre",
+        "kind": "Tipo",
+        "provider": "Proveedor",
+        "model": "Modelo",
+        "baseUrl": "URL base",
+        "healthStatus": "Estado",
+        "lastHealthUtc": "Última comprobación",
+        "id": "ID"
+      },
+      "fields": {
+        "name": "Nombre",
+        "kind": "Tipo",
+        "provider": "Proveedor",
+        "baseUrl": "URL base",
+        "model": "Modelo",
+        "apiKey": "Clave de API",
+        "apiKeySecretId": "Secreto de la clave de API",
+        "region": "Región",
+        "deploymentName": "Nombre de la implementación",
+        "apiVersion": "Versión de la API",
+        "contextWindowTokens": "Ventana de contexto (tokens)",
+        "maxOutputTokens": "Máximo de tokens de salida",
+        "embeddingDimensions": "Dimensiones del embedding",
+        "supportsTools": "Admite llamadas a herramientas",
+        "supportsStreaming": "Admite streaming",
+        "maxConcurrency": "Máximo de solicitudes simultáneas",
+        "timeoutSeconds": "Tiempo de espera (segundos)",
+        "maxRetries": "Máximo de reintentos"
+      },
+      "errors": {
+        "baseUrl": "Introduzca una URL que empiece por http:// o https://."
+      },
+      "actions": {
+        "validate": "Validar",
+        "validateTitle": "Validación: {{name}}",
+        "listModels": "Listar modelos del proveedor",
+        "listModelsTitle": "Modelos que ofrece {{name}}"
+      }
+    },
+    "knowledge": {
+      "allProfiles": "Todos los perfiles",
+      "title": "Conocimiento",
+      "subtitle": "Notas sobre su infraestructura que Hugo incorpora al contexto, para un perfil o recurso concreto o para todos los perfiles.",
+      "add": "Añadir nota",
+      "create": "Crear nota",
+      "edit": "Editar nota",
+      "view": "Detalles de la nota",
+      "deleteTitle": "Eliminar nota",
+      "emptyTitle": "Todavía no hay conocimiento",
+      "emptyBody": "Anote lo que un operador le contaría a un compañero nuevo: qué hosts sirven el proceso de pago, cuándo no reiniciar los pagos.",
+      "purpose": "Las notas de conocimiento son datos sobre su infraestructura escritos por operadores, que se convierten en embeddings y se incorporan al contexto durante las conversaciones (hito M2).",
+      "columns": {
+        "title": "Título",
+        "agentProfileId": "Perfil",
+        "resourceId": "Recurso",
+        "lastUpdateUtc": "Actualizada",
+        "id": "ID"
+      },
+      "fields": {
+        "title": "Título",
+        "agentProfileId": "Perfil",
+        "resourceId": "Recurso",
+        "content": "Nota"
+      }
+    },
+    "profiles": {
+      "noModel": "Sin modelo",
+      "title": "Perfiles de agente",
+      "subtitle": "Cada perfil es un agente: una persona, unos modelos y los recursos que puede usar, accesible mediante MCP, A2A, REST, OpenAI y el chat.",
+      "add": "Añadir perfil",
+      "create": "Crear perfil",
+      "edit": "Editar perfil",
+      "view": "Detalles del perfil",
+      "deleteTitle": "Eliminar perfil",
+      "emptyTitle": "Todavía no hay perfiles de agente",
+      "emptyBody": "Cree un perfil, o parta del perfil predeterminado de Hugo y vincúlele recursos.",
+      "purpose": "Los perfiles de agente agrupan una persona (Agent Smith de forma predeterminada), modelos y recursos con modos de acceso. Cada superficie (MCP, A2A, REST, chat) se comunica con un perfil.",
+      "sections": {
+        "identity": "Identidad",
+        "models": "Modelos",
+        "limits": "Límites",
+        "exposure": "Exposición"
+      },
+      "columns": {
+        "name": "Perfil",
+        "personaName": "Persona",
+        "visibility": "Visibilidad",
+        "inferenceEndpointId": "Modelo de inferencia",
+        "bindingCount": "Vínculos",
+        "exposure": "Expuesto mediante",
+        "id": "ID",
+        "createdUtc": "Creado"
+      },
+      "fields": {
+        "name": "Nombre",
+        "displayName": "Nombre visible",
+        "description": "Descripción",
+        "personaName": "Nombre de la persona",
+        "userAddress": "Se dirige al usuario como",
+        "visibility": "Visibilidad",
+        "inferenceEndpointId": "Modelo de inferencia",
+        "fallbackInferenceEndpointId": "Modelo de inferencia de respaldo",
+        "embeddingEndpointId": "Modelo de embedding",
+        "maxIterations": "Máximo de iteraciones por turno",
+        "maxToolCallsPerTurn": "Máximo de llamadas a herramientas por turno",
+        "toolTimeoutSeconds": "Tiempo de espera de herramientas (segundos)",
+        "temperature": "Temperatura",
+        "exposeMcp": "Exponer mediante MCP",
+        "exposeA2a": "Exponer mediante A2A",
+        "exposeOpenai": "Exponer mediante el endpoint compatible con OpenAI",
+        "exposeManagementTools": "Exponer herramientas de administración",
+        "instructionsAppend": "Instrucciones adicionales"
+      },
+      "hints": {
+        "name": "Letras, dígitos, puntos, guiones y guiones bajos. Se usa en URL como /mcp/{name}."
+      },
+      "errors": {
+        "urlSafe": "Use letras, dígitos, puntos, guiones y guiones bajos, empezando por una letra o un dígito."
+      },
+      "actions": {
+        "chat": "Chatear con este perfil",
+        "duplicate": "Duplicar"
+      }
+    },
+    "sessions": {
+      "revoked": "Revocada",
+      "title": "Sesiones",
+      "subtitle": "Sesiones y tokens activos en este inquilino. Revoque una para cerrar la sesión de ese cliente de inmediato.",
+      "add": "Añadir sesión",
+      "create": "Crear sesión",
+      "edit": "Editar sesión",
+      "view": "Detalles de la sesión",
+      "deleteTitle": "Eliminar sesión",
+      "emptyTitle": "Todavía no hay sesiones",
+      "emptyBody": "No hay sesiones activas. Iniciar sesión o canjear una clave de acceso crea una.",
+      "purpose": "Las sesiones son los tokens de portador emitidos al iniciar sesión o al canjear una clave de acceso. Revocar una la finaliza de inmediato.",
+      "columns": {
+        "principalName": "Entidad",
+        "principalType": "Tipo",
+        "authScheme": "Esquema",
+        "sourceIp": "IP de origen",
+        "issuedUtc": "Emitida",
+        "lastUsedUtc": "Último uso",
+        "expiresUtc": "Caduca",
+        "revokedUtc": "Estado",
+        "userAgent": "Cliente",
+        "id": "ID"
+      },
+      "fields": {
+        "principalName": "Entidad",
+        "authScheme": "Esquema",
+        "sourceIp": "IP de origen",
+        "userAgent": "Cliente",
+        "principalType": "Tipo de entidad",
+        "principalId": "ID de la entidad"
+      }
+    },
+    "conversations": {
+      "title": "Conversaciones",
+      "subtitle": "Conversaciones de todas las superficies en este inquilino. Abra una para continuarla en el chat.",
+      "add": "Añadir conversación",
+      "create": "Crear conversación",
+      "edit": "Editar conversación",
+      "view": "Detalles de la conversación",
+      "deleteTitle": "Eliminar conversación",
+      "emptyTitle": "Aún no hay conversaciones",
+      "emptyBody": "Las conversaciones aparecen aquí en cuanto alguien chatea con un perfil, desde el panel o desde cualquier cliente.",
+      "purpose": "Las conversaciones son los hilos persistentes entre llamantes y perfiles, procedentes del chat del panel, contextos A2A, MCP y sesiones compatibles con OpenAI.",
+      "columns": {
+        "title": "Título",
+        "agentProfileId": "Perfil",
+        "userId": "Usuario",
+        "source": "Origen",
+        "messageCount": "Mensajes",
+        "tokens": "Tokens",
+        "lastMessageUtc": "Último mensaje",
+        "id": "ID"
+      },
+      "fields": {
+        "source": "Origen",
+        "agentProfileId": "Perfil",
+        "userId": "ID de usuario",
+        "fromUtc": "Desde"
+      },
+      "actions": {
+        "export": "Exportar como Markdown"
+      }
+    },
+    "plugins": {
+      "title": "Plugins",
+      "subtitle": "Plugins de conectores cargados desde el directorio de plugins. Habilítelos o deshabilítelos y consulte por qué alguno no se pudo cargar.",
+      "add": "Añadir plugin",
+      "create": "Crear plugin",
+      "edit": "Editar plugin",
+      "view": "Detalles del plugin",
+      "deleteTitle": "Eliminar plugin",
+      "emptyTitle": "Todavía no hay plugins",
+      "emptyBody": "No hay plugins instalados. Coloque un plugin de conector en el directorio de plugins y active Connectors.EnablePlugins.",
+      "purpose": "Los plugins añaden tipos de conector sin recompilar Hugo. Se cargan desde el directorio de plugins en un contexto aislado.",
+      "columns": {
+        "name": "Nombre",
+        "version": "Versión",
+        "connectorTypes": "Tipos de conector",
+        "enabled": "Estado",
+        "loadError": "Error de carga",
+        "sha256": "SHA-256",
+        "id": "ID"
+      },
+      "fields": {
+        "name": "Nombre",
+        "version": "Versión",
+        "enabled": "Habilitado"
+      },
+      "actions": {
+        "enable": "Habilitar",
+        "disable": "Deshabilitar"
+      }
+    }
+  },
+  "views": {
+    "home": {
+      "observabilityState": {
+        "reachable": "Accesible",
+        "unreachable": "No accesible",
+        "checking": "Comprobando",
+        "unknown": "Estado desconocido"
+      },
+      "observabilityVersion": "Versión {{version}}",
+      "observabilityOpen": "Abrir {{service}}",
+      "kpisGrafana": "Abrir el resumen en Grafana",
+      "grafanaDashboards": "Paneles de Grafana",
+      "grafanaSections": {
+        "overview": "Resumen",
+        "http": "API HTTP",
+        "models": "Modelos",
+        "protocols": "MCP y A2A",
+        "security": "Seguridad",
+        "agent": "Agente y chat",
+        "tools": "Herramientas y conectores"
+      },
+      "observabilitySetup": "Configurar la observabilidad",
+      "observabilityNone": "No hay servicios de observabilidad (Grafana, Prometheus, Tempo o Loki) configurados para este servidor Hugo.",
+      "observability": "Observabilidad",
+      "title": "Inicio",
+      "subtitle": "Qué está haciendo Hugo ahora mismo, qué requiere su atención y adónde ir a continuación.",
+      "lastLoaded": "Actualizado {{time}}",
+      "getStartedTitle": "Ponga a trabajar a Agent Smith",
+      "getStartedBody": "Este inquilino todavía no tiene endpoints de modelo ni recursos. El asistente de configuración conecta un modelo y un primer sistema en pocos minutos.",
+      "runSetup": "Ejecutar configuración",
+      "kpis": {
+        "last24h": "Últimas 24 horas",
+        "requests": "Solicitudes",
+        "toolCalls": "Llamadas a herramientas",
+        "failures": "Errores",
+        "approvals": "Aprobaciones pendientes",
+        "unhealthy": "Recursos con fallos",
+        "tokens": "Tokens de hoy",
+        "today": "desde medianoche"
+      },
+      "requestActivity": "Actividad de solicitudes a la API",
+      "recentFailures": "Llamadas a herramientas fallidas recientes",
+      "noFailures": "No hay llamadas a herramientas fallidas recientes.",
+      "cta": {
+        "title": "Flujos de trabajo habituales",
+        "apiExplorer": "Abrir el explorador de API",
+        "addResource": "Añadir un recurso",
+        "addModel": "Añadir un endpoint de modelo",
+        "chat": "Chatear con Agent Smith",
+        "connect": "Conectar Claude Code",
+        "approvals": "Revisar aprobaciones"
+      },
+      "services": {
+        "loki": "Loki",
+        "grafana": "Grafana",
+        "prometheus": "Prometheus",
+        "tempo": "Tempo"
+      },
+      "partial_one": "{{count}} panel no se pudo cargar, por lo que faltan algunas cifras a continuación. El resto de la página está actualizado.",
+      "partial_other": "{{count}} paneles no se pudieron cargar, por lo que faltan algunas cifras a continuación. El resto de la página está actualizado.",
+      "failuresUnavailable": "Este servidor todavía no informa de invocaciones de herramientas.",
+      "unhealthyTitle": "Recursos con fallos",
+      "allHealthy": "Todos los recursos superaron su última comprobación de estado.",
+      "resourcesUnavailable": "Este servidor todavía no informa de recursos."
+    },
+    "markdown": {
+      "showRaw": "Ver texto sin formato",
+      "showRendered": "Ver con formato"
+    },
+    "templateEditor": {
+      "cloneToEdit": "Clonar para editar",
+      "builtInReadOnly": "Las plantillas integradas son de solo lectura, así que todos los campos están bloqueados. Clónala para obtener una copia editable.",
+      "renameHint": "Puede cambiar el nombre de esta plantilla. Las plantillas que la incluyen por nombre deben actualizarse manualmente.",
+      "cloneDialog": {
+        "taken": "Ya existe una plantilla llamada {{name}}. Elige otro nombre.",
+        "reserved": "Los nombres que empiezan por builtin/ están reservados para las plantillas integradas.",
+        "hint": "Puedes renombrar la copia más tarde en su página.",
+        "name": "Nombre de la copia",
+        "body": "La copia empieza con el contenido actual como versión 1 y se puede editar, renombrar y eliminar.",
+        "title": "Clonar {{name}}"
+      },
+      "newTitle": "Nueva plantilla de prompt",
+      "subtitle": "Escribe la plantilla, previsualízala con un contexto de ejemplo y guárdala.",
+      "changeNote": "Nota del cambio",
+      "versions_one": "Versiones ({{count}})",
+      "versions_other": "Versiones ({{count}})",
+      "noVersions": "Aún no hay versiones guardadas.",
+      "version": "Versión",
+      "note": "Nota",
+      "author": "Autor",
+      "diff": "Diferencias",
+      "restore": "Restaurar",
+      "diffTitle": "Versión {{version}} comparada con el editor",
+      "current": "Editor",
+      "reset": "Restablecer valores predeterminados",
+      "savedVersion": "Se guardó una nueva versión.",
+      "restored": "Se restauró la versión {{version}}.",
+      "resetDone": "Se restableció el contenido original.",
+      "confirm": {
+        "restoreTitle": "Restaurar versión",
+        "restoreMessage": "¿Restaurar la versión {{version}}? El contenido actual se conserva en el historial.",
+        "resetTitle": "Restablecer plantilla",
+        "resetMessage": "¿Restablecer \"{{name}}\" al contenido original?",
+        "deleteTitle": "Eliminar plantilla",
+        "deleteMessage": "¿Eliminar \"{{name}}\"? Los perfiles y conectores que la usan vuelven a la predeterminada integrada."
+      },
+      "saved": "Texto guardado"
+    },
+    "requests": {
+      "grafana": "Panel HTTP en Grafana",
+      "title": "Historial de solicitudes",
+      "subtitle": "Tráfico de la API capturado. Examina cualquier solicitud y gestiona la retención.",
+      "kpis": {
+        "total": "Solicitudes retenidas",
+        "success": "Correctas",
+        "failure": "Con error",
+        "avgDuration": "Duración media"
+      },
+      "columns": {
+        "time": "Hora",
+        "method": "Método",
+        "path": "Ruta",
+        "status": "Estado",
+        "duration": "Duración",
+        "principal": "Entidad"
+      },
+      "bulkDeleteTitle": "Eliminar historial de solicitudes",
+      "bulkDeleteMessage": "¿Eliminar las {{count}} solicitudes que coinciden con los filtros actuales?",
+      "bulkDeleteAll": "Eliminar todas las coincidentes",
+      "deleteOneTitle": "Eliminar solicitud",
+      "deleteOneMessage": "¿Eliminar la solicitud {{id}}?",
+      "deleted": "Eliminada.",
+      "emptyTitle": "No hay historial de solicitudes",
+      "emptyBodyNoTraffic": "Aún no se ha retenido tráfico de la API.",
+      "emptyBodyNoMatch": "Ninguna solicitud coincide con los filtros actuales."
+    },
+    "explorer": {
+      "title": "Explorador de API",
+      "subtitle": "Ejecuta llamadas reales contra este servidor a partir de su documento OpenAPI.",
+      "operations": "Operaciones",
+      "selectOperation": "Selecciona una operación para crear una solicitud.",
+      "selectOperationOption": "Elige una operación...",
+      "pathParams": "Parámetros de ruta",
+      "queryParams": "Parámetros de consulta",
+      "headers": "Encabezados",
+      "addHeader": "Añadir encabezado",
+      "headerName": "Nombre del encabezado",
+      "headerValue": "Valor del encabezado {{name}}",
+      "removeHeader": "Quitar el encabezado {{name}}",
+      "body": "Cuerpo de la solicitud",
+      "resolvedUrl": "URL resuelta",
+      "copyUrl": "Copiar URL",
+      "execute": "Ejecutar",
+      "executing": "Ejecutando...",
+      "stop": "Detener",
+      "streaming": "Transmitiendo",
+      "response": "Respuesta",
+      "responseHeaders": "Encabezados de la respuesta",
+      "responseBody": "Cuerpo de la respuesta",
+      "snippets": "Fragmentos de código",
+      "history": "Solicitudes recientes",
+      "historyEmpty": "No hay solicitudes recientes.",
+      "loadHistory": "Cargar",
+      "deleteHistory": "Eliminar",
+      "clearHistory": "Borrar historial",
+      "required": "obligatorio",
+      "confirmTitle": "Ejecutar operación destructiva",
+      "confirmMessage": "Esta solicitud {{method}} puede modificar o eliminar datos. ¿Continuar?",
+      "noSpecTitle": "Documento OpenAPI no disponible",
+      "noSpecBody": "Este servidor no devolvió un documento /openapi.json utilizable, así que el explorador no puede listar las operaciones."
+    },
+    "settings": {
+      "errors": {
+        "allowed": "Elige uno de estos valores: {{values}}.",
+        "boolean": "Elige verdadero o falso.",
+        "max": "Escribe {{max}} o menos.",
+        "min": "Escribe {{min}} o más.",
+        "range": "Escribe un valor entre {{min}} y {{max}}.",
+        "integer": "Escribe un número entero.",
+        "number": "Escribe un número."
+      },
+      "notSaved": "No se guardó nada. Corrige los ajustes marcados y vuelve a guardar.",
+      "title": "Ajustes",
+      "subtitle": "Los ajustes de hugo.json del servidor, con las sustituciones por variables de entorno en modo de solo lectura. Algunos cambios se aplican en caliente y otros tras un reinicio.",
+      "readOnly": "Estás viendo los ajustes en modo de solo lectura. Solo los administradores del sistema pueden cambiarlos.",
+      "restartBanner": "Algunos cambios guardados se aplican tras un reinicio.",
+      "restarting": "El servidor se está reiniciando. Esta página se vuelve a conectar automáticamente.",
+      "restarted": "El servidor vuelve a estar en línea.",
+      "restartTimeout": "El servidor no volvió a estar disponible en tres minutos. Compruebe el estado del contenedor con docker ps.",
+      "restart": "Reiniciar servidor",
+      "restartConfirmTitle": "Reiniciar servidor",
+      "restartConfirmMessage": "¿Reiniciar ahora el servidor Hugo? Las solicitudes en curso y los flujos de chat se interrumpen; el contenedor reinicia el proceso y esta página se vuelve a conectar.",
+      "savedLive": "Ajustes guardados y aplicados.",
+      "savedRestart": "Ajustes guardados. Reinicia el servidor para aplicar todos los cambios.",
+      "live": "En vivo",
+      "restartRequired": "Requiere reinicio",
+      "secretSet": "Definido (introduce un valor nuevo para sustituirlo)",
+      "secretNotSet": "Sin definir",
+      "range": "Intervalo permitido: de {{min}} a {{max}}",
+      "testDatabase": "Probar la conexión a la base de datos",
+      "testing": "Probando...",
+      "dbOk": "Conexión correcta",
+      "dbFailed": "Error de conexión",
+      "unavailableTitle": "Ajustes no disponibles",
+      "unavailableBody": "Este servidor no devolvió sus ajustes.",
+      "sources": {
+        "File": "Archivo de configuración",
+        "Environment": "Entorno",
+        "Database": "Base de datos"
+      },
+      "lockedBy": {
+        "Environment": "Definido por una variable de entorno. El valor del entorno prevalece.",
+        "other": "Este ajuste no se puede cambiar aquí."
+      },
+      "groups": {
+        "General": "General",
+        "Rest": "Escucha REST",
+        "Mcp": "MCP",
+        "Database": "Base de datos",
+        "Logging": "Registro",
+        "Auth": "Autenticación",
+        "RequestHistory": "Historial de solicitudes",
+        "Telemetry": "Telemetría",
+        "Audit": "Auditoría",
+        "Secrets": "Almacén de secretos",
+        "Agent": "Bucle de agente",
+        "Approvals": "Aprobaciones",
+        "Connectors": "Conectores",
+        "Models": "Endpoints de modelo",
+        "A2A": "A2A",
+        "OpenAI": "Endpoint compatible con OpenAI",
+        "Embeddings": "Embeddings"
+      },
+      "fields": {
+        "Rest": {
+          "Hostname": "Nombre de host de escucha",
+          "Port": "Puerto de escucha",
+          "Ssl": "Usar TLS",
+          "ExternalBaseUrl": "URL base externa",
+          "AllowedOrigins": "Orígenes CORS permitidos"
+        },
+        "Database": {
+          "Type": "Tipo de base de datos",
+          "Filename": "Archivo SQLite",
+          "Server": "Servidor de base de datos",
+          "Port": "Puerto de la base de datos",
+          "DatabaseName": "Nombre de la base de datos",
+          "Username": "Usuario de la base de datos",
+          "Password": "Contraseña de la base de datos"
+        },
+        "Auth": {
+          "SigningKey": "Clave de firma de tokens",
+          "UserSessionMinutes": "Duración de la sesión de usuario (minutos)",
+          "AdminSessionMinutes": "Duración de la sesión de administrador (minutos)",
+          "SessionAbsoluteMaxHours": "Límite absoluto de sesión (horas)",
+          "RateLimitPerMinute": "Intentos de inicio de sesión por minuto"
+        },
+        "Secrets": {
+          "MasterKey": "Clave maestra (solo desarrollo)",
+          "RevealReauthMinutes": "Ventana de reautenticación para mostrar secretos (minutos)"
+        },
+        "Agent": {
+          "DefaultMaxIterations": "Máximo predeterminado de iteraciones por turno",
+          "DefaultMaxToolCallsPerTurn": "Máximo predeterminado de llamadas a herramientas por turno",
+          "MaxParallelToolCalls": "Llamadas a herramientas de lectura en paralelo",
+          "ToolRetrievalThreshold": "Umbral de recuperación de herramientas",
+          "CompactionThresholdRatio": "Umbral de compactación del historial"
+        },
+        "Approvals": {
+          "ExpirySeconds": "Caducidad de las aprobaciones (segundos)",
+          "McpWaitSeconds": "Espera de aprobación MCP (segundos)",
+          "AllowSelfApproval": "Permitir aprobar las propias llamadas"
+        },
+        "Connectors": {
+          "EnablePlugins": "Habilitar plugins de conectores",
+          "PluginDirectory": "Directorio de plugins",
+          "DefaultToolTimeoutSeconds": "Tiempo de espera predeterminado de herramientas (segundos)",
+          "HealthSweepMinutes": "Barrido de estado de recursos (minutos)"
+        },
+        "Models": {
+          "HealthIntervalSeconds": "Intervalo de comprobación de estado de modelos (segundos)"
+        }
+      }
+    },
+    "serverInfo": {
+      "title": "Información del servidor",
+      "subtitle": "Endpoints, versiones y la identidad con la que has iniciado sesión.",
+      "endpoints": "Endpoints",
+      "rest": "API REST",
+      "mcp": "MCP",
+      "a2a": "A2A",
+      "openapi": "OpenAPI",
+      "server": "Servidor",
+      "version": "Versión del servidor",
+      "dashboardVersion": "Versión del panel",
+      "node": "Nodo del servidor",
+      "database": "Base de datos",
+      "health": "Estado",
+      "routes": "Operaciones registradas",
+      "serverTime": "Hora del servidor",
+      "principal": "Sesión iniciada como",
+      "principalName": "Entidad",
+      "principalType": "Tipo de entidad",
+      "role": "Rol",
+      "tenant": "Inquilino",
+      "expires": "La sesión caduca",
+      "features": "Marcas de funcionalidad",
+      "connectors": "Conectores cargados",
+      "openai": "Compatible con OpenAI"
+    },
+    "analytics": {
+      "legend": "Series de {{chart}}",
+      "noDataInChart": "No hay datos para este gráfico en el intervalo seleccionado.",
+      "dataTable": "Tabla de datos",
+      "bucketStart": "Inicio del intervalo",
+      "title": "Analítica",
+      "subtitle": "Uso de tokens, llamadas a herramientas por efecto y conector, latencia y errores de los modelos y tiempo de respuesta de las aprobaciones.",
+      "purpose": "La analítica convierte las invocaciones de herramientas, los turnos de chat y las llamadas a modelos en tendencias de uso y coste por perfil y modelo.",
+      "profile": "Perfil",
+      "panels": {
+        "overview": "Totales",
+        "tokens": "Uso de tokens",
+        "tools": "Llamadas a herramientas por efecto",
+        "models": "Modelos",
+        "modelLatency": "Latencia de los modelos",
+        "modelErrors": "Errores de los modelos"
+      },
+      "purposes": {
+        "overview": "Totales de turnos, llamadas a herramientas, errores, tokens y aprobaciones en el intervalo seleccionado.",
+        "tokens": "Tokens de entrada y salida a lo largo del tiempo, en todas las superficies que ejecutan el bucle propio de Hugo.",
+        "tools": "Llamadas a herramientas a lo largo del tiempo desglosadas por efecto, y llamadas, errores y latencia por conector.",
+        "models": "Percentiles de latencia y recuento de errores de cada endpoint de modelo."
+      },
+      "help": {
+        "tokens": "Tokens de entrada y salida por intervalo de tiempo.",
+        "tools": "Llamadas a herramientas por intervalo de tiempo según el efecto: Lectura, Escritura y Destructivo.",
+        "modelLatency": "Tiempo de respuesta del modelo mediano (p50) y p95 por intervalo.",
+        "modelErrors": "Solicitudes a modelos que fallaron por intervalo."
+      },
+      "kpis": {
+        "turns": "Turnos de chat",
+        "toolCalls": "Llamadas a herramientas",
+        "failures": "Llamadas a herramientas fallidas",
+        "tokens": "Tokens",
+        "approvals": "Aprobaciones",
+        "turnaround": "Tiempo de respuesta de las aprobaciones",
+        "approvalRate": "Proporción aprobada"
+      },
+      "metrics": {
+        "inputTokens": "Tokens de entrada",
+        "outputTokens": "Tokens de salida",
+        "latencyMsP50": "Mediana (p50)",
+        "latencyMsP95": "p95",
+        "errors": "Errores",
+        "Read": "Lectura",
+        "Write": "Escritura",
+        "Destructive": "Destructivo"
+      },
+      "columns": {
+        "connector": "Conector",
+        "calls": "Llamadas",
+        "failures": "Errores",
+        "p95": "Duración p95"
+      }
+    },
+    "chat": {
+      "title": "Chat",
+      "subtitle": "Hable con Agent Smith. Las llamadas a herramientas se muestran en línea con su efecto, y las arriesgadas esperan su aprobación.",
+      "purpose": "El chat ejecuta el bucle de agente propio de Hugo con el perfil que elija: lee sus recursos vinculados mediante sus herramientas, pregunta antes de realizar acciones arriesgadas y transmite la respuesta aquí.",
+      "conversations": "Conversaciones",
+      "search": "Buscar conversaciones",
+      "noConversations": "Todavía no hay conversaciones.",
+      "untitled": "Conversación sin título",
+      "new": "Nueva conversación",
+      "export": "Exportar",
+      "context": "Contexto",
+      "profile": "Perfil",
+      "model": "Modelo: {{model}}",
+      "modelLabel": "Modelo",
+      "persona": "Persona",
+      "addresses": "Se dirige a usted como",
+      "resources": "Recursos vinculados",
+      "noResources": "Este perfil no tiene recursos vinculados.",
+      "usage": "Uso de tokens",
+      "pending": "Aprobaciones pendientes",
+      "noPending": "No hay nada pendiente.",
+      "noModel": "Este perfil no tiene modelo de inferencia, por lo que Agent Smith todavía no puede responder. Añada un endpoint de modelo y selecciónelo en el perfil.",
+      "goModels": "Añadir un endpoint de modelo",
+      "noProfilesTitle": "Todavía no hay perfiles de agente",
+      "noProfilesBody": "El chat se comunica con un perfil de agente. Cree uno (o deje que el servidor genere el perfil predeterminado de Hugo) para empezar.",
+      "goProfiles": "Abrir perfiles de agente",
+      "emptyHint": "Pregunte a {{persona}} sobre su infraestructura, por ejemplo \"¿Por qué va lento el proceso de pago?\""
+    },
+    "profile": {
+      "title": "Perfil de agente",
+      "subtitle": "Persona {{persona}}, que se dirige al usuario como {{address}}.",
+      "tabs": {
+        "general": "General",
+        "bindings": "Vínculos",
+        "instructions": "Instrucciones",
+        "tools": "Herramientas",
+        "connect": "Conectar"
+      },
+      "bindings": {
+        "body": "Cada vínculo asocia un recurso a este perfil con un alias y un modo de acceso que determina lo que puede hacer el agente.",
+        "purpose": "Los vínculos asocian recursos a un perfil con un modo de acceso, una política de aprobación y reglas de herramientas.",
+        "add": "Añadir vínculo",
+        "edit": "Editar vínculo",
+        "emptyTitle": "Todavía no hay recursos vinculados",
+        "emptyBody": "Este perfil no puede acceder a ningún sistema hasta que se le vinculen recursos. Añada primero los recursos y después vincúlelos aquí.",
+        "goResources": "Abrir recursos",
+        "noResources": "Todavía no hay recursos que vincular. Añada uno primero en la página Recursos.",
+        "approvalOn": "Aprobación",
+        "aliasInvalid": "Use letras, dígitos, puntos, guiones y guiones bajos, empezando por una letra o un dígito.",
+        "aliasTaken": "Otro vínculo de este perfil ya usa este alias.",
+        "deleteTitle": "Quitar vínculo",
+        "deleteBody": "¿Quitar {{alias}} de este perfil? El recurso se conserva; los llamantes de este perfil pierden el acceso a él.",
+        "columns": {
+          "alias": "Alias",
+          "resource": "Recurso",
+          "accessMode": "Modo de acceso",
+          "approval": "Aprobación",
+          "enabled": "Estado"
+        },
+        "fields": {
+          "resourceId": "Recurso",
+          "alias": "Alias",
+          "accessMode": "Modo de acceso",
+          "requireApprovalForDestructive": "Requerir aprobación para llamadas destructivas",
+          "instructionMode": "Instrucciones",
+          "instructionText": "Texto de las instrucciones",
+          "maxOutputBytes": "Máximo de bytes de salida",
+          "maxRows": "Máximo de filas",
+          "enabled": "Habilitado"
+        }
+      },
+      "toolRules": {
+        "title": "Reglas de herramientas para {{alias}}",
+        "body": "Sustituya el comportamiento de herramientas concretas en este vínculo. Las herramientas sin regla siguen el modo de acceso.",
+        "open": "Reglas de herramientas",
+        "rule": "Regla",
+        "ruleFor": "Regla para {{tool}}",
+        "inherit": "Seguir el modo de acceso",
+        "noTools": "El servidor no informó de ninguna herramienta para este perfil."
+      },
+      "instructions": {
+        "body": "Las instrucciones que recibe un llamante: persona, reglas de seguridad y la sección de cada recurso vinculado, en orden.",
+        "purpose": "Las instrucciones compiladas muestran exactamente lo que se le indica a Agent Smith en cada superficie, con la plantilla de la que procede cada sección.",
+        "surface": "Superficie",
+        "sourceMap": "De dónde procede cada sección"
+      },
+      "tools": {
+        "body": "Las herramientas exactamente como las ve un llamante de este perfil, tras aplicar los modos de acceso y las reglas de herramientas.",
+        "purpose": "La lista de herramientas muestra lo que puede llamar un llamante de este perfil, tras los modos de acceso y las reglas de herramientas.",
+        "empty": "Este perfil no expone herramientas.",
+        "name": "Herramienta",
+        "effect": "Efecto",
+        "description": "Descripción",
+        "perCall": "(se clasifica en cada llamada)"
+      },
+      "connect": {
+        "claudeCode": "Claude Code (MCP sobre HTTP)",
+        "claudeCodeBody": "Añada esto a su configuración MCP. Asigne a HUGO_TOKEN un token de sesión, o use una credencial vinculada a este perfil.",
+        "claudeCli": "CLI de Claude Code",
+        "claudeCliBody": "El mismo servidor registrado desde la línea de comandos.",
+        "stdio": "Relé stdio",
+        "stdioBody": "Para clientes MCP que solo admiten stdio: la CLI hugo retransmite al endpoint HTTP.",
+        "a2a": "Tarjeta de agente A2A",
+        "a2aBody": "Otros agentes descubren este perfil mediante su tarjeta A2A.",
+        "a2aOff": "A2A está desactivado para este perfil. Active la exposición A2A en la pestaña General para publicar la tarjeta.",
+        "openai": "Endpoint compatible con OpenAI",
+        "openaiBody": "Dirija cualquier cliente compatible con OpenAI a esta URL base y use el nombre de modelo {{model}}.",
+        "openaiOff": "El endpoint compatible con OpenAI está desactivado para este perfil.",
+        "credential": "Una credencial para este perfil",
+        "credentialBody": "Los entornos de ejecución deben conectarse con una credencial vinculada a este perfil, para que siempre actúen como él y nada más.",
+        "credentialAction": "Crear una credencial"
+      }
+    },
+    "resources": {
+      "form": {
+        "chooseConnector": "Elija un conector",
+        "connectorsUnavailable": "El servidor no enumeró sus conectores, por lo que todavía no se pueden generar los ajustes.",
+        "settings": "Ajustes",
+        "secrets": "Secretos",
+        "test": "Probar conexión",
+        "testing": "Probando..."
+      },
+      "tryTool": {
+        "title": "Probar una herramienta en {{name}}",
+        "body": "Elija un perfil que vincule este recurso y una herramienta. La simulación clasifica la llamada sin ejecutarla; Ejecutar la lanza con las mismas comprobaciones de seguridad que cualquier otra superficie.",
+        "profile": "Ejecutar como perfil",
+        "tool": "Herramienta",
+        "arguments": "Argumentos (JSON)",
+        "dryRun": "Simulación",
+        "execute": "Ejecutar",
+        "classification": "Clasificación",
+        "result": "Resultado",
+        "notBound": "Este perfil no vincula el recurso, por lo que sus herramientas no pueden acceder a él.",
+        "pendingApproval": "La llamada está esperando la aprobación {{id}}. Decídala en la página Aprobaciones."
+      }
+    },
+    "secrets": {
+      "reveal": {
+        "title": "Mostrar {{name}}",
+        "warning": "Al mostrarlo se ve el valor en texto plano. La revelación se audita con su motivo, y los valores desaparecen al cabo de 30 segundos.",
+        "reason": "Motivo",
+        "reasonRequired": "Indique por qué necesita ver el valor.",
+        "submit": "Mostrar",
+        "reauthBody": "Por seguridad, vuelva a introducir su contraseña antes de mostrar secretos.",
+        "password": "Su contraseña",
+        "reauthSubmit": "Confirmar y mostrar",
+        "hidesIn": "Se ocultará de nuevo en {{seconds}} segundos.",
+        "hidden": "Los valores se ocultaron de nuevo.",
+        "again": "Mostrar de nuevo"
+      }
+    },
+    "connectors": {
+      "title": "Conectores",
+      "subtitle": "Los tipos de sistemas a los que puede acceder Hugo, con sus ajustes, secretos, herramientas e instrucciones predeterminadas.",
+      "purpose": "El catálogo de conectores enumera todas las familias de servicios a las que puede acceder este servidor (SSH, almacenamiento de objetos, bases de datos, servicios de registros y más), con los ajustes y secretos que necesita cada una y las herramientas que ofrece.",
+      "search": "Buscar conectores",
+      "category": "Categoría",
+      "count_one": "{{shown}} conector",
+      "count_other": "{{shown}} conectores",
+      "emptyTitle": "Ningún conector coincide",
+      "emptyBody": "Borre la búsqueda o elija otra categoría.",
+      "noDescription": "Sin descripción.",
+      "toolCount_one": "{{count}} herramienta",
+      "toolCount_other": "{{count}} herramientas",
+      "loadError": "Error de carga",
+      "addResource": "Añadir un recurso",
+      "tabs": {
+        "overview": "Resumen",
+        "settings": "Esquema de ajustes",
+        "tools": "Herramientas",
+        "instructions": "Instrucciones predeterminadas"
+      },
+      "fields": {
+        "type": "Tipo",
+        "family": "Familia",
+        "category": "Categoría",
+        "version": "Versión",
+        "documentation": "Documentación"
+      },
+      "slots": "Ranuras de secretos",
+      "noSlots": "Este conector no necesita secretos.",
+      "settingsBody": "Este es el formulario que recibe un recurso nuevo de este tipo. Pruébelo aquí; no se guarda nada.",
+      "reference": "Referencia de ajustes",
+      "columns": {
+        "key": "Clave",
+        "kind": "Tipo",
+        "required": "Obligatorio",
+        "default": "Predeterminado",
+        "range": "Valores permitidos",
+        "group": "Grupo"
+      },
+      "noTools": "Este conector no ofrece herramientas.",
+      "instructionsBody": "Cada recurso de este tipo añade estas instrucciones para el agente. Edítelas por inquilino o globalmente con la clave de plantilla {{key}}.",
+      "editInstructions": "Editar en Plantillas de prompt",
+      "builtInInstructions": "Instrucciones predeterminadas integradas",
+      "noInstructions": "Este conector no incluye instrucciones predeterminadas."
+    },
+    "mcpExplorer": {
+      "title": "Explorador MCP",
+      "subtitle": "Conéctese al endpoint MCP de Hugo con su propia identidad, lea las instrucciones, enumere las herramientas y llámelas.",
+      "purpose": "El explorador MCP se comunica con /mcp exactamente como lo haría Claude Code, para que pueda comprobar las instrucciones y la lista de herramientas que expone un perfil antes de conectar un entorno de ejecución.",
+      "profile": "Perfil",
+      "defaultProfile": "Lo resuelve el servidor",
+      "connect": "Conectar",
+      "reconnect": "Reconectar",
+      "session": "Sesión {{id}}",
+      "failed": "La solicitud MCP falló",
+      "tools": "Herramientas",
+      "toolsCount_one": "{{count}} herramienta",
+      "toolsCount_other": "{{count}} herramientas",
+      "noTools": "El servidor no enumeró herramientas para este llamante.",
+      "serverInfo": "Servidor",
+      "instructions": "Instrucciones de initialize",
+      "noInstructions": "El servidor no envió instrucciones.",
+      "call": "Llamar a la herramienta",
+      "toolOk": "La herramienta devolvió un resultado.",
+      "toolError": "La herramienta informó de un error.",
+      "invalidJson": "El valor de {{field}} no es JSON válido.",
+      "log_one": "Registro JSON-RPC ({{count}} mensaje)",
+      "log_other": "Registro JSON-RPC ({{count}} mensajes)"
+    },
+    "a2aExplorer": {
+      "title": "Explorador A2A",
+      "subtitle": "Obtenga la tarjeta de agente de un perfil, envíele un mensaje, transmita la respuesta y enumere tareas mediante A2A.",
+      "purpose": "El explorador A2A llama a /v1.0/a2a/{tenant}/{profile} con los métodos JSON-RPC de A2A 1.0, como lo haría otro agente.",
+      "profile": "Perfil",
+      "fetchCard": "Obtener tarjeta",
+      "listTasks": "Listar tareas",
+      "message": "Mensaje",
+      "stream": "Transmitir la respuesta",
+      "send": "Enviar",
+      "context": "Continuando el contexto {{id}}",
+      "result": "Resultado",
+      "events_one": "Eventos del flujo ({{count}})",
+      "events_other": "Eventos del flujo ({{count}})",
+      "tasks_one": "{{count}} tarea",
+      "tasks_other": "{{count}} tareas",
+      "noTasks": "Todavía no hay tareas para este perfil."
+    }
+  },
+  "tips": {
+    "fieldWarnings": {
+      "dismiss": "Oculta este aviso. El registro ya está guardado con los valores indicados aquí."
+    },
+    "ids": {
+      "deleted": "Este registro se eliminó. ID {{id}}. El botón de copiar copia el ID.",
+      "named": "ID {{id}}. Usa el botón de copiar para copiar el ID para la API, los SDK o una solicitud de soporte."
+    },
+    "markdown": {
+      "column": "Columna {{name}} de una tabla de la salida del agente. Las tablas anchas se desplazan en horizontal dentro de su marco.",
+      "showRaw": "Muestra el texto exacto que devolvió el agente, sin formato Markdown, para que puedas revisarlo o copiarlo.",
+      "showRendered": "Vuelve a mostrar el texto con formato Markdown: tablas, listas, bloques de código y enlaces.",
+      "copy": "Copia al portapapeles el texto del resultado sin formato, con la sintaxis Markdown incluida.",
+      "link": "Abre {{href}} en una pestaña nueva. El enlace viene de la salida del agente, así que revisa la dirección antes de confiar en ella."
+    },
+    "common": {
+      "fields": {
+        "name": "Nombre único de este registro dentro del inquilino. Otros registros hacen referencia a él con este nombre.",
+        "description": "Nota de texto libre para personas. Explica para qué sirve este registro y no se usa en tiempo de ejecución.",
+        "active": "Los registros inactivos se conservan pero se ignoran. Desactívalo para pausar algo sin eliminarlo.",
+        "id": "Identificador generado por el sistema con un prefijo de tipo. Úsalo en llamadas a la API y en scripts; nunca cambia.",
+        "createdUtc": "Cuándo se creó este registro. Pasa el cursor sobre el valor para ver la fecha y hora exactas.",
+        "lastUpdateUtc": "Cuándo se modificó este registro por última vez.",
+        "isBuiltIn": "Los registros integrados vienen con Hugo y son de solo lectura. Los registros personalizados se crearon en este inquilino y se pueden editar.",
+        "expiresUtc": "Después de esta hora el registro deja de funcionar. Déjalo vacío para que no caduque."
+      }
+    },
+    "explainer": {
+      "reopen": "Volver a mostrar la explicación de {{topic}}: qué gestiona esta página y cómo se relaciona con el resto de Hugo.",
+      "dismiss": "Oculta esta explicación. En su lugar queda un pequeño botón \"Acerca de\" para que puedas recuperarla en cualquier momento."
+    },
+    "topbar": {
+      "toggleSidebar": "Contrae o expande la barra lateral de navegación. En pantallas pequeñas abre la navegación como una superposición.",
+      "server": "El servidor Hugo con el que se comunica esta consola: {{url}}. El punto indica si su comprobación de estado es correcta.",
+      "health": {
+        "healthy": "El servidor respondió a su comprobación de estado en los últimos 30 segundos.",
+        "unhealthy": "El servidor no respondió a su comprobación de estado. Es probable que las solicitudes desde esta página fallen.",
+        "unknown": "Esperando el primer resultado de la comprobación de estado del servidor."
+      },
+      "copyServer": "Copia la URL del servidor, por ejemplo para configurar un SDK o un comando curl.",
+      "switchTenant": "Los administradores del sistema pueden ver cualquier inquilino. Todas las páginas muestran los datos del inquilino seleccionado.",
+      "tenant": "Está trabajando en el inquilino {{tenant}}. Todos los registros que ve le pertenecen.",
+      "principal": "Has iniciado sesión como {{name}}. Las acciones que realizas se registran con esta identidad.",
+      "role": "Tu nivel de acceso más alto en este inquilino. Decide qué páginas y acciones están disponibles.",
+      "liveOn": "Conectado al flujo de eventos del servidor, por lo que las aprobaciones y las llamadas a herramientas aparecen en tiempo real.",
+      "liveOff": "Sin conexión en tiempo real. Las páginas consultan periódicamente, por lo que los cambios pueden tardar unos segundos en aparecer.",
+      "github": "Abrir el repositorio de código fuente de Hugo (AgentSmith) en GitHub en una pestaña nueva, para consultar documentación e incidencias.",
+      "themeLight": "Cambia al tema de color claro. La elección se recuerda en este navegador.",
+      "themeDark": "Cambia al tema de color oscuro. La elección se recuerda en este navegador.",
+      "logout": "Cierra la sesión y revoca esta sesión del navegador. Tendrás que volver a iniciar sesión.",
+      "language": "Cambia el idioma de la interfaz. Las fechas y los números también siguen el idioma, y la elección se recuerda.",
+      "approvals_one": "{{count}} aprobación está esperando a una persona. Abra la bandeja de aprobaciones.",
+      "approvals_other": "{{count}} aprobaciones están esperando a una persona. Abra la bandeja de aprobaciones.",
+      "lockdownOff": "Bloquea el inquilino: deniega toda llamada de escritura y destructiva desde cualquier superficie hasta que se levante el bloqueo.",
+      "lockdownOn": "El inquilino está bloqueado. Haga clic para revisar y levantar el bloqueo.",
+      "lockdownEngage": "Deniega ahora toda llamada que no sea de lectura en este inquilino y cancela las aprobaciones pendientes.",
+      "lockdownLift": "Vuelve a permitir las llamadas de escritura y destructivas, sujetas a los modos de acceso y las aprobaciones."
+    },
+    "login": {
+      "passwordTab": "Inicia sesión como persona con un inquilino, un correo electrónico y una contraseña.",
+      "keyTab": "Inicia sesión con una clave de acceso y una clave secreta, el mismo par que usan los scripts y los SDK.",
+      "serverUrl": "Dirección base del servidor Hugo, por ejemplo http://127.0.0.1:8800 en local o la propia dirección de esta página detrás del proxy del panel.",
+      "tenantId": "El inquilino al que pertenece tu cuenta. El inquilino local predeterminado se llama default.",
+      "email": "La dirección de correo electrónico de tu cuenta de usuario en este inquilino.",
+      "password": "La contraseña de tu cuenta. Se envía una sola vez para obtener un token de sesión y la aplicación del navegador nunca la guarda.",
+      "accessKey": "La parte pública de una clave de acceso, que empieza por access_. Las claves se crean en Administrar, Credenciales.",
+      "secretKey": "La mitad privada de la clave de acceso. Se mostró una sola vez cuando se creó o se rotó la clave.",
+      "submit": "Comprueba las credenciales con el servidor y abre la consola de tu inquilino.",
+      "tenantSelect": "Su correo electrónico pertenece a más de un inquilino. Elija aquel en el que desea iniciar sesión.",
+      "useDefaults": "Rellena la cuenta de administrador local creada inicialmente. Solo se muestra cuando el servidor está en este equipo."
+    },
+    "table": {
+      "selectAll": "Selecciona o desmarca todas las filas de esta página, por ejemplo para eliminarlas juntas.",
+      "selectRow": "Selecciona esta fila para una acción masiva, como eliminar.",
+      "sortServer": "{{tip}} Haz clic para ordenar toda la lista por esta columna; vuelve a hacer clic para invertir el orden.",
+      "sortPageOnly": "{{tip}} Haz clic para ordenar solo las filas de esta página; el servidor no puede ordenar por esta columna.",
+      "clearSelection": "Desmarca todas las filas seleccionadas sin cambiar nada.",
+      "pageSize": "Cuántas filas se cargan por página. Las páginas más grandes tardan más en cargar. La elección se recuerda para cada tabla.",
+      "first": "Ve a la primera página de resultados.",
+      "prev": "Retrocede una página de resultados.",
+      "jump": "Escribe un número de página entre 1 y {{total}} y pulsa Intro para saltar directamente a ella.",
+      "next": "Avanza una página de resultados.",
+      "last": "Ve a la última página de resultados.",
+      "refresh": "Vuelve a cargar esta lista desde el servidor ahora, manteniendo la página, los filtros y el orden.",
+      "autoRefresh": "Vuelve a cargar estos datos automáticamente con un temporizador. Desactivado, los datos no cambian mientras lees.",
+      "selectColumns": "Elige qué columnas muestra la tabla. Tu elección se recuerda para cada tabla en este navegador.",
+      "columnPinned": "{{column}} se muestra siempre porque sin ella no se pueden identificar las filas.",
+      "columnToggle": "Muestra u oculta la columna {{column}}. {{tip}}",
+      "actionsFor": "Abre las acciones de {{name}}: ver, editar, duplicar, ver JSON, eliminar y acciones propias del registro.",
+      "actionsMenu": "Abre las acciones disponibles para esta fila.",
+      "actionsColumn": "Acciones por fila. Haz clic en los tres puntos para ver, editar, duplicar, inspeccionar el JSON o eliminar.",
+      "search": "Escribe parte de un nombre para acotar la lista. La búsqueda se ejecuta en el servidor cuando dejas de escribir.",
+      "clearFilters": "Quita el texto de búsqueda y todos los filtros y vuelve a mostrar la lista completa.",
+      "bulkDelete": "Elimina todas las filas seleccionadas. Primero se te pedirá confirmación."
+    },
+    "filters": {
+      "status": "Muestra solo los registros en este estado. Elige \"Todos\" para quitar el filtro.",
+      "kind": "Muestra solo los registros de un tipo. Elige \"Todos\" para quitar el filtro.",
+      "eventType": "Muestra solo los eventos de auditoría de un tipo, como inicios de sesión fallidos o cambios de secretos.",
+      "fromUtc": "Muestra solo los registros creados en esta hora o después (en tu zona horaria local).",
+      "toUtc": "Muestra solo los registros creados antes de esta hora (en tu zona horaria local).",
+      "method": "Muestra solo las solicitudes que usaron este método HTTP.",
+      "statusCode": "Muestra solo las solicitudes que devolvieron este código de estado HTTP, por ejemplo 404 o 500.",
+      "pathContains": "Muestra solo las solicitudes cuya ruta contiene este texto, por ejemplo /agents.",
+      "tenantId": "Muestra solo las solicitudes hechas en este inquilino. Déjalo vacío para incluir todos los inquilinos.",
+      "apply": "Ejecuta la búsqueda con los valores de filtro de arriba.",
+      "clear": "Vacía todos los filtros de arriba y vuelve a buscar.",
+      "effect": "Muestra solo las llamadas con este efecto: Lectura, Escritura o Destructivo.",
+      "agentProfileId": "Muestra solo los registros que pertenecen a un perfil de agente. Elija Todos para quitar el filtro.",
+      "source": "Muestra solo las conversaciones que empezaron en una superficie.",
+      "userId": "Muestra solo los registros de un usuario. Pegue un ID de usuario; la lista se actualiza al dejar de escribir.",
+      "connectorType": "Muestra solo los recursos de un tipo de conector, como SSH o PostgreSQL.",
+      "environment": "Muestra solo los recursos etiquetados con este entorno, por ejemplo prod.",
+      "health": "Muestra solo los recursos en este estado.",
+      "healthStatus": "Muestra solo los endpoints de modelo en este estado.",
+      "provider": "Muestra solo los endpoints de modelo de un proveedor.",
+      "surface": "Muestra solo las llamadas realizadas desde una superficie: chat, MCP, A2A, compatible con OpenAI o REST.",
+      "decision": "Muestra solo las llamadas con esta decisión de seguridad, como denegada o requiere aprobación.",
+      "resourceId": "Muestra solo las llamadas sobre un recurso.",
+      "toolName": "Muestra solo las llamadas a esta herramienta, por ejemplo sql_query. La lista se actualiza al dejar de escribir.",
+      "principalId": "Muestra solo los registros de una entidad. Pegue un ID; la lista se actualiza al dejar de escribir.",
+      "principalType": "Muestra solo las sesiones de administradores, usuarios o credenciales.",
+      "visibility": "Muestra solo los registros privados o los de todo el inquilino."
+    },
+    "form": {
+      "option": "Incluye {{option}} en {{field}}. Las opciones marcadas se guardan; las desmarcadas se omiten.",
+      "reveal": "Muestra el valor escrito en texto plano para que puedas revisarlo antes de guardar.",
+      "hide": "Vuelve a ocultar el valor para que quien mire tu pantalla no pueda leerlo.",
+      "key": "Clave de esta entrada de {{field}}. Las claves deben ser únicas dentro de la lista.",
+      "value": "Valor de esta entrada de {{field}}. Se permiten plantillas y referencias a secretos donde se indique.",
+      "removeRow": "Quita esta entrada de la lista. No se guarda nada hasta que haces clic en \"Guardar\".",
+      "addRow": "Añade una entrada vacía de clave y valor a {{field}}.",
+      "moveUp": "Mueve este elemento una posición antes. El orden importa aquí, por ejemplo en las listas de argumentos.",
+      "moveDown": "Mueve este elemento una posición después. El orden importa aquí, por ejemplo en las listas de argumentos.",
+      "removeItem": "Quita este elemento de la lista. No se guarda nada hasta que haces clic en \"Guardar\".",
+      "addItem": "Añade un elemento nuevo y vacío a {{field}} y rellena sus campos."
+    },
+    "actions": {
+      "openDetail": "Abre la página de detalle completa de este registro.",
+      "view": "Abre este registro en solo lectura para ver todos los campos sin riesgo de cambiarlo.",
+      "edit": "Abre este registro en un formulario para cambiarlo. Los cambios se aplican cuando haces clic en \"Guardar\".",
+      "duplicate": "Empieza un registro nuevo con los valores de este y un nombre con -copy. No se crea nada hasta que guardas.",
+      "viewJson": "Muestra el JSON sin procesar exactamente como lo devuelve la API, para depurar o copiarlo en scripts.",
+      "delete": "Elimina este registro de forma permanente. Se te pedirá confirmación y no se puede deshacer.",
+      "add": "Crea un registro nuevo de este tipo en un formulario.",
+      "switchToEdit": "Cambia esta vista de solo lectura a un formulario editable.",
+      "retryLoad": "Vuelve a intentar cargar estos datos desde el servidor.",
+      "dismiss": "Oculta este mensaje. Vuelve a aparecer si el problema se repite."
+    },
+    "modal": {
+      "close": "Cierra esta ventana. No cambia nada en el servidor.",
+      "dismiss": "Cierra esta ventana sin guardar. También puedes pulsar Escape.",
+      "cancelForm": "Cierra el formulario y descarta los cambios sin guardar.",
+      "back": "Ve al paso anterior del formulario. Los valores que escribiste se conservan.",
+      "next": "Ve al siguiente paso del formulario. No se guarda nada hasta que haces clic en \"Guardar\".",
+      "saveEdit": "Guarda tus cambios en este registro. El servidor los valida e indica cualquier campo que necesite atención.",
+      "saveCreate": "Crea el registro con estos valores. El servidor los valida e indica cualquier campo que necesite atención.",
+      "saveValue": "Envía el valor al servidor. Se cifra al llegar y nunca se vuelve a mostrar."
+    },
+    "confirm": {
+      "delete": "Sí, eliminar este registro de forma permanente.",
+      "bulkDelete": "Sí, eliminar de forma permanente todos los registros seleccionados.",
+      "cancel": "Vuelve atrás sin hacer nada.",
+      "danger": "Realiza esta acción destructiva. No se puede deshacer.",
+      "confirm": "Realiza la acción descrita arriba."
+    },
+    "copy": {
+      "id": "Copia el ID del registro al portapapeles, para usarlo con la REST API, los SDK o los filtros.",
+      "value": "Copia este valor al portapapeles.",
+      "block": "Copia todo el bloque al portapapeles, listo para pegarlo en una terminal o un archivo.",
+      "done": "Copiado al portapapeles."
+    },
+    "chart": {
+      "ranges": {
+        "hour": "Muestra los últimos 60 minutos, en intervalos de un minuto.",
+        "day": "Muestra las últimas 24 horas. Los intervalos se ajustan para que el gráfico siga siendo legible.",
+        "week": "Muestra los últimos 7 días. Los intervalos se ajustan para que el gráfico siga siendo legible.",
+        "month": "Muestra los últimos 30 días. Los intervalos se ajustan para que el gráfico siga siendo legible.",
+        "custom": "Elige tu propia hora de inicio y de fin. El servidor rechaza los rangos muy largos."
+      },
+      "refresh": "Vuelve a cargar ahora los datos del gráfico desde el servidor.",
+      "tenant": "Muestra la actividad de solicitudes de un inquilino o de todos los inquilinos del servidor."
+    },
+    "badges": {
+      "active": "Activo: este registro está en uso.",
+      "inactive": "Inactivo: este registro se conserva pero se ignora hasta que se vuelva a activar.",
+      "builtIn": "Integrado: viene con Hugo y es de solo lectura. Clónelo para crear una versión editable.",
+      "custom": "Personalizado: creado en este inquilino, así que se puede editar y eliminar.",
+      "systemAdmin": "Administrador del sistema: puede gestionar todos los inquilinos y omite las comprobaciones de autorización.",
+      "tenantAdmin": "Administrador del inquilino: puede gestionar todo dentro de este inquilino.",
+      "user": "Usuario normal: su acceso proviene solo de las asignaciones de roles.",
+      "role": "Esta asignación concede el rol {{role}} y todos sus permisos.",
+      "defaultProfile": "El perfil predeterminado del inquilino: los llamantes que no indican ningún perfil reciben este.",
+      "expiringSoon": "Este secreto caduca en menos de 14 días. Reemplace sus valores o amplíe la caducidad antes de que los recursos dejen de funcionar.",
+      "lockdown": "Este inquilino está bloqueado: solo se permiten llamadas de lectura hasta que un administrador del inquilino levante el bloqueo.",
+      "locked": "Restringida a su perfil: la credencial solo puede actuar como el perfil vinculado, independientemente de lo que pida el llamante."
+    },
+    "permissions": {
+      "source": "El rol del que proviene esta concesión. Corrige el acceso cambiando ese rol o la asignación que lo concede.",
+      "type": "\"Permitir\" concede las operaciones; \"Denegar\" las bloquea aunque otro rol las permita.",
+      "resources": "Los tipos de registros que abarca esta concesión, como Recurso, Secreto o Perfil de agente.",
+      "operations": "Qué se puede hacer con esos registros, como Read, Create o Execute.",
+      "scope": "El ámbito \"Inquilino\" cubre todos los registros del tipo; el ámbito \"Recurso\" cubre un registro concreto."
+    },
+    "secretOnce": {
+      "accessKey": "La clave de acceso pública. Identifica la clave y es seguro guardarla en la configuración.",
+      "secretKey": "La clave secreta. Esta es la única vez que se muestra; cópiala ahora en tu gestor de contraseñas o almacén de secretos.",
+      "done": "Cierra esta ventana. La clave secreta no se puede recuperar más tarde, solo rotar.",
+      "snippet": "Configuración de cliente MCP lista para pegar que usa esta clave de acceso. La clave secreta se lee de una variable de entorno."
+    },
+    "enums": {
+      "promptTemplateKind": {
+        "System": "Un prompt del sistema: las instrucciones permanentes que configuran el agente.",
+        "Task": "Un prompt de tarea: envuelve el mensaje del llamante en lo que recibe el agente.",
+        "Fragment": "Una pieza reutilizable que otras plantillas incluyen con {{> name}}.",
+        "ToolDescription": "Texto que describe un agente como herramienta MCP o habilidad A2A.",
+        "ConfigFile": "El contenido de un archivo de configuración generado, como una configuración MCP.",
+        "Other": "Cualquier otro texto que Hugo renderiza en las instrucciones."
+      },
+      "permissionType": {
+        "Permit": "Permitir: permite las operaciones indicadas.",
+        "Deny": "Denegar: bloquea las operaciones indicadas, aunque otro permiso las permita."
+      },
+      "effect": {
+        "Read": "Lectura: consulta datos sin cambiar nada, como un SELECT o listar archivos.",
+        "Write": "Escritura: cambia algo que se puede revertir, como un INSERT o subir un archivo.",
+        "Destructive": "Destructivo: elimina, descarta, reinicia o de otro modo no se puede deshacer. Espera aprobación de forma predeterminada."
+      },
+      "accessMode": {
+        "ReadOnly": "Solo lectura: el agente puede consultar, pero las herramientas de escritura y destructivas ni siquiera se enumeran.",
+        "ReadWriteWithApproval": "Lectura y escritura con aprobación: toda llamada de escritura o destructiva espera a una persona.",
+        "ReadWrite": "Lectura y escritura: las escrituras se ejecutan directamente; las llamadas destructivas siguen esperando salvo que el vínculo lo desactive."
+      },
+      "approvalStatus": {
+        "Pending": "Pendiente: esperando a que una persona la apruebe o la rechace.",
+        "Approved": "Aprobada: una persona permitió la llamada y se ejecutó.",
+        "Rejected": "Rechazada: una persona denegó la llamada; se informó al agente.",
+        "Expired": "Caducada: nadie decidió a tiempo, por lo que la llamada se denegó.",
+        "Cancelled": "Cancelada: el turno terminó o el inquilino se bloqueó antes de una decisión."
+      },
+      "toolDecision": {
+        "Allowed": "Permitida: el modo de acceso dejó que la llamada se ejecutara sin preguntar.",
+        "Denied": "Denegada: el modo de acceso, una regla de herramienta o el bloqueo rechazó la llamada.",
+        "ApprovalRequired": "Requiere aprobación: la llamada esperó a una persona.",
+        "Approved": "Aprobada: una persona permitió la llamada.",
+        "Rejected": "Rechazada: una persona denegó la llamada.",
+        "Expired": "Caducada: nadie decidió a tiempo."
+      },
+      "toolStatus": {
+        "Succeeded": "Correcta: la herramienta se ejecutó y devolvió un resultado.",
+        "Failed": "Fallida: la herramienta o el sistema de destino devolvió un error.",
+        "TimedOut": "Tiempo agotado: la herramienta no terminó dentro de su tiempo de espera.",
+        "Cancelled": "Cancelada: el turno se detuvo mientras la herramienta se ejecutaba."
+      },
+      "healthStatus": {
+        "Healthy": "Correcto: la última comprobación llegó al sistema y este respondió con normalidad.",
+        "Degraded": "Degradado: el sistema respondió, pero con lentitud o con advertencias.",
+        "Unhealthy": "Con fallos: la última comprobación no pudo llegar al sistema o este respondió con un error.",
+        "Unknown": "Sin comprobar: todavía no se ha ejecutado ninguna prueba de conexión ni comprobación de estado."
+      },
+      "secretKind": {
+        "Password": "Una contraseña, opcionalmente con su nombre de usuario.",
+        "PrivateKey": "Una clave privada SSH o TLS, opcionalmente con su frase de contraseña.",
+        "ApiToken": "Un token de API o de portador emitido por un servicio.",
+        "AccessKeyPair": "Un ID de clave de acceso y una clave de acceso secreta, como las claves de AWS.",
+        "ServiceAccountJson": "Un archivo de clave de cuenta de servicio en la nube en JSON, como el de Google Cloud.",
+        "Kubeconfig": "Un archivo kubeconfig de Kubernetes con credenciales de clúster y de usuario.",
+        "ConnectionString": "Una cadena de conexión completa que incluye credenciales.",
+        "Certificate": "Un certificado con su clave privada, para TLS mutuo.",
+        "Generic": "Cualquier otro valor secreto único."
+      },
+      "connectorCategory": {
+        "Compute": "Hosts y máquinas a los que se accede por SSH o similar.",
+        "Storage": "Almacenamiento de objetos como S3, Azure Blob y Google Cloud Storage.",
+        "Database": "Bases de datos SQL y de otros tipos.",
+        "Logging": "Servicios de registros como Papertrail y Loki.",
+        "Cache": "Cachés como Redis.",
+        "Cloud": "Planos de control en la nube como AWS.",
+        "Orchestration": "Orquestación de contenedores como Kubernetes y Docker.",
+        "Observability": "Métricas y monitorización como Prometheus y SolarWinds.",
+        "Http": "APIs HTTP genéricas.",
+        "Agent": "Otros agentes a los que se accede mediante MCP o A2A.",
+        "Other": "Conectores que no encajan en ninguna otra categoría."
+      },
+      "surface": {
+        "Chat": "Chat del panel con el bucle de agente propio de Hugo.",
+        "Mcp": "Un cliente MCP como Claude Code realizó la llamada.",
+        "A2A": "Otro agente llamó a este perfil mediante A2A.",
+        "OpenAI": "Un cliente compatible con OpenAI se comunicó con el perfil.",
+        "Rest": "Una invocación directa de herramienta mediante REST o SDK."
+      },
+      "modelKind": {
+        "Inference": "Genera respuestas y llamadas a herramientas.",
+        "Embedding": "Convierte texto en vectores para la recuperación."
+      },
+      "visibility": {
+        "Private": "Solo el propietario puede usarlo.",
+        "Tenant": "Cualquiera con acceso en el inquilino puede usarlo."
+      },
+      "auditEventType": {
+        "AuthorizationDenied": "Una entidad intentó algo que sus permisos no permiten.",
+        "SecretRevealed": "Alguien mostró el texto plano de un secreto, indicando un motivo.",
+        "LockdownChanged": "Un administrador del inquilino activó o desactivó el bloqueo.",
+        "HostKeyMismatch": "Un host SSH presentó una clave distinta de la fijada; la conexión se rechazó."
+      }
+    },
+    "resources": {
+      "tenants": {
+        "add": "Crea un inquilino nuevo: un espacio aislado con sus propios usuarios, recursos, secretos y perfiles.",
+        "name": "Nombre visible del inquilino. Las personas eligen el inquilino por su ID al iniciar sesión.",
+        "description": "Para quién o para qué es este inquilino, por ejemplo un equipo o un cliente.",
+        "active": "Los inquilinos inactivos no pueden iniciar sesión ni llamar a herramientas. Sus datos se conservan.",
+        "region": "Etiqueta de región opcional para este inquilino, para su propio control.",
+        "lockdown": "Un inquilino bloqueado deniega toda llamada que no sea de lectura."
+      },
+      "users": {
+        "add": "Crea una persona que inicia sesión con correo electrónico y contraseña. Después dale acceso con una asignación de rol.",
+        "email": "La dirección con la que la persona inicia sesión. Es única dentro del inquilino.",
+        "name": "Nombre y apellidos, que se muestran en los registros de auditoría y en las listas.",
+        "role": "Nivel de administración de la cuenta. Los usuarios normales obtienen acceso mediante asignaciones de roles.",
+        "password": "Contraseña de inicio de sesión. Al editar, déjala vacía para conservar la contraseña actual.",
+        "firstName": "Nombre de pila, que se muestra en las listas y en los registros de auditoría.",
+        "lastName": "Apellido, que se muestra en las listas y en los registros de auditoría.",
+        "isTenantAdmin": "Los administradores del inquilino pueden gestionar todo dentro de este inquilino, incluidos usuarios y secretos.",
+        "isAdmin": "Los administradores del sistema gestionan todos los inquilinos y omiten la autorización. Concédelo con moderación.",
+        "active": "Los usuarios inactivos no pueden iniciar sesión y sus claves de acceso dejan de funcionar.",
+        "actions": {
+          "permissions": "Muestra todos los permisos que acaba teniendo este usuario tras combinar todos sus roles y asignaciones.",
+          "resetPassword": "Establece una contraseña temporal; el usuario debe cambiarla en el próximo inicio de sesión.",
+          "assignRole": "Abre Asignaciones filtradas por este usuario para conceder un rol."
+        },
+        "mustChangePassword": "El usuario debe elegir una contraseña nueva en su próximo inicio de sesión."
+      },
+      "credentials": {
+        "add": "Crea una clave de acceso para un script, un SDK o un servicio. El secreto se muestra una sola vez después de guardar.",
+        "name": "Para qué sirve esta clave, por ejemplo claude-code-laptop. Ayuda a encontrarla antes de rotarla o eliminarla.",
+        "accessKey": "La mitad pública de la clave, que se envía con cada solicitud. Es seguro guardarla en la configuración.",
+        "secretKeyLast4": "Los cuatro últimos caracteres del secreto, para que puedas identificar una clave sin verla.",
+        "userId": "El usuario propietario de esta clave. Una clave nunca puede hacer más que su propietario.",
+        "lastUsedUtc": "Cuándo autenticó la clave una solicitud por última vez. Las fechas antiguas apuntan a claves sin uso que puedes eliminar.",
+        "authMode": "Cómo puede autenticarse la clave: enviada directamente, firmada en cada solicitud, intercambiada por una sesión o cualquiera de estas (Hybrid).",
+        "expiresUtc": "Después de esta hora la clave deja de funcionar. Déjalo vacío para una clave que no caduca.",
+        "active": "Las claves inactivas se rechazan pero se conservan, así que puedes volver a activarlas.",
+        "actions": {
+          "rotate": "Reemplaza el secreto por uno nuevo. El secreto anterior deja de funcionar de inmediato; el nuevo se muestra una sola vez.",
+          "permissions": "Muestra todos los permisos que acaba teniendo esta clave tras combinar su propietario, sus roles y sus asignaciones.",
+          "scopes": "Abre las asignaciones de ámbito de credenciales filtradas por esta credencial."
+        },
+        "agentProfileId": "El perfil como el que actúa esta credencial de forma predeterminada. Los entornos de ejecución deben usar una credencial vinculada.",
+        "lockToProfile": "Si está activado, la credencial solo puede actuar como su perfil vinculado, independientemente de lo que solicite el llamante."
+      },
+      "roles": {
+        "add": "Crea un rol personalizado, luego añádele permisos y asígnalo a usuarios o claves.",
+        "name": "Nombre que se ve al asignar el rol, por ejemplo Release Operator.",
+        "description": "Para qué sirve el rol y quién debería recibirlo.",
+        "active": "Los roles inactivos no conceden nada, ni siquiera donde están asignados.",
+        "actions": {
+          "clone": "Crea una copia editable de este rol integrado que puedes ajustar."
+        }
+      },
+      "permissions": {
+        "add": "Crea una regla que permite o deniega operaciones sobre tipos de recursos.",
+        "name": "Nombre corto de la regla, que se muestra al construir roles.",
+        "permissionType": "\"Permitir\" permite las operaciones de abajo. \"Denegar\" las bloquea y siempre prevalece sobre un permiso.",
+        "resourceTypes": "Qué tipos de registros cubre la regla. \"All\" cubre todos los tipos.",
+        "operationTypes": "Qué operaciones cubre la regla, como Read, Create o Execute (invocar).",
+        "active": "Los permisos inactivos no tienen efecto."
+      },
+      "userAssignments": {
+        "add": "Da un rol a un usuario, para todo el inquilino o para un registro concreto.",
+        "userId": "La persona que recibe el rol.",
+        "roleName": "El rol concedido. La persona obtiene todos sus permisos.",
+        "roleId": "El rol que se concede. La persona obtiene todos sus permisos.",
+        "resourceScope": "\"Inquilino\" aplica el rol a todos los registros. \"Recurso\" lo limita al registro indicado abajo.",
+        "resourceId": "Identificador del registro al que se aplica el rol, por ejemplo el ID de un agente.",
+        "inheritsToChildren": "Aplica el rol a todos los registros del inquilino, incluidos los que se creen más adelante.",
+        "active": "Las asignaciones inactivas no conceden nada, pero se conservan."
+      },
+      "credentialAssignments": {
+        "add": "Da un rol a una clave de acceso, para todo el inquilino o para un registro concreto.",
+        "credentialId": "La clave de acceso que recibe el rol. Aun así, no puede superar a su propietario.",
+        "roleName": "El rol concedido a la clave.",
+        "roleId": "El rol que se concede. Elige el rol más restringido que permita a la automatización hacer su trabajo.",
+        "resourceScope": "\"Inquilino\" aplica el rol a todos los registros. \"Recurso\" lo limita al registro indicado abajo.",
+        "resourceId": "Identificador del registro al que se aplica el rol, por ejemplo el único agente que puede invocar un trabajo de CI.",
+        "inheritsToChildren": "Aplica el rol a todos los registros del inquilino, incluidos los que se creen más adelante.",
+        "active": "Las asignaciones inactivas no conceden nada, pero se conservan."
+      },
+      "promptTemplates": {
+        "actions": {
+          "clone": "Copia esta plantilla con un nombre nuevo que eliges y abre la copia en el editor."
+        },
+        "add": "Escribe una nueva plantilla de prompt en el editor con vista previa en vivo. Cada guardado se convierte en una versión.",
+        "name": "Nombre de la plantilla, único en el inquilino. Las inclusiones hacen referencia a las plantillas por nombre.",
+        "kind": "Para qué se usa la plantilla: prompt del sistema, envoltorio de tarea, fragmento, descripción de herramienta o archivo de configuración.",
+        "currentVersion": "La versión guardada más reciente. Cada guardado conserva el texto anterior como una versión que se puede restaurar.",
+        "description": "Qué hace la plantilla y dónde se usa."
+      },
+      "audit": {
+        "createdUtc": "Cuándo ocurrió el evento, en tu zona horaria local.",
+        "eventType": "Qué tipo de evento de seguridad o de configuración fue.",
+        "principalName": "Quién lo hizo: un administrador, un usuario o una clave de acceso.",
+        "resource": "El tipo de registro y la operación implicados, por ejemplo Agent / Read.",
+        "reason": "Por qué ocurrió el evento o por qué se denegó el acceso.",
+        "sourceIp": "Dirección de red de la que vino la solicitud.",
+        "principalType": "Si el actor fue un administrador, un usuario o una clave de acceso.",
+        "principalId": "Identificador del administrador, usuario o clave de acceso que actuó.",
+        "resourceType": "Tipo de registro implicado, como Agent o Secret.",
+        "resourceId": "Identificador del registro implicado.",
+        "operation": "Operación que se intentó, como Read o Execute.",
+        "method": "Método HTTP de la solicitud.",
+        "path": "Ruta de la solicitud que causó el evento.",
+        "authResult": "Resultado de comprobar quién es el llamante.",
+        "authorizationResult": "Resultado de comprobar qué puede hacer el llamante.",
+        "bypassReason": "Por qué se omitió la autorización, por ejemplo por ser administrador del sistema.",
+        "statusCode": "Estado HTTP devuelto al llamante.",
+        "requestId": "Identificador de la solicitud. Úsalo para buscar en el historial de solicitudes o en los registros del servidor."
+      },
+      "approvals": {
+        "bulkReject": "Rechaza a la vez todas las aprobaciones seleccionadas. Se informa a cada llamante de que su acción fue denegada.",
+        "summary": "La acción exacta que espera aprobación, por ejemplo ejecutar un comando en un host.",
+        "effect": "Cómo se clasificó la llamada: Escritura cambia algo, Destructivo elimina o reinicia.",
+        "status": "Pendiente espera a una persona; los demás estados son definitivos.",
+        "agentProfileId": "El perfil cuyo vínculo requirió la aprobación.",
+        "requestedBy": "La entidad (usuario, credencial o ejecución de agente) que realizó la llamada.",
+        "createdUtc": "Cuándo propuso el agente la llamada.",
+        "expiresUtc": "Cuándo caduca la solicitud si nadie decide. Las llamadas caducadas se deniegan.",
+        "decidedBy": "Quién aprobó o rechazó la llamada.",
+        "decisionNote": "La nota que dejó el aprobador con la decisión.",
+        "fromUtc": "Muestra las aprobaciones solicitadas en este momento o después.",
+        "actions": {
+          "decide": "Abre la tarjeta de aprobación para aprobar o rechazar esta llamada con una nota.",
+          "invocation": "Abre el registro de invocación de herramienta asociado a esta aprobación."
+        }
+      },
+      "bindings": {
+        "resourceId": "El recurso que asocia este vínculo. Un recurso puede estar vinculado a muchos perfiles.",
+        "alias": "El nombre que usa el agente para este recurso en las llamadas a herramientas y las instrucciones, por ejemplo prod-db.",
+        "accessMode": "Solo lectura, lectura y escritura con aprobación para llamadas arriesgadas, o lectura y escritura. Determina lo que puede hacer el agente.",
+        "requireApprovalForDestructive": "Incluso en modo de lectura y escritura, las llamadas destructivas (eliminaciones, reinicios, descartes) esperan a una persona. Activado de forma predeterminada.",
+        "instructionMode": "Heredar usa las instrucciones del conector y del recurso; Añadir agrega su texto; Reemplazar usa solo su texto.",
+        "instructionText": "Instrucciones adicionales o de reemplazo para este recurso en este perfil, por ejemplo qué esquemas son importantes.",
+        "maxOutputBytes": "Límite de la salida de herramientas de este recurso, más estricto que el predeterminado del conector. Déjelo vacío para usar el predeterminado.",
+        "maxRows": "Límite de filas devueltas por las consultas sobre este recurso. Déjelo vacío para usar el predeterminado del conector.",
+        "enabled": "Los vínculos deshabilitados se conservan pero se ocultan al agente, como si el recurso no estuviera vinculado."
+      },
+      "models": {
+        "apiKeySecretId": "El secreto que contiene la clave de API o las credenciales de este proveedor. Se almacena cifrado; nunca se muestra al modelo.",
+        "add": "Añade un endpoint de modelo de inferencia o de embedding para el bucle de agente propio de Hugo.",
+        "kind": "Los modelos de inferencia responden a los turnos de chat; los modelos de embedding convierten texto en vectores para la recuperación.",
+        "provider": "Qué API usa el endpoint. Compatible con OpenAI abarca vLLM, LM Studio y servidores similares.",
+        "baseUrl": "Dónde escucha la API del proveedor, por ejemplo http://127.0.0.1:11434 para un Ollama local.",
+        "model": "El nombre del modelo en el proveedor, por ejemplo llama3.1, gpt-4o o claude-sonnet.",
+        "apiKey": "La clave de API del proveedor. Se almacena como secreto cifrado y el endpoint hace referencia a ella.",
+        "region": "Región de la nube para los proveedores que la necesitan, como Bedrock o Vertex.",
+        "deploymentName": "La implementación de Azure OpenAI que sirve el modelo.",
+        "apiVersion": "La versión de la API de Azure OpenAI a la que se llama.",
+        "contextWindowTokens": "Cuántos tokens acepta el modelo. Hugo compacta el historial antes de alcanzar ese límite.",
+        "maxOutputTokens": "Límite superior de tokens que el modelo puede generar en una respuesta.",
+        "embeddingDimensions": "Tamaño del vector que genera el modelo de embedding. Si se deja vacío, Validar lo rellena.",
+        "supportsTools": "Si el modelo puede llamar a herramientas. El chat lo necesita para cualquier cosa más allá de respuestas simples.",
+        "supportsStreaming": "Si las respuestas se pueden transmitir token a token.",
+        "maxConcurrency": "Cuántas solicitudes envía Hugo a la vez a este endpoint.",
+        "timeoutSeconds": "Cuánto puede tardar una solicitud al modelo antes de fallar.",
+        "maxRetries": "Cuántas veces se reintenta una solicitud fallida antes de desistir.",
+        "healthStatus": "Resultado de la última validación o comprobación de estado en segundo plano.",
+        "lastHealthUtc": "Cuándo se comprobó el endpoint por última vez.",
+        "sections": {
+          "endpoint": "Qué proveedor y modelo es, y cómo acceder a él.",
+          "capabilities": "Qué puede hacer el modelo y cuánto texto admite.",
+          "limits": "Simultaneidad, tiempos de espera y reintentos de las llamadas a este endpoint."
+        },
+        "actions": {
+          "validate": "Envía un prompt mínimo (o genera el embedding de un texto corto) y registra la latencia y el resultado.",
+          "listModels": "Pregunta al proveedor qué modelos ofrece, cuando el proveedor admite enumerarlos."
+        }
+      },
+      "resources": {
+        "name": "Nombre único de este recurso en el inquilino. Los vínculos lo usan como alias predeterminado que ve el agente.",
+        "connectorType": "Qué tipo de sistema es (SSH, PostgreSQL, S3, etc.). Determina los ajustes, los secretos y las herramientas.",
+        "environment": "Etiqueta libre como prod o staging. El agente la ve, lo que le ayuda a tratar producción con cuidado.",
+        "add": "Añade una conexión a un sistema: elija un conector, rellene sus ajustes, elija sus secretos y pruébelo.",
+        "displayName": "Nombre descriptivo opcional para las personas. El agente usa el nombre o el alias del vínculo.",
+        "visibility": "Los recursos privados los puede usar su propietario; los recursos del inquilino, todos los perfiles del inquilino.",
+        "defaultAccessModeCeiling": "El máximo que un vínculo puede conceder sobre este recurso. Déjelo vacío para permitir cualquier modo de acceso.",
+        "endpoint": "Breve resumen de dónde reside el recurso. Se puede buscar y se muestra al agente.",
+        "description": "Qué es este recurso, para las personas que leen la lista.",
+        "notes": "Notas del operador que el agente recibe en sus instrucciones, como qué tablas son importantes o qué no se debe tocar nunca.",
+        "health": "Resultado de la última prueba de conexión o barrido de estado.",
+        "lastTestUtc": "Cuándo se probó la conexión por última vez.",
+        "sections": {
+          "general": "Nombre, entorno y notas que lee el agente.",
+          "connector": "El conector, sus ajustes y sus secretos."
+        },
+        "actions": {
+          "test": "Prueba ahora los ajustes y secretos guardados contra el sistema real.",
+          "tryTool": "Simula y después ejecuta una de las herramientas de este recurso como un perfil elegido.",
+          "referrers": "Enumera los perfiles y vínculos que usan este recurso."
+        }
+      },
+      "secrets": {
+        "name": "Nombre único de este secreto en el inquilino. Los recursos y endpoints de modelo lo eligen por nombre.",
+        "kind": "Qué contiene el secreto. El tipo determina qué campos tiene y qué ranuras de conector lo aceptan.",
+        "saveValue": "Cifra y almacena los valores nuevos. Los campos que se dejen vacíos conservan sus valores almacenados.",
+        "add": "Almacena un secreto nuevo: elija su tipo y rellene los valores, o impórtelos desde un archivo.",
+        "description": "Para qué sirve el secreto y quién es su propietario. Nunca incluya aquí valores secretos.",
+        "expiresUtc": "Cuándo deja de funcionar la credencial, para que Hugo avise antes de que caduque.",
+        "fingerprint": "Una pista no reversible, como los últimos caracteres o la huella digital de una clave SSH, para distinguir los secretos.",
+        "referrerCount": "Cuántos recursos y endpoints de modelo usan este secreto.",
+        "lastRotatedUtc": "Cuándo se reemplazaron los valores por última vez.",
+        "lastRevealedUtc": "Cuándo se mostró el texto plano por última vez mediante la revelación auditada.",
+        "sections": {
+          "values": "Los valores secretos para este tipo. Se cifran antes de almacenarse."
+        },
+        "actions": {
+          "replaceValues": "Reemplaza algunos o todos los valores; los campos que se dejen vacíos conservan sus valores almacenados.",
+          "reveal": "Muestra los valores en texto plano tras indicar un motivo y volver a introducir la contraseña. Se audita.",
+          "referrers": "Enumera los recursos y endpoints de modelo que usan este secreto."
+        }
+      },
+      "toolInvocations": {
+        "trace": "Abre la traza distribuida de esta llamada en Grafana Tempo en una pestaña nueva.",
+        "createdUtc": "Cuándo se realizó la llamada. Pase el cursor por encima para ver la hora exacta.",
+        "toolName": "La herramienta a la que se llamó, como sql_query o ssh_exec.",
+        "resourceId": "El recurso (alias del vínculo) sobre el que se ejecutó la llamada.",
+        "effect": "Cómo se clasificó la llamada: Lectura, Escritura o Destructivo.",
+        "decision": "Qué decidió el canal de seguridad: permitida, denegada o enviada a aprobación y su resultado.",
+        "status": "Cómo terminó la llamada: correcta, fallida, tiempo agotado o cancelada.",
+        "durationMs": "Cuánto tardó la llamada en el servidor.",
+        "surface": "Qué superficie realizó la llamada: chat, MCP, A2A, compatible con OpenAI o REST.",
+        "agentProfileId": "El perfil como el que actuó el llamante.",
+        "principalId": "El usuario o la credencial detrás de la llamada.",
+        "fromUtc": "Muestra las llamadas realizadas en este momento o después.",
+        "toUtc": "Muestra las llamadas realizadas antes de este momento.",
+        "accessMode": "El modo de acceso del vínculo cuando se realizó la llamada.",
+        "outputBytes": "Tamaño de la salida de la herramienta antes del truncado.",
+        "approvalId": "La aprobación que esperó la llamada, si la hubo.",
+        "traceId": "Traza distribuida de la llamada, visible en Grafana Tempo.",
+        "argumentsRedacted": "Los argumentos tal como se almacenaron, con los secretos sustituidos por marcadores.",
+        "outputPreview": "El principio de la salida que recibió el agente, tras eliminar los secretos."
+      },
+      "profiles": {
+        "add": "Crea un perfil de agente: una persona, modelos, límites y las superficies que lo exponen.",
+        "name": "Nombre apto para URL, único en el inquilino. Los clientes MCP acceden al perfil en /mcp/{name} y A2A en .../{name}.",
+        "displayName": "Nombre descriptivo que se muestra en el panel y en la tarjeta de agente A2A.",
+        "description": "Para qué sirve este perfil. Se muestra a las personas y en el resumen de la tarjeta A2A.",
+        "personaName": "Cómo se llama a sí mismo el agente en la conversación. El perfil predeterminado usa Agent Smith.",
+        "userAddress": "Cómo se dirige el agente al llamante. El perfil predeterminado dice Mr. Anderson.",
+        "visibility": "Los perfiles privados son visibles para su propietario; los perfiles del inquilino, para todos los que tienen acceso en el inquilino.",
+        "inferenceEndpointId": "El modelo que ejecuta el bucle de agente propio de Hugo para el chat, A2A y los clientes OpenAI. Los llamantes MCP aportan su propio modelo.",
+        "fallbackInferenceEndpointId": "Se usa cuando el modelo principal falla o no está disponible.",
+        "embeddingEndpointId": "Genera embeddings de las descripciones de herramientas y las notas de conocimiento para que los perfiles grandes recuperen solo las herramientas relevantes.",
+        "maxIterations": "Límite superior de rondas de modelo y herramientas en un turno. La última ronda debe responder sin herramientas.",
+        "maxToolCallsPerTurn": "Límite superior de llamadas a herramientas en un turno, sumando todas las rondas.",
+        "toolTimeoutSeconds": "Cuánto puede ejecutarse una llamada a herramienta antes de cancelarse.",
+        "temperature": "Temperatura de muestreo del modelo. Los valores más bajos hacen que las respuestas sean más deterministas.",
+        "exposeMcp": "Muestra las herramientas e instrucciones de este perfil a clientes MCP como Claude Code.",
+        "exposeA2a": "Publica una tarjeta de agente A2A y acepta mensajes A2A para este perfil.",
+        "exposeOpenai": "Permite que los clientes compatibles con OpenAI usen este perfil como nombre de modelo.",
+        "exposeManagementTools": "Expone también herramientas de administración (crear recursos, cambiar vínculos) a los llamantes con derechos de administración. Desactivado de forma predeterminada.",
+        "instructionsAppend": "Texto libre que se añade a las instrucciones compiladas, después de todas las secciones de recursos.",
+        "bindingCount": "Cuántos recursos están vinculados a este perfil.",
+        "exposure": "Qué superficies de protocolo pueden acceder a este perfil.",
+        "sections": {
+          "identity": "Nombre, persona y visibilidad.",
+          "models": "Qué modelos responden por este perfil en el bucle propio de Hugo.",
+          "limits": "Límites de cada turno, para que un bucle descontrolado se detenga.",
+          "exposure": "Qué superficies de protocolo pueden acceder a este perfil."
+        },
+        "actions": {
+          "chat": "Abre el chat para hablar con este perfil.",
+          "duplicate": "Copia este perfil y sus vínculos con un nombre nuevo y abre la copia."
+        }
+      },
+      "conversations": {
+        "title": "El título de la conversación, generado a partir del primer intercambio.",
+        "agentProfileId": "El perfil con el que se mantiene la conversación.",
+        "userId": "A quién pertenece la conversación: un usuario o una credencial.",
+        "source": "Dónde empezó la conversación: chat del panel, A2A, MCP o un cliente compatible con OpenAI.",
+        "messageCount": "Mensajes de la conversación, del usuario y del agente.",
+        "tokens": "Tokens de entrada y salida usados hasta ahora en la conversación.",
+        "lastMessageUtc": "Cuándo se añadió el último mensaje.",
+        "fromUtc": "Muestra las conversaciones activas en este momento o después.",
+        "actions": {
+          "export": "Descarga la conversación en Markdown, con las llamadas a herramientas resumidas."
+        }
+      },
+      "knowledge": {
+        "add": "Escriba una nota sobre su infraestructura que Hugo pueda incorporar al contexto.",
+        "title": "Un título breve que indique de qué trata la nota.",
+        "agentProfileId": "Limita la nota a un perfil, o déjelo vacío para que todos los perfiles puedan usarla.",
+        "resourceId": "Asocia la nota a un recurso, para que se use cuando ese recurso intervenga.",
+        "content": "La nota en sí, en lenguaje sencillo, por ejemplo qué hosts sirven el proceso de pago.",
+        "lastUpdateUtc": "Cuándo se editó la nota por última vez (y se regeneró su embedding)."
+      },
+      "sessions": {
+        "principalName": "A quién pertenece la sesión: un usuario, un administrador o una credencial.",
+        "principalType": "Si la sesión pertenece a un administrador, un usuario o una credencial.",
+        "principalId": "Muestra solo las sesiones de este ID de entidad.",
+        "authScheme": "Cómo se obtuvo la sesión: inicio de sesión con contraseña, canje de clave de acceso o una solicitud firmada.",
+        "sourceIp": "La dirección desde la que se creó la sesión.",
+        "issuedUtc": "Cuándo se emitió la sesión.",
+        "lastUsedUtc": "Cuándo se usó la sesión por última vez para una solicitud.",
+        "expiresUtc": "Cuándo caduca la sesión por sí sola.",
+        "revokedUtc": "Las sesiones revocadas ya no funcionan; las activas siguen funcionando.",
+        "userAgent": "El cliente que creó la sesión, tal como se identificó."
+      },
+      "plugins": {
+        "name": "El nombre del ensamblado del plugin.",
+        "version": "La versión del plugin tal como se declara en su ensamblado.",
+        "connectorTypes": "Tipos de conector que este plugin añade al catálogo.",
+        "enabled": "Los plugins deshabilitados permanecen en disco, pero sus conectores no se ofrecen.",
+        "loadError": "Por qué no se pudo cargar el plugin, si fue el caso.",
+        "sha256": "Suma de comprobación del archivo del plugin, para confirmar qué compilación está cargada.",
+        "actions": {
+          "enable": "Carga los conectores de este plugin en el próximo reinicio.",
+          "disable": "Deja de ofrecer los conectores de este plugin tras el próximo reinicio."
+        }
+      }
+    },
+    "views": {
+      "home": {
+        "observabilityState": {
+          "reachable": "El servidor alcanzó {{service}} en su URL interna en los últimos 30 segundos.",
+          "unreachable": "El servidor no pudo alcanzar {{service}} en su URL interna. Comprueba que el servicio esté en marcha y que el ajuste de URL interna apunte a él.",
+          "checking": "Preguntando al servidor si {{service}} es accesible.",
+          "unknown": "El servidor no informó si {{service}} es accesible. La comprobación de estado falló o este servidor aún no la admite."
+        },
+        "observabilityVersion": "Versión que {{service}} informó en la comprobación de estado del servidor.",
+        "kpisGrafana": "Abre el panel de resumen de Hugo en Grafana en una pestaña nueva para ver estas cifras a lo largo del tiempo.",
+        "grafanaDashboards": "La carpeta de Hugo en Grafana tiene un panel por sección. Cada enlace abre ese panel en una pestaña nueva.",
+        "grafanaSections": {
+          "overview": "Estado de un vistazo: tiempo de actividad, tasa de solicitudes, proporción de errores, llamadas a herramientas y aprobaciones pendientes.",
+          "http": "Tráfico HTTP: tasa por ruta y clase de estado, cuantiles de latencia y las rutas más lentas.",
+          "models": "Solicitudes a modelos, errores, latencia y tokens por proveedor.",
+          "protocols": "Solicitudes MCP y A2A por método y resultado.",
+          "security": "Inicios de sesión, denegaciones de autorización, revelaciones de secretos, ocultaciones y bloqueo.",
+          "agent": "Bucle de agente y chat: turnos, desglose por etapas, iteraciones y tiempo hasta el primer token.",
+          "tools": "Llamadas a herramientas por conector y efecto, decisiones, latencia, tamaños de salida y errores."
+        },
+        "observabilityDocs": "Abre la guía de telemetría en una pestaña nueva: cómo recopilar las métricas de Hugo y conectar Grafana, Prometheus, Tempo o Loki.",
+        "observability": "Enlaces a las herramientas de métricas, paneles y trazas que este servidor Hugo indica como configuradas. Los servicios no configurados no se muestran.",
+        "kpis": {
+          "requests": "Solicitudes de API que el servidor gestionó en las últimas 24 horas. Haga clic para abrir el historial de solicitudes.",
+          "toolCalls": "Llamadas a herramientas desde todas las superficies en las últimas 24 horas. Haga clic para abrir Invocaciones de herramientas.",
+          "failures": "Solicitudes de API fallidas más llamadas a herramientas fallidas en las últimas 24 horas. Haga clic para ver las llamadas a herramientas fallidas.",
+          "approvals": "Llamadas a herramientas controladas que esperan ahora mismo a una persona. Haga clic para abrir la bandeja de aprobaciones.",
+          "unhealthy": "Recursos cuya última prueba de conexión o comprobación de estado falló. Haga clic para verlos.",
+          "tokens": "Tokens de entrada y salida usados por las llamadas a modelos propias de Hugo desde medianoche. Haga clic para abrir la analítica."
+        },
+        "openFailure": "Abre Invocaciones de herramientas filtradas por esta herramienta fallida.",
+        "cta": {
+          "apiExplorer": "Prueba cualquier llamada a la API en vivo contra este servidor.",
+          "addResource": "Conecta un sistema: un host SSH, un bucket, una base de datos o un servicio de registros, con sus secretos.",
+          "addModel": "Añade un modelo de inferencia o de embedding para que Agent Smith pueda responder en el chat.",
+          "chat": "Abre el chat para preguntar a Agent Smith sobre su infraestructura.",
+          "connect": "Abre la pestaña Conectar de un perfil para ver la configuración de Claude Code, A2A y compatible con OpenAI.",
+          "approvals": "Revisa las llamadas a herramientas arriesgadas que esperan una decisión."
+        },
+        "services": {
+          "loki": "Abre Loki en una pestaña nueva para buscar en los registros de Hugo.",
+          "grafana": "Abre los paneles de Grafana con las métricas de Hugo en una pestaña nueva.",
+          "prometheus": "Abre en una pestaña nueva el servidor Prometheus que recopila las métricas de Hugo.",
+          "tempo": "Abre Tempo en una pestaña nueva para explorar trazas."
+        },
+        "serviceGeneric": "Abre este servicio incluido en una pestaña nueva."
+      },
+      "templateEditor": {
+        "cloneName": "Nombre de la copia. Funcionan bien minúsculas, dígitos, guiones y barras; el prefijo builtin/ está reservado.",
+        "cloneConfirm": "Crea la copia con este nombre y ábrela en el editor.",
+        "clone": "Crea una copia editable de esta plantilla. Eliges el nombre de la copia antes de crearla.",
+        "reset": "Restaura esta plantilla integrada al contenido con el que se distribuye Hugo.",
+        "delete": "Elimina esta plantilla y sus versiones. Todo lo que la incluía vuelve a la predeterminada integrada.",
+        "create": "Crea la plantilla y su primera versión.",
+        "save": "Guarda el contenido como una versión nueva. Las conversaciones y sesiones MCP nuevas la usan.",
+        "changeNote": "Una nota breve que se guarda con la versión y explica qué cambió y por qué.",
+        "columns": {
+          "version": "Número de versión. Cuanto más alto, más reciente.",
+          "note": "La nota de cambio guardada con la versión.",
+          "author": "Quién guardó esta versión de la plantilla.",
+          "saved": "Cuándo se guardó la versión."
+        },
+        "diff": "Compara esta versión con lo que hay ahora en el editor.",
+        "restore": "Vuelve a hacer actual esta versión. El contenido actual se queda en el historial."
+      },
+      "serverInfo": {
+        "rest": "Dirección base para las llamadas a la API REST y los SDK.",
+        "mcp": "Dirección a la que se conectan los clientes MCP. Ahí aparece cada agente expuesto como herramienta.",
+        "a2a": "Dirección base de la pasarela A2A para este inquilino. Cada agente tiene su propia tarjeta debajo de ella.",
+        "openapi": "El documento OpenAPI que describe todas las operaciones REST.",
+        "version": "Versión del servidor Hugo.",
+        "dashboardVersion": "Versión de esta consola.",
+        "node": "La instancia del servidor que respondió a la solicitud de información del servidor de esta página.",
+        "database": "Motor de base de datos que usa el servidor.",
+        "health": "Resultado de la comprobación de estado del servidor.",
+        "routes": "Cuántas operaciones de API registró el servidor.",
+        "serverTime": "El reloj del servidor. Las diferencias grandes con tu reloj pueden romper las solicitudes firmadas.",
+        "principalName": "La identidad con la que has iniciado sesión.",
+        "principalType": "Si iniciaste sesión como usuario o con una clave de acceso.",
+        "role": "Tu nivel de acceso más alto.",
+        "tenant": "El inquilino al que pertenece tu sesión.",
+        "expires": "Cuándo termina tu sesión y tendrás que volver a iniciar sesión.",
+        "rawJson": "Muestra la respuesta sin procesar con la información del servidor.",
+        "connectors": "Cuántos tipos de conector cargó el servidor, incluidos los plugins.",
+        "openai": "URL base del endpoint compatible con OpenAI; los nombres de perfil son los ID de modelo."
+      },
+      "requests": {
+        "grafana": "Abre en una pestaña nueva el panel HTTP de Grafana: tasas de solicitudes, latencia y errores a lo largo del tiempo a partir de las métricas de Prometheus.",
+        "kpis": {
+          "total": "Solicitudes que el servidor guardó en su historial para el rango y los filtros seleccionados.",
+          "success": "Solicitudes que devolvieron un estado 2xx o 3xx.",
+          "failure": "Solicitudes que devolvieron un estado 4xx o 5xx.",
+          "avgDuration": "Tiempo medio que tardó el servidor en responder."
+        },
+        "columns": {
+          "time": "Cuándo llegó la solicitud.",
+          "method": "Método HTTP de la solicitud.",
+          "path": "Ruta a la que se llamó. Pasa el cursor sobre un valor para verlo completo.",
+          "status": "Estado HTTP que devolvió el servidor.",
+          "duration": "Cuánto tardó el servidor en responder.",
+          "principal": "Quién realizó la solicitud: un administrador, un usuario o una clave de acceso."
+        },
+        "viewDetails": "Abre la solicitud con sus encabezados, cuerpos y tiempos.",
+        "viewJson": "Abre el registro de la solicitud, incluido su JSON sin procesar.",
+        "deleteOne": "Quita esta solicitud del historial.",
+        "bulkDeleteAll": "Elimina todas las solicitudes que coinciden con los filtros actuales, no solo las de esta página."
+      },
+      "explorer": {
+        "operations": "Elige una operación de la API, agrupadas por área. El formulario de abajo se adapta a sus parámetros.",
+        "pathParam": "Parámetro de ruta {{name}} ({{type}}). Se sustituye en la URL. {{description}}",
+        "queryParam": "Parámetro de consulta {{name}} ({{type}}). Se añade a la URL cuando se rellena. {{description}}",
+        "copyUrl": "Copia la URL de la solicitud completamente resuelta.",
+        "headerName": "Nombre de un encabezado de la solicitud. Authorization se añade automáticamente a partir de tu sesión.",
+        "headerValue": "Valor que se envía para este encabezado.",
+        "removeHeader": "Quita este encabezado de la solicitud.",
+        "addHeader": "Añade otro encabezado a la solicitud.",
+        "body": "Cuerpo JSON de la solicitud para operaciones que crean o cambian registros.",
+        "execute": "Envía ahora la solicitud al servidor con tu sesión. Los métodos destructivos piden confirmación.",
+        "stop": "Cancela la solicitud o deja de leer una respuesta transmitida.",
+        "snippets": {
+          "curl": "La misma solicitud como comando curl para una terminal.",
+          "fetch": "La misma solicitud como código fetch de JavaScript.",
+          "csharp": "La misma solicitud como código HttpClient de C#."
+        },
+        "clearHistory": "Olvida todas las solicitudes recientes guardadas en este navegador.",
+        "loadHistory": "Vuelve a cargar esta solicitud en el formulario.",
+        "deleteHistory": "Quita esta entrada de la lista de solicitudes recientes.",
+        "confirmExecute": "Envía esta solicitud aunque pueda cambiar o eliminar datos."
+      },
+      "a2aExplorer": {
+        "profile": "El perfil con el que comunicarse. Solo responden los perfiles con la exposición A2A activada.",
+        "fetchCard": "Descarga la tarjeta de agente pública del perfil desde su URL conocida.",
+        "listTasks": "Enumera las tareas A2A propias en este perfil (los administradores del inquilino ven todas las tareas).",
+        "message": "El texto que se enviará al agente como mensaje de usuario.",
+        "stream": "Usa SendStreamingMessage y muestra los eventos a medida que llegan, en lugar de esperar a la respuesta final.",
+        "send": "Envía el mensaje mediante A2A JSON-RPC con su propia entidad.",
+        "context": "Los mensajes del mismo contexto continúan una misma conversación. Cambie el perfil para empezar de nuevo.",
+        "events": "Cada evento transmitido tal como lo envió el servidor."
+      },
+      "analytics": {
+        "profile": "Limita todos los gráficos a un perfil de agente, o muestra todo el inquilino.",
+        "kpis": {
+          "turns": "Turnos de chat, A2A y compatibles con OpenAI que ejecutaron el bucle de agente propio de Hugo en el intervalo.",
+          "toolCalls": "Llamadas a herramientas desde todas las superficies en el intervalo, incluidas las denegadas y rechazadas.",
+          "failures": "Llamadas a herramientas que terminaron como Fallida o Tiempo agotado en el intervalo.",
+          "tokens": "Tokens de entrada y salida usados por las llamadas a modelos de Hugo en el intervalo.",
+          "approvals": "Aprobaciones solicitadas en el intervalo, sea cual sea su resultado.",
+          "turnaround": "Tiempo mediano desde que se solicita una aprobación hasta que una persona la decide.",
+          "approvalRate": "Proporción de aprobaciones decididas que se aprobaron en lugar de rechazarse."
+        },
+        "columns": {
+          "connector": "El tipo de conector al que fueron las llamadas.",
+          "calls": "Llamadas a herramientas a este conector en el intervalo.",
+          "failures": "Llamadas a este conector que fallaron o agotaron el tiempo de espera.",
+          "p95": "El 95 por ciento de las llamadas a este conector terminaron dentro de este tiempo."
+        }
+      },
+      "chat": {
+        "search": "Busca en sus conversaciones por título.",
+        "profile": "El perfil de agente con el que comunicarse. Determina la persona, el modelo y qué recursos puede usar el agente.",
+        "model": "El modelo de inferencia que usa este perfil para sus respuestas.",
+        "new": "Inicia una conversación nueva con el perfil seleccionado.",
+        "export": "Descarga esta conversación en Markdown.",
+        "drawer": "Muestra u oculta el panel lateral de contexto: perfil, recursos vinculados, uso de tokens y aprobaciones pendientes.",
+        "goModels": "Abre Endpoints de modelo para añadir un modelo de inferencia.",
+        "goProfiles": "Abre Perfiles de agente para crear o elegir un perfil."
+      },
+      "connectors": {
+        "search": "Filtra los conectores por tipo, familia, nombre o descripción.",
+        "category": "Muestra solo una categoría de conectores, como bases de datos o servicios de registros.",
+        "card": "Abre {{name}}: sus ajustes, ranuras de secretos, herramientas e instrucciones predeterminadas.",
+        "back": "Vuelve al catálogo de conectores.",
+        "addResource": "Abre Recursos para añadir un recurso que use un conector.",
+        "editInstructions": "Abre Plantillas de prompt filtradas por la plantilla de instrucciones de este conector.",
+        "tabs": {
+          "overview": "Tipo, familia, categoría, versión y las ranuras de secretos que necesita este conector.",
+          "settings": "El formulario de ajustes que recibe un recurso de este tipo y una tabla de referencia de todos los ajustes.",
+          "tools": "Todas las herramientas que ofrece este conector, con su efecto base.",
+          "instructions": "Las instrucciones que añade para el agente cada recurso de este tipo."
+        },
+        "columns": {
+          "key": "La clave del ajuste tal como se almacena en el recurso y la acepta la API.",
+          "kind": "El tipo de valor: texto, texto largo, número entero, verdadero o falso, lista, o uno de un conjunto.",
+          "required": "Si un recurso debe establecer un valor para este ajuste.",
+          "default": "El valor que se usa cuando un recurso deja el ajuste vacío.",
+          "range": "Los valores permitidos o el mínimo y el máximo para los números.",
+          "group": "La sección del formulario de recurso en la que aparece el ajuste."
+        }
+      },
+      "mcpExplorer": {
+        "profile": "Conecta a /mcp/{profile}, o deja que el servidor resuelva su perfil a partir de la credencial o los valores predeterminados.",
+        "connect": "Ejecuta initialize y después enumera las herramientas que puede ver este llamante.",
+        "session": "La sesión MCP que asignó el servidor. Todas las solicitudes de este explorador la reutilizan.",
+        "instructions": "Las instrucciones compiladas que devuelve el servidor desde initialize, tal como las recibe un cliente MCP.",
+        "call": "Llama a la herramienta seleccionada con estos argumentos a través del canal de seguridad completo.",
+        "log": "Cada solicitud y respuesta JSON-RPC intercambiada con el servidor, en orden."
+      },
+      "profile": {
+        "back": "Vuelve a la lista de perfiles de agente.",
+        "chat": "Abre el chat para hablar con este perfil.",
+        "tabs": {
+          "general": "Persona, cómo se dirige al usuario, modelos, límites y qué superficies exponen este perfil.",
+          "bindings": "Recursos asociados a este perfil, cada uno con un alias y un modo de acceso.",
+          "instructions": "Las instrucciones compiladas que recibe un llamante, con la procedencia de cada sección.",
+          "tools": "Las herramientas que ve un llamante de este perfil, tras los modos de acceso y las reglas de herramientas.",
+          "connect": "Fragmentos para conectar Claude Code, otros clientes MCP, agentes A2A y clientes compatibles con OpenAI."
+        },
+        "bindings": {
+          "add": "Asocia un recurso a este perfil con un alias y un modo de acceso.",
+          "goResources": "Abre Recursos para añadir los sistemas a los que debe acceder este perfil.",
+          "columns": {
+            "alias": "El nombre que usa el agente para el recurso en las llamadas a herramientas.",
+            "resource": "El recurso que asocia este vínculo.",
+            "accessMode": "Lo que puede hacer el agente con el recurso: solo lectura, lectura y escritura con aprobación, o lectura y escritura.",
+            "approval": "Si algunas llamadas de este vínculo esperan a una persona.",
+            "enabled": "Los vínculos deshabilitados se ocultan al agente."
+          }
+        },
+        "toolRules": {
+          "open": "Permite, deniega o requiere aprobación para herramientas concretas de este vínculo.",
+          "rule": "Permitir deja que la herramienta se ejecute según el modo de acceso; Denegar la oculta; Requerir aprobación siempre pregunta a una persona.",
+          "save": "Guarda estas reglas de herramientas. Se aplican de inmediato a las llamadas nuevas."
+        },
+        "instructions": {
+          "surface": "Las instrucciones varían ligeramente según la superficie (chat, MCP, A2A, OpenAI, REST). Elija una para la vista previa.",
+          "section": "Una sección de las instrucciones compiladas y la capa de plantilla de la que procede."
+        },
+        "tools": {
+          "name": "El nombre de herramienta que usa un llamante, normalmente familia_operación, como sql_query.",
+          "effect": "El efecto base: Lectura, Escritura o Destructivo. Algunas herramientas se clasifican en cada llamada.",
+          "description": "Lo que hace la herramienta, tal como lo ve el modelo del llamante."
+        },
+        "connect": {
+          "copyCard": "Copia la URL de la tarjeta de agente para que otro agente A2A descubra este perfil.",
+          "copyOpenai": "Copia la URL base compatible con OpenAI.",
+          "credential": "Abre Credenciales para crear una clave de acceso vinculada a este perfil."
+        }
+      },
+      "resources": {
+        "form": {
+          "test": "Prueba los ajustes y secretos de este formulario contra el sistema real antes de guardar nada."
+        },
+        "tryTool": {
+          "profile": "El perfil como el que actuar. Su vínculo determina el modo de acceso y las aprobaciones de la llamada.",
+          "tool": "Una herramienta que el perfil expone para este recurso.",
+          "arguments": "Los argumentos de la herramienta en JSON. El argumento resource indica el alias del vínculo.",
+          "dryRun": "Clasifica la llamada (efecto, decisión, modo de acceso) sin ejecutarla.",
+          "execute": "Ejecuta la llamada a través del canal completo. Las llamadas arriesgadas esperan aprobación como cualquier otra."
+        }
+      },
+      "secrets": {
+        "reveal": {
+          "reason": "Por qué necesita ver este secreto. Se guarda en el registro de auditoría con la revelación.",
+          "submit": "Solicita al servidor los valores en texto plano. Requiere el permiso Mostrar y se audita.",
+          "password": "La contraseña de su cuenta, para confirmar su identidad antes de mostrar secretos.",
+          "reauth": "Vuelve a autenticar esta sesión con su contraseña y después muestra el secreto.",
+          "copy": "Copia este valor al portapapeles. No se vuelve a mostrar después de ocultarse.",
+          "again": "Vuelve a mostrar los valores. Se audita como una nueva revelación."
+        }
+      },
+      "settings": {
+        "applyLive": "Se aplica inmediatamente al guardar.",
+        "applyRestart": "Se aplica después de reiniciar el servidor.",
+        "fieldGeneric": "Ajuste del servidor {{path}}.",
+        "groupGeneric": "Ajustes del grupo {{group}}.",
+        "restart": "Reinicia el servidor Hugo para que surtan efecto los ajustes que requieren reinicio. El contenedor lo reinicia automáticamente.",
+        "save": "Guarda todos los ajustes modificados. Los ajustes en vivo se aplican al instante; los demás esperan a un reinicio.",
+        "settingPath": "Ruta del ajuste: {{path}}. Use este nombre en hugo.json y en la API REST de ajustes.",
+        "sourceGeneric": "De dónde proviene el valor actual.",
+        "testDatabase": "Prueba a conectarte con los ajustes de base de datos de arriba antes de guardarlos.",
+        "viewJson": "Muestra la respuesta de configuración sin procesar.",
+        "groups": {
+          "Rest": "Dónde escucha el servidor y cómo se accede a él desde fuera, incluso detrás de proxies.",
+          "Database": "En qué base de datos almacena Hugo sus propios datos: SQLite o PostgreSQL.",
+          "Logging": "Registro en consola y en archivo del proceso del servidor.",
+          "Auth": "Duración de las sesiones, firma de tokens y límites de frecuencia de inicio de sesión.",
+          "Secrets": "El almacén de secretos: origen de la clave maestra y la ventana de reautenticación para mostrar secretos.",
+          "RequestHistory": "Si se registran las solicitudes de API, cuánto de cada cuerpo se conserva y durante cuánto tiempo.",
+          "Audit": "Cuánto tiempo se conservan los eventos de seguridad y con qué frecuencia se muestrean los inicios de sesión correctos.",
+          "Telemetry": "Trazas y métricas exportadas a los Tempo y Prometheus incluidos.",
+          "Agent": "Límites y comportamiento del bucle de agente propio de Hugo para el chat, A2A y los clientes OpenAI.",
+          "Approvals": "Cuánto esperan las aprobaciones, cuánto se bloquean las llamadas MCP en ellas y si se permite la autoaprobación.",
+          "Connectors": "Plugins, tiempos de espera de herramientas y el barrido de estado de recursos en segundo plano.",
+          "Models": "Con qué frecuencia se comprueba el estado de los endpoints de modelo.",
+          "Mcp": "El endpoint MCP: activado o desactivado, tiempos de espera de sesión y tamaño de los mensajes.",
+          "A2A": "Si se puede acceder a los perfiles mediante A2A.",
+          "OpenAI": "Si el endpoint compatible con OpenAI está activado.",
+          "Embeddings": "Cómo se almacenan y buscan los vectores, incluido pgvector en PostgreSQL."
+        },
+        "source": {
+          "File": "Establecido actualmente en hugo.json. Guardar aquí actualiza el archivo.",
+          "Environment": "Definido por una variable de entorno, que prevalece sobre cualquier valor guardado aquí.",
+          "Database": "Almacenado en la base de datos."
+        }
+      }
+    },
+    "export": {
+      "menu": "Descarga {{name}}: los datos como CSV o JSON, o el gráfico como imagen PNG o SVG con su título, leyenda, filtros y rango de tiempo.",
+      "csv": "Descarga como CSV los datos exactos de esta vista: una fila por intervalo o registro, marcas de tiempo ISO 8601 en UTC y números simples con punto decimal.",
+      "png": "Descarga el gráfico como imagen PNG al doble de la resolución de pantalla, con título, leyenda, filtros activos y rango de tiempo.",
+      "svg": "Descarga el gráfico como imagen SVG escalable, con título, leyenda, filtros activos y rango de tiempo.",
+      "json": "Descarga los datos como JSON, con las series, los intervalos, los filtros y el rango de tiempo en un solo documento."
+    },
+    "analytics": {
+      "dataTable": "Muestra como tabla los números en los que se basa este gráfico, con una fila por intervalo de tiempo.",
+      "bucketStart": "Inicio del intervalo de tiempo. Cada fila cubre un intervalo."
+    },
+    "approvalCard": {
+      "approve": "Permite que esta llamada se ejecute ahora. La decisión y su nota se registran en el registro de auditoría.",
+      "reject": "Deniega esta llamada. Se informa al agente de que la acción fue rechazada y continúa sin ella.",
+      "note": "Nota opcional que se guarda con su decisión, por ejemplo por qué aprobó un reinicio."
+    },
+    "chat": {
+      "input": "Escriba un mensaje para Agent Smith. Intro envía; Mayús+Intro inicia una línea nueva. Los borradores se conservan por conversación.",
+      "send": "Envía el mensaje y transmite la respuesta, incluidas las llamadas a herramientas que realice Agent Smith.",
+      "stop": "Detiene la respuesta ahora. Las llamadas a herramientas en curso se cancelan y se conserva la respuesta parcial.",
+      "thinking": "El razonamiento del modelo para esta respuesta, cuando el modelo lo comparte. Contraído de forma predeterminada.",
+      "ttft": "Tiempo hasta el primer token: desde el envío del mensaje hasta la llegada de la primera parte de la respuesta.",
+      "duration": "Cuánto duró el turno completo, incluidas las llamadas a herramientas y la espera de aprobaciones.",
+      "tokens": "Tokens de entrada y salida que usó el modelo, según informa el proveedor."
+    },
+    "errors": {
+      "status": "El código de estado HTTP con el que respondió el servidor.",
+      "requestId": "El ID del servidor para esta solicitud. Búsquelo en el historial de solicitudes o en los registros del servidor.",
+      "copyRequestId": "Copia el ID de solicitud, por ejemplo para incluirlo en un informe de error.",
+      "traceId": "ID de traza distribuida. Con él puede encontrar la solicitud completa en Tempo a través de Grafana."
+    },
+    "nav": {
+      "approvalsBadge_one": "{{count}} llamada a herramienta está esperando a que una persona la apruebe o la rechace. Abra Aprobaciones para decidir.",
+      "approvalsBadge_other": "{{count}} llamadas a herramientas están esperando a que una persona las apruebe o las rechace. Abra Aprobaciones para decidir.",
+      "setup": "Abre el asistente de configuración: conecte un modelo, añada un primer recurso, vincúlelo al perfil de Hugo y conecte Claude Code.",
+      "skipToContent": "Salta la navegación y ve directamente al contenido principal de esta página. Útil sobre todo para quienes usan el teclado.",
+      "tour": "Vuelve a reproducir el breve recorrido guiado que muestra la navegación, el contexto y dónde se encuentra cada cosa.",
+      "environment": {
+        "local": "El panel se comunica con un servidor Hugo en este equipo (una dirección de bucle invertido).",
+        "remote": "El panel se comunica con un servidor Hugo en otro host. Los cambios aquí afectan a ese servidor."
+      },
+      "subtabs": {
+        "roles": "Los roles agrupan permisos con un nombre, como Operator o Builder. Asigne un rol para conceder a alguien todos sus permisos.",
+        "permissions": "Reglas individuales que permiten o deniegan operaciones sobre tipos de recursos. Los roles se componen de ellas; la denegación siempre prevalece.",
+        "userAssignments": "Concede roles a las personas que inician sesión con correo electrónico y contraseña, en todo el inquilino o en un recurso.",
+        "credentialAssignments": "Concede roles a las claves de acceso que usan los entornos de ejecución y la automatización. Mantenga las claves más restringidas que sus propietarios."
+      },
+      "hubs": {
+        "home": "Abre el centro de control: KPI, actividad de solicitudes, errores recientes, recursos con fallos y flujos de trabajo habituales.",
+        "chat": "Hable con Agent Smith sobre su infraestructura. Las llamadas a herramientas se muestran en línea, y las arriesgadas esperan su aprobación.",
+        "profiles": "Cree perfiles de agente y vincúleles recursos con modos de acceso; cada superficie se comunica con un perfil.",
+        "approvals": "Decida sobre las llamadas a herramientas de escritura y destructivas que esperan a una persona, desde cualquier superficie.",
+        "conversations": "Revise las conversaciones de todo el inquilino procedentes del chat, A2A, MCP y clientes compatibles con OpenAI.",
+        "resources": "Añada y pruebe conexiones a hosts SSH, buckets, bases de datos, servicios de registros y otros sistemas.",
+        "secrets": "Almacene contraseñas, claves y tokens cifrados. Los recursos y endpoints de modelo los usan por ranura.",
+        "connectors": "Explore las familias de servicios que admite Hugo, sus herramientas y efectos, y sus instrucciones predeterminadas.",
+        "models": "Añada los modelos de inferencia y embedding que usa el bucle de agente propio de Hugo para el chat, A2A y los clientes OpenAI.",
+        "prompts": "Edite las plantillas de instrucciones por capa (integrada, global, inquilino), con vista previa, versiones y restablecimiento.",
+        "knowledge": "Enseñe a Hugo sobre su infraestructura con notas que incorpora al contexto durante las conversaciones.",
+        "toolInvocations": "Cada llamada a herramienta desde cualquier superficie, con su efecto, la decisión, el resultado y un enlace a la traza.",
+        "requests": "Inspeccione cada solicitud de API que gestionó el servidor, con cabeceras, cuerpos, tiempos y estado.",
+        "analytics": "Analice el uso de tokens, las llamadas a herramientas por efecto y conector, la latencia de los modelos y el tiempo de respuesta de las aprobaciones.",
+        "audit": "Revise los eventos de seguridad, como inicios de sesión, denegaciones, revelaciones de secretos y cambios de configuración.",
+        "explorer": "Pruebe cualquier ruta REST del documento OpenAPI en vivo del servidor, con fragmentos de código generados.",
+        "mcpExplorer": "Conéctese al endpoint MCP con su propia identidad para ver las instrucciones y herramientas, y llamar a herramientas.",
+        "a2aExplorer": "Obtenga la tarjeta de agente de un perfil y envíele mensajes mediante A2A JSON-RPC.",
+        "tenants": "Cree y gestione inquilinos aislados en este servidor. Solo los administradores del sistema ven esta página.",
+        "users": "Gestione las personas que inician sesión en este inquilino, restablezca contraseñas y consulte los permisos efectivos.",
+        "credentials": "Cree claves de acceso para entornos de ejecución y SDK, vincúlelas a un perfil y rótelas.",
+        "rbac": "Gestione los roles, los permisos que contienen y quién los tiene en este inquilino.",
+        "sessions": "Consulte todas las sesiones y tokens activos en el inquilino y revoque cualquiera de ellos.",
+        "settings": "Edite el archivo de ajustes del servidor, reinicie el servidor y consulte la información del servidor.",
+        "plugins": "Habilite o deshabilite plugins de conectores y consulte los errores de carga. Solo los administradores del sistema ven esta página."
+      },
+      "tabs": {
+        "roles": "Los roles y los permisos que contienen. Clone un rol integrado para personalizarlo.",
+        "assignments": "Quién tiene cada rol: usuarios y credenciales, en todo el inquilino o en un recurso.",
+        "settings": "Edite el archivo de ajustes del servidor con validación, indicadores de aplicación en caliente o tras reinicio, y Reiniciar servidor.",
+        "serverInfo": "Endpoints copiables, versiones del servidor y del panel, funciones y su identidad."
+      }
+    },
+    "passwordChange": {
+      "current": "La contraseña con la que inició sesión: la inicial o la que le asignó un administrador.",
+      "new": "Su contraseña nueva. Use una frase de contraseña larga; el servidor puede aplicar más reglas.",
+      "confirm": "Vuelva a escribir la contraseña nueva para que un error tipográfico no le impida el acceso.",
+      "submit": "Guarda la contraseña nueva y continúa al panel."
+    },
+    "promptEditor": {
+      "content": "El texto de la plantilla. Las variables entre llaves dobles se rellenan al compilar las instrucciones.",
+      "insert": "Inserta {{variable}} en la posición del cursor.",
+      "preview": "Renderiza el texto con el contexto de ejemplo para ver lo que leerá el agente.",
+      "diff": "Compara este texto con la versión guardada o predeterminada, línea a línea.",
+      "sampleContext": "Valores de ejemplo usados para la vista previa. Edítelos para probar distintas personas, recursos o modos de acceso.",
+      "serverRender": "El servidor renderizó esta vista previa con el mismo motor que usa para las instrucciones reales.",
+      "localRender": "La ruta de vista previa del servidor no está disponible, por lo que el navegador renderizó una aproximación."
+    },
+    "schemaForm": {
+      "setting": "Ajuste del conector {{label}}. El conector lo valida cuando se guarda o se prueba el recurso."
+    },
+    "secretField": {
+      "slot": "El secreto que lee este conector para {{slot}}. Solo se enumeran secretos de un tipo admitido.",
+      "createInline": "Crea un secreto nuevo sin salir de este formulario. Se cifra y se selecciona para esta ranura.",
+      "saveInline": "Cifra y almacena el secreto nuevo y lo selecciona para esta ranura.",
+      "import": "Carga en este campo un archivo de clave, certificado, kubeconfig o JSON desde su equipo. Solo se envía al guardar.",
+      "fields": {
+        "username": "El nombre de la cuenta con la que iniciar sesión. No es secreto, pero se almacena con la contraseña.",
+        "password": "La contraseña. Se almacena cifrada y nunca se muestra al agente.",
+        "privateKey": "Una clave privada en formato PEM u OpenSSH. Suelte aquí el archivo de clave o impórtelo.",
+        "passphrase": "Frase de contraseña que protege la clave privada, si la tiene.",
+        "token": "El token de API o de portador que emitió el servicio.",
+        "accessKeyId": "El ID de clave de acceso, por ejemplo AKIA seguido de letras y dígitos en AWS.",
+        "secretAccessKey": "La parte secreta del par de claves de acceso. Se almacena cifrada.",
+        "sessionToken": "Token de sesión opcional para credenciales temporales.",
+        "json": "El archivo completo de clave de cuenta de servicio en JSON, por ejemplo de Google Cloud.",
+        "kubeconfig": "Un archivo kubeconfig con el clúster, el usuario y el contexto que se van a usar.",
+        "connectionString": "Una cadena de conexión completa con credenciales, por ejemplo para SQL Server o Redis.",
+        "certificate": "El certificado en formato PEM. No es secreto por sí mismo, pero se guarda con su clave.",
+        "value": "Cualquier valor secreto para conectores que usan un único secreto opaco."
+      }
+    },
+    "toolActivity": {
+      "toggle": "Muestra u oculta los argumentos y la salida de esta llamada a herramienta.",
+      "resource": "El alias del recurso sobre el que se ejecutó la llamada, tal como está vinculado en el perfil.",
+      "status": "En qué punto está la llamada: propuesta, en ejecución, pendiente de aprobación o finalizada.",
+      "duration": "Cuánto tardó la llamada en el servidor, desde el inicio hasta el resultado."
+    },
+    "tour": {
+      "skip": "Termina la visita guiada ahora. Puedes repetirlo desde la barra lateral.",
+      "back": "Muestra la parada anterior de la visita guiada.",
+      "next": "Pasa a la siguiente parada de la visita guiada.",
+      "done": "Finaliza la visita guiada. Puedes repetirlo desde la barra lateral."
+    },
+    "wizard": {
+      "skip": "Cierra el asistente y no lo vuelvas a ofrecer para este inquilino. Puedes reabrirlo desde la barra lateral.",
+      "back": "Vuelve al paso anterior del asistente.",
+      "start": "Inicia la configuración: conectar un modelo, añadir un recurso, vincularlo y conectar un cliente.",
+      "skipStep": "Continúa sin terminar este paso. Puede hacerlo más tarde desde la página correspondiente.",
+      "saveModel": "Crea el endpoint de modelo (y el secreto de su clave de API, si se introdujo) y continúa.",
+      "saveResource": "Crea el recurso con estos ajustes y su secreto, y continúa con su vinculación.",
+      "bind": "Vincula el recurso nuevo al perfil predeterminado de Hugo con el modo de acceso elegido.",
+      "finish": "Cierra el asistente para este inquilino y abre el chat para hablar con Agent Smith."
+    }
+  },
+  "explainers": {
+    "promptTemplates": {
+      "title": "Plantillas de prompt y sus capas",
+      "p1": "Cada instrucción que Hugo da a un agente es una plantilla: la persona Agent Smith, las reglas de seguridad y las instrucciones de cada conector. Las plantillas usan variables como {{persona.name}} y {{resource.alias}}, y cada guardado crea una versión nueva.",
+      "p2": "Las plantillas se organizan en capas: el texto integrado viene con Hugo, un valor predeterminado global puede sustituirlo para todos los inquilinos y un inquilino puede sustituir este último. Restablecer a predeterminado elimina una sustitución y vuelve a la capa anterior."
+    },
+    "tenants": {
+      "title": "Inquilinos",
+      "p1": "Un inquilino es una organización aislada en este servidor. Los usuarios, claves de acceso, recursos, secretos, perfiles y conversaciones pertenecen a un único inquilino, y nada es visible entre inquilinos."
+    },
+    "users": {
+      "title": "Usuarios y claves de acceso",
+      "p1": "Un usuario es una persona que inicia sesión con un correo electrónico y una contraseña. Una clave de acceso es la forma en que inicia sesión la automatización. Cada clave de acceso pertenece a un usuario y nunca puede hacer más que ese usuario.",
+      "p2": "Ninguno obtiene acceso solo por existir. El acceso proviene de los indicadores de administrador del usuario y de las asignaciones de roles."
+    },
+    "credentials": {
+      "title": "Claves de acceso y usuarios",
+      "p1": "Una clave de acceso es un par formado por la clave de acceso pública y la clave secreta para scripts, SDK y servicios. Pertenece a un usuario. Sus permisos efectivos son la intersección de lo que conceden sus propias asignaciones de roles y lo que puede hacer su propietario.",
+      "p2": "La clave secreta se muestra una sola vez, cuando la clave se crea o se rota. Rota las claves con regularidad y elimina las que llevan mucho tiempo sin usarse."
+    },
+    "roles": {
+      "title": "Roles, permisos y asignaciones",
+      "p1": "Un permiso es una regla única: permitir o denegar determinadas operaciones (como Lectura, Ejecución o Mostrar) sobre determinados tipos de recurso (como Recurso, Secreto o Perfil de agente). Un rol es un conjunto de permisos con nombre. Denegar siempre prevalece sobre permitir.",
+      "p2": "Nada cambia para nadie hasta que se asigna un rol. Las asignaciones, en la pestaña siguiente, conectan un rol con un usuario o una clave de acceso, para todo el inquilino o para un registro."
+    },
+    "assignments": {
+      "title": "Asignaciones",
+      "p1": "Una asignación concede un rol a un usuario o clave de acceso. El ámbito de inquilino aplica el rol a todos los registros de los tipos cubiertos; el ámbito de recurso lo aplica a un único registro, como un perfil de agente que puede usar un entorno de ejecución.",
+      "p2": "Usa \"Permisos efectivos\" en un usuario o una clave de acceso para ver el resultado combinado de todas sus asignaciones."
+    },
+    "audit": {
+      "title": "Auditoría e historial de solicitudes",
+      "p1": "Los registros de auditoría son eventos de seguridad y configuración: inicios de sesión, solicitudes denegadas, revelaciones y cambios de secretos, cambios de roles y vínculos, bloqueos y reinicios. Se conservan durante el periodo de retención definido en los ajustes.",
+      "p2": "El historial de solicitudes, en la pestaña anterior, es el tráfico HTTP sin procesar. Usa la auditoría para saber quién cambió qué, y el historial de solicitudes para depurar lo que realmente envió un cliente."
+    },
+    "requests": {
+      "title": "Historial de solicitudes",
+      "p1": "Todas las solicitudes a la API que capturó este servidor, con método, ruta, estado, tiempos, encabezados y cuerpos (truncados al tamaño configurado). Úsalo para depurar integraciones y llamadas de los SDK. Haz clic en una barra del gráfico para limitar la tabla a ese momento."
+    },
+    "diagram": {
+      "label": "Cómo se relacionan secretos, recursos, vínculos, perfiles y superficies",
+      "secret": {
+        "title": "Secretos",
+        "body": "Credenciales cifradas",
+        "tip": "Contraseñas, claves y tokens, cifrados en Hugo. Los recursos los usan por ranura; los agentes nunca los ven."
+      },
+      "resource": {
+        "title": "Recursos",
+        "body": "Sistemas configurados",
+        "tip": "Un sistema configurado cada uno: un host SSH, un bucket, una base de datos, un servicio de registros, con su configuración."
+      },
+      "binding": {
+        "title": "Vínculos",
+        "body": "Alias y modo de acceso",
+        "tip": "Asocia un recurso a un perfil con un alias, con acceso de solo lectura, con aprobación o de lectura y escritura."
+      },
+      "profile": {
+        "title": "Perfil de agente",
+        "body": "Persona, modelos, límites",
+        "tip": "El agente: Agent Smith por defecto, con sus modelos y límites. Cada superficie se comunica con un perfil."
+      },
+      "surfaces": {
+        "title": "Superficies",
+        "body": "MCP, A2A, REST, chat",
+        "tip": "Claude Code por MCP, otros agentes por A2A, scripts por REST y los SDK, y tú en el chat."
+      }
+    },
+    "profiles": {
+      "title": "Cómo se relacionan perfiles, recursos y superficies",
+      "p1": "Un perfil es un agente: una persona (Agent Smith de forma predeterminada), los modelos con los que razona y un conjunto de vínculos. Cada vínculo asocia un recurso con un alias y un modo de acceso.",
+      "p2": "Cada superficie es un cliente del mismo perfil. Los clientes MCP reciben las herramientas e instrucciones del perfil; el chat, A2A y los clientes compatibles con OpenAI ejecutan el bucle propio de Hugo con el modelo del perfil."
+    },
+    "approvals": {
+      "title": "Cuándo una llamada espera a una persona",
+      "p1": "Cada llamada a herramienta se clasifica como Lectura, Escritura o Destructivo. Las llamadas destructivas esperan aprobación de forma predeterminada, y en los vínculos en modo de lectura y escritura con aprobación también espera toda escritura.",
+      "p2": "Apruebe para que la llamada se ejecute o rechace para denegarla. En ambos casos se informa al agente, y la decisión se registra con su nota."
+    },
+    "conversations": {
+      "title": "Conversaciones de todas las superficies",
+      "p1": "El chat del panel, los contextos A2A, la delegación MCP y las sesiones compatibles con OpenAI se convierten aquí en conversaciones, de modo que el historial de todas las superficies está en un solo lugar."
+    },
+    "resources": {
+      "title": "Recursos, secretos y vínculos",
+      "p1": "Un recurso es un sistema configurado: su conector, sus ajustes y los secretos que usa. Los secretos permanecen cifrados en Hugo; los agentes nunca los ven.",
+      "p2": "Un recurso no hace nada hasta que un perfil lo vincula. El vínculo determina el alias que ve el agente y lo que puede hacer."
+    },
+    "secrets": {
+      "title": "Cómo se protegen los secretos",
+      "p1": "Los valores se cifran con AES-256-GCM bajo la clave maestra y se vinculan a su inquilino. Los recursos y endpoints de modelo hacen referencia a los secretos por ranura.",
+      "p2": "Nadie vuelve a ver un valor salvo mediante Mostrar, que requiere el permiso Mostrar, un motivo y una verificación reciente de la contraseña, y siempre se audita."
+    },
+    "models": {
+      "title": "Cuándo necesita Hugo un modelo",
+      "p1": "Los clientes MCP como Claude Code aportan su propio modelo; Hugo solo proporciona herramientas e instrucciones. El chat, A2A y el endpoint compatible con OpenAI ejecutan el bucle propio de Hugo y necesitan un modelo de inferencia en el perfil."
+    },
+    "knowledge": {
+      "title": "Para qué sirven las notas de conocimiento",
+      "p1": "Las notas son datos que un operador le contaría a un compañero. Hugo genera sus embeddings e incorpora al contexto las relevantes en cada turno."
+    },
+    "toolInvocations": {
+      "title": "Un registro por llamada a herramienta",
+      "p1": "Cada llamada a herramienta desde cualquier superficie pasa por el mismo canal: clasificación, el modo de acceso del vínculo, aprobación si es necesaria, el conector y el filtro de secretos. Cada una se registra aquí."
+    },
+    "connectors": {
+      "title": "Conectores y recursos",
+      "p1": "Un conector es código que sabe comunicarse con una familia de sistemas. Un recurso es una instancia configurada de un conector, con sus propios ajustes y secretos."
+    },
+    "analytics": {
+      "title": "De dónde salen estas cifras",
+      "p1": "La analítica agrega en el servidor las invocaciones de herramientas, los turnos de chat y las llamadas a modelos, agrupados por tiempo y limitados a este inquilino."
+    },
+    "sessions": {
+      "title": "Sesiones y tokens",
+      "p1": "Iniciar sesión o canjear una clave de acceso emite un token de sesión. Revocar una sesión la finaliza de inmediato, dondequiera que se esté usando."
+    },
+    "plugins": {
+      "title": "Plugins de conectores",
+      "p1": "Los plugins añaden tipos de conector desde el directorio de plugins sin recompilar Hugo. Solo se cargan cuando Connectors.EnablePlugins está activado."
+    }
+  },
+  "nav": {
+    "primary": "Navegación principal",
+    "collapseSidebar": "Mostrar u ocultar la navegación",
+    "setup": "Asistente de configuración",
+    "skipToContent": "Saltar al contenido",
+    "tour": "Visita guiada",
+    "version": "Versión {{version}}",
+    "approvalsPending_one": "{{count}} aprobación esperando a una persona",
+    "approvalsPending_other": "{{count}} aprobaciones esperando a una persona",
+    "environment": {
+      "local": "Local",
+      "remote": "Remoto"
+    },
+    "sections": {
+      "start": "Inicio",
+      "agents": "Agentes",
+      "connect": "Conectar",
+      "configure": "Configurar",
+      "observe": "Observar",
+      "develop": "Desarrollar",
+      "administer": "Administrar"
+    },
+    "hubs": {
+      "home": {
+        "label": "Inicio",
+        "tip": "Qué está haciendo Hugo, qué requiere atención y los siguientes pasos habituales."
+      },
+      "chat": {
+        "label": "Chat",
+        "tip": "Hable con Agent Smith; las llamadas a herramientas y las aprobaciones se muestran en línea."
+      },
+      "profiles": {
+        "label": "Perfiles de agente",
+        "tip": "Personas con recursos vinculados y modos de acceso, accesibles desde todas las superficies."
+      },
+      "approvals": {
+        "label": "Aprobaciones",
+        "tip": "Llamadas a herramientas arriesgadas que esperan a que una persona las apruebe o rechace."
+      },
+      "conversations": {
+        "label": "Conversaciones",
+        "tip": "Todas las conversaciones del inquilino, desde el chat, A2A, MCP y clientes OpenAI."
+      },
+      "resources": {
+        "label": "Recursos",
+        "tip": "Conexiones configuradas a sus sistemas: hosts, buckets, bases de datos, servicios de registros."
+      },
+      "secrets": {
+        "label": "Secretos",
+        "tip": "Material de credenciales cifrado que usan los recursos y endpoints de modelo."
+      },
+      "connectors": {
+        "label": "Conectores",
+        "tip": "Los tipos de sistemas a los que puede acceder Hugo, sus herramientas e instrucciones predeterminadas."
+      },
+      "models": {
+        "label": "Endpoints de modelo",
+        "tip": "Modelos de inferencia y embedding para el bucle de agente propio de Hugo."
+      },
+      "prompts": {
+        "label": "Plantillas de prompt",
+        "tip": "Todas las plantillas de instrucciones: personas, reglas de seguridad e instrucciones de conectores."
+      },
+      "knowledge": {
+        "label": "Conocimiento",
+        "tip": "Notas sobre su infraestructura que Hugo incorpora al contexto."
+      },
+      "toolInvocations": {
+        "label": "Invocaciones de herramientas",
+        "tip": "Cada acción que realizó cualquier agente, con su efecto, decisión y resultado."
+      },
+      "requests": {
+        "label": "Historial de solicitudes",
+        "tip": "Cada solicitud de API que gestionó el servidor, con cabeceras y cuerpos."
+      },
+      "analytics": {
+        "label": "Analítica",
+        "tip": "Tendencias de uso, coste, latencia y aprobaciones a lo largo del tiempo."
+      },
+      "audit": {
+        "label": "Auditoría",
+        "tip": "Eventos de seguridad: inicios de sesión, denegaciones, revelaciones de secretos, cambios de configuración."
+      },
+      "explorer": {
+        "label": "Explorador de API",
+        "tip": "Pruebe cualquier ruta REST del documento OpenAPI en vivo."
+      },
+      "mcpExplorer": {
+        "label": "Explorador MCP",
+        "tip": "Conéctese como cliente MCP, enumere herramientas y llámelas."
+      },
+      "a2aExplorer": {
+        "label": "Explorador A2A",
+        "tip": "Obtenga tarjetas de agente y comuníquese con perfiles mediante A2A."
+      },
+      "tenants": {
+        "label": "Inquilinos",
+        "tip": "Inquilinos aislados en este servidor. Solo para administradores del sistema."
+      },
+      "users": {
+        "label": "Usuarios",
+        "tip": "Personas que inician sesión en este inquilino."
+      },
+      "credentials": {
+        "label": "Credenciales",
+        "tip": "Claves de acceso para entornos de ejecución, SDK y automatización."
+      },
+      "rbac": {
+        "label": "Roles y permisos",
+        "tip": "Roles, permisos y quién los tiene."
+      },
+      "sessions": {
+        "label": "Sesiones",
+        "tip": "Sesiones y tokens activos; revoque cualquiera de ellos."
+      },
+      "settings": {
+        "label": "Ajustes",
+        "tip": "Configuración del servidor, reinicio e información del servidor."
+      },
+      "plugins": {
+        "label": "Plugins",
+        "tip": "Plugins de conectores cargados desde el directorio de plugins."
+      }
+    },
+    "items": {
+      "home": {
+        "label": "Inicio",
+        "tip": "Qué está haciendo Hugo, qué requiere atención y los siguientes pasos habituales."
+      },
+      "chat": {
+        "label": "Chat",
+        "tip": "Hable con Agent Smith; las llamadas a herramientas y las aprobaciones se muestran en línea."
+      },
+      "profiles": {
+        "label": "Perfiles de agente",
+        "tip": "Personas con recursos vinculados y modos de acceso."
+      },
+      "approvals": {
+        "label": "Aprobaciones",
+        "tip": "Llamadas a herramientas arriesgadas que esperan a una persona."
+      },
+      "conversations": {
+        "label": "Conversaciones",
+        "tip": "Todas las conversaciones del inquilino."
+      },
+      "resources": {
+        "label": "Recursos",
+        "tip": "Conexiones configuradas a sus sistemas."
+      },
+      "secrets": {
+        "label": "Secretos",
+        "tip": "Material de credenciales cifrado."
+      },
+      "connectors": {
+        "label": "Conectores",
+        "tip": "Familias de servicios a las que puede acceder Hugo."
+      },
+      "models": {
+        "label": "Endpoints de modelo",
+        "tip": "Modelos de inferencia y embedding."
+      },
+      "promptTemplates": {
+        "label": "Plantillas de prompt",
+        "tip": "Plantillas de instrucciones y sus capas."
+      },
+      "knowledge": {
+        "label": "Conocimiento",
+        "tip": "Notas que Hugo incorpora al contexto."
+      },
+      "toolInvocations": {
+        "label": "Invocaciones de herramientas",
+        "tip": "Cada acción que realizó cualquier agente."
+      },
+      "requests": {
+        "label": "Historial de solicitudes",
+        "tip": "Cada solicitud de API que gestionó el servidor."
+      },
+      "analytics": {
+        "label": "Analítica",
+        "tip": "Tendencias de uso y latencia."
+      },
+      "audit": {
+        "label": "Auditoría",
+        "tip": "Eventos de seguridad."
+      },
+      "explorer": {
+        "label": "Explorador de API",
+        "tip": "Pruebe rutas REST en vivo."
+      },
+      "mcpExplorer": {
+        "label": "Explorador MCP",
+        "tip": "Pruebe MCP como cliente."
+      },
+      "a2aExplorer": {
+        "label": "Explorador A2A",
+        "tip": "Pruebe A2A como agente."
+      },
+      "tenants": {
+        "label": "Inquilinos",
+        "tip": "Inquilinos aislados en este servidor."
+      },
+      "users": {
+        "label": "Usuarios",
+        "tip": "Personas que inician sesión."
+      },
+      "credentials": {
+        "label": "Claves de acceso",
+        "tip": "Claves de acceso para automatización."
+      },
+      "roles": {
+        "label": "Roles",
+        "tip": "Roles y los permisos que conceden."
+      },
+      "assignments": {
+        "label": "Asignaciones",
+        "tip": "Quién tiene cada rol y dónde."
+      },
+      "sessions": {
+        "label": "Sesiones",
+        "tip": "Sesiones y tokens activos."
+      },
+      "settings": {
+        "label": "Ajustes",
+        "tip": "Configuración del servidor."
+      },
+      "serverInfo": {
+        "label": "Información del servidor",
+        "tip": "Endpoints, versión y su identidad."
+      },
+      "plugins": {
+        "label": "Plugins",
+        "tip": "Plugins de conectores."
+      }
+    }
+  },
+  "tour": {
+    "title": "Visita guiada",
+    "skip": "Omitir la visita",
+    "done": "Listo",
+    "steps": {
+      "sidebar": {
+        "title": "Navegación",
+        "body": "Todo está agrupado por tarea: iniciar un chat, crear agentes, conectar sistemas, configurar prompts, observar la actividad, probar las API y administrar el inquilino."
+      },
+      "topbar": {
+        "title": "Contexto y controles",
+        "body": "Aquí se encuentran el servidor, el inquilino, su identidad y rol, el estado en tiempo real, las aprobaciones pendientes, el bloqueo del inquilino, el idioma, el tema y el cierre de sesión."
+      },
+      "kpis": {
+        "title": "Centro de control",
+        "body": "Solicitudes, llamadas a herramientas, errores, aprobaciones pendientes, recursos con fallos y tokens usados hoy. Haga clic en un mosaico para ver el detalle."
+      },
+      "chat": {
+        "title": "Chatee con Agent Smith",
+        "body": "Haga preguntas sobre su infraestructura. Cada llamada a herramienta se muestra en línea con su efecto, y las arriesgadas esperan su aprobación."
+      },
+      "connect": {
+        "title": "Conecte sus sistemas",
+        "body": "Añada recursos (hosts SSH, buckets, bases de datos, servicios de registros) con sus secretos y pruebe cada conexión antes de guardar."
+      },
+      "profiles": {
+        "title": "Componga perfiles de agente",
+        "body": "Vincule recursos a un perfil con un modo de acceso por recurso. El perfil es aquello con lo que se comunican MCP, A2A, el chat y las API."
+      },
+      "approvals": {
+        "title": "Apruebe las acciones arriesgadas",
+        "body": "Las llamadas de escritura y destructivas que necesitan a una persona esperan aquí, y en el chat, hasta que alguien las aprueba o rechaza."
+      },
+      "observe": {
+        "title": "Vea todo lo que ocurrió",
+        "body": "Las invocaciones de herramientas, el historial de solicitudes, la analítica y la auditoría muestran cada acción, desde cualquier superficie."
+      }
+    }
+  },
+  "wizard": {
+    "title": "Configurar Hugo",
+    "stepOf": "Paso {{step}} de {{total}}",
+    "skip": "Omitir la configuración",
+    "skipStep": "Omitir este paso",
+    "start": "Empezar",
+    "saveModel": "Guardar endpoint",
+    "saveResource": "Guardar recurso",
+    "bind": "Vincular al perfil",
+    "finish": "Abrir el chat",
+    "modelSaved": "Endpoint de modelo guardado.",
+    "bound": "{{alias}} está ahora vinculado a {{profile}}.",
+    "nothingToBind": "No se creó ningún recurso en el paso anterior, por lo que todavía no hay nada que vincular. Puede vincular recursos más adelante en la página del perfil.",
+    "apiKeyHint": "Se almacena como secreto cifrado; el endpoint hace referencia a él.",
+    "welcomeItem1": "Conecte un modelo para que Agent Smith pueda pensar (Ollama, OpenAI, Anthropic y otros).",
+    "welcomeItem2": "Añada un primer recurso, como un host SSH o una base de datos, con sus credenciales.",
+    "welcomeItem3": "Vincúlelo al perfil predeterminado de Hugo y conecte Claude Code mediante MCP.",
+    "steps": {
+      "welcome": "Bienvenida",
+      "inference": "Modelo de inferencia",
+      "embedding": "Embeddings",
+      "resource": "Primer recurso",
+      "bind": "Vincular",
+      "connect": "Conectar"
+    },
+    "bodies": {
+      "welcome": "Hugo custodia el acceso a sus sistemas y el criterio sobre cómo usarlo. Este asistente le lleva de un inquilino vacío a un chat operativo en pocos minutos.",
+      "inference": "El chat, A2A y el endpoint compatible con OpenAI ejecutan el bucle de agente propio de Hugo, que necesita un modelo de inferencia. Los clientes MCP aportan su propio modelo, por lo que puede omitir este paso si solo usa MCP.",
+      "embedding": "Opcional. Un modelo de embedding permite que Hugo elija las herramientas relevantes cuando un perfil tiene muchas, y más adelante impulsa las notas de conocimiento.",
+      "resource": "Elija un conector, rellene sus ajustes, elija o cree el secreto que necesita y pruebe la conexión antes de guardar.",
+      "bind": "Asocie el recurso nuevo al perfil predeterminado de Hugo y elija lo que puede hacer el agente con él.",
+      "connect": "Añada Hugo a Claude Code (o a cualquier cliente MCP) con esta configuración y empiece a chatear con Agent Smith."
+    }
+  }
+}
