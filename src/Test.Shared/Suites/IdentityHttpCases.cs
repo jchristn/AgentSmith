@@ -429,6 +429,18 @@ namespace Test.Shared.Suites
                 RequestHistoryHeader? apiKey = detail.Headers.FirstOrDefault(h => String.Equals(h.Name, "x-api-key", StringComparison.OrdinalIgnoreCase));
                 Assert.True(apiKey != null && apiKey.Value == RequestHistoryCaptureService.Redacted, "x-api-key header not redacted.");
 
+                RequestHistoryPage reads = new RequestHistoryPage();
+                for (int attempt = 0; attempt < 50; attempt++)
+                {
+                    reads = await HttpTestHelpers.SendAsync<RequestHistoryPage>(host.AdminClient, HttpMethod.Get, "/v1.0/api/request-history?pathContains=/request-history/" + credentialEntry.Id + "&pageSize=10", null, 200, token).ConfigureAwait(false);
+                    if (reads.Objects.Count >= 1) break;
+                    await Task.Delay(100, token).ConfigureAwait(false);
+                }
+                Assert.True(reads.Objects.Count >= 1, "The request history read was not captured.");
+                RequestHistoryEntry readDetail = await HttpTestHelpers.SendAsync<RequestHistoryEntry>(host.AdminClient, HttpMethod.Get, "/v1.0/api/request-history/" + reads.Objects[0].Id, null, 200, token).ConfigureAwait(false);
+                Assert.True(readDetail.ResponseBody == null, "A request history read kept its response body, which copies history into itself.");
+                Assert.True(readDetail.ResponseBodyBytes > 0, "The response size of a request history read was not recorded.");
+
                 RequestHistoryPage failures = await HttpTestHelpers.SendAsync<RequestHistoryPage>(host.AdminClient, HttpMethod.Get, "/v1.0/api/request-history?statusCode=404", null, 200, token).ConfigureAwait(false);
                 Assert.True(failures.Objects.Count >= 1 && failures.Objects.All(o => o.StatusCode == 404), "Status filter.");
 

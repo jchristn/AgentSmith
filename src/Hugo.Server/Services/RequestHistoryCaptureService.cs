@@ -19,7 +19,9 @@ namespace Hugo.Server.Services
     /// <summary>
     /// Captures every completed HTTP request into request history. Entries are built synchronously from the
     /// context, queued on a bounded channel (dropped when full, never blocking the response), and written by a
-    /// background loop. Secret headers and bodies on secret-bearing routes are redacted. Thread-safe.
+    /// background loop. Secret headers and bodies on secret-bearing routes are redacted. Response bodies of request
+    /// history routes are not kept, because they embed earlier entries and would copy history into itself on every
+    /// read. Thread-safe.
     /// </summary>
     public class RequestHistoryCaptureService : IRequestObserver, IDisposable
     {
@@ -50,6 +52,7 @@ namespace Hugo.Server.Services
             "authorization", "proxy-authorization", "cookie", "set-cookie", "x-token", "x-secret-key", "x-api-key", "x-signature", "x-password", "x-access-key", "x-nonce"
         };
 
+        private static readonly string _HistoryPathPrefix = "/v1.0/api/request-history";
         private static readonly string[] _SecretPathFragments = new string[] { "/secrets", "/token", "/credentials", "/users/me/password", "/password", "/settings" };
 
         private readonly DatabaseDriverBase _Database;
@@ -200,6 +203,7 @@ namespace Hugo.Server.Services
             AddHeaders(entry, context.Response.Headers, HeaderDirectionEnum.Response);
 
             bool secretRoute = IsSecretRoute(entry.Path);
+            bool historyRoute = IsHistoryRoute(entry.Path);
             string requestBody = SafeRequestBody(context);
             string responseBody = SafeResponseBody(context);
             long requestBytes = Encoding.UTF8.GetByteCount(requestBody);
@@ -222,8 +226,16 @@ namespace Hugo.Server.Services
             {
                 entry.RequestBody = SecretScrubber.Shared.Scrub(Clip(requestBody, _Settings.MaxRequestBodyBytes, out bool requestTruncated));
                 entry.RequestBodyTruncated = requestTruncated;
-                entry.ResponseBody = SecretScrubber.Shared.Scrub(Clip(responseBody, _Settings.MaxResponseBodyBytes, out bool responseTruncated));
-                entry.ResponseBodyTruncated = responseTruncated;
+                if (historyRoute)
+                {
+                    // Request history responses embed earlier entries; keeping them would copy history into itself.
+                    entry.ResponseBody = null;
+                }
+                else
+                {
+                    entry.ResponseBody = SecretScrubber.Shared.Scrub(Clip(responseBody, _Settings.MaxResponseBodyBytes, out bool responseTruncated));
+                    entry.ResponseBodyTruncated = responseTruncated;
+                }
             }
             return entry;
         }
@@ -241,6 +253,17 @@ namespace Hugo.Server.Services
                 if (path.IndexOf(fragment, StringComparison.OrdinalIgnoreCase) >= 0) return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Whether a path belongs to the request history routes, whose response bodies are not captured.
+        /// </summary>
+        /// <param name="path">Path, without the query string. Null or empty is not a history route.</param>
+        /// <returns>True when the response body must not be kept.</returns>
+        public static bool IsHistoryRoute(string? path)
+        {
+            if (String.IsNullOrEmpty(path)) return false;
+            return path.StartsWith(_HistoryPathPrefix, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>

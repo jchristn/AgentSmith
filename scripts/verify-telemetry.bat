@@ -39,9 +39,10 @@ Usage: scripts\verify-telemetry.bat [options]
   --tenant ID            Tenant to sign in to [HUGO_TENANT] (default default)
   --email EMAIL          User to sign in as [HUGO_EMAIL] (default anderson@hugo.local)
   --password PASSWORD    Current password [HUGO_PASSWORD] (default password, the seeded value)
-  --new-password PASS    When the server answers mustChangePassword, change the password to PASS through
-                         POST /v1.0/api/users/me/password and sign in again [HUGO_NEW_PASSWORD]. PASS is also
-                         tried when the current password is rejected, so a second run works unchanged.
+  --new-password PASS    When the server answers mustChangePassword (advisory, D-048), change the password to PASS
+                         through POST /v1.0/api/users/me/password and sign in again [HUGO_NEW_PASSWORD]. PASS is
+                         also tried when the current password is rejected, so a second run works unchanged.
+                         Optional: the authenticated reads run either way.
   --iterations N         Times to repeat the authenticated reads (default 3)
   --scrape-timeout S     Seconds to wait for a Prometheus scrape after the workload (default 60)
   --catalog FILE         Catalog file to read hugo_* families from (default docs\TELEMETRY.md)
@@ -83,7 +84,7 @@ $PromUrl = $PromUrl.TrimEnd('/')
 $RuntimeRequired = @('http_server_request_duration_seconds', 'http_server_active_requests', 'watson_server_up',
     'watson_server_connections_active', 'process_uptime_seconds', 'process_memory_usage_bytes',
     'dotnet_process_cpu_time_seconds_total')
-$Conditional = @('hugo_auth_rate_limited_total', 'hugo_db_errors_total', 'hugo_db_transaction_retries_total',
+$Conditional = @('hugo_model_connector_requests_total', 'hugo_model_connector_tokens_total', 'hugo_auth_rate_limited_total', 'hugo_db_errors_total', 'hugo_db_transaction_retries_total',
     'hugo_retention_deleted_total', 'hugo_background_duration_seconds', 'hugo_background_iterations_total',
     'hugo_background_jobs_total', 'hugo_background_job_duration_seconds', 'hugo_outbound_requests_total',
     'hugo_outbound_duration_seconds', 'hugo_observability_reachable', 'hugo_telemetry_labels_folded_total',
@@ -181,9 +182,8 @@ if ($session -and $session.mustChangePassword) {
         }
     }
     if ($session.mustChangePassword) {
-        Write-Output ('  GET /v1.0/api/users/me (password change pending) -> ' + (Call 'GET' '/v1.0/api/users/me' $Token).Status)
-        Warn "$Email must change the password; pass --new-password (or HUGO_NEW_PASSWORD) to run the authenticated reads"
-        $Token = ''
+        # Advisory only (D-048): no route is blocked, so the reads below still run.
+        Write-Output "  $Email still has a seeded or reset password (advisory; pass --new-password to change it)"
     }
 }
 

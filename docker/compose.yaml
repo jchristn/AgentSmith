@@ -7,7 +7,7 @@
 #   docker compose up -d --build
 #   docker compose --profile postgres up -d --build       # PostgreSQL instead of SQLite (also set HUGO_DB_TYPE)
 #
-# Dashboard http://127.0.0.1:8801 (tenant default, anderson@hugo.local / password, change it at first login).
+# Dashboard http://127.0.0.1:8801 (tenant default, anderson@hugo.local / password; the dashboard prompts you to change it).
 # REST, MCP (/mcp), and A2A (/v1.0/a2a) http://127.0.0.1:8800. Grafana http://127.0.0.1:3000 (admin / admin).
 # Prometheus http://127.0.0.1:9090. Tempo http://127.0.0.1:3200. Loki http://127.0.0.1:3100.
 #

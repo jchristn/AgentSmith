@@ -137,7 +137,7 @@ describe('server-sent events', () => {
     );
     const events = [];
     await new Promise((resolve) => {
-      new ApiClient('http://h', 't').streamMessage('cnv_1', { content: 'hi' }, { onEvent: (e) => events.push(e), onEnd: resolve });
+      new ApiClient('http://h', 't').streamMessage('cnv_1', { message: 'hi' }, { onEvent: (e) => events.push(e), onEnd: resolve });
     });
     expect(events.map((e) => e.event)).toEqual(['turn.started', 'assistant.delta', 'assistant.delta', 'turn.completed']);
     expect(events[1].data.text + events[2].data.text).toBe('Mr. Anderson');

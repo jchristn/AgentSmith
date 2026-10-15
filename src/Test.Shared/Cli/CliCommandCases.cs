@@ -171,10 +171,10 @@ namespace Test.Shared.Cli
                 server.MustChangePassword = true;
                 CliRunResult result = await env.RunAsync(server.Password + "\n", token, "login", "--server", server.BaseAddress, "--email", server.Email).ConfigureAwait(false);
                 Assert.Equal(0, result.ExitCode, "exit code " + result);
-                Assert.True(result.Stderr.Contains("must change its password", StringComparison.Ordinal), "warning: " + result.Stderr);
+                Assert.True(result.Stderr.Contains("asks you to change it", StringComparison.Ordinal), "warning: " + result.Stderr);
                 CliRunResult whoami = await env.RunAsync(token, "whoami").ConfigureAwait(false);
                 Assert.Equal(0, whoami.ExitCode, "whoami still works " + whoami);
-                Assert.True(whoami.Stderr.Contains("must change its password", StringComparison.Ordinal), "whoami warning");
+                Assert.True(whoami.Stderr.Contains("asks you to change it", StringComparison.Ordinal), "whoami warning");
             }
         }
 

@@ -4,12 +4,16 @@
 //   turn.started        { turnId?, messageId?, conversationId? }
 //   assistant.delta     { text | delta }
 //   assistant.thinking  { text | delta }
-//   tool.proposed       { invocationId | id, toolName, resourceAlias | resource, effect, arguments }
-//   tool.started        { invocationId | id }
-//   tool.completed      { invocationId | id, status, durationMs, outputPreview, outputTruncated, error }
-//   approval.required   { approvalId | id, invocationId, summary, effect, effectReason, command, resourceAlias, expiresUtc }
-//   approval.resolved   { approvalId | id, status, decidedBy, note }
-//   turn.completed      { messageId?, inputTokens, outputTokens, timeToFirstTokenMs, durationMs, finishReason }
+//   tool.proposed       { callId | invocationId | id, toolName, resource | resourceAlias, effect, argumentsJson | arguments }
+//   tool.started        { callId | invocationId | id }
+//   tool.completed      { callId | invocationId | id, status | decision + isError, durationMs, outputPreview,
+//                         truncated | outputTruncated, errorCode, error }
+//   approval.required   { approvalId | id, callId | invocationId, summary, effect, reason | effectReason, command,
+//                         resource | resourceAlias, expiresUtc }
+//   approval.resolved   { approvalId | id, decision | status, decidedBy, note }
+//   turn.completed      { assistantMessageId | messageId, tokensIn | inputTokens, tokensOut | outputTokens,
+//                         timeToFirstTokenMs, durationMs, finishReason }
+// The server sends the first name of each pair (Hugo.Core.Agent.Events); the second is accepted as well.
 //   error               { code | error, message }
 // The reducer is pure, so it is unit tested without a server; the Chat page feeds it events as they arrive.
 
@@ -26,6 +30,7 @@ export function fromStoredMessages(items = []) {
       const role = String(m.role).toLowerCase();
       const parts = [];
       for (const tool of m.toolInvocations || m.tools || []) parts.push({ kind: 'tool', tool: normalizeTool(tool) });
+      for (const call of m.toolCalls || []) parts.push({ kind: 'tool', tool: storedCall(call, items) });
       if (m.content) parts.push({ kind: 'text', text: m.content });
       return {
         id: m.id || `${role}-${m.sequence ?? Math.random()}`,
@@ -45,34 +50,69 @@ export function fromStoredMessages(items = []) {
     });
 }
 
+/** The call ID the server uses to tie tool and approval events together (callId), or an older alias. */
+function callIdOf(data = {}) {
+  return data.callId || data.invocationId || data.id || data.toolCallId || null;
+}
+
+function parseArguments(value) {
+  if (typeof value !== 'string') return value ?? null;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+}
+
+/** Status of a completed call: the server reports a decision and isError rather than a status. */
+function completedStatus(data = {}) {
+  if (data.status) return data.status;
+  if (data.decision === 'Denied' || data.decision === 'Rejected' || data.decision === 'Expired') return 'NotExecuted';
+  return data.isError ? 'Failed' : 'Succeeded';
+}
+
 function normalizeTool(data = {}) {
   return {
-    id: data.invocationId || data.id || data.toolCallId || null,
+    id: callIdOf(data),
     toolName: data.toolName || data.name || data.tool || '',
     resourceAlias: data.resourceAlias || data.resource || data.alias || '',
     effect: data.effect || null,
     effectReason: data.effectReason || '',
     status: data.status || 'proposed',
     durationMs: data.durationMs ?? null,
-    arguments: data.arguments ?? data.argumentsRedacted ?? data.args ?? null,
+    arguments: parseArguments(data.arguments ?? data.argumentsJson ?? data.argumentsRedacted ?? data.args),
     outputPreview: data.outputPreview ?? data.output ?? null,
-    outputTruncated: !!data.outputTruncated,
-    error: data.error || data.errorMessage || null,
+    outputTruncated: !!(data.outputTruncated || data.truncated),
+    error: data.error || data.errorMessage || (data.isError ? data.outputPreview || data.errorCode || null : null),
     approvalId: data.approvalId || null
+  };
+}
+
+/** A tool call stored on an assistant message, with its output from the matching Tool message. */
+function storedCall(call = {}, items = []) {
+  const id = call.callId || call.id || null;
+  const result = id ? items.find((m) => m && String(m.role).toLowerCase() === 'tool' && m.toolCallId === id) : null;
+  const output = result?.content ?? null;
+  const failed = typeof output === 'string' && /^<tool_output[^>]* error="/.test(output);
+  return {
+    ...normalizeTool({ ...call, callId: id }),
+    status: result ? (failed ? 'Failed' : 'Succeeded') : 'NotExecuted',
+    outputPreview: failed ? null : output,
+    error: failed ? output : null
   };
 }
 
 function normalizeApproval(data = {}) {
   return {
     id: data.approvalId || data.id || null,
-    invocationId: data.invocationId || data.toolInvocationId || null,
+    invocationId: data.callId || data.invocationId || data.toolInvocationId || null,
     summary: data.summary || '',
     effect: data.effect || null,
-    effectReason: data.effectReason || '',
+    effectReason: data.effectReason || data.reason || '',
     command: data.command || data.statement || data.detail || '',
     resourceAlias: data.resourceAlias || data.resource || '',
     toolName: data.toolName || '',
-    status: data.status || 'Pending',
+    status: data.status || data.decision || 'Pending',
     expiresUtc: data.expiresUtc || null,
     note: data.note || null,
     decidedBy: data.decidedBy || null
@@ -143,7 +183,7 @@ export function applyChatEvent(state, evt, now = Date.now()) {
       });
     }
     case 'tool.started': {
-      const id = data.invocationId || data.id;
+      const id = callIdOf(data);
       return updateCurrent(state, (m) => {
         if (!m.parts.some((p) => p.kind === 'tool' && p.tool.id === id)) {
           m.parts.push({ kind: 'tool', tool: normalizeTool({ ...data, status: 'running' }) });
@@ -153,7 +193,7 @@ export function applyChatEvent(state, evt, now = Date.now()) {
       });
     }
     case 'tool.completed': {
-      const tool = normalizeTool({ ...data, status: data.status || 'Succeeded' });
+      const tool = normalizeTool({ ...data, status: completedStatus(data) });
       return updateCurrent(state, (m) => {
         if (!m.parts.some((p) => p.kind === 'tool' && p.tool.id === tool.id)) {
           m.parts.push({ kind: 'tool', tool });
@@ -191,11 +231,11 @@ export function applyChatEvent(state, evt, now = Date.now()) {
     case 'turn.completed': {
       const next = updateCurrent(state, (m) => ({
         ...m,
-        id: data.messageId || m.id,
+        id: data.assistantMessageId || data.messageId || m.id,
         status: 'done',
         usage: {
-          inputTokens: data.inputTokens ?? null,
-          outputTokens: data.outputTokens ?? null,
+          inputTokens: data.tokensIn ?? data.inputTokens ?? null,
+          outputTokens: data.tokensOut ?? data.outputTokens ?? null,
           timeToFirstTokenMs: data.timeToFirstTokenMs ?? (state.firstTokenAt && state.startedAt ? state.firstTokenAt - state.startedAt : null),
           durationMs: data.durationMs ?? (state.startedAt ? now - state.startedAt : null),
           finishReason: data.finishReason || null

@@ -164,6 +164,63 @@ describe('chat stream reducer (D-022 events)', () => {
     expect(reply.usage).toMatchObject({ inputTokens: 100, outputTokens: 20, timeToFirstTokenMs: 100, durationMs: 1000 });
     expect(pendingApprovals(s)).toEqual([]);
   });
+  it('applies the event fields the server sends (callId, decision, isError, tokensIn)', () => {
+    let s = beginTurn(initialChatState(), 'Restart nginx', 1000);
+    s = applyChatEvent(s, ev('turn.started', { turnId: 'trn_1', userMessageId: 'msg_1' }));
+    s = applyChatEvent(
+      s,
+      ev('tool.proposed', { callId: 'call_1', toolName: 'ssh_exec', resource: 'web-01', argumentsJson: '{"resource":"web-01","command":"rm -f /tmp/x"}' })
+    );
+    s = applyChatEvent(s, ev('tool.started', { callId: 'call_1', toolName: 'ssh_exec', resource: 'web-01' }));
+    s = applyChatEvent(
+      s,
+      ev('approval.required', {
+        callId: 'call_1',
+        approvalId: 'apr_1',
+        toolName: 'ssh_exec',
+        resource: 'web-01',
+        effect: 'Destructive',
+        summary: 'Run rm',
+        reason: 'Destructive call'
+      })
+    );
+    expect(s.messages[1].parts[0].tool).toMatchObject({ status: 'awaitingApproval', approvalId: 'apr_1' });
+    s = applyChatEvent(s, ev('approval.resolved', { callId: 'call_1', approvalId: 'apr_1', decision: 'Approved', decidedBy: 'anderson@hugo.local' }));
+    s = applyChatEvent(
+      s,
+      ev('tool.completed', {
+        callId: 'call_1',
+        toolName: 'ssh_exec',
+        effect: 'Destructive',
+        decision: 'Approved',
+        durationMs: 11,
+        isError: false,
+        truncated: false,
+        outputPreview: 'exit_code: 0'
+      })
+    );
+    s = applyChatEvent(s, ev('tool.proposed', { callId: 'call_2', toolName: 'sql_query', resource: 'prod-db' }));
+    s = applyChatEvent(s, ev('tool.started', { callId: 'call_2' }));
+    s = applyChatEvent(
+      s,
+      ev('tool.completed', { callId: 'call_2', decision: 'Denied', isError: true, errorCode: 'readonly_binding', outputPreview: 'ReadOnly' })
+    );
+    s = applyChatEvent(s, ev('tool.proposed', { callId: 'call_3', toolName: 'sql_query', resource: 'prod-db' }));
+    s = applyChatEvent(
+      s,
+      ev('tool.completed', { callId: 'call_3', decision: 'Allowed', isError: true, errorCode: 'connection_failed', outputPreview: 'refused' })
+    );
+    s = applyChatEvent(s, ev('turn.completed', { assistantMessageId: 'msg_9', tokensIn: 200, tokensOut: 40, finishReason: 'Completed' }), 2000);
+    const reply = s.messages[1];
+    expect(reply.parts.map((p) => p.kind)).toEqual(['tool', 'approval', 'tool', 'tool']);
+    expect(reply.parts[0].tool).toMatchObject({ id: 'call_1', status: 'Succeeded', durationMs: 11, outputPreview: 'exit_code: 0', error: null });
+    expect(reply.parts[0].tool.arguments).toEqual({ resource: 'web-01', command: 'rm -f /tmp/x' });
+    expect(reply.parts[1].approval).toMatchObject({ status: 'Approved', decidedBy: 'anderson@hugo.local', effectReason: 'Destructive call' });
+    expect(reply.parts[2].tool).toMatchObject({ status: 'NotExecuted', error: 'ReadOnly' });
+    expect(reply.parts[3].tool).toMatchObject({ status: 'Failed', error: 'refused' });
+    expect(reply.id).toBe('msg_9');
+    expect(reply.usage).toMatchObject({ inputTokens: 200, outputTokens: 40 });
+  });
   it('records stream errors and stops', () => {
     let s = beginTurn(initialChatState(), 'hi');
     s = applyChatEvent(s, ev('error', { code: 'NoInferenceEndpoint', message: 'No model' }));
@@ -192,6 +249,46 @@ describe('chat stream reducer (D-022 events)', () => {
     ]);
     expect(msgs.map((m) => m.role)).toEqual(['user', 'assistant']);
     expect(msgs[1].usage.outputTokens).toBe(3);
+  });
+  it('shows stored tool calls with the output of their Tool messages', () => {
+    const msgs = fromStoredMessages([
+      { id: 'm1', role: 'User', content: 'tables?' },
+      {
+        id: 'm2',
+        role: 'Assistant',
+        content: '',
+        toolCalls: [
+          { callId: 'call_1', name: 'sql_list_tables', argumentsJson: '{"resource":"prod-db"}' },
+          { callId: 'call_2', name: 'sql_query', argumentsJson: '{"resource":"prod-db","sql":"delete from t"}' },
+          { callId: 'call_3', name: 'ssh_exec', argumentsJson: '{}' }
+        ]
+      },
+      {
+        id: 'm3',
+        role: 'Tool',
+        toolCallId: 'call_1',
+        toolName: 'sql_list_tables',
+        content: '<tool_output resource="prod-db" tool="sql_list_tables">\n2 tables\n</tool_output>'
+      },
+      {
+        id: 'm4',
+        role: 'Tool',
+        toolCallId: 'call_2',
+        toolName: 'sql_query',
+        content: '<tool_output resource="prod-db" tool="sql_query" error="readonly_binding">\nReadOnly\n</tool_output>'
+      },
+      { id: 'm5', role: 'Assistant', content: 'Two tables, Mr. Anderson.' }
+    ]);
+    expect(msgs.map((m) => m.role)).toEqual(['user', 'assistant', 'assistant']);
+    const tools = msgs[1].parts.map((p) => p.tool);
+    expect(tools.map((t) => [t.id, t.toolName, t.status])).toEqual([
+      ['call_1', 'sql_list_tables', 'Succeeded'],
+      ['call_2', 'sql_query', 'Failed'],
+      ['call_3', 'ssh_exec', 'NotExecuted']
+    ]);
+    expect(tools[0].arguments).toEqual({ resource: 'prod-db' });
+    expect(tools[0].outputPreview).toContain('2 tables');
+    expect(tools[1].error).toContain('ReadOnly');
   });
 });
 

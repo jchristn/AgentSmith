@@ -60,4 +60,4 @@ Hugo records metrics through the `Hugo` meter and spans through the `Hugo` activ
 | `hugo_approvals_total` | counter | `outcome` | Tools and Connectors | Approvals by outcome (requested, approved, rejected, expired, cancelled) |
 | `hugo_tool_duration_seconds` | histogram | `connector`, `tool` | Tools and Connectors | Tool execution time, excluding approval waits |
 | `hugo_tool_invocations_total` | counter | `connector`, `tool`, `effect`, `decision`, `status`, `surface` | Tools and Connectors | Tool calls through the invocation pipeline by connector, tool, classified effect, decision (Allowed, Denied, ApprovalRequired, Approved, Rejected, Expired, Cancelled), execution status, and surface |
-| `hugo_tool_output_bytes_bytes` | histogram | `connector` | Tools and Connectors | Tool output returned to the caller, after scrubbing and limits |
+| `hugo_tool_output_bytes` | histogram | `connector` | Tools and Connectors | Tool output returned to the caller, after scrubbing and limits |

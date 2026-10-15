@@ -35,7 +35,7 @@ namespace Hugo.Cli.Api
         public string? PrincipalType { get; set; } = null;
 
         /// <summary>
-        /// Whether the user must change the password before using routes other than the token and identity routes.
+        /// Whether the user still has a seeded or reset password and is asked to change it. Advisory: no route is blocked (D-048).
         /// </summary>
         public bool MustChangePassword { get; set; } = false;
     }
