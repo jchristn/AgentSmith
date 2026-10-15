@@ -1,0 +1,67 @@
+# Hugo SQL connector testbed: MySQL 8.4, SQL Server 2022, and PostgreSQL 16, each seeded with the "shop" schema
+# (docker/testbed/sql/seed). Test-only credentials; never reuse them.
+#
+#   docker compose -f docker/testbed/sql/compose.yaml up -d --wait
+#   HUGO_TESTBED=1 dotnet run --project src/Test.Automated -f net10.0 -- --suites testbed.sql
+#   docker compose -f docker/testbed/sql/compose.yaml down -v
+#
+# The SQLite target is a file, not a service: tests create it at runtime from seed/sqlite.sql, and
+# seed/create-sqlite.sh builds one by hand. SQL Server has no arm64 image, so it runs as linux/amd64 (emulated on
+# Apple silicon, which makes its first start slow).
+
+name: hugo-testbed-sql
+
+services:
+  mysql:
+    image: mysql:8.4.11
+    environment:
+      MYSQL_ROOT_PASSWORD: "HugoTestbedRoot1!"
+      MYSQL_DATABASE: shop
+      MYSQL_USER: hugo
+      MYSQL_PASSWORD: "HugoTestbed1!"
+    ports:
+      - "127.0.0.1:28306:3306"
+    volumes:
+      - ./seed/mysql.sql:/docker-entrypoint-initdb.d/10-shop.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysql -h 127.0.0.1 -uhugo -p\"$$MYSQL_PASSWORD\" -e 'SELECT COUNT(*) FROM shop.order_items' > /dev/null 2>&1"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 30s
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-CU27-GDR1-ubuntu-22.04
+    platform: linux/amd64
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+      MSSQL_SA_PASSWORD: "Hugo!Testbed2026"
+    ports:
+      - "127.0.0.1:28433:1433"
+    volumes:
+      - ./seed:/seed:ro
+    command: ["/bin/bash", "/seed/sqlserver-entrypoint.sh"]
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S 127.0.0.1 -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -b -Q 'SET NOCOUNT ON; SELECT COUNT(*) FROM shop.dbo.order_items' > /dev/null 2>&1"]
+      interval: 5s
+      timeout: 5s
+      retries: 36
+      start_period: 60s
+
+  postgres:
+    image: postgres:16.4-alpine
+    environment:
+      POSTGRES_USER: hugo
+      POSTGRES_PASSWORD: "HugoTestbed1!"
+      POSTGRES_DB: shop
+    ports:
+      - "127.0.0.1:28432:5432"
+    volumes:
+      - ./seed/postgresql.sql:/docker-entrypoint-initdb.d/10-shop.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "PGPASSWORD=\"$$POSTGRES_PASSWORD\" psql -h 127.0.0.1 -U hugo -d shop -tAc 'SELECT COUNT(*) FROM order_items' > /dev/null 2>&1"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 10s
