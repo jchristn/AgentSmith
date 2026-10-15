@@ -91,6 +91,15 @@ namespace Hugo.Connectors.Sql
             }
         }
 
+        /// <inheritdoc />
+        public override string PromptNotes
+        {
+            get
+            {
+                return "MySQL: quote identifiers with backticks only when needed; use LIMIT n; DATE_FORMAT(col, '%Y-%m'), NOW() - INTERVAL 30 DAY, DATE(col); GROUP_CONCAT(expr SEPARATOR ', ') aggregates strings; CONCAT(a, b) concatenates (|| is OR); boolean flags are 0 or 1.";
+            }
+        }
+
         #endregion
 
         #region Private-Members
@@ -192,6 +201,13 @@ namespace Hugo.Connectors.Sql
         public override bool IsReadOnlyViolation(DbException exception)
         {
             return exception is MySqlException mysql && mysql.Number == 1792;
+        }
+
+        /// <inheritdoc />
+        public override string QuoteIdentifier(string identifier)
+        {
+            ArgumentNullException.ThrowIfNull(identifier);
+            return "`" + identifier.Replace("`", "``", StringComparison.Ordinal) + "`";
         }
 
         #endregion

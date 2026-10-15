@@ -6,9 +6,12 @@ namespace Hugo.Connectors.Sql
     using Hugo.Connectors.Sql.Vendored.Tablix;
 
     /// <summary>
-    /// In-process cache of schema crawls keyed by resource session key and schema. Entries expire after the resource's
-    /// <c>schemaCacheMinutes</c>. The persisted <c>connector_schema_cache</c> table described in the plan belongs to the
-    /// server; this cache keeps repeated crawls cheap within one process. Thread-safe.
+    /// In-process cache of full schema crawls keyed by resource session key and schema. Every discovery and
+    /// intelligence tool (sql_describe_schema, sql_list_tables, sql_list_relationships, sql_get_intelligence,
+    /// sql_get_agent_pack, the context tools, and sql_ask) reads the same crawl, and a <c>refresh</c> argument on any of
+    /// them recrawls. Entries expire after the resource's <c>schemaCacheMinutes</c>. The persisted
+    /// <c>connector_schema_cache</c> table described in the plan belongs to the server; this cache keeps repeated crawls
+    /// cheap within one process. Thread-safe.
     /// </summary>
     public class SchemaCache
     {
@@ -46,6 +49,7 @@ namespace Hugo.Connectors.Sql
         #region Private-Members
 
         private readonly ConcurrentDictionary<string, SchemaCacheEntry> _Entries = new ConcurrentDictionary<string, SchemaCacheEntry>(StringComparer.Ordinal);
+        private readonly ConcurrentDictionary<string, string> _DefaultSchemas = new ConcurrentDictionary<string, string>(StringComparer.Ordinal);
         private int _MaxEntries = 256;
 
         #endregion
@@ -101,6 +105,31 @@ namespace Hugo.Connectors.Sql
         public void Clear()
         {
             _Entries.Clear();
+            _DefaultSchemas.Clear();
+        }
+
+        /// <summary>
+        /// Remember the default schema a resource resolved to, so cached crawls can be served without opening a
+        /// session when the caller names no schema.
+        /// </summary>
+        /// <param name="resourceKey">Resource session key.</param>
+        /// <param name="schema">Default schema.</param>
+        public void RememberDefaultSchema(string resourceKey, string schema)
+        {
+            if (String.IsNullOrEmpty(resourceKey) || String.IsNullOrEmpty(schema)) return;
+            _DefaultSchemas[resourceKey] = schema;
+            if (_DefaultSchemas.Count > _MaxEntries * 4) _DefaultSchemas.Clear();
+        }
+
+        /// <summary>
+        /// The remembered default schema of a resource.
+        /// </summary>
+        /// <param name="resourceKey">Resource session key.</param>
+        /// <returns>Schema, or null when unknown.</returns>
+        public string? DefaultSchema(string resourceKey)
+        {
+            if (String.IsNullOrEmpty(resourceKey)) return null;
+            return _DefaultSchemas.TryGetValue(resourceKey, out string? schema) ? schema : null;
         }
 
         #endregion
