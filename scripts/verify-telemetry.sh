@@ -24,11 +24,11 @@
 #   --tenant ID            Tenant to sign in to [HUGO_TENANT] (default default)
 #   --email EMAIL          User to sign in as [HUGO_EMAIL] (default anderson@hugo.local)
 #   --password PASSWORD    Current password [HUGO_PASSWORD] (default password, the seeded value)
-#   --new-password PASS    When the server answers mustChangePassword (the seeded users must change the password at
-#                          first sign-in), change it to PASS through POST /v1.0/api/users/me/password and sign in
-#                          again [HUGO_NEW_PASSWORD]. When the current password is rejected, PASS is also tried, so
-#                          the same command works on a second run. Without it, a must-change account only produces
-#                          the sign-in part of the workload and the authenticated reads are skipped with a warning.
+#   --new-password PASS    When the server answers mustChangePassword (an advisory flag on seeded and reset
+#                          accounts, D-048), change the password to PASS through POST /v1.0/api/users/me/password and
+#                          sign in again [HUGO_NEW_PASSWORD]. When the current password is rejected, PASS is also
+#                          tried, so the same command works on a second run. Optional: the authenticated reads run
+#                          either way, because the flag blocks no route.
 #   --iterations N         Times to repeat the authenticated reads (default 3)
 #   --scrape-timeout S     Seconds to wait for a Prometheus scrape after the workload (default 60)
 #   --catalog FILE         Catalog file to read hugo_* families from (default <repo>/docs/TELEMETRY.md)
@@ -64,6 +64,8 @@ RUNTIME_REQUIRED=(
 
 # Catalog (and future catalog) families that need an event this workload does not cause. Warn when missing.
 CONDITIONAL=(
+  hugo_model_connector_requests_total
+  hugo_model_connector_tokens_total
   hugo_auth_rate_limited_total
   hugo_db_errors_total
   hugo_db_transaction_retries_total
@@ -257,9 +259,8 @@ if [ -n "$TOKEN" ] && [ "$MUST_CHANGE" = "true" ]; then
     fi
   fi
   if [ "$MUST_CHANGE" = "true" ]; then
-    log "  GET /v1.0/api/users/me (password change pending) -> $(call GET /v1.0/api/users/me "$TOKEN")"
-    warn "$EMAIL must change the password; pass --new-password (or HUGO_NEW_PASSWORD) to run the authenticated reads"
-    TOKEN=""
+    # Advisory only (D-048): no route is blocked, so the reads below still run.
+    log "  $EMAIL still has a seeded or reset password (advisory; pass --new-password to change it)"
   fi
 fi
 

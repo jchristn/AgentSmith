@@ -129,7 +129,9 @@ namespace Test.Shared.Suites
             foreach (Hugo.Core.Telemetry.MetricDescriptor metric in Hugo.Core.Telemetry.HugoMetricCatalog.All())
             {
                 Assert.True(metric.PrometheusName.StartsWith("hugo_", StringComparison.Ordinal), metric.Name + " is not hugo_ prefixed.");
+                Assert.True(!metric.PrometheusName.Contains("_bytes_bytes", StringComparison.Ordinal) && !metric.PrometheusName.Contains("_seconds_seconds", StringComparison.Ordinal) && !metric.PrometheusName.EndsWith("_total_total", StringComparison.Ordinal), metric.Name + " repeats its unit suffix (" + metric.PrometheusName + ").");
             }
+            Assert.Equal("hugo_tool_output_bytes", Hugo.Core.Telemetry.HugoMetricCatalog.ToolOutputBytes.PrometheusName, "Prometheus name of a bytes histogram whose name ends in bytes");
             string expected = Hugo.Core.Telemetry.TelemetryDocument.Render();
             string path = System.IO.Path.Combine(RepositoryRoot(), "docs", "TELEMETRY.md");
             if (Environment.GetEnvironmentVariable("HUGO_WRITE_DOCS") == "true")

@@ -83,7 +83,8 @@ namespace Hugo.Core.Telemetry
 
         /// <summary>
         /// Prometheus series name a dashboard queries: the base name for counters (with _total), histograms (with the
-        /// unit suffix, then _bucket, _sum, _count), and gauges.
+        /// unit suffix, then _bucket, _sum, _count), and gauges. A suffix the name already ends with is not added
+        /// again, matching the OpenTelemetry Prometheus exporter (hugo.tool.output.bytes is hugo_tool_output_bytes).
         /// </summary>
         public string PrometheusName
         {
@@ -92,10 +93,10 @@ namespace Hugo.Core.Telemetry
                 string name = _Name.Replace('.', '_');
                 if (Kind == MetricKindEnum.Histogram)
                 {
-                    if (Unit == "s") name += "_seconds";
-                    else if (Unit == "By") name += "_bytes";
+                    if (Unit == "s" && !name.EndsWith("_seconds", StringComparison.Ordinal)) name += "_seconds";
+                    else if (Unit == "By" && !name.EndsWith("_bytes", StringComparison.Ordinal)) name += "_bytes";
                 }
-                if (Kind == MetricKindEnum.Counter || Kind == MetricKindEnum.ObservableCounter) name += "_total";
+                if ((Kind == MetricKindEnum.Counter || Kind == MetricKindEnum.ObservableCounter) && !name.EndsWith("_total", StringComparison.Ordinal)) name += "_total";
                 return name;
             }
         }
