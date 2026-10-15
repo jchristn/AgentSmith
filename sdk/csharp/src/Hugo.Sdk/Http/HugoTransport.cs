@@ -76,6 +76,13 @@ namespace Hugo.Sdk.Http
         public string? TenantId { get; set; } = null;
 
         /// <summary>
+        /// Tenant that system administrators address on the flat Hugo routes (/v1.0/api/resources, /agent-profiles,
+        /// and so on, where the tenant otherwise comes from the credentials). When set, those requests carry
+        /// ?tenantId=. Null (the default) uses the caller's own tenant.
+        /// </summary>
+        public string? TenantOverride { get; set; } = null;
+
+        /// <summary>
         /// Whether a token that expires within RefreshSkewSeconds is refreshed (POST /v1.0/token/refresh) before a
         /// request is sent. Applies only when AuthMode is Token and TokenExpiresUtc is known. Default true.
         /// </summary>
@@ -340,6 +347,15 @@ namespace Hugo.Sdk.Http
 
         private HttpRequestMessage Build(HttpMethod method, string path, object? body, IDictionary<string, string?>? query, IDictionary<string, string?>? headers, bool authenticate)
         {
+            if (!String.IsNullOrEmpty(TenantOverride)
+                && path.StartsWith("/v1.0/api/", StringComparison.Ordinal)
+                && !path.StartsWith("/v1.0/api/tenants", StringComparison.Ordinal)
+                && (query == null || !query.ContainsKey("tenantId")))
+            {
+                Dictionary<string, string?> withTenant = query == null ? new Dictionary<string, string?>(StringComparer.Ordinal) : new Dictionary<string, string?>(query, StringComparer.Ordinal);
+                withTenant["tenantId"] = TenantOverride;
+                query = withTenant;
+            }
             string queryString = QueryBuilder.Encode(query);
             HttpRequestMessage request = new HttpRequestMessage(method, _BaseUrl + path + (queryString.Length > 0 ? "?" + queryString : String.Empty));
             request.Headers.TryAddWithoutValidation("User-Agent", UserAgent);

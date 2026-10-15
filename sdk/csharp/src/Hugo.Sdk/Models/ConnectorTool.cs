@@ -3,7 +3,7 @@ namespace Hugo.Sdk.Models
     using System;
 
     /// <summary>
-    /// A tool a connector exposes (preview).
+    /// A tool a connector exposes.
     /// </summary>
     public class ConnectorTool
     {

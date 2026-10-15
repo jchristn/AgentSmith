@@ -403,12 +403,12 @@ class SystemApi(_Api):
 
 
 # ---------------------------------------------------------------------------------------------------------------------
-# Domain (preview: verified against the server when Phase 3, 5, and 6 routes land)
+# Domain
 # ---------------------------------------------------------------------------------------------------------------------
 
 
 class ConnectorsApi(_Api):
-    """Connector descriptors with settings schema, secret slots, and tools (preview)."""
+    """Connector descriptors with settings schema, secret slots, and tools."""
 
     def list(self) -> Any:
         return self._run(Call("GET", "/v1.0/api/connectors", parse=_flex(m.ConnectorView)))
@@ -418,7 +418,7 @@ class ConnectorsApi(_Api):
 
 
 class ResourcesApi(_Crud):
-    """Resources (preview). The tenant comes from the token."""
+    """Resources. The tenant comes from the token (or tenant_override for system administrators)."""
 
     _segment = "resources"
     _model = m.Resource
@@ -471,7 +471,7 @@ class ResourcesApi(_Crud):
 
 
 class AgentProfilesApi(_Crud):
-    """Agent profiles with bindings, compiled instructions, and caller tool views (preview)."""
+    """Agent profiles with bindings, compiled instructions, and caller tool views."""
 
     _segment = "agent-profiles"
     _model = m.AgentProfile
@@ -484,9 +484,14 @@ class AgentProfilesApi(_Crud):
         """Compiled instructions as a caller would receive them (surface Chat, Mcp, A2A, or OpenAI)."""
         return self._run(Call("GET", self._item(id) + "/compiled-instructions", {"surface": surface}, parse=m.CompiledInstructions.from_dict))
 
-    def tools(self, id: str) -> Any:
-        """Tools as the caller would see them."""
-        return self._run(Call("GET", self._item(id) + "/tools", parse=m.CallerToolCatalog.from_dict))
+    def compiled_instructions_text(self, id: str, surface: Optional[str] = None) -> Any:
+        """Compiled instructions as plain text (GET ?text=true)."""
+        return self._run(Call("GET", self._item(id) + "/compiled-instructions", {"surface": surface, "text": True},
+                              raw_text=True, accept="text/plain"))
+
+    def tools(self, id: str, surface: Optional[str] = None) -> Any:
+        """Tools as the caller would see them on a surface (Chat, Mcp, A2A, OpenAI)."""
+        return self._run(Call("GET", self._item(id) + "/tools", {"surface": surface}, parse=m.CallerToolCatalog.from_dict))
 
     def card(self, id: str) -> Any:
         """Preview of the A2A agent card."""
@@ -516,8 +521,51 @@ class AgentProfilesApi(_Crud):
         return self._run(Call("PUT", self._item(id) + "/bindings/" + seg(binding_id) + "/tool-rules", body=rules, parse=m.Binding.from_dict))
 
 
+class PromptLayersApi(_Api):
+    """Layered prompt templates by key (/v1.0/api/prompt-templates): Built-in, Global, and Tenant layers. Saving the
+    Global layer requires a system administrator."""
+
+    _base = "/v1.0/api/prompt-templates"
+
+    def _key(self, key: str) -> str:
+        return self._base + "/" + seg(key)
+
+    def list(self) -> Any:
+        """Every template key with its layers and the layer in effect."""
+        return self._run(Call("GET", self._base, parse=_flex(m.PromptTemplateView)))
+
+    def get(self, key: str) -> Any:
+        return self._run(Call("GET", self._key(key), parse=m.PromptTemplateView.from_dict))
+
+    def save(self, key: str, content: str, change_note: Optional[str] = None, layer: str = "Tenant") -> Any:
+        """Save content at a layer (Tenant, or Global for system administrators); creates a version."""
+        return self._run(Call("PUT", self._key(key), {"layer": layer}, body={"content": content, "changeNote": change_note},
+                              parse=m.PromptTemplateView.from_dict))
+
+    def reset(self, key: str, layer: str = "Tenant") -> Any:
+        """Reset Tenant to the Global default, or Global to the Built-in."""
+        return self._run(Call("POST", self._key(key) + "/reset", {"layer": layer}, parse=m.PromptTemplateView.from_dict))
+
+    def versions(self, key: str, layer: str = "Tenant") -> Any:
+        """Version history of a layer, newest first."""
+        return self._run(Call("GET", self._key(key) + "/versions", {"layer": layer}, parse=_list(m.PromptTemplateVersion)))
+
+    def builtin(self, key: str) -> Any:
+        """The shipped Built-in content of a key."""
+        return self._run(Call("GET", self._key(key) + "/builtin", parse=m.BuiltInTemplate.from_dict))
+
+    def diff(self, key: str, layer: str = "Tenant") -> Any:
+        """Line diff of a layer against the layer below it."""
+        return self._run(Call("GET", self._key(key) + "/diff", {"layer": layer}, parse=_list(m.PromptDiffLine)))
+
+    def render(self, content: str, context: Optional[Dict[str, Any]] = None) -> Any:
+        """Render content with sample data; includes resolve through the layers."""
+        return self._run(Call("POST", self._base + "/render", body={"content": content, "context": context or {}},
+                              parse=m.PromptRenderResponse.from_dict))
+
+
 class ModelEndpointsApi(_Crud):
-    """Inference and embedding endpoints (preview)."""
+    """Inference and embedding endpoints."""
 
     _segment = "model-endpoints"
     _model = m.ModelEndpoint
@@ -537,7 +585,7 @@ def _tool_call(tool_name: str, arguments: Optional[Dict[str, Any]], profile: Opt
 
 
 class ToolInvocationsApi(_Api):
-    """Tool invocation records, dry runs, and direct invocation through the full pipeline (preview)."""
+    """Tool invocation records, dry runs, and direct invocation through the full pipeline."""
 
     _base = "/v1.0/api/tool-invocations"
 
@@ -565,7 +613,7 @@ class ToolInvocationsApi(_Api):
 
 
 class ApprovalsApi(_Api):
-    """Approvals for Write and Destructive tool calls (preview)."""
+    """Approvals for Write and Destructive tool calls."""
 
     _base = "/v1.0/api/approvals"
 
@@ -607,7 +655,7 @@ class ApprovalsApi(_Api):
 
 
 class LockdownApi(_Api):
-    """Tenant lockdown at /v1.0/api/tenant/lockdown (preview)."""
+    """Tenant lockdown at /v1.0/api/tenant/lockdown."""
 
     _path = "/v1.0/api/tenant/lockdown"
 
@@ -623,7 +671,7 @@ class LockdownApi(_Api):
 
 
 class ConversationsApi(_Crud):
-    """Conversations and chat (preview). ``stream_message`` yields ChatEvent objects."""
+    """Conversations and chat (preview until the Phase 7 routes land). ``stream_message`` yields ChatEvent objects."""
 
     _segment = "conversations"
     _model = m.Conversation

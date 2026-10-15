@@ -4,7 +4,7 @@ namespace Hugo.Sdk.Models
     using System.Collections.Generic;
 
     /// <summary>
-    /// A connector descriptor with its settings schema, secret slots, and tools (preview).
+    /// A connector descriptor with its settings schema, secret slots, and tools.
     /// </summary>
     public class Connector
     {

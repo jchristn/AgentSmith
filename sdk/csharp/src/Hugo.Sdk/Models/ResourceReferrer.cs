@@ -1,7 +1,7 @@
 namespace Hugo.Sdk.Models
 {
     /// <summary>
-    /// A profile binding that uses a resource (preview).
+    /// A profile binding that uses a resource.
     /// </summary>
     public class ResourceReferrer
     {

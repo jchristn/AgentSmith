@@ -4,7 +4,7 @@ namespace Hugo.Sdk.Models
     using System.Text.Json.Serialization;
 
     /// <summary>
-    /// A conversation with an agent profile (preview).
+    /// A conversation with an agent profile (preview, verified when the Phase 7 conversation routes land).
     /// </summary>
     public class Conversation
     {

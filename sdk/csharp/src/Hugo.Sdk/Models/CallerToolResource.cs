@@ -1,7 +1,7 @@
 namespace Hugo.Sdk.Models
 {
     /// <summary>
-    /// A resource a caller-visible tool can target (preview).
+    /// A resource a caller-visible tool can target.
     /// </summary>
     public class CallerToolResource
     {

@@ -98,6 +98,16 @@ describe("settings and system (administrator)", () => {
     await expectHugoError(owner().settings.get(), 403);
   });
 
+  it("observability service status", async () => {
+    const services = await owner().system.observabilityStatus();
+    expect(Array.isArray(services)).toBe(true);
+    for (const s of services) {
+      expect(typeof s.service).toBe("string");
+      expect(typeof s.configured).toBe("boolean");
+      expect(typeof s.reachable).toBe("boolean");
+    }
+  });
+
   it("master key status", async () => {
     const status = await admin().system.masterKeyStatus();
     expect(typeof status.running).toBe("boolean");

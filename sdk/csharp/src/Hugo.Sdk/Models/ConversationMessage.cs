@@ -3,7 +3,7 @@ namespace Hugo.Sdk.Models
     using System;
 
     /// <summary>
-    /// A message in a conversation (preview).
+    /// A message in a conversation (preview, verified when the Phase 7 conversation routes land).
     /// </summary>
     public class ConversationMessage
     {

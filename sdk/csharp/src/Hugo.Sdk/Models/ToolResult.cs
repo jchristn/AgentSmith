@@ -3,7 +3,7 @@ namespace Hugo.Sdk.Models
     using System.Collections.Generic;
 
     /// <summary>
-    /// Output of a connector tool call (preview).
+    /// Output of a connector tool call.
     /// </summary>
     public class ToolResult
     {

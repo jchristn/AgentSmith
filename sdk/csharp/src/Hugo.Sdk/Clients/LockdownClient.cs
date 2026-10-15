@@ -9,7 +9,7 @@ namespace Hugo.Sdk.Clients
 
     /// <summary>
     /// Tenant lockdown (/v1.0/api/tenant/lockdown). While on, every non-Read tool call in the tenant is denied and
-    /// pending approvals are cancelled. Preview: verified against the server when the Phase 3 routes land.
+    /// pending approvals are cancelled.
     /// </summary>
     public class LockdownClient : ClientBase
     {

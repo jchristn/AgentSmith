@@ -12,7 +12,7 @@ namespace Hugo.Sdk.Clients
 
     /// <summary>
     /// Conversations and chat (/v1.0/api/conversations), including streamed turns as ChatEvent async enumerables.
-    /// Preview: verified against the server when the Phase 6 routes land.
+    /// Preview: verified against the server when the Phase 7 conversation routes land.
     /// </summary>
     public class ConversationsClient : CrudClientBase<Conversation, ConversationRequest>
     {

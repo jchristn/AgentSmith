@@ -4,7 +4,7 @@ namespace Hugo.Sdk.Requests
     using Hugo.Sdk.Models;
 
     /// <summary>
-    /// A tool call for invoke or dry run (preview).
+    /// A tool call for invoke or dry run.
     /// </summary>
     public class ToolCallRequest
     {

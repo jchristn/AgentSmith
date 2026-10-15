@@ -3,7 +3,7 @@ namespace Hugo.Sdk.Models
     using System;
 
     /// <summary>
-    /// A recorded tool invocation (preview).
+    /// A recorded tool invocation.
     /// </summary>
     public class ToolInvocation
     {

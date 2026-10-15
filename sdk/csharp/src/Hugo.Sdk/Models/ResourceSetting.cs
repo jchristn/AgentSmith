@@ -3,7 +3,7 @@ namespace Hugo.Sdk.Models
     using System;
 
     /// <summary>
-    /// One typed setting of a resource (preview).
+    /// One typed setting of a resource.
     /// </summary>
     public class ResourceSetting
     {

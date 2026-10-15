@@ -3,7 +3,7 @@ namespace Hugo.Sdk.Responses
     using System.Collections.Generic;
 
     /// <summary>
-    /// Result of a model endpoint validation (preview).
+    /// Result of a model endpoint validation.
     /// </summary>
     public class ModelValidationResult
     {

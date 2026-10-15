@@ -5,7 +5,7 @@ namespace Hugo.Sdk.Responses
     using Hugo.Sdk.Models;
 
     /// <summary>
-    /// Tool invocation counts (preview).
+    /// Tool invocation counts.
     /// </summary>
     public class ToolInvocationSummary
     {

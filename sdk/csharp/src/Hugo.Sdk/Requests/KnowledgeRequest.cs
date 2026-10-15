@@ -3,7 +3,7 @@ namespace Hugo.Sdk.Requests
     using System;
 
     /// <summary>
-    /// Write a resource knowledge entry (preview).
+    /// Write a resource knowledge entry.
     /// </summary>
     public class KnowledgeRequest
     {

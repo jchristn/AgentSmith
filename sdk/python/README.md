@@ -4,7 +4,7 @@
 
 Version `0.1.0-alpha`, mirrored from `src/Directory.Build.props`. Python 3.9 or later.
 
-> **Preview:** the domain clients (resources, connectors, agent profiles, model endpoints, tool invocations, approvals, lockdown, knowledge, conversations) are verified against the server when Phase 3, 5, and 6 routes land. Until then their models follow `HUGO_PLAN.md` sections 7.4 and 7.5 and the connector contract, and they ignore fields they do not know.
+> **Preview:** only conversations and chat streaming are preview; they are verified against the server when the Phase 7 routes land. Every other client (identity, secrets, request history, events, connectors, resources and knowledge, agent profiles and bindings, prompt layers, model endpoints, tool invocations, approvals, lockdown) is verified against the live server by the harness.
 
 ## Install
 
@@ -26,16 +26,15 @@ with HugoClient("http://127.0.0.1:8800") as client:
 
     secret = client.secrets.create({"name": "web-01-key", "kind": "Password", "values": {"password": "s3cret"}})
 
-    # Preview routes (Phase 3 and 5)
     resource = client.resources.create({
         "name": "web-01", "connectorType": "ssh", "environment": "prod",
-        "settings": {"host": "web-01.example.com", "port": 22, "username": "deploy"},
+        "settings": {"host": "web-01.example.com", "port": 22, "username": "deploy", "authMethod": "Password"},
         "secretBindings": [{"slotName": "password", "secretId": secret.id}],
     })
     profile = client.agent_profiles.create({"name": "ops", "displayName": "Ops"})
     client.agent_profiles.create_binding(profile.id, {"resourceId": resource.id, "alias": "web-01", "accessMode": "ReadWriteWithApproval"})
     print(client.agent_profiles.compiled_instructions(profile.id, surface="Mcp").text)
-    outcome = client.tool_invocations.dry_run("ssh_exec", {"resource": "web-01", "command": "uptime"}, profile_id=profile.id)
+    outcome = client.tool_invocations.dry_run("ssh_exec", {"command": "uptime"}, profile_id=profile.id, resource="web-01")
     print(outcome.decision, outcome.effect)
 ```
 
@@ -62,7 +61,9 @@ A user whose `must_change_password` is true can call only the token routes and `
 
 ## Clients
 
-Tenant-scoped routes (`/v1.0/api/tenants/{tenantId}/...`) use `client.tenant_id`, which `login` sets. A system administrator can point it at any tenant.
+Tenant-scoped routes (`/v1.0/api/tenants/{tenantId}/...`) use `client.tenant_id`, which `login` sets. A system administrator can point it at any tenant. The flat domain routes (`/v1.0/api/resources`, `/v1.0/api/agent-profiles`, and so on) take the tenant from the token; a system administrator can set `client.tenant_override = "ten_..."` (or pass `tenant_override=` to the constructor) to add `?tenantId=` to every `/v1.0/api/...` request outside `/v1.0/api/tenants`. The parameter is part of the signed query string.
+
+The tenant-scoped `prompt_templates` client and the layered `prompt_layers` client both exist because the server exposes both route families.
 
 | Property | Routes |
 |---|---|
@@ -79,7 +80,15 @@ Tenant-scoped routes (`/v1.0/api/tenants/{tenantId}/...`) use `client.tenant_id`
 | `prompt_templates` | CRUD, `versions`, `version`, `restore`, `clone`, `reset`, `render`, `render_ad_hoc` |
 | `events` | `stream()` over `/v1.0/api/events` |
 | `settings` | get, update, `test_database` (system administrators) |
-| `connectors`, `resources` (with knowledge), `agent_profiles` (with bindings and tool rules), `model_endpoints`, `tool_invocations`, `approvals`, `lockdown`, `conversations` | Preview |
+| `connectors` | list, get (settings schema, secret slots, tools) |
+| `resources` | CRUD (`list(connector_type=...)`), `test`, `test_unsaved`, `duplicate`, `referrers`, `invoke`, knowledge (`knowledge`, `knowledge_scope`, `get_knowledge`, `put_knowledge`, `delete_knowledge`, `knowledge_versions`) |
+| `agent_profiles` | CRUD, `duplicate`, `card`, `compiled_instructions(id, surface)`, `compiled_instructions_text(id, surface)`, `tools(id, surface)`, bindings (`list_bindings`, `get_binding`, `create_binding`, `update_binding`, `delete_binding`), `get_tool_rules`, `set_tool_rules` |
+| `prompt_layers` | Layered templates by key at `/v1.0/api/prompt-templates`: `list`, `get`, `save(key, content, change_note, layer)`, `reset`, `versions`, `builtin`, `diff`, `render` |
+| `model_endpoints` | CRUD, `validate`, `models` |
+| `tool_invocations` | list, get, `summary`, `dry_run`, `invoke` |
+| `approvals` | list, get, `approve`, `reject`, `cancel`, `await_decision` |
+| `lockdown` | `get`, `enable(reason)`, `disable` |
+| `conversations` | CRUD, `messages`, `send_message`, `stream_message`, `cancel`, `export` (preview, Phase 7) |
 
 Enumeration routes take `max_results`, `skip`, `ordering` (`CreatedDescending`, `CreatedAscending`, `NameAscending`, `NameDescending`), `search`, `active_only`, and `include_built_in`, and return an `EnumerationResult` with `objects`, `total_records`, and `end_of_results`. Audit and request history return a `PagedResult` with `page_number`, `page_size`, `total_count`, and `total_pages`.
 
@@ -133,7 +142,30 @@ async def main():
 asyncio.run(main())
 ```
 
-### Chat streaming, tool calls, and approvals (preview)
+### Tool calls and approvals
+
+```python
+check = client.tool_invocations.dry_run("http_request", {"method": "DELETE", "path": "/x"}, profile_id=profile.id, resource="api")
+print(check.decision, check.effect, check.reason)     # Denied Destructive ... on a ReadOnly binding
+
+outcome = client.tool_invocations.invoke("ssh_exec", {"command": "sudo systemctl restart nginx"}, profile_id=profile.id, resource="web-01")
+if outcome.approval_id:                                # HTTP 202 while approval is pending
+    decided = client.approvals.await_decision(outcome.approval_id, timeout=600)
+```
+
+`resource` is the binding alias on the profile. `resources.invoke(resource_id, tool_name, arguments)` calls a tool on a resource directly, without a profile.
+
+### Prompt layers
+
+```python
+view = client.prompt_layers.save("persona.agent-smith", "You are {{profile.personaName}}.", change_note="shorter")
+print(view.active_layer)                               # Tenant
+for line in client.prompt_layers.diff("persona.agent-smith"):
+    print(line.op, line.text)
+client.prompt_layers.reset("persona.agent-smith")      # back to the Global layer
+```
+
+### Chat streaming (preview, Phase 7)
 
 ```python
 conversation = client.conversations.create({"agentProfileId": profile.id})
@@ -141,19 +173,14 @@ for event in client.conversations.stream_message(conversation.id, "Is nginx heal
     if event.event == "assistant.delta":
         print(event.json(), end="")
     elif event.event == "approval.required":
-        approval_id = event.json()["approvalId"]
-        client.approvals.approve(approval_id, note="ok")
-
-outcome = client.tool_invocations.invoke("ssh_exec", {"resource": "web-01", "command": "sudo systemctl restart nginx"}, profile_id=profile.id)
-if outcome.approval_id:
-    decided = client.approvals.await_decision(outcome.approval_id, timeout=600)
+        client.approvals.approve(event.json()["approvalId"], note="ok")
 ```
 
 Chat events: `turn.started`, `assistant.delta`, `assistant.thinking`, `tool.proposed`, `tool.started`, `tool.completed`, `approval.required`, `approval.resolved`, `turn.completed`, `error`.
 
 ## Test harness
 
-The harness in `tests/` (pytest) runs against a live server. It signs in as the system administrator, creates a fresh tenant and a tenant administrator, runs every test as that user (and the administrator where needed), and deletes the tenant at the end. Domain tests probe their routes first and skip with "route not available on this server yet (Phase 3/5/6 preview)" while the server answers 404.
+The harness in `tests/` (pytest) runs against a live server. It signs in as the system administrator, creates a fresh tenant and a tenant administrator, runs every test as that user (and the administrator where needed), and deletes the tenant at the end. The conversation and chat streaming tests skip with "route not available on this server yet (Phase 7 preview)" while the server answers 404; every other test must pass.
 
 ```bash
 .venv/bin/python run_harness.py                              # http://127.0.0.1:8800

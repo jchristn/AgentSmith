@@ -3,7 +3,7 @@ namespace Hugo.Sdk.Models
     using System;
 
     /// <summary>
-    /// A count for one status value (preview).
+    /// A count for one status value.
     /// </summary>
     public class StatusCount
     {

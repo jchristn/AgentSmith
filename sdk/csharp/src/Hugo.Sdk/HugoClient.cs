@@ -140,6 +140,11 @@ namespace Hugo.Sdk
         public PromptTemplatesClient PromptTemplates { get; }
 
         /// <summary>
+        /// Layered prompt templates by key (persona, connector instructions, system templates).
+        /// </summary>
+        public PromptLayersClient PromptLayers { get; }
+
+        /// <summary>
         /// Request history.
         /// </summary>
         public RequestHistoryClient RequestHistory { get; }
@@ -155,42 +160,42 @@ namespace Hugo.Sdk
         public SettingsClient Settings { get; }
 
         /// <summary>
-        /// Connectors (preview).
+        /// Connectors.
         /// </summary>
         public ConnectorsClient Connectors { get; }
 
         /// <summary>
-        /// Resources and resource knowledge (preview).
+        /// Resources and resource knowledge.
         /// </summary>
         public ResourcesClient Resources { get; }
 
         /// <summary>
-        /// Agent profiles and bindings (preview).
+        /// Agent profiles and bindings.
         /// </summary>
         public AgentProfilesClient AgentProfiles { get; }
 
         /// <summary>
-        /// Model endpoints (preview).
+        /// Model endpoints.
         /// </summary>
         public ModelEndpointsClient ModelEndpoints { get; }
 
         /// <summary>
-        /// Tool invocations, dry run, and direct invoke (preview).
+        /// Tool invocations, dry run, and direct invoke.
         /// </summary>
         public ToolInvocationsClient ToolInvocations { get; }
 
         /// <summary>
-        /// Approvals (preview).
+        /// Approvals.
         /// </summary>
         public ApprovalsClient Approvals { get; }
 
         /// <summary>
-        /// Tenant lockdown (preview).
+        /// Tenant lockdown.
         /// </summary>
         public LockdownClient Lockdown { get; }
 
         /// <summary>
-        /// Conversations and chat streaming (preview).
+        /// Conversations and chat streaming (preview: verified when the Phase 7 conversation routes land).
         /// </summary>
         public ConversationsClient Conversations { get; }
 
@@ -225,6 +230,7 @@ namespace Hugo.Sdk
             Audit = new AuditClient(Transport);
             Secrets = new SecretsClient(Transport);
             PromptTemplates = new PromptTemplatesClient(Transport);
+            PromptLayers = new PromptLayersClient(Transport);
             RequestHistory = new RequestHistoryClient(Transport);
             Events = new EventsClient(Transport);
             Settings = new SettingsClient(Transport);

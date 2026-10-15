@@ -81,3 +81,20 @@ def test_enumeration_parse():
 def test_query_encoding():
     q = clean_query({"a": None, "b": True, "c": "x y", "d": datetime(2026, 1, 2, tzinfo=timezone.utc), "e": ""})
     assert q == "b=true&c=x%20y&d=2026-01-02T00%3A00%3A00.000Z"
+
+
+def test_tenant_override_adds_signed_query_parameter():
+    t = SyncTransport("http://127.0.0.1:1", auth=AuthState(mode="signed", access_key="ak", secret_key="sk", tenant_id="ten",
+                                                           tenant_override="ten_other"))
+    url, _, headers = t._prepare(Call("GET", "/v1.0/api/resources", {"maxResults": 5}))
+    assert url.endswith("/v1.0/api/resources?maxResults=5&tenantId=ten_other")
+    canonical = canonicalize("GET", "/v1.0/api/resources", "maxResults=5&tenantId=ten_other", "ten", headers["x-date"], headers["x-nonce"], None)
+    assert headers["x-signature"] == sign("sk", canonical)
+    url2, _, _ = t._prepare(Call("GET", "/v1.0/api/tenants/ten/users"))
+    assert "tenantId" not in url2
+    t.close()
+
+
+def test_prompt_template_view_global_layer():
+    view = models.PromptTemplateView.from_dict({"key": "k", "activeLayer": "Global", "global": {"layer": "Global", "exists": True, "version": 3}})
+    assert view.global_.exists and view.global_.version == 3 and view.tenant is None

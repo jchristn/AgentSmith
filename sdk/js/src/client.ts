@@ -14,6 +14,7 @@ import {
   ConversationsClient,
   LockdownClient,
   ModelEndpointsClient,
+  PromptLayersClient,
   ResourcesClient,
   ToolInvocationsClient,
 } from "./clients/domain.js";
@@ -68,12 +69,14 @@ export class HugoClient {
   readonly audit: AuditClient;
   readonly secrets: SecretsClient;
   readonly promptTemplates: PromptTemplatesClient;
+  /** Layered prompt templates by key (Built-in, Global, Tenant) at /v1.0/api/prompt-templates. */
+  readonly promptLayers: PromptLayersClient;
   readonly requestHistory: RequestHistoryClient;
   readonly events: EventsClient;
   readonly settings: SettingsClient;
   readonly system: SystemClient;
 
-  // Hugo domain (preview; flat routes with the tenant from the token).
+  // Hugo domain (flat routes with the tenant from the token; conversations are preview).
   readonly connectors: ConnectorsClient;
   readonly resources: ResourcesClient;
   readonly agentProfiles: AgentProfilesClient;
@@ -97,6 +100,7 @@ export class HugoClient {
     this.audit = new AuditClient(t);
     this.secrets = new SecretsClient(t);
     this.promptTemplates = new PromptTemplatesClient(t);
+    this.promptLayers = new PromptLayersClient(t);
     this.requestHistory = new RequestHistoryClient(t);
     this.events = new EventsClient(t);
     this.settings = new SettingsClient(t);
@@ -123,6 +127,18 @@ export class HugoClient {
 
   set tenantId(value: string | undefined) {
     this.transport.tenantId = value;
+  }
+
+  /**
+   * System administrators only: the tenant that flat /v1.0/api/... routes (resources, agent profiles, approvals,
+   * prompt layers, ...) act on, sent as ?tenantId=. Undefined uses the caller's own tenant.
+   */
+  get tenantOverride(): string | undefined {
+    return this.transport.tenantOverride;
+  }
+
+  set tenantOverride(value: string | undefined) {
+    this.transport.tenantOverride = value;
   }
 
   /** The current bearer token, when token authentication is in use. */

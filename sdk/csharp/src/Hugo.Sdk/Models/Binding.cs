@@ -4,7 +4,7 @@ namespace Hugo.Sdk.Models
     using System.Collections.Generic;
 
     /// <summary>
-    /// A binding of a resource to an agent profile with an access mode (preview).
+    /// A binding of a resource to an agent profile with an access mode.
     /// </summary>
     public class Binding
     {

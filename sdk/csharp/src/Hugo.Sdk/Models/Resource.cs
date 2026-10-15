@@ -4,7 +4,7 @@ namespace Hugo.Sdk.Models
     using System.Collections.Generic;
 
     /// <summary>
-    /// A configured resource: one service Hugo can reach, such as an SSH host or a database (preview).
+    /// A configured resource: one service Hugo can reach, such as an SSH host or a database.
     /// </summary>
     public class Resource
     {

@@ -6,6 +6,7 @@ import type {
 
   HealthResponse,
   MasterKeyRotationStatus,
+  ObservabilityServiceStatus,
   PagedResult,
   PromptRenderRequest,
   PromptRenderResponse,
@@ -214,6 +215,11 @@ export class SystemClient {
 
   serverInfo(): Promise<ServerInfo> {
     return this.t.request("GET", "/v1.0/api/server-info");
+  }
+
+  /** Reachability and version of the configured observability services (cached by the server for 30 seconds). */
+  observabilityStatus(): Promise<ObservabilityServiceStatus[]> {
+    return this.t.request("GET", "/v1.0/api/observability/status");
   }
 
   masterKeyStatus(): Promise<MasterKeyRotationStatus> {

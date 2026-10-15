@@ -5,7 +5,7 @@ namespace Hugo.Sdk.Responses
     using Hugo.Sdk.Models;
 
     /// <summary>
-    /// Compiled instructions for a profile and surface (preview).
+    /// Compiled instructions for a profile and surface.
     /// </summary>
     public class CompiledInstructions
     {

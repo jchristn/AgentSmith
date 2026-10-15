@@ -1,7 +1,7 @@
 namespace Hugo.Sdk.Requests
 {
     /// <summary>
-    /// Create or update a model endpoint (preview). Null properties are omitted.
+    /// Create or update a model endpoint. Null properties are omitted.
     /// </summary>
     public class ModelEndpointRequest
     {

@@ -97,7 +97,7 @@ class Model:
         if data is None:
             data = {}
         hints = _hints(cls)
-        lookup = {_key(f.name): f.name for f in dataclasses.fields(cls) if f.name != "raw"}
+        lookup = {_key(f.metadata.get("json") or f.name): f.name for f in dataclasses.fields(cls) if f.name != "raw"}
         kwargs: Dict[str, Any] = {}
         for key, value in data.items():
             name = lookup.get(_key(key))
@@ -712,6 +712,52 @@ class PromptRenderResponse(Model):
     errors: List[str] = _f(default=[])
 
 
+@dataclasses.dataclass
+class PromptLayerState(Model):
+    """One layer (Global or Tenant) of a layered prompt template key."""
+
+    layer: Optional[str] = None
+    exists: bool = False
+    template_id: Optional[str] = None
+    content: Optional[str] = None
+    version: Optional[int] = None
+    customized: bool = False
+    default_updated_since_customized: bool = False
+    last_update_utc: Optional[datetime] = None
+
+
+@dataclasses.dataclass
+class PromptTemplateView(Model):
+    """A layered template key (/v1.0/api/prompt-templates): Built-in, Global, and Tenant layers and the one in effect."""
+
+    key: Optional[str] = None
+    description: Optional[str] = None
+    source: Optional[str] = None
+    active_layer: Optional[str] = None
+    effective_content: Optional[str] = None
+    built_in_content: Optional[str] = None
+    built_in_hash: Optional[str] = None
+    global_: Optional[PromptLayerState] = _f("global", None)
+    tenant: Optional[PromptLayerState] = None
+
+
+@dataclasses.dataclass
+class BuiltInTemplate(Model):
+    key: Optional[str] = None
+    content: Optional[str] = None
+    hash: Optional[str] = None
+    source: Optional[str] = None
+    description: Optional[str] = None
+
+
+@dataclasses.dataclass
+class PromptDiffLine(Model):
+    """One diff line; ``op`` is add, remove, or same."""
+
+    op: Optional[str] = None
+    text: Optional[str] = None
+
+
 # ---------------------------------------------------------------------------------------------------------------------
 # Settings and system
 # ---------------------------------------------------------------------------------------------------------------------
@@ -786,7 +832,7 @@ class ObservabilityServiceStatus(Model):
 
 
 # ---------------------------------------------------------------------------------------------------------------------
-# Domain (preview: verified against the server when Phase 3, 5, and 6 routes land)
+# Domain (conversations and chat are preview until the Phase 7 routes land)
 # ---------------------------------------------------------------------------------------------------------------------
 
 
@@ -891,11 +937,26 @@ class Resource(Model):
 
 
 @dataclasses.dataclass
+class ConnectorValidationError(Model):
+    field: Optional[str] = None
+    code: Optional[str] = None
+    message: Optional[str] = None
+
+
+@dataclasses.dataclass
 class ResourceTestResponse(Model):
+    """Result of a resource connection test. ``learned_settings`` holds values the connector discovered."""
+
     success: bool = False
     message: Optional[str] = None
     error_code: Optional[str] = None
     latency_ms: Optional[float] = None
+    details: Dict[str, Any] = _f(default={})
+    validation_errors: List[ConnectorValidationError] = _f(default=[])
+    learned_settings: Dict[str, Any] = _f(default={})
+
+
+ResourceTestResult = ResourceTestResponse
 
 
 @dataclasses.dataclass
@@ -1061,11 +1122,21 @@ class CallerToolCatalog(Model):
 
 
 @dataclasses.dataclass
+class AgentSkill(Model):
+    id: Optional[str] = None
+    name: Optional[str] = None
+    description: Optional[str] = None
+    tags: List[str] = _f(default=[])
+    examples: List[str] = _f(default=[])
+
+
+@dataclasses.dataclass
 class AgentCardPreview(Model):
     name: Optional[str] = None
     description: Optional[str] = None
     url: Optional[str] = None
     version: Optional[str] = None
+    skills: List[AgentSkill] = _f(default=[])
 
 
 @dataclasses.dataclass

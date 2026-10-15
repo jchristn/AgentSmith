@@ -4,7 +4,7 @@ namespace Hugo.Sdk.Models
     using System.Collections.Generic;
 
     /// <summary>
-    /// A setting a connector declares (preview).
+    /// A setting a connector declares.
     /// </summary>
     public class ConnectorSetting
     {

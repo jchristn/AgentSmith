@@ -7,8 +7,7 @@ namespace Hugo.Sdk.Clients
     using Hugo.Sdk.Models;
 
     /// <summary>
-    /// Connector descriptors with settings schema, secret slots, and tools (/v1.0/api/connectors). Preview: verified
-    /// against the server when the Phase 3 routes land.
+    /// Connector descriptors with settings schema, secret slots, and tools (/v1.0/api/connectors).
     /// </summary>
     public class ConnectorsClient : ClientBase
     {

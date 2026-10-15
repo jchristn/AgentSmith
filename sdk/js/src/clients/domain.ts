@@ -1,11 +1,13 @@
 /**
- * Hugo domain clients. Preview: verified against the server when Phase 3, 5, and 6 routes land. Routes are flat
- * (/v1.0/api/...) with the tenant taken from the caller's token.
+ * Hugo domain clients. Routes are flat (/v1.0/api/...) with the tenant taken from the caller's token (system
+ * administrators can set client.tenantOverride). Conversations and chat streaming are preview: verified against
+ * the server when the Phase 7 routes land.
  */
 import type {
   AgentCardPreview,
   AgentProfile,
   AgentProfileRequest,
+  BuiltInTemplate,
   Approval,
   ApprovalFilter,
   Binding,
@@ -27,9 +29,15 @@ import type {
   ModelEndpoint,
   ModelEndpointRequest,
   ModelValidationResult,
+  PromptDiffLine,
+  PromptLayer,
+  PromptRenderResponse,
+  PromptTemplateVersion,
+  PromptTemplateView,
   Resource,
   ResourceKnowledge,
   ResourceKnowledgeVersion,
+  ResourceFilter,
   ResourceReferrer,
   ResourceRequest,
   ResourceTestResponse,
@@ -100,6 +108,11 @@ export class ResourcesClient extends FlatCollection<Resource, ResourceRequest> {
   constructor(t: Transport) {
     super(t, "/v1.0/api/resources");
     this.knowledge = new ResourceKnowledgeClient(t);
+  }
+
+  /** List resources, optionally filtered by connectorType. */
+  override list(query?: ResourceFilter): Promise<EnumerationResult<Resource>> {
+    return super.list(query);
   }
 
   /** Test a saved resource's connection and record the result. */
@@ -181,9 +194,14 @@ export class AgentProfilesClient extends FlatCollection<AgentProfile, AgentProfi
     return this.t.request("GET", `${this.item(id)}/compiled-instructions`, { query: { surface } });
   }
 
-  /** Tools as the caller would see them. */
-  tools(id: string): Promise<CallerToolCatalog> {
-    return this.t.request("GET", `${this.item(id)}/tools`);
+  /** Compiled instructions as plain text (text/plain). */
+  compiledInstructionsText(id: string, surface?: InvocationSurface): Promise<string> {
+    return this.t.requestText("GET", `${this.item(id)}/compiled-instructions`, { query: { surface, text: true }, accept: "text/plain, */*" });
+  }
+
+  /** Tools as the caller would see them on a surface (the server defaults to rest). */
+  tools(id: string, surface?: string): Promise<CallerToolCatalog> {
+    return this.t.request("GET", `${this.item(id)}/tools`, { query: { surface } });
   }
 
   /** A2A agent card preview. */
@@ -333,5 +351,59 @@ export class ConversationsClient extends FlatCollection<Conversation, Conversati
   /** Export as Markdown (format md) or JSON (format json). */
   export(id: string, format: "md" | "json" = "md"): Promise<string> {
     return this.t.requestText("GET", `${this.item(id)}/export`, { query: { format }, accept: format === "md" ? "text/markdown, */*" : "application/json" });
+  }
+}
+
+/**
+ * Layered prompt templates by key (/v1.0/api/prompt-templates): Built-in, Global (system administrators), and
+ * Tenant layers, with versions, diff, reset, and render. The tenant-scoped promptTemplates client covers the
+ * /v1.0/api/tenants/{tenantId}/prompt-templates records.
+ */
+export class PromptLayersClient {
+  constructor(private readonly t: Transport) {}
+
+  private static readonly base = "/v1.0/api/prompt-templates";
+
+  private key(key: string): string {
+    return `${PromptLayersClient.base}/${seg(key)}`;
+  }
+
+  /** Every key with its layers and the layer in effect. */
+  list(): Promise<PromptTemplateView[]> {
+    return this.t.request("GET", PromptLayersClient.base);
+  }
+
+  get(key: string): Promise<PromptTemplateView> {
+    return this.t.request("GET", this.key(key));
+  }
+
+  /** Save content at a layer (default Tenant; Global needs a system administrator). Creates a version. */
+  save(key: string, content: string, changeNote?: string, layer: PromptLayer = "Tenant"): Promise<PromptTemplateView> {
+    return this.t.request("PUT", this.key(key), { query: { layer }, body: { content, changeNote } });
+  }
+
+  /** Reset Tenant to the Global default, or Global to the Built-in. */
+  reset(key: string, layer: PromptLayer = "Tenant"): Promise<PromptTemplateView> {
+    return this.t.request("POST", `${this.key(key)}/reset`, { query: { layer } });
+  }
+
+  /** Version history of a layer, newest first. */
+  versions(key: string, layer: PromptLayer = "Tenant"): Promise<PromptTemplateVersion[]> {
+    return this.t.request("GET", `${this.key(key)}/versions`, { query: { layer } });
+  }
+
+  /** The shipped Built-in content. */
+  builtin(key: string): Promise<BuiltInTemplate> {
+    return this.t.request("GET", `${this.key(key)}/builtin`);
+  }
+
+  /** Line diff of a layer against the layer below it. */
+  diff(key: string, layer: PromptLayer = "Tenant"): Promise<PromptDiffLine[]> {
+    return this.t.request("GET", `${this.key(key)}/diff`, { query: { layer } });
+  }
+
+  /** Render content with sample data; includes resolve through the layers. */
+  render(content: string, context: Json = {}): Promise<PromptRenderResponse> {
+    return this.t.request("POST", `${PromptLayersClient.base}/render`, { body: { content, context } });
   }
 }

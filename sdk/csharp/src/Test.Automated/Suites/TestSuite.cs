@@ -56,7 +56,7 @@ namespace Test.Automated.Suites
             }
             catch (HugoException e) when (e.StatusCode == 404)
             {
-                throw new TestSkippedException("route not available on this server yet (Phase 3/5/6 preview): " + (e.Code ?? "NotFound"));
+                throw new TestSkippedException("route not available on this server yet (Phase 7 preview): " + (e.Code ?? "NotFound"));
             }
         }
 

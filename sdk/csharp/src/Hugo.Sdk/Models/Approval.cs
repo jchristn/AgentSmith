@@ -3,7 +3,7 @@ namespace Hugo.Sdk.Models
     using System;
 
     /// <summary>
-    /// An approval request for a tool call (preview).
+    /// An approval request for a tool call.
     /// </summary>
     public class Approval
     {

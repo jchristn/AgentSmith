@@ -4,7 +4,7 @@ namespace Hugo.Sdk.Requests
     using Hugo.Sdk.Models;
 
     /// <summary>
-    /// Create or update a binding (preview). Null properties are omitted.
+    /// Create or update a binding. Null properties are omitted.
     /// </summary>
     public class BindingRequest
     {

@@ -11,7 +11,6 @@ namespace Hugo.Sdk.Clients
 
     /// <summary>
     /// Approvals of tool calls (/v1.0/api/approvals): list, read, approve, reject, cancel, and await a decision.
-    /// Preview: verified against the server when the Phase 3 routes land.
     /// </summary>
     public class ApprovalsClient : ClientBase
     {

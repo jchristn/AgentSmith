@@ -562,6 +562,14 @@ export interface SettingsSaveResponse extends Json {
   settings?: SettingsView;
 }
 
+export interface ObservabilityServiceStatus extends Json {
+  service: string;
+  configured: boolean;
+  reachable: boolean;
+  version?: string;
+  checkedUtc?: string;
+}
+
 export interface MasterKeyRotationStatus extends Json {
   running: boolean;
   targetKeyVersion?: number;
@@ -575,7 +583,7 @@ export interface MasterKeyRotationStatus extends Json {
 }
 
 // ---------------------------------------------------------------------------------------------------------------
-// Domain (preview: verified against the server when Phase 3, 5, and 6 routes land)
+// Domain (conversations and chat are preview: verified when the Phase 7 routes land)
 // ---------------------------------------------------------------------------------------------------------------
 
 export type AccessMode = "ReadOnly" | "ReadWriteWithApproval" | "ReadWrite";
@@ -693,11 +701,29 @@ export interface ResourceRequest extends Json {
   secretBindings?: ResourceSecretBinding[];
 }
 
+export interface ConnectorValidationError extends Json {
+  field: string;
+  code: string;
+  message: string;
+}
+
 export interface ResourceTestResponse extends Json {
   success: boolean;
   message?: string;
   errorCode?: string;
   latencyMs?: number;
+  details?: Record<string, string>;
+  validationErrors?: ConnectorValidationError[];
+  /** Settings the test discovered (for example a server version), keyed by setting key. */
+  learnedSettings?: Record<string, string>;
+}
+
+/** Alias matching the C# and Python SDK name. */
+export type ResourceTestResult = ResourceTestResponse;
+
+/** Filter for resources.list. */
+export interface ResourceFilter extends EnumerationQuery {
+  connectorType?: string;
 }
 
 export interface ResourceReferrer extends Json {
@@ -831,11 +857,61 @@ export interface CallerToolCatalog extends Json {
   metaTools?: CallerTool[];
 }
 
+export interface AgentCardSkill extends Json {
+  id: string;
+  name: string;
+  description?: string;
+  tags?: string[];
+  examples?: string[];
+}
+
 export interface AgentCardPreview extends Json {
   name?: string;
   description?: string;
   url?: string;
   version?: string;
+  skills?: AgentCardSkill[];
+}
+
+export type PromptLayer = "BuiltIn" | "Global" | "Tenant";
+
+/** One editable layer (Global or Tenant) of a prompt template key. */
+export interface PromptLayerState extends Json {
+  layer: PromptLayer;
+  exists: boolean;
+  templateId?: string;
+  content?: string;
+  version?: number;
+  customized?: boolean;
+  defaultUpdatedSinceCustomized?: boolean;
+  lastUpdateUtc?: string;
+}
+
+/** A prompt template key with its layers and the layer in effect. */
+export interface PromptTemplateView extends Json {
+  key: string;
+  description?: string;
+  source?: string;
+  activeLayer: PromptLayer;
+  effectiveContent: string;
+  builtInContent?: string;
+  builtInHash?: string;
+  global?: PromptLayerState | null;
+  tenant?: PromptLayerState | null;
+}
+
+export interface BuiltInTemplate extends Json {
+  key: string;
+  content: string;
+  hash?: string;
+  source?: string;
+  description?: string;
+}
+
+export interface PromptDiffLine extends Json {
+  /** "add", "remove", or "same". */
+  op: string;
+  text: string;
 }
 
 export interface ModelEndpoint extends Entity {

@@ -4,7 +4,7 @@ namespace Hugo.Sdk.Responses
     using Hugo.Sdk.Models;
 
     /// <summary>
-    /// Tools as a caller of a profile sees them (preview).
+    /// Tools as a caller of a profile sees them.
     /// </summary>
     public class CallerToolCatalog
     {

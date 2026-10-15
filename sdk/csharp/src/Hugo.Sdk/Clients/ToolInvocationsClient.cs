@@ -12,7 +12,6 @@ namespace Hugo.Sdk.Clients
 
     /// <summary>
     /// Tool invocations: history, summary, dry run, and direct invoke as a profile (/v1.0/api/tool-invocations).
-    /// Preview: verified against the server when the Phase 3 routes land.
     /// </summary>
     public class ToolInvocationsClient : ClientBase
     {

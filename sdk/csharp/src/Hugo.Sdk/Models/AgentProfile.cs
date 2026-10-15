@@ -3,7 +3,7 @@ namespace Hugo.Sdk.Models
     using System;
 
     /// <summary>
-    /// An agent profile: persona, model endpoints, limits, exposure, and bound resources (preview).
+    /// An agent profile: persona, model endpoints, limits, exposure, and bound resources.
     /// </summary>
     public class AgentProfile
     {

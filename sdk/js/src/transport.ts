@@ -23,6 +23,11 @@ export interface TransportOptions {
   fetch?: typeof fetch;
   /** Extra headers sent on every request. */
   headers?: Record<string, string>;
+  /**
+   * System administrators only: act on another tenant. When set, requests to flat /v1.0/api/... routes (every route
+   * except /v1.0/api/tenants...) carry ?tenantId=<tenantOverride>. Tenant-scoped paths use tenantId instead.
+   */
+  tenantOverride?: string;
 }
 
 /** Options for one request. */
@@ -72,6 +77,8 @@ export class Transport {
   adminApiKey?: string;
   /** Tenant used for tenant-scoped paths and signed requests. */
   tenantId?: string;
+  /** System administrators only: tenant for flat /v1.0/api/... routes, sent as ?tenantId=. */
+  tenantOverride?: string;
   timeoutMs: number;
   autoRefresh: boolean;
   refreshSkewSeconds: number;
@@ -86,6 +93,7 @@ export class Transport {
     this.autoRefresh = options.autoRefresh ?? true;
     this.refreshSkewSeconds = options.refreshSkewSeconds ?? 60;
     this.headers = { ...(options.headers ?? {}) };
+    this.tenantOverride = options.tenantOverride;
     const f = options.fetch ?? (globalThis as { fetch?: typeof fetch }).fetch;
     if (!f) throw new Error("No fetch implementation is available; pass options.fetch.");
     this.fetchImpl = f;
@@ -159,7 +167,7 @@ export class Transport {
   async send(method: string, path: string, options: RequestOptions = {}, streaming = false): Promise<Response> {
     if (!options.anonymous && !options.skipAutoRefresh && this.shouldRefresh()) await this.refreshToken();
 
-    const query = buildQuery(options.query);
+    const query = buildQuery(this.withTenantOverride(path, options.query));
     let body: string | undefined;
     const headers: Record<string, string> = { "User-Agent": `hugo-sdk-js/${SDK_VERSION}`, Accept: options.accept ?? "application/json", ...this.headers };
     if (options.body !== undefined && options.body !== null) {
@@ -184,6 +192,12 @@ export class Transport {
       if (timer) clearTimeout(timer);
       if (!streaming) options.signal?.removeEventListener("abort", onAbort);
     }
+  }
+
+  private withTenantOverride(path: string, query?: QueryParams): QueryParams | undefined {
+    if (!this.tenantOverride || !path.startsWith("/v1.0/api/") || path.startsWith("/v1.0/api/tenants")) return query;
+    if (query && query.tenantId !== undefined && query.tenantId !== null && query.tenantId !== "") return query;
+    return { ...(query ?? {}), tenantId: this.tenantOverride };
   }
 
   private shouldRefresh(): boolean {

@@ -3,7 +3,7 @@ namespace Hugo.Sdk.Models
     using System;
 
     /// <summary>
-    /// Binding of a connector secret slot to a vault secret (preview).
+    /// Binding of a connector secret slot to a vault secret.
     /// </summary>
     public class ResourceSecretBinding
     {

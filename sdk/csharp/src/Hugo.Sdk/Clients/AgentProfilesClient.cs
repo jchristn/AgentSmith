@@ -2,6 +2,7 @@ namespace Hugo.Sdk.Clients
 {
     using System;
     using System.Collections.Generic;
+    using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
     using Hugo.Sdk.Http;
@@ -11,7 +12,6 @@ namespace Hugo.Sdk.Clients
 
     /// <summary>
     /// Agent profiles, their bindings, compiled instructions, and caller tool view (/v1.0/api/agent-profiles).
-    /// Preview: verified against the server when the Phase 5 routes land.
     /// </summary>
     public class AgentProfilesClient : CrudClientBase<AgentProfile, AgentProfileRequest>
     {
@@ -61,15 +61,31 @@ namespace Hugo.Sdk.Clients
         }
 
         /// <summary>
+        /// Compiled instruction text only (text/plain), as a caller on a surface would receive it.
+        /// </summary>
+        /// <param name="id">Profile identifier.</param>
+        /// <param name="surface">Surface: Chat, Mcp, A2A, or OpenAI; null for the server default (Chat).</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Instruction text.</returns>
+        /// <exception cref="HugoException">Thrown on a non-success status.</exception>
+        public Task<string> GetCompiledInstructionsTextAsync(string id, string? surface = null, CancellationToken token = default)
+        {
+            Dictionary<string, string?> query = new Dictionary<string, string?> { { "surface", surface }, { "text", "true" } };
+            return Transport.SendTextAsync(HttpMethod.Get, Item(id) + "/compiled-instructions", null, query, null, true, token);
+        }
+
+        /// <summary>
         /// Tools as a caller of the profile would see them.
         /// </summary>
         /// <param name="id">Profile identifier.</param>
+        /// <param name="surface">Surface whose view to return, for example rest, mcp, or chat; null for the server default (rest).</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Tool catalog.</returns>
         /// <exception cref="HugoException">Thrown on a non-success status.</exception>
-        public Task<CallerToolCatalog> GetToolsAsync(string id, CancellationToken token = default)
+        public Task<CallerToolCatalog> GetToolsAsync(string id, string? surface = null, CancellationToken token = default)
         {
-            return GetAsync<CallerToolCatalog>(Item(id) + "/tools", null, token);
+            Dictionary<string, string?> query = new Dictionary<string, string?> { { "surface", surface } };
+            return GetAsync<CallerToolCatalog>(Item(id) + "/tools", query, token);
         }
 
         /// <summary>

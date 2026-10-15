@@ -4,7 +4,7 @@ namespace Hugo.Sdk.Requests
     using Hugo.Sdk.Models;
 
     /// <summary>
-    /// Tool invocation list filter (preview).
+    /// Tool invocation list filter.
     /// </summary>
     public class ToolInvocationFilter
     {

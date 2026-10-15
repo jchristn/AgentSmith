@@ -3,7 +3,7 @@ namespace Hugo.Sdk.Models
     using System;
 
     /// <summary>
-    /// A knowledge entry stored for a resource (preview).
+    /// A knowledge entry stored for a resource.
     /// </summary>
     public class ResourceKnowledge
     {

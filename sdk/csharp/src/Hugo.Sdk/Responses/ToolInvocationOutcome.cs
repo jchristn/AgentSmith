@@ -4,7 +4,7 @@ namespace Hugo.Sdk.Responses
     using Hugo.Sdk.Models;
 
     /// <summary>
-    /// Decision and result of a tool invoke or dry run (preview).
+    /// Decision and result of a tool invoke or dry run.
     /// </summary>
     public class ToolInvocationOutcome
     {

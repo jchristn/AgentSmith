@@ -1,7 +1,7 @@
 namespace Hugo.Sdk.Requests
 {
     /// <summary>
-    /// Create or update a conversation (preview).
+    /// Create or update a conversation (preview, verified when the Phase 7 conversation routes land).
     /// </summary>
     public class ConversationRequest
     {

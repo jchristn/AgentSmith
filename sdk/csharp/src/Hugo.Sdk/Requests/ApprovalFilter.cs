@@ -3,7 +3,7 @@ namespace Hugo.Sdk.Requests
     using Hugo.Sdk.Models;
 
     /// <summary>
-    /// Approval list filter (preview).
+    /// Approval list filter.
     /// </summary>
     public class ApprovalFilter
     {

@@ -1,7 +1,10 @@
 namespace Hugo.Sdk.Responses
 {
+    using System.Collections.Generic;
+    using Hugo.Sdk.Models;
+
     /// <summary>
-    /// Preview of a profile's A2A agent card (preview).
+    /// Preview of a profile's A2A agent card.
     /// </summary>
     public class AgentCardPreview
     {
@@ -26,6 +29,11 @@ namespace Hugo.Sdk.Responses
         /// Version.
         /// </summary>
         public string? Version { get; set; } = null;
+
+        /// <summary>
+        /// Skills.
+        /// </summary>
+        public List<AgentCardSkill> Skills { get; set; } = new List<AgentCardSkill>();
 
         #endregion
     }

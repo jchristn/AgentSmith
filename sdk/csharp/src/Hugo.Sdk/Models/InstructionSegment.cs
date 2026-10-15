@@ -1,7 +1,7 @@
 namespace Hugo.Sdk.Models
 {
     /// <summary>
-    /// Source map entry of compiled instructions (preview).
+    /// Source map entry of compiled instructions.
     /// </summary>
     public class InstructionSegment
     {

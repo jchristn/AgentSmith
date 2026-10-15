@@ -25,7 +25,7 @@ ADMIN_EMAIL = os.environ.get("HUGO_SDK_ADMIN_EMAIL", "admin@hugo.local")
 ADMIN_PASSWORD = os.environ.get("HUGO_SDK_ADMIN_PASSWORD", "password")
 ADMIN_TENANT = os.environ.get("HUGO_SDK_ADMIN_TENANT", "default")
 
-DOMAIN_SKIP_REASON = "route not available on this server yet (Phase 3/5/6 preview)"
+DOMAIN_SKIP_REASON = "route not available on this server yet (Phase 7 preview)"
 
 
 def unique(prefix: str) -> str:

@@ -4,7 +4,7 @@ namespace Hugo.Sdk.Requests
     using Hugo.Sdk.Models;
 
     /// <summary>
-    /// Create, update, or test a resource (preview). Null properties are omitted.
+    /// Create, update, or test a resource. Null properties are omitted.
     /// </summary>
     public class ResourceRequest
     {

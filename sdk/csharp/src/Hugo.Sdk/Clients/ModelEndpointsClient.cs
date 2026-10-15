@@ -9,8 +9,7 @@ namespace Hugo.Sdk.Clients
     using Hugo.Sdk.Responses;
 
     /// <summary>
-    /// Inference and embedding model endpoints (/v1.0/api/model-endpoints). Preview: verified against the server when
-    /// the Phase 6 routes land.
+    /// Inference and embedding model endpoints (/v1.0/api/model-endpoints).
     /// </summary>
     public class ModelEndpointsClient : CrudClientBase<ModelEndpoint, ModelEndpointRequest>
     {

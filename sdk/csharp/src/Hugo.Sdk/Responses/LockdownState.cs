@@ -3,7 +3,7 @@ namespace Hugo.Sdk.Responses
     using Hugo.Sdk.Models;
 
     /// <summary>
-    /// Tenant lockdown state (preview).
+    /// Tenant lockdown state.
     /// </summary>
     public class LockdownState
     {

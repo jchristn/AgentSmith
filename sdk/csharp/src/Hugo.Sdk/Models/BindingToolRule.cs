@@ -3,7 +3,7 @@ namespace Hugo.Sdk.Models
     using System;
 
     /// <summary>
-    /// A per-tool rule on a binding (preview).
+    /// A per-tool rule on a binding.
     /// </summary>
     public class BindingToolRule
     {

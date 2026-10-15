@@ -4,7 +4,7 @@ namespace Hugo.Sdk.Models
     using System.Collections.Generic;
 
     /// <summary>
-    /// A secret slot a connector declares (preview).
+    /// A secret slot a connector declares.
     /// </summary>
     public class ConnectorSecretSlot
     {

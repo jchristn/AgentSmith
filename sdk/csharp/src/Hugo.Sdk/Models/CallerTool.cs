@@ -4,7 +4,7 @@ namespace Hugo.Sdk.Models
     using System.Collections.Generic;
 
     /// <summary>
-    /// A tool as a caller of a profile sees it (preview).
+    /// A tool as a caller of a profile sees it.
     /// </summary>
     public class CallerTool
     {

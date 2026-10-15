@@ -4,7 +4,7 @@ namespace Hugo.Sdk.Requests
     using Hugo.Sdk.Models;
 
     /// <summary>
-    /// Create or update an agent profile (preview). Null properties are omitted.
+    /// Create or update an agent profile. Null properties are omitted.
     /// </summary>
     public class AgentProfileRequest
     {

@@ -104,6 +104,7 @@ class AuthState:
     secret_key: Optional[str] = None
     admin_api_key: Optional[str] = None
     tenant_id: Optional[str] = None
+    tenant_override: Optional[str] = None
     auto_refresh: bool = True
     refresh_skew_seconds: int = 60
     extra_headers: Dict[str, str] = field(default_factory=dict)
@@ -150,7 +151,12 @@ class _TransportBase:
         return headers
 
     def _prepare(self, call: Call) -> Tuple[str, Optional[bytes], Dict[str, str]]:
-        query = clean_query(call.params)
+        params = dict(call.params or {})
+        override = self.auth.tenant_override
+        if (override and call.path.startswith("/v1.0/api/") and not call.path.startswith("/v1.0/api/tenants")
+                and not params.get("tenantId")):
+            params["tenantId"] = override
+        query = clean_query(params)
         data: Optional[bytes] = None
         headers: Dict[str, str] = {"User-Agent": USER_AGENT, "Accept": call.accept or "application/json"}
         if call.body is not None:

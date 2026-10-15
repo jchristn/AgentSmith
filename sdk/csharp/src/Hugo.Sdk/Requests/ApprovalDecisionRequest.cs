@@ -1,7 +1,7 @@
 namespace Hugo.Sdk.Requests
 {
     /// <summary>
-    /// Approve, reject, or cancel an approval (preview).
+    /// Approve, reject, or cancel an approval.
     /// </summary>
     public class ApprovalDecisionRequest
     {

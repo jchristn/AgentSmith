@@ -3,7 +3,7 @@ namespace Hugo.Sdk.Models
     using System;
 
     /// <summary>
-    /// An inference or embedding model endpoint (preview).
+    /// An inference or embedding model endpoint.
     /// </summary>
     public class ModelEndpoint
     {

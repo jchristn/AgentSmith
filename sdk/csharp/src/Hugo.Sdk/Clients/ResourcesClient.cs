@@ -4,14 +4,14 @@ namespace Hugo.Sdk.Clients
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using Hugo.Sdk.Enumeration;
     using Hugo.Sdk.Http;
     using Hugo.Sdk.Models;
     using Hugo.Sdk.Requests;
     using Hugo.Sdk.Responses;
 
     /// <summary>
-    /// Resources and their knowledge entries (/v1.0/api/resources; the tenant comes from the credentials). Preview:
-    /// verified against the server when the Phase 3 routes land.
+    /// Resources and their knowledge entries (/v1.0/api/resources; the tenant comes from the credentials).
     /// </summary>
     public class ResourcesClient : CrudClientBase<Resource, ResourceRequest>
     {
@@ -28,6 +28,19 @@ namespace Hugo.Sdk.Clients
         #endregion
 
         #region Public-Methods
+
+        /// <summary>
+        /// List resources of one connector type.
+        /// </summary>
+        /// <param name="connectorType">Connector type, for example ssh or http.</param>
+        /// <param name="query">Optional paging.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Page.</returns>
+        /// <exception cref="HugoException">Thrown on a non-success status.</exception>
+        public Task<EnumerationResult<Resource>> ListByConnectorTypeAsync(string connectorType, EnumerationQuery? query = null, CancellationToken token = default)
+        {
+            return ListAsync(query, new Dictionary<string, string?> { { "connectorType", connectorType } }, token);
+        }
 
         /// <summary>
         /// Test a saved resource's connection and record the result.
@@ -149,7 +162,7 @@ namespace Hugo.Sdk.Clients
         /// </summary>
         /// <param name="id">Resource identifier.</param>
         /// <param name="scope">Scope.</param>
-        /// <param name="key">Key, or null to write the scope root.</param>
+        /// <param name="key">Key, or null (or _root) to write the scope root.</param>
         /// <param name="content">Content.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Stored entry.</returns>

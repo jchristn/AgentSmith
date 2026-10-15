@@ -32,7 +32,6 @@ class _ClientCore:
         self.prompt_templates = api.PromptTemplatesApi(transport)
         self.events = api.EventsApi(transport)
         self.settings = api.SettingsApi(transport)
-        # Preview domain clients (verified against the server when Phase 3, 5, and 6 routes land).
         self.connectors = api.ConnectorsApi(transport)
         self.resources = api.ResourcesApi(transport)
         self.agent_profiles = api.AgentProfilesApi(transport)
@@ -40,6 +39,8 @@ class _ClientCore:
         self.tool_invocations = api.ToolInvocationsApi(transport)
         self.approvals = api.ApprovalsApi(transport)
         self.lockdown = api.LockdownApi(transport)
+        self.prompt_layers = api.PromptLayersApi(transport)
+        # Preview: conversations and chat streaming are verified when the Phase 7 routes land.
         self.conversations = api.ConversationsApi(transport)
 
     # -- state ----------------------------------------------------------------------------------------------------------
@@ -56,6 +57,17 @@ class _ClientCore:
     @tenant_id.setter
     def tenant_id(self, value: Optional[str]) -> None:
         self.transport.auth.tenant_id = value
+
+    @property
+    def tenant_override(self) -> Optional[str]:
+        """System administrators only: when set, every /v1.0/api/... request outside /v1.0/api/tenants carries
+        ?tenantId=<override>, so the flat domain routes (resources, agent profiles, approvals, ...) act on that tenant.
+        Included in the signed query string for signed requests."""
+        return self.transport.auth.tenant_override
+
+    @tenant_override.setter
+    def tenant_override(self, value: Optional[str]) -> None:
+        self.transport.auth.tenant_override = value or None
 
     @property
     def token(self) -> Optional[str]:
@@ -102,7 +114,7 @@ class _ClientCore:
         tenant = self.transport.auth.tenant_id
         a = AuthState(tenant_id=tenant, auto_refresh=self.transport.auth.auto_refresh,
                       refresh_skew_seconds=self.transport.auth.refresh_skew_seconds,
-                      extra_headers=self.transport.auth.extra_headers)
+                      extra_headers=self.transport.auth.extra_headers, tenant_override=self.transport.auth.tenant_override)
         self.transport.auth = a
 
     # -- token routes ---------------------------------------------------------------------------------------------------
@@ -176,8 +188,10 @@ class HugoClient(_ClientCore):
     """
 
     def __init__(self, base_url: str = DEFAULT_BASE_URL, timeout: float = 300.0, http_client: Optional[httpx.Client] = None,
-                 auto_refresh: bool = True, refresh_skew_seconds: int = 60, headers: Optional[Dict[str, str]] = None):
-        auth = AuthState(auto_refresh=auto_refresh, refresh_skew_seconds=refresh_skew_seconds, extra_headers=dict(headers or {}))
+                 auto_refresh: bool = True, refresh_skew_seconds: int = 60, headers: Optional[Dict[str, str]] = None,
+                 tenant_override: Optional[str] = None):
+        auth = AuthState(auto_refresh=auto_refresh, refresh_skew_seconds=refresh_skew_seconds, extra_headers=dict(headers or {}),
+                         tenant_override=tenant_override)
         self._setup(SyncTransport(base_url, timeout, http_client, auth))
 
     def close(self) -> None:
@@ -202,8 +216,10 @@ class AsyncHugoClient(_ClientCore):
     """
 
     def __init__(self, base_url: str = DEFAULT_BASE_URL, timeout: float = 300.0, http_client: Optional[httpx.AsyncClient] = None,
-                 auto_refresh: bool = True, refresh_skew_seconds: int = 60, headers: Optional[Dict[str, str]] = None):
-        auth = AuthState(auto_refresh=auto_refresh, refresh_skew_seconds=refresh_skew_seconds, extra_headers=dict(headers or {}))
+                 auto_refresh: bool = True, refresh_skew_seconds: int = 60, headers: Optional[Dict[str, str]] = None,
+                 tenant_override: Optional[str] = None):
+        auth = AuthState(auto_refresh=auto_refresh, refresh_skew_seconds=refresh_skew_seconds, extra_headers=dict(headers or {}),
+                         tenant_override=tenant_override)
         self._setup(AsyncTransport(base_url, timeout, http_client, auth))
 
     async def aclose(self) -> None:

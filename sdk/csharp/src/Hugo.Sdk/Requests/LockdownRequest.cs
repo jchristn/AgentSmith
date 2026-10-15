@@ -1,7 +1,7 @@
 namespace Hugo.Sdk.Requests
 {
     /// <summary>
-    /// Turn tenant lockdown on (preview).
+    /// Turn tenant lockdown on.
     /// </summary>
     public class LockdownRequest
     {
