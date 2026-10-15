@@ -142,7 +142,9 @@ class UsersApi(_Crud):
         return self._run(Call("GET", self._item(id) + "/permissions", parse=m.EffectivePermissions.from_dict))
 
     def reset_password(self, id: str, new_password: str, must_change_password: Optional[bool] = None) -> Any:
-        """Administrator password reset. The user must change it at next sign-in unless must_change_password is False."""
+        """Administrator password reset. Sets the advisory must-change-password flag on the user (the server default
+        when the target is someone else) unless must_change_password is False; sent as the mustChangePassword query
+        parameter. The flag blocks nothing: the dashboard shows a skippable prompt."""
         return self._run(Call("POST", self._item(id) + "/password", {"mustChangePassword": must_change_password},
                               body={"newPassword": new_password}, parse=m.User.from_dict))
 
@@ -214,10 +216,15 @@ class CredentialScopeAssignmentsApi(_Crud):
 
 
 class SessionsApi(_Crud):
-    """Authentication sessions in the tenant (list, get, revoke)."""
+    """Authentication sessions in the tenant (list, get, revoke). Each session carries principal_name."""
 
     _segment = "sessions"
     _model = m.AuthSession
+
+    def list(self, principal_type: Optional[str] = None, user_id: Optional[str] = None, credential_id: Optional[str] = None,
+             **kwargs: Any) -> Any:  # type: ignore[override]
+        """List sessions. Filters: principal_type (Administrator, User, Credential), user_id, credential_id."""
+        return super().list(principalType=principal_type, userId=user_id, credentialId=credential_id, **kwargs)
 
     def revoke(self, id: str) -> Any:
         """Revoke a session."""
@@ -294,6 +301,10 @@ class SecretsApi(_Crud):
 
     _segment = "secrets"
     _model = m.Secret
+
+    def list(self, kind: Optional[str] = None, **kwargs: Any) -> Any:  # type: ignore[override]
+        """List secrets. Filter kind: one of models.SECRET_KINDS (an unknown kind answers 400 ValidationFailed)."""
+        return super().list(kind=kind, **kwargs)
 
     def set_values(self, id: str, values: Dict[str, str], remove: Optional[List[str]] = None) -> Any:
         """Replace the supplied field values; omitted fields keep their stored values; ``remove`` deletes fields."""
@@ -424,8 +435,10 @@ class ResourcesApi(_Crud):
     _model = m.Resource
     _tenant = False
 
-    def list(self, connector_type: Optional[str] = None, **kwargs: Any) -> Any:  # type: ignore[override]
-        return super().list(connectorType=connector_type, **kwargs)
+    def list(self, connector_type: Optional[str] = None, environment: Optional[str] = None, health: Optional[str] = None,
+             **kwargs: Any) -> Any:  # type: ignore[override]
+        """List resources. Filters: connector_type, environment, health (Healthy, Unhealthy, Unknown)."""
+        return super().list(connectorType=connector_type, environment=environment, health=health, **kwargs)
 
     def test(self, id: str) -> Any:
         """Test a saved resource's connection and record the result."""
@@ -479,6 +492,13 @@ class AgentProfilesApi(_Crud):
 
     def duplicate(self, id: str, name: str) -> Any:
         return self._run(Call("POST", self._item(id) + "/duplicate", body={"name": name}, parse=m.AgentProfile.from_dict))
+
+    def ask(self, id: str, message: str, conversation_id: Optional[str] = None) -> Any:
+        """POST /v1.0/api/agent-profiles/{id}/ask: delegate a task to the profile's own agent loop and wait for the
+        answer. Approvals wait up to Approvals.McpWaitSeconds, then the result reports ApprovalPending. Returns an
+        AgentDelegationResult; a turn already running in the conversation answers 409 TurnInProgress."""
+        return self._run(Call("POST", self._item(id) + "/ask", body={"message": message, "conversationId": conversation_id},
+                              parse=m.AgentDelegationResult.from_dict))
 
     def compiled_instructions(self, id: str, surface: Optional[str] = None) -> Any:
         """Compiled instructions as a caller would receive them (surface Chat, Mcp, A2A, or OpenAI)."""
@@ -571,16 +591,29 @@ class ModelEndpointsApi(_Crud):
     _model = m.ModelEndpoint
     _tenant = False
 
+    def list(self, kind: Optional[str] = None, provider: Optional[str] = None, health: Optional[str] = None,
+             **kwargs: Any) -> Any:  # type: ignore[override]
+        """List endpoints. Filters: kind (Inference, Embedding), provider (Ollama, OpenAI, OpenAICompatible, ...), health
+        (Healthy, Unhealthy, Unknown). An unknown value answers 400 ValidationFailed listing the allowed values."""
+        return super().list(kind=kind, provider=provider, health=health, **kwargs)
+
     def validate(self, id: str) -> Any:
+        """Validate a saved endpoint with a tiny prompt (or embedding) and record its health."""
         return self._run(Call("POST", self._item(id) + "/validate", parse=m.ModelValidationResult.from_dict))
 
+    def validate_draft(self, body: Body) -> Any:
+        """POST /v1.0/api/model-endpoints/validate: validate unsaved settings (the create body) with a tiny prompt or
+        embedding. Nothing is stored. Returns a ModelValidationResult."""
+        return self._run(Call("POST", self._base() + "/validate", body=body, parse=m.ModelValidationResult.from_dict))
+
     def models(self, id: str) -> Any:
+        """Models the provider reports (502 ProviderUnreachable or ProviderTimeout when it cannot be reached)."""
         return self._run(Call("GET", self._item(id) + "/models"))
 
     def health_history(self, id: str, max_results: Optional[int] = None) -> Any:
-        """Recent health checks (validate and the server's health sweep), newest first, as dicts."""
-        query = {"maxResults": max_results} if max_results is not None else None
-        return self._run(Call("GET", self._item(id) + "/health-history", params=query))
+        """Recent health checks (Validate and the server's Sweep), newest first, as ModelHealthCheck objects.
+        max_results is 1 to 1000 (server default 50)."""
+        return self._run(Call("GET", self._item(id) + "/health-history", {"maxResults": max_results}, parse=_list(m.ModelHealthCheck)))
 
 
 def _tool_call(tool_name: str, arguments: Optional[Dict[str, Any]], profile: Optional[str], profile_id: Optional[str],
@@ -594,9 +627,13 @@ class ToolInvocationsApi(_Api):
 
     _base = "/v1.0/api/tool-invocations"
 
-    def list(self, max_results: Optional[int] = None, skip: Optional[int] = None, **filters: Any) -> Any:
-        """Filters: agentProfileId, resourceId, toolName, decision, status, surface, conversationId, principalId, since."""
-        return self._run(Call("GET", self._base, _enum(max_results, skip, **filters), parse=_page(m.ToolInvocation)))
+    def list(self, max_results: Optional[int] = None, skip: Optional[int] = None, effect: Optional[str] = None,
+             from_utc: Optional[datetime] = None, to_utc: Optional[datetime] = None, **filters: Any) -> Any:
+        """List invocation records. Filters: effect (Read, Write, Destructive), from_utc, to_utc, and as camelCase keyword
+        arguments agentProfileId, resourceId, toolName, decision, status, surface, conversationId, principalId, and since
+        (an older alias of fromUtc)."""
+        return self._run(Call("GET", self._base, _enum(max_results, skip, effect=effect, fromUtc=from_utc, toUtc=to_utc, **filters),
+                              parse=_page(m.ToolInvocation)))
 
     def get(self, id: str) -> Any:
         return self._run(Call("GET", self._base + "/" + seg(id), parse=m.ToolInvocation.from_dict))
@@ -622,9 +659,13 @@ class ApprovalsApi(_Api):
 
     _base = "/v1.0/api/approvals"
 
-    def list(self, max_results: Optional[int] = None, skip: Optional[int] = None, status: Optional[str] = None, **filters: Any) -> Any:
-        """Filters: status, agentProfileId, resourceId, principalId, toolName."""
-        return self._run(Call("GET", self._base, _enum(max_results, skip, status=status, **filters), parse=_page(m.Approval)))
+    def list(self, max_results: Optional[int] = None, skip: Optional[int] = None, status: Optional[str] = None,
+             effect: Optional[str] = None, from_utc: Optional[datetime] = None, to_utc: Optional[datetime] = None,
+             **filters: Any) -> Any:
+        """List approvals. Filters: status, effect (Read, Write, Destructive), from_utc, to_utc, and as camelCase keyword
+        arguments agentProfileId, resourceId, principalId, toolName."""
+        return self._run(Call("GET", self._base, _enum(max_results, skip, status=status, effect=effect, fromUtc=from_utc, toUtc=to_utc, **filters),
+                              parse=_page(m.Approval)))
 
     def get(self, id: str) -> Any:
         return self._run(Call("GET", self._base + "/" + seg(id), parse=m.Approval.from_dict))
@@ -675,34 +716,69 @@ class LockdownApi(_Api):
         return self._run(Call("DELETE", self._path, parse=m.LockdownState.from_dict))
 
 
+class AnalyticsApi(_Api):
+    """Tenant analytics (/v1.0/api/analytics/...). Each report covers from..to (default: the last 24 hours) in buckets of
+    ``interval`` minute, hour, or day (chosen by window length when omitted). Returns an AnalyticsReport."""
+
+    def _report(self, kind: str, from_utc: Optional[datetime], to_utc: Optional[datetime], interval: Optional[str]) -> Any:
+        return self._run(Call("GET", "/v1.0/api/analytics/" + kind, {"from": from_utc, "to": to_utc, "interval": interval},
+                              parse=m.AnalyticsReport.from_dict))
+
+    def overview(self, from_utc: Optional[datetime] = None, to_utc: Optional[datetime] = None, interval: Optional[str] = None) -> Any:
+        """Conversations, turns, tokens, tool calls, approvals, and latency per bucket."""
+        return self._report("overview", from_utc, to_utc, interval)
+
+    def tokens(self, from_utc: Optional[datetime] = None, to_utc: Optional[datetime] = None, interval: Optional[str] = None) -> Any:
+        """Token usage per bucket with window totals."""
+        return self._report("tokens", from_utc, to_utc, interval)
+
+    def tools(self, from_utc: Optional[datetime] = None, to_utc: Optional[datetime] = None, interval: Optional[str] = None) -> Any:
+        """Tool calls, errors, and approvals per bucket, with per-tool rows."""
+        return self._report("tools", from_utc, to_utc, interval)
+
+    def models(self, from_utc: Optional[datetime] = None, to_utc: Optional[datetime] = None, interval: Optional[str] = None) -> Any:
+        """Turns, tokens, and latency per model endpoint, with per-bucket totals."""
+        return self._report("models", from_utc, to_utc, interval)
+
+
 class ConversationsApi(_Crud):
-    """Conversations and chat (preview until the Phase 7 routes land). ``stream_message`` yields ChatEvent objects."""
+    """Conversations and chat. ``send_message`` returns an AgentTurnResult; ``stream_message`` yields ChatEvent objects."""
 
     _segment = "conversations"
     _model = m.Conversation
     _tenant = False
 
-    def messages(self, id: str) -> Any:
-        return self._run(Call("GET", self._item(id) + "/messages", parse=_flex(m.Message)))
+    def list(self, agent_profile_id: Optional[str] = None, source: Optional[str] = None, **kwargs: Any) -> Any:  # type: ignore[override]
+        """List the caller's conversations (tenant administrators see all). Filters: agent_profile_id, source (Dashboard,
+        A2A, OpenAI, Mcp, Rest), search. Returns an EnumerationResult of Conversation."""
+        return super().list(agentProfileId=agent_profile_id, source=source, **kwargs)
 
-    def send_message(self, id: str, content: str, **extra: Any) -> Any:
-        """Send a user message and wait for the JSON result of the turn."""
-        body = {"content": content}
-        body.update(extra)
-        return self._run(Call("POST", self._item(id) + "/messages", body=body))
+    def create(self, body: Optional[Body] = None) -> Any:  # type: ignore[override]
+        """Start a conversation: {"agentProfileId", "title"}; the default profile is used when agentProfileId is omitted."""
+        return self._run(Call("POST", self._base(), body=body if body is not None else {}, parse=m.Conversation.from_dict))
 
-    def stream_message(self, id: str, content: str, **extra: Any) -> Any:
+    def messages(self, id: str, max_results: Optional[int] = None, skip: Optional[int] = None) -> Any:
+        """Messages in order (compacted ones included). Returns an EnumerationResult of ConversationMessage; the server
+        returns up to 1000 when max_results is omitted."""
+        return self._run(Call("GET", self._item(id) + "/messages", _enum(max_results, skip), parse=_page(m.ConversationMessage)))
+
+    def send_message(self, id: str, message: str) -> Any:
+        """Send a user message and run a turn; returns the AgentTurnResult. Needs Execute on the agent profile; a turn
+        already running answers 409 TurnInProgress."""
+        return self._run(Call("POST", self._item(id) + "/messages", body={"message": message}, parse=m.AgentTurnResult.from_dict))
+
+    def stream_message(self, id: str, message: str) -> Any:
         """Send a user message and stream the turn as ChatEvent objects (turn.started, assistant.delta, assistant.thinking,
-        tool.proposed, tool.started, tool.completed, approval.required, approval.resolved, turn.completed, error)."""
-        body = {"content": content}
-        body.update(extra)
-        source = self._t.stream(Call("POST", self._item(id) + "/messages", body=body))
+        tool.proposed, tool.started, tool.completed, approval.required, approval.resolved, turn.completed, error, and a
+        final stream.closed carrying conversationId, turnId, finishReason, and title)."""
+        source = self._t.stream(Call("POST", self._item(id) + "/messages", body={"message": message}))
         if self._is_async:
             return _achat(source)
         return (ChatEvent.from_sse(e) for e in source)
 
     def cancel(self, id: str) -> Any:
-        return self._run(Call("POST", self._item(id) + "/cancel"))
+        """Cancel the turn running in the conversation. Returns ConversationCancelResponse (cancelled False when idle)."""
+        return self._run(Call("POST", self._item(id) + "/cancel", parse=m.ConversationCancelResponse.from_dict))
 
     def export(self, id: str, format: str = "md") -> Any:
         """Export as Markdown (md) or JSON (json)."""

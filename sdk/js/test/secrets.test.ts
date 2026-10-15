@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { HugoClient } from "../src/index.js";
-import { ctx, expectHugoError, owner, unique } from "./helpers.js";
+import { ctx, expectHugoError, owner, unique, newClient } from "./helpers.js";
 
 describe("secrets", () => {
   it("CRUD, values, and referrers", async () => {
@@ -37,7 +37,7 @@ describe("secrets", () => {
 
   it("reveal requires re-authentication, then returns values", async () => {
     const c = ctx();
-    const client = new HugoClient(c.server, { autoRefresh: false });
+    const client = newClient({ autoRefresh: false });
     await client.login(c.ownerEmail, c.ownerPassword, c.tenantId);
     const secret = await client.secrets.create({ name: unique("reveal"), kind: "Password", values: { password: "hunter2-sdk" } });
     try {

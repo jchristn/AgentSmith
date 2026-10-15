@@ -22,7 +22,8 @@ def main() -> None:
     with HugoClient(SERVER) as client:
         issued = client.login(EMAIL, PASSWORD, TENANT)
         if issued.must_change_password:
-            raise SystemExit("Change the password first: client.change_password(current, new)")
+            # Advisory only: every route works. client.change_password(current, new) clears the flag.
+            print("This account still has its initial password; consider changing it.")
         print(f"Signed in to tenant {client.tenant_id} as {client.token_details().principal_name}")
 
         secret = client.secrets.create({"name": "quickstart-web-01-key", "kind": "Password", "values": {"password": "change-me"}})

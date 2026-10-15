@@ -15,8 +15,8 @@ console.log("Health:", (await hugo.health()).status);
 
 const token = await hugo.login(email, password, tenantId);
 if (token.mustChangePassword) {
-  console.log("This account must change its password first: await hugo.changePassword(current, next).");
-  process.exit(1);
+  // Advisory: every route works, but this account still has its seeded or reset password.
+  console.log("Consider changing this account's password: await hugo.changePassword(current, next).");
 }
 console.log("Signed in to tenant", hugo.tenantId, "as", (await hugo.tokenDetails()).principalName);
 

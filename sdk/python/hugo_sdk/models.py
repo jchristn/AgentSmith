@@ -343,6 +343,10 @@ class Credential(Model):
     auth_mode: Optional[str] = None
     agent_profile_id: Optional[str] = None
     lock_to_profile: bool = False
+    inherit_owner_bypass: bool = False
+    """When true the credential carries its owner's administrator or tenant administrator bypass. Off by default:
+    a credential gets access only from its role assignments. Only signed-in tenant or system administrators can
+    change it (403 BypassRequiresAdministrator otherwise); changes are audited as CredentialBypassChanged."""
     last_used_utc: Optional[datetime] = None
     expires_utc: Optional[datetime] = None
     active: bool = True
@@ -468,6 +472,7 @@ class AuthSession(Model):
     user_id: Optional[str] = None
     credential_id: Optional[str] = None
     principal_type: Optional[str] = None
+    principal_name: Optional[str] = None
     auth_scheme: Optional[str] = None
     source_ip: Optional[str] = None
     user_agent: Optional[str] = None
@@ -587,6 +592,12 @@ class SecretReferrer(Model):
     referrer_id: Optional[str] = None
     referrer_name: Optional[str] = None
     detail: Optional[str] = None
+
+
+SECRET_KINDS = ("Password", "PrivateKey", "ApiToken", "AccessKeyPair", "ServiceAccountJson", "Kubeconfig",
+                "ConnectionString", "Certificate", "Generic", "BearerToken")
+"""Secret kinds the server accepts. ``BearerToken`` (field ``token``) is for tokens sent exactly as
+``Authorization: Bearer``; ``ApiToken`` (field ``token``) is for tokens whose header or format depends on the service."""
 
 
 @dataclasses.dataclass
@@ -832,7 +843,7 @@ class ObservabilityServiceStatus(Model):
 
 
 # ---------------------------------------------------------------------------------------------------------------------
-# Domain (conversations and chat are preview until the Phase 7 routes land)
+# Domain
 # ---------------------------------------------------------------------------------------------------------------------
 
 
@@ -1024,7 +1035,9 @@ class AgentProfile(Model):
     expose_openai: bool = _f("exposeOpenAI", False)
     expose_management_tools: bool = False
     instructions_append: Optional[str] = None
+    instruction_detail: Optional[str] = None
     is_default: bool = False
+    binding_count: int = 0
     active: bool = True
     created_utc: Optional[datetime] = None
     last_update_utc: Optional[datetime] = None
@@ -1327,7 +1340,8 @@ class Conversation(Model):
     agent_profile_id: Optional[str] = None
     title: Optional[str] = None
     source: Optional[str] = None
-    a2a_context_id: Optional[str] = None
+    a2a_context_id: Optional[str] = _f("a2AContextId")
+    external_key: Optional[str] = None
     message_count: int = 0
     last_message_utc: Optional[datetime] = None
     total_input_tokens: int = 0
@@ -1339,17 +1353,186 @@ class Conversation(Model):
 
 @dataclasses.dataclass
 class Message(Model):
+    """A stored conversation message (GET /v1.0/api/conversations/{id}/messages). Role is User, Assistant, Tool,
+    Summary, or System; ``tool_calls`` is the assistant's tool call list as sent by the server."""
+
     id: Optional[str] = None
-    conversation_id: Optional[str] = None
     tenant_id: Optional[str] = None
+    conversation_id: Optional[str] = None
+    turn_id: Optional[str] = None
+    sequence: Optional[int] = None
     role: Optional[str] = None
     content: Optional[str] = None
     thinking_content: Optional[str] = None
-    sequence: Optional[int] = None
+    tool_calls: List[Any] = _f(default=[])
+    tool_call_id: Optional[str] = None
+    tool_name: Optional[str] = None
     model_endpoint_id: Optional[str] = None
     input_tokens: Optional[int] = None
     output_tokens: Optional[int] = None
     time_to_first_token_ms: Optional[int] = None
     duration_ms: Optional[int] = None
     finish_reason: Optional[str] = None
+    compacted: bool = False
     created_utc: Optional[datetime] = None
+
+
+ConversationMessage = Message
+
+
+@dataclasses.dataclass
+class ConversationCancelResponse(Model):
+    conversation_id: Optional[str] = None
+    cancelled: bool = False
+
+
+@dataclasses.dataclass
+class AgentTurnMessage(Model):
+    """A message produced during a turn (in AgentTurnResult.messages)."""
+
+    id: Optional[str] = None
+    conversation_id: Optional[str] = None
+    turn_id: Optional[str] = None
+    role: Optional[str] = None
+    content: Optional[str] = None
+    thinking: Optional[str] = None
+    tool_calls: List[Any] = _f(default=[])
+    tool_call_id: Optional[str] = None
+    tool_name: Optional[str] = None
+    tokens_in: int = 0
+    tokens_out: int = 0
+    created_utc: Optional[datetime] = None
+
+
+@dataclasses.dataclass
+class AgentToolCallRecord(Model):
+    """One tool call made during a turn. ``decision`` is Allowed, Denied, ApprovalRequired, Approved, Rejected, or
+    Expired."""
+
+    call_id: Optional[str] = None
+    tool_name: Optional[str] = None
+    resource: Optional[str] = None
+    arguments_json: Optional[str] = None
+    effect: Optional[str] = None
+    decision: Optional[str] = None
+    approval_id: Optional[str] = None
+    duration_ms: int = 0
+    approval_wait_ms: int = 0
+    is_error: bool = False
+    error_code: Optional[str] = None
+    truncated: bool = False
+    output_preview: Optional[str] = None
+    iteration: int = 0
+    parallel: bool = False
+
+
+@dataclasses.dataclass
+class AgentTurnResult(Model):
+    """Result of POST /v1.0/api/conversations/{id}/messages without an event stream. ``finish_reason`` is Completed,
+    MaxIterations, ToolCallLimit, ApprovalPending, Cancelled, or Error."""
+
+    turn_id: Optional[str] = None
+    conversation_id: Optional[str] = None
+    final_text: Optional[str] = None
+    thinking: Optional[str] = None
+    messages: List[AgentTurnMessage] = _f(default=[])
+    tool_calls: List[AgentToolCallRecord] = _f(default=[])
+    tokens_in: int = 0
+    tokens_out: int = 0
+    tokens_estimated: bool = False
+    time_to_first_token_ms: Optional[int] = None
+    duration_ms: int = 0
+    iterations: int = 0
+    finish_reason: Optional[str] = None
+    error_code: Optional[str] = None
+    error_message: Optional[str] = None
+    compacted: bool = False
+    tools_available: int = 0
+    tools_offered: int = 0
+    tool_retrieval_used: bool = False
+    used_fallback: bool = False
+    model: Optional[str] = None
+    pending_approval_id: Optional[str] = None
+
+
+@dataclasses.dataclass
+class AgentDelegationResult(Model):
+    """Result of POST /v1.0/api/agent-profiles/{id}/ask. ``status`` is Completed, ApprovalPending, or Failed."""
+
+    final_text: Optional[str] = None
+    conversation_id: Optional[str] = None
+    status: Optional[str] = None
+    approval_id: Optional[str] = None
+    tool_trace: List[str] = _f(default=[])
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Analytics and model endpoint health history
+# ---------------------------------------------------------------------------------------------------------------------
+
+
+@dataclasses.dataclass
+class AnalyticsBucket(Model):
+    start_utc: Optional[datetime] = None
+    turns: int = 0
+    input_tokens: int = 0
+    output_tokens: int = 0
+    tool_calls: int = 0
+    tool_errors: int = 0
+    approvals: int = 0
+    avg_time_to_first_token_ms: float = 0.0
+    avg_turn_duration_ms: float = 0.0
+
+
+@dataclasses.dataclass
+class AnalyticsToolRow(Model):
+    tool_name: Optional[str] = None
+    connector_type: Optional[str] = None
+    calls: int = 0
+    errors: int = 0
+    denied: int = 0
+    approvals: int = 0
+    avg_duration_ms: float = 0.0
+
+
+@dataclasses.dataclass
+class AnalyticsModelRow(Model):
+    model_endpoint_id: Optional[str] = None
+    name: Optional[str] = None
+    provider: Optional[str] = None
+    model: Optional[str] = None
+    turns: int = 0
+    input_tokens: int = 0
+    output_tokens: int = 0
+    avg_time_to_first_token_ms: float = 0.0
+    avg_turn_duration_ms: float = 0.0
+
+
+@dataclasses.dataclass
+class AnalyticsReport(Model):
+    """GET /v1.0/api/analytics/{overview|tokens|tools|models}. ``interval`` is minute, hour, or day."""
+
+    kind: Optional[str] = None
+    from_utc: Optional[datetime] = None
+    to_utc: Optional[datetime] = None
+    interval: Optional[str] = None
+    conversations: int = 0
+    totals: Optional[AnalyticsBucket] = None
+    approvals_requested: int = 0
+    buckets: List[AnalyticsBucket] = _f(default=[])
+    tools: List[AnalyticsToolRow] = _f(default=[])
+    models: List[AnalyticsModelRow] = _f(default=[])
+
+
+@dataclasses.dataclass
+class ModelHealthCheck(Model):
+    """One model endpoint health check. ``status`` is Unknown, Healthy, or Unhealthy; ``source`` is Sweep or Validate."""
+
+    id: Optional[str] = None
+    tenant_id: Optional[str] = None
+    model_endpoint_id: Optional[str] = None
+    status: Optional[str] = None
+    source: Optional[str] = None
+    latency_ms: Optional[int] = None
+    message: Optional[str] = None
+    checked_utc: Optional[datetime] = None

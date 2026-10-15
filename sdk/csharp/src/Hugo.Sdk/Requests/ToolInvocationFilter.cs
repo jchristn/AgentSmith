@@ -51,9 +51,24 @@ namespace Hugo.Sdk.Requests
         public string? PrincipalId { get; set; } = null;
 
         /// <summary>
-        /// Since.
+        /// Older name of FromUtc, still accepted by the server (sent as fromUtc when FromUtc is not set).
         /// </summary>
         public DateTime? Since { get; set; } = null;
+
+        /// <summary>
+        /// Only invocations created at or after this time, UTC.
+        /// </summary>
+        public DateTime? FromUtc { get; set; } = null;
+
+        /// <summary>
+        /// Only invocations created before this time, UTC.
+        /// </summary>
+        public DateTime? ToUtc { get; set; } = null;
+
+        /// <summary>
+        /// Effect of the call: Read, Write, or Destructive.
+        /// </summary>
+        public string? Effect { get; set; } = null;
 
         #endregion
     }

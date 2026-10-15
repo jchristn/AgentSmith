@@ -2,7 +2,7 @@
 export interface ErrorBody {
   /** HTTP-level name, for example NotFound or Forbidden. */
   error?: string;
-  /** Stable machine code, for example RouteNotFound, PasswordChangeRequired, ReauthenticationRequired. */
+  /** Stable machine code, for example RouteNotFound, ValidationFailed, RateLimited, ReauthenticationRequired. */
   code?: string;
   message?: string;
   requestId?: string;
@@ -32,6 +32,8 @@ export class HugoError extends Error {
   readonly body: string;
   /** Parsed error body, when the body was JSON. */
   readonly details?: ErrorBody;
+  /** Retry-After response header (seconds), when present (429 RateLimited, 503 DatabaseBusy). */
+  retryAfter?: string;
 
   constructor(status: number, body: string, requestIdHeader?: string | null) {
     let parsed: ErrorBody | undefined;

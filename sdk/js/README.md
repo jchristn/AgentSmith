@@ -2,7 +2,7 @@
 
 `@jchristn/hugo-sdk` is the TypeScript client for the Hugo REST API. It is built on `fetch`, ships ESM and CommonJS builds with type declarations, and works on Node 18 and later (and in Deno, Bun, and browsers that provide `fetch` and WebCrypto). Version `0.1.0-alpha`, matching the server.
 
-> **Preview:** only conversations and chat streaming are preview; they are verified against the server when the Phase 7 routes land. Every other client (identity, secrets, request history, audit, settings, events, connectors, resources, knowledge, agent profiles, bindings, prompt layers, model endpoints, tool invocations, approvals, and lockdown) is verified against the current server by the harness. Models are permissive: fields the server adds later are kept on the returned objects.
+Every client (identity, secrets, request history, audit, settings, events, connectors, resources, knowledge, agent profiles, bindings, ask, prompt layers, model endpoints, tool invocations, approvals, lockdown, conversations and chat streaming, and analytics) is verified against a live server by the harness. Models are permissive: fields the server adds later are kept on the returned objects.
 
 ## Install
 
@@ -27,6 +27,7 @@ const hugo = new HugoClient("http://127.0.0.1:8800");
 
 const token = await hugo.login("anderson@hugo.local", "password", "default");
 if (token.mustChangePassword) {
+  // Advisory only: the account still has its seeded or reset password. Every route works either way.
   await hugo.changePassword("password", "a-new-long-password");
 }
 
@@ -51,13 +52,17 @@ const outcome = await hugo.toolInvocations.dryRun({ profileId: profile.id, resou
 console.log(`Dry run decision: ${outcome.decision} (${outcome.effect}: ${outcome.effectReason})`);
 // Dry run decision: Allowed (Read: 'uptime' is read-only)
 
-// Preview (Phase 7 routes): chat with streaming.
+// Chat with streaming (the profile needs an inference endpoint: set inferenceEndpointId).
 const conversation = await hugo.conversations.create({ agentProfileId: profile.id });
 for await (const event of hugo.conversations.streamMessage(conversation.id, "Is nginx healthy on web-01?")) {
   if (event.type === "assistant.delta") process.stdout.write(event.payload?.text ?? "");
   if (event.type === "approval.required") console.log("\napproval needed:", event.payload);
   if (event.type === "turn.completed") break;
 }
+
+// Or delegate a task and wait for the answer.
+const answer = await hugo.agentProfiles.ask(profile.id, "Summarize disk usage on web-01.");
+console.log(answer.status, answer.finalText);
 ```
 
 `examples/quickstart.mjs` runs the same flow against a live server and cleans up (`npm run build` first; set `HUGO_SDK_SERVER`, `HUGO_EMAIL`, `HUGO_PASSWORD`, and `HUGO_TENANT`).
@@ -67,13 +72,27 @@ for await (const event of hugo.conversations.streamMessage(conversation.id, "Is 
 | Method | What it sends | Use it for |
 |---|---|---|
 | `login(email, password, tenantId?)` | `POST /v1.0/token` with `x-email`, `x-password`, `x-tenant-id`; stores the bearer token and tenant | Users. The token refreshes automatically near expiry (opt out with `{ autoRefresh: false }`). |
-| `loginWithAccessKey(accessKey, secretKey)` | `POST /v1.0/token` with `x-access-key`, `x-secret-key`; stores the token | Credentials in `DirectHeader`, `SessionExchange`, or `Hybrid` mode. |
+| `loginWithAccessKey(accessKey, secretKey)` | `POST /v1.0/token` with `x-access-key`, `x-secret-key`; stores the token | Credentials in `DirectHeader`, `SessionExchange`, or `Hybrid` mode. `SessionExchange` keys work only here (401 on other routes). |
 | `useToken(token, tenantId?)` | `Authorization: Bearer ...` | A token you already have. |
 | `useAccessKey(accessKey, secretKey, tenantId?)` | `x-access-key`, `x-secret-key` on every request | Credentials in `DirectHeader` or `Hybrid` mode. |
 | `useSignedRequests(accessKey, secretKey, tenantId)` | `x-access-key`, `x-date`, `x-nonce`, `x-signature`, `x-tenant-id` | Credentials in `SignedRequest` or `Hybrid` mode. The secret never leaves the process. |
 | `useAdminApiKey(apiKey, tenantId?)` | `x-api-key` and `x-tenant-id` | System administrators, when the server sets `HUGO_ADMIN_API_KEY`. |
 
 Session helpers: `refresh()`, `logout()`, `validateToken()`, `tokenDetails()`, `reauthenticate(password)` (required shortly before `secrets.reveal`), `changePassword(current, next)`, and `lookupTenants(email)`.
+
+`mustChangePassword` on the login response, `tokenDetails()`, and users is advisory. Seeded and administrator-reset accounts carry it, the server blocks no route because of it, and `changePassword` clears it.
+
+A credential's access comes only from its role assignments: pass `roleName` (for example `Viewer` or `Operator`) to `credentials.createWithSecret`, or add `credentialScopeAssignments`. A credential without one gets 403 everywhere. It carries its owner's administrator or tenant administrator bypass only when `inheritOwnerBypass` is true, which only a signed-in tenant or system administrator can set (403 `BypassRequiresAdministrator` otherwise); every change is audited as `CredentialBypassChanged`.
+
+### Rate limits
+
+`POST /v1.0/token`, `reauthenticate`, and other sign-in routes are rate limited per source IP and per identity (`Auth.RateLimitPerMinute`, default 10, in fixed one-minute windows). Over the limit the server answers 429 `RateLimited` with `Retry-After: 60`, and `HugoError.retryAfter` carries the header. Set `rateLimitRetries` to have the client wait and retry instead:
+
+```ts
+const hugo = new HugoClient("http://127.0.0.1:8800", { rateLimitRetries: 3, rateLimitMaxWaitSeconds: 90 });
+```
+
+Each retry waits `Retry-After` seconds (exponential backoff from one second when the header is missing), capped by `rateLimitMaxWaitSeconds` (default 90). The default is 0 retries.
 
 Signed requests match the server's `RequestSigner`: the canonical string is `METHOD\nPATH\nQUERY\nTENANT\nDATE\nNONCE\nhex(SHA-256(body))`, where `PATH` is the raw path, `QUERY` is the raw query string exactly as sent, `TENANT` is the credential's tenant ID, and `DATE` is `yyyy-MM-ddTHH:mm:ssZ` UTC. The signature is lowercase hex HMAC-SHA256 with the secret key. The SDK uses WebCrypto (`globalThis.crypto.subtle`), falling back to `node:crypto`'s `webcrypto` on Node 18. `canonicalize`, `sign`, and `signRequest` are exported if you need to sign requests yourself.
 
@@ -91,24 +110,25 @@ A system administrator can address another tenant: set `client.tenantId` for ten
 | `roles`, `permissions` | CRUD, `roles.clone(id, body)` |
 | `rolePermissions` | `list({ roleId })`, `create(roleId, permissionId)`, `delete(id)` |
 | `userRoleAssignments`, `credentialScopeAssignments` | CRUD (filter lists with `userId` or `credentialId`) |
-| `sessions` | `list`, `get`, `revoke` |
+| `sessions` | `list({ principalType, userId, credentialId })` (each session carries `principalName`), `get`, `revoke` |
 | `audit` | `list(filter)`, `get`, `delete`, `deleteMany(filter)` |
-| `secrets` | CRUD, `setValues`, `referrers`, `parse`, `reveal(id, reason)` |
+| `secrets` | CRUD (update keeps omitted name, kind, and description), `list({ kind })`, `setValues`, `referrers`, `parse`, `reveal(id, reason)`. Kinds include `BearerToken` (field `token`, sent as `Authorization: Bearer`). |
 | `promptTemplates` | Tenant-scoped records: CRUD, `versions`, `version`, `restore`, `clone`, `reset`, `render`, `renderAdHoc` |
 | `promptLayers` | Layered templates by key at `/v1.0/api/prompt-templates`: `list`, `get`, `save(key, content, changeNote?, layer)`, `reset`, `versions`, `builtin`, `diff`, `render` |
 | `requestHistory` | `list(filter)`, `summary`, `get`, `delete`, `deleteMany` |
 | `events` | `stream({ signal })`: async iterator of tenant events |
 | `settings`, `system` | settings read and update; health, info, `observabilityStatus`, master key status and rotation, restart |
 | `connectors` | `list`, `get(type)` (settings schema, secret slots, tools) |
-| `resources` (+ `resources.knowledge`) | CRUD, `list({ connectorType })`, `test`, `testUnsaved`, `duplicate`, `referrers`, `invoke`; knowledge `list`, `listScope`, `get`, `put`, `delete`, `versions` |
-| `agentProfiles` (+ `agentProfiles.bindings`) | CRUD, `duplicate`, `compiledInstructions(id, surface?)`, `compiledInstructionsText`, `tools(id, surface?)`, `card`; bindings CRUD, `toolRules`, `setToolRules` |
-| `modelEndpoints` | CRUD, `validate`, `models` |
-| `toolInvocations` | `list`, `get`, `summary`, `dryRun`, `invoke` (202 with `approvalId` while approval is pending) |
-| `approvals` | `list`, `get`, `approve`, `reject`, `cancel`, `awaitDecision(id, { timeoutMs, pollMs })` |
+| `resources` (+ `resources.knowledge`) | CRUD, `list({ connectorType, environment, health })`, `test`, `testUnsaved`, `duplicate`, `referrers`, `invoke`; knowledge `list`, `listScope`, `get`, `put`, `delete`, `versions` (the scope root entry uses key `_root`) |
+| `agentProfiles` (+ `agentProfiles.bindings`) | CRUD (profiles carry `bindingCount`), `duplicate`, `compiledInstructions(id, surface?)`, `compiledInstructionsText`, `tools(id, surface?)`, `card`, `ask(id, message, conversationId?)`; bindings CRUD, `toolRules`, `setToolRules` |
+| `modelEndpoints` | CRUD, `list({ kind, provider, health })`, `validate(id)`, `validateDraft(body)` (unsaved settings, stores nothing), `models(id)` (502 `ProviderUnreachable` or `ProviderTimeout` when the provider cannot be reached), `healthHistory(id, maxResults?)` |
+| `toolInvocations` | `list({ ..., effect, fromUtc, toUtc })`, `get`, `summary`, `dryRun`, `invoke` (202 with `approvalId` while approval is pending) |
+| `approvals` | `list({ status, ..., effect, fromUtc, toUtc })`, `get`, `approve`, `reject`, `cancel`, `awaitDecision(id, { timeoutMs, pollMs })` |
 | `lockdown` | `get`, `enable(reason)`, `disable` |
-| `conversations` | Preview (Phase 7): CRUD, `messages`, `sendMessage`, `streamMessage`, `cancel`, `export` |
+| `conversations` | CRUD, `list({ agentProfileId, source })`, `messages(id, query?)` (a page of messages), `sendMessage(id, message)` (the turn result), `streamMessage(id, message)`, `cancel`, `export(id, "md" \| "json")` |
+| `analytics` | `overview`, `tokens`, `tools`, `models`, each with `{ from, to, interval }` (`minute`, `hour`, or `day`; default the last seven days) |
 
-List routes take `{ maxResults, skip, ordering, search, activeOnly, includeBuiltIn }` plus route filters and return `{ objects, totalRecords, endOfResults, ... }`. Every collection also has `all(query)`, an async iterator over every page.
+List routes take `{ maxResults, skip, ordering, search, activeOnly, includeBuiltIn }` plus route filters and return `{ objects, totalRecords, endOfResults, ... }`. An unknown enum value in a filter (for example `effect: "Explosive"`) answers 400 `ValidationFailed` with the allowed values. Every collection also has `all(query)`, an async iterator over every page.
 
 ## Errors
 
@@ -124,7 +144,7 @@ try {
 }
 ```
 
-`status` is the HTTP status, `error` the HTTP-level name (`NotFound`), `code` the stable code (`RouteNotFound`, `ReauthenticationRequired`, `ValidationFailed`, ...), and `requestId` comes from the body or the `x-request-id` header. `isRouteNotFound` tells a missing route apart from a missing record.
+`status` is the HTTP status, `error` the HTTP-level name (`NotFound`), `code` the stable code (`RouteNotFound`, `ReauthenticationRequired`, `ValidationFailed`, `RateLimited`, `TurnInProgress`, ...), and `requestId` comes from the body or the `x-request-id` header. `isRouteNotFound` tells a missing route apart from a missing record. `retryAfter` holds the `Retry-After` header when the server sent one.
 
 ## Events and streaming
 
@@ -136,7 +156,7 @@ for await (const event of hugo.events.stream({ signal: controller.signal })) {
 }
 ```
 
-The events stream and chat streaming share one SSE parser (`SseParser`, `parseSseStream`), also exported. Chat events are `turn.started`, `assistant.delta`, `assistant.thinking`, `tool.proposed`, `tool.started`, `tool.completed`, `approval.required`, `approval.resolved`, `turn.completed`, and `error`.
+The events stream and chat streaming share one SSE parser (`SseParser`, `parseSseStream`), also exported. Chat events are `turn.started`, `assistant.delta` (`payload.text`), `assistant.thinking`, `tool.proposed`, `tool.started`, `tool.completed`, `approval.required`, `approval.resolved`, `turn.completed`, and `error`; the stream ends with `stream.closed` (`conversationId`, `turnId`, `finishReason`, `title`). Without streaming, `sendMessage` returns the turn result (`finalText`, `messages`, `toolCalls`, token counts, `finishReason`). A second message while a turn is running answers 409 `TurnInProgress`.
 
 ## MCP and A2A
 
@@ -157,7 +177,9 @@ npm test
 |---|---|---|
 | `HUGO_SDK_SERVER` | `http://127.0.0.1:8800` | Server base URL |
 | `HUGO_SDK_ADMIN_EMAIL` | `admin@hugo.local` | System administrator email |
-| `HUGO_SDK_ADMIN_PASSWORD` | `password` | Its password. On a fresh server the harness clears the first-login must-change flag by changing the password to a temporary value and back. |
+| `HUGO_SDK_ADMIN_PASSWORD` | `password` | Its password. The advisory `mustChangePassword` flag on a fresh server is left alone. |
 | `HUGO_SDK_ADMIN_TENANT` | `default` | The administrator's tenant |
 | `HUGO_SDK_ADMIN_API_KEY` | (unset) | Enables the administrator API key test (also read from `HUGO_ADMIN_API_KEY`) |
-Domain tests run against real routes: an HTTP resource pointed at the closed port `127.0.0.1:9`, profiles, bindings, dry runs, approvals (pending, reject, approve, cancel), lockdown, prompt layers, model endpoints, and the tenant override. The two conversation tests probe their route first and skip with "route not available on this server yet (Phase 7 preview)" when the server answers 404. Loopback addresses use `127.0.0.1`, never `localhost`.
+
+
+Domain tests run against real routes: an HTTP resource pointed at the closed port `127.0.0.1:9`, profiles, bindings, dry runs, approvals (pending, reject, approve, cancel), lockdown, prompt layers, model endpoints, and the tenant override. Tests that need a model (`test/model.test.ts`: draft validation, health history, conversations, chat streaming, ask, and analytics) start `test/stub-llm.ts`, a small OpenAI-compatible server on a free `127.0.0.1` port, and point an `OpenAICompatible` model endpoint at it, so no real model is needed. Credentials the harness creates get an explicit role. Harness clients set `rateLimitRetries`, so the run works with the server's default `Auth.RateLimitPerMinute` (some tests wait out a one-minute window). Loopback addresses use `127.0.0.1`, never `localhost`.

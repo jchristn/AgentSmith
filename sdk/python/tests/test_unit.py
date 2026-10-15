@@ -4,7 +4,10 @@ import hashlib
 import hmac
 from datetime import datetime, timezone
 
-from hugo_sdk import HugoError, __version__, canonicalize, models, parse_text, sign
+import httpx
+import pytest
+
+from hugo_sdk import CHAT_EVENT_TYPES, HugoClient, HugoError, __version__, canonicalize, models, parse_text, sign
 from hugo_sdk.sse import ChatEvent, SseParser
 from hugo_sdk.transport import AuthState, Call, SyncTransport, clean_query
 
@@ -98,3 +101,67 @@ def test_tenant_override_adds_signed_query_parameter():
 def test_prompt_template_view_global_layer():
     view = models.PromptTemplateView.from_dict({"key": "k", "activeLayer": "Global", "global": {"layer": "Global", "exists": True, "version": 3}})
     assert view.global_.exists and view.global_.version == 3 and view.tenant is None
+
+
+def _scripted(statuses):
+    """An httpx client whose responses follow the given (status, retry_after) list; records each request."""
+    seen = []
+
+    def handler(request):
+        seen.append(request)
+        status, retry_after = statuses[min(len(seen) - 1, len(statuses) - 1)]
+        headers = {"Retry-After": retry_after} if retry_after is not None else {}
+        body = '{"error":"TooManyRequests","code":"RateLimited","message":"slow down"}' if status == 429 else '{"status":"healthy"}'
+        return httpx.Response(status, text=body, headers=headers)
+
+    return httpx.Client(transport=httpx.MockTransport(handler)), seen
+
+
+def test_rate_limit_retry_is_off_by_default():
+    http, seen = _scripted([(429, "0")])
+    with HugoClient("http://127.0.0.1:1", http_client=http) as c:
+        with pytest.raises(HugoError) as err:
+            c.health()
+    assert err.value.status == 429 and err.value.code == "RateLimited" and err.value.retry_after == "0"
+    assert len(seen) == 1
+
+
+def test_rate_limit_retry_honors_retry_after(monkeypatch):
+    waits = []
+    monkeypatch.setattr("hugo_sdk.transport.time.sleep", lambda s: waits.append(s))
+    http, seen = _scripted([(429, "3"), (429, None), (200, None)])
+    with HugoClient("http://127.0.0.1:1", http_client=http, rate_limit_retries=3, rate_limit_max_wait=2.5) as c:
+        assert c.health().status == "healthy"
+    assert len(seen) == 3
+    assert waits == [2.5, 2.0], "Retry-After capped by rate_limit_max_wait, then backoff 2**attempt without the header"
+
+
+def test_rate_limit_retry_gives_up(monkeypatch):
+    monkeypatch.setattr("hugo_sdk.transport.time.sleep", lambda s: None)
+    http, seen = _scripted([(429, "1")])
+    with HugoClient("http://127.0.0.1:1", http_client=http, rate_limit_retries=2) as c:
+        with pytest.raises(HugoError) as err:
+            c.health()
+    assert err.value.status == 429 and len(seen) == 3
+
+
+def test_new_models_parse():
+    result = models.AgentTurnResult.from_dict({"turnId": "t", "finalText": "hi", "finishReason": "Completed",
+                                               "toolCalls": [{"callId": "c", "toolName": "x", "decision": "Allowed"}],
+                                               "messages": [{"role": "Assistant", "content": "hi", "tokensOut": 3}]})
+    assert result.final_text == "hi" and result.tool_calls[0].decision == "Allowed" and result.messages[0].tokens_out == 3
+    report = models.AnalyticsReport.from_dict({"kind": "overview", "totals": {"turns": 2}, "buckets": [{"turns": 2}],
+                                               "models": [{"modelEndpointId": "mep_1", "turns": 2}]})
+    assert report.totals.turns == 2 and report.buckets[0].turns == 2 and report.models[0].model_endpoint_id == "mep_1"
+    check = models.ModelHealthCheck.from_dict({"status": "Healthy", "source": "Sweep", "checkedUtc": "2026-10-15T00:00:00Z"})
+    assert check.source == "Sweep" and check.checked_utc.year == 2026
+    assert models.Credential.from_dict({"inheritOwnerBypass": True}).inherit_owner_bypass is True
+    assert models.AuthSession.from_dict({"principalName": "Sdk Owner"}).principal_name == "Sdk Owner"
+    assert models.AgentProfile.from_dict({"bindingCount": 3}).binding_count == 3
+    assert models.Conversation.from_dict({"a2AContextId": "ctx"}).a2a_context_id == "ctx"
+    ask = models.AgentDelegationResult.from_dict({"status": "ApprovalPending", "approvalId": "apr_1", "toolTrace": ["a"]})
+    assert ask.status == "ApprovalPending" and ask.tool_trace == ["a"]
+
+
+def test_chat_event_types_include_stream_closed():
+    assert "stream.closed" in CHAT_EVENT_TYPES and "turn.completed" in CHAT_EVENT_TYPES

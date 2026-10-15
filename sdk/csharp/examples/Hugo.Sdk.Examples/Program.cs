@@ -32,8 +32,8 @@ namespace Hugo.Sdk.Examples
                 TokenResponse login = await client.LoginAsync(email, password, tenant).ConfigureAwait(false);
                 if (login.MustChangePassword)
                 {
-                    Console.WriteLine("Change the password first: await client.ChangePasswordAsync(current, next).");
-                    return 1;
+                    // Advisory only: every route works. Pick a real password with client.ChangePasswordAsync(current, next).
+                    Console.WriteLine("This account still has its seeded or reset password; consider changing it.");
                 }
                 TokenDetails me = await client.GetTokenDetailsAsync().ConfigureAwait(false);
                 Console.WriteLine("Signed in to tenant " + client.TenantId + " as " + me.PrincipalName);

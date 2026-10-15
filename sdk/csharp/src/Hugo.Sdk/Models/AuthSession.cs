@@ -36,6 +36,11 @@ namespace Hugo.Sdk.Models
         public PrincipalTypeEnum PrincipalType { get; set; } = PrincipalTypeEnum.User;
 
         /// <summary>
+        /// Display name of the principal: the user's email, the credential's name, or the administrator.
+        /// </summary>
+        public string? PrincipalName { get; set; } = null;
+
+        /// <summary>
         /// Scheme used to obtain the session.
         /// </summary>
         public AuthSchemeEnum? AuthScheme { get; set; } = null;

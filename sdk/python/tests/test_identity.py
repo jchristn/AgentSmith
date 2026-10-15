@@ -2,9 +2,9 @@
 
 import pytest
 
-from hugo_sdk import HugoClient, HugoError
+from hugo_sdk import HugoError
 
-from conftest import ADMIN_TENANT, SERVER, strong_password, unique
+from conftest import ADMIN_TENANT, new_client, strong_password, unique
 
 
 def test_tenants_admin_crud(admin):
@@ -42,10 +42,10 @@ def test_users_crud_me_permissions_reset(client, harness):
         perms = client.users.permissions(user.id)
         assert perms.principal_id == user.id and isinstance(perms.has_permission, list)
         reset = client.users.reset_password(user.id, strong_password())
-        assert reset.must_change_password
+        assert reset.must_change_password, "an administrator reset sets the advisory flag by default"
         reset2 = client.users.reset_password(user.id, password + "x", must_change_password=False)
         assert not reset2.must_change_password
-        with HugoClient(SERVER) as c:
+        with new_client() as c:
             c.login(email, password + "x", harness.tenant_id)
             assert c.users.me().id == user.id
             assert c.users.update_me({"firstName": "Annie", "lastName": "Example", "preferredLocale": "en"}).first_name == "Annie"
@@ -63,7 +63,7 @@ def test_me_as_owner(client, harness):
 
 
 def test_credentials_crud_rotate_permissions(client, harness):
-    created = client.credentials.create({"name": unique("cred"), "userId": harness.owner_id, "authMode": "DirectHeader"})
+    created = client.credentials.create({"name": unique("cred"), "userId": harness.owner_id, "authMode": "DirectHeader", "roleName": "Operator"})
     cid = created.credential.id
     try:
         assert created.credential.secret_key_last4 == created.secret_key[-4:]
@@ -74,7 +74,7 @@ def test_credentials_crud_rotate_permissions(client, harness):
         assert any(c.id == cid for c in client.credentials.list().objects)
         rotated = client.credentials.rotate(cid)
         assert rotated.secret_key and rotated.secret_key != created.secret_key
-        with HugoClient(SERVER) as c:
+        with new_client() as c:
             c.use_access_key(created.access_key, created.secret_key)
             with pytest.raises(HugoError):
                 c.token_details()
@@ -146,7 +146,7 @@ def test_user_role_assignments(client):
 
 
 def test_credential_scope_assignments(client, harness):
-    created = client.credentials.create({"name": unique("scoped"), "userId": harness.owner_id, "authMode": "DirectHeader"})
+    created = client.credentials.create({"name": unique("scoped"), "userId": harness.owner_id, "authMode": "DirectHeader", "roleName": "Viewer"})
     role = client.roles.create({"name": unique("scoperole")})
     try:
         cid = created.credential.id
@@ -168,7 +168,17 @@ def test_sessions_list_get_revoke(client, harness):
         session_id = other.token_details().session_id
         sessions = client.sessions.list(max_results=1000)
         assert any(s.id == session_id for s in sessions.objects)
-        assert client.sessions.get(session_id).user_id == harness.owner_id
+        session = client.sessions.get(session_id)
+        assert session.user_id == harness.owner_id and session.principal_name
+        users = client.sessions.list(principal_type="User", user_id=harness.owner_id, max_results=1000)
+        assert any(s.id == session_id for s in users.objects)
+        assert all(s.principal_type == "User" and s.user_id == harness.owner_id for s in users.objects)
+        credentials = client.sessions.list(principal_type="Credential", max_results=1000)
+        assert all(s.principal_type == "Credential" for s in credentials.objects)
+        assert client.sessions.list(credential_id="cred_none", max_results=10).objects == []
+        with pytest.raises(HugoError) as err:
+            client.sessions.list(principal_type="Robot")
+        assert err.value.status == 400 and err.value.code == "ValidationFailed"
         client.sessions.revoke(session_id)
         with pytest.raises(HugoError) as err:
             other.token_details()

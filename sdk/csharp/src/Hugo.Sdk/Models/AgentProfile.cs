@@ -125,6 +125,11 @@ namespace Hugo.Sdk.Models
         public bool IsDefault { get; set; } = false;
 
         /// <summary>
+        /// Number of resource bindings on the profile (read only).
+        /// </summary>
+        public int BindingCount { get; set; } = 0;
+
+        /// <summary>
         /// Whether the record is active.
         /// </summary>
         public bool Active { get; set; } = false;

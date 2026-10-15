@@ -4,7 +4,7 @@
 
 Version `0.1.0-alpha`, mirrored from `src/Directory.Build.props`. Python 3.9 or later.
 
-> **Preview:** only conversations and chat streaming are preview; they are verified against the server when the Phase 7 routes land. Every other client (identity, secrets, request history, events, connectors, resources and knowledge, agent profiles and bindings, prompt layers, model endpoints, tool invocations, approvals, lockdown) is verified against the live server by the harness.
+Every client is verified against a live server by the harness, including conversations, chat streaming, `ask`, and analytics (the harness runs turns against a small stub model server, so no external model is needed).
 
 ## Install
 
@@ -21,8 +21,8 @@ from hugo_sdk import HugoClient, HugoError
 
 with HugoClient("http://127.0.0.1:8800") as client:
     issued = client.login("anderson@hugo.local", "password")
-    if issued.must_change_password:
-        client.change_password("password", "a-new-strong-password")
+    if issued.must_change_password:                     # advisory: every route still works
+        print("Consider client.change_password(current, new)")
 
     secret = client.secrets.create({"name": "web-01-key", "kind": "Password", "values": {"password": "s3cret"}})
 
@@ -57,7 +57,13 @@ Signed requests send `x-access-key`, `x-date` (`yyyy-MM-ddTHH:mm:ssZ`), `x-nonce
 
 Session helpers: `refresh()`, `logout()`, `validate_token()`, `token_details()`, `reauthenticate(password)`, `change_password(current, new)`, and `lookup_tenants(email)`. After `login`, the client refreshes the token automatically when it is within `refresh_skew_seconds` (default 60) of expiry; pass `auto_refresh=False` to turn that off.
 
-`must_change_password` tells you the account still has its seeded or reset password. It is advisory: every route works, and the dashboard shows a skippable prompt.
+`must_change_password` tells you the account still has its seeded or administrator-set password. It is advisory: every route works, the dashboard shows a skippable prompt, and `change_password` clears it. `users.reset_password(id, new_password, must_change_password=False)` resets without setting the flag (it is sent as the `mustChangePassword` query parameter).
+
+Credentials (access keys) get access only from their role assignments: pass `"roleName": "Operator"` (or `Viewer`, or a custom role) when you create one, or add a credential scope assignment. A credential without one reaches nothing (403). `inheritOwnerBypass: true` lets a credential carry its owner's administrator or tenant administrator bypass instead; only a signed-in tenant or system administrator can set or clear it (403 `BypassRequiresAdministrator` otherwise), and every change is audited as `CredentialBypassChanged`. `SessionExchange` credentials work only at `POST /v1.0/token` (`login_with_access_key`); sending their keys on other routes answers 401.
+
+### Rate limits
+
+The token routes (`login`, `login_with_access_key`, `lookup_tenants`, `reauthenticate`) allow `Auth.RateLimitPerMinute` attempts (default 10) per source IP and per identity in fixed one-minute windows, and answer 429 `RateLimited` with `Retry-After: 60` beyond that. Pass `rate_limit_retries=N` to the client constructor to retry a 429 up to N times, waiting the `Retry-After` seconds (exponential backoff when the header is missing), capped at `rate_limit_max_wait` (default 90 seconds). It is off by default. `HugoError.retry_after` carries the header when the client gives up.
 
 ## Clients
 
@@ -73,22 +79,25 @@ The tenant-scoped `prompt_templates` client and the layered `prompt_layers` clie
 | `credentials` | CRUD (create returns the secret once), `rotate`, `permissions` |
 | `roles`, `permissions`, `role_permissions` | CRUD, `roles.clone`, mappings by `role_id` |
 | `user_role_assignments`, `credential_scope_assignments` | CRUD with `user_id` and `credential_id` filters |
-| `sessions` | list, get, `revoke` |
+| `sessions` | list (`principal_type`, `user_id`, `credential_id`), get, `revoke`; each session has `principal_name` |
 | `audit` | list (event type, principal, result, time range, paging), get, delete, `delete_many` |
 | `request_history` | list (method, status, path, time range, paging), `summary`, get, delete, `delete_many` |
-| `secrets` | CRUD, `set_values`, `referrers`, `parse`, `reveal` |
+| `secrets` | CRUD (`list(kind=...)`; kinds in `models.SECRET_KINDS`, including `BearerToken`), `set_values`, `referrers`, `parse`, `reveal` |
 | `prompt_templates` | CRUD, `versions`, `version`, `restore`, `clone`, `reset`, `render`, `render_ad_hoc` |
 | `events` | `stream()` over `/v1.0/api/events` |
 | `settings` | get, update, `test_database` (system administrators) |
 | `connectors` | list, get (settings schema, secret slots, tools) |
-| `resources` | CRUD (`list(connector_type=...)`), `test`, `test_unsaved`, `duplicate`, `referrers`, `invoke`, knowledge (`knowledge`, `knowledge_scope`, `get_knowledge`, `put_knowledge`, `delete_knowledge`, `knowledge_versions`) |
-| `agent_profiles` | CRUD, `duplicate`, `card`, `compiled_instructions(id, surface)`, `compiled_instructions_text(id, surface)`, `tools(id, surface)`, bindings (`list_bindings`, `get_binding`, `create_binding`, `update_binding`, `delete_binding`), `get_tool_rules`, `set_tool_rules` |
+| `resources` | CRUD (`list(connector_type=..., environment=..., health=...)`), `test`, `test_unsaved`, `duplicate`, `referrers`, `invoke`, knowledge (`knowledge`, `knowledge_scope`, `get_knowledge`, `put_knowledge`, `delete_knowledge`, `knowledge_versions`) |
+| `agent_profiles` | CRUD (profiles carry `binding_count`), `duplicate`, `ask(id, message, conversation_id=None)`, `card`, `compiled_instructions(id, surface)`, `compiled_instructions_text(id, surface)`, `tools(id, surface)`, bindings (`list_bindings`, `get_binding`, `create_binding`, `update_binding`, `delete_binding`), `get_tool_rules`, `set_tool_rules` |
 | `prompt_layers` | Layered templates by key at `/v1.0/api/prompt-templates`: `list`, `get`, `save(key, content, change_note, layer)`, `reset`, `versions`, `builtin`, `diff`, `render` |
-| `model_endpoints` | CRUD, `validate`, `models` |
-| `tool_invocations` | list, get, `summary`, `dry_run`, `invoke` |
-| `approvals` | list, get, `approve`, `reject`, `cancel`, `await_decision` |
+| `model_endpoints` | CRUD (`list(kind=..., provider=..., health=...)`), `validate`, `validate_draft(body)`, `models`, `health_history(id, max_results=None)` |
+| `tool_invocations` | list (`effect`, `from_utc`, `to_utc`, plus camelCase filters such as `agentProfileId`), get, `summary`, `dry_run`, `invoke` |
+| `approvals` | list (`status`, `effect`, `from_utc`, `to_utc`, plus camelCase filters), get, `approve`, `reject`, `cancel`, `await_decision` |
 | `lockdown` | `get`, `enable(reason)`, `disable` |
-| `conversations` | CRUD, `messages`, `send_message`, `stream_message`, `cancel`, `export` (preview, Phase 7) |
+| `conversations` | CRUD (`list(agent_profile_id=..., source=...)`), `messages` (paged), `send_message` (an `AgentTurnResult`), `stream_message` (chat events), `cancel`, `export` |
+| `analytics` | `overview`, `tokens`, `tools`, `models`, each with `from_utc`, `to_utc`, `interval` (`minute`, `hour`, `day`); returns an `AnalyticsReport` |
+
+An unknown enum value in a list filter (for example `secrets.list(kind="Nope")`) answers 400 `ValidationFailed` with the allowed values in the message.
 
 Enumeration routes take `max_results`, `skip`, `ordering` (`CreatedDescending`, `CreatedAscending`, `NameAscending`, `NameDescending`), `search`, `active_only`, and `include_built_in`, and return an `EnumerationResult` with `objects`, `total_records`, and `end_of_results`. Audit and request history return a `PagedResult` with `page_number`, `page_size`, `total_count`, and `total_pages`.
 
@@ -107,7 +116,7 @@ except HugoError as e:
     print(e.status, e.error, e.code, e.message, e.request_id, e.fields)
 ```
 
-`e.is_route_not_found` is true when the server has no such route (404 `RouteNotFound`), which is how the harness detects preview routes the server does not have yet.
+`e.is_route_not_found` is true when the server has no such route (404 `RouteNotFound`); the body carries a `requestId` like every other error.
 
 ### Revealing a secret
 
@@ -165,22 +174,48 @@ for line in client.prompt_layers.diff("persona.agent-smith"):
 client.prompt_layers.reset("persona.agent-smith")      # back to the Global layer
 ```
 
-### Chat streaming (preview, Phase 7)
+### Chat
 
 ```python
 conversation = client.conversations.create({"agentProfileId": profile.id})
 for event in client.conversations.stream_message(conversation.id, "Is nginx healthy on web-01?"):
     if event.event == "assistant.delta":
-        print(event.json(), end="")
+        print(event.json()["text"], end="")
     elif event.event == "approval.required":
         client.approvals.approve(event.json()["approvalId"], note="ok")
+
+result = client.conversations.send_message(conversation.id, "And the database?")   # no stream: an AgentTurnResult
+print(result.finish_reason, result.final_text, result.tokens_in, result.tokens_out)
+for message in client.conversations.messages(conversation.id).objects:
+    print(message.sequence, message.role, message.content)
 ```
 
-Chat events: `turn.started`, `assistant.delta`, `assistant.thinking`, `tool.proposed`, `tool.started`, `tool.completed`, `approval.required`, `approval.resolved`, `turn.completed`, `error`.
+Both send `{"message": "..."}` to `POST /v1.0/api/conversations/{id}/messages`; the profile needs an inference endpoint, and the caller needs Execute on the profile. Chat events: `turn.started`, `assistant.delta`, `assistant.thinking`, `tool.proposed`, `tool.started`, `tool.completed`, `approval.required`, `approval.resolved`, `turn.completed`, `error`, and a final `stream.closed` with `conversationId`, `turnId`, `finishReason`, and `title`.
+
+### Ask and analytics
+
+```python
+answer = client.agent_profiles.ask(profile.id, "Summarize last night's errors on web-01.")
+print(answer.status, answer.final_text)          # Completed, ApprovalPending (with approval_id), or Failed
+
+report = client.analytics.overview(interval="hour")  # the last 24 hours by default
+print(report.totals.turns, report.totals.input_tokens, [m.name for m in report.models])
+```
+
+### Model endpoints
+
+```python
+draft = client.model_endpoints.validate_draft({"provider": "Ollama", "baseUrl": "http://127.0.0.1:11434", "model": "llama3:8b"})
+print(draft.success, draft.latency_ms, draft.error)   # nothing is stored
+for check in client.model_endpoints.health_history(endpoint.id, max_results=20):
+    print(check.checked_utc, check.source, check.status, check.latency_ms, check.message)
+```
+
+Endpoint names accept letters, digits, spaces, and `. _ - : / @` (for example `ollama:llama3/8b @lab`). `models(id)` answers 502 `ProviderUnreachable` or `ProviderTimeout` when the provider cannot be reached.
 
 ## Test harness
 
-The harness in `tests/` (pytest) runs against a live server. It signs in as the system administrator, creates a fresh tenant and a tenant administrator, runs every test as that user (and the administrator where needed), and deletes the tenant at the end. The conversation and chat streaming tests skip with "route not available on this server yet (Phase 7 preview)" while the server answers 404; every other test must pass.
+The harness in `tests/` (pytest) runs against a live server. It signs in as the system administrator, creates a fresh tenant and a tenant administrator, runs every test as that user (and the administrator where needed), and deletes the tenant at the end. The chat, ask, and analytics tests start `tests/stub_llm.py`, a small OpenAI-compatible model server on `127.0.0.1`, and point an `OpenAICompatible` endpoint at it, so every test runs without an external model. The only test that can skip is the administrator API key test, when `HUGO_SDK_ADMIN_API_KEY` is not set.
 
 ```bash
 .venv/bin/python run_harness.py                              # http://127.0.0.1:8800
@@ -194,7 +229,8 @@ HUGO_SDK_SERVER=http://127.0.0.1:8800 .venv/bin/python -m pytest -rs
 | `HUGO_SDK_ADMIN_EMAIL` | `admin@hugo.local` |
 | `HUGO_SDK_ADMIN_PASSWORD` | `password` |
 | `HUGO_SDK_ADMIN_TENANT` | `default` |
+| `HUGO_SDK_ADMIN_API_KEY` | unset (or `HUGO_ADMIN_API_KEY`); the server's `Auth.AdminApiKey` for the admin API key test |
 
-On a fresh server the seeded administrator is flagged to change its password (advisory only). The harness changes it to a temporary password and back to `HUGO_SDK_ADMIN_PASSWORD` on the same session, which clears the flag and keeps reruns working.
+The harness works with the server's default settings. Its clients use `rate_limit_retries`, so when the token routes hit the default limit of 10 attempts per minute the run pauses until the window resets instead of failing; a full run takes about two minutes.
 
-`run_harness.py` prints a PASS, SKIP, or FAIL line per test and exits with 1 when anything fails. `tests/test_unit.py` needs no server (SSE parsing, request signing, errors, models).
+`run_harness.py` prints a PASS, SKIP, or FAIL line per test and exits with 1 when anything fails. `tests/test_unit.py` needs no server (SSE parsing, request signing, errors, models, rate limit retries).

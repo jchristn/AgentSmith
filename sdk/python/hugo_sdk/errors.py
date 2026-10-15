@@ -12,15 +12,16 @@ class HugoError(Exception):
     Attributes:
         status: HTTP status code.
         error: Error class name from the body, for example ``NotFound`` or ``Forbidden``.
-        code: Stable machine code, for example ``RouteNotFound``, ``PasswordChangeRequired``, or ``ReauthenticationRequired``.
+        code: Stable machine code, for example ``RouteNotFound``, ``ValidationFailed``, ``RateLimited``, or ``ReauthenticationRequired``.
         message: Human readable message.
         request_id: Request identifier from the body, or from the ``x-request-id`` response header.
         fields: Field level messages for validation failures (``fields`` or ``errors`` in the body).
         field_codes: Field level machine codes for validation failures.
         body: Raw response body text.
+        retry_after: The Retry-After response header (seconds), sent with 429 RateLimited and 503 answers.
     """
 
-    def __init__(self, status: int, body: str = "", request_id: Optional[str] = None):
+    def __init__(self, status: int, body: str = "", request_id: Optional[str] = None, retry_after: Optional[str] = None):
         self.status = status
         self.body = body or ""
         parsed: Optional[Dict[str, Any]] = None
@@ -38,6 +39,7 @@ class HugoError(Exception):
         self.fields: Dict[str, str] = self.details.get("fields") or self.details.get("errors") or {}
         self.field_codes: Dict[str, str] = self.details.get("fieldCodes") or {}
         self.required_permission: Optional[str] = self.details.get("requiredPermission")
+        self.retry_after: Optional[str] = retry_after
         label = self.code or self.error or "Error"
         super().__init__(f"Hugo API returned {status} {label}: {self.message}" + (f" (request {self.request_id})" if self.request_id else ""))
 
@@ -53,6 +55,6 @@ class HugoError(Exception):
 
     @property
     def is_route_not_found(self) -> bool:
-        """True when the server has no route for the request (404 RouteNotFound), for example a preview route the
-        server does not implement yet."""
+        """True when the server has no route for the request (404 RouteNotFound), for example a route an older
+        server does not have."""
         return self.status == 404 and self.code == "RouteNotFound"
