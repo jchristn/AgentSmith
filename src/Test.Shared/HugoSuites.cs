@@ -43,6 +43,7 @@ namespace Test.Shared
                 suites.AddRange(ObservabilitySuites.Build());
                 suites.AddRange(KubernetesSuites.Build());
                 suites.AddRange(DockerSuites.Build());
+                suites.AddRange(Test.Shared.Cli.CliSuites.Build());
                 return suites;
             }
         }

@@ -18,6 +18,7 @@
     <ProjectReference Include="..\Hugo.Connectors.Observability\Hugo.Connectors.Observability.csproj" />
     <ProjectReference Include="..\Hugo.Connectors.Kubernetes\Hugo.Connectors.Kubernetes.csproj" />
     <ProjectReference Include="..\Hugo.Connectors.Docker\Hugo.Connectors.Docker.csproj" />
+    <ProjectReference Include="..\Hugo.Cli\Hugo.Cli.csproj" />
   </ItemGroup>
 
   <ItemGroup>
