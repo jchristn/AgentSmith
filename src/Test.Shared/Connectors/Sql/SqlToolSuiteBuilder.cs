@@ -8,6 +8,7 @@ namespace Test.Shared.Connectors.Sql
     using System.Threading.Tasks;
     using Hugo.Connectors.Abstractions;
     using Hugo.Connectors.Sql;
+    using Hugo.Connectors.Sql.Intelligence;
     using Hugo.Connectors.Sql.Vendored.Tablix;
     using Touchstone.Core;
 
@@ -74,16 +75,20 @@ namespace Test.Shared.Connectors.Sql
                 SqlTestSupport.Check(s.Rows.Any(row => String.Equals(row[0], target.DefaultSchema, StringComparison.OrdinalIgnoreCase)), "schema row present");
             });
 
-            Add("list-tables", "sql_list_tables lists the shop tables and the view", async ct =>
+            Add("list-tables", "sql_list_tables lists the shop tables and the view as a compact index", async ct =>
             {
-                ToolResult r = await Run("sql_list_tables", "{}", Ctx(AccessModeEnum.ReadOnly), ct).ConfigureAwait(false);
+                ToolResult r = await Run("sql_list_tables", "{\"refresh\":true}", Ctx(AccessModeEnum.ReadOnly), ct).ConfigureAwait(false);
                 SqlTestSupport.Ok(r, "sql_list_tables");
-                SqlQueryResult s = Parse(r);
-                foreach (string t in new[] { "customers", "orders", "order_items", "products" })
-                    SqlTestSupport.Check(s.Rows.Any(row => row[0] == t && row[1] == "BASE TABLE"), "table " + t + " in " + r.Text);
-                SqlTestSupport.Check(s.Rows.Any(row => row[0] == "customer_order_totals" && row[1] == "VIEW"), "view listed");
+                SchemaPage<TableSummary> s = SqlJson.Deserialize<SchemaPage<TableSummary>>(r.StructuredJson!)!;
+                foreach (string t in new[] { "customers", "orders", "order_items", "products", "legacy_accounts", "legacy_invoices" })
+                    SqlTestSupport.Check(s.Items.Any(i => i.TableName == t && i.TableType == "BASE TABLE"), "table " + t + " in " + r.Text);
+                SqlTestSupport.Check(s.Items.Any(i => i.TableName == "customer_order_totals" && i.TableType == "VIEW"), "view listed");
+                SqlTestSupport.Check(s.TotalRecords == 7 && s.EndOfResults && s.NextCursor == null, "seven objects on one page");
+                TableSummary orders = s.Items.Single(i => i.TableName == "orders");
+                SqlTestSupport.Check(orders.Columns == 5 && orders.PrimaryKey.SequenceEqual(new[] { "order_id" }) && orders.KeySummary.Contains("FK customer_id->customers", StringComparison.Ordinal) && orders.RowEstimate > 0, "orders summary: " + orders.KeySummary);
+                SqlTestSupport.Check(r.Text.Contains(target.DefaultSchema + ".orders | ~", StringComparison.OrdinalIgnoreCase) && r.Text.Contains("5 cols", StringComparison.Ordinal), "one line per table: " + r.Text);
                 ToolResult filtered = await Run("sql_list_tables", "{\"filter\":\"ORDER\"}", Ctx(AccessModeEnum.ReadOnly), ct).ConfigureAwait(false);
-                SqlTestSupport.Check(Parse(filtered).Rows.Count == 3, "filter matches orders, order_items, customer_order_totals: " + filtered.Text);
+                SqlTestSupport.Check(SqlJson.Deserialize<SchemaPage<TableSummary>>(filtered.StructuredJson!)!.TotalRecords == 3, "filter matches orders, order_items, customer_order_totals: " + filtered.Text);
             });
 
             Add("describe-table", "sql_describe_table reports columns, keys, indexes, foreign keys, and rows", async ct =>
@@ -118,7 +123,7 @@ namespace Test.Shared.Connectors.Sql
                 ToolResult first = await Run("sql_describe_schema", "{}", c, ct).ConfigureAwait(false);
                 SqlTestSupport.Ok(first, "crawl");
                 SchemaDetail detail = SqlJson.Deserialize<SchemaDetail>(first.StructuredJson!)!;
-                SqlTestSupport.Check(detail.Tables.Count == 5 && detail.Engine == target.Type, "five objects for " + detail.Engine + ": " + detail.Tables.Count);
+                SqlTestSupport.Check(detail.Tables.Count == 7 && detail.Engine == target.Type, "seven objects for " + detail.Engine + ": " + detail.Tables.Count);
                 SqlTestSupport.Check(detail.Tables.Single(t => t.TableName == "order_items").ForeignKeys.Count == 2, "order_items foreign keys");
                 SqlTestSupport.Check(first.Metrics["cached"] == 0, "first crawl not cached");
                 ToolResult second = await Run("sql_describe_schema", "{}", c, ct).ConfigureAwait(false);

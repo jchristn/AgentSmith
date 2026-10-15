@@ -33,21 +33,38 @@ namespace Test.Shared.Connectors
                     return ValueTask.CompletedTask;
                 }));
 
+            suites.Add(SqlIntelligenceUnitSuite.Build());
+            Lazy<SqliteShopFile> intelligenceFile = new Lazy<SqliteShopFile>(() => new SqliteShopFile());
+            suites.Add(new TestSuiteDescriptor(
+                "connectors.sql.intelligence",
+                "SQL database intelligence, durable context, and sql_ask against a temporary SQLite file",
+                SqlIntelligenceSuiteBuilder.Build("connectors.sql.intelligence", SqlTestbedTargets.Sqlite(intelligenceFile), false, null),
+                null,
+                ct =>
+                {
+                    if (intelligenceFile.IsValueCreated) intelligenceFile.Value.Dispose();
+                    return ValueTask.CompletedTask;
+                }));
+
             bool enabled = SqlTestSupport.TestbedEnabled();
             string? reason = enabled ? null : "Set HUGO_TESTBED=1 and start docker/testbed/sql/compose.yaml to run SQL testbed suites.";
 
             SqlEngineTarget pg = SqlTestbedTargets.Postgresql();
             List<TestCaseDescriptor> pgCases = SqlToolSuiteBuilder.Build("testbed.sql.postgresql", pg, !enabled, reason);
             pgCases.AddRange(SqlTestbedExtras.Postgresql("testbed.sql.postgresql", pg, !enabled, reason));
+            pgCases.AddRange(SqlIntelligenceSuiteBuilder.Build("testbed.sql.postgresql", pg, !enabled, reason));
             suites.Add(new TestSuiteDescriptor("testbed.sql.postgresql", "SQL connectors against testbed PostgreSQL 16", pgCases));
 
             SqlEngineTarget mysql = SqlTestbedTargets.Mysql();
             List<TestCaseDescriptor> mysqlCases = SqlToolSuiteBuilder.Build("testbed.sql.mysql", mysql, !enabled, reason);
             mysqlCases.AddRange(SqlTestbedExtras.Mysql("testbed.sql.mysql", mysql, !enabled, reason));
+            mysqlCases.AddRange(SqlIntelligenceSuiteBuilder.Build("testbed.sql.mysql", mysql, !enabled, reason));
             suites.Add(new TestSuiteDescriptor("testbed.sql.mysql", "SQL connectors against testbed MySQL 8.4", mysqlCases));
 
             SqlEngineTarget mssql = SqlTestbedTargets.SqlServer();
-            suites.Add(new TestSuiteDescriptor("testbed.sql.sqlserver", "SQL connectors against testbed SQL Server 2022", SqlToolSuiteBuilder.Build("testbed.sql.sqlserver", mssql, !enabled, reason)));
+            List<TestCaseDescriptor> mssqlCases = SqlToolSuiteBuilder.Build("testbed.sql.sqlserver", mssql, !enabled, reason);
+            mssqlCases.AddRange(SqlIntelligenceSuiteBuilder.Build("testbed.sql.sqlserver", mssql, !enabled, reason));
+            suites.Add(new TestSuiteDescriptor("testbed.sql.sqlserver", "SQL connectors against testbed SQL Server 2022", mssqlCases));
             return suites;
         }
     }
