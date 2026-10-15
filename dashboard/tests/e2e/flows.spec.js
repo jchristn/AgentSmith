@@ -146,7 +146,7 @@ test('chats with Agent Smith: streams a turn, shows the tool row, and approves i
   await expect(reply.getByTestId('approval-card')).toHaveAttribute('data-status', 'Approved');
   expect(requests.some((r) => r.method === 'POST' && r.path === '/v1.0/api/approvals/apr_0099/approve')).toBe(true);
   expect(requests.find((r) => r.method === 'POST' && r.path === '/v1.0/api/conversations/cnv_0001/messages').body).toEqual({
-    content: 'Restart nginx on web-01'
+    message: 'Restart nginx on web-01'
   });
 });
 

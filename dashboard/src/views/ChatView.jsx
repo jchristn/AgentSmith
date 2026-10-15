@@ -193,12 +193,14 @@ export default function ChatView({ recordId }) {
     writeDraft('new', '');
     controllerRef.current = apiClient.streamMessage(
       id,
-      { content: text },
+      { message: text },
       {
         onEvent: (evt) => dispatch({ type: 'event', evt }),
         onEnd: (error, info) => {
           controllerRef.current = null;
           dispatch({ type: 'end', options: { stopped: !!info?.aborted, error: error ? { code: error.code, message: errorMessage(t, error) } : null } });
+          // A new conversation remounts on its own URL below, which clears the transcript; keep the error visible.
+          if (error && !recordId) addToast({ type: 'error', message: errorMessage(t, error) });
           loadConversations();
           // A new conversation gets its own URL once the first turn ends (navigating earlier would remount the page
           // and cut the stream).

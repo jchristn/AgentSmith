@@ -1473,6 +1473,14 @@ export async function installMocks(page, { missing = [], events = null, chatFram
       return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(a2aAnswer(body)) });
     }
     if (/^\/v1\.0\/api\/conversations\/[^/]+\/messages$/.test(url.pathname) && method === 'POST') {
+      // Like the server (ChatMessageRequest), the turn text travels in "message".
+      if (!body || typeof body.message !== 'string' || !body.message.trim()) {
+        return route.fulfill({
+          status: 400,
+          contentType: 'application/json',
+          body: JSON.stringify({ error: 'BadRequest', code: 'MessageRequired', message: 'A message is required.', requestId: 'req_400' })
+        });
+      }
       return route.fulfill({ status: 200, headers: { 'content-type': 'text/event-stream' }, body: sse(chatFrames) });
     }
     if (method === 'DELETE') return route.fulfill({ status: 204, body: '' });
