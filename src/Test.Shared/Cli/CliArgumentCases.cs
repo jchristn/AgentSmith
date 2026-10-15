@@ -287,7 +287,7 @@ namespace Test.Shared.Cli
         {
             StringBuilder all = new StringBuilder(CliApplication.MainHelp());
             foreach (CliCommand command in CliApplication.Commands) all.Append(command.Help());
-            Assert.True(all.ToString().IndexOf('—') < 0, "no em-dash in help");
+            Assert.True(all.ToString().IndexOf((char)0x2014) < 0, "no em-dash in help");
             return Task.CompletedTask;
         }
 
