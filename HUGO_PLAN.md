@@ -64,7 +64,7 @@ Annotation format: `  | <who> <YYYY-MM-DD> <short note, commit hash, or PR>`
 
 ```
 - [x] P1.14 Implement `SecretMethods` for Postgresql.  | claude 2026-10-14 audit records and request history with header child table
-- [!] P7.21 Kubernetes connector against k3s testbed.  | jc 2026-11-02 blocked: k3s container needs privileged mode on CI runner
+- [~] P7.21 Kubernetes connector against k3s testbed.  | claude 2026-10-14 52 cli cases including a real process over stdin/stdout against a fake MCP server; verification against Hugo /mcp pending the MCP surface
 ```
 
 These rules keep the plan honest:
@@ -87,15 +87,15 @@ These rules keep the plan honest:
 | 2 | Secrets vault | M1 | In progress | 11 / 12 |
 | 3 | Connector framework and tool invocation pipeline | M1 | Complete | 26 / 26 |
 | 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | In progress | 33 / 37 |
-| 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | In progress | 18 / 21 |
+| 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | In progress | 19 / 21 |
 | 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | In progress | 12 / 24 |
-| 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Not started | 0 / 22 |
+| 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | In progress | 1 / 22 |
 | 8 | Dashboard | M1 | In progress | 47 / 53 |
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | Not started | 0 / 15 |
 | 10 | Docker, testbed, and observability stack | M1 | In progress | 13 / 24 |
 | 11 | Documentation and Postman | M1 | Not started | 0 / 18 |
 | 12 | MVP verification (milestone M1) | M1 | Not started | 0 / 14 |
-| 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | In progress | 25 / 38 |
+| 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | In progress | 30 / 38 |
 | 14 | Knowledge, runbooks, and operator conveniences | M2 | Not started | 0 / 12 |
 | 15 | Benchmarking | M3 | Not started | 0 / 16 |
 | 16 | Hardening, simulated user testing, and 1.0 release | M4 | Not started | 0 / 18 |
@@ -116,8 +116,6 @@ Milestones:
   1. Chat, conversations, A2A, OpenAI-compatible surface, delegation service: P6 remainder, P7.13 to P7.19, A2A part of P7.22.
   2. MCP surface: P7.1 to P7.12, MCP part of P7.22.
   3. Dashboard wiring to the real routes and the live primary-journey test: P8.33, P8.34, P8.35, P8.38, P8.53.
-  4. MCP and A2A agent connectors: P13.26 to P13.31.
-  5. hugo CLI with stdio MCP relay: P7.20, P7.21.
   6. SDKs in C#, Python, and JavaScript: Phase 9, now verifying domain routes against the server.
   7. Connector bug fixes from the documentation review (SSH command wrapper classification, Redis deny list, Kubernetes, AWS, logs, storage paging, SQL Server TLS, Elasticsearch aliases).
 - Follow-ups recorded from connector work (fold into the named tasks):
@@ -129,9 +127,10 @@ Milestones:
   - PolyPrompt: verify the forced final answer (`tool_choice: none` with no tools) against real OpenAI (P6.22); list provider models through PolyPrompt model clients (P6.5).
   - Server must implement IAgentToolCatalog, IAgentToolExecutor, IAgentEventSink, IConversationStore (Hugo.Core.Agent) and set AgentRuntime.IdFactory to PrettyId.
   - Knowledge contract follow-ups from the SQL intelligence work: compare-and-swap put (expected version) for append races, `FinishReason` on `ConnectorModelResponse`, a JSON-mode hint, reason and reviewed fields on entries, `ToolArguments.GetDouble`, a crawl cache persistence hook, and a per-invocation model-call budget (`sql_generate_context` can make up to 51 calls; invocation timeouts for RequiresModel tools need to be longer than 120 seconds).
+  - Dynamic tools (D-044): add optional `IDynamicToolProvider` so external MCP tools appear as `<prefix>__<tool>`; fence remote instructions inside compiled instructions (P13.28).
   - SSH `jumpResourceName` (reuse another resource as bastion) needs a related-resource resolver; the jump settings cover the case today.
 - Next after the merges: Phase 3 pipeline (resources, invocation service, approvals), Phase 5 profiles and instructions, Phase 6 runtime, Phase 7 protocols.
-- Decisions D-001 through D-042 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
+- Decisions D-001 through D-044 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
 - Before P0.1, confirm the open questions in [section 23](#23-risks-and-open-questions) that are marked "before Phase 0".
 
 ---
@@ -260,6 +259,8 @@ This journey is the acceptance story for M1. Phase 12 replays it end to end.
 | D-040 | Dashboard i18n and packaging deviations from section 18.1: catalogs live in `dashboard/src/i18n/locales/*.json` (English bundled, others lazy loaded) instead of `public/i18n`; plain i18next interpolation and plurals instead of `i18next-icu`; `zh` means Simplified Chinese and `pt` means Brazilian Portuguese; the build stage uses `node:22-alpine`. Non-English catalogs are machine-generated and listed for review in `dashboard/I18N.md`. Hugo domain routes are flat with the tenant taken from the request context (section 14.2), while identity and admin routes keep Garrison's tenant-scoped shape (D-039). | Matches the forked Garrison dashboard; the review list keeps translation quality visible. | 18 |
 | D-041 | The Docker connector uses `Docker.DotNet.Enhanced` (the maintained fork, supports engine 29.x) instead of `Docker.DotNet`, whose last release was in 2023. Scaling a Kubernetes workload or an ECS service to zero is classified Destructive, not Write, because it takes the workload down. | Maintained dependency; classification follows impact rather than verb. | 9.2 |
 | D-042 | Integration details. Binding deny patterns apply only to per-call classified tools and match the primary argument (`x-hugo-primary`, else the first of command, sql, statement, query, script, expression, else the first required string); an invalid or timed-out pattern counts as a match. `allowKnowledgeUpdates` is enforced by the knowledge store, so a tool can still return a draft when writes are refused. Validation errors return 400 `SettingsInvalid` (not 422) to match the existing error shape. Tenant-layer template resets deactivate the override and keep history. The instruction compiler shifts connector instruction headings under each resource heading. Admin direct invoke (`/resources/{id}/invoke`) needs Execute on Resource and uses the resource ceiling as the access mode. | Recorded from the integration work. | 8.6, 10, 14 |
+| D-043 | Compact connector instructions (user direction 2026-10-14 after reviewing the eight-binding snapshot). Every connector type ships `connector.<type>.compact` next to its full instructions, editable in the same layers. Profiles have `instructionDetail` (Auto, Full, Compact); Auto uses compact text when the profile has more than `Instructions.CompactBindingThreshold` bindings (default 3). Compact sections tell the agent to call `hugo_describe_resource` for the full instructions, which that tool and the `hugo://resources/{alias}` MCP resource always return. | Large multi-resource profiles were producing about 50 KB of instructions; compact text keeps them near 10 KB without losing access to full guidance. | 10 |
+| D-044 | External MCP servers and remote A2A agents are reached through fixed tools (`mcp_list_tools`, `mcp_call_tool`, `mcp_list_resources`, `mcp_read_resource`, `a2a_get_card`, `a2a_delegate`, `a2a_get_task`) rather than per-resource `<prefix>__<tool>` names, because the connector contract's tool list is static. A proposed optional `IDynamicToolProvider` interface would let the server expose remote tools as first-class tools later; tracked as a follow-up. An A2A agent asking for input returns a normal tool result, not a Hugo approval. | Works within the existing contract today; the dynamic interface is additive. | 9.2 |
 
 ---
 
@@ -1871,7 +1872,7 @@ Database intelligence (D-038)
 - [x] P5.12 Compiled instruction and caller tool-view routes (`compiled-instructions`, `tools`).  | claude 2026-10-14 compiled-instructions and tools routes
 - [x] P5.13 Profile resolution service (D-018) used by every surface, with credential `lock_to_profile`.  | claude 2026-10-14 ProfileResolver (D-018)
 - [~] P5.14 Write `persona.agent-smith` (Appendix A), `persona.neutral`, `system.safety`, `system.tool-usage`, the preambles, `section.resource`, and the A2A skill text.  | claude 2026-10-14 templates wired; section.resource extended for knowledge and destructive-only approvals
-- [~] P5.15 Review every wave 1 connector's default instructions against the compiled output for the joel scenario. *Accept:* snapshot committed and reviewed by the user.  | claude 2026-10-14 golden snapshot src/Test.Shared/Fixtures/golden/joel-mcp-instructions.md (about 530 lines; SQL instructions about 8 KB each): needs user review and probably a compact connector variant for multi-binding profiles
+- [x] P5.15 Review every wave 1 connector's default instructions against the compiled output for the joel scenario. *Accept:* snapshot committed and reviewed by the user.  | claude 2026-10-14 user reviewed 2026-10-14 and asked for shorter connector text: compact connector.<type>.compact templates, profile instructionDetail Auto/Full/Compact (migration 8), Auto compact above Instructions.CompactBindingThreshold=3; eight-binding golden now about 10 KB (was 50 KB) (D-043)
 - [x] P5.16 Tool visibility filter (section 11.3) shared by MCP, chat, and the tools route.  | claude 2026-10-14 tool visibility filter
 - [x] P5.17 Suites: layer resolution, reset at each layer, versions, append and replace, compiled snapshot, visibility, profile resolution order.  | claude 2026-10-14 configuration suites
 - [x] P5.18 Credential profile binding fields and routes (bind, lock).  | claude 2026-10-14 credential agentProfileId and lockToProfile
@@ -1932,7 +1933,7 @@ A2A
 OpenAI-compatible and CLI
 - [ ] P7.18 `/v1.0/openai/v1/chat/completions` (stream and non-stream) and `/models`.
 - [ ] P7.19 OpenAI-compatible suites (official OpenAI client shape compatibility via raw JSON fixtures).
-- [ ] P7.20 `Hugo.Cli` `hugo mcp stdio` relay, `login`, `whoami`, `profiles list`. Packaged as a .NET tool.
+- [x] P7.20 `Hugo.Cli` `hugo mcp stdio` relay, `login`, `whoami`, `profiles list`. Packaged as a .NET tool.  | claude 2026-10-14 hugo CLI: mcp stdio relay (renew on 401, new session on 404, Last-Event-ID resume), login (0600 credentials file), logout, whoami, profiles list; packs as Hugo.Cli tool
 - [ ] P7.21 CLI suite: stdio relay round trip with a real MCP client over stdio.
 - [ ] P7.22 Protocol telemetry (MCP and A2A metrics and spans).
 
@@ -2124,12 +2125,12 @@ Observability backends
 - [x] P13.25 Instructions and suites (Hugo's own Prometheus and Loki, OpenSearch testbed).  | claude 2026-10-14 instructions; connectors.observability 117, testbed.observability 23 (Prometheus 3.7.0, Loki 3.5.5, OpenSearch 2.19.3)
 
 External MCP and remote A2A
-- [ ] P13.26 `mcp` connector: HTTP transport via Voltaic client, discovery, prefixing, schema passthrough, annotation-based effects, periodic refresh.
-- [ ] P13.27 `mcp` stdio transport behind `Connectors.Mcp.AllowStdio`, with process lifetime management.
-- [ ] P13.28 Third-party instruction fencing in compiled instructions.
-- [ ] P13.29 `mcp` suites with an in-process Voltaic test server.
-- [ ] P13.30 `a2a-agent` connector: card resolution, `delegate_<alias>` tool, streaming, input-required propagation as a Hugo approval or tool result.
-- [ ] P13.31 `a2a-agent` suites (Hugo to Hugo).
+- [x] P13.26 `mcp` connector: HTTP transport via Voltaic client, discovery, prefixing, schema passthrough, annotation-based effects, periodic refresh.  | claude 2026-10-14 McpConnector: mcp_list_tools, mcp_call_tool (annotation effects; undiscovered tools fail closed; escalated annotations refused), mcp_list_resources, mcp_read_resource; cached discovery (D-044)
+- [x] P13.27 `mcp` stdio transport behind `Connectors.Mcp.AllowStdio`, with process lifetime management.  | claude 2026-10-14 stdio behind Connectors.McpAllowStdio and resource allowStdio; process stopped on session dispose
+- [~] P13.28 Third-party instruction fencing in compiled instructions.  | claude 2026-10-14 remote instructions, cards, replies fenced as <untrusted-content> in tool output; fencing inside compiled instructions pending the dynamic tools work
+- [x] P13.29 `mcp` suites with an in-process Voltaic test server.  | claude 2026-10-14 connectors.agents.mcp 23 cases against in-process Voltaic MCP server
+- [x] P13.30 `a2a-agent` connector: card resolution, `delegate_<alias>` tool, streaming, input-required propagation as a Hugo approval or tool result.  | claude 2026-10-14 A2AAgentConnector: a2a_get_card, a2a_delegate (Write; streaming or polling; contextId and taskId continuation), a2a_get_task; bearer only to the card host unless allowCrossOriginEndpoint
+- [x] P13.31 `a2a-agent` suites (Hugo to Hugo).  | claude 2026-10-14 connectors.agents.a2a 15 cases against in-process Voltaic A2A agent
 
 Wrap-up
 - [ ] P13.32 Dashboard: connector icons, settings labels, and i18n keys for every wave 2 connector.
