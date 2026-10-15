@@ -102,7 +102,12 @@
   "Instructions": {
     "MaxKnowledgeCharsPerResource": 2000,
     "CacheEntries": 1024,
-    "CompactBindingThreshold": 3
+    "CompactBindingThreshold": 3,
+    "MaxThirdPartyChars": 4000,
+    "ThirdPartyWaitMilliseconds": 2000,
+    "ThirdPartyCacheSeconds": 600,
+    "ThirdPartyFailureRetrySeconds": 60,
+    "ThirdPartyCacheEntries": 4096
   },
   "Mcp": {
     "Enable": true,

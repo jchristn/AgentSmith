@@ -196,6 +196,11 @@ All default to empty, which means "not configured".
 | `Instructions.CompactBindingThreshold` | `3` | 0 to 1000 | Live | Profiles with `instructionDetail: Auto` switch to compact connector text above this many bindings (D-043). |
 | `Instructions.MaxKnowledgeCharsPerResource` | `2000` | 0 to 100000 | Live | Characters of each resource's root knowledge entry included in compiled instructions. |
 | `Instructions.CacheEntries` | `1024` | 0 to 100000 | Live | Compiled instruction cache size; 0 disables the cache. |
+| `Instructions.MaxThirdPartyChars` | `4000` | 0 to 100000 | Restart | Characters of third-party guidance (external MCP server instructions, remote agent cards) fenced into each binding's section; 0 leaves it out. |
+| `Instructions.ThirdPartyWaitMilliseconds` | `2000` | 0 to 60000 | Restart | How long a compile waits for a first fetch of third-party guidance. If the fetch is slower, it finishes in the background and the tenant's cached compilations are dropped. |
+| `Instructions.ThirdPartyCacheSeconds` | `600` | 0 to 86400 | Restart | How long fetched guidance is served before a background refresh. |
+| `Instructions.ThirdPartyFailureRetrySeconds` | `60` | 0 to 86400 | Restart | How long a failed fetch is remembered, so an unreachable remote costs at most one short wait per window. |
+| `Instructions.ThirdPartyCacheEntries` | `4096` | 1 to 1000000 | Restart | Cached guidance entries; the cache is cleared when it grows past this. |
 
 [PROMPTS.md](PROMPTS.md) explains what these do to the text a caller receives.
 

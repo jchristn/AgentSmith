@@ -127,11 +127,16 @@ namespace Hugo.Server.Modules
             compiler.MaxKnowledgeCharsPerResource = settings.Instructions.MaxKnowledgeCharsPerResource;
             compiler.CompactBindingThreshold = settings.Instructions.CompactBindingThreshold;
             compiler.MaxCacheEntries = settings.Instructions.CacheEntries;
+            compiler.MaxThirdPartyInstructionChars = settings.Instructions.MaxThirdPartyChars;
             compiler.Warn = message => context.Logging.Warn("[Instructions] " + message);
             context.Register(compiler);
             // Third-party guidance (external MCP server instructions, remote agent cards) is fenced inside each binding's
             // section; a fetch that lands after a compile stopped waiting drops the tenant's cached compilations (P13.28).
             ThirdPartyInstructionCache thirdParty = new ThirdPartyInstructionCache(_Registry, resources);
+            thirdParty.CompileWaitMilliseconds = settings.Instructions.ThirdPartyWaitMilliseconds;
+            thirdParty.TimeToLiveSeconds = settings.Instructions.ThirdPartyCacheSeconds;
+            thirdParty.FailureRetrySeconds = settings.Instructions.ThirdPartyFailureRetrySeconds;
+            thirdParty.MaxEntries = settings.Instructions.ThirdPartyCacheEntries;
             thirdParty.Changed += (sender, tenantId) => compiler.Invalidate(tenantId);
             compiler.ThirdPartyInstructions = thirdParty;
             context.Register(thirdParty);
