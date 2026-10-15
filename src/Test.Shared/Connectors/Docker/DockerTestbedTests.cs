@@ -239,9 +239,8 @@ namespace Test.Shared.Connectors.Docker
                     SshAssert.Contains(window.Text, name, "actor name");
                     ToolResult creates = await Run(r, "docker_events", new { since = "5m", type = "container", @event = "create", container = name }, token).ConfigureAwait(false);
                     SshAssert.Contains(creates.Text, "1 event(s)", "event filter: " + creates.Text);
-                    ToolResult capped = await Run(r, "docker_events", new { since = "30d", limit = 1 }, token).ConfigureAwait(false);
-                    SshAssert.Ok(capped, "capped");
-                    SshAssert.Contains(capped.Text, "window capped", "window capped");
+                    ToolResult tooLong = await Run(r, "docker_events", new { since = "30d", limit = 1 }, token).ConfigureAwait(false);
+                    SshAssert.Error(tooLong, "invalid_argument", "a window over maxEventsWindowSeconds is refused");
                     ToolResult future = await Run(r, "docker_events", new { since = "2h", until = "2999-01-01T00:00:00Z" }, token).ConfigureAwait(false);
                     SshAssert.Ok(future, "until clamped to now");
                     ToolResult bad = await Run(r, "docker_events", new { since = "yesterday-ish" }, token).ConfigureAwait(false);

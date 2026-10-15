@@ -21,7 +21,7 @@ namespace Hugo.Connectors.Docker.Tools
         private const string _Schema = @"{
   ""type"": ""object"",
   ""properties"": {
-    ""since"": { ""type"": ""string"", ""maxLength"": 64, ""description"": ""Start of the window: seconds ago (900), a duration (15m, 2h), or an ISO 8601 time. Default 15m. The window is capped by the resource's maxEventsWindowSeconds."" },
+    ""since"": { ""type"": ""string"", ""maxLength"": 64, ""description"": ""Start of the window: seconds ago (900), a duration (15m, 2h), or an ISO 8601 time. Default 15m. A window longer than the resource's maxEventsWindowSeconds is refused with invalid_argument."" },
     ""until"": { ""type"": ""string"", ""maxLength"": 64, ""description"": ""End of the window in the same formats. Default now. Never in the future."" },
     ""type"": { ""type"": ""string"", ""enum"": [""container"", ""image"", ""volume"", ""network"", ""daemon"", ""plugin"", ""service"", ""node"", ""secret"", ""config""], ""description"": ""Only events about this kind of object."" },
     ""container"": { ""type"": ""string"", ""maxLength"": 256, ""description"": ""Only events about this container name or ID."" },
@@ -69,12 +69,10 @@ namespace Hugo.Connectors.Docker.Tools
             if (until > now) until = now;
             DateTime since = DockerFormat.ParseTime(Optional(arguments, "since"), now, "since") ?? now.AddMinutes(-15);
             if (since >= until) throw new ConnectorException(ConnectorErrorCodes.InvalidArgument, "since must be before until.");
-            bool clipped = false;
             if ((until - since).TotalSeconds > options.MaxEventsWindowSeconds)
-            {
-                since = until.AddSeconds(-options.MaxEventsWindowSeconds);
-                clipped = true;
-            }
+                throw new ConnectorException(ConnectorErrorCodes.InvalidArgument,
+                    "The window from since to until is " + ((long)(until - since).TotalSeconds).ToString(CultureInfo.InvariantCulture) + " seconds, longer than the resource's maxEventsWindowSeconds ("
+                    + options.MaxEventsWindowSeconds.ToString(CultureInfo.InvariantCulture) + "). Narrow since and until; split a longer period into several calls.");
             int limit = Math.Min(arguments.GetInt("limit", 200, 1, 5000), context.Limits.MaxRows);
 
             Dictionary<string, IDictionary<string, bool>> filters = new Dictionary<string, IDictionary<string, bool>>(StringComparer.Ordinal);
@@ -120,7 +118,6 @@ namespace Hugo.Connectors.Docker.Tools
 
             StringBuilder sb = new StringBuilder();
             sb.Append(events.Count).Append(" event(s) from ").Append(since.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture)).Append(" to ").Append(until.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture));
-            if (clipped) sb.Append(" (window capped at ").Append(options.MaxEventsWindowSeconds).Append(" seconds)");
             if (collector.Overflowed) sb.Append(" (more events exist; narrow the window or filters)");
             sb.Append('\n');
             if (rows.Count > 0) sb.Append(TextTable.Render(new List<string> { "TIME", "TYPE", "ACTION", "ACTOR", "DETAILS" }, rows));

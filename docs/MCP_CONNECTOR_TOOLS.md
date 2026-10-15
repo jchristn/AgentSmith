@@ -3563,12 +3563,10 @@ Abbreviated result:
 
 List Docker daemon events in a past time window: container starts, stops, deaths with exit codes, OOM kills, restarts, health changes, image pulls. Use type: container and event: die or oom to find crashes. The window defaults to the last 15 minutes and is always bounded.
 
-**Note.** A window longer than the resource's `maxEventsWindowSeconds` is clipped (its start moves forward), not rejected.
-
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `resource` | string | yes | Alias of the bound resource. Added by Hugo; the allowed values are the caller's bindings for this family. |
-| `since` | string | no | Start of the window: seconds ago (900), a duration (15m, 2h), or an ISO 8601 time. Default 15m. The window is capped by the resource's maxEventsWindowSeconds. Range: max length 64. |
+| `since` | string | no | Start of the window: seconds ago (900), a duration (15m, 2h), or an ISO 8601 time. Default 15m. A window longer than the resource's maxEventsWindowSeconds is refused with invalid_argument. Range: max length 64. |
 | `until` | string | no | End of the window in the same formats. Default now. Never in the future. Range: max length 64. |
 | `type` | string | no | Only events about this kind of object. One of `container`, `image`, `volume`, `network`, `daemon`, `plugin`, `service`, `node`, `secret`, `config`. |
 | `container` | string | no | Only events about this container name or ID. Range: max length 256. |

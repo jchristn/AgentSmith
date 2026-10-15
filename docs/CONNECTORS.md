@@ -590,12 +590,12 @@ The `docker` connector talks to one Docker daemon through Docker.DotNet.Enhanced
 
 | Key | Kind | Default | Range or values | Meaning |
 |---|---|---|---|---|
-| `endpoint` | String, required | `unix:///var/run/docker.sock` | pattern `^(unix\|tcp\|npipe\|http\|https)://` | Daemon address: unix:///var/run/docker.sock (the Hugo host's socket), tcp://host:2376 (TLS) or tcp://host:2375, or npipe://./pipe/docker_engine. Reaching a daemon through an SSH resource is not supported yet. |
+| `endpoint` | String, required | `unix:///var/run/docker.sock` | pattern `^(unix\|tcp\|npipe\|http\|https)://` | Daemon address: unix:///var/run/docker.sock (the Hugo host's socket), tcp://host:2376 (TLS) or tcp://host:2375, http://host:2375 (plain HTTP, the same as tcp:// without TLS), https://host:2376 (TLS), or npipe://./pipe/docker_engine. Reaching a daemon through an SSH resource is not supported yet. |
 | `tlsVerify` | Boolean | `false` |  | Verify the daemon's certificate against the caCertificate in the tlsClientCertificate secret (or the system trust store). Requires the tlsClientCertificate slot. Default false. |
 | `requestTimeoutSeconds` | Integer | `30` | 1 to 600 | Timeout of each daemon request. Default 30, minimum 1, maximum 600. |
 | `showEnvironmentValues` | Boolean | `false` |  | When false, docker_inspect replaces environment variable values with <redacted> (names stay visible). Turn on only when containers carry no secrets in their environment. Default false. |
 | `maxLogLines` | Integer | `500` | 1 to 100000 | Most lines docker_logs returns. Default 500. |
-| `maxEventsWindowSeconds` | Integer | `3600` | 60 to 604800 | Largest time window docker_events reads. Default 3600 (one hour). |
+| `maxEventsWindowSeconds` | Integer | `3600` | 60 to 604800 | Largest time window docker_events reads; a longer window is refused with invalid_argument. Default 3600 (one hour). |
 | `execTimeoutSeconds` | Integer | `60` | 1 to 900 | Default and maximum run time of docker_exec. Default 60. |
 | `maxStatsContainers` | Integer | `20` | 1 to 100 | Most containers docker_stats samples when no container is named. Default 20. |
 
@@ -618,7 +618,7 @@ The endpoint can be the Hugo host's socket (`unix:///var/run/docker.sock`, which
 
 **Effects.** `docker_container_action` is classified by action: `start` and `restart` are Write; `stop`, `kill`, and `remove` are Destructive. `docker_exec` is always Destructive. Everything else is Read.
 
-**Redaction and limits.** `docker_inspect` replaces environment variable values with `<redacted>` unless `showEnvironmentValues` is on; names stay visible. Labels and command lines are not redacted, so do not put secrets there either. `docker_logs` keeps the newest `maxLogLines`. `docker_events` reads a past window (15 minutes by default) and clips anything longer than `maxEventsWindowSeconds` by moving the start forward. `docker_stats` samples at most `maxStatsContainers` containers and takes about a second.
+**Redaction and limits.** `docker_inspect` replaces environment variable values with `<redacted>` unless `showEnvironmentValues` is on; names stay visible. Labels and command lines are not redacted, so do not put secrets there either. `docker_logs` keeps the newest `maxLogLines`. `docker_events` reads a past window (15 minutes by default) and refuses a window longer than `maxEventsWindowSeconds` with `invalid_argument`, so the model never mistakes a shortened window for the one it asked for. `docker_stats` samples at most `maxStatsContainers` containers and takes about a second.
 
 **Test connection** asks the daemon for its version and reports the engine version, API version, OS, and whether TLS is off, verified, or unverified.
 
@@ -637,7 +637,7 @@ The `http` connector turns any HTTP or REST API under one base URL into two tool
 | `baseUrl` | String, required |  | pattern `^https?://` | Absolute http or https URL every request path is relative to, for example https://api.example.com/v1. No query string or credentials. |
 | `defaultHeaders` | StringList |  |  | Headers sent with every request, one 'Name: value' per line, for example 'Accept: application/json'. Authorization, cookies, and the API key header are not allowed here; use authType and a secret. |
 | `timeoutSeconds` | Integer | `30` | 1 to 600 | Longest time one request may take, including redirects. Default 30, minimum 1, maximum 600. The binding's timeout applies when shorter. |
-| `followRedirects` | Boolean | `true` |  | Follow redirects that stay on the same host, never downgrade https to http, and stay inside the allowed path prefixes. Authentication is never sent to a different origin. Default true. |
+| `followRedirects` | Boolean | `true` |  | Follow redirects to the same host name (any port), never from https to http, and only inside the base path and the allowed path prefixes. Credentials go only to the resource's own origin (same scheme, host, and port): a hop to another port, or from http to https, is followed without them. Default true. |
 | `maxRedirects` | Integer | `5` | 0 to 20 | Most redirects followed per request. Default 5. |
 | `verifyTls` | Boolean | `true` |  | When false, invalid or self-signed certificates are accepted (http_health_check still reports them). Keep true for anything reachable from the internet. Default true. |
 | `authType` | Enum | `None` | `None`, `Basic`, `Bearer`, `ApiKeyHeader`, `OAuth2ClientCredentials` | None; Basic (basicAuth slot); Bearer (bearerToken slot); ApiKeyHeader (apiKey slot, sent in apiKeyHeaderName); OAuth2ClientCredentials (clientCredentials slot and tokenUrl; tokens are cached and refreshed). |
