@@ -96,10 +96,13 @@ namespace Hugo.Core.Telemetry
                 Environment.SetEnvironmentVariable("OTEL_METRICS_EXEMPLAR_FILTER", "trace_based");
             }
 
-            Action<string>? counted = diagnostic == null ? null : new Action<string>(message =>
+            // Capture the caller's callback in its own local: the lambda must not close over the parameter, because the
+            // parameter is reassigned to the wrapper below and the wrapper would then call itself forever.
+            Action<string>? original = diagnostic;
+            Action<string>? counted = original == null ? null : new Action<string>(message =>
             {
                 HugoMetrics.Count(HugoMetricCatalog.TelemetryDiagnostics, "severity", message.StartsWith("telemetry", StringComparison.Ordinal) ? "warning" : "info");
-                diagnostic(message);
+                original(message);
             });
             diagnostic = counted;
 
