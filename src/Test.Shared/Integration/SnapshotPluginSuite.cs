@@ -104,7 +104,7 @@ namespace Test.Shared.Integration
                 Assert.True(compiled.Text.Contains("You have access to 8 resources:", StringComparison.Ordinal), "resource count");
                 Assert.True(compiled.Text.Contains("Revenue means sum(", StringComparison.Ordinal), "root knowledge included");
                 Assert.True(compiled.Warnings.Count == 0, "no warnings: " + String.Join("; ", compiled.Warnings));
-                Assert.True(compiled.Text.IndexOf('—') < 0, "no em-dashes in compiled instructions");
+                Assert.True(compiled.Text.IndexOf((char)0x2014) < 0, "no em-dashes in compiled instructions");
 
                 string path = Path.Combine(RepositoryRoot(), GoldenPath);
                 if (Environment.GetEnvironmentVariable("HUGO_WRITE_GOLDEN") == "true")
