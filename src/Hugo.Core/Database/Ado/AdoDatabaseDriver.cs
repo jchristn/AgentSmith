@@ -124,6 +124,10 @@ namespace Hugo.Core.Database.Ado
             ModelEndpoints = new AdoModelEndpointMethods(this);
             Plugins = new AdoPluginMethods(this);
             SchemaCache = new AdoConnectorSchemaCacheMethods(this);
+            Conversations = new AdoConversationMethods(this);
+            Messages = new AdoMessageMethods(this);
+            A2ATasks = new AdoA2ATaskMethods(this);
+            Analytics = new AdoAnalyticsMethods(this);
         }
 
         #endregion

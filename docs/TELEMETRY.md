@@ -8,6 +8,10 @@ Hugo records metrics through the `Hugo` meter and spans through the `Hugo` activ
 
 | Metric (Prometheus) | Type | Labels | Category | Meaning |
 |---|---|---|---|---|
+| `hugo_agent_iterations` | histogram | none | Agent and Chat | Model iterations per agent turn |
+| `hugo_agent_stage_duration_seconds` | histogram | `stage` | Agent and Chat | Agent turn stage duration by stage (context_build, compaction, tool_retrieval, inference, tool, approval_wait, persist) |
+| `hugo_agent_turn_duration_seconds` | histogram | `surface` | Agent and Chat | Agent turn duration, including tool calls and approval waits |
+| `hugo_agent_turns_total` | counter | `surface`, `outcome` | Agent and Chat | Agent loop turns by surface (chat, a2a, openai, mcp, rest) and outcome (completed, max_iterations, tool_call_limit, approval_pending, cancelled, error) |
 | `hugo_instructions_compile_duration_seconds` | histogram | `cached` | Agent and Chat | Time to compile a profile's instructions (cached is true when served from the compile cache) |
 | `hugo_background_job_duration_seconds` | histogram | `job` | Background | Duration of one background job run |
 | `hugo_background_jobs_total` | counter | `job`, `outcome` | Background | Background job runs (retention, master key rotation, and so on) by outcome (ok, error) |
@@ -32,6 +36,11 @@ Hugo records metrics through the `Hugo` meter and spans through the `Hugo` activ
 | `hugo_model_connector_requests_total` | counter | `provider`, `purpose`, `outcome` | Models | Model calls made by connector tools through the calling profile's inference endpoint (IConnectorModel), by purpose and outcome (ok, error, budget_exhausted) |
 | `hugo_model_connector_tokens_total` | counter | `provider`, `purpose`, `direction` | Models | Tokens used by connector model calls, by purpose and direction (input, output) |
 | `hugo_model_health_checks_total` | counter | `provider`, `kind`, `outcome` | Models | Model endpoint validations and health sweep checks by outcome (healthy, unhealthy) |
+| `hugo_model_request_duration_seconds` | histogram | `provider`, `kind` | Models | Model request duration, including retries |
+| `hugo_model_requests_total` | counter | `provider`, `kind`, `outcome` | Models | Inference and embedding requests by provider, kind (chat, embed), and outcome (ok, error, fallback) |
+| `hugo_model_time_to_first_token_seconds` | histogram | `provider` | Models | Time from a streaming model request to its first token |
+| `hugo_model_tokens_total` | counter | `provider`, `direction` | Models | Model tokens by provider and direction (input, output) |
+| `hugo_a2a_requests_total` | counter | `method`, `outcome` | Protocols | A2A JSON-RPC requests by canonical method (SendMessage, SendStreamingMessage, GetTask, ListTasks, CancelTask, SubscribeToTask, GetExtendedAgentCard, unknown) and outcome (ok, error) |
 | `hugo_mcp_requests_total` | counter | `method`, `outcome` | Protocols | MCP requests on /mcp by JSON-RPC method (initialize, tools/list, tools/call, ...; other for anything else) and outcome (ok, tool_error, error, stream, unauthenticated, forbidden, not_found, bad_request) |
 | `hugo_sse_events_total` | counter | `stream` | Protocols | Server-sent events written |
 | `hugo_sse_streams_active` | gauge | `stream` | Protocols | Server-sent event streams open on this server (events, chat, A2A) |

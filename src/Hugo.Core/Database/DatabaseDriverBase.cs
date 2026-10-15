@@ -165,6 +165,26 @@ namespace Hugo.Core.Database
         /// </summary>
         public IConnectorSchemaCacheMethods SchemaCache { get; protected set; } = null!;
 
+        /// <summary>
+        /// Conversations.
+        /// </summary>
+        public IConversationMethods Conversations { get; protected set; } = null!;
+
+        /// <summary>
+        /// Conversation messages.
+        /// </summary>
+        public IMessageMethods Messages { get; protected set; } = null!;
+
+        /// <summary>
+        /// A2A tasks and artifacts.
+        /// </summary>
+        public IA2ATaskMethods A2ATasks { get; protected set; } = null!;
+
+        /// <summary>
+        /// Analytics reads.
+        /// </summary>
+        public IAnalyticsMethods Analytics { get; protected set; } = null!;
+
         #endregion
 
         #region Private-Members

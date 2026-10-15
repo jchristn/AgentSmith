@@ -134,6 +134,7 @@ namespace Hugo.Server
                 new IdentityModule(),
                 new ConfigurationModule(),
                 new IntegrationModule(),
+                new AgentModule(),
                 new Hugo.Server.Protocols.McpModule()
             };
 
