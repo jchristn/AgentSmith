@@ -90,7 +90,7 @@ These rules keep the plan honest:
 | 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | In progress | 19 / 21 |
 | 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | In progress | 23 / 24 |
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | In progress | 21 / 22 |
-| 8 | Dashboard | M1 | In progress | 47 / 53 |
+| 8 | Dashboard | M1 | In progress | 51 / 53 |
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | In progress | 14 / 15 |
 | 10 | Docker, testbed, and observability stack | M1 | In progress | 14 / 24 |
 | 11 | Documentation and Postman | M1 | In progress | 0 / 18 |
@@ -114,7 +114,6 @@ Milestones:
 
 - Execution started 2026-10-14. Phase 0 skeleton is committed: solution, connector contract (P3.1), CI workflow, assets. The foundation is being forked from Garrison (D-032).
 - In flight 2026-10-14 (parallel agents, one git worktree each, merged by the coordinator):
-  3. Dashboard wiring to the real routes and the live primary-journey test: P8.33, P8.34, P8.35, P8.38, P8.53.
 - Follow-ups recorded from connector work (fold into the named tasks):
   - P3.13: the pipeline applies binding-level command deny patterns (the invocation context has no binding policy).
   - P3.8: audit every `LearnSetting` call (pinned host keys, D-028) as `HostKeyPinned`.
@@ -130,6 +129,7 @@ Milestones:
   - docs/connectors/redis-acl.md still says KEYS lives in the default deniedCommands; it is now a built-in denial.
   - Kubernetes testbed has one timing-sensitive crash-loop case (k8s_events or k8s_logs) that fails intermittently.
   - Security review item from the MCP work: a credential inherits its owner's tenant-admin flag in AuthenticationService even when scoped to a narrower role; review whether credentials should carry the owner's bypass flags (P16.3).
+  - From the dashboard live journey: fixed on main 2026-10-14, a stack overflow at startup when telemetry is enabled (HugoTelemetry closure). Still open: GET /v1.0/api/model-endpoints/{id}/models returns 500 when the provider is unreachable (should be 502 or 503 like /validate); template includes use {{> key}}, not the {{> include key}} written in section 10.3; list filters from section 18.3 not supported by the server (approvals effect and fromUtc, tool-invocations effect and toUtc, resources environment and health, secrets kind, model-endpoints kind, provider, and health, session principal filters); profiles lack bindingCount and sessions lack principalName; no model endpoint health-history route; the dashboard analytics page should switch to the new analytics routes.
   - Dynamic tools (D-044): add optional `IDynamicToolProvider` so external MCP tools appear as `<prefix>__<tool>`; fence remote instructions inside compiled instructions (P13.28).
   - SSH `jumpResourceName` (reuse another resource as bastion) needs a related-resource resolver; the jump settings cover the case today.
 - Next after the merges: Phase 3 pipeline (resources, invocation service, approvals), Phase 5 profiles and instructions, Phase 6 runtime, Phase 7 protocols.
@@ -2002,7 +2002,7 @@ Pages
 - [x] P8.21 Agent Profiles list.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
 - [x] P8.22 Profile detail: General tab.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
 - [x] P8.23 Profile detail: Bindings tab with add binding modal and tool rules editor.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
-- [x] P8.24 Profile detail: Instructions tab with live compiled preview and source map.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.24 Profile detail: Instructions tab with live compiled preview and source map.  | claude 2026-10-14 compiled instructions colored by layer with source map
 - [x] P8.25 Profile detail: Tools and Connect tabs (MCP config snippets, A2A card, credential binding shortcut).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
 - [x] P8.26 Approvals inbox.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
 - [x] P8.27 Conversations (tenant view).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
@@ -2011,12 +2011,12 @@ Pages
 - [x] P8.30 Resource "try a tool" panel (dry run, then execute as a chosen profile).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
 - [x] P8.31 Secrets list, create with file import, replace values.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
 - [x] P8.32 Secret reveal flow (re-auth modal, reason, auto-hide, copy).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
-- [~] P8.33 Connectors catalog with default instructions editor (tenant and global layers, reset, versions, built-in update notice).  | claude 2026-10-14 connector instructions link to Prompt Templates; inline layered editor pending P5 layering
-- [~] P8.34 Model Endpoints (CRUD, validate, health history).  | claude 2026-10-14 model endpoints page; health history shows the last check only
-- [~] P8.35 Prompt Templates page.  | claude 2026-10-14 Prompt Templates page on Garrison's template model; key-and-layer view pending P5
+- [x] P8.33 Connectors catalog with default instructions editor (tenant and global layers, reset, versions, built-in update notice).  | claude 2026-10-14 Connector page inline default-instructions editor: Tenant and Global tabs (Global for system admins), read-only Built-in, reset per layer, versions with diff, built-in-updated notice with Adopt
+- [x] P8.34 Model Endpoints (CRUD, validate, health history).  | claude 2026-10-14 last check plus this session validation history, labeled on the page; the server has no health-history route (follow-up)
+- [x] P8.35 Prompt Templates page.  | claude 2026-10-14 Prompt Templates as a key list with active-layer and customized filters, each opening the layered editor
 - [x] P8.36 Tool Invocations page with detail modal and Tempo trace link.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
 - [x] P8.37 Request History page and Request Details modal per FRONTEND_ARCHITECTURE.md.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
-- [~] P8.38 Analytics page (tokens, tools, models, approvals).  | claude 2026-10-14 analytics page; approval turnaround is a single KPI
+- [~] P8.38 Analytics page (tokens, tools, models, approvals).  | claude 2026-10-14 analytics panels from tool invocation and approval routes; switch to the /v1.0/api/analytics routes merged with Phase 6
 - [x] P8.39 Audit page.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
 - [x] P8.40 API Explorer (OpenAPI-driven, SSE streaming with Stop, snippets curl, fetch, C#, history of 12, destructive confirm).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
 - [x] P8.41 MCP Explorer.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
@@ -2030,9 +2030,9 @@ Pages
 Quality
 - [x] P8.48 i18n completion: every string in catalogs, 12 locales registered, `i18n:check` clean, pseudo-locale smoke tests in CI.  | claude 2026-10-14 all strings cataloged; non-English machine-seeded, review notes in dashboard/I18N.md
 - [x] P8.49 Vitest suites (api client, formatters, persistence, table behaviors, schema form, prompt editor).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
-- [x] P8.50 Playwright flows (login, wizard, secret, resource with test, binding, chat with stub LLM, approval, request history, explorer).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
+- [x] P8.50 Playwright flows (login, wizard, secret, resource with test, binding, chat with stub LLM, approval, request history, explorer).  | claude 2026-10-14 live journey spec passes against a fresh server: password change, wizard, secret, SQLite resource, binding, instructions, dry run, invoke, approval, knowledge, history, audit
 - [~] P8.51 Visual QA: screenshots at 1280, 768, and 390 in light and dark for the shell, Home, Chat, Profile detail, Resources, Request History, the details modal, API Explorer, and Settings. *Accept:* artifacts in CI, and a summary of issues found and fixed in the annotation.  | claude 2026-10-14 visual screenshots generated in test-results/visual; CI artifact upload pending
-- [ ] P8.53 Resource Knowledge tab: database and table context editor (Markdown, version history, source badges), Generate Context with progress, intelligence view (entities, metrics, filters, freshness, quality gaps), relationship list and graph (declared vs inferred, with confidence).
+- [x] P8.53 Resource Knowledge tab: database and table context editor (Markdown, version history, source badges), Generate Context with progress, intelligence view (entities, metrics, filters, freshness, quality gaps), relationship list and graph (declared vs inferred, with confidence).  | claude 2026-10-14 resource page /dashboard/resources/:id with Overview, Try a Tool, Knowledge (context editor with source badges and versions, Generate Context, intelligence, relationships list and SVG graph)
 - [x] P8.52 Accessibility and responsive pass (landmarks, labels, focus, reduced motion, tap targets, no body horizontal scroll), and the dashboard Docker image (nginx, proxy, SSE buffering off, `/health`).  | claude 2026-10-14 accessibility checks, responsive pass, nginx image proxying /v1.0, /mcp, /openapi.json with buffering off
 
 ### Phase 9: SDKs (M1)
