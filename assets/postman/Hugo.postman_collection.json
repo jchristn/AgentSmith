@@ -1201,16 +1201,17 @@
           "response": []
         },
         {
-          "name": "Sign in with a JSON body (rejected)",
+          "name": "Sign in with a JSON body",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('status is one of [200, 401]', function () {",
-                  "    pm.expect([200, 401]).to.include(pm.response.code);",
-                  "});"
+                  "pm.test('status is one of [200]', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('principalType is User', function () { pm.expect(pm.response.json().principalType).to.eql(\"User\"); });"
                 ]
               }
             }
@@ -1233,10 +1234,10 @@
                 "token"
               ]
             },
-            "description": "The token route reads credentials from headers only. A request without them is answered with 401 and the standard error body; this request documents that response.",
+            "description": "The same route also reads a JSON body with `tenantId`, `email`, and `password` (or `accessKey` and `secretKey`). Body fields win; headers fill in whatever the body leaves out. Without a tenant, the default tenant is used. When an access key is present, the request is a credential sign-in.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{newPassword}}\",\n  \"tenantId\": \"{{tenantId}}\"\n}",
+              "raw": "{\n  \"tenantId\": \"{{tenantId}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{newPassword}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -11023,71 +11024,6 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('status is one of [200, 400]', function () {",
-                  "    pm.expect([200, 400]).to.include(pm.response.code);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/v1.0/api/prompt-templates/system.tool-usage?layer=Tenant",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1.0",
-                "api",
-                "prompt-templates",
-                "system.tool-usage"
-              ],
-              "query": [
-                {
-                  "key": "layer",
-                  "value": "Tenant",
-                  "description": "Tenant or Global."
-                }
-              ]
-            },
-            "description": "Save content at `?layer=Tenant` (default, tenant administrators) or `?layer=Global` (system administrators). The content is checked by the template analyzer first; every save creates a version.",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"content\": \"{{> system.tool-usage}}\",\n  \"changeNote\": \"placeholder, replaced below\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{token}}",
-                  "type": "string"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Save the tenant layer with content",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
                   "pm.test('status is one of [200]', function () {",
                   "    pm.expect([200]).to.include(pm.response.code);",
                   "});"
@@ -12053,7 +11989,7 @@
             "description": "Create a secret with its values; the response has metadata and field names only.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"demo-api-token\",\n  \"kind\": \"ApiToken\",\n  \"description\": \"Example token for the Postman run\",\n  \"values\": {\n    \"token\": \"not-a-real-token-0123456789\"\n  }\n}",
+              "raw": "{\n  \"name\": \"demo-api-token\",\n  \"kind\": \"ApiToken\",\n  \"description\": \"Token for the status page API\",\n  \"values\": {\n    \"token\": \"not-a-real-token-0123456789\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -12478,7 +12414,7 @@
             "description": "Return plaintext values. Needs Reveal on Secret (TenantAdmin and system administrators), a reason, and a recent re-authentication. Audited as SecretRevealed and rate limited (`Secrets.RevealRateLimitPerMinute`).",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"reason\": \"Verifying the rotated token for the Postman walkthrough\"\n}",
+              "raw": "{\n  \"reason\": \"Confirming the rotated token before handing it to the on-call engineer\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -14913,7 +14849,7 @@
             "description": "Create a tenant (system administrators). It is provisioned with its own `Hugo` profile.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"zion\",\n  \"description\": \"Example tenant from the Postman run\",\n  \"region\": \"us-east-1\"\n}",
+              "raw": "{\n  \"name\": \"zion\",\n  \"description\": \"Staging tenant for the night shift\",\n  \"region\": \"us-east-1\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
