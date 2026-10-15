@@ -1,16 +1,18 @@
 namespace Hugo.Server
 {
     /// <summary>
-    /// Entry point.
+    /// Application entry point.
     /// </summary>
     public static class Program
     {
         /// <summary>
-        /// Main.
+        /// Main entry point.
         /// </summary>
-        /// <param name="args">Arguments.</param>
-        public static void Main(string[] args)
+        /// <param name="args">Command-line arguments; the first may be the settings file path.</param>
+        /// <returns>Exit code.</returns>
+        public static int Main(string[] args)
         {
+            return Bootstrapper.Run(args);
         }
     }
 }
