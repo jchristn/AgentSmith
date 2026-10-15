@@ -1,0 +1,49 @@
+# Hugo AWS testbed: LocalStack community edition with seeded fixtures.
+#
+#   docker compose -f docker/testbed/aws/compose.yaml up -d --wait
+#   HUGO_TESTBED=1 dotnet run --project src/Test.Automated -f net10.0 -- --suites testbed.aws
+#   docker compose -f docker/testbed/aws/compose.yaml down -v
+#
+# Endpoint: http://127.0.0.1:28566 (override the host port with HUGO_TESTBED_AWS_PORT; the suites read the same
+# variable). Any access key pair is accepted; the suites use test/test. Region us-east-1, account 000000000000.
+#
+# Pinned to 4.14.0, the last LocalStack release that runs without an auth token. Later images (2026.x) require a
+# LocalStack account.
+#
+# Fixtures (init/seed.sh, run by LocalStack's ready hook; the healthcheck passes once it has completed):
+#   EC2          3 instances tagged env=testbed (2 x hugo-web t3.micro, 1 x hugo-worker t3.small)
+#   CloudWatch   Hugo/Testbed RequestCount and Latency datapoints (Service=checkout); alarm hugo-testbed-high-latency
+#                in ALARM and hugo-testbed-queue-depth in OK
+#   Logs         /hugo/testbed/app (streams web-1, web-2) with INFO, WARN, and ERROR events
+#   SQS          hugo-testbed-orders (3 messages, redrive to hugo-testbed-orders-dlq) and hugo-testbed-orders-dlq
+#   SNS          hugo-testbed-alerts (one SQS subscription)
+#   Route 53     testbed.hugo.internal (A, CNAME, TXT records)
+#   Lambda       hugo-testbed-echo (python3.12); needs the Docker socket so LocalStack can start the runtime
+#
+# Not emulated by LocalStack community (RDS, ELBv2, ECS, Auto Scaling): the connector suites cover those tools with
+# the in-process recorded-response stub in src/Test.Shared/Connectors/Aws/AwsStubServer.cs.
+name: hugo-testbed-aws
+
+services:
+  localstack:
+    image: localstack/localstack:4.14.0
+    environment:
+      SERVICES: sts,iam,ec2,cloudwatch,logs,sqs,sns,route53,lambda
+      AWS_DEFAULT_REGION: us-east-1
+      EAGER_SERVICE_LOADING: "1"
+      LAMBDA_RUNTIME_ENVIRONMENT_TIMEOUT: "120"
+      SKIP_SSL_CERT_DOWNLOAD: "1"
+      DISABLE_EVENTS: "1"
+    ports:
+      - "127.0.0.1:${HUGO_TESTBED_AWS_PORT:-28566}:4566"
+    volumes:
+      - ./init/seed.sh:/etc/localstack/init/ready.d/seed.sh:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:4566/_localstack/init/ready | grep -q '\"completed\": *true'"]
+      interval: 5s
+      timeout: 4s
+      retries: 2
+      start_period: 240s
+      start_interval: 2s
+    restart: "no"

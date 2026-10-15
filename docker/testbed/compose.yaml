@@ -9,3 +9,4 @@ include:
   - ssh/compose.yaml
   - storage/compose.yaml
   - sql/compose.yaml
+  - aws/compose.yaml
