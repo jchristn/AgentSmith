@@ -96,7 +96,7 @@
     "states": {
       "forbiddenTitle": "Anda tidak mempunyai akses ke halaman ini",
       "forbiddenBody": "Minta pentadbir memberikan peranan yang membenarkan akses, atau pilih halaman lain.",
-      "notExposedTitle": "{{feature}} belum tersedia pada pelayan ini",
+      "notExposedTitle": "Pelayan ini belum menawarkan {{feature}}",
       "notExposedBody": "Papan pemuka sudah sedia untuk {{feature}}, tetapi pelayan Hugo ini tidak mendedahkan laluan yang diperlukan. Ia akan berfungsi di sini sebaik sahaja pelayan menyediakannya; tiada apa-apa pada halaman ini yang perlu diubah.",
       "notExposedEndpoint": "Laluan yang dipanggil oleh papan pemuka:"
     },
@@ -363,6 +363,13 @@
       "BuiltIn": "Terbina dalam",
       "Global": "Lalai global",
       "Tenant": "Penyewa"
+    },
+    "authScheme": {
+      "Password": "Log masuk dengan kata laluan",
+      "AccessKey": "Kunci akses",
+      "SessionToken": "Token sesi",
+      "SignedRequest": "Permintaan bertandatangan",
+      "ApiKey": "Kunci API pentadbir"
     }
   },
   "login": {
@@ -3109,7 +3116,32 @@
       "p1": "Setiap permintaan API yang ditangkap oleh pelayan ini, dengan kaedah, laluan, status, pemasaan, pengepala dan badan (dipotong kepada saiz yang dikonfigurasi). Gunakannya untuk menyahpepijat integrasi dan panggilan SDK. Klik bar dalam carta untuk mengecilkan jadual kepada masa tersebut."
     },
     "diagram": {
-      "label": "Hubungan antara rahsia, sumber, pengikatan, profil dan permukaan"
+      "label": "Hubungan antara rahsia, sumber, pengikatan, profil dan permukaan",
+      "secret": {
+        "title": "Rahsia",
+        "body": "Kelayakan disulitkan",
+        "tip": "Kata laluan, kunci dan token, disulitkan dalam Hugo. Sumber menggunakannya mengikut slot; ejen tidak pernah melihatnya."
+      },
+      "resource": {
+        "title": "Sumber",
+        "body": "Sistem yang dikonfigurasikan",
+        "tip": "Setiap satu ialah sistem yang dikonfigurasikan: hos SSH, baldi, pangkalan data atau perkhidmatan log, bersama tetapannya."
+      },
+      "binding": {
+        "title": "Pengikatan",
+        "body": "Alias dan mod akses",
+        "tip": "Lampirkan sumber pada profil di bawah alias, dengan akses baca sahaja, dengan kelulusan, atau baca dan tulis."
+      },
+      "profile": {
+        "title": "Profil ejen",
+        "body": "Persona, model, had",
+        "tip": "Ejen itu sendiri: Agent Smith secara lalai, dengan model dan hadnya. Setiap antara muka berkomunikasi dengan profil."
+      },
+      "surfaces": {
+        "title": "Antara muka",
+        "body": "MCP, A2A, REST, sembang",
+        "tip": "Claude Code melalui MCP, ejen lain melalui A2A, skrip melalui REST dan SDK, dan anda dalam sembang."
+      }
     },
     "profiles": {
       "title": "Hubungan antara profil, sumber dan permukaan",

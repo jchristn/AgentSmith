@@ -96,7 +96,7 @@
     "states": {
       "forbiddenTitle": "Sie haben keinen Zugriff auf diese Seite",
       "forbiddenBody": "Bitten Sie eine Administratorin oder einen Administrator um eine passende Rolle, oder wählen Sie eine andere Seite.",
-      "notExposedTitle": "{{feature}} ist auf diesem Server noch nicht verfügbar",
+      "notExposedTitle": "Dieser Server bietet {{feature}} noch nicht an",
       "notExposedBody": "Das Dashboard ist für {{feature}} bereit, aber dieser Hugo-Server stellt die benötigte Route nicht bereit. Sobald der Server sie anbietet, funktioniert es hier; an dieser Seite muss nichts geändert werden.",
       "notExposedEndpoint": "Vom Dashboard aufgerufene Route:"
     },
@@ -363,6 +363,13 @@
       "BuiltIn": "Integriert",
       "Global": "Globaler Standard",
       "Tenant": "Mandant"
+    },
+    "authScheme": {
+      "Password": "Anmeldung mit Passwort",
+      "AccessKey": "Zugriffsschlüssel",
+      "SessionToken": "Sitzungstoken",
+      "SignedRequest": "Signierte Anfrage",
+      "ApiKey": "Administrator-API-Schlüssel"
     }
   },
   "login": {
@@ -3109,7 +3116,32 @@
       "p1": "Jede von diesem Server erfasste API-Anfrage mit Methode, Pfad, Status, Zeiten, Headern und Inhalten (gekürzt auf die konfigurierte Größe). Verwenden Sie ihn zur Fehlersuche bei Integrationen und SDK-Aufrufen. Klicken Sie auf einen Balken im Diagramm, um die Tabelle auf diesen Zeitraum einzugrenzen."
     },
     "diagram": {
-      "label": "Wie Secrets, Ressourcen, Bindungen, Profile und Schnittstellen zusammenhängen"
+      "label": "Wie Secrets, Ressourcen, Bindungen, Profile und Schnittstellen zusammenhängen",
+      "secret": {
+        "title": "Secrets",
+        "body": "Verschlüsselte Zugangsdaten",
+        "tip": "Passwörter, Schlüssel und Token, verschlüsselt in Hugo. Ressourcen nutzen sie über Slots; Agenten sehen sie nie."
+      },
+      "resource": {
+        "title": "Ressourcen",
+        "body": "Konfigurierte Systeme",
+        "tip": "Jeweils ein konfiguriertes System: ein SSH-Host, ein Bucket, eine Datenbank, ein Logdienst, mit seinen Einstellungen."
+      },
+      "binding": {
+        "title": "Bindungen",
+        "body": "Alias und Zugriffsmodus",
+        "tip": "Verknüpfen Sie eine Ressource unter einem Alias mit einem Profil, mit Zugriff „Nur Lesen“, „mit Freigabe“ oder „Lesen und Schreiben“."
+      },
+      "profile": {
+        "title": "Agentenprofil",
+        "body": "Persona, Modelle, Limits",
+        "tip": "Der Agent: standardmäßig Agent Smith, mit seinen Modellen und Limits. Jede Schnittstelle spricht mit einem Profil."
+      },
+      "surfaces": {
+        "title": "Schnittstellen",
+        "body": "MCP, A2A, REST, Chat",
+        "tip": "Claude Code über MCP, andere Agenten über A2A, Skripte über REST und die SDKs, und Sie im Chat."
+      }
     },
     "profiles": {
       "title": "Wie Profile, Ressourcen und Schnittstellen zusammenhängen",

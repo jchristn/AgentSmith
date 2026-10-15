@@ -31,8 +31,26 @@ const FONT_AR = `${FONT_BASE}, 'Noto Sans Arabic', 'Geeza Pro', 'Segoe UI', Taho
 export const LOCALES = [
   { code: 'en', englishName: 'English', nativeName: 'English', dir: 'ltr', aliases: ['en-us', 'en-gb', 'en-ca', 'en-au', 'english'] },
   { code: 'es', englishName: 'Spanish', nativeName: 'Español', dir: 'ltr', aliases: ['es-es', 'es-mx', 'es-419', 'spanish'], beta: true, betaLabel: 'beta' },
-  { code: 'pt', englishName: 'Portuguese', nativeName: 'Português', dir: 'ltr', intl: 'pt-BR', variant: 'pt-BR', aliases: ['pt-br', 'pt-pt', 'portuguese'], beta: true, betaLabel: 'beta' },
-  { code: 'fr', englishName: 'French', nativeName: 'Français', dir: 'ltr', aliases: ['fr-fr', 'fr-ca', 'fr-be', 'fr-ch', 'french'], beta: true, betaLabel: 'bêta' },
+  {
+    code: 'pt',
+    englishName: 'Portuguese',
+    nativeName: 'Português',
+    dir: 'ltr',
+    intl: 'pt-BR',
+    variant: 'pt-BR',
+    aliases: ['pt-br', 'pt-pt', 'portuguese'],
+    beta: true,
+    betaLabel: 'beta'
+  },
+  {
+    code: 'fr',
+    englishName: 'French',
+    nativeName: 'Français',
+    dir: 'ltr',
+    aliases: ['fr-fr', 'fr-ca', 'fr-be', 'fr-ch', 'french'],
+    beta: true,
+    betaLabel: 'bêta'
+  },
   { code: 'it', englishName: 'Italian', nativeName: 'Italiano', dir: 'ltr', aliases: ['it-it', 'it-ch', 'italian'], beta: true, betaLabel: 'beta' },
   { code: 'de', englishName: 'German', nativeName: 'Deutsch', dir: 'ltr', aliases: ['de-de', 'de-at', 'de-ch', 'german'], beta: true, betaLabel: 'Beta' },
   {
@@ -47,13 +65,47 @@ export const LOCALES = [
     betaLabel: '测试版',
     fontFamily: FONT_ZH
   },
-  { code: 'ar', englishName: 'Arabic', nativeName: 'العربية', dir: 'rtl', aliases: ['ar-sa', 'ar-eg', 'ar-ae', 'arabic'], beta: true, betaLabel: 'تجريبي', fontFamily: FONT_AR },
+  {
+    code: 'ar',
+    englishName: 'Arabic',
+    nativeName: 'العربية',
+    dir: 'rtl',
+    aliases: ['ar-sa', 'ar-eg', 'ar-ae', 'arabic'],
+    beta: true,
+    betaLabel: 'تجريبي',
+    fontFamily: FONT_AR
+  },
   { code: 'ru', englishName: 'Russian', nativeName: 'Русский', dir: 'ltr', aliases: ['ru-ru', 'russian'], beta: true, betaLabel: 'бета' },
   { code: 'ms', englishName: 'Malay', nativeName: 'Bahasa Melayu', dir: 'ltr', aliases: ['ms-my', 'malay'], beta: true, betaLabel: 'beta' },
   { code: 'hi', englishName: 'Hindi', nativeName: 'हिन्दी', dir: 'ltr', aliases: ['hi-in', 'hindi'], beta: true, betaLabel: 'बीटा', fontFamily: FONT_HI },
-  { code: 'ja', englishName: 'Japanese', nativeName: '日本語', dir: 'ltr', aliases: ['ja-jp', 'kanji', 'japanese'], beta: true, betaLabel: 'ベータ版', fontFamily: FONT_JA },
-  { code: 'en-XA', englishName: 'Pseudo (expansion)', nativeName: 'Ƥşéüðö (expansion)', dir: 'ltr', intl: 'en', aliases: ['pseudo', 'en-xa', 'xa'], pseudo: true },
-  { code: 'ar-XB', englishName: 'Pseudo (bidi)', nativeName: '\u200FPseudo·RTL\u200F', dir: 'rtl', intl: 'ar', aliases: ['rtl', 'ar-xb', 'xb', 'zz'], pseudo: true }
+  {
+    code: 'ja',
+    englishName: 'Japanese',
+    nativeName: '日本語',
+    dir: 'ltr',
+    aliases: ['ja-jp', 'kanji', 'japanese'],
+    beta: true,
+    betaLabel: 'ベータ版',
+    fontFamily: FONT_JA
+  },
+  {
+    code: 'en-XA',
+    englishName: 'Pseudo (expansion)',
+    nativeName: 'Ƥşéüðö (expansion)',
+    dir: 'ltr',
+    intl: 'en',
+    aliases: ['pseudo', 'en-xa', 'xa'],
+    pseudo: true
+  },
+  {
+    code: 'ar-XB',
+    englishName: 'Pseudo (bidi)',
+    nativeName: '\u200FPseudo·RTL\u200F',
+    dir: 'rtl',
+    intl: 'ar',
+    aliases: ['rtl', 'ar-xb', 'xb', 'zz'],
+    pseudo: true
+  }
 ];
 
 export const SUPPORTED_CODES = LOCALES.map((l) => l.code);

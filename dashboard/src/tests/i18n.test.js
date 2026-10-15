@@ -3,7 +3,17 @@
 
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import i18n, { setActiveLocale, ensureLocale } from '../i18n';
-import { canonicalizeLocale, getDirection, getLocaleMeta, getLocaleLabel, toIntlLocale, LOCALES, STORAGE_KEY, SUPPORTED_CODES, selectableLocales } from '../i18n/localeRegistry';
+import {
+  canonicalizeLocale,
+  getDirection,
+  getLocaleMeta,
+  getLocaleLabel,
+  toIntlLocale,
+  LOCALES,
+  STORAGE_KEY,
+  SUPPORTED_CODES,
+  selectableLocales
+} from '../i18n/localeRegistry';
 import resources from '../i18n/resources';
 import { pseudoString, bidiString } from '../i18n/pseudo';
 import { formatNumber, formatDateTime, formatDuration, formatBytes, formatList, formatPercent, formatRelativeTime } from '../i18n/formatters';
@@ -89,14 +99,17 @@ describe('language switching', () => {
     expect(localStorage.getItem(STORAGE_KEY)).toBe('en');
     expect(i18n.t('nav.items.home.label')).toBe('Home');
   });
-  it.each([['es'], ['pt'], ['fr'], ['it'], ['zh'], ['ru'], ['ms'], ['hi'], ['ja']])('switches to %s with a translated catalog and the right font hint', async (code) => {
-    await setActiveLocale(code);
-    expect(document.documentElement.lang).toBe(code);
-    expect(i18n.t('common.actions.cancel')).not.toBe('Cancel');
-    const font = document.documentElement.style.getPropertyValue('--locale-font');
-    if (['zh', 'ja', 'hi'].includes(code)) expect(font).not.toBe('');
-    else expect(font).toBe('');
-  });
+  it.each([['es'], ['pt'], ['fr'], ['it'], ['zh'], ['ru'], ['ms'], ['hi'], ['ja']])(
+    'switches to %s with a translated catalog and the right font hint',
+    async (code) => {
+      await setActiveLocale(code);
+      expect(document.documentElement.lang).toBe(code);
+      expect(i18n.t('common.actions.cancel')).not.toBe('Cancel');
+      const font = document.documentElement.style.getPropertyValue('--locale-font');
+      if (['zh', 'ja', 'hi'].includes(code)) expect(font).not.toBe('');
+      else expect(font).toBe('');
+    }
+  );
   it('generates pseudo-locale catalogs from English', async () => {
     await ensureLocale('en-XA');
     await setActiveLocale('en-XA');

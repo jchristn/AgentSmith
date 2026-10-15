@@ -43,6 +43,9 @@ const GENERATED_PREFIXES = [
   'tips.common.fields.'
 ];
 
+// Template keys that only exist when a configuration opts in (multi-step forms); no current page uses them.
+const OPTIONAL_PATTERNS = [/\.steps\.\$\{/];
+
 // JSX text that is not English prose: punctuation, numbers, product names, and protocol terms.
 const TEXT_ALLOW = /^[\s\d.,:;!?()[\]{}/\\|+*=<>#@&%$'"`~^_·…→←↑↓-]*$|^(MCP|A2A|OpenAI|JSON|REST|SSE|ID|v)$/;
 
@@ -107,7 +110,17 @@ for (const file of files) {
     const escaped = source.replace(/[.*+?^()|[\]\\]/g, '\\$&').replace(/@@VAR@@/g, '[A-Za-z0-9_.]+');
     // A pattern that starts with a variable (`${prefix}.title`) says nothing about the namespace; those keys are
     // covered by GENERATED_PREFIXES instead.
-    if (!escaped.startsWith('[A-Za-z0-9_.]+')) patterns.push(new RegExp(`^${escaped}$`));
+    if (!escaped.startsWith('[A-Za-z0-9_.]+')) {
+      const re = new RegExp(`^${escaped}(_(zero|one|two|few|many|other))?$`);
+      patterns.push(re);
+      // A key pattern no English key matches is a family of missing keys (for example explainers.diagram.<node>.title).
+      if (
+        ![...enKeys].some((k) => re.test(k)) &&
+        !OPTIONAL_PATTERNS.some((x) => x.test(m[1])) &&
+        !/defaultValue/.test(text.slice(m.index, m.index + 200).split(')')[0])
+      )
+        problems.push(`no key matches t(\`${m[1]}\`) (${path.relative(ROOT, file)})`);
+    }
   }
   // Keys passed around as string literals (for example tipKey: 'tips.wizard.start').
   while ((m = literalKeyRe.exec(text))) staticKeys.add(m[1]);
@@ -176,8 +189,8 @@ for (const file of files.filter((f) => f.endsWith('.jsx'))) {
 // ---------------------------------------------------------------- 5. punctuation
 for (const file of ['en.json', ...localeFiles]) {
   const text = fs.readFileSync(path.join(LOCALES, file), 'utf8');
-  if (text.includes('—')) problems.push(`${file}: contains an em-dash`);
-  if (text.includes('–')) problems.push(`${file}: contains an en-dash`);
+  if (text.includes('\u2014')) problems.push(`${file}: contains an em-dash`);
+  if (text.includes('\u2013')) problems.push(`${file}: contains an en-dash`);
 }
 
 if (process.argv.includes('--missing')) {

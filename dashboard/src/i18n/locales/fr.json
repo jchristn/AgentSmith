@@ -96,7 +96,7 @@
     "states": {
       "forbiddenTitle": "Vous n'avez pas accès à cette page",
       "forbiddenBody": "Demandez à un administrateur un rôle qui donne accès, ou choisissez une autre page.",
-      "notExposedTitle": "{{feature}} n'est pas encore disponible sur ce serveur",
+      "notExposedTitle": "Ce serveur ne propose pas encore {{feature}}",
       "notExposedBody": "Le tableau de bord est prêt pour {{feature}}, mais ce serveur Hugo n'expose pas la route nécessaire. Cela fonctionnera ici dès que le serveur la fournira ; rien ne doit changer sur cette page.",
       "notExposedEndpoint": "Route appelée par le tableau de bord :"
     },
@@ -363,6 +363,13 @@
       "BuiltIn": "Intégré",
       "Global": "Valeur globale par défaut",
       "Tenant": "Locataire"
+    },
+    "authScheme": {
+      "Password": "Connexion par mot de passe",
+      "AccessKey": "Clé d'accès",
+      "SessionToken": "Jeton de session",
+      "SignedRequest": "Requête signée",
+      "ApiKey": "Clé API administrateur"
     }
   },
   "login": {
@@ -3109,7 +3116,32 @@
       "p1": "Toutes les requêtes API capturées par ce serveur, avec méthode, chemin, statut, durées, en-têtes et corps (tronqués à la taille configurée). Utilisez-le pour déboguer les intégrations et les appels SDK. Cliquez sur une barre du graphique pour limiter le tableau à cette période."
     },
     "diagram": {
-      "label": "Relations entre secrets, ressources, liaisons, profils et surfaces"
+      "label": "Relations entre secrets, ressources, liaisons, profils et surfaces",
+      "secret": {
+        "title": "Secrets",
+        "body": "Identifiants chiffrés",
+        "tip": "Mots de passe, clés et jetons, chiffrés dans Hugo. Les ressources les utilisent par emplacement ; les agents ne les voient jamais."
+      },
+      "resource": {
+        "title": "Ressources",
+        "body": "Systèmes configurés",
+        "tip": "Un système configuré chacune : un hôte SSH, un bucket, une base de données, un service de journaux, avec ses paramètres."
+      },
+      "binding": {
+        "title": "Liaisons",
+        "body": "Alias et mode d'accès",
+        "tip": "Associez une ressource à un profil sous un alias, avec un accès en lecture seule, avec approbation ou en lecture et écriture."
+      },
+      "profile": {
+        "title": "Profil d'agent",
+        "body": "Persona, modèles, limites",
+        "tip": "L'agent : Agent Smith par défaut, avec ses modèles et ses limites. Chaque interface communique avec un profil."
+      },
+      "surfaces": {
+        "title": "Interfaces",
+        "body": "MCP, A2A, REST, chat",
+        "tip": "Claude Code via MCP, d'autres agents via A2A, des scripts via REST et les SDK, et vous dans le chat."
+      }
     },
     "profiles": {
       "title": "Relations entre profils, ressources et surfaces",

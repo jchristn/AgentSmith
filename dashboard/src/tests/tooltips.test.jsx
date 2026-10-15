@@ -31,7 +31,19 @@ beforeAll(async () => {
 
 describe('tooltip coverage for configured pages', () => {
   const t = (...args) => i18n.t(...args);
-  const ctx = { t, i18n, apiClient: {}, tenantId: 'default', principal: { isAdmin: true }, navigate: () => {}, addToast: () => {}, reload: () => {}, setExtraModal: () => {}, setJsonValue: () => {}, lookups: {} };
+  const ctx = {
+    t,
+    i18n,
+    apiClient: {},
+    tenantId: 'default',
+    principal: { isAdmin: true },
+    navigate: () => {},
+    addToast: () => {},
+    reload: () => {},
+    setExtraModal: () => {},
+    setJsonValue: () => {},
+    lookups: {}
+  };
 
   it('gives every column, field, and section a useful tooltip', () => {
     const problems = [];
@@ -51,10 +63,12 @@ describe('tooltip coverage for configured pages', () => {
   it('gives every row action, filter, add button, and explainer real text', () => {
     const problems = [];
     for (const config of configs) {
-      if (config.api.create) check(problems, `${config.id} add`, t(`tips.resources.${config.id}.add`, { defaultValue: t('tips.actions.add') }), t(`resources.${config.id}.add`));
+      if (config.api.create)
+        check(problems, `${config.id} add`, t(`tips.resources.${config.id}.add`, { defaultValue: t('tips.actions.add') }), t(`resources.${config.id}.add`));
       if (config.rowActions) {
         for (const status of ['Pending', 'Approved']) {
-          for (const a of config.rowActions({ id: 'x', name: 'x', status, enabled: true, toolInvocationId: 'tin_1' }, ctx)) check(problems, `${config.id} action ${a.label}`, a.tip, a.label);
+          for (const a of config.rowActions({ id: 'x', name: 'x', status, enabled: true, toolInvocationId: 'tin_1' }, ctx))
+            check(problems, `${config.id} action ${a.label}`, a.tip, a.label);
         }
       }
       for (const f of config.filters || []) check(problems, `${config.id} filter ${f.name}`, t(`tips.filters.${f.name}`), f.label(t));
@@ -72,8 +86,16 @@ describe('tooltip coverage for configured pages', () => {
 
   it('explains every effect, access mode, decision, status, and health badge', () => {
     const problems = [];
-    const groups = { effect: ['Read', 'Write', 'Destructive'], accessMode: ['ReadOnly', 'ReadWriteWithApproval', 'ReadWrite'], approvalStatus: ['Pending', 'Approved', 'Rejected', 'Expired', 'Cancelled'], toolDecision: ['Allowed', 'Denied', 'ApprovalRequired', 'Approved', 'Rejected', 'Expired'], toolStatus: ['Succeeded', 'Failed', 'TimedOut', 'Cancelled'], healthStatus: ['Healthy', 'Degraded', 'Unhealthy', 'Unknown'] };
-    for (const [group, values] of Object.entries(groups)) for (const v of values) check(problems, `enum ${group}.${v}`, enumTip(t, group, v), t(`enums.${group}.${v}`));
+    const groups = {
+      effect: ['Read', 'Write', 'Destructive'],
+      accessMode: ['ReadOnly', 'ReadWriteWithApproval', 'ReadWrite'],
+      approvalStatus: ['Pending', 'Approved', 'Rejected', 'Expired', 'Cancelled'],
+      toolDecision: ['Allowed', 'Denied', 'ApprovalRequired', 'Approved', 'Rejected', 'Expired'],
+      toolStatus: ['Succeeded', 'Failed', 'TimedOut', 'Cancelled'],
+      healthStatus: ['Healthy', 'Degraded', 'Unhealthy', 'Unknown']
+    };
+    for (const [group, values] of Object.entries(groups))
+      for (const v of values) check(problems, `enum ${group}.${v}`, enumTip(t, group, v), t(`enums.${group}.${v}`));
     expect(problems).toEqual([]);
   });
 

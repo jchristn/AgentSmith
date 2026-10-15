@@ -96,7 +96,7 @@
     "states": {
       "forbiddenTitle": "You do not have access to this page",
       "forbiddenBody": "Ask an administrator for a role that grants access, or choose another page.",
-      "notExposedTitle": "{{feature}} is not available on this server yet",
+      "notExposedTitle": "This server does not offer {{feature}} yet",
       "notExposedBody": "The dashboard is ready for {{feature}}, but this Hugo server does not expose the route it needs. It will work here as soon as the server provides it; nothing on this page has to change.",
       "notExposedEndpoint": "Route the dashboard called:"
     },
@@ -363,6 +363,13 @@
       "BuiltIn": "Built-in",
       "Global": "Global default",
       "Tenant": "Tenant"
+    },
+    "authScheme": {
+      "Password": "Password sign-in",
+      "AccessKey": "Access key",
+      "SessionToken": "Session token",
+      "SignedRequest": "Signed request",
+      "ApiKey": "Administrator API key"
     }
   },
   "login": {
@@ -3095,7 +3102,32 @@
       "p1": "Every API request this server captured, with method, path, status, timing, headers, and bodies (truncated to the configured size). Use it to debug integrations and SDK calls. Click a bar in the chart to narrow the table to that time."
     },
     "diagram": {
-      "label": "How secrets, resources, bindings, profiles, and surfaces relate"
+      "label": "How secrets, resources, bindings, profiles, and surfaces relate",
+      "secret": {
+        "title": "Secrets",
+        "body": "Encrypted credentials",
+        "tip": "Passwords, keys, and tokens, encrypted in Hugo. Resources use them by slot; agents never see them."
+      },
+      "resource": {
+        "title": "Resources",
+        "body": "Configured systems",
+        "tip": "One configured system each: an SSH host, a bucket, a database, a log service, with its settings."
+      },
+      "binding": {
+        "title": "Bindings",
+        "body": "Alias and access mode",
+        "tip": "Attach a resource to a profile under an alias, with read only, approval, or read and write access."
+      },
+      "profile": {
+        "title": "Agent profile",
+        "body": "Persona, models, limits",
+        "tip": "The agent: Agent Smith by default, with its models and limits. Every surface talks to a profile."
+      },
+      "surfaces": {
+        "title": "Surfaces",
+        "body": "MCP, A2A, REST, chat",
+        "tip": "Claude Code over MCP, other agents over A2A, scripts over REST and the SDKs, and you in chat."
+      }
     },
     "profiles": {
       "title": "How profiles, resources, and surfaces relate",

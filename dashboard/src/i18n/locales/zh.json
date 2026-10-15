@@ -96,7 +96,7 @@
     "states": {
       "forbiddenTitle": "你无权访问此页面",
       "forbiddenBody": "请向管理员申请可授予访问权限的角色，或选择其他页面。",
-      "notExposedTitle": "此服务器尚不支持{{feature}}",
+      "notExposedTitle": "此服务器尚未提供{{feature}}",
       "notExposedBody": "控制台已支持{{feature}}，但此 Hugo 服务器尚未提供所需的路由。服务器提供后即可在此使用，本页面无需任何更改。",
       "notExposedEndpoint": "控制台调用的路由："
     },
@@ -363,6 +363,13 @@
       "BuiltIn": "内置",
       "Global": "全局默认",
       "Tenant": "租户"
+    },
+    "authScheme": {
+      "Password": "密码登录",
+      "AccessKey": "访问密钥",
+      "SessionToken": "会话令牌",
+      "SignedRequest": "签名请求",
+      "ApiKey": "管理员 API 密钥"
     }
   },
   "login": {
@@ -3109,7 +3116,32 @@
       "p1": "此服务器捕获的每个 API 请求，包括方法、路径、状态、耗时、请求头和请求体（按配置的大小截断）。可用于调试集成和 SDK 调用。点击图表中的柱形可将表格缩小到该时间段。"
     },
     "diagram": {
-      "label": "密钥、资源、绑定、配置文件和接口之间的关系"
+      "label": "密钥、资源、绑定、配置文件和接口之间的关系",
+      "secret": {
+        "title": "密钥",
+        "body": "加密的凭据",
+        "tip": "密码、密钥和令牌，在 Hugo 中加密保存。资源按槽位使用它们，智能体永远看不到。"
+      },
+      "resource": {
+        "title": "资源",
+        "body": "已配置的系统",
+        "tip": "每个资源对应一个已配置的系统：SSH 主机、存储桶、数据库或日志服务，以及其设置。"
+      },
+      "binding": {
+        "title": "绑定",
+        "body": "别名和访问模式",
+        "tip": "以别名将资源绑定到配置，访问模式可为只读、需审批或读写。"
+      },
+      "profile": {
+        "title": "智能体配置",
+        "body": "角色、模型、限制",
+        "tip": "即智能体本身：默认为 Agent Smith，带有其模型和限制。每个接入面都与一个配置对话。"
+      },
+      "surfaces": {
+        "title": "接入面",
+        "body": "MCP、A2A、REST、聊天",
+        "tip": "Claude Code 通过 MCP，其他智能体通过 A2A，脚本通过 REST 和 SDK，而您通过聊天。"
+      }
     },
     "profiles": {
       "title": "配置文件、资源和接口之间的关系",
