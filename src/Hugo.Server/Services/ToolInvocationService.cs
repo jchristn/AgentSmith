@@ -305,7 +305,8 @@ namespace Hugo.Server.Services
         public async Task<ToolInvocationOutcome> AwaitApprovalAsync(RequestContext principal, string tenantId, string approvalId, TimeSpan maxWait, CancellationToken token)
         {
             Approval approval = await _Approvals.ReadAsync(tenantId, approvalId, token).ConfigureAwait(false);
-            if (approval.Status == ApprovalStatusEnum.Pending) await _Approvals.WaitAsync(tenantId, approvalId, maxWait, token).ConfigureAwait(false);
+            // An observer: the original invocation (when still waiting inline) or the unattended runner executes the call.
+            if (approval.Status == ApprovalStatusEnum.Pending) await _Approvals.WaitAsync(tenantId, approvalId, maxWait, token, false).ConfigureAwait(false);
             DateTime deadline = DateTime.UtcNow + maxWait;
             while (true)
             {
@@ -666,6 +667,10 @@ namespace Hugo.Server.Services
 
                 status = !result.IsError ? InvocationStatusEnum.Succeeded : (result.ErrorCode == ConnectorErrorCodes.Timeout ? InvocationStatusEnum.TimedOut : InvocationStatusEnum.Failed);
                 if (result.IsError) HugoTracing.Fail(activity, result.ErrorCode ?? "error");
+                if (result.IsError && result.ErrorCode == ConnectorErrorCodes.HostKeyMismatch)
+                {
+                    await _Contexts.AuditHostKeyMismatchAsync(state.Principal, state.TenantId, record.ResourceId, record.BindingAlias, result.Text).ConfigureAwait(false);
+                }
                 else HugoTracing.Ok(activity);
             }
 

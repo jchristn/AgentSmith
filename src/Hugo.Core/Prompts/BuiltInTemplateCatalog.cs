@@ -32,6 +32,12 @@ namespace Hugo.Core.Prompts
         public static readonly string DefaultPersonaKey = "persona.agent-smith";
 
         /// <summary>
+        /// Keys rendered once per item inside an {{#each}} of the composition root (section.resource renders once per
+        /// binding), so {{this}} and the loop variables are valid at their top level.
+        /// </summary>
+        public static readonly IReadOnlyList<string> LoopScopedKeys = new List<string> { "section.resource" };
+
+        /// <summary>
         /// Number of templates.
         /// </summary>
         public int Count

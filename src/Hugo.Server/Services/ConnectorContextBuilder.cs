@@ -146,6 +146,29 @@ namespace Hugo.Server.Services
             return lease;
         }
 
+        /// <summary>
+        /// Audit a host key mismatch reported by a connector (HostKeyMismatch): the remote host presented a key other
+        /// than the pinned one, which can mean a man-in-the-middle or a rebuilt host. Never throws.
+        /// </summary>
+        /// <param name="principal">Caller, or null.</param>
+        /// <param name="tenantId">Tenant identifier.</param>
+        /// <param name="resourceId">Resource identifier, or null.</param>
+        /// <param name="resourceName">Resource name or alias for the description, or null.</param>
+        /// <param name="message">The connector's (scrubbed) message.</param>
+        /// <returns>Task.</returns>
+        public async Task AuditHostKeyMismatchAsync(RequestContext? principal, string tenantId, string? resourceId, string? resourceName, string? message)
+        {
+            try
+            {
+                string description = "Host key mismatch on resource " + (resourceName ?? resourceId ?? "unknown") + ": " + (message ?? "the host presented a key other than the pinned one") + ".";
+                await _Audit.WriteAsync(principal, AuditEventTypeEnum.HostKeyMismatch, "Resource", resourceId, description, tenantId, CancellationToken.None).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                _Logging.Warn("[Connectors] auditing a host key mismatch failed: " + SecretScrubber.Shared.Scrub(e.Message));
+            }
+        }
+
         #endregion
 
         #region Private-Methods

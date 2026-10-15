@@ -5,6 +5,8 @@ namespace Hugo.Server.Routes
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using System.Text.Json;
+    using System.Text.Json.Nodes;
     using System.Text.Json.Serialization;
     using WatsonWebserver.Core.OpenApi;
 
@@ -63,6 +65,14 @@ namespace Hugo.Server.Routes
             Type? underlying = Nullable.GetUnderlyingType(type);
             if (underlying != null) type = underlying;
 
+            // Raw JSON carriers (tool arguments, render context, structured content) are free-form JSON on the wire, not
+            // objects with the CLR members of JsonElement (valueKind).
+            if (type == typeof(object) || type == typeof(JsonElement) || type == typeof(JsonDocument) || typeof(JsonNode).IsAssignableFrom(type))
+            {
+                OpenApiSchemaMetadata any = new OpenApiSchemaMetadata();
+                any.Description = "Any JSON value.";
+                return any;
+            }
             if (type == typeof(string)) return OpenApiSchemaMetadata.String();
             if (type == typeof(bool)) return OpenApiSchemaMetadata.Boolean();
             if (type == typeof(int) || type == typeof(long) || type == typeof(short)) return OpenApiSchemaMetadata.Integer(type == typeof(long) ? "int64" : "int32");

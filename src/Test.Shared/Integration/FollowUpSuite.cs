@@ -15,6 +15,7 @@ namespace Test.Shared.Integration
     using Hugo.Core.Inference;
     using Hugo.Core.Instructions;
     using Hugo.Core.Models;
+    using Hugo.Core.Prompts;
     using Hugo.Core.Requests;
     using Hugo.Core.Responses;
     using Hugo.Core.Serialization;
@@ -56,6 +57,10 @@ namespace Test.Shared.Integration
                 cases.Add(new TestCaseDescriptor(id, "model-endpoints", "Model listing answers 502 when the provider is unreachable; health history is recorded by validate and bounded; kind, provider, and health filters (" + provider + ")", ct => ModelEndpointsAsync(provider, ct)));
                 cases.Add(new TestCaseDescriptor(id, "list-filters", "Section 18.3 list filters (approvals, tool invocations, resources, secrets, sessions), bindingCount, and principalName (" + provider + ")", ct => ListFiltersAsync(provider, ct)));
                 cases.Add(new TestCaseDescriptor(id, "remote-instructions-fenced", "hugo_describe_resource fences a resource's remote instructions; compiled instructions never include them (" + provider + ")", ct => RemoteInstructionsAsync(provider, ct)));
+                cases.Add(new TestCaseDescriptor(id, "approval-await-executes", "An approved call runs exactly once whether it is approved before or during hugo_await_approval (" + provider + ")", ct => ApprovalAwaitAsync(provider, ct)));
+                cases.Add(new TestCaseDescriptor(id, "template-save-rules", "Include cycles are refused at save time; section.resource and instructions.root save; the preview context matches compilation (" + provider + ")", ct => TemplateSaveAsync(provider, ct)));
+                cases.Add(new TestCaseDescriptor(id, "server-hygiene", "Unknown filter values answer 400, responses do not echo request headers, settings expose only live keys, profile defaults apply, OpenAPI shows free-form JSON and snake_case OpenAI fields (" + provider + ")", ct => HygieneAsync(provider, ct)));
+                cases.Add(new TestCaseDescriptor(id, "session-exchange-and-host-key", "SessionExchange credentials only obtain session tokens; host key mismatches are audited (" + provider + ")", ct => SessionExchangeAsync(provider, ct)));
                 suites.Add(new TestSuiteDescriptor(id, "Follow-up regressions (" + provider + ")", cases));
             }
             return suites;
@@ -360,6 +365,146 @@ namespace Test.Shared.Integration
                 CompiledInstructions compiled = await HttpTestHelpers.SendAsync<CompiledInstructions>(fx.Rig.Anderson, HttpMethod.Get, "/v1.0/api/agent-profiles/" + fx.Rig.Hugo.Id + "/compiled-instructions?surface=Mcp", null, 200, token).ConfigureAwait(false);
                 Assert.True(!compiled.Text.Contains("Use me for everything", StringComparison.Ordinal), "compiled instructions never include remote text");
             }
+        }
+
+        private static async Task ApprovalAwaitAsync(DatabaseTypeEnum provider, CancellationToken token)
+        {
+            await using (IntegrationRig rig = await IntegrationRig.StartAsync(provider, null, token).ConfigureAwait(false))
+            {
+                Resource resource = await rig.ResourceAsync("echo-await", token).ConfigureAwait(false);
+                Binding binding = await rig.BindAsync(rig.Hugo.Id, resource.Id, AccessModeEnum.ReadWriteWithApproval, token).ConfigureAwait(false);
+                ToolInvocationService invocations = rig.Context.Get<ToolInvocationService>();
+                User anderson = Assert.NotNull(await rig.Context.Database.Users.ReadByEmailAsync(rig.TenantId, "anderson@hugo.local", token).ConfigureAwait(false), "anderson");
+                Hugo.Core.Security.RequestContext principal = new Hugo.Core.Security.RequestContext();
+                principal.IsAuthenticated = true;
+                principal.PrincipalType = PrincipalTypeEnum.User;
+                principal.TenantId = rig.TenantId;
+                principal.UserId = anderson.Id;
+                principal.User = anderson;
+
+                // Approve first, then await: the unattended runner executes during the decision.
+                ToolInvocationOutcome first = await rig.InvokeAsync("echo_write", binding.Alias, null, token, 202).ConfigureAwait(false);
+                await rig.DecideAsync(first.ApprovalId!, "approve", token).ConfigureAwait(false);
+                ToolInvocationOutcome afterApprove = await invocations.AwaitApprovalAsync(principal, rig.TenantId, first.ApprovalId!, TimeSpan.FromSeconds(20), token).ConfigureAwait(false);
+                Assert.Equal(InvocationStatusEnum.Succeeded, afterApprove.Status, "approve before await: " + afterApprove.DecisionCode);
+
+                // Await first, approve while it waits: the waiter is only an observer, so the runner still executes.
+                ToolInvocationOutcome second = await rig.InvokeAsync("echo_write", binding.Alias, null, token, 202).ConfigureAwait(false);
+                Task<ToolInvocationOutcome> waiting = invocations.AwaitApprovalAsync(principal, rig.TenantId, second.ApprovalId!, TimeSpan.FromSeconds(30), token);
+                await Task.Delay(500, token).ConfigureAwait(false);
+                Assert.True(!waiting.IsCompleted, "the await is still waiting before the decision");
+                await rig.DecideAsync(second.ApprovalId!, "approve", token).ConfigureAwait(false);
+                ToolInvocationOutcome duringAwait = await waiting.ConfigureAwait(false);
+                Assert.Equal(InvocationStatusEnum.Succeeded, duringAwait.Status, "approve during await: " + duringAwait.DecisionCode + " " + duringAwait.Result?.Text);
+                ToolInvocation record = await rig.RecordAsync(second.InvocationId!, token).ConfigureAwait(false);
+                Assert.Equal(InvocationStatusEnum.Succeeded, record.Status, "the invocation record is complete");
+                Assert.Equal(1, (await rig.Context.Database.ToolInvocations.EnumerateAsync(rig.TenantId, new EnumerationQuery { MaxResults = 100 }, new ToolInvocationFilter { ToolName = "echo_write" }, token).ConfigureAwait(false)).Objects.Count(i => i.Id == second.InvocationId && i.Status == InvocationStatusEnum.Succeeded), "executed exactly once");
+            }
+        }
+
+        private static async Task TemplateSaveAsync(DatabaseTypeEnum provider, CancellationToken token)
+        {
+            await using (IntegrationRig rig = await IntegrationRig.StartAsync(provider, null, token).ConfigureAwait(false))
+            {
+                string p = "/v1.0/api/prompt-templates/";
+                TestResponse self = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Put, p + "system.tool-usage?layer=Tenant", new { content = "Use tools.\n{{> system.tool-usage}}" }, token).ConfigureAwait(false);
+                Assert.Equal(400, self.StatusCode, "a template including itself: " + self.Body);
+                Assert.True(Message(self).Contains("system.tool-usage > system.tool-usage", StringComparison.Ordinal), "the cycle is named: " + self.Body);
+
+                await HttpTestHelpers.SendAsync<PromptTemplateView>(rig.Anderson, HttpMethod.Put, p + "custom.alpha?layer=Tenant", new { content = "Alpha {{> custom.beta}}" }, 200, token).ConfigureAwait(false);
+                TestResponse indirect = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Put, p + "custom.beta?layer=Tenant", new { content = "Beta {{> custom.alpha}}" }, token).ConfigureAwait(false);
+                Assert.True(indirect.StatusCode == 400 && Message(indirect).Contains("custom.beta > custom.alpha > custom.beta", StringComparison.Ordinal), "an indirect cycle: " + indirect.Body);
+
+                TestResponse classic = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Post, "/v1.0/api/tenants/" + rig.TenantId + "/prompt-templates", new { name = "selfref", content = "Me {{> selfref}}" }, token).ConfigureAwait(false);
+                Assert.Equal(400, classic.StatusCode, "the classic template route refuses a cycle: " + classic.Body);
+
+                foreach (string key in new[] { "section.resource", "instructions.root" })
+                {
+                    BuiltInTemplate builtIn = await HttpTestHelpers.SendAsync<BuiltInTemplate>(rig.Anderson, HttpMethod.Get, p + key + "/builtin", null, 200, token).ConfigureAwait(false);
+                    TestResponse saved = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Put, p + key + "?layer=Tenant", new { content = builtIn.Content + "\n" }, token).ConfigureAwait(false);
+                    Assert.Equal(200, saved.StatusCode, key + " saves with the variables the compiler provides: " + saved.Body);
+                }
+
+                PromptRenderResponse preview = await HttpTestHelpers.SendAsync<PromptRenderResponse>(rig.Anderson, HttpMethod.Post, p + "render", new { content = "{{surface.name}}|{{#if surface.isChat}}chat{{/if}}|{{now.utc}}|{{#if compactInstructions}}compact{{/if}}" }, 200, token).ConfigureAwait(false);
+                Assert.Equal("Chat|chat|" + DateTime.UtcNow.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) + "|", preview.Rendered.Trim(), "the preview context matches compilation");
+            }
+        }
+
+        private static async Task HygieneAsync(DatabaseTypeEnum provider, CancellationToken token)
+        {
+            await using (IntegrationRig rig = await IntegrationRig.StartAsync(provider, s =>
+            {
+                s.Agent.DefaultMaxIterations = 7;
+                s.Agent.DefaultMaxToolCallsPerTurn = 9;
+            }, token).ConfigureAwait(false))
+            {
+                TestResponse bogus = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Get, "/v1.0/api/approvals?status=Bogus", null, token).ConfigureAwait(false);
+                Assert.True(bogus.StatusCode == 400 && bogus.Body.Contains("Pending", StringComparison.Ordinal) && bogus.Body.Contains("status", StringComparison.Ordinal), "an unknown filter value is refused with the allowed values: " + bogus.Body);
+                Assert.Equal(400, (await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Get, "/v1.0/api/tool-invocations?effect=Sideways", null, token).ConfigureAwait(false)).StatusCode, "unknown effect");
+                Assert.Equal(400, (await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Get, "/v1.0/api/secrets?kind=99", null, token).ConfigureAwait(false)).StatusCode, "a numeric enum value is refused");
+
+                using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "/v1.0/api/server-info"))
+                {
+                    request.Headers.Add("Accept-Language", "de");
+                    request.Headers.Add("Cache-Control", "no-cache");
+                    using (HttpResponseMessage response = await rig.Anderson.SendAsync(request, token).ConfigureAwait(false))
+                    {
+                        foreach (string header in new[] { "Accept", "Accept-Language", "Accept-Charset", "Host", "Cache-Control" })
+                        {
+                            Assert.True(!response.Headers.Contains(header), "the response does not echo " + header);
+                        }
+                        Assert.True(response.Headers.Contains("Access-Control-Allow-Origin") && response.Headers.Contains("x-request-id"), "CORS and x-request-id headers are present");
+                    }
+                }
+
+                SettingsView settings = await HttpTestHelpers.SendAsync<SettingsView>(rig.Host.AdminClient, HttpMethod.Get, "/v1.0/api/settings", null, 200, token).ConfigureAwait(false);
+                Assert.True(settings.Fields.Any(f => f.Path == "Connectors.McpAllowStdio"), "McpAllowStdio is exposed");
+                Assert.True(!settings.Fields.Any(f => f.Path == "Connectors.AllowStdioMcp" || f.Path == "Connectors.HealthSweepMinutes"), "dead settings are gone");
+                Assert.Equal(600000L, settings.Fields.First(f => f.Path == "Auth.PasswordHashIterations").Minimum ?? 0, "advertised iteration minimum");
+
+                AgentProfile defaults = await HttpTestHelpers.SendAsync<AgentProfile>(rig.Anderson, HttpMethod.Post, "/v1.0/api/agent-profiles", new { name = "Defaults" }, 201, token).ConfigureAwait(false);
+                Assert.True(defaults.MaxIterations == 7 && defaults.MaxToolCallsPerTurn == 9, "new profiles take Agent.DefaultMaxIterations and Agent.DefaultMaxToolCallsPerTurn: " + defaults.MaxIterations + "/" + defaults.MaxToolCallsPerTurn);
+                AgentProfile explicitLimits = await HttpTestHelpers.SendAsync<AgentProfile>(rig.Anderson, HttpMethod.Post, "/v1.0/api/agent-profiles", new { name = "Explicit", maxIterations = 3 }, 201, token).ConfigureAwait(false);
+                Assert.Equal(3, explicitLimits.MaxIterations, "a request value wins over the default");
+
+                TestResponse openApi = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Get, "/openapi.json", null, token).ConfigureAwait(false);
+                // A JsonElement described by reflection shows its valueKind enum (Undefined, Object, Array, ...).
+                int jsonElement = openApi.Body.IndexOf("\"Undefined\"", StringComparison.Ordinal);
+                Assert.True(jsonElement < 0, "JSON values are free-form, not JsonElement members: " + (jsonElement < 0 ? String.Empty : openApi.Body.Substring(Math.Max(0, jsonElement - 300), 400)));
+                Assert.True(openApi.Body.Contains("\"stream_options\"", StringComparison.Ordinal) && openApi.Body.Contains("\"max_tokens\"", StringComparison.Ordinal) && !openApi.Body.Contains("\"streamOptions\"", StringComparison.Ordinal) && !openApi.Body.Contains("\"maxTokens\"", StringComparison.Ordinal), "OpenAI-compatible fields are snake_case");
+            }
+        }
+
+        private static async Task SessionExchangeAsync(DatabaseTypeEnum provider, CancellationToken token)
+        {
+            await using (IntegrationRig rig = await IntegrationRig.StartAsync(provider, null, token).ConfigureAwait(false))
+            {
+                User anderson = Assert.NotNull(await rig.Context.Database.Users.ReadByEmailAsync(rig.TenantId, "anderson@hugo.local", token).ConfigureAwait(false), "anderson");
+                CredentialCreateResponse exchange = await HttpTestHelpers.SendAsync<CredentialCreateResponse>(rig.Anderson, HttpMethod.Post, "/v1.0/api/tenants/" + rig.TenantId + "/credentials", new CredentialRequest { Name = "exchange-only", UserId = anderson.Id, AuthMode = CredentialAuthModeEnum.SessionExchange, RoleName = "Operator" }, 201, token).ConfigureAwait(false);
+                using (HttpClient direct = rig.Host.CredentialClient(exchange.AccessKey, exchange.SecretKey))
+                {
+                    Assert.Equal(401, (await HttpTestHelpers.SendAsync(direct, HttpMethod.Get, "/v1.0/api/approvals", null, token).ConfigureAwait(false)).StatusCode, "SessionExchange keys do not authenticate other routes");
+                }
+                using (HttpClient anonymous = new HttpClient())
+                {
+                    anonymous.BaseAddress = new Uri(rig.Host.BaseUrl);
+                    TokenResponse issued = await HttpTestHelpers.SendAsync<TokenResponse>(anonymous, HttpMethod.Post, "/v1.0/token", new { accessKey = exchange.AccessKey, secretKey = exchange.SecretKey }, 200, token).ConfigureAwait(false);
+                    anonymous.DefaultRequestHeaders.Add("Authorization", "Bearer " + issued.Token);
+                    Assert.Equal(200, (await HttpTestHelpers.SendAsync(anonymous, HttpMethod.Get, "/v1.0/api/approvals", null, token).ConfigureAwait(false)).StatusCode, "the exchanged session token works");
+                }
+
+                Resource mismatch = await rig.ResourceAsync("echo-hostkey", token, "echo", new Dictionary<string, object> { { "mode", "hostKeyMismatch" } }).ConfigureAwait(false);
+                ResourceTestResponse tested = await HttpTestHelpers.SendAsync<ResourceTestResponse>(rig.Anderson, HttpMethod.Post, "/v1.0/api/resources/" + mismatch.Id + "/test", null, 200, token).ConfigureAwait(false);
+                Assert.True(!tested.Success && tested.ErrorCode == ConnectorErrorCodes.HostKeyMismatch, "the test reports the mismatch");
+                List<AuditRecord> audited = await rig.AuditAsync(AuditEventTypeEnum.HostKeyMismatch, token).ConfigureAwait(false);
+                Assert.True(audited.Any(r => r.ResourceId == mismatch.Id && (r.Description ?? String.Empty).Contains("echo-hostkey", StringComparison.Ordinal)), "HostKeyMismatch is audited");
+            }
+        }
+
+        private static string Message(TestResponse response)
+        {
+            ErrorResponse? error = Serializer.Deserialize<ErrorResponse>(response.Body);
+            return error?.Message ?? String.Empty;
         }
 
         private static async Task<EnumerationResult<T>> Page<T>(IntegrationRig rig, string path, CancellationToken token) where T : class

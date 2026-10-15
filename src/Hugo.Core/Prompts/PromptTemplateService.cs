@@ -248,9 +248,18 @@ namespace Hugo.Core.Prompts
             if (layer == PromptLayerEnum.BuiltIn) throw Invalid("layer", "The Built-in layer cannot be edited; save to the Global or Tenant layer.");
             if (content == null || content.Trim().Length == 0) throw Invalid("content", "Content is required.");
             if (content.Length > 262144) throw Invalid("content", "Content is longer than 262144 characters.");
-            TemplateAnalysis analysis = TemplateAnalyzer.Analyze(content, key, false);
+            TemplateAnalysis analysis = TemplateAnalyzer.Analyze(content, key, false, BuiltInTemplateCatalog.LoopScopedKeys.Contains(key));
             if (!analysis.Valid) throw Invalid("content", "The template is invalid: " + String.Join(" ", analysis.Errors));
             string normalized = content.Replace("\r\n", "\n");
+
+            // An include cycle (a template that includes itself, directly or through others) is refused at save time.
+            Dictionary<string, ResolvedPromptTemplate> visible = await ResolveAllAsync(layer == PromptLayerEnum.Tenant ? tenantId : null, token).ConfigureAwait(false);
+            string? cycle = await TemplateIncludeGraph.FindCycleAsync(key, normalized, (name, ct) =>
+            {
+                string resolvedKey = name == "persona" && !visible.ContainsKey(name) ? BuiltInTemplateCatalog.DefaultPersonaKey : name;
+                return Task.FromResult(visible.TryGetValue(resolvedKey, out ResolvedPromptTemplate? found) ? found.Content : null);
+            }, token).ConfigureAwait(false);
+            if (cycle != null) throw Invalid("content", "The template includes itself: " + cycle + ". Remove the include that closes the cycle.");
 
             PromptTemplate? row = await LayerRowAsync(layer == PromptLayerEnum.Tenant ? tenantId : null, key, token).ConfigureAwait(false);
             string? baseHash = await LowerHashAsync(layer, tenantId, key, token).ConfigureAwait(false);

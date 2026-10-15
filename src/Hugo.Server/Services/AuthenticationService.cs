@@ -176,6 +176,13 @@ namespace Hugo.Server.Services
                     return await FailAsync(ctx, AuthSchemeEnum.AccessKeySecret, AuthResultEnum.Invalid, "Tenant header does not match the credential tenant.", token).ConfigureAwait(false);
                 }
 
+                if (credential.AuthMode == CredentialAuthModeEnum.SessionExchange)
+                {
+                    // A SessionExchange credential only obtains a session token (POST /v1.0/token, which reads the keys
+                    // itself); it cannot authenticate other requests directly with its keys.
+                    return await FailAsync(ctx, String.IsNullOrEmpty(signature) ? AuthSchemeEnum.AccessKeySecret : AuthSchemeEnum.AccessKeySignature, AuthResultEnum.Invalid, "The credential can only be exchanged for a session token at POST /v1.0/token; send that token as a bearer token.", token).ConfigureAwait(false);
+                }
+
                 string storedSecret = DecryptCredentialSecret(credential);
                 if (!String.IsNullOrEmpty(signature))
                 {

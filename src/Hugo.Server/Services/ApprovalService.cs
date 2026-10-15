@@ -100,6 +100,7 @@ namespace Hugo.Server.Services
         private readonly EventHub? _Events;
         private readonly LoggingModule _Logging;
         private readonly ConcurrentDictionary<string, TaskCompletionSource<ApprovalStatusEnum>> _Waiters = new ConcurrentDictionary<string, TaskCompletionSource<ApprovalStatusEnum>>(StringComparer.Ordinal);
+        private readonly ConcurrentDictionary<string, ConcurrentDictionary<TaskCompletionSource<ApprovalStatusEnum>, byte>> _Observers = new ConcurrentDictionary<string, ConcurrentDictionary<TaskCompletionSource<ApprovalStatusEnum>, byte>>(StringComparer.Ordinal);
         private Func<int> _ExpirySeconds = () => 900;
         private Func<bool> _AllowSelfApproval = () => true;
         private int _SweepIntervalSeconds = 5;
@@ -161,10 +162,11 @@ namespace Hugo.Server.Services
         }
 
         /// <summary>
-        /// Whether a caller in this process is waiting for an approval.
+        /// Whether a caller in this process is waiting for an approval and will run the approved call itself.
+        /// Observers (hugo_await_approval, REST polling) do not count.
         /// </summary>
         /// <param name="approvalId">Approval identifier.</param>
-        /// <returns>True when waiting.</returns>
+        /// <returns>True when an executing waiter is present.</returns>
         public bool HasWaiter(string approvalId)
         {
             return !String.IsNullOrEmpty(approvalId) && _Waiters.ContainsKey(approvalId);
@@ -177,12 +179,16 @@ namespace Hugo.Server.Services
         /// <param name="approvalId">Approval identifier.</param>
         /// <param name="maxWait">Longest wait, or null to wait until the decision or expiry.</param>
         /// <param name="token">Cancellation token.</param>
+        /// <param name="executes">True when the caller runs the approved call itself (the original invocation waiting
+        /// inline), so the unattended runner must not; false for observers that only want to know the outcome
+        /// (hugo_await_approval), in which case the unattended runner executes the call. Default true.</param>
         /// <returns>The status: Pending when maxWait passed first.</returns>
         /// <exception cref="OperationCanceledException">Thrown when cancelled.</exception>
-        public async Task<ApprovalStatusEnum> WaitAsync(string tenantId, string approvalId, TimeSpan? maxWait, CancellationToken token)
+        public async Task<ApprovalStatusEnum> WaitAsync(string tenantId, string approvalId, TimeSpan? maxWait, CancellationToken token, bool executes = true)
         {
             TaskCompletionSource<ApprovalStatusEnum> signal = new TaskCompletionSource<ApprovalStatusEnum>(TaskCreationOptions.RunContinuationsAsynchronously);
-            _Waiters[approvalId] = signal;
+            if (executes) _Waiters[approvalId] = signal;
+            else _Observers.GetOrAdd(approvalId, _ => new ConcurrentDictionary<TaskCompletionSource<ApprovalStatusEnum>, byte>())[signal] = 0;
             DateTime deadline = maxWait.HasValue ? DateTime.UtcNow + maxWait.Value : DateTime.MaxValue;
             try
             {
@@ -207,7 +213,12 @@ namespace Hugo.Server.Services
             }
             finally
             {
-                _Waiters.TryRemove(new KeyValuePair<string, TaskCompletionSource<ApprovalStatusEnum>>(approvalId, signal));
+                if (executes) _Waiters.TryRemove(new KeyValuePair<string, TaskCompletionSource<ApprovalStatusEnum>>(approvalId, signal));
+                else if (_Observers.TryGetValue(approvalId, out ConcurrentDictionary<TaskCompletionSource<ApprovalStatusEnum>, byte>? observers))
+                {
+                    observers.TryRemove(signal, out byte _);
+                    if (observers.IsEmpty) _Observers.TryRemove(new KeyValuePair<string, ConcurrentDictionary<TaskCompletionSource<ApprovalStatusEnum>, byte>>(approvalId, observers));
+                }
             }
         }
 
@@ -356,6 +367,12 @@ namespace Hugo.Server.Services
             HugoMetrics.Count(HugoMetricCatalog.Approvals, 1, HugoMetrics.Tags("outcome", decided.Status.ToString().ToLowerInvariant()));
             HugoMetrics.Observe(HugoMetricCatalog.ApprovalWait, Math.Max(0, ((decided.DecidedUtc ?? DateTime.UtcNow) - decided.CreatedUtc).TotalSeconds), "effect", decided.Effect.ToString());
             _Events?.Publish("approval.resolved", decided.TenantId, Card(decided));
+            if (_Observers.TryGetValue(decided.Id, out ConcurrentDictionary<TaskCompletionSource<ApprovalStatusEnum>, byte>? observers))
+            {
+                foreach (TaskCompletionSource<ApprovalStatusEnum> observer in observers.Keys) observer.TrySetResult(decided.Status);
+            }
+            // Exactly one party runs an approved call: the original invocation when it is still waiting inline,
+            // otherwise the unattended runner. Observers never run it.
             if (_Waiters.TryGetValue(decided.Id, out TaskCompletionSource<ApprovalStatusEnum>? waiter))
             {
                 waiter.TrySetResult(decided.Status);

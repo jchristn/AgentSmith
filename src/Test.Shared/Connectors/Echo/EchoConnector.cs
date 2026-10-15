@@ -43,7 +43,7 @@ namespace Test.Shared.Connectors.Echo
             d.DefaultInstructions = "Echo resources repeat what you send. Use echo_read for reads.";
             d.SettingsSchema.Add(new SettingDescriptor("greeting", SettingValueKindEnum.String, "Greeting") { DefaultValue = "hello", ShowInSummary = true });
             d.SettingsSchema.Add(new SettingDescriptor("hostKeyFingerprint", SettingValueKindEnum.String, "Pinned host key"));
-            d.SettingsSchema.Add(new SettingDescriptor("mode", SettingValueKindEnum.Enum, "Mode") { AllowedValues = new List<string> { "normal", "invalid" }, DefaultValue = "normal" });
+            d.SettingsSchema.Add(new SettingDescriptor("mode", SettingValueKindEnum.Enum, "Mode") { AllowedValues = new List<string> { "normal", "invalid", "hostKeyMismatch" }, DefaultValue = "normal" });
             d.SettingsSchema.Add(new SettingDescriptor("remoteInstructions", SettingValueKindEnum.String, "Remote instructions (plays a third party's own guidance)"));
             d.SecretSlots.Add(new SecretSlotDescriptor("token", "Token", SecretKindEnum.ApiToken, SecretKindEnum.Generic));
             Descriptor = d;
@@ -76,6 +76,7 @@ namespace Test.Shared.Connectors.Echo
         public async Task<ConnectorHealthResult> TestConnectionAsync(ConnectorResourceContext resource, CancellationToken token = default)
         {
             string? greeting = resource.Settings.GetString("greeting");
+            if (resource.Settings.GetString("mode") == "hostKeyMismatch") return ConnectorHealthResult.Fail(ConnectorErrorCodes.HostKeyMismatch, "The host presented SHA256:other, not the pinned SHA256:echo-pinned.", 1);
             if (greeting == "slow") await Task.Delay(TimeSpan.FromMinutes(5), token).ConfigureAwait(false);
             if (String.IsNullOrEmpty(resource.Settings.GetString("hostKeyFingerprint"))) resource.LearnSetting?.Invoke("hostKeyFingerprint", "SHA256:echo-pinned");
             string? secret = resource.Secrets.Get("token", "token");

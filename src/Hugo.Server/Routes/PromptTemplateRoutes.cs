@@ -77,6 +77,7 @@ namespace Hugo.Server.Routes
             string tenantId = RouteHelpers.Tenant(http);
             PromptTemplateRequest request = RouteHelpers.RequiredBody<PromptTemplateRequest>(http);
             ConfigurationValidator.PromptTemplate(request.Name, request.Content);
+            await EnsureNoCycleAsync(tenantId, request.Name, request.Content, http).ConfigureAwait(false);
             await EnsureNameAsync(tenantId, request.Name, null, http).ConfigureAwait(false);
 
             PromptTemplate template = new PromptTemplate();
@@ -101,6 +102,7 @@ namespace Hugo.Server.Routes
             ConfigurationSupport.EnsureEditable(existing.TenantId, existing.IsBuiltIn, existing.IsProtected, tenantId, "Prompt template " + existing.Name);
             PromptTemplateRequest request = RouteHelpers.RequiredBody<PromptTemplateRequest>(http);
             ConfigurationValidator.PromptTemplate(request.Name, request.Content);
+            await EnsureNoCycleAsync(tenantId, request.Name, request.Content, http).ConfigureAwait(false);
             await EnsureNameAsync(tenantId, request.Name, existing.Id, http).ConfigureAwait(false);
 
             bool contentChanged = existing.Content != request.Content;
@@ -264,6 +266,16 @@ namespace Hugo.Server.Routes
             if (!Int32.TryParse(RouteHelpers.Param(http, "version"), out int number)) throw new ArgumentException("The version must be an integer.");
             PromptTemplateVersion? version = await _Server.Database.PromptTemplateVersions.ReadByVersionAsync(template.Id, number, http.Token).ConfigureAwait(false);
             return version ?? throw new NotFoundException("Version " + number + " of prompt template " + template.Name + " not found.");
+        }
+
+        private async Task EnsureNoCycleAsync(string tenantId, string name, string? content, HttpContextBase http)
+        {
+            string? cycle = await TemplateIncludeGraph.FindCycleAsync(name, content, async (include, ct) =>
+            {
+                PromptTemplate? found = await _Server.Database.PromptTemplates.ReadByNameAsync(tenantId, include, ct).ConfigureAwait(false);
+                return found?.Content;
+            }, http.Token).ConfigureAwait(false);
+            if (cycle != null) throw new ValidationException("The prompt template includes itself: " + cycle + ". Remove the include that closes the cycle.", new Dictionary<string, string> { { "content", "Include cycle: " + cycle + "." } });
         }
 
         private async Task EnsureNameAsync(string tenantId, string name, string? currentId, HttpContextBase http)

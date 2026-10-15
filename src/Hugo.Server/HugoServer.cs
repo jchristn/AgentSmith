@@ -142,6 +142,10 @@ namespace Hugo.Server
             settings.Hostname = context.Settings.Rest.Hostname;
             settings.Port = context.Settings.Rest.Port;
             settings.Ssl.Enable = context.Settings.Rest.Ssl;
+            // Watson's default response headers echo request-style headers (Accept, Accept-Language, Accept-Charset,
+            // Cache-Control, Host) and generic CORS values. Hugo sends its own CORS headers on every response (AddCors),
+            // so no defaults are added.
+            settings.Headers.DefaultHeaders = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             // Watson's built-in HTTP telemetry (http.server.*, one server span per request named "{method} {route}") is
             // the foundation; the Radiant pipeline subscribes to the Watson meter and source (P1.38).
             settings.Telemetry.Enable = true;
@@ -149,6 +153,8 @@ namespace Hugo.Server
             settings.Telemetry.EnableTraces = true;
             settings.Telemetry.PropagateContext = true;
             _Server = new Webserver(settings, DefaultRouteAsync);
+            // The Watson constructor adds a Host default header; a response has no Host header.
+            _Server.Settings.Headers.DefaultHeaders.Remove("Host");
             context.Register(_Server);
             if (context.TryGet<EventHub>() == null) context.Register(new EventHub());
 
@@ -336,6 +342,7 @@ namespace Hugo.Server
                 context.Request.Headers[Constants.HeaderRequestId] = requestId;
             }
             context.Response.Headers[Constants.HeaderRequestId] = requestId;
+            AddCors(context);
             return Task.CompletedTask;
         }
 
@@ -343,7 +350,6 @@ namespace Hugo.Server
         {
             _InFlight.TryRemove(context.Request.Guid, out DateTime _);
             context.Timestamp.End = DateTime.UtcNow;
-            AddCors(context);
 
             IRequestObserver? observer = _Context.TryGet<IRequestObserver>();
             if (observer != null && !String.Equals(context.Request.Url.RawWithoutQuery, "/metrics", StringComparison.Ordinal))

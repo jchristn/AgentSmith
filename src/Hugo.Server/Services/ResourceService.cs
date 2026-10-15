@@ -589,6 +589,7 @@ namespace Hugo.Server.Services
                     response.Success = health.Success;
                     response.Message = lease.Scrubber.Scrub(health.Message) ?? String.Empty;
                     response.ErrorCode = health.ErrorCode;
+                    if (!health.Success && health.ErrorCode == ConnectorErrorCodes.HostKeyMismatch) await _Contexts.AuditHostKeyMismatchAsync(ctx, resource.TenantId, persisted ? resource.Id : null, resource.Name, response.Message).ConfigureAwait(false);
                     response.LatencyMs = health.LatencyMs > 0 ? health.LatencyMs : Stopwatch.GetElapsedTime(started).TotalMilliseconds;
                     foreach (KeyValuePair<string, string> detail in health.Details ?? new Dictionary<string, string>()) response.Details[detail.Key] = lease.Scrubber.Scrub(detail.Value) ?? String.Empty;
                     foreach (KeyValuePair<string, string> learned in lease.LearnedSettings) response.LearnedSettings[learned.Key] = learned.Value;
@@ -606,6 +607,7 @@ namespace Hugo.Server.Services
                     response.ErrorCode = e.Code;
                     response.Message = (lease?.Scrubber ?? SecretScrubber.Shared).Scrub(e.Message) ?? String.Empty;
                     response.LatencyMs = Stopwatch.GetElapsedTime(started).TotalMilliseconds;
+                    if (e.Code == ConnectorErrorCodes.HostKeyMismatch) await _Contexts.AuditHostKeyMismatchAsync(ctx, resource.TenantId, persisted ? resource.Id : null, resource.Name, response.Message).ConfigureAwait(false);
                 }
                 catch (Exception e) when (e is not OperationCanceledException)
                 {
