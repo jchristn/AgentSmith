@@ -7,6 +7,7 @@ import { Badge, EffectBadge, EnumBadge } from '../components/StatusBadge';
 import NamedId from '../components/NamedId';
 import CodeBlock from '../components/CodeBlock';
 import ResultModal from '../components/ResultModal';
+import ModelValidationView, { ModelDraftValidator } from '../components/ModelValidationView';
 import RevealSecretModal from '../components/RevealSecretModal';
 import TryToolModal from '../components/TryToolModal';
 import ApprovalDecideModal from '../components/ApprovalDecideModal';
@@ -700,6 +701,30 @@ function ExpiryCell({ t, i18n, value }) {
 
 // ---------------------------------------------------------------- model endpoints
 
+/** A model endpoint form as the create, update, and draft validation request body. */
+function modelEndpointBody(d) {
+  return {
+    name: d.name,
+    kind: d.kind,
+    provider: d.provider,
+    baseUrl: d.baseUrl || null,
+    model: d.model,
+    apiKeySecretId: d.apiKeySecretId || null,
+    apiKeySecretField: d.apiKeySecretField || null,
+    region: d.region || null,
+    deploymentName: d.deploymentName || null,
+    apiVersion: d.apiVersion || null,
+    contextWindowTokens: d.contextWindowTokens ?? null,
+    maxOutputTokens: d.maxOutputTokens ?? null,
+    supportsTools: !!d.supportsTools,
+    supportsStreaming: !!d.supportsStreaming,
+    embeddingDimensions: d.embeddingDimensions ?? null,
+    maxConcurrency: d.maxConcurrency ?? null,
+    timeoutSeconds: d.timeoutSeconds ?? null,
+    maxRetries: d.maxRetries ?? null
+  };
+}
+
 export const modelsConfig = {
   id: 'models',
   explainer: 'models',
@@ -749,7 +774,7 @@ export const modelsConfig = {
     col('models', t, 'lastHealthUtc', (r) => timeCell(r.lastHealthUtc, i18n, t('common.generic.never'))),
     idCol('models', t)
   ],
-  fields: (d, { t, options }) => [
+  fields: (d, { t, options, apiClient }) => [
     section('models', t, 'endpoint'),
     field('models', t, 'name', 'text', { required: true }),
     field('models', t, 'kind', 'select', { required: true, options: enumOptions(t, 'modelKind') }),
@@ -765,7 +790,7 @@ export const modelsConfig = {
             name: 'apiKey',
             label: t('resources.models.fields.apiKeySecretId'),
             help: t('tips.resources.models.apiKeySecretId'),
-            acceptedKinds: ['ApiToken', 'AccessKeyPair', 'ServiceAccountJson', 'Generic']
+            acceptedKinds: ['ApiToken', 'BearerToken', 'AccessKeyPair', 'ServiceAccountJson', 'Generic']
           }}
           secrets={options.secrets || []}
           value={{ secretId: data.apiKeySecretId }}
@@ -787,7 +812,15 @@ export const modelsConfig = {
     section('models', t, 'limits'),
     field('models', t, 'maxConcurrency', 'number', { min: 1, max: 256 }),
     field('models', t, 'timeoutSeconds', 'number', { min: 1, max: 3600 }),
-    field('models', t, 'maxRetries', 'number', { min: 0, max: 10 })
+    field('models', t, 'maxRetries', 'number', { min: 0, max: 10 }),
+    section('models', t, 'validation'),
+    {
+      name: 'validateDraft',
+      type: 'custom',
+      render: (data, { disabled }) => (
+        <ModelDraftValidator apiClient={apiClient} data={data} toBody={modelEndpointBody} disabled={disabled} />
+      )
+    }
   ],
   toForm: (r) => ({
     ...r,
@@ -797,26 +830,7 @@ export const modelsConfig = {
     deploymentName: r.deploymentName || '',
     apiVersion: r.apiVersion || ''
   }),
-  toBody: (d) => ({
-    name: d.name,
-    kind: d.kind,
-    provider: d.provider,
-    baseUrl: d.baseUrl || null,
-    model: d.model,
-    apiKeySecretId: d.apiKeySecretId || null,
-    apiKeySecretField: d.apiKeySecretField || null,
-    region: d.region || null,
-    deploymentName: d.deploymentName || null,
-    apiVersion: d.apiVersion || null,
-    contextWindowTokens: d.contextWindowTokens ?? null,
-    maxOutputTokens: d.maxOutputTokens ?? null,
-    supportsTools: !!d.supportsTools,
-    supportsStreaming: !!d.supportsStreaming,
-    embeddingDimensions: d.embeddingDimensions ?? null,
-    maxConcurrency: d.maxConcurrency ?? null,
-    timeoutSeconds: d.timeoutSeconds ?? null,
-    maxRetries: d.maxRetries ?? null
-  }),
+  toBody: (d) => modelEndpointBody(d),
   validate: (d, t) => {
     const e = {};
     if (!d.name) e.name = t('common.errors.required');
@@ -833,6 +847,7 @@ export const modelsConfig = {
           <ResultModal
             title={ctx.t('resources.models.actions.validateTitle', { name: r.name })}
             // The server records every validation in the endpoint's health history; open history panels re-read it.
+            renderResult={(x) => <ModelValidationView result={x} />}
             load={() =>
               ctx.apiClient.validateModelEndpoint(r.id).then(
                 (result) => notifyValidated(r.id, result),

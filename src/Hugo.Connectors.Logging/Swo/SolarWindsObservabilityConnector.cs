@@ -178,7 +178,7 @@ namespace Hugo.Connectors.Logging
                 SettingsSchema = schema,
                 SecretSlots = new List<SecretSlotDescriptor>
                 {
-                    ApiTokenSlot.Descriptor("SolarWinds Observability API token (Settings, API Tokens). The public API requires a full-access token; ingestion tokens are rejected.")
+                    ApiTokenSlot.Descriptor("SolarWinds Observability API token (Settings, API Tokens), sent as Authorization: Bearer. The public API requires a full-access token; ingestion tokens are rejected.", true)
                 },
                 DefaultInstructionsKey = "connector." + TypeName + ".instructions",
                 DefaultInstructions = EmbeddedText.Read(typeof(SolarWindsObservabilityConnector).Assembly, "connector.solarwinds-observability.instructions.md"),

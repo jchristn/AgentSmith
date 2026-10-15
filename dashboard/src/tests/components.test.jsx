@@ -17,6 +17,7 @@ import SecretSlotPicker, { SecretValuesForm } from '../components/SecretField';
 import RevealSecretModal, { needsReauth } from '../components/RevealSecretModal';
 import { UnavailableState, ErrorPresenter } from '../components/States';
 import { validatePasswordChange } from '../components/PasswordChangeModal';
+import ModelValidationView, { ModelDraftValidator } from '../components/ModelValidationView';
 import { ApiError } from '../utils/api';
 import { beginTurn, applyChatEvent, initialChatState } from '../utils/chatStream';
 
@@ -304,5 +305,33 @@ describe('states and forms', () => {
       'components.passwordChange.sameAsCurrent'
     );
     expect(validatePasswordChange({ currentPassword: 'password', newPassword: 'a-long-passphrase', confirmPassword: 'a-long-passphrase' })).toEqual({});
+  });
+});
+
+describe('ModelValidationView', () => {
+  it('lays out a successful validation without dumping JSON', () => {
+    render(
+      <ModelValidationView result={{ success: true, kind: 'Inference', model: 'llama3:8b', latencyMs: 412, responsePreview: 'pong', statusCode: 200, problems: [] }} />
+    );
+    expect(screen.getByTestId('model-validation-outcome').textContent).toContain('The model responded.');
+    expect(screen.getByText('llama3:8b')).toBeTruthy();
+    expect(screen.getByText('pong')).toBeTruthy();
+    expect(screen.getByText('Reply preview')).toBeTruthy();
+    expect(document.body.textContent).not.toContain('"success"');
+  });
+
+  it('explains a failure with the error, problems, and a hint', () => {
+    render(<ModelValidationView result={{ success: false, model: 'gpt-x', error: 'connection refused', problems: ['Base URL unreachable'] }} />);
+    expect(screen.getByTestId('model-validation-outcome').textContent).toContain('did not respond');
+    expect(screen.getByText('connection refused')).toBeTruthy();
+    expect(screen.getByText('Base URL unreachable')).toBeTruthy();
+  });
+
+  it('validates unsaved settings from the form', async () => {
+    const apiClient = { validateModelEndpointDraft: vi.fn().mockResolvedValue({ success: true, model: 'm', latencyMs: 5 }) };
+    render(<ModelDraftValidator apiClient={apiClient} data={{ provider: 'Ollama', model: 'm' }} toBody={(d) => d} />);
+    fireEvent.click(screen.getByTestId('model-draft-validate'));
+    await waitFor(() => expect(screen.getByTestId('model-validation')).toBeTruthy());
+    expect(apiClient.validateModelEndpointDraft).toHaveBeenCalledWith({ provider: 'Ollama', model: 'm' });
   });
 });

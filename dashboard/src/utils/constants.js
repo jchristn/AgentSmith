@@ -22,6 +22,7 @@ export const STORAGE_KEYS = {
 };
 
 export const GITHUB_URL = 'https://github.com/jchristn/AgentSmith';
+export const DISCORD_URL = 'https://discord.gg/tRAN8HgvK5';
 
 /** Local development API URL (the Hugo server's default listener). */
 export const LOCAL_SERVER_URL = 'http://127.0.0.1:8800';
@@ -138,7 +139,7 @@ export const ENUMS = {
     'CredentialBypassChanged'
   ],
   // Connector contract (src/Hugo.Connectors.Abstractions).
-  secretKind: ['Password', 'PrivateKey', 'ApiToken', 'AccessKeyPair', 'ServiceAccountJson', 'Kubeconfig', 'ConnectionString', 'Certificate', 'Generic'],
+  secretKind: ['Password', 'PrivateKey', 'ApiToken', 'BearerToken', 'AccessKeyPair', 'ServiceAccountJson', 'Kubeconfig', 'ConnectionString', 'Certificate', 'Generic'],
   effect: ['Read', 'Write', 'Destructive'],
   accessMode: ['ReadOnly', 'ReadWriteWithApproval', 'ReadWrite'],
   connectorCategory: ['Compute', 'Storage', 'Database', 'Logging', 'Cache', 'Cloud', 'Orchestration', 'Observability', 'Http', 'Agent', 'Other'],

@@ -227,7 +227,7 @@ namespace Hugo.Connectors.Http
                     break;
                 case HttpAuthTypeEnum.Bearer:
                     if (String.IsNullOrEmpty(secrets.Get(HttpSettingKeys.BearerTokenSlot, HttpSettingKeys.TokenField)))
-                        result.Add(HttpSettingKeys.BearerTokenSlot, "required", "authType is Bearer, so bind an ApiToken secret to the 'bearerToken' slot.");
+                        result.Add(HttpSettingKeys.BearerTokenSlot, "required", "authType is Bearer, so bind a BearerToken (or ApiToken) secret to the 'bearerToken' slot.");
                     break;
                 case HttpAuthTypeEnum.ApiKeyHeader:
                     if (String.IsNullOrEmpty(secrets.Get(HttpSettingKeys.ApiKeySlot, HttpSettingKeys.TokenField)))
@@ -386,7 +386,7 @@ namespace Hugo.Connectors.Http
             d.SecretSlots = new List<SecretSlotDescriptor>
             {
                 new SecretSlotDescriptor(HttpSettingKeys.BasicAuthSlot, "Basic credentials", SecretKindEnum.Password) { Help = "Password secret with fields 'username' and 'password'. Used when authType is Basic." },
-                new SecretSlotDescriptor(HttpSettingKeys.BearerTokenSlot, "Bearer token", SecretKindEnum.ApiToken) { Help = "ApiToken secret (field 'token') sent as Authorization: Bearer. Used when authType is Bearer." },
+                new SecretSlotDescriptor(HttpSettingKeys.BearerTokenSlot, "Bearer token", SecretKindEnum.BearerToken, SecretKindEnum.ApiToken) { Help = "BearerToken (or ApiToken) secret, field 'token', sent as Authorization: Bearer. Used when authType is Bearer." },
                 new SecretSlotDescriptor(HttpSettingKeys.ApiKeySlot, "API key", SecretKindEnum.ApiToken) { Help = "ApiToken secret (field 'token') sent in the apiKeyHeaderName header. Used when authType is ApiKeyHeader." },
                 new SecretSlotDescriptor(HttpSettingKeys.ClientCredentialsSlot, "OAuth2 client credentials", SecretKindEnum.Generic, SecretKindEnum.Password) { Help = "Generic secret with 'clientId' and 'clientSecret', or a Password secret with 'username' (client ID) and 'password' (client secret). Used when authType is OAuth2ClientCredentials." }
             };

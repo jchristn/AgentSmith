@@ -28,10 +28,14 @@ namespace Hugo.Connectors.Logging
         /// Build the slot descriptor.
         /// </summary>
         /// <param name="help">English help text.</param>
+        /// <param name="acceptBearerToken">Whether the service sends the token as Authorization: Bearer, so BearerToken
+        /// secrets are accepted too. Default false.</param>
         /// <returns>Descriptor.</returns>
-        public static SecretSlotDescriptor Descriptor(string help)
+        public static SecretSlotDescriptor Descriptor(string help, bool acceptBearerToken = false)
         {
-            SecretSlotDescriptor slot = new SecretSlotDescriptor(Name, "API token", SecretKindEnum.ApiToken);
+            SecretSlotDescriptor slot = acceptBearerToken
+                ? new SecretSlotDescriptor(Name, "API token", SecretKindEnum.ApiToken, SecretKindEnum.BearerToken)
+                : new SecretSlotDescriptor(Name, "API token", SecretKindEnum.ApiToken);
             slot.Required = true;
             slot.Help = help ?? String.Empty;
             return slot;

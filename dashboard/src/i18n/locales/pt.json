@@ -44,7 +44,8 @@
       "view": "Visualizar",
       "viewDetails": "Ver detalhes",
       "viewJson": "Ver JSON",
-      "dismiss": "Dispensar"
+      "dismiss": "Dispensar",
+      "openDiscord": "Abrir Discord"
     },
     "boolean": {
       "yes": "Sim",
@@ -275,7 +276,8 @@
       "Kubeconfig": "Kubeconfig",
       "ConnectionString": "String de conexão",
       "Certificate": "Certificado",
-      "Generic": "Segredo genérico"
+      "Generic": "Segredo genérico",
+      "BearerToken": "Token de portador"
     },
     "effect": {
       "Read": "Leitura",
@@ -651,7 +653,8 @@
       "changed": "Senha alterada.",
       "tooShort": "Use pelo menos {{min}} caracteres.",
       "sameAsCurrent": "Escolha uma senha diferente da atual.",
-      "mismatch": "As duas novas senhas não coincidem."
+      "mismatch": "As duas novas senhas não coincidem.",
+      "skip": "Pular"
     },
     "progress": {
       "count": "{{done}} de {{total}}",
@@ -1287,7 +1290,8 @@
       "sections": {
         "endpoint": "Endpoint",
         "capabilities": "Recursos do modelo",
-        "limits": "Limites"
+        "limits": "Limites",
+        "validation": "Validação"
       },
       "columns": {
         "name": "Nome",
@@ -1333,6 +1337,23 @@
         "title": "Histórico de integridade",
         "note": "Verificações de integridade recentes, as mais novas primeiro: validações executadas por pessoas e a varredura de integridade em segundo plano do servidor. O servidor mantém um número limitado por endpoint.",
         "empty": "Nenhuma verificação de integridade registrada ainda. Use Validar para executar uma."
+      },
+      "validation": {
+        "button": "Validar",
+        "running": "Validando...",
+        "succeeded": "O modelo respondeu.",
+        "failed": "O modelo não respondeu como esperado.",
+        "respondedIn": "Ida e volta {{value}}.",
+        "model": "Modelo",
+        "kind": "Tipo",
+        "latency": "Latência",
+        "dimensions": "Dimensões do embedding",
+        "statusCode": "Status HTTP do provedor",
+        "response": "Prévia da resposta",
+        "error": "Erro",
+        "problems": "Problemas",
+        "hint": "Verifique a URL base, o nome do modelo e o segredo da chave de API e valide novamente.",
+        "needsModel": "Escolha primeiro um provedor e um modelo."
       }
     },
     "knowledge": {
@@ -2286,7 +2307,8 @@
       "lockdownOff": "Bloquear o locatário: negar todas as chamadas de escrita e destrutivas de todas as superfícies até que o bloqueio seja suspenso.",
       "lockdownOn": "O locatário está bloqueado. Clique para revisar e suspender o bloqueio.",
       "lockdownEngage": "Negar agora todas as chamadas que não sejam de leitura neste locatário e cancelar as aprovações pendentes.",
-      "lockdownLift": "Permitir novamente chamadas de escrita e destrutivas, sujeitas aos modos de acesso e às aprovações."
+      "lockdownLift": "Permitir novamente chamadas de escrita e destrutivas, sujeitas aos modos de acesso e às aprovações.",
+      "discord": "Participe da comunidade Hugo no Discord (abre em uma nova aba)."
     },
     "login": {
       "passwordTab": "Entrar como pessoa com locatário, email e senha.",
@@ -2507,7 +2529,8 @@
         "Kubeconfig": "Um arquivo kubeconfig do Kubernetes com credenciais de cluster e de usuário.",
         "ConnectionString": "Uma string de conexão completa que inclui credenciais.",
         "Certificate": "Um certificado com sua chave privada, para TLS mútuo.",
-        "Generic": "Qualquer outro valor secreto único."
+        "Generic": "Qualquer outro valor secreto único.",
+        "BearerToken": "Um token enviado exatamente no cabeçalho Authorization: Bearer."
       },
       "connectorCategory": {
         "Compute": "Hosts e máquinas acessados via SSH ou similar.",
@@ -2739,12 +2762,14 @@
         "sections": {
           "endpoint": "Qual provedor e modelo é este e como alcançá-lo.",
           "capabilities": "O que o modelo pode fazer e quanto texto ele processa.",
-          "limits": "Concorrência, tempos limite e novas tentativas para chamadas a este endpoint."
+          "limits": "Concorrência, tempos limite e novas tentativas para chamadas a este endpoint.",
+          "validation": "Verifique as configurações com o provedor antes de salvar."
         },
         "actions": {
           "validate": "Enviar um prompt mínimo (ou gerar o embedding de um texto curto) e registrar a latência e o resultado.",
           "listModels": "Perguntar ao provedor quais modelos ele oferece, quando o provedor permite listagem."
-        }
+        },
+        "validateDraft": "Envia um prompt curto (ou um texto curto para embedding) com estas configurações antes de salvar. Nada é armazenado."
       },
       "resources": {
         "name": "Nome exclusivo deste recurso no locatário. Os vínculos o usam como alias padrão visto pelo agente.",
@@ -3332,7 +3357,8 @@
       "current": "A senha com que você entrou: a pré-criada ou a que um administrador definiu para você.",
       "new": "Sua nova senha. Use uma frase secreta longa; o servidor pode aplicar mais regras.",
       "confirm": "Digite a nova senha novamente para que um erro de digitação não bloqueie seu acesso.",
-      "submit": "Salvar a nova senha e continuar para o painel."
+      "submit": "Salvar a nova senha e continuar para o painel.",
+      "skip": "Manter a senha atual por enquanto. Você pode alterá-la depois no seu perfil."
     },
     "promptEditor": {
       "content": "O texto do modelo. As variáveis entre chaves duplas são preenchidas quando as instruções são compiladas.",

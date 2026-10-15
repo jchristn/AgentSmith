@@ -54,6 +54,7 @@ namespace Hugo.Server.Routes
             if (routes == null) throw new ArgumentNullException(nameof(routes));
             routes.Scoped(HttpMethod.GET, _Base, ResourceTypeEnum.ModelEndpoint, OperationTypeEnum.Read, ListAsync, "List model endpoints (filters: kind, provider, health)", "Model Endpoints", null, typeof(EnumerationResult<ModelEndpoint>));
             routes.Scoped(HttpMethod.POST, _Base, ResourceTypeEnum.ModelEndpoint, OperationTypeEnum.Create, CreateAsync, "Create a model endpoint (API key as a vault secret reference)", "Model Endpoints", typeof(ModelEndpointRequest), typeof(ModelEndpoint), statuses: new[] { 201 });
+            routes.Scoped(HttpMethod.POST, _Base + "/validate", ResourceTypeEnum.ModelEndpoint, OperationTypeEnum.Create, ValidateDraftAsync, "Validate unsaved model endpoint settings with a tiny prompt (or embedding); nothing is stored", "Model Endpoints", typeof(ModelEndpointRequest), typeof(ModelValidationResult));
             routes.Scoped(HttpMethod.GET, _Base + "/{id}", ResourceTypeEnum.ModelEndpoint, OperationTypeEnum.Read, ReadAsync, "Read a model endpoint", "Model Endpoints", null, typeof(ModelEndpoint));
             routes.Scoped(HttpMethod.PUT, _Base + "/{id}", ResourceTypeEnum.ModelEndpoint, OperationTypeEnum.Update, UpdateAsync, "Update a model endpoint", "Model Endpoints", typeof(ModelEndpointRequest), typeof(ModelEndpoint));
             routes.Scoped(HttpMethod.DELETE, _Base + "/{id}", ResourceTypeEnum.ModelEndpoint, OperationTypeEnum.Delete, DeleteAsync, "Delete a model endpoint (profiles lose the reference)", "Model Endpoints");
@@ -108,6 +109,12 @@ namespace Hugo.Server.Routes
         {
             List<ModelEndpointHealthRecord> records = await _Models.HealthHistoryAsync(RouteHelpers.Tenant(http), RouteHelpers.Param(http, "id")!, RouteHelpers.QueryInt(http, "maxResults"), http.Token).ConfigureAwait(false);
             await RouteHelpers.JsonAsync(http, 200, records).ConfigureAwait(false);
+        }
+
+        private async Task ValidateDraftAsync(HttpContextBase http)
+        {
+            ModelValidationResult result = await _Models.ValidateDraftAsync(RouteHelpers.Context(http), RouteHelpers.Tenant(http), RouteHelpers.RequiredBody<ModelEndpointRequest>(http), http.Token).ConfigureAwait(false);
+            await RouteHelpers.JsonAsync(http, 200, result).ConfigureAwait(false);
         }
 
         private async Task ModelsAsync(HttpContextBase http)

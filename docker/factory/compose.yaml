@@ -1,0 +1,415 @@
+# Hugo factory stack: a seeded, resettable demo of Hugo for evaluation, demos, and simulated user testing.
+#
+# It runs the same server, dashboard, and observability services as docker/compose.yaml (same images, same
+# observability wiring), plus the testbed targets the demo resources point at, plus a one-shot seed container that
+# configures everything through the public REST API. Project name hugo-factory and distinct host ports, so it can
+# run next to the plain stack in docker/.
+#
+#   cd docker/factory
+#   ./reset.sh                    # DESTRUCTIVE: wipe every factory volume, start, seed, print URLs and credentials
+#   docker compose up -d          # start (or restart) without wiping; the seed reruns and is idempotent
+#   docker compose logs hugo-seed # the seed output, including the demo credential
+#   docker compose down -v        # stop and delete the factory data
+#
+# Dashboard http://127.0.0.1:8811 (tenant default, anderson@hugo.local / HugoDemo2026!).
+# REST, MCP (/mcp), and A2A (/v1.0/a2a) http://127.0.0.1:8810. Grafana http://127.0.0.1:3010 (admin / admin).
+# Prometheus http://127.0.0.1:9091. Tempo http://127.0.0.1:3210. Loki http://127.0.0.1:3110.
+#
+# The testbed targets (SSH, PostgreSQL, MySQL, MinIO, Redis) are reachable only on the Compose network; they reuse the
+# seed data in docker/testbed. Every credential in this file is a demo value; never reuse one. docs/FACTORY.md has
+# the full description.
+
+name: 'hugo-factory'
+
+x-healthcheck-timing: &timing
+  interval: 5s
+  timeout: 5s
+  retries: 2
+
+services:
+
+  # ------------------------------------------------------------------
+  # Observability (same configuration as docker/compose.yaml; Alloy reads this project's container logs).
+  # ------------------------------------------------------------------
+  hugo-prometheus:
+    container_name: 'hugo-factory-prometheus'
+    image: 'prom/prometheus:v3.5.4'
+    restart: 'unless-stopped'
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=7d'
+      - '--enable-feature=exemplar-storage'
+    ports:
+      - '127.0.0.1:${HUGO_FACTORY_PROMETHEUS_PORT:-9091}:9090'
+    volumes:
+      - ../observability/prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
+      - hugo-prometheus-data:/prometheus
+    healthcheck:
+      # Third-party image without curl: wget is used (D-037).
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:9090/-/ready']
+      <<: *timing
+      start_period: 20s
+
+  hugo-tempo:
+    container_name: 'hugo-factory-tempo'
+    image: 'grafana/tempo:2.6.1'
+    restart: 'unless-stopped'
+    command: ['-config.file=/etc/tempo/tempo.yaml']
+    ports:
+      - '127.0.0.1:${HUGO_FACTORY_TEMPO_PORT:-3210}:3200'
+    volumes:
+      - ../observability/tempo.yaml:/etc/tempo/tempo.yaml:ro
+      - hugo-tempo-data:/var/tempo
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:3200/ready']
+      <<: *timing
+      start_period: 30s
+
+  hugo-loki:
+    container_name: 'hugo-factory-loki'
+    image: 'grafana/loki:3.5.5'
+    restart: 'unless-stopped'
+    command: ['-config.file=/etc/loki/loki.yaml']
+    ports:
+      - '127.0.0.1:${HUGO_FACTORY_LOKI_PORT:-3110}:3100'
+    volumes:
+      - ../observability/loki.yaml:/etc/loki/loki.yaml:ro
+      - hugo-loki-data:/loki
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:3100/ready']
+      <<: *timing
+      start_period: 30s
+
+  hugo-alloy:
+    container_name: 'hugo-factory-alloy'
+    image: 'grafana/alloy:v1.10.2'
+    restart: 'unless-stopped'
+    command: ['run', '--server.http.listen-addr=0.0.0.0:12345', '--storage.path=/var/lib/alloy/data', '/etc/alloy/config.alloy']
+    volumes:
+      - ./observability/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - hugo-alloy-data:/var/lib/alloy/data
+    depends_on:
+      hugo-tempo:
+        condition: service_healthy
+      hugo-loki:
+        condition: service_healthy
+    healthcheck:
+      # The Alloy image ships bash but neither curl nor wget (D-037): probe the HTTP port over a bash TCP socket.
+      test: ['CMD', 'bash', '-c', 'exec 3<>/dev/tcp/127.0.0.1/12345 && printf "GET /-/ready HTTP/1.0\r\n\r\n" >&3 && grep -q "200" <&3']
+      <<: *timing
+      start_period: 20s
+
+  hugo-grafana:
+    container_name: 'hugo-factory-grafana'
+    image: 'grafana/grafana-oss:12.1.1'
+    restart: 'unless-stopped'
+    ports:
+      - '127.0.0.1:${HUGO_FACTORY_GRAFANA_PORT:-3010}:3000'
+    environment:
+      GF_SECURITY_ADMIN_USER: '${GF_SECURITY_ADMIN_USER:-admin}'
+      GF_SECURITY_ADMIN_PASSWORD: '${GF_SECURITY_ADMIN_PASSWORD:-admin}'
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+    volumes:
+      - ../observability/grafana.ini:/etc/grafana/grafana.ini:ro
+      - ../observability/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/hugo.yaml:ro
+      - ../observability/grafana-dashboards.yaml:/etc/grafana/provisioning/dashboards/hugo.yaml:ro
+      # Mirror of assets/grafana (plan P10.19); scripts/check-grafana-mirror.sh keeps the two identical.
+      - ./grafana:/etc/grafana/dashboards/hugo:ro
+      - hugo-grafana-data:/var/lib/grafana
+    depends_on:
+      hugo-prometheus:
+        condition: service_healthy
+      hugo-tempo:
+        condition: service_healthy
+      hugo-loki:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:3000/api/health']
+      <<: *timing
+      start_period: 30s
+
+  # ------------------------------------------------------------------
+  # Hugo server and dashboard (same images and environment as docker/compose.yaml).
+  # ------------------------------------------------------------------
+  hugo-server:
+    container_name: 'hugo-factory-server'
+    image: 'jchristn77/hugo-server:v0.1.0'
+    restart: 'unless-stopped'
+    ports:
+      - '127.0.0.1:${HUGO_FACTORY_REST_PORT:-8810}:8800'
+    environment:
+      HUGO_SETTINGS_FILE: '/app/config/hugo.json'
+      HUGO_REST_HOSTNAME: '0.0.0.0'
+      HUGO_DB_TYPE: 'Sqlite'
+      HUGO_MASTER_KEY: '${HUGO_FACTORY_MASTER_KEY:-aHVnby1mYWN0b3J5LWRlbW8tbWFzdGVyLWtleS1ub3QtZm9yLXByb2Q=}'
+      HUGO_AUTH_SIGNING_KEY: '${HUGO_FACTORY_AUTH_SIGNING_KEY:-hugo-factory-demo-signing-key-not-for-production}'
+      HUGO_OTLP_ENDPOINT: 'http://hugo-alloy:4317'
+      HUGO_EXTERNAL_BASE_URL: 'http://127.0.0.1:${HUGO_FACTORY_REST_PORT:-8810}'
+      HUGO_GRAFANA_URL: 'http://127.0.0.1:${HUGO_FACTORY_GRAFANA_PORT:-3010}'
+      HUGO_PROMETHEUS_URL: 'http://127.0.0.1:${HUGO_FACTORY_PROMETHEUS_PORT:-9091}'
+      HUGO_TEMPO_URL: 'http://127.0.0.1:${HUGO_FACTORY_TEMPO_PORT:-3210}'
+      HUGO_LOKI_URL: 'http://127.0.0.1:${HUGO_FACTORY_LOKI_PORT:-3110}'
+      HUGO_GRAFANA_INTERNAL_URL: 'http://hugo-grafana:3000'
+      HUGO_PROMETHEUS_INTERNAL_URL: 'http://hugo-prometheus:9090'
+      HUGO_TEMPO_INTERNAL_URL: 'http://hugo-tempo:3200'
+      HUGO_LOKI_INTERNAL_URL: 'http://hugo-loki:3100'
+    extra_hosts:
+      # Lets a model endpoint reach an Ollama on the host (macOS and Windows have this name already).
+      - 'host.docker.internal:host-gateway'
+    volumes:
+      - ./hugo:/app/config
+      - hugo-data:/app/data
+    depends_on:
+      hugo-tempo:
+        condition: service_healthy
+      hugo-loki:
+        condition: service_healthy
+      hugo-alloy:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://127.0.0.1:8800/v1.0/api/health']
+      <<: *timing
+      start_period: 30s
+
+  hugo-dashboard:
+    container_name: 'hugo-factory-dashboard'
+    image: 'jchristn77/hugo-dashboard:v0.1.0'
+    restart: 'unless-stopped'
+    ports:
+      - '127.0.0.1:${HUGO_FACTORY_DASHBOARD_PORT:-8811}:80'
+    environment:
+      HUGO_API_UPSTREAM: 'http://hugo-server:8800'
+    depends_on:
+      hugo-server:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://127.0.0.1/health']
+      <<: *timing
+      start_period: 10s
+
+  # ------------------------------------------------------------------
+  # Demo targets (images and seed data from docker/testbed; internal network only, no host ports).
+  # ------------------------------------------------------------------
+
+  # Generates the SSH client key pair Hugo uses for web-01 into a volume the target and the seed container share.
+  ssh-keys:
+    container_name: 'hugo-factory-ssh-keys'
+    image: 'lscr.io/linuxserver/openssh-server:10.3_p1-r1-ls237'
+    entrypoint: ['/bin/sh', '-c']
+    command:
+      - >
+        test -f /keys/id_ed25519 ||
+        ssh-keygen -q -t ed25519 -N '' -C hugo-factory-demo -f /keys/id_ed25519 &&
+        chmod 644 /keys/id_ed25519 /keys/id_ed25519.pub
+    volumes:
+      - ssh-keys:/keys
+    restart: 'no'
+
+  ssh-target:
+    container_name: 'hugo-factory-web-01'
+    hostname: 'web-01'
+    image: 'lscr.io/linuxserver/openssh-server:10.3_p1-r1-ls237'
+    entrypoint: ['/bin/bash', '/testbed/setup.sh']
+    environment:
+      PUID: '1000'
+      PGID: '1000'
+      TZ: 'Etc/UTC'
+      USER_NAME: 'hugo'
+      USER_PASSWORD: 'hugo-testbed-password'
+      PASSWORD_ACCESS: 'true'
+      PUBLIC_KEY_DIR: '/testbed/keys'
+      SUDO_ACCESS: 'false'
+      LOG_STDOUT: 'true'
+    volumes:
+      - ../testbed/ssh/setup.sh:/testbed/setup.sh:ro
+      - ssh-keys:/testbed/keys:ro
+      # Keeps the host keys across container re-creation, so the fingerprint Hugo pinned on first use stays valid.
+      - ssh-config:/config
+    depends_on:
+      ssh-keys:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ['CMD', 'nc', '-z', '127.0.0.1', '2222']
+      <<: *timing
+      start_period: 60s
+      start_interval: 2s
+    restart: 'unless-stopped'
+
+  postgres:
+    container_name: 'hugo-factory-postgres'
+    image: 'postgres:16.4-alpine'
+    environment:
+      POSTGRES_USER: 'hugo'
+      POSTGRES_PASSWORD: 'HugoTestbed1!'
+      POSTGRES_DB: 'shop'
+    volumes:
+      - ../testbed/sql/seed/postgresql.sql:/docker-entrypoint-initdb.d/10-shop.sql:ro
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'PGPASSWORD="$$POSTGRES_PASSWORD" psql -h 127.0.0.1 -U hugo -d shop -tAc "SELECT COUNT(*) FROM order_items" > /dev/null 2>&1']
+      <<: *timing
+      start_period: 30s
+    restart: 'unless-stopped'
+
+  mysql:
+    container_name: 'hugo-factory-mysql'
+    image: 'mysql:8.4.11'
+    environment:
+      MYSQL_ROOT_PASSWORD: 'HugoTestbedRoot1!'
+      MYSQL_DATABASE: 'shop'
+      MYSQL_USER: 'hugo'
+      MYSQL_PASSWORD: 'HugoTestbed1!'
+    volumes:
+      - ../testbed/sql/seed/mysql.sql:/docker-entrypoint-initdb.d/10-shop.sql:ro
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD-SHELL', 'mysql -h 127.0.0.1 -uhugo -p"$$MYSQL_PASSWORD" -e "SELECT COUNT(*) FROM shop.order_items" > /dev/null 2>&1']
+      <<: *timing
+      start_period: 90s
+      start_interval: 2s
+    restart: 'unless-stopped'
+
+  minio:
+    container_name: 'hugo-factory-minio'
+    image: 'pgsty/minio:RELEASE.2026-08-04T00-00-00Z'
+    command: ['server', '/data', '--address', ':9000', '--console-address', ':9001']
+    environment:
+      MINIO_ROOT_USER: 'factory-minio-demo'
+      MINIO_ROOT_PASSWORD: 'factory-minio-demo-secret'
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://127.0.0.1:9000/minio/health/live']
+      <<: *timing
+      start_period: 20s
+      start_interval: 1s
+    restart: 'unless-stopped'
+
+  # One-shot: creates the bucket hugo-testbed and uploads the testbed fixtures.
+  minio-init:
+    container_name: 'hugo-factory-minio-init'
+    image: 'pgsty/minio:RELEASE.2026-08-04T00-00-00Z'
+    depends_on:
+      minio:
+        condition: service_healthy
+    volumes:
+      - ../testbed/storage/fixtures:/fixtures:ro
+    entrypoint: ['/bin/sh', '-c']
+    command:
+      - >
+        mc alias set factory http://minio:9000 factory-minio-demo factory-minio-demo-secret &&
+        mc mb --ignore-existing factory/hugo-testbed &&
+        mc cp --recursive /fixtures/hugo-testbed/ factory/hugo-testbed/
+    restart: 'no'
+
+  redis:
+    container_name: 'hugo-factory-redis'
+    image: 'redis:7.4.8-alpine'
+    command:
+      - redis-server
+      - --requirepass
+      - hugo-testbed-redis
+      - --user
+      - hugo-reader
+      - 'on'
+      - '>hugo-reader-password'
+      - '~*'
+      - '&*'
+      - '+@read'
+      - '+@connection'
+      - '+info'
+      - '+client|list'
+      - '+slowlog'
+      - '+latency'
+      - '+memory'
+      - '+config|get'
+      - '+dbsize'
+      - --slowlog-log-slower-than
+      - '0'
+      - --slowlog-max-len
+      - '256'
+      - --save
+      - ''
+      - --appendonly
+      - 'no'
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', 'hugo-testbed-redis', '--no-auth-warning', 'ping']
+      <<: *timing
+      start_period: 20s
+      start_interval: 1s
+    restart: 'unless-stopped'
+
+  # One-shot: loads the testbed keys (every Redis type under the hugo: prefix).
+  redis-seed:
+    container_name: 'hugo-factory-redis-seed'
+    image: 'redis:7.4.8-alpine'
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      REDIS_HOST: 'redis'
+      REDISCLI_AUTH: 'hugo-testbed-redis'
+    volumes:
+      - ../testbed/redis/seed.sh:/seed.sh:ro
+    entrypoint: ['/bin/sh', '/seed.sh']
+    restart: 'no'
+
+  # ------------------------------------------------------------------
+  # One-shot seed: configures the demo through Hugo's REST API (docker/factory/seed/seed.py). Idempotent, so
+  # "docker compose up -d" can rerun it at any time. Prints the URLs and the demo credential when it finishes.
+  # ------------------------------------------------------------------
+  hugo-seed:
+    container_name: 'hugo-factory-seed'
+    image: 'python:3.12.15-alpine3.24'
+    entrypoint: ['python', '-I', '-u', '/seed/seed.py']
+    environment:
+      HUGO_URL: 'http://hugo-server:8800'
+      HUGO_PUBLIC_URL: 'http://127.0.0.1:${HUGO_FACTORY_REST_PORT:-8810}'
+      HUGO_DASHBOARD_URL: 'http://127.0.0.1:${HUGO_FACTORY_DASHBOARD_PORT:-8811}'
+      HUGO_GRAFANA_URL: 'http://127.0.0.1:${HUGO_FACTORY_GRAFANA_PORT:-3010}'
+      HUGO_DEMO_PASSWORD: '${HUGO_FACTORY_DEMO_PASSWORD:-HugoDemo2026!}'
+      HUGO_OLLAMA_URL: '${HUGO_FACTORY_OLLAMA_URL:-http://host.docker.internal:11434}'
+      HUGO_OLLAMA_MODEL: '${HUGO_FACTORY_OLLAMA_MODEL:-}'
+      HUGO_OLLAMA_MODEL_URL: '${HUGO_FACTORY_OLLAMA_MODEL_URL:-}'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    volumes:
+      - ./seed:/seed:ro
+      - ssh-keys:/ssh-keys:ro
+      - seed-state:/state
+    depends_on:
+      hugo-server:
+        condition: service_healthy
+      ssh-target:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+      redis-seed:
+        condition: service_completed_successfully
+      hugo-prometheus:
+        condition: service_healthy
+      hugo-loki:
+        condition: service_healthy
+      hugo-grafana:
+        condition: service_healthy
+    restart: 'no'
+
+volumes:
+  hugo-data:
+  hugo-prometheus-data:
+  hugo-tempo-data:
+  hugo-loki-data:
+  hugo-alloy-data:
+  hugo-grafana-data:
+  ssh-keys:
+  ssh-config:
+  postgres-data:
+  mysql-data:
+  minio-data:
+  seed-state:

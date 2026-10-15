@@ -45,7 +45,7 @@ namespace Test.Shared.Suites
                 cases.Add(new TestCaseDescriptor(id, "route-contract", "Every Watson route has an operation scope and OpenAPI lists every route (" + provider + ")", ct => RouteContractAsync(provider, ct)));
                 cases.Add(new TestCaseDescriptor(id, "route-fail-closed", "A route registered outside the registrar fails closed to administrators (" + provider + ")", ct => FailClosedAsync(provider, ct)));
                 cases.Add(new TestCaseDescriptor(id, "health-and-request-id", "Health answers anonymously and every response carries x-request-id (" + provider + ")", ct => HealthAsync(provider, ct)));
-                cases.Add(new TestCaseDescriptor(id, "must-change-password", "Seeded users must change their password before using other routes (" + provider + ")", ct => MustChangePasswordAsync(provider, ct)));
+                cases.Add(new TestCaseDescriptor(id, "must-change-password", "Seeded users are prompted, not forced, to change their password (" + provider + ")", ct => MustChangePasswordAsync(provider, ct)));
                 cases.Add(new TestCaseDescriptor(id, "token-lifecycle", "Token details, refresh, logout, tenant lookup, and conflicting schemes (" + provider + ")", ct => TokenLifecycleAsync(provider, ct)));
                 cases.Add(new TestCaseDescriptor(id, "rate-limit", "Token routes answer 429 after the per-minute limit (" + provider + ")", ct => RateLimitAsync(provider, ct)));
                 cases.Add(new TestCaseDescriptor(id, "sessions", "Sessions are listed per tenant and revoking one ends its token (" + provider + ")", ct => SessionsAsync(provider, ct)));
@@ -242,9 +242,8 @@ namespace Test.Shared.Suites
                 Assert.True(first.MustChangePassword, "Seeded user not flagged at sign-in.");
                 using (HttpClient client = await host.UserClientAsync("anderson@hugo.local", "password", null, token).ConfigureAwait(false))
                 {
-                    TestResponse blocked = await HttpTestHelpers.SendAsync(client, System.Net.Http.HttpMethod.Get, "/v1.0/api/tenants/" + host.TenantId + "/secrets", null, token).ConfigureAwait(false);
-                    Assert.Equal(403, blocked.StatusCode, "Blocked before the password change");
-                    Assert.True(blocked.Body.Contains("PasswordChangeRequired", StringComparison.Ordinal), "Blocked code.");
+                    TestResponse notBlocked = await HttpTestHelpers.SendAsync(client, System.Net.Http.HttpMethod.Get, "/v1.0/api/tenants/" + host.TenantId + "/secrets", null, token).ConfigureAwait(false);
+                    Assert.Equal(200, notBlocked.StatusCode, "Other routes work before the password change (the change is a prompt, not a gate)");
                     TokenDetailsResponse details = await HttpTestHelpers.SendAsync<TokenDetailsResponse>(client, System.Net.Http.HttpMethod.Get, "/v1.0/token/details", null, 200, token).ConfigureAwait(false);
                     Assert.True(details.MustChangePassword, "Token details flag.");
                     Assert.Equal(200, (await HttpTestHelpers.SendAsync(client, System.Net.Http.HttpMethod.Get, "/v1.0/api/users/me", null, token).ConfigureAwait(false)).StatusCode, "Me is allowed");

@@ -1,0 +1,23 @@
+# Use images already present on the node (imported with k3d image import or ctr) and pull only when missing.
+# k8s/scripts/update.sh re-imports or re-pulls before it restarts the pods.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hugo-server
+spec:
+  template:
+    spec:
+      containers:
+        - name: server
+          imagePullPolicy: IfNotPresent
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hugo-dashboard
+spec:
+  template:
+    spec:
+      containers:
+        - name: dashboard
+          imagePullPolicy: IfNotPresent

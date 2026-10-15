@@ -741,6 +741,11 @@ class ApiClient {
     return this._request('POST', `/v1.0/api/model-endpoints/${enc(id)}/validate`);
   }
 
+  /** Validate unsaved model endpoint settings (the form's Validate button); nothing is stored. */
+  validateModelEndpointDraft(body) {
+    return this._request('POST', '/v1.0/api/model-endpoints/validate', { body });
+  }
+
   /**
    * The provider's model names (a bare array of strings), where the provider supports listing. 502 with code
    * ProviderUnreachable or ProviderTimeout and the provider's message when the provider cannot be reached.

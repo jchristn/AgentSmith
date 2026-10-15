@@ -34,7 +34,7 @@ The login form's server URL defaults to the page origin (the nginx proxy); for l
 ## Live journey
 
 `tests/live/journey.spec.js` clicks through the primary journey (plan section 3.6) against a real server: the seeded
-operator's forced password change, the setup wizard, a secret, a SQLite resource (the spec creates the database file)
+operator's password change prompt, the setup wizard, a secret, a SQLite resource (the spec creates the database file)
 with Test Connection, a ReadOnly binding on the Hugo profile, the compiled instructions, a dry run and an invocation
 from the resource page, Tool Invocations, a switch to ReadWriteWithApproval, a write approved from Approvals, the
 Knowledge tab, the layered connector instructions, Request History, and Audit. Screenshots land in
@@ -75,7 +75,7 @@ settings schemas), `SecretField` (slot picker with inline create, kind-specific 
 
 | Route | User job | Primary roles | Backend resources | Tables and filters | Actions and modals | Empty and error states |
 |---|---|---|---|---|---|---|
-| `/` | Log in | All | `POST /v1.0/tenants/lookup`, `POST /v1.0/token`, `GET /v1.0/token/details` | | Server URL, email, tenant discovery (picker when several), password reveal, local default credentials, language and theme | Bad credentials, server unreachable, forced password change |
+| `/` | Log in | All | `POST /v1.0/tenants/lookup`, `POST /v1.0/token`, `GET /v1.0/token/details` | | Server URL, email, tenant discovery (picker when several), password reveal, local default credentials, language and theme | Bad credentials, server unreachable, password change prompt (skippable) |
 | `/dashboard/home` | See what Hugo is doing | All | request-history summary, tool-invocations summary and list, resources, model-endpoints, analytics overview, approvals | KPI tiles, activity chart (hour, day, week, month, refresh, bucket click) | CTA cards, external-services card low on the page | Setup callout on a fresh tenant; per-panel partial failure banner |
 | `/dashboard/chat`, `/dashboard/chat/:id` | Talk to Agent Smith | Operator, ProfileUser | conversations, messages (SSE), approvals, agent-profiles, bindings, model-endpoints | Conversation list with search | Profile picker, model chip, Stop, tool rows, inline approval cards, context drawer, export, drafts per conversation | No profiles, no inference model (link to Model Endpoints), stream error, route missing |
 | `/dashboard/profiles` | Manage agent profiles | Builder | agent-profiles | Visibility filter, search | Add, edit, duplicate (server), delete, View JSON, chat | Explainer with diagram; route missing |

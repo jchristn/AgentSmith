@@ -86,7 +86,7 @@ namespace Hugo.Connectors.Kubernetes
             }
             else
             {
-                result.Add(KubernetesSettingKeys.KubeconfigSlot, "required", "Bind a Kubeconfig secret to the 'kubeconfig' slot, or an ApiToken secret to the 'serviceAccountToken' slot with the serverUrl setting.");
+                result.Add(KubernetesSettingKeys.KubeconfigSlot, "required", "Bind a Kubeconfig secret to the 'kubeconfig' slot, or a BearerToken (or ApiToken) secret to the 'serviceAccountToken' slot with the serverUrl setting.");
             }
 
             if (!String.IsNullOrWhiteSpace(options.ServerUrl))
@@ -202,7 +202,7 @@ namespace Hugo.Connectors.Kubernetes
             d.SecretSlots = new List<SecretSlotDescriptor>
             {
                 new SecretSlotDescriptor(KubernetesSettingKeys.KubeconfigSlot, "Kubeconfig", SecretKindEnum.Kubeconfig) { Help = "A kubeconfig with inline credentials (token or client-certificate-data). Exec and auth-provider plugins and file references are refused. Takes precedence over serviceAccountToken." },
-                new SecretSlotDescriptor(KubernetesSettingKeys.ServiceAccountTokenSlot, "Service account token", SecretKindEnum.ApiToken) { Help = "A bearer token (field 'token'), usually a service account token. Needs the serverUrl setting." },
+                new SecretSlotDescriptor(KubernetesSettingKeys.ServiceAccountTokenSlot, "Service account token", SecretKindEnum.BearerToken, SecretKindEnum.ApiToken) { Help = "A bearer token (field 'token'), usually a service account token. Needs the serverUrl setting." },
                 new SecretSlotDescriptor(KubernetesSettingKeys.CertificateAuthoritySlot, "Cluster CA certificate", SecretKindEnum.Certificate) { Help = "PEM CA certificate of the API server (field 'certificate'), used with token authentication." }
             };
             d.DefaultInstructionsKey = "connector.kubernetes.instructions";

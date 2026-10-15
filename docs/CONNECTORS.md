@@ -14,7 +14,7 @@ A **connector** is code. It knows how to speak to one family of systems and publ
 
 A **resource** is one concrete target configured by an operator: `prod-db` is a PostgreSQL resource with a host, a database, and a row cap. Its settings are validated against the connector's schema before it is saved, and the dashboard renders the form from the same schema, so the tables below are exactly the fields you will see.
 
-A **secret** lives in Hugo's encrypted vault and has a kind (Password, PrivateKey, ApiToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, or Generic) with named fields. A resource does not hold credentials; it binds secrets to the connector's **slots**. One AWS key pair can back several resources, and rotating it is one edit. Connectors read secret fields only for the duration of a call, and Hugo scrubs every bound secret value from tool output as a backstop.
+A **secret** lives in Hugo's encrypted vault and has a kind (Password, PrivateKey, ApiToken, BearerToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, or Generic) with named fields. BearerToken is for tokens sent exactly as `Authorization: Bearer`; ApiToken is for tokens whose header or format depends on the service (Papertrail's `X-Papertrail-Token`, for example). Slots that send a bearer header accept both. A resource does not hold credentials; it binds secrets to the connector's **slots**. One AWS key pair can back several resources, and rotating it is one edit. Connectors read secret fields only for the duration of a call, and Hugo scrubs every bound secret value from tool output as a backstop.
 
 A **binding** attaches a resource to an agent profile under an alias and an **access mode**: ReadOnly, ReadWriteWithApproval, or ReadWrite. The alias is what the model sees. Every tool takes a `resource` argument whose allowed values are the profile's aliases for that family, so `sql_query` with `resource: "prod-db"` goes to PostgreSQL and the same tool with `resource: "legacy-db"` goes to MySQL.
 
@@ -376,7 +376,7 @@ The `solarwinds-observability` connector searches and tails logs, lists and read
 
 | Slot | Accepts | Required | Fields read | Meaning |
 |---|---|---|---|---|
-| `apiToken` | ApiToken | yes | `token` | SolarWinds Observability API token (Settings, API Tokens). The public API requires a full-access token; ingestion tokens are rejected. |
+| `apiToken` | ApiToken or BearerToken | yes | `token` | SolarWinds Observability API token (Settings, API Tokens), sent as Authorization: Bearer. The public API requires a full-access token; ingestion tokens are rejected. |
 
 | Tool | Effect | Purpose |
 |---|---|---|
@@ -544,7 +544,7 @@ The `kubernetes` connector works with any conformant cluster through KubernetesC
 | Slot | Accepts | Required | Fields read | Meaning |
 |---|---|---|---|---|
 | `kubeconfig` | Kubeconfig | no | `kubeconfig` | A kubeconfig with inline credentials (token or client-certificate-data). Exec and auth-provider plugins and file references are refused. Takes precedence over serviceAccountToken. |
-| `serviceAccountToken` | ApiToken | no | `token` | A bearer token (field 'token'), usually a service account token. Needs the serverUrl setting. |
+| `serviceAccountToken` | BearerToken or ApiToken | no | `token` | A bearer token (field 'token'), usually a service account token. Needs the serverUrl setting. |
 | `certificateAuthority` | Certificate | no | `certificate` (or `caCertificate`) | PEM CA certificate of the API server (field 'certificate'), used with token authentication. |
 
 **Credentials.** A bound `kubeconfig` wins. Otherwise bind `serviceAccountToken` with `serverUrl`, plus `certificateAuthority` unless the API server's certificate chains to a public CA. Kubeconfigs must carry their credentials inline (`token`, or `client-certificate-data` and `client-key-data`). Hugo refuses `exec` and `auth-provider` plugins and file references (`certificate-authority`, `client-certificate`, `client-key` paths), because honouring them would run programs or read files on the Hugo server. That rules out cloud kubeconfigs that call `aws eks get-token` or `gke-gcloud-auth-plugin`; create a service account token for Hugo instead, as described in the RBAC guide.

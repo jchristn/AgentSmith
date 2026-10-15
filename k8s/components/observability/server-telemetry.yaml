@@ -1,0 +1,32 @@
+# Server settings added by the observability component: OTLP trace export to Alloy (setting HUGO_OTLP_ENDPOINT also
+# turns Telemetry.OtlpEnable on), the in-cluster URLs the server checks, and the browser-facing URLs shown on the
+# dashboard's external services card. The browser URLs are the k8s/scripts/port-forward.sh defaults, the same ports
+# as Docker Compose; patch them in your overlay when you expose Grafana another way (an Ingress, for example).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hugo-server
+spec:
+  template:
+    spec:
+      containers:
+        - name: server
+          env:
+            - name: HUGO_OTLP_ENDPOINT
+              value: http://hugo-alloy:4317
+            - name: HUGO_GRAFANA_INTERNAL_URL
+              value: http://hugo-grafana:3000
+            - name: HUGO_PROMETHEUS_INTERNAL_URL
+              value: http://hugo-prometheus:9090
+            - name: HUGO_TEMPO_INTERNAL_URL
+              value: http://hugo-tempo:3200
+            - name: HUGO_LOKI_INTERNAL_URL
+              value: http://hugo-loki:3100
+            - name: HUGO_GRAFANA_URL
+              value: http://127.0.0.1:3000
+            - name: HUGO_PROMETHEUS_URL
+              value: http://127.0.0.1:9090
+            - name: HUGO_TEMPO_URL
+              value: http://127.0.0.1:3200
+            - name: HUGO_LOKI_URL
+              value: http://127.0.0.1:3100

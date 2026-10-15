@@ -1,0 +1,51 @@
+# /v1.0 (REST and A2A at /v1.0/a2a), /mcp, and /openapi.json go straight to the server; everything else goes to the
+# dashboard, which proxies the same paths, so the console and the API share one origin. /metrics is not routed.
+#
+# Chat streams, the /v1.0/api/events feed, and MCP streamable HTTP are Server-Sent Events, so the annotations turn
+# response buffering off and allow hour-long reads (the dashboard's nginx does the same). Approvals can keep an MCP
+# tool call open for minutes. The body limit matches the dashboard's 64 MB.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hugo
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-body-size: "64m"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: hugo.local
+      http:
+        paths:
+          - path: /mcp
+            pathType: Prefix
+            backend:
+              service:
+                name: hugo-server
+                port:
+                  name: http
+          - path: /v1.0
+            pathType: Prefix
+            backend:
+              service:
+                name: hugo-server
+                port:
+                  name: http
+          - path: /openapi.json
+            pathType: Exact
+            backend:
+              service:
+                name: hugo-server
+                port:
+                  name: http
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hugo-dashboard
+                port:
+                  name: http

@@ -36,7 +36,7 @@ hugo logout
 printf '%s\n' "$HUGO_PASSWORD" | hugo login --email anderson@example.com --password-stdin
 ```
 
-If the account must change its password, `login` and `whoami` say so on stderr. Change it in the dashboard, then sign in again.
+If the account still has its seeded or reset password, `login` and `whoami` mention it on stderr as a reminder; nothing is blocked.
 
 ## Credentials and precedence
 

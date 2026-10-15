@@ -16,8 +16,16 @@ export function AuthProvider({ children }) {
   const [serverUrl, setServerUrl] = useState('');
   const [token, setToken] = useState('');
   const [principal, setPrincipal] = useState(null);
-  // Set when the server says the password must change before anything else (seeded accounts, admin resets).
+  // Set when the server says the password is still the seeded or reset default. The dashboard prompts for a change but
+  // never blocks: Skip dismisses the prompt for the rest of this browser session (D-048).
   const [mustChangePassword, setMustChangePassword] = useState(false);
+  const [passwordPromptSkipped, setPasswordPromptSkipped] = useState(() => {
+    try {
+      return sessionStorage.getItem('hugo_password_prompt_skipped') === 'true';
+    } catch {
+      return false;
+    }
+  });
   const [theme, setTheme] = useState(() => localStorage.getItem(STORAGE_KEYS.theme) || 'light');
 
   useEffect(() => {
@@ -50,6 +58,12 @@ export function AuthProvider({ children }) {
   }, []);
 
   const logout = useCallback(() => {
+    try {
+      sessionStorage.removeItem('hugo_password_prompt_skipped');
+    } catch {
+      // Storage may be unavailable.
+    }
+    setPasswordPromptSkipped(false);
     if (apiClient) apiClient.revokeToken().catch(() => {});
     localStorage.removeItem(STORAGE_KEYS.token);
     setToken('');
@@ -93,6 +107,15 @@ export function AuthProvider({ children }) {
 
   /** Called after the forced password change succeeds. */
   const passwordChanged = useCallback(() => setMustChangePassword(false), []);
+  const skipPasswordChange = useCallback(() => {
+    setPasswordPromptSkipped(true);
+    try {
+      sessionStorage.setItem('hugo_password_prompt_skipped', 'true');
+    } catch {
+      // Storage may be unavailable (private mode); the skip still applies until reload.
+    }
+  }, []);
+  const passwordPromptOpen = mustChangePassword && !passwordPromptSkipped;
 
   const toggleTheme = useCallback(() => {
     setTheme((prev) => {
@@ -102,7 +125,7 @@ export function AuthProvider({ children }) {
     });
   }, []);
 
-  const value = { isAuthenticated, isLoading, apiClient, serverUrl, token, principal, theme, login, logout, toggleTheme, mustChangePassword, passwordChanged };
+  const value = { isAuthenticated, isLoading, apiClient, serverUrl, token, principal, theme, login, logout, toggleTheme, mustChangePassword, passwordChanged, skipPasswordChange, passwordPromptOpen };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

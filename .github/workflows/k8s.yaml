@@ -1,0 +1,50 @@
+name: Kubernetes
+
+# Renders every Kubernetes and minikube deployment shape on every push: Kustomize (k8s/overlays/k3s,
+# k8s/overlays/production, minikube/overlay, each with and without the postgres and observability components) and the
+# Helm chart with the matching values, validates all of it with kubeconform, checks the mirrored files, and compares
+# the objects Kustomize and Helm produce. k8s/tests/check-render.sh does the work; run it locally the same way.
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KUBECONFORM_VERSION: v0.6.7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-kubectl@v4
+      - uses: azure/setup-helm@v4
+      - name: Install kubeconform
+        run: |
+          curl -fsSL "https://github.com/yannh/kubeconform/releases/download/${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz" | tar -xz -C /usr/local/bin kubeconform
+          kubeconform -v
+      - name: Tool versions
+        run: |
+          kubectl version --client
+          helm version --short
+          yq --version
+          python3 --version
+      - name: Script syntax
+        run: |
+          for f in k8s/scripts/*.sh k8s/tests/*.sh minikube/scripts/*.sh; do bash -n "$f"; done
+      - name: Render, validate, and compare
+        run: bash k8s/tests/check-render.sh
+      - name: Upload rendered manifests
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rendered-manifests
+          path: k8s/.work/rendered
+          if-no-files-found: ignore

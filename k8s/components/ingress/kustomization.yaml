@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+# One Ingress (host hugo.local) for the dashboard and the API, MCP and A2A included. The defaults suit ingress-nginx
+# (also the minikube ingress addon); overlays/k3s patches it for Traefik and overlays/production adds TLS and a real
+# host. Change the host with a patch in your overlay.
+
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: hugo
+    includeSelectors: false
+
+resources:
+  - ingress.yaml

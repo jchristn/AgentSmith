@@ -357,7 +357,7 @@ namespace Hugo.Connectors.Agents.Mcp
             d.SettingsSchema = schema;
             d.SecretSlots = new List<SecretSlotDescriptor>
             {
-                new SecretSlotDescriptor(McpSettingKeys.AuthorizationHeaderSlot, "Authorization header", SecretKindEnum.ApiToken) { Help = "ApiToken secret (field 'token') sent as Authorization: Bearer <token>. A value that already starts with a scheme, such as 'Basic dXNlcjpwYXNz', is sent as-is." },
+                new SecretSlotDescriptor(McpSettingKeys.AuthorizationHeaderSlot, "Authorization header", SecretKindEnum.BearerToken, SecretKindEnum.ApiToken) { Help = "BearerToken (or ApiToken) secret (field 'token') sent as Authorization: Bearer <token>. A value that already starts with a scheme, such as 'Basic dXNlcjpwYXNz', is sent as-is." },
                 new SecretSlotDescriptor(McpSettingKeys.ExtraHeadersSlot, "Extra headers", SecretKindEnum.Generic) { Help = "Optional Generic secret: field 'names' lists header names (comma separated), and each listed name is a field holding that header's value, for example names=X-Api-Key with X-Api-Key=abc123." }
             };
             d.DefaultInstructionsKey = "connector." + TypeName + ".instructions";

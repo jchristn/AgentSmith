@@ -44,7 +44,8 @@
       "view": "Lihat",
       "viewDetails": "Lihat butiran",
       "viewJson": "Lihat JSON",
-      "dismiss": "Tolak"
+      "dismiss": "Tolak",
+      "openDiscord": "Buka Discord"
     },
     "boolean": {
       "yes": "Ya",
@@ -275,7 +276,8 @@
       "Kubeconfig": "Kubeconfig",
       "ConnectionString": "Rentetan sambungan",
       "Certificate": "Sijil",
-      "Generic": "Rahsia generik"
+      "Generic": "Rahsia generik",
+      "BearerToken": "Token pembawa"
     },
     "effect": {
       "Read": "Baca",
@@ -651,7 +653,8 @@
       "changed": "Kata laluan telah ditukar.",
       "tooShort": "Gunakan sekurang-kurangnya {{min}} aksara.",
       "sameAsCurrent": "Pilih kata laluan yang berbeza daripada kata laluan semasa.",
-      "mismatch": "Kedua-dua kata laluan baharu tidak sepadan."
+      "mismatch": "Kedua-dua kata laluan baharu tidak sepadan.",
+      "skip": "Langkau"
     },
     "progress": {
       "count": "{{done}} daripada {{total}}",
@@ -1287,7 +1290,8 @@
       "sections": {
         "endpoint": "Titik akhir",
         "capabilities": "Keupayaan",
-        "limits": "Had"
+        "limits": "Had",
+        "validation": "Pengesahan"
       },
       "columns": {
         "name": "Nama",
@@ -1333,6 +1337,23 @@
         "title": "Sejarah kesihatan",
         "note": "Semakan kesihatan terkini, yang terbaru dahulu: pengesahan yang dijalankan oleh orang dan semakan kesihatan latar belakang pelayan. Pelayan menyimpan bilangan terhad bagi setiap titik akhir.",
         "empty": "Belum ada semakan kesihatan direkodkan. Gunakan Sahkan untuk menjalankannya."
+      },
+      "validation": {
+        "button": "Sahkan",
+        "running": "Mengesahkan...",
+        "succeeded": "Model telah membalas.",
+        "failed": "Model tidak membalas seperti dijangka.",
+        "respondedIn": "Masa pergi balik {{value}}.",
+        "model": "Model",
+        "kind": "Jenis",
+        "latency": "Kependaman",
+        "dimensions": "Dimensi embedding",
+        "statusCode": "Status HTTP pembekal",
+        "response": "Pratonton balasan",
+        "error": "Ralat",
+        "problems": "Masalah",
+        "hint": "Semak URL asas, nama model dan rahsia kunci API, kemudian sahkan semula.",
+        "needsModel": "Pilih pembekal dan model terlebih dahulu."
       }
     },
     "knowledge": {
@@ -2286,7 +2307,8 @@
       "lockdownOff": "Kenakan sekatan penuh pada penyewa: tolak setiap panggilan tulis dan memusnahkan daripada setiap permukaan sehingga anda menarik baliknya.",
       "lockdownOn": "Penyewa berada dalam sekatan penuh. Klik untuk menyemak dan menarik balik sekatan penuh.",
       "lockdownEngage": "Tolak setiap panggilan bukan baca dalam penyewa ini sekarang dan batalkan kelulusan yang belum selesai.",
-      "lockdownLift": "Benarkan semula panggilan tulis dan memusnahkan, tertakluk kepada mod akses dan kelulusan."
+      "lockdownLift": "Benarkan semula panggilan tulis dan memusnahkan, tertakluk kepada mod akses dan kelulusan.",
+      "discord": "Sertai komuniti Hugo di Discord (dibuka dalam tab baharu)."
     },
     "login": {
       "passwordTab": "Log masuk sebagai seseorang dengan penyewa, e-mel dan kata laluan.",
@@ -2507,7 +2529,8 @@
         "Kubeconfig": "Fail kubeconfig Kubernetes dengan kelayakan kluster dan pengguna.",
         "ConnectionString": "Rentetan sambungan penuh yang mengandungi kelayakan.",
         "Certificate": "Sijil bersama kunci peribadinya, untuk TLS bersama.",
-        "Generic": "Sebarang nilai rahsia tunggal yang lain."
+        "Generic": "Sebarang nilai rahsia tunggal yang lain.",
+        "BearerToken": "Token yang dihantar tepat sebagai pengepala Authorization: Bearer."
       },
       "connectorCategory": {
         "Compute": "Hos dan mesin yang dicapai melalui SSH atau yang serupa.",
@@ -2739,12 +2762,14 @@
         "sections": {
           "endpoint": "Pembekal dan model ini, dan cara untuk mencapainya.",
           "capabilities": "Apa yang boleh dilakukan oleh model dan berapa banyak teks yang dikendalikannya.",
-          "limits": "Keserentakan, had masa dan cubaan semula untuk panggilan ke titik akhir ini."
+          "limits": "Keserentakan, had masa dan cubaan semula untuk panggilan ke titik akhir ini.",
+          "validation": "Semak tetapan dengan pembekal sebelum menyimpan."
         },
         "actions": {
           "validate": "Hantar gesaan kecil (atau benamkan teks pendek) dan rekodkan kependaman serta hasilnya.",
           "listModels": "Tanya pembekal model yang ditawarkannya, jika pembekal menyokong penyenaraian."
-        }
+        },
+        "validateDraft": "Menghantar gesaan pendek (atau teks pendek untuk embedding) dengan tetapan ini sebelum menyimpan. Tiada apa-apa disimpan."
       },
       "resources": {
         "name": "Nama unik untuk sumber ini dalam penyewa. Pengikatan menggunakannya sebagai alias lalai yang dilihat oleh ejen.",
@@ -3332,7 +3357,8 @@
       "current": "Kata laluan yang anda gunakan untuk log masuk: yang disemai atau yang ditetapkan oleh pentadbir untuk anda.",
       "new": "Kata laluan baharu anda. Gunakan frasa laluan yang panjang; pelayan mungkin menguatkuasakan lebih banyak peraturan.",
       "confirm": "Taip kata laluan baharu sekali lagi supaya kesilapan menaip tidak mengunci anda di luar.",
-      "submit": "Simpan kata laluan baharu dan teruskan ke papan pemuka."
+      "submit": "Simpan kata laluan baharu dan teruskan ke papan pemuka.",
+      "skip": "Kekalkan kata laluan semasa buat masa ini. Anda boleh menukarnya kemudian daripada profil anda."
     },
     "promptEditor": {
       "content": "Teks templat. Pemboleh ubah dalam kurungan kerinting berganda diisi apabila arahan dikompil.",

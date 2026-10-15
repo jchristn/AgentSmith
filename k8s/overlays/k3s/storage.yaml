@@ -1,0 +1,7 @@
+# k3s ships the local-path provisioner: the data lives on the node's disk under /var/lib/rancher/k3s/storage.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hugo-data
+spec:
+  storageClassName: local-path

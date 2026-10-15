@@ -48,6 +48,11 @@ namespace Hugo.Sdk.Enums
         /// <summary>
         /// Generic.
         /// </summary>
-        Generic
+        Generic,
+
+        /// <summary>
+        /// Bearer token: sent exactly as Authorization: Bearer (field token).
+        /// </summary>
+        BearerToken
     }
 }

@@ -199,7 +199,7 @@ dotnet run --project Test.Automated -f net10.0 -- Secrets Domain   # selected su
 | `HUGO_SDK_ADMIN_TENANT` | `default` |
 | `HUGO_SDK_ADMIN_API_KEY` (or `HUGO_ADMIN_API_KEY`) | unset; the API key test skips |
 
-On a fresh server the administrator must change the password at first sign-in. The harness changes it to a temporary password and back on the same session, which clears the flag and keeps the configured password. The conversation tests skip with a clear reason until the server has those routes.
+On a fresh server the administrator still has its seeded password and is flagged to change it (a prompt, never a block). The harness changes it to a temporary password and back on the same session, which clears the flag and keeps the configured password. The conversation tests skip with a clear reason until the server has those routes.
 
 ## Build
 

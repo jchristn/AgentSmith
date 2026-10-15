@@ -1,0 +1,25 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: hugo
+
+# k3s: SQLite on a local-path volume, a Traefik Ingress for http://hugo.local, and IfNotPresent pulls so images
+# imported into the node (k3d image import, or ctr images import) are used as they are. Works with k3s on a host,
+# k3d, and rancher/k3s in Docker (docs/KUBERNETES.md).
+#
+# PostgreSQL and the observability stack are optional components:
+#   k8s/scripts/deploy.sh k3s --with postgres,observability
+# which wraps this overlay with components/postgres and components/observability.
+resources:
+  - ../../base
+
+components:
+  - ../../components/ingress
+
+patches:
+  - path: local-images.yaml
+  - path: storage.yaml
+  - path: ingress-traefik.yaml
+    target:
+      kind: Ingress
+      name: hugo

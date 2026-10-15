@@ -1,6 +1,6 @@
 # Running Hugo with Docker
 
-Docker Compose is the supported way to run Hugo today. Kubernetes and minikube assets are planned in `k8s/` and `minikube/` (Phase 17 of `HUGO_PLAN.md`) and will follow the same configuration model. Everything here happens in the `docker/` directory.
+This guide covers Docker Compose. Kubernetes and minikube use the same images and configuration model; see [`KUBERNETES.md`](KUBERNETES.md). Everything here happens in the `docker/` directory.
 
 ## What runs
 
@@ -31,7 +31,7 @@ On first run, `start.sh` copies `.env.example` to `.env` and generates two keys:
 
 Plain `docker compose up -d` also works, but without `.env` it falls back to development keys labeled `not-for-production`. The server logs a loud warning when it sees them.
 
-The first boot creates the `default` tenant, the system administrator `admin@hugo.local`, and the tenant administrator `anderson@hugo.local` (Thomas Anderson). Both start with the password `password` and must change it at first login.
+The first boot creates the `default` tenant, the system administrator `admin@hugo.local`, and the tenant administrator `anderson@hugo.local` (Thomas Anderson). Both start with the password `password`. The dashboard prompts you to change it at first login; you can skip the prompt, but change it before anyone else can reach the stack.
 
 ## Configuration
 
@@ -75,10 +75,12 @@ Back up `hugo-data` (or the PostgreSQL database) together with `docker/.env`. On
 
 ```bash
 ./update.sh            # pull the latest images, recreate the stack, keep all data
-./factory/reset.sh     # delete every volume (data, secrets, metrics, logs) and start fresh
+./reset.sh             # delete every volume (data, secrets, metrics, logs) and start fresh
 ```
 
 `update` is safe to run at any time; database migrations run automatically on startup. `reset` asks you to type RESET before it deletes anything. Both have `.bat` versions for Windows.
+
+`docker/factory/` is a different stack: a seeded demo with its own project name and ports (API on 8810, dashboard on 8811), and `factory/reset.sh` resets that demo, not this stack. See [`FACTORY.md`](FACTORY.md).
 
 ## Health
 

@@ -124,7 +124,7 @@ try {
 }
 ```
 
-`status` is the HTTP status, `error` the HTTP-level name (`NotFound`), `code` the stable code (`RouteNotFound`, `PasswordChangeRequired`, `ReauthenticationRequired`, `ValidationFailed`, ...), and `requestId` comes from the body or the `x-request-id` header. `isRouteNotFound` tells a missing route apart from a missing record.
+`status` is the HTTP status, `error` the HTTP-level name (`NotFound`), `code` the stable code (`RouteNotFound`, `ReauthenticationRequired`, `ValidationFailed`, ...), and `requestId` comes from the body or the `x-request-id` header. `isRouteNotFound` tells a missing route apart from a missing record.
 
 ## Events and streaming
 

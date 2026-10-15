@@ -1,0 +1,116 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hugo-postgres
+  labels:
+    app.kubernetes.io/name: hugo-postgres
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: hugo-postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: hugo-postgres
+  labels:
+    app.kubernetes.io/name: hugo-postgres
+    app.kubernetes.io/component: database
+spec:
+  serviceName: hugo-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hugo-postgres
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hugo-postgres
+        app.kubernetes.io/component: database
+    spec:
+      automountServiceAccountToken: false
+      # The alpine image runs PostgreSQL as uid 70.
+      securityContext:
+        fsGroup: 70
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: postgres
+          image: postgres:16.4-alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: postgres
+              containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: hugo
+            - name: POSTGRES_USER
+              value: hugo
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: hugo-secrets
+                  key: db-password
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: "2"
+              memory: 1Gi
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-h", "127.0.0.1", "-p", "5432", "-U", "hugo", "-d", "hugo"]
+            periodSeconds: 5
+            timeoutSeconds: 4
+            failureThreshold: 2
+            successThreshold: 2
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-h", "127.0.0.1", "-p", "5432", "-U", "hugo", "-d", "hugo"]
+            periodSeconds: 5
+            timeoutSeconds: 4
+            failureThreshold: 2
+            successThreshold: 1
+          startupProbe:
+            exec:
+              command: ["pg_isready", "-h", "127.0.0.1", "-p", "5432", "-U", "hugo", "-d", "hugo"]
+            periodSeconds: 5
+            timeoutSeconds: 4
+            failureThreshold: 24
+            successThreshold: 1
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
+---
+# Only the Hugo server (including its wait-for-database init container) reaches PostgreSQL.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: hugo-postgres
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hugo-postgres
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hugo-server
+      ports:
+        - port: 5432

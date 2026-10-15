@@ -87,18 +87,18 @@ These rules keep the plan honest:
 | 2 | Secrets vault | M1 | In progress | 11 / 12 |
 | 3 | Connector framework and tool invocation pipeline | M1 | Complete | 26 / 26 |
 | 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | In progress | 33 / 37 |
-| 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | In progress | 19 / 21 |
+| 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | In progress | 20 / 21 |
 | 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | In progress | 23 / 24 |
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | In progress | 21 / 22 |
 | 8 | Dashboard | M1 | In progress | 51 / 53 |
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | In progress | 14 / 15 |
-| 10 | Docker, testbed, and observability stack | M1 | In progress | 16 / 24 |
-| 11 | Documentation and Postman | M1 | In progress | 0 / 18 |
+| 10 | Docker, testbed, and observability stack | M1 | In progress | 18 / 24 |
+| 11 | Documentation and Postman | M1 | Complete | 18 / 18 |
 | 12 | MVP verification (milestone M1) | M1 | Not started | 0 / 14 |
 | 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | In progress | 30 / 38 |
 | 14 | Knowledge, runbooks, and operator conveniences | M2 | Not started | 0 / 12 |
 | 15 | Benchmarking | M3 | Not started | 0 / 16 |
-| 17 | Kubernetes and minikube | M2 | Not started | 0 / 16 |
+| 17 | Kubernetes and minikube | M2 | In progress | 15 / 16 |
 | 16 | Hardening, simulated user testing, and 1.0 release | M4 | Not started | 0 / 18 |
 
 Milestones:
@@ -134,7 +134,7 @@ Milestones:
   - Dynamic tools (D-044): add optional `IDynamicToolProvider` so external MCP tools appear as `<prefix>__<tool>`; fence remote instructions inside compiled instructions (P13.28).
   - SSH `jumpResourceName` (reuse another resource as bastion) needs a related-resource resolver; the jump settings cover the case today.
 - Next after the merges: Phase 3 pipeline (resources, invocation service, approvals), Phase 5 profiles and instructions, Phase 6 runtime, Phase 7 protocols.
-- Decisions D-001 through D-047 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
+- Decisions D-001 through D-051 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
 - Before P0.1, confirm the open questions in [section 23](#23-risks-and-open-questions) that are marked "before Phase 0".
 
 ---
@@ -268,6 +268,10 @@ This journey is the acceptance story for M1. Phase 12 replays it end to end.
 | D-045 | Deployment is container-only (user direction 2026-10-14). Hugo is deployed with Docker Compose (`docker/`), Kubernetes (`k8s/`: Kustomize base, components, k3s and production overlays, a Helm chart, and scripts), or minikube (`minikube/`: its own overlay and scripts). The README documents only these; build-and-test instructions live in `docs/DEVELOPMENT.md` and are explicitly not a deployment method. Native installers stay out of scope (D-026). Hugo runs as one replica on every runtime until the event hub and approval signals are shared across replicas (D-027); the manifests say so. This supersedes D-002. | The user wants one deployment model, containers, with Kubernetes and minikube as first-class targets. | 16, 17, 22 Phase 17 |
 | D-046 | MCP implementation details. MCP sessions live in memory (no database-backed cluster sessions); a restart drops them and clients reinitialize on 404, and a session is bound to principal, tenant, and profile. Problems with the profile itself (not found, locked, MCP not exposed, forbidden) are HTTP errors from the proxy with a JSON-RPC body, not tool errors. MCP tools are mapped through a separate protocol-operations list in `OperationScopeMap`. Hugo answers `initialize`, `server/discover`, `tools/list`, and `resources/list` itself; argument validation happens in the pipeline. | Single-replica deployment (D-045) makes in-memory sessions sufficient; the rest keeps existing route tests stable. | 14.3 |
 | D-047 | Agent-loop surface details. Hugo's own loop (chat, A2A, OpenAI-compatible) never offers the `hugo_*` meta tools or `ask_agent_smith` to its model, which prevents recursion. When a turn ends with an approval still pending, the next turn in that conversation begins with a system note carrying the decision and result. Failed or cancelled turns end with an assistant message stating the finish reason. A2A tasks run in the background (blocking sends wait up to 300 seconds), disconnects do not cancel them, and A2A send needs Execute on AgentProfile while get, list, and subscribe need Read on Conversation. `message_tool_calls.arguments_json` (scrubbed model tool arguments) joins the section 7.6 unmanaged JSON list, and `conversations.external_key` stores the OpenAI `user` key. | Recorded from the Phase 6 and 7 work. | 7.6, 13, 14.4, 14.5 |
+| D-048 | First login never forces a password change (user direction 2026-10-14). Seeded and administrator-reset accounts carry `mustChangePassword` as an advisory flag; the server blocks no route, and the dashboard shows a prompt with Change password and Skip (Skip lasts for the browser session and the prompt returns at the next sign-in). This replaces the P1.16 enforcement. | The forced change made first use and automation needlessly hostile; the prompt still nudges toward a real password. | 3.6, 15.2, 18 |
+| D-049 | Secrets have a distinct `BearerToken` kind (field `token`) for tokens sent exactly as `Authorization: Bearer`, alongside `ApiToken` for tokens whose header or format depends on the service. Slots that send a bearer header (HTTP and observability bearer auth, Kubernetes service account tokens, MCP and A2A connectors, SolarWinds Observability, model endpoint API keys in the dashboard) accept both; slots with their own header (Papertrail's `X-Papertrail-Token`, API key headers, the Azure account key) accept only `ApiToken`. The dashboard topbar also links the project Discord (https://discord.gg/tRAN8HgvK5) next to GitHub. | User direction 2026-10-14. | 12, 18 |
+| D-050 | Model endpoints (user direction 2026-10-14): names accept letters, digits, spaces, and `. _ - : / @` (model identifiers like `llama3:8b` are common names; names are labels, endpoints are referenced by ID). The create and edit forms have a Validate button backed by `POST /v1.0/api/model-endpoints/validate`, which checks unsaved settings with a tiny prompt or embedding and stores nothing. Validation results are shown as a laid-out view (outcome, model, kind, latency, dimensions, provider HTTP status, reply preview, error, problems), never as raw JSON. | Validating before saving avoids create-then-fix loops; raw JSON is not an operator experience. | 13.1, 18 |
+| D-051 | Kubernetes details from Phase 17: startup probes allow 5 minutes for first boot (readiness and liveness keep the 2-failure rule); third-party images use kubelet HTTP or TCP probes (the Kubernetes form of D-037); the dashboard pod runs as root with a writable root filesystem because the stock nginx image writes its config at startup (capabilities trimmed); the server PodDisruptionBudget is `maxUnavailable: 1` so node drains are not blocked; the namespace is fixed to `hugo`; the settings file is read-only in Kubernetes, so the dashboard Settings page cannot persist file changes there; components are add-ons layered on an overlay. | Recorded from the live minikube and k3s runs. | 17.5 |
 
 ---
 
@@ -1914,7 +1918,7 @@ Database intelligence (D-038)
 - [x] P5.18 Credential profile binding fields and routes (bind, lock).  | claude 2026-10-14 credential agentProfileId and lockToProfile
 - [x] P5.19 Profile, binding, and template audit events.  | claude 2026-10-14 profile, binding, template audit events
 - [x] P5.21 The instruction compiler includes each bound resource's root knowledge entry (for SQL, the database context summary) in its resource section, bounded by `Instructions.MaxKnowledgeCharsPerResource` (default 2000).  | claude 2026-10-14 root knowledge entry per binding, bounded by Instructions.MaxKnowledgeCharsPerResource
-- [ ] P5.20 `docs/PROMPTS.md`: layers, variables, how to customize defaults, reset semantics.
+- [x] P5.20 `docs/PROMPTS.md`: layers, variables, how to customize defaults, reset semantics.  | claude 2026-10-14 docs/PROMPTS.md: layers, variable roots, {{> key}} includes, compact instructions, reset semantics
 
 ### Phase 6: Model endpoints and agent runtime (M1)
 
@@ -2062,8 +2066,8 @@ Quality
 - [x] P10.4 `docker/hugo/hugo.json` default settings (SQLite) and a `hugo.postgres.json` variant.  | claude 2026-10-14 docker/hugo/hugo.json mounted as /app/config (0.0.0.0, /app/data paths, OTLP to Alloy); PostgreSQL via HUGO_DB_TYPE and the postgres profile
 - [~] P10.5 `.env.example`, plus `docker/start.sh`/`.bat` generating missing keys into `.env`.  | claude 2026-10-14 docker/.env.example and start.sh/.bat generating HUGO_MASTER_KEY and HUGO_AUTH_SIGNING_KEY; compose falls back to labeled development keys
 - [x] P10.6 `docker/update.bat` and `update.sh` per REPOSITORY_REQUIREMENTS.md.  | claude 2026-10-14 docker/update.sh and update.bat: pull, down, up -d, ps -a (non-destructive)
-- [~] P10.7 `docker/factory/compose.yaml`, seeded data, `reset.bat` and `reset.sh`.  | claude 2026-10-14 factory/reset.sh and reset.bat (typed RESET confirmation, down -v, up); factory seed and factory compose come with P10.8
-- [ ] P10.8 Factory demo content: demo resources pointing at the testbed, a profile with eight bindings (the joel scenario), and a demo credential.
+- [x] P10.7 `docker/factory/compose.yaml`, seeded data, `reset.bat` and `reset.sh`.  | claude 2026-10-14 docker/factory: compose.yaml (project hugo-factory, ports 8810/8811/3010/9091/3110/3210, testbed targets, ssh-keys and seed one-shots), reset.sh/.bat for the factory stack; docker/reset.sh/.bat resets the plain stack
+- [x] P10.8 Factory demo content: demo resources pointing at the testbed, a profile with eight bindings (the joel scenario), and a demo credential.  | claude 2026-10-14 seed.py through the REST API: demo password, six secrets, eight resources bound to Hugo with mixed access modes, optional Ollama endpoint, demo credential locked to Hugo, idempotent; verified with published v0.1.0 images incl. MCP initialize, tools/list (61), dry run, invoke, approval 202; docs/FACTORY.md
 - [x] P10.9 Prometheus config scraping `hugo-server:8800/metrics` on the internal network.  | claude 2026-10-14 Prometheus target hugo-server up
 - [~] P10.10 Tempo config (OTLP gRPC and HTTP), pinned to 2.6.1.  | claude 2026-10-14 docker/observability/tempo.yaml from Garrison; Alloy OTLP receiver forwards to Tempo
 - [~] P10.11 Loki config and Radiant log export.  | claude 2026-10-14 docker/observability/loki.yaml and Alloy container log shipping
@@ -2074,7 +2078,7 @@ Quality
 - [x] P10.16 Grafana dashboard: Tools and Connectors.  | claude 2026-10-14 hugo-tools
 - [x] P10.17 Grafana dashboard: Models.  | claude 2026-10-14 hugo-models
 - [x] P10.18 Grafana dashboards: MCP and A2A, Security.  | claude 2026-10-14 hugo-protocols and hugo-security, plus hugo-database, hugo-integrations, hugo-control-plane, hugo-logs; docs/GRAFANA.md
-- [~] P10.19 Dashboard JSON mirrored into `assets/grafana/` and `docker/factory/`, with a CI check that they match.  | claude 2026-10-14 scripts/check-grafana-mirror.sh validates JSON, UIDs, datasources, descriptions, and mirrors when present; CI wiring and factory mirror pending
+- [~] P10.19 Dashboard JSON mirrored into `assets/grafana/` and `docker/factory/`, with a CI check that they match.  | claude 2026-10-14 factory Grafana mirror in docker/factory/grafana, check-grafana-mirror.sh passes; CI wiring pending
 - [x] P10.20 Telemetry verifier script (`scripts/verify-telemetry.sh`): every catalog metric appears in Prometheus after a scripted workload.  | claude 2026-10-14 scripts/verify-telemetry.sh/.bat: PASS on a fresh stack (21 required families); hugo_authz_requests_total has no call site (gap)
 - [ ] P10.21 `compose.docker-socket.yaml` override for the Docker connector, documented.
 - [x] P10.22 Multi-arch image build scripts (`build-server`, `build-dashboard`, `build-all`, `.sh` and `.bat`).  | claude 2026-10-14 build-server, build-dashboard, build-all (.sh and .bat) at the repository root: Docker Build Cloud, linux/amd64 and linux/arm64, tags <tag> and latest, push then pull back (Garrison pattern); compose.yaml references jchristn77/hugo-server:v0.1.0 and jchristn77/hugo-dashboard:v0.1.0
@@ -2083,24 +2087,24 @@ Quality
 
 ### Phase 11: Documentation and Postman (M1)
 
-- [~] P11.1 `README.md`: what Hugo is, the Mr. Anderson journey, quick start (docker compose), connect Claude Code, architecture, connectors, safety model, links. Benchmarks section added in Phase 15.  | claude 2026-10-14 README rewritten: Docker is the only deployment (D-045), dashboard and service URLs, update and reset; logo uses a relative path (raw URLs break while the repository is private); developer instructions moved to docs/DEVELOPMENT.md
-- [ ] P11.2 `DOCKERHUB_README.md` from the README, with explicit asset URLs.
-- [ ] P11.3 `REST_API.md`: every route with method, path, parameters, bodies, status codes, auth, and examples.
-- [ ] P11.4 `MCP_API.md`: every tool with name, purpose, input schema, output shape, effect, and examples, plus prompts and resources, the approval flow, and client configuration for Claude Code and others.
-- [ ] P11.5 `A2A_API.md`: routes, card, methods, task states, approvals, examples.
-- [ ] P11.6 Postman collection: folders by area, collection, folder, and request descriptions, variables (`baseUrl`, `port`, `tenantId`, `email`, `password`, `token`, `accessKey`, `secretKey`, `profileName`), a token pre-request script, MCP and A2A JSON-RPC examples, a dry-run example per connector.
-- [ ] P11.7 Postman environment file and a Newman run script (`scripts/newman.sh`/`.bat`).
-- [ ] P11.8 `docs/ARCHITECTURE.md`.
-- [ ] P11.9 `docs/CONFIGURATION.md` (every setting, default, range, live or restart, env var).
-- [ ] P11.10 `docs/CONNECTORS.md` completed for wave 1.
-- [ ] P11.11 `docs/SECURITY.md` (tenancy, auth schemes, RBAC, built-in roles, secrets, reveal, master key handling and rotation).
-- [ ] P11.12 `docs/SAFETY_MODEL.md` (effects, access modes, approvals per surface, lockdown, least-privilege upstream guidance).
-- [ ] P11.13 `docs/TELEMETRY.md` (generated catalog plus dashboards).
-- [~] P11.14 `docs/DEVELOPMENT.md` (build, test on both providers, testbed, stub LLM, adding a connector).  | claude 2026-10-14 docs/DEVELOPMENT.md: build, tests on both providers, testbed, rebuilding images, dashboard dev server as a development aid only
-- [ ] P11.15 `docs/I18N.md` (adding locales, extraction, pseudo-locales, glossary).
-- [ ] P11.16 `docs/TROUBLESHOOTING.md` and `docs/UPGRADING.md`.
-- [ ] P11.17 `CHANGELOG.md` for `0.1.0-alpha`.
-- [ ] P11.18 Writing review: every document passes the WRITING_DOCUMENTS.md checklist. *Accept:* no em-dashes (CI), and a human-voice review recorded in the annotation.
+- [x] P11.1 `README.md`: what Hugo is, the Mr. Anderson journey, quick start (docker compose), connect Claude Code, architecture, connectors, safety model, links. Benchmarks section added in Phase 15.  | claude 2026-10-14 README: Docker Compose, Kubernetes, minikube; Mr. Anderson journey, factory demo, Claude Code, architecture diagram, connectors, safety model, Discord
+- [x] P11.2 `DOCKERHUB_README.md` from the README, with explicit asset URLs.  | claude 2026-10-14 DOCKERHUB_README mirrors README with absolute URLs; docker run example verified against the published image
+- [x] P11.3 `REST_API.md`: every route with method, path, parameters, bodies, status codes, auth, and examples.  | claude 2026-10-14 REST_API.md: all 205 routes with auth, parameters, fields, status codes, recorded curl examples; doc-vs-code mismatches noted
+- [x] P11.4 `MCP_API.md`: every tool with name, purpose, input schema, output shape, effect, and examples, plus prompts and resources, the approval flow, and client configuration for Claude Code and others.  | claude 2026-10-14 MCP_API.md: meta, delegation, management, mcp_* and a2a_* tools, prompts, resources, sessions vs stateless, approvals, errors; connector tools summarized and linked
+- [x] P11.5 `A2A_API.md`: routes, card, methods, task states, approvals, examples.  | claude 2026-10-14 A2A_API.md
+- [x] P11.6 Postman collection: folders by area, collection, folder, and request descriptions, variables (`baseUrl`, `port`, `tenantId`, `email`, `password`, `token`, `accessKey`, `secretKey`, `profileName`), a token pre-request script, MCP and A2A JSON-RPC examples, a dry-run example per connector.  | claude 2026-10-14 Postman collection: 21 folders, descriptions at every level, token pre-request flow, MCP and A2A examples, dry runs for 14 connector families
+- [x] P11.7 Postman environment file and a Newman run script (`scripts/newman.sh`/`.bat`).  | claude 2026-10-14 environment file and scripts/newman.sh/.bat; Newman 308 requests, 364 assertions, 0 failures on a fresh server (322/385 with a model endpoint)
+- [x] P11.8 `docs/ARCHITECTURE.md`.  | claude 2026-10-14 docs/ARCHITECTURE.md
+- [x] P11.9 `docs/CONFIGURATION.md` (every setting, default, range, live or restart, env var).  | claude 2026-10-14 docs/CONFIGURATION.md
+- [x] P11.10 `docs/CONNECTORS.md` completed for wave 1.  | claude 2026-10-14 docs/CONNECTORS.md (earlier) plus factual fixes
+- [x] P11.11 `docs/SECURITY.md` (tenancy, auth schemes, RBAC, built-in roles, secrets, reveal, master key handling and rotation).  | claude 2026-10-14 docs/SECURITY.md
+- [x] P11.12 `docs/SAFETY_MODEL.md` (effects, access modes, approvals per surface, lockdown, least-privilege upstream guidance).  | claude 2026-10-14 docs/SAFETY_MODEL.md
+- [x] P11.13 `docs/TELEMETRY.md` (generated catalog plus dashboards).  | claude 2026-10-14 docs/TELEMETRY.md generated catalog and docs/GRAFANA.md
+- [x] P11.14 `docs/DEVELOPMENT.md` (build, test on both providers, testbed, stub LLM, adding a connector).  | claude 2026-10-14 docs/DEVELOPMENT.md
+- [x] P11.15 `docs/I18N.md` (adding locales, extraction, pseudo-locales, glossary).  | claude 2026-10-14 docs/I18N.md
+- [x] P11.16 `docs/TROUBLESHOOTING.md` and `docs/UPGRADING.md`.  | claude 2026-10-14 docs/TROUBLESHOOTING.md and docs/UPGRADING.md
+- [x] P11.17 `CHANGELOG.md` for `0.1.0-alpha`.  | claude 2026-10-14 CHANGELOG.md for 0.1.0-alpha
+- [x] P11.18 Writing review: every document passes the WRITING_DOCUMENTS.md checklist. *Accept:* no em-dashes (CI), and a human-voice review recorded in the annotation.  | claude 2026-10-14 em-dash check, banned-opener lint (four fixed), link check, human-voice skim
 
 ### Phase 12: MVP verification (M1)
 
@@ -2213,22 +2217,22 @@ Wrap-up
 
 ### Phase 17: Kubernetes and minikube (M2, D-045)
 
-- [ ] P17.1 `k8s/base`: server and dashboard Deployments (one server replica, Recreate strategy), Services, ConfigMap from `docker/hugo/hugo.json` adapted for Kubernetes, PVC for `/app/data`, ServiceAccount, security contexts, NetworkPolicies, kustomization. *Accept:* `kubectl kustomize k8s/base` renders and `kubeconform` validates it.
-- [ ] P17.2 Probes: readiness, liveness, and startup via `curl` to `127.0.0.1` in the container (`periodSeconds: 5`, `failureThreshold: 2`); init container waiting for PostgreSQL when that component is used.
-- [ ] P17.3 `k8s/scripts/generate-secrets.sh/.bat`: create the Secret with generated master key, signing key, database and Grafana passwords; print where to back them up; never write them into the repository.
-- [ ] P17.4 `k8s/components/postgres`: StatefulSet, Service, PVC, Secret wiring, `HUGO_DB_TYPE=Postgresql`.
-- [ ] P17.5 `k8s/components/observability`: Prometheus (scraping the server Service), Tempo, Loki, Alloy (pod logs through the Kubernetes API), Grafana with the Hugo dashboards from `assets/grafana`; datasource UIDs unchanged.
-- [ ] P17.6 `k8s/components/ingress`: Ingress for the dashboard and API (MCP and A2A included), with SSE-safe annotations (buffering off, long timeouts).
-- [ ] P17.7 `k8s/overlays/k3s`: local-path storage, Traefik ingress, image pull policy for locally imported images.
-- [ ] P17.8 `k8s/overlays/production`: requests and limits, PodDisruptionBudget, topology hints, external PostgreSQL option, TLS on ingress.
-- [ ] P17.9 `k8s/helm/hugo`: chart mirroring base and components; `values.yaml` documented; a CI check renders Helm and Kustomize and compares the objects.
-- [ ] P17.10 `k8s/scripts`: deploy, port-forward, update (pull, rolling restart, pod status; non-destructive), factory-reset (delete PVCs and Secrets, redeploy, typed confirmation), wait-rollout, smoke-test (health, login, password change, list connectors); `.sh` and `.bat` pairs.
-- [ ] P17.11 `minikube/overlay`: minikube storage class, NodePort or ingress addon, image loading from the local Docker daemon (`minikube image load`) or Docker Hub.
-- [ ] P17.12 `minikube/scripts`: start (profile with CPU and memory defaults and the ingress and metrics-server addons), deploy, port-forward (8800, 8801, 3000), update, factory-reset, teardown, smoke-test; `.sh` and `.bat` pairs.
-- [ ] P17.13 Live verification on minikube: deploy from a clean profile, smoke test passes, the primary journey works through the dashboard, Grafana shows data, update keeps data, factory reset clears it. *Accept:* transcript and screenshots in the annotation.
-- [ ] P17.14 Live verification on k3s (k3s in Docker is acceptable): the same checks with the k3s overlay, with and without the postgres and observability components.
-- [ ] P17.15 `docs/KUBERNETES.md` and `minikube/README.md`, plus `k8s/README.md`: choosing a runtime, secrets first, deploy, reach, update, reset, back up (PVC plus the Secret together), and the single-replica limit.
-- [ ] P17.16 README, DOCKERHUB_README, and the simulated user testing inventory list all three deployment paths; CI renders the manifests and Helm chart on every push.
+- [x] P17.1 `k8s/base`: server and dashboard Deployments (one server replica, Recreate strategy), Services, ConfigMap from `docker/hugo/hugo.json` adapted for Kubernetes, PVC for `/app/data`, ServiceAccount, security contexts, NetworkPolicies, kustomization. *Accept:* `kubectl kustomize k8s/base` renders and `kubeconform` validates it.  | claude 2026-10-14 base: one server replica (Recreate), PVC, ConfigMap, non-root read-only root filesystem, NetworkPolicies
+- [x] P17.2 Probes: readiness, liveness, and startup via `curl` to `127.0.0.1` in the container (`periodSeconds: 5`, `failureThreshold: 2`); init container waiting for PostgreSQL when that component is used.  | claude 2026-10-14 curl probes to 127.0.0.1 every 5 s, failure/success threshold 2; startup probe allows 5 minutes; pg_isready init wait
+- [x] P17.3 `k8s/scripts/generate-secrets.sh/.bat`: create the Secret with generated master key, signing key, database and Grafana passwords; print where to back them up; never write them into the repository.  | claude 2026-10-14 generate-secrets creates hugo-secrets without overwriting unless --force
+- [x] P17.4 `k8s/components/postgres`: StatefulSet, Service, PVC, Secret wiring, `HUGO_DB_TYPE=Postgresql`.  | claude 2026-10-14 postgres component
+- [x] P17.5 `k8s/components/observability`: Prometheus (scraping the server Service), Tempo, Loki, Alloy (pod logs through the Kubernetes API), Grafana with the Hugo dashboards from `assets/grafana`; datasource UIDs unchanged.  | claude 2026-10-14 observability component (Prometheus, Tempo, Loki, Alloy, Grafana with Hugo dashboards)
+- [x] P17.6 `k8s/components/ingress`: Ingress for the dashboard and API (MCP and A2A included), with SSE-safe annotations (buffering off, long timeouts).  | claude 2026-10-14 ingress with SSE-safe annotations; /metrics not routed
+- [x] P17.7 `k8s/overlays/k3s`: local-path storage, Traefik ingress, image pull policy for locally imported images.  | claude 2026-10-14 k3s overlay
+- [x] P17.8 `k8s/overlays/production`: requests and limits, PodDisruptionBudget, topology hints, external PostgreSQL option, TLS on ingress.  | claude 2026-10-14 production overlay (requests/limits, PDB maxUnavailable 1, TLS, external PostgreSQL)
+- [x] P17.9 `k8s/helm/hugo`: chart mirroring base and components; `values.yaml` documented; a CI check renders Helm and Kustomize and compares the objects.  | claude 2026-10-14 Helm chart k8s/helm/hugo; k8s/tests/check-render.sh compares Helm and Kustomize objects for all 10 shapes
+- [x] P17.10 `k8s/scripts`: deploy, port-forward, update (pull, rolling restart, pod status; non-destructive), factory-reset (delete PVCs and Secrets, redeploy, typed confirmation), wait-rollout, smoke-test (health, login, password change, list connectors); `.sh` and `.bat` pairs.  | claude 2026-10-14 k8s scripts (.bat untested, no Windows host)
+- [x] P17.11 `minikube/overlay`: minikube storage class, NodePort or ingress addon, image loading from the local Docker daemon (`minikube image load`) or Docker Hub.  | claude 2026-10-14 minikube overlay
+- [x] P17.12 `minikube/scripts`: start (profile with CPU and memory defaults and the ingress and metrics-server addons), deploy, port-forward (8800, 8801, 3000), update, factory-reset, teardown, smoke-test; `.sh` and `.bat` pairs.  | claude 2026-10-14 minikube scripts start, deploy, port-forward, update, factory-reset, teardown, smoke-test
+- [x] P17.13 Live verification on minikube: deploy from a clean profile, smoke test passes, the primary journey works through the dashboard, Grafana shows data, update keeps data, factory reset clears it. *Accept:* transcript and screenshots in the annotation.  | claude 2026-10-14 minikube hugo-verify profile with published v0.1.0 images: smoke 10/10, Grafana data, ingress, update keeps data, reset clears, teardown
+- [x] P17.14 Live verification on k3s (k3s in Docker is acceptable): the same checks with the k3s overlay, with and without the postgres and observability components.  | claude 2026-10-14 k3s v1.35.5 via k3d: SQLite smoke 8/8 with Traefik ingress and SSE; PostgreSQL plus observability 10/10 with network policies; Helm install smoke 8/8
+- [x] P17.15 `docs/KUBERNETES.md` and `minikube/README.md`, plus `k8s/README.md`: choosing a runtime, secrets first, deploy, reach, update, reset, back up (PVC plus the Secret together), and the single-replica limit.  | claude 2026-10-14 docs/KUBERNETES.md, k8s/README.md, minikube/README.md
+- [~] P17.16 README, DOCKERHUB_README, and the simulated user testing inventory list all three deployment paths; CI renders the manifests and Helm chart on every push.  | claude 2026-10-14 README pointer and stale wording fixed; .github/workflows/k8s.yaml renders, validates (kubeconform), and compares; DOCKERHUB_README and simulated user testing inventory pending
 
 ### Phase 16: Hardening, simulated user testing, and 1.0 (M4)
 
