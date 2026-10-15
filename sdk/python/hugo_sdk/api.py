@@ -577,6 +577,11 @@ class ModelEndpointsApi(_Crud):
     def models(self, id: str) -> Any:
         return self._run(Call("GET", self._item(id) + "/models"))
 
+    def health_history(self, id: str, max_results: Optional[int] = None) -> Any:
+        """Recent health checks (validate and the server's health sweep), newest first, as dicts."""
+        query = {"maxResults": max_results} if max_results is not None else None
+        return self._run(Call("GET", self._item(id) + "/health-history", params=query))
+
 
 def _tool_call(tool_name: str, arguments: Optional[Dict[str, Any]], profile: Optional[str], profile_id: Optional[str],
                resource: Optional[str], resource_id: Optional[str]) -> Dict[str, Any]:
