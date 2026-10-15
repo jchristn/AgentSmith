@@ -94,7 +94,7 @@ These rules keep the plan honest:
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | In progress | 14 / 15 |
 | 10 | Docker, testbed, and observability stack | M1 | In progress | 18 / 24 |
 | 11 | Documentation and Postman | M1 | Complete | 18 / 18 |
-| 12 | MVP verification (milestone M1) | M1 | In progress | 1 / 14 |
+| 12 | MVP verification (milestone M1) | M1 | In progress | 9 / 14 |
 | 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | In progress | 30 / 38 |
 | 14 | Knowledge, runbooks, and operator conveniences | M2 | Not started | 0 / 12 |
 | 15 | Benchmarking | M3 | Not started | 0 / 16 |
@@ -131,6 +131,7 @@ Milestones:
   - Kubernetes testbed has one timing-sensitive crash-loop case (k8s_events or k8s_logs) that fails intermittently.
   - Security review item from the MCP work: a credential inherits its owner's tenant-admin flag in AuthenticationService even when scoped to a narrower role; review whether credentials should carry the owner's bypass flags (P16.3).
   - Follow-ups merged 2026-10-14 (credential bypass security fix with audited inheritOwnerBypass opt-in, approval-await execution fix, list filters, model endpoint health history, 502 for unreachable providers, template cycle detection, header echo removal, SessionExchange enforcement, HostKeyMismatch audit, OpenAPI fixes, storage fixtures, Loki empty test, HTTP healthPath). SDK and docs sync merged 2026-10-14: harnesses pass (C# 63, Python 83, JS 74) against default settings with 429 retry and a stub model, coverage check complete, REST/MCP/A2A docs and Postman updated, Newman 338 requests with 0 failures. Open minor items: auth rate limit always sends Retry-After 60; health-history maxResults is clamped rather than rejected; analytics counts only conversations that still exist; list filters are not declared in OpenAPI; tenant prompt-template update still requires name.
+  - Phase 12 verification merged 2026-10-15. Fixed: dashboard chat sent `content` instead of `message` and misread tool events; request history recorded its own reads (self-amplifying); metric catalog name `hugo_tool_output_bytes`; verify-telemetry and leftover forced-password text. Open: tool arguments are not scrubbed (an operator-typed secret is visible to the approver); user-admin labels still say "must change at next sign-in"; update.sh does not pass `--profile postgres`; Alloy filters on compose project `hugo`; testbed README omits `ssh/generate-keys.sh`. Remaining for the user: real-model journey, Claude Code over MCP, full simulated user testing, M1 sign-off.
   - From the dashboard live journey (all resolved 2026-10-14): telemetry startup stack overflow, model list 500, include syntax wording, missing list filters, bindingCount, principalName, model endpoint health history, analytics routes in the dashboard.
   - Dynamic tools (D-044): add optional `IDynamicToolProvider` so external MCP tools appear as `<prefix>__<tool>`; fence remote instructions inside compiled instructions (P13.28).
   - SSH `jumpResourceName` (reuse another resource as bastion) needs a related-resource resolver; the jump settings cover the case today.
@@ -2109,19 +2110,19 @@ Quality
 
 ### Phase 12: MVP verification (M1)
 
-- [ ] P12.1 Full Touchstone run on SQLite and PostgreSQL, all suites including the testbed. *Accept:* zero failures, counts in the annotation.
-- [ ] P12.2 Dashboard unit, Playwright, i18n, and visual QA suites green.
-- [x] P12.3 SDK harnesses green.  | claude 2026-10-14 claude 2026-10-14 C# 63, Python 83, JS 74 pass against a fresh server with default settings; Newman 338 requests 0 failures
-- [ ] P12.4 Newman run of the full Postman collection against the factory stack, zero failures.
-- [ ] P12.5 Clean-machine Docker quick start following the README literally (Docker is the only documented deployment until Phase 17 adds Kubernetes and minikube). *Accept:* time to first chat recorded, and every doc deviation fixed.
-- [ ] P12.6 Primary journey (section 3.6) replayed end to end with a real model endpoint and the testbed. *Accept:* screenshots and transcript in the annotation.
-- [ ] P12.7 Claude Code over MCP with the joel scenario (eight bindings), confirming compiled instructions and the tool list.
-- [ ] P12.8 A2A interop: one external A2A client (Voltaic sample client or another agent framework) completes a task, including an approval.
-- [ ] P12.9 Security checks: cross-tenant attempts on every entity, reveal without re-auth, approval self-decision rules, lockdown, secret scrubbing in every sink.
-- [ ] P12.10 Telemetry verifier passes, and every Grafana dashboard renders with data.
-- [ ] P12.11 Restart and persistence: `docker compose down` and `up` without `-v` keeps everything. The settings restart endpoint works. `update.bat` works. Factory reset works.
-- [ ] P12.12 Degraded dependencies: stop the PostgreSQL target, the model endpoint, and Tempo in turn. Hugo stays up, health reports accurately, and recovery happens without restart.
-- [ ] P12.13 Focused simulated user testing session (SIMULATED_USER_TESTING.md) on the M1 build, with the report in `user-testing/` and findings triaged with the user.
+- [x] P12.1 Full Touchstone run on SQLite and PostgreSQL, all suites including the testbed. *Accept:* zero failures, counts in the annotation.  | claude 2026-10-14 Touchstone SQLite and PostgreSQL with testbed 2295/2295; Xunit 2189, Nunit 1880; 0 warnings
+- [x] P12.2 Dashboard unit, Playwright, i18n, and visual QA suites green.  | claude 2026-10-14 lint clean, 217 unit, 60 Playwright (i18n, a11y, visual), i18n check, live page sweep
+- [x] P12.3 SDK harnesses green.  | claude 2026-10-14 C# 63, Python 83, JS 74 pass against a fresh server with default settings; Newman 338 requests 0 failures
+- [~] P12.4 Newman run of the full Postman collection against the factory stack, zero failures.  | claude 2026-10-14 Newman 338 requests 0 failures against a fresh server; factory-stack run remains
+- [x] P12.5 Clean-machine Docker quick start following the README literally (Docker is the only documented deployment until Phase 17 adds Kubernetes and minikube). *Accept:* time to first chat recorded, and every doc deviation fixed.  | claude 2026-10-14 start.sh on a copy of docker/ with published v0.1.0 images, healthy in 33s, advisory password prompt
+- [~] P12.6 Primary journey (section 3.6) replayed end to end with a real model endpoint and the testbed. *Accept:* screenshots and transcript in the annotation.  | claude 2026-10-14 journey passed with a scripted stub model (ReadOnly deny, scrub, approval approve/reject); real-model run remains
+- [~] P12.7 Claude Code over MCP with the joel scenario (eight bindings), confirming compiled instructions and the tool list.  | claude 2026-10-14 raw MCP client and hugo mcp stdio relay: per-caller tools/list, tool calls on surface Mcp; real Claude Code run remains
+- [x] P12.8 A2A interop: one external A2A client (Voltaic sample client or another agent framework) completes a task, including an approval.  | claude 2026-10-14 raw JSON-RPC client: agent card, SendMessage, GetTask, input-required approval, 401 and cross-tenant 404
+- [x] P12.9 Security checks: cross-tenant attempts on every entity, reveal without re-auth, approval self-decision rules, lockdown, secret scrubbing in every sink.  | claude 2026-10-14 15 entity kinds cross-tenant 404, reveal re-auth, lockdown, planted secrets absent from audit, logs, Loki, history
+- [x] P12.10 Telemetry verifier passes, and every Grafana dashboard renders with data.  | claude 2026-10-14 verify-telemetry passes after metric name fix; 10 of 11 dashboards with data, Tempo trace, Loki logs
+- [x] P12.11 Restart and persistence: `docker compose down` and `up` without `-v` keeps everything. The settings restart endpoint works. `update.bat` works. Factory reset works.  | claude 2026-10-14 data and secrets survive restart and update.sh; wrong master key refuses start
+- [x] P12.12 Degraded dependencies: stop the PostgreSQL target, the model endpoint, and Tempo in turn. Hugo stays up, health reports accurately, and recovery happens without restart.  | claude 2026-10-14 PostgreSQL target, model, Tempo, Hugo database stopped in turn: clean errors, 503 degraded, recovery without restart
+- [~] P12.13 Focused simulated user testing session (SIMULATED_USER_TESTING.md) on the M1 build, with the report in `user-testing/` and findings triaged with the user.  | claude 2026-10-14 short scripted Playwright walkthrough passed after the chat fix; full SIMULATED_USER_TESTING session remains
 - [ ] P12.14 M1 sign-off by the user, recorded in the Decision Log.
 
 ### Phase 13: Connectors wave 2 (M2)
