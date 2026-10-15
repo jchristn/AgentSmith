@@ -1,6 +1,6 @@
 import { createHash, createHmac } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { buildQuery, canonicalize, HugoError, parseSseStream, SDK_VERSION, sign, signingDate, SseParser } from "../src/index.js";
+import { buildQuery, canonicalize, HugoClient, HugoError, parseSseStream, SDK_VERSION, sign, signingDate, SseParser } from "../src/index.js";
 
 describe("unit: SSE parser", () => {
   it("parses events split across arbitrary chunks, comments, multi-line data, and CRLF", () => {
@@ -65,5 +65,37 @@ describe("unit: errors and query", () => {
   it("buildQuery skips empty values and formats dates and booleans", () => {
     expect(buildQuery({ a: 1, b: undefined, c: null, d: "", e: true, f: new Date("2026-01-01T00:00:00Z"), g: "x y" })).toBe("a=1&e=true&f=2026-01-01T00%3A00%3A00.000Z&g=x%20y");
     expect(SDK_VERSION).toBe("0.1.0-alpha");
+  });
+});
+
+describe("unit: rate limit retries", () => {
+  function fakeFetch(statuses: number[], seen: number[]): typeof fetch {
+    return (async () => {
+      const status = statuses[Math.min(seen.length, statuses.length - 1)];
+      seen.push(status);
+      const body = status === 429 ? JSON.stringify({ error: "TooManyRequests", code: "RateLimited", message: "slow down" }) : JSON.stringify({ ok: true });
+      return new Response(body, { status, headers: status === 429 ? { "Retry-After": "0.01" } : {} });
+    }) as unknown as typeof fetch;
+  }
+
+  it("retries a 429 after Retry-After when rateLimitRetries is set", async () => {
+    const seen: number[] = [];
+    const client = new HugoClient("http://127.0.0.1:1", { fetch: fakeFetch([429, 429, 200], seen), rateLimitRetries: 3 });
+    expect(await client.transport.request("GET", "/x", { anonymous: true })).toEqual({ ok: true });
+    expect(seen).toEqual([429, 429, 200]);
+  });
+
+  it("throws the 429 with retryAfter when retries are off (the default) or exhausted", async () => {
+    const seen: number[] = [];
+    const off = new HugoClient("http://127.0.0.1:1", { fetch: fakeFetch([429], seen) });
+    const err = await off.transport.request("GET", "/x", { anonymous: true }).catch((e: HugoError) => e) as HugoError;
+    expect(err).toBeInstanceOf(HugoError);
+    expect(err.code).toBe("RateLimited");
+    expect(err.retryAfter).toBe("0.01");
+    expect(seen).toEqual([429]);
+    const exhausted: number[] = [];
+    const few = new HugoClient("http://127.0.0.1:1", { fetch: fakeFetch([429], exhausted), rateLimitRetries: 2 });
+    await expect(few.transport.request("GET", "/x", { anonymous: true })).rejects.toBeInstanceOf(HugoError);
+    expect(exhausted).toEqual([429, 429, 429]);
   });
 });

@@ -1,8 +1,8 @@
 /**
- * Harness bootstrap shared by the Vitest global setup and the examples: environment, admin sign-in (clearing a
- * first-login must-change-password flag), and tenant provisioning and cleanup.
+ * Harness bootstrap shared by the Vitest global setup and the examples: environment, admin sign-in, and tenant
+ * provisioning and cleanup.
  */
-import { HugoClient, HugoError } from "../src/index.js";
+import { HugoClient, HugoClientOptions, HugoError } from "../src/index.js";
 
 /** Harness environment. */
 export interface HarnessEnv {
@@ -40,6 +40,18 @@ export function randomPassword(): string {
   return `Sdk-${randomSuffix(8)}-${randomSuffix(8)}!`;
 }
 
+/**
+ * Retries the harness clients make after a 429. The server's authentication rate limit (Auth.RateLimitPerMinute,
+ * default 10 per source IP and per identity in fixed one-minute windows) answers 429 with Retry-After: 60, and a full
+ * run signs in more than ten times, so every harness client waits and retries instead of needing a raised limit.
+ */
+export const HARNESS_RATE_LIMIT_RETRIES = 3;
+
+/** A client for the harness server that waits out the authentication rate limit. */
+export function harnessClient(server: string, options: HugoClientOptions = {}): HugoClient {
+  return new HugoClient(server, { rateLimitRetries: HARNESS_RATE_LIMIT_RETRIES, ...options });
+}
+
 function utcStamp(): string {
   const d = new Date();
   const p = (n: number) => String(n).padStart(2, "0");
@@ -47,18 +59,12 @@ function utcStamp(): string {
 }
 
 /**
- * Sign in as the administrator. When the account still has must-change-password set (first login on a fresh
- * server), change the password to a temporary value and back to the configured one on the same session, which
- * clears the flag and keeps reruns working.
+ * Sign in as the administrator. On a fresh server the seeded account reports mustChangePassword, which is advisory
+ * (D-048): every route works, so the harness leaves the password as configured.
  */
 export async function adminLogin(env: HarnessEnv): Promise<HugoClient> {
-  const admin = new HugoClient(env.server, { autoRefresh: false });
-  const issued = await admin.login(env.adminEmail, env.adminPassword, env.adminTenant);
-  if (issued.mustChangePassword) {
-    const temporary = `${env.adminPassword}-sdk-tmp-${randomSuffix(6)}`;
-    await admin.changePassword(env.adminPassword, temporary);
-    await admin.changePassword(temporary, env.adminPassword);
-  }
+  const admin = harnessClient(env.server, { autoRefresh: false });
+  await admin.login(env.adminEmail, env.adminPassword, env.adminTenant);
   return admin;
 }
 
@@ -73,7 +79,7 @@ export async function provision(env: HarnessEnv): Promise<{ context: HarnessCont
     admin.tenantId = tenant.id;
     const owner = await admin.users.create({ email: ownerEmail, password: ownerPassword, firstName: "Sdk", lastName: "Owner", isTenantAdmin: true, mustChangePassword: false });
     admin.tenantId = env.adminTenant;
-    const ownerClient = new HugoClient(env.server, { autoRefresh: false });
+    const ownerClient = harnessClient(env.server, { autoRefresh: false });
     const issued = await ownerClient.login(ownerEmail, ownerPassword, tenant.id);
     return {
       admin,

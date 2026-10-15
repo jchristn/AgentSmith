@@ -43,6 +43,27 @@ namespace Hugo.Sdk.Clients
         }
 
         /// <summary>
+        /// List one page of resources with filters. Unset filter properties are not sent.
+        /// </summary>
+        /// <param name="filter">Filter.</param>
+        /// <param name="query">Optional paging, ordering, and search.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Page.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when filter is null.</exception>
+        /// <exception cref="HugoException">Thrown on a non-success status (400 ValidationFailed listing the allowed values when health is not Healthy, Unhealthy, or Unknown).</exception>
+        public Task<EnumerationResult<Resource>> ListAsync(ResourceFilter filter, EnumerationQuery? query = null, CancellationToken token = default)
+        {
+            if (filter == null) throw new ArgumentNullException(nameof(filter));
+            Dictionary<string, string?> filters = new Dictionary<string, string?>
+            {
+                { "connectorType", filter.ConnectorType },
+                { "environment", filter.Environment },
+                { "health", filter.Health }
+            };
+            return ListAsync(query, filters, token);
+        }
+
+        /// <summary>
         /// Test a saved resource's connection and record the result.
         /// </summary>
         /// <param name="id">Resource identifier.</param>

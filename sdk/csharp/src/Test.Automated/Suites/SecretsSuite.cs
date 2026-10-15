@@ -44,15 +44,44 @@ namespace Test.Automated.Suites
                 Secret read = await ctx.Owner.Secrets.GetAsync(secret.Id).ConfigureAwait(false);
                 Check.Equal(secret.Name, read.Name, "name");
                 SecretRequest update = new SecretRequest();
-                update.Name = secret.Name;
-                update.Kind = secret.Kind;
                 update.Description = "updated description";
                 Secret updated = await ctx.Owner.Secrets.UpdateAsync(secret.Id, update).ConfigureAwait(false);
                 Check.Equal("updated description", updated.Description, "description");
+                Check.Equal(secret.Name, updated.Name, "an omitted name is kept");
+                Check.Equal(SecretKindEnum.Password, updated.Kind, "an omitted kind is kept");
                 EnumerationResult<Secret> page = await ctx.Owner.Secrets.ListAsync().ConfigureAwait(false);
                 Check.True(page.Objects.Any(s => s.Id == secret.Id), "listed");
                 await ctx.Owner.Secrets.DeleteAsync(secret.Id).ConfigureAwait(false);
                 await Check.FailsAsync(() => ctx.Owner.Secrets.GetAsync(secret.Id), 404, "NotFound").ConfigureAwait(false);
+            }).ConfigureAwait(false);
+
+            await runner.RunAsync("BearerToken secrets and the kind filter", async () =>
+            {
+                SecretRequest request = new SecretRequest();
+                request.Name = Unique("bearer");
+                request.Kind = SecretKindEnum.BearerToken;
+                request.Values = new Dictionary<string, string> { { "token", "bearer-token-value-1234" } };
+                Secret bearer = await ctx.Owner.Secrets.CreateAsync(request).ConfigureAwait(false);
+                Secret password = await CreateAsync(ctx.Owner, Unique("pw"), "another-value-1234").ConfigureAwait(false);
+                try
+                {
+                    Check.Equal(SecretKindEnum.BearerToken, bearer.Kind, "kind");
+                    Check.True(bearer.Fields.Contains("token"), "token field");
+                    SecretFilter filter = new SecretFilter();
+                    filter.Kind = "BearerToken";
+                    EnumerationResult<Secret> page = await ctx.Owner.Secrets.ListAsync(filter).ConfigureAwait(false);
+                    Check.True(page.Objects.Any(s => s.Id == bearer.Id), "kind filter includes the bearer token");
+                    Check.True(page.Objects.All(s => s.Kind == SecretKindEnum.BearerToken), "kind filter excludes other kinds");
+                    SecretFilter bad = new SecretFilter();
+                    bad.Kind = "NoSuchKind";
+                    HugoException e = await Check.FailsAsync(() => ctx.Owner.Secrets.ListAsync(bad), 400, "ValidationFailed").ConfigureAwait(false);
+                    Check.True(e.Message.Contains("BearerToken", StringComparison.Ordinal), "the error lists the allowed values");
+                }
+                finally
+                {
+                    await ctx.Owner.Secrets.DeleteAsync(bearer.Id).ConfigureAwait(false);
+                    await ctx.Owner.Secrets.DeleteAsync(password.Id).ConfigureAwait(false);
+                }
             }).ConfigureAwait(false);
 
             await runner.RunAsync("Secret values and referrers", async () =>

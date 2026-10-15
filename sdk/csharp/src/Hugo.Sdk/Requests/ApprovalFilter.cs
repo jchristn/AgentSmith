@@ -1,6 +1,6 @@
 namespace Hugo.Sdk.Requests
 {
-    using Hugo.Sdk.Models;
+    using System;
 
     /// <summary>
     /// Approval list filter.
@@ -33,6 +33,21 @@ namespace Hugo.Sdk.Requests
         /// Tool name.
         /// </summary>
         public string? ToolName { get; set; } = null;
+
+        /// <summary>
+        /// Effect of the gated call: Read, Write, or Destructive.
+        /// </summary>
+        public string? Effect { get; set; } = null;
+
+        /// <summary>
+        /// Only approvals created at or after this time, UTC.
+        /// </summary>
+        public DateTime? FromUtc { get; set; } = null;
+
+        /// <summary>
+        /// Only approvals created before this time, UTC.
+        /// </summary>
+        public DateTime? ToUtc { get; set; } = null;
 
         #endregion
     }

@@ -196,6 +196,11 @@ export interface Credential extends Entity {
   authMode?: CredentialAuthMode;
   agentProfileId?: string;
   lockToProfile?: boolean;
+  /**
+   * Whether the credential carries its owner's administrator or tenant administrator bypass. Default false: a
+   * credential's access comes only from its role assignments.
+   */
+  inheritOwnerBypass?: boolean;
   lastUsedUtc?: string;
   expiresUtc?: string;
 }
@@ -206,7 +211,15 @@ export interface CredentialRequest extends Json {
   authMode?: CredentialAuthMode;
   expiresUtc?: string;
   active?: boolean;
+  /** Built-in or custom role assigned at creation (for example Viewer or Operator). Without one, the credential has no access. */
   roleName?: string;
+  agentProfileId?: string;
+  lockToProfile?: boolean;
+  /**
+   * Carry the owner's administrator bypass. Only a signed-in tenant or system administrator may set or change it
+   * (403 BypassRequiresAdministrator otherwise); changes are audited as CredentialBypassChanged.
+   */
+  inheritOwnerBypass?: boolean;
 }
 
 /** Create and rotate return the secret key once. */
@@ -302,6 +315,8 @@ export interface AuthSession extends Entity {
   userId?: string;
   credentialId?: string;
   principalType?: PrincipalType;
+  /** Display name of the principal (user email or credential name). */
+  principalName?: string;
   authScheme?: AuthScheme;
   sourceIp?: string;
   userAgent?: string;
@@ -310,6 +325,13 @@ export interface AuthSession extends Entity {
   revokedUtc?: string;
   revocationReason?: string;
   reauthenticatedUtc?: string;
+}
+
+/** Filter for sessions.list. */
+export interface SessionFilter extends EnumerationQuery {
+  principalType?: PrincipalType;
+  userId?: string;
+  credentialId?: string;
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -408,6 +430,11 @@ export interface RequestHistorySummary extends Json {
 // ---------------------------------------------------------------------------------------------------------------
 
 export type SecretKind = "Password" | "PrivateKey" | "ApiToken" | "AccessKeyPair" | "ServiceAccountJson" | "Kubeconfig" | "ConnectionString" | "Certificate" | "Generic" | "BearerToken";
+
+/** Filter for secrets.list. */
+export interface SecretFilter extends EnumerationQuery {
+  kind?: SecretKind;
+}
 
 export interface SecretReferrer extends Json {
   referrerType: string;
@@ -600,6 +627,8 @@ export type ApprovalStatus = "Pending" | "Approved" | "Rejected" | "Expired" | "
 export type ModelKind = "Inference" | "Embedding";
 export type ModelProvider = "Ollama" | "OpenAI" | "OpenAICompatible" | "Anthropic" | "Gemini" | "AzureOpenAI" | "Bedrock" | "VertexAI" | "VoyageAI";
 export type KnowledgeSource = "Operator" | "Generated" | "Agent" | "Derived";
+export type HealthStatus = "Unknown" | "Healthy" | "Unhealthy";
+export type InstructionDetail = "Auto" | "Full" | "Compact";
 
 export interface SettingDescriptor extends Json {
   key: string;
@@ -724,6 +753,10 @@ export type ResourceTestResult = ResourceTestResponse;
 /** Filter for resources.list. */
 export interface ResourceFilter extends EnumerationQuery {
   connectorType?: string;
+  /** Exact environment label, for example prod. */
+  environment?: string;
+  /** Health from the last connection test: Healthy, Unhealthy, or Unknown (never tested). */
+  health?: HealthStatus;
 }
 
 export interface ResourceReferrer extends Json {
@@ -781,7 +814,10 @@ export interface AgentProfile extends Entity {
   exposeOpenAI?: boolean;
   exposeManagementTools?: boolean;
   instructionsAppend?: string;
+  instructionDetail?: InstructionDetail;
   isDefault?: boolean;
+  /** Number of resource bindings (read only). */
+  bindingCount?: number;
 }
 
 export type AgentProfileRequest = Partial<Omit<AgentProfile, "id" | "tenantId" | "createdUtc" | "lastUpdateUtc">> & Json;
@@ -934,12 +970,19 @@ export interface ModelEndpoint extends Entity {
   maxConcurrency?: number;
   timeoutSeconds?: number;
   maxRetries?: number;
-  healthStatus?: string;
+  healthStatus?: HealthStatus;
   lastHealthUtc?: string;
   lastHealthMessage?: string;
 }
 
 export type ModelEndpointRequest = Partial<Omit<ModelEndpoint, "id" | "tenantId" | "createdUtc" | "lastUpdateUtc">> & Json;
+
+/** Filter for modelEndpoints.list. */
+export interface ModelEndpointFilter extends EnumerationQuery {
+  kind?: ModelKind;
+  provider?: ModelProvider;
+  health?: HealthStatus;
+}
 
 export interface ModelValidationResult extends Json {
   success: boolean;
@@ -958,8 +1001,9 @@ export interface ModelEndpointHealthRecord extends Json {
   id: string;
   tenantId: string;
   modelEndpointId: string;
-  status?: string;
-  source?: string;
+  status?: HealthStatus;
+  /** Sweep (the server's periodic check) or Validate (an explicit validate call). */
+  source?: "Sweep" | "Validate";
   latencyMs?: number | null;
   message?: string | null;
   checkedUtc?: string;
@@ -1047,7 +1091,13 @@ export interface ToolInvocationFilter extends EnumerationQuery {
   surface?: InvocationSurface;
   conversationId?: string;
   principalId?: string;
-  since?: string;
+  effect?: Effect;
+  /** Invocations created at or after this time (ISO 8601). */
+  fromUtc?: string | Date;
+  /** Invocations created at or before this time (ISO 8601). */
+  toUtc?: string | Date;
+  /** Older name for fromUtc, still accepted. */
+  since?: string | Date;
 }
 
 export interface ToolInvocationSummary extends Json {
@@ -1092,6 +1142,11 @@ export interface ApprovalFilter extends EnumerationQuery {
   resourceId?: string;
   principalId?: string;
   toolName?: string;
+  effect?: Effect;
+  /** Approvals created at or after this time (ISO 8601). */
+  fromUtc?: string | Date;
+  /** Approvals created at or before this time (ISO 8601). */
+  toUtc?: string | Date;
 }
 
 export interface LockdownState extends Json {
@@ -1100,8 +1155,8 @@ export interface LockdownState extends Json {
   approvalsCancelled?: number;
 }
 
-export type ConversationSource = "Dashboard" | "A2A" | "OpenAI" | "Mcp" | string;
-export type MessageRole = "System" | "User" | "Assistant" | "Tool";
+export type ConversationSource = "Dashboard" | "A2A" | "OpenAI" | "Mcp" | "Rest" | string;
+export type MessageRole = "User" | "Assistant" | "Tool" | "Summary" | "System";
 
 export interface Conversation extends Entity {
   tenantId?: string;
@@ -1110,6 +1165,8 @@ export interface Conversation extends Entity {
   agentProfileId?: string;
   title?: string;
   source?: ConversationSource;
+  a2AContextId?: string;
+  externalKey?: string;
   messageCount?: number;
   lastMessageUtc?: string;
   totalInputTokens?: number;
@@ -1121,24 +1178,183 @@ export interface ConversationRequest extends Json {
   title?: string;
 }
 
-export interface Message extends Json {
+/** Filter for conversations.list. */
+export interface ConversationFilter extends EnumerationQuery {
+  agentProfileId?: string;
+  source?: ConversationSource;
+}
+
+/** One stored conversation message (GET /conversations/{id}/messages). */
+export interface ConversationMessage extends Json {
   id: string;
+  tenantId?: string;
   conversationId: string;
+  turnId?: string;
+  sequence?: number;
   role: MessageRole;
   content?: string;
   thinkingContent?: string;
-  sequence?: number;
+  toolCalls?: Json[];
+  toolCallId?: string;
+  toolName?: string;
   modelEndpointId?: string;
   inputTokens?: number;
   outputTokens?: number;
   timeToFirstTokenMs?: number;
   durationMs?: number;
   finishReason?: string;
+  compacted?: boolean;
   createdUtc?: string;
 }
 
+/** Older name of ConversationMessage. */
+export type Message = ConversationMessage;
+
+/** Body of POST /conversations/{id}/messages and POST /agent-profiles/{id}/ask. */
 export interface SendMessageRequest extends Json {
-  content: string;
+  message: string;
+  /** Ask only: continue an existing conversation. */
+  conversationId?: string;
+}
+
+export type TurnFinishReason = "Completed" | "MaxIterations" | "ToolCallLimit" | "ApprovalPending" | "Cancelled" | "Error";
+
+/** A message produced during a turn. */
+export interface TurnMessage extends Json {
+  id?: string;
+  conversationId?: string;
+  turnId?: string;
+  role: MessageRole;
+  content?: string;
+  thinking?: string;
+  toolCalls?: Json[];
+  toolCallId?: string;
+  toolName?: string;
+  tokensIn?: number;
+  tokensOut?: number;
+  createdUtc?: string;
+}
+
+/** A tool call made during a turn. */
+export interface TurnToolCall extends Json {
+  callId?: string;
+  toolName?: string;
+  resource?: string;
+  argumentsJson?: string;
+  effect?: Effect;
+  decision?: InvocationDecision;
+  approvalId?: string;
+  durationMs?: number;
+  approvalWaitMs?: number;
+  isError?: boolean;
+  errorCode?: string;
+  truncated?: boolean;
+  outputPreview?: string;
+  iteration?: number;
+  parallel?: boolean;
+}
+
+/** Result of a non-streaming POST /conversations/{id}/messages. */
+export interface AgentTurnResult extends Json {
+  turnId: string;
+  conversationId: string;
+  finalText?: string;
+  thinking?: string;
+  messages?: TurnMessage[];
+  toolCalls?: TurnToolCall[];
+  tokensIn?: number;
+  tokensOut?: number;
+  tokensEstimated?: boolean;
+  timeToFirstTokenMs?: number;
+  durationMs?: number;
+  iterations?: number;
+  finishReason?: TurnFinishReason;
+  errorCode?: string;
+  errorMessage?: string;
+  compacted?: boolean;
+  toolsAvailable?: number;
+  toolsOffered?: number;
+  toolRetrievalUsed?: boolean;
+  usedFallback?: boolean;
+  model?: string;
+  pendingApprovalId?: string;
+}
+
+/** Response of POST /conversations/{id}/cancel. */
+export interface ConversationCancelResponse extends Json {
+  conversationId: string;
+  /** True when a running turn was cancelled. */
+  cancelled: boolean;
+}
+
+/** Result of POST /agent-profiles/{id}/ask. */
+export interface AgentDelegationResult extends Json {
+  finalText?: string;
+  conversationId?: string;
+  status: "Completed" | "ApprovalPending" | "Failed";
+  approvalId?: string;
+  toolTrace?: string[];
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Analytics
+// ---------------------------------------------------------------------------------------------------------------
+
+export type AnalyticsInterval = "minute" | "hour" | "day";
+
+/** Window for analytics reports. Defaults: to now, from seven days earlier, interval chosen by window length (up to 6 hours minute, up to 3 days hour, else day). */
+export interface AnalyticsQuery {
+  from?: string | Date;
+  to?: string | Date;
+  interval?: AnalyticsInterval;
+}
+
+export interface AnalyticsBucket extends Json {
+  startUtc: string;
+  turns: number;
+  inputTokens: number;
+  outputTokens: number;
+  toolCalls: number;
+  toolErrors: number;
+  approvals: number;
+  avgTimeToFirstTokenMs?: number;
+  avgTurnDurationMs?: number;
+}
+
+export interface AnalyticsToolRow extends Json {
+  toolName: string;
+  connectorType?: string;
+  calls: number;
+  errors: number;
+  denied: number;
+  approvals: number;
+  avgDurationMs?: number;
+}
+
+export interface AnalyticsModelRow extends Json {
+  modelEndpointId: string;
+  name?: string;
+  provider?: string;
+  model?: string;
+  turns: number;
+  inputTokens: number;
+  outputTokens: number;
+  avgTimeToFirstTokenMs?: number;
+  avgTurnDurationMs?: number;
+}
+
+/** One analytics report (overview, tokens, tools, or models). */
+export interface AnalyticsReport extends Json {
+  kind: string;
+  fromUtc: string;
+  toUtc: string;
+  interval: AnalyticsInterval | string;
+  conversations: number;
+  totals: AnalyticsBucket;
+  approvalsRequested: number;
+  buckets: AnalyticsBucket[];
+  tools: AnalyticsToolRow[];
+  models: AnalyticsModelRow[];
 }
 
 /** Chat stream event types emitted by POST /conversations/{id}/messages with Accept: text/event-stream. */
@@ -1152,6 +1368,7 @@ export type ChatEventType =
   | "approval.required"
   | "approval.resolved"
   | "turn.completed"
+  | "stream.closed"
   | "error";
 
 /** One chat stream event. payload is the parsed JSON data, when the data is JSON. */

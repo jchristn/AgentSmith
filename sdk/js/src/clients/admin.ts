@@ -2,6 +2,7 @@ import type {
   AuditFilter,
   AuditRecord,
   DeleteCountResponse,
+  EnumerationResult,
 
 
   HealthResponse,
@@ -18,6 +19,7 @@ import type {
   RequestHistorySummary,
   Secret,
   SecretImportRequest,
+  SecretFilter,
   SecretImportResult,
   SecretReferrer,
   SecretRequest,
@@ -91,6 +93,11 @@ export class RequestHistoryClient {
 export class SecretsClient extends TenantCollection<Secret, SecretRequest> {
   constructor(t: Transport) {
     super(t, "secrets");
+  }
+
+  /** List secrets, optionally filtered by kind (an unknown kind answers 400 ValidationFailed). */
+  override list(query?: SecretFilter): Promise<EnumerationResult<Secret>> {
+    return super.list(query);
   }
 
   /** Replace the supplied field values; omitted fields keep stored values; remove deletes fields. */

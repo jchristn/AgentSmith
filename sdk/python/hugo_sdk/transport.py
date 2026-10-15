@@ -3,10 +3,12 @@ automatic session refresh, and server-sent event streams."""
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import hmac
 import json
 import secrets as _secrets
+import time
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from typing import Any, AsyncIterator, Callable, Dict, Iterator, Optional, Tuple
@@ -111,12 +113,30 @@ class AuthState:
 
 
 class _TransportBase:
-    def __init__(self, base_url: str, timeout: float, auth: Optional[AuthState] = None):
+    def __init__(self, base_url: str, timeout: float, auth: Optional[AuthState] = None, rate_limit_retries: int = 0,
+                 rate_limit_max_wait: float = 90.0):
         if not base_url:
             raise ValueError("base_url is required")
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self.auth = auth or AuthState()
+        self.rate_limit_retries = max(0, int(rate_limit_retries or 0))
+        self.rate_limit_max_wait = max(0.0, float(rate_limit_max_wait))
+
+    def _retry_delay(self, status: int, retry_after: Optional[str], attempt: int) -> Optional[float]:
+        """Seconds to wait before retrying a 429, or None when the response is not retried. Honors Retry-After
+        (seconds), falls back to exponential backoff (1, 2, 4, ... seconds), and caps the wait at rate_limit_max_wait."""
+        if status != 429 or attempt >= self.rate_limit_retries:
+            return None
+        delay: Optional[float] = None
+        if retry_after:
+            try:
+                delay = float(retry_after.strip())
+            except ValueError:
+                delay = None
+        if delay is None or delay < 0:
+            delay = float(2 ** attempt)
+        return min(delay, self.rate_limit_max_wait)
 
     def tenant_path(self, suffix: str = "", tenant_id: Optional[str] = None) -> str:
         tenant = tenant_id or self.auth.tenant_id
@@ -183,9 +203,9 @@ class _TransportBase:
         return a.token_expires_utc - datetime.now(timezone.utc) <= timedelta(seconds=a.refresh_skew_seconds)
 
     @staticmethod
-    def _finish(call: Call, status: int, text: str, request_id: Optional[str]) -> Any:
+    def _finish(call: Call, status: int, text: str, request_id: Optional[str], retry_after: Optional[str] = None) -> Any:
         if status >= 400:
-            raise HugoError(status, text, request_id)
+            raise HugoError(status, text, request_id, retry_after)
         if call.raw_text:
             result: Any = text
         else:
@@ -216,17 +236,24 @@ class SyncTransport(_TransportBase):
     """Blocking transport on httpx.Client."""
 
     def __init__(self, base_url: str = DEFAULT_BASE_URL, timeout: float = 300.0, http: Optional[httpx.Client] = None,
-                 auth: Optional[AuthState] = None):
-        super().__init__(base_url, timeout, auth)
+                 auth: Optional[AuthState] = None, rate_limit_retries: int = 0, rate_limit_max_wait: float = 90.0):
+        super().__init__(base_url, timeout, auth, rate_limit_retries, rate_limit_max_wait)
         self._owns = http is None
         self.http = http or httpx.Client(timeout=timeout)
 
     def run(self, call: Call) -> Any:
         if self._needs_refresh(call):
             self.run(self._refresh_call())
-        url, data, headers = self._prepare(call)
-        response = self.http.request(call.method, url, content=data, headers=headers, timeout=self.timeout)
-        return self._finish(call, response.status_code, response.text, response.headers.get("x-request-id"))
+        attempt = 0
+        while True:
+            url, data, headers = self._prepare(call)
+            response = self.http.request(call.method, url, content=data, headers=headers, timeout=self.timeout)
+            delay = self._retry_delay(response.status_code, response.headers.get("Retry-After"), attempt)
+            if delay is None:
+                return self._finish(call, response.status_code, response.text, response.headers.get("x-request-id"),
+                                    response.headers.get("Retry-After"))
+            attempt += 1
+            time.sleep(delay)
 
     def stream(self, call: Call) -> Iterator[SseEvent]:
         if self._needs_refresh(call):
@@ -256,17 +283,24 @@ class AsyncTransport(_TransportBase):
     """Asynchronous transport on httpx.AsyncClient."""
 
     def __init__(self, base_url: str = DEFAULT_BASE_URL, timeout: float = 300.0, http: Optional[httpx.AsyncClient] = None,
-                 auth: Optional[AuthState] = None):
-        super().__init__(base_url, timeout, auth)
+                 auth: Optional[AuthState] = None, rate_limit_retries: int = 0, rate_limit_max_wait: float = 90.0):
+        super().__init__(base_url, timeout, auth, rate_limit_retries, rate_limit_max_wait)
         self._owns = http is None
         self.http = http or httpx.AsyncClient(timeout=timeout)
 
     async def run(self, call: Call) -> Any:
         if self._needs_refresh(call):
             await self.run(self._refresh_call())
-        url, data, headers = self._prepare(call)
-        response = await self.http.request(call.method, url, content=data, headers=headers, timeout=self.timeout)
-        return self._finish(call, response.status_code, response.text, response.headers.get("x-request-id"))
+        attempt = 0
+        while True:
+            url, data, headers = self._prepare(call)
+            response = await self.http.request(call.method, url, content=data, headers=headers, timeout=self.timeout)
+            delay = self._retry_delay(response.status_code, response.headers.get("Retry-After"), attempt)
+            if delay is None:
+                return self._finish(call, response.status_code, response.text, response.headers.get("x-request-id"),
+                                    response.headers.get("Retry-After"))
+            attempt += 1
+            await asyncio.sleep(delay)
 
     async def stream(self, call: Call) -> AsyncIterator[SseEvent]:
         if self._needs_refresh(call):

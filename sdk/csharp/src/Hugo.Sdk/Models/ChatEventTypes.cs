@@ -57,6 +57,11 @@ namespace Hugo.Sdk.Models
         /// </summary>
         public const string Error = "error";
 
+        /// <summary>
+        /// The server closes the chat stream (data: conversationId, turnId, finishReason, title). Always the last event.
+        /// </summary>
+        public const string StreamClosed = "stream.closed";
+
         #endregion
     }
 }

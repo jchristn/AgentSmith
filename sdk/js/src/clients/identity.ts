@@ -13,6 +13,7 @@ import type {
   Role,
   RolePermissionMap,
   RoleRequest,
+  SessionFilter,
   Tenant,
   TenantRequest,
   User,
@@ -51,7 +52,8 @@ export class UsersClient extends TenantCollection<User, UserRequest> {
   }
 
   /**
-   * Administrator password reset. The user must change it at next sign-in unless mustChangePassword is false.
+   * Administrator password reset. The user gets the advisory mustChangePassword flag unless mustChangePassword is
+   * false; the flag blocks nothing.
    */
   resetPassword(id: string, newPassword: string, mustChangePassword?: boolean): Promise<User> {
     return this.t.request("POST", `${this.item(id)}/password`, {
@@ -61,7 +63,11 @@ export class UsersClient extends TenantCollection<User, UserRequest> {
   }
 }
 
-/** Credentials (access keys). Create and rotate return the secret key once. */
+/**
+ * Credentials (access keys). Create and rotate return the secret key once. A credential's access comes from its role
+ * assignments (pass roleName on create, or use credentialScopeAssignments); it does not inherit its owner's
+ * administrator bypass unless a tenant or system administrator sets inheritOwnerBypass.
+ */
 export class CredentialsClient extends TenantCollection<Credential, CredentialRequest> {
   constructor(t: Transport) {
     super(t, "credentials");
@@ -148,7 +154,8 @@ export class SessionsClient {
     return this.t.tenantPath("/sessions");
   }
 
-  list(query?: EnumerationQuery): Promise<EnumerationResult<AuthSession>> {
+  /** List sessions, optionally filtered by principalType, userId, and credentialId. Each carries principalName. */
+  list(query?: SessionFilter): Promise<EnumerationResult<AuthSession>> {
     return this.t.request("GET", this.base(), { query: toQuery(query) });
   }
 

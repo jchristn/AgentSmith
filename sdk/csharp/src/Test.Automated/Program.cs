@@ -39,7 +39,8 @@ namespace Test.Automated
                 new RbacSuite(),
                 new SecretsSuite(),
                 new AdminSuite(),
-                new DomainSuite()
+                new DomainSuite(),
+                new ModelSuite()
             };
             if (args.Length > 0) suites = suites.Where(s => args.Any(a => s.Name.StartsWith(a, StringComparison.OrdinalIgnoreCase))).ToList();
 

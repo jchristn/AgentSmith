@@ -48,6 +48,22 @@ namespace Test.Automated.Suites
                     AuthSession session = await ctx.Owner.Sessions.GetAsync(login.SessionId!).ConfigureAwait(false);
                     Check.Equal(ctx.OwnerUserId, session.UserId, "session user");
                     Check.Equal(PrincipalTypeEnum.User, session.PrincipalType, "principal type");
+                    Check.Equal(ctx.OwnerEmail, session.PrincipalName, "principalName is the user's email");
+
+                    SessionFilter byUser = new SessionFilter();
+                    byUser.PrincipalType = "User";
+                    byUser.UserId = ctx.OwnerUserId;
+                    EnumerationResult<AuthSession> mine = await ctx.Owner.Sessions.ListAsync(byUser, query).ConfigureAwait(false);
+                    Check.True(mine.Objects.Any(s => s.Id == login.SessionId), "userId filter includes the session");
+                    Check.True(mine.Objects.All(s => s.UserId == ctx.OwnerUserId && s.PrincipalType == PrincipalTypeEnum.User), "userId and principalType filters");
+                    SessionFilter credentials = new SessionFilter();
+                    credentials.PrincipalType = "Credential";
+                    EnumerationResult<AuthSession> credentialSessions = await ctx.Owner.Sessions.ListAsync(credentials, query).ConfigureAwait(false);
+                    Check.True(credentialSessions.Objects.All(s => s.PrincipalType == PrincipalTypeEnum.Credential), "principalType=Credential filter");
+                    SessionFilter bad = new SessionFilter();
+                    bad.PrincipalType = "Robot";
+                    await Check.FailsAsync(() => ctx.Owner.Sessions.ListAsync(bad), 400, "ValidationFailed").ConfigureAwait(false);
+
                     await ctx.Owner.Sessions.RevokeAsync(login.SessionId!).ConfigureAwait(false);
                     await Check.FailsAsync(() => client.GetTokenDetailsAsync(), 401).ConfigureAwait(false);
                     AuthSession revoked = await ctx.Owner.Sessions.GetAsync(login.SessionId!).ConfigureAwait(false);
@@ -176,7 +192,8 @@ namespace Test.Automated.Suites
             {
                 HugoException e = await Check.FailsAsync(() => ctx.Owner.Transport.SendTextAsync(HttpMethod.Get, "/v1.0/api/no-such-route-" + HarnessContext.RandomHex(2), null, null, null, true), 404, "RouteNotFound").ConfigureAwait(false);
                 Check.True(e.IsRouteNotFound, "IsRouteNotFound");
-                Check.NotEmpty(e.RequestId, "request id (from the x-request-id header)");
+                Check.NotEmpty(e.RequestId, "request id");
+                Check.NotEmpty(e.Response?.RequestId, "RouteNotFound carries requestId in the body");
             }).ConfigureAwait(false);
 
             await runner.RunAsync("Cross-tenant read is not found", async () =>

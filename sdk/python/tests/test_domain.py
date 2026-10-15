@@ -1,11 +1,14 @@
 """Domain routes: connectors, resources, knowledge, agent profiles, bindings, tool invocations, approvals, lockdown,
-prompt layers, model endpoints, and the tenant override. Conversations stay preview and skip on 404 (Phase 7)."""
+prompt layers, model endpoints (filters, health history, draft validation), list filters, and the tenant override.
+Conversations, chat, ask, and analytics are in test_chat.py."""
+
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from hugo_sdk import AsyncHugoClient, HugoError
+from hugo_sdk import HugoError
 
-from conftest import ADMIN_TENANT, SERVER, domain_call, unique
+from conftest import ADMIN_TENANT, new_async_client, unique
 
 CLOSED = "http://127.0.0.1:9"
 
@@ -72,6 +75,27 @@ def test_resources_crud_filter_test_duplicate(client, resource):
     assert client.resources.referrers(resource.id) == []
 
 
+def test_resource_filters_environment_and_health(client):
+    env = unique("env")
+    tested = client.resources.create({"name": unique("tested"), "connectorType": "http", "environment": env, "settings": {"baseUrl": CLOSED}})
+    untested = client.resources.create({"name": unique("untested"), "connectorType": "http", "environment": env, "settings": {"baseUrl": CLOSED}})
+    try:
+        client.resources.test(tested.id)
+        in_env = client.resources.list(environment=env, max_results=1000)
+        assert sorted(r.id for r in in_env.objects) == sorted([tested.id, untested.id])
+        unhealthy = client.resources.list(environment=env, health="Unhealthy", max_results=1000)
+        assert [r.id for r in unhealthy.objects] == [tested.id]
+        unknown = client.resources.list(environment=env, health="Unknown", max_results=1000)
+        assert [r.id for r in unknown.objects] == [untested.id]
+        assert client.resources.list(environment=env, health="Healthy").objects == []
+        with pytest.raises(HugoError) as err:
+            client.resources.list(health="Sick")
+        assert err.value.status == 400 and err.value.code == "ValidationFailed"
+    finally:
+        client.resources.delete(tested.id)
+        client.resources.delete(untested.id)
+
+
 def test_resource_invalid_create(client):
     with pytest.raises(HugoError) as err:
         client.resources.create({"name": unique("bad"), "connectorType": "http", "settings": {}})
@@ -84,7 +108,7 @@ def test_resource_knowledge(client, resource):
     second = client.resources.put_knowledge(resource.id, "service", "Checkout runs on web-01.", key="notes")
     assert second.version == 2
     root = client.resources.put_knowledge(resource.id, "service", "Service root")
-    assert root.content == "Service root"
+    assert root.content == "Service root" and root.key == "_root"
     assert client.resources.get_knowledge(resource.id, "service", "_root").content == "Service root"
     assert len(client.resources.knowledge(resource.id)) == 2
     assert len(client.resources.knowledge_scope(resource.id, "service")) == 2
@@ -101,7 +125,11 @@ def test_agent_profiles_crud_card_compiled_tools(client, profile, resource):
     updated = client.agent_profiles.update(profile.id, {"name": profile.name, "description": "sdk"})
     assert updated.description == "sdk"
     assert any(p.id == profile.id for p in client.agent_profiles.list().objects)
+    assert client.agent_profiles.get(profile.id).binding_count == 0
     _bind(client, profile, resource, "ReadOnly")
+    assert client.agent_profiles.get(profile.id).binding_count == 1
+    listed = next(p for p in client.agent_profiles.list(max_results=1000).objects if p.id == profile.id)
+    assert listed.binding_count == 1
     card = client.agent_profiles.card(profile.id)
     assert "/v1.0/a2a/" in card.url and isinstance(card.skills, list)
     compiled = client.agent_profiles.compiled_instructions(profile.id, surface="Mcp")
@@ -148,6 +176,16 @@ def test_invoke_approval_reject_and_approve(client, profile, resource):
     assert pending.decision == "ApprovalRequired" and pending.approval_id and pending.approval_status == "Pending"
     listed = client.approvals.list(status="Pending")
     assert any(a.id == pending.approval_id for a in listed.objects)
+    now = datetime.now(timezone.utc)
+    window = client.approvals.list(status="Pending", effect="Write", from_utc=now - timedelta(minutes=10), to_utc=now + timedelta(minutes=10))
+    assert any(a.id == pending.approval_id for a in window.objects)
+    assert all(a.effect == "Write" for a in window.objects)
+    assert not any(a.id == pending.approval_id for a in client.approvals.list(effect="Destructive").objects)
+    assert not any(a.id == pending.approval_id for a in client.approvals.list(from_utc=now + timedelta(hours=1)).objects)
+    assert not any(a.id == pending.approval_id for a in client.approvals.list(to_utc=now - timedelta(hours=1)).objects)
+    with pytest.raises(HugoError) as err:
+        client.approvals.list(effect="Spicy")
+    assert err.value.status == 400 and err.value.code == "ValidationFailed"
     waited = client.approvals.await_decision(pending.approval_id, timeout=1, poll_interval=0.25)
     assert waited.status == "Pending" and not waited.is_decided
     rejected = client.approvals.reject(pending.approval_id, note="not now")
@@ -160,6 +198,16 @@ def test_invoke_approval_reject_and_approve(client, profile, resource):
     assert detail.invocation is not None and detail.invocation.status != "Pending"
     invocations = client.tool_invocations.list(agentProfileId=profile.id)
     assert len(invocations.objects) >= 2
+    now = datetime.now(timezone.utc)
+    writes = client.tool_invocations.list(effect="Write", from_utc=now - timedelta(minutes=10), to_utc=now + timedelta(minutes=10),
+                                          agentProfileId=profile.id)
+    assert len(writes.objects) >= 2 and all(i.effect == "Write" for i in writes.objects)
+    assert client.tool_invocations.list(effect="Read", agentProfileId=profile.id).objects == []
+    assert client.tool_invocations.list(to_utc=now - timedelta(hours=1), agentProfileId=profile.id).objects == []
+    assert client.tool_invocations.list(since=now + timedelta(hours=1), agentProfileId=profile.id).objects == []
+    with pytest.raises(HugoError) as err:
+        client.tool_invocations.list(effect="Spicy")
+    assert err.value.status == 400 and err.value.code == "ValidationFailed"
     assert client.tool_invocations.get(second.invocation_id).tool_name == "http_request"
     summary = client.tool_invocations.summary()
     assert summary.total >= 2 and any(c.status == "http_request" for c in summary.by_tool)
@@ -216,19 +264,50 @@ def test_prompt_layers(client):
 
 
 def test_model_endpoints(client):
-    endpoint = client.model_endpoints.create({"name": unique("model"), "kind": "Inference", "provider": "Ollama",
-                                              "baseUrl": CLOSED, "model": "llama3"})
+    # Names are labels: letters, digits, spaces, and . _ - : / @ are accepted.
+    name = unique("ollama:llama3/8b @lab")
+    endpoint = client.model_endpoints.create({"name": name, "kind": "Inference", "provider": "Ollama",
+                                              "baseUrl": CLOSED, "model": "llama3", "maxRetries": 0, "timeoutSeconds": 5})
     try:
-        assert endpoint.health_status == "Unknown" and endpoint.provider == "Ollama"
+        assert endpoint.name == name and endpoint.health_status == "Unknown" and endpoint.provider == "Ollama"
         updated = client.model_endpoints.update(endpoint.id, {"name": endpoint.name, "kind": "Inference", "provider": "Ollama",
                                                               "baseUrl": CLOSED, "model": "llama3", "maxConcurrency": 2})
         assert updated.max_concurrency == 2
         assert any(e.id == endpoint.id for e in client.model_endpoints.list().objects)
+        assert client.model_endpoints.health_history(endpoint.id) == []
         result = client.model_endpoints.validate(endpoint.id)
-        assert result.success is False
+        assert result.success is False and result.error
         assert client.model_endpoints.get(endpoint.id).health_status == "Unhealthy"
+        history = client.model_endpoints.health_history(endpoint.id, max_results=10)
+        assert len(history) == 1
+        check = history[0]
+        assert check.model_endpoint_id == endpoint.id and check.status == "Unhealthy" and check.source == "Validate"
+        assert check.checked_utc is not None and check.id
+        assert len(client.model_endpoints.health_history(endpoint.id, max_results=5000)) == 1, "maxResults is clamped to 1..1000"
+        with pytest.raises(HugoError) as err:
+            client.model_endpoints.models(endpoint.id)
+        assert err.value.status == 502 and err.value.code in ("ProviderUnreachable", "ProviderTimeout")
+        # Filters.
+        assert any(e.id == endpoint.id for e in client.model_endpoints.list(kind="Inference", provider="Ollama", health="Unhealthy").objects)
+        assert not any(e.id == endpoint.id for e in client.model_endpoints.list(kind="Embedding").objects)
+        assert not any(e.id == endpoint.id for e in client.model_endpoints.list(provider="OpenAI").objects)
+        assert not any(e.id == endpoint.id for e in client.model_endpoints.list(health="Healthy").objects)
+        with pytest.raises(HugoError) as err:
+            client.model_endpoints.list(provider="Skynet")
+        assert err.value.status == 400 and err.value.code == "ValidationFailed" and "OpenAICompatible" in err.value.message
     finally:
         client.model_endpoints.delete(endpoint.id)
+
+
+def test_model_endpoint_draft_validation_stores_nothing(client):
+    before = client.model_endpoints.list(max_results=1000).total_records
+    draft = client.model_endpoints.validate_draft({"name": "draft:check", "provider": "OpenAICompatible", "baseUrl": CLOSED,
+                                                   "model": "m", "maxRetries": 0, "timeoutSeconds": 5})
+    assert draft.success is False and draft.error
+    assert client.model_endpoints.list(max_results=1000).total_records == before
+    with pytest.raises(HugoError) as err:
+        client.model_endpoints.validate_draft({"model": "m"})
+    assert err.value.status == 400
 
 
 def test_tenant_override(admin, client, resource, harness):
@@ -242,7 +321,7 @@ def test_tenant_override(admin, client, resource, harness):
 
 
 async def test_async_domain_dry_run(harness):
-    async with AsyncHugoClient(SERVER) as c:
+    async with new_async_client() as c:
         await c.login(harness.owner_email, harness.owner_password, harness.tenant_id)
         res = await c.resources.create({"name": unique("aapi"), "connectorType": "http", "settings": {"baseUrl": CLOSED}})
         prof = await c.agent_profiles.create({"name": unique("aprof")})
@@ -253,14 +332,3 @@ async def test_async_domain_dry_run(harness):
         finally:
             await c.agent_profiles.delete(prof.id)
             await c.resources.delete(res.id)
-
-
-def test_conversations_preview(client):
-    page = domain_call(lambda: client.conversations.list())
-    assert page.success
-
-
-def test_chat_streaming_preview(client, profile):
-    conversation = domain_call(lambda: client.conversations.create({"agentProfileId": profile.id}))
-    events = list(client.conversations.stream_message(conversation.id, "hello"))
-    assert events and events[-1].is_terminal

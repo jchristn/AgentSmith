@@ -41,7 +41,7 @@ namespace Hugo.Sdk.Models
         public string? Title { get; set; } = null;
 
         /// <summary>
-        /// Dashboard, A2A, OpenAI, or Mcp.
+        /// Dashboard, A2A, OpenAI, Mcp, or Rest.
         /// </summary>
         public string? Source { get; set; } = null;
 
@@ -72,9 +72,9 @@ namespace Hugo.Sdk.Models
         public long TotalOutputTokens { get; set; } = 0;
 
         /// <summary>
-        /// Whether the record is active.
+        /// External key (for example an OpenAI-compatible session key), when the conversation was started with one.
         /// </summary>
-        public bool Active { get; set; } = false;
+        public string? ExternalKey { get; set; } = null;
 
         /// <summary>
         /// Creation timestamp, UTC.

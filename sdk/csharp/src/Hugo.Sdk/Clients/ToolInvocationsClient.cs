@@ -50,7 +50,9 @@ namespace Hugo.Sdk.Clients
                 parameters["surface"] = filter.Surface;
                 parameters["conversationId"] = filter.ConversationId;
                 parameters["principalId"] = filter.PrincipalId;
-                parameters["since"] = QueryBuilder.Date(filter.Since);
+                parameters["fromUtc"] = QueryBuilder.Date(filter.FromUtc ?? filter.Since);
+                parameters["toUtc"] = QueryBuilder.Date(filter.ToUtc);
+                parameters["effect"] = filter.Effect;
             }
             return GetAsync<EnumerationResult<ToolInvocation>>("/v1.0/api/tool-invocations", parameters, token);
         }

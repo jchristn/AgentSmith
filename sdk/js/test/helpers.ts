@@ -1,6 +1,6 @@
 import { expect, inject } from "vitest";
-import { HugoClient, HugoError } from "../src/index.js";
-import type { HarnessContext } from "./bootstrap.js";
+import { HugoClient, HugoClientOptions, HugoError } from "../src/index.js";
+import { harnessClient, HarnessContext } from "./bootstrap.js";
 
 export { randomPassword, randomSuffix } from "./bootstrap.js";
 
@@ -9,10 +9,15 @@ export function ctx(): HarnessContext {
   return inject("hugo");
 }
 
+/** A new, unauthenticated client for the harness server that waits out the authentication rate limit. */
+export function newClient(options: HugoClientOptions = {}): HugoClient {
+  return harnessClient(ctx().server, options);
+}
+
 /** A client signed in as the provisioned tenant administrator. */
 export function owner(): HugoClient {
   const c = ctx();
-  const client = new HugoClient(c.server, { autoRefresh: false });
+  const client = newClient({ autoRefresh: false });
   client.useToken(c.ownerToken, c.tenantId);
   return client;
 }
@@ -20,7 +25,7 @@ export function owner(): HugoClient {
 /** A client signed in as the system administrator, targeting the provisioned tenant. */
 export function admin(): HugoClient {
   const c = ctx();
-  const client = new HugoClient(c.server, { autoRefresh: false });
+  const client = newClient({ autoRefresh: false });
   client.useToken(c.adminToken, c.tenantId);
   return client;
 }
@@ -42,19 +47,4 @@ export async function expectHugoError(promise: Promise<unknown>, status: number,
     return err;
   }
   throw new Error(`expected HugoError ${status}${code ? " " + code : ""}, but the call succeeded`);
-}
-
-export const PREVIEW_SKIP_REASON = "route not available on this server yet (Phase 3/5/6 preview)";
-
-/**
- * Probe a domain route; returns a skip reason when the server answers 404, else undefined. Other errors propagate.
- */
-export async function routeMissing(probe: () => Promise<unknown>): Promise<string | undefined> {
-  try {
-    await probe();
-    return undefined;
-  } catch (e) {
-    if (e instanceof HugoError && e.status === 404) return `${PREVIEW_SKIP_REASON}: ${e.code ?? "NotFound"}`;
-    throw e;
-  }
 }

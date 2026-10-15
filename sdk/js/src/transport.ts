@@ -28,6 +28,15 @@ export interface TransportOptions {
    * except /v1.0/api/tenants...) carry ?tenantId=<tenantOverride>. Tenant-scoped paths use tenantId instead.
    */
   tenantOverride?: string;
+  /**
+   * How many times to retry a request the server answered with 429 (for example the authentication rate limit,
+   * Auth.RateLimitPerMinute). Each retry waits the Retry-After seconds (or an exponential backoff starting at one
+   * second when the header is missing), capped by rateLimitMaxWaitSeconds. Default 0 (no retries); streaming
+   * requests are retried only before the stream opens.
+   */
+  rateLimitRetries?: number;
+  /** Longest single wait between 429 retries, in seconds. Default 90; minimum 1. */
+  rateLimitMaxWaitSeconds?: number;
 }
 
 /** Options for one request. */
@@ -41,6 +50,19 @@ export interface RequestOptions {
   anonymous?: boolean;
   /** Do not refresh the token before this request (used by refresh itself). */
   skipAutoRefresh?: boolean;
+}
+
+/** Wait, resolving early when the signal aborts. */
+function delay(ms: number, signal?: AbortSignal): Promise<void> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(done, ms);
+    function done() {
+      clearTimeout(timer);
+      signal?.removeEventListener("abort", done);
+      resolve();
+    }
+    signal?.addEventListener("abort", done, { once: true });
+  });
 }
 
 /** Percent-encode one path segment. */
@@ -83,6 +105,10 @@ export class Transport {
   autoRefresh: boolean;
   refreshSkewSeconds: number;
   headers: Record<string, string>;
+  /** Retries after a 429 response (0 disables). */
+  rateLimitRetries: number;
+  /** Longest single wait between 429 retries, in seconds. */
+  rateLimitMaxWaitSeconds: number;
   private readonly fetchImpl: typeof fetch;
   private refreshing?: Promise<TokenResponse>;
 
@@ -94,6 +120,8 @@ export class Transport {
     this.refreshSkewSeconds = options.refreshSkewSeconds ?? 60;
     this.headers = { ...(options.headers ?? {}) };
     this.tenantOverride = options.tenantOverride;
+    this.rateLimitRetries = Math.max(0, options.rateLimitRetries ?? 0);
+    this.rateLimitMaxWaitSeconds = Math.max(1, options.rateLimitMaxWaitSeconds ?? 90);
     const f = options.fetch ?? (globalThis as { fetch?: typeof fetch }).fetch;
     if (!f) throw new Error("No fetch implementation is available; pass options.fetch.");
     this.fetchImpl = f;
@@ -163,8 +191,24 @@ export class Transport {
     yield* parseSseStream(response.body, options.signal);
   }
 
-  /** Send a request and return the raw Response; throws HugoError on a non-success status. */
+  /**
+   * Send a request and return the raw Response; throws HugoError on a non-success status. A 429 response is retried
+   * up to rateLimitRetries times, waiting Retry-After seconds between attempts.
+   */
   async send(method: string, path: string, options: RequestOptions = {}, streaming = false): Promise<Response> {
+    for (let attempt = 0; ; attempt++) {
+      try {
+        return await this.sendOnce(method, path, options, streaming);
+      } catch (e) {
+        if (!(e instanceof HugoError) || e.status !== 429 || attempt >= this.rateLimitRetries || options.signal?.aborted) throw e;
+        const retryAfter = Number(e.retryAfter);
+        const seconds = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : Math.pow(2, attempt);
+        await delay(Math.min(seconds, this.rateLimitMaxWaitSeconds) * 1000, options.signal);
+      }
+    }
+  }
+
+  private async sendOnce(method: string, path: string, options: RequestOptions, streaming: boolean): Promise<Response> {
     if (!options.anonymous && !options.skipAutoRefresh && this.shouldRefresh()) await this.refreshToken();
 
     const query = buildQuery(this.withTenantOverride(path, options.query));
@@ -186,7 +230,11 @@ export class Transport {
     const timer = !streaming && this.timeoutMs > 0 ? setTimeout(() => controller.abort(new Error(`Request timed out after ${this.timeoutMs} ms`)), this.timeoutMs) : undefined;
     try {
       const response = await this.fetchImpl(this.baseUrl + path + (query ? `?${query}` : ""), { method, headers, body, signal: controller.signal });
-      if (!response.ok) throw new HugoError(response.status, await response.text(), response.headers.get("x-request-id"));
+      if (!response.ok) {
+        const error = new HugoError(response.status, await response.text(), response.headers.get("x-request-id"));
+        error.retryAfter = response.headers.get("retry-after") ?? undefined;
+        throw error;
+      }
       return response;
     } finally {
       if (timer) clearTimeout(timer);

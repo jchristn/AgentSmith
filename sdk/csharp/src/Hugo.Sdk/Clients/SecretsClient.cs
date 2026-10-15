@@ -4,6 +4,7 @@ namespace Hugo.Sdk.Clients
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using Hugo.Sdk.Enumeration;
     using Hugo.Sdk.Http;
     using Hugo.Sdk.Models;
     using Hugo.Sdk.Requests;
@@ -28,6 +29,25 @@ namespace Hugo.Sdk.Clients
         #endregion
 
         #region Public-Methods
+
+        /// <summary>
+        /// List one page of secrets with filters. Unset filter properties are not sent.
+        /// </summary>
+        /// <param name="filter">Filter.</param>
+        /// <param name="query">Optional paging, ordering, and search.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Page.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when filter is null.</exception>
+        /// <exception cref="HugoException">Thrown on a non-success status (400 ValidationFailed listing the allowed values when kind is not a secret kind).</exception>
+        public Task<EnumerationResult<Secret>> ListAsync(SecretFilter filter, EnumerationQuery? query = null, CancellationToken token = default)
+        {
+            if (filter == null) throw new ArgumentNullException(nameof(filter));
+            Dictionary<string, string?> filters = new Dictionary<string, string?>
+            {
+                { "kind", filter.Kind }
+            };
+            return ListAsync(query, filters, token);
+        }
 
         /// <summary>
         /// Replace some field values. Omitted fields keep their stored values; fields named in remove are deleted.

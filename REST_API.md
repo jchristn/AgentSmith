@@ -1,6 +1,6 @@
 # Hugo REST API
 
-Hugo serves everything on one port (8800 in the Docker stack): the management API under `/v1.0/api`, tokens under `/v1.0/token`, MCP at `/mcp`, A2A at `/v1.0/a2a`, and an OpenAI-compatible chat surface at `/v1.0/openai/v1`. This document covers every HTTP route the server registers, 205 of them in `0.1.0-alpha`, grouped by area. MCP tools and A2A methods have their own references in [MCP_API.md](MCP_API.md) and [A2A_API.md](A2A_API.md); here they appear only as HTTP endpoints.
+Hugo serves everything on one port (8800 in the Docker stack): the management API under `/v1.0/api`, tokens under `/v1.0/token`, MCP at `/mcp`, A2A at `/v1.0/a2a`, and an OpenAI-compatible chat surface at `/v1.0/openai/v1`. This document covers every HTTP route the server registers, 206 of them in `0.1.0-alpha`, grouped by area. MCP tools and A2A methods have their own references in [MCP_API.md](MCP_API.md) and [A2A_API.md](A2A_API.md); here they appear only as HTTP endpoints.
 
 I wrote the descriptions by hand, but most of the mechanical detail is generated: field lists and status codes come from the server's OpenAPI document (`GET /openapi.json`), permissions come from the server's operation scope map, and every example is a real request and response recorded by running the Postman collection (`assets/postman/Hugo.postman_collection.json`) against a fresh server. When a route behaves differently from what its OpenAPI entry claims, the text says so; the known differences are collected in [Known differences from the OpenAPI document](#known-differences-from-the-openapi-document) at the end.
 
@@ -59,7 +59,7 @@ Every route except health, the OpenAPI document, the token and tenant lookup rou
 |---|---|---|
 | Bearer session | `Authorization: Bearer <token>` or `x-token: <token>` | Tokens come from `POST /v1.0/token`. They last `Auth.UserSessionMinutes` (60) for users and `Auth.AdminSessionMinutes` (30) for administrators, and can be refreshed until `Auth.SessionAbsoluteMaxHours` (12) after sign-in. |
 | User login | `x-email`, `x-password`, `x-tenant-id` (or `x-tenant-guid`) | Only on `POST /v1.0/token`. The same fields can be sent as a JSON body. |
-| Credential keys | `x-access-key`, `x-secret-key` | On any route, for credentials whose auth mode is DirectHeader, SessionExchange, or Hybrid. |
+| Credential keys | `x-access-key`, `x-secret-key` | On any route for credentials whose auth mode is DirectHeader or Hybrid. A SessionExchange credential sends them only to `POST /v1.0/token` and uses the session token it gets back; its keys answer 401 anywhere else. |
 | Signed request | `x-access-key`, `x-date`, `x-nonce`, `x-signature`, optional `x-tenant-guid` | `x-signature` is the lowercase hex HMAC-SHA256, keyed with the secret key, of `METHOD\nPATH\nQUERY\nTENANT\nDATE\nNONCE\nSHA256(BODY)`. The date must be within `Auth.SignedRequestSkewSeconds` (300) of the server clock and a nonce works once. For SignedRequest and Hybrid credentials. |
 | Administrator API key | `x-api-key` | Disabled unless `HUGO_ADMIN_API_KEY` is set. Acts as a system administrator; send `x-tenant-guid` to pick a tenant. |
 
@@ -73,7 +73,7 @@ Routes come in two shapes, a consequence of Hugo's foundation being forked from 
 
 ### Authorization
 
-Each route is mapped to a resource type and an operation (for example Read on Resource). The **Authentication** line under every route names it. Tenant administrators and system administrators pass these checks through bypass rules (audited); everyone else needs a role that grants the pair, see [docs/SECURITY.md](docs/SECURITY.md). A denial in your own tenant answers 403 with the permission that was missing:
+Each route is mapped to a resource type and an operation (for example Read on Resource). The **Authentication** line under every route names it. Tenant administrators and system administrators pass these checks through bypass rules (audited); everyone else needs a role that grants the pair, see [docs/SECURITY.md](docs/SECURITY.md). Credentials do not inherit their owner's bypass: a credential is authorized only by its scope assignments (`roleName` at creation), so a credential with none is denied everything. A tenant or system administrator can opt one credential into its owner's bypass with `inheritOwnerBypass` (audited as `CredentialBypassChanged`). A denial in your own tenant answers 403 with the permission that was missing:
 
 ```json
 {
@@ -104,13 +104,14 @@ Every error from the management API has the same shape. `error` is the HTTP stat
 
 | Status | When | Typical codes |
 |---|---|---|
-| 400 | Invalid JSON, a field of the wrong type or an unknown enum value, a failed validation | `ValidationFailed`, `SettingsInvalid`, `InvalidJson`, `InvalidBody`, `BadRequest` |
+| 400 | Invalid JSON, a field of the wrong type or an unknown enum value (in a body or a query filter), a failed validation | `ValidationFailed`, `SettingsInvalid`, `InvalidJson`, `InvalidBody`, `BadRequest` |
 | 401 | No principal, or an invalid or expired one | `AuthenticationRequired`, `InvalidCredentials` |
 | 403 | Authenticated but not allowed | `AuthorizationDenied`, `RouteNotMapped` |
 | 404 | No such record in your tenant, or no such route | `NotFound`, `TenantNotFound`, `RouteNotFound` |
 | 409 | Name taken, record in use, wrong state | `NameConflict`, `SelfApprovalNotAllowed`, `NoBuiltInDefault`, and others |
 | 429 | Too many token-route attempts | `RateLimited` |
 | 500 | Unexpected failure (details in the log under the request ID) | `InternalError`, `DecryptionFailed` |
+| 502 | A model provider could not be reached or timed out (`GET /v1.0/api/model-endpoints/{id}/models`) | `ProviderUnreachable`, `ProviderTimeout` |
 | 503 | Database busy or unreachable (with `Retry-After`), master key missing, server draining | `DatabaseBusy`, `DatabaseUnavailable`, `MasterKeyUnavailable` |
 
 The OpenAI-compatible surface uses OpenAI's error shape instead (`{ "error": { "message", "type", "param", "code" } }`), and the MCP and A2A endpoints answer with JSON-RPC errors.
@@ -125,11 +126,27 @@ Most list routes return an enumeration envelope and accept `maxResults` (1 to 10
 { "success": true, "maxResults": 25, "skip": 0, "totalRecords": 3, "recordsRemaining": 0, "endOfResults": true, "timestampUtc": "2026-10-15T05:07:47.975055Z", "objects": [ ] }
 ```
 
+Many lists also take filters, named under each route. A filter with an enum type rejects an unknown value instead of ignoring it, and the message lists the allowed values:
+
+```json
+{
+  "error": "BadRequest",
+  "code": "ValidationFailed",
+  "message": "Query parameter status must be one of: Pending, Approved, Rejected, Expired, Cancelled.",
+  "requestId": "ba4c3815a7704f8aba65c1403c3faf67",
+  "fields": { "status": "Unknown value 'Bogus'." },
+  "errors": { "status": "Unknown value 'Bogus'." },
+  "fieldCodes": { "status": "Invalid" }
+}
+```
+
+Date filters (`fromUtc`, `toUtc`) take ISO 8601 timestamps; a value without an offset is read as UTC.
+
 Audit and request history are the exceptions: they page with `pageNumber` (1-based) and `pageSize` and answer `{ "pageNumber", "pageSize", "totalCount", "totalPages", "objects" }`. A handful of small collections (bindings, knowledge entries, template versions, referrers) return a plain JSON array.
 
 ### Bodies, status codes, and tracing
 
-Bodies are JSON with camelCase names and enums as strings; unknown enum values are rejected. Creates answer 201 with the created record, deletes of a single record answer 204 with no body, and calls that start work in the background or wait for a human answer 202. Updates (`PUT`) are partial for most records: omitted fields keep their values. Secrets and stored prompt templates are the exceptions noted on their routes.
+Bodies are JSON with camelCase names and enums as strings; unknown enum values are rejected. Creates answer 201 with the created record, deletes of a single record answer 204 with no body, and calls that start work in the background or wait for a human answer 202. Updates (`PUT`) are partial for most records: omitted fields keep their values. Stored prompt templates are the exception noted on their route.
 
 Every response carries `x-request-id`; send your own (up to 64 characters) to correlate. An inbound W3C `traceparent` header is honored, so a caller's trace continues through Hugo into Tempo.
 
@@ -582,7 +599,7 @@ A session token is opaque: AES-encrypted, random per issue, and meaningless outs
 
 ### POST `/v1.0/token`
 
-Issue a session token. Send user login headers (`x-email`, `x-password`, `x-tenant-id`), credential keys (`x-access-key`, `x-secret-key`), or the same fields as a JSON body; body fields win and headers fill in the rest, and the default tenant applies when none is given. On first sign-in `mustChangePassword` is true and only a few routes answer until the password changes. Rate limited.
+Issue a session token. Send user login headers (`x-email`, `x-password`, `x-tenant-id`), credential keys (`x-access-key`, `x-secret-key`), or the same fields as a JSON body; body fields win and headers fill in the rest, and the default tenant applies when none is given. On a seeded account or after an administrator reset `mustChangePassword` is true; the flag is advisory (D-048), every route still answers, and the dashboard offers a skippable prompt. A SessionExchange credential signs in here and nowhere else: its keys answer 401 on every other route. Rate limited.
 
 **Authentication:** None (anonymous).
 
@@ -1393,6 +1410,8 @@ Response (200):
 
 A credential is how software signs in: an access key (`access_...`) and a secret key, owned by a user and never more powerful than that user. Bind a credential to an agent profile with `agentProfileId`, and every MCP, A2A, or OpenAI-compatible request made with it acts as that profile unless the request names another; set `lockToProfile` to forbid naming another. That is the configuration to give a coding agent: one credential, one profile, the tools and instructions of that profile and nothing else.
 
+A credential is authorized by its scope assignments alone: the `roleName` given at creation, or assignments added through `credential-scope-assignments`. It does not inherit its owner's tenant or system administrator bypass unless a signed-in administrator sets `inheritOwnerBypass` (audited). Either way it can never do more than its owner.
+
 The secret key is returned exactly twice in a credential's life, at creation and at rotation, and Hugo stores it encrypted (signed requests need the plaintext to verify an HMAC). Lose it and rotate.
 
 | Method | Path | Summary |
@@ -1423,7 +1442,7 @@ Credentials in the tenant. Only the last four characters of each secret are show
 
 **Status codes:** 200 OK, 401 Not authenticated, 403 Forbidden, 404 Not found.
 
-**Response fields:** `success`, `maxResults`, `skip`, `totalRecords`, `recordsRemaining`, `endOfResults`, `timestampUtc`, `objects`, `objects[].id`, `objects[].tenantId`, `objects[].userId`, `objects[].name`, `objects[].accessKey`, `objects[].secretKeyLast4`, `objects[].authMode`, `objects[].agentProfileId`, `objects[].lockToProfile`, `objects[].lastUsedUtc`, `objects[].expiresUtc`, `objects[].active`, `objects[].isProtected`, `objects[].createdUtc`, `objects[].lastUpdateUtc`.
+**Response fields:** `success`, `maxResults`, `skip`, `totalRecords`, `recordsRemaining`, `endOfResults`, `timestampUtc`, `objects`, `objects[].id`, `objects[].tenantId`, `objects[].userId`, `objects[].name`, `objects[].accessKey`, `objects[].secretKeyLast4`, `objects[].authMode`, `objects[].agentProfileId`, `objects[].lockToProfile`, `objects[].inheritOwnerBypass`, `objects[].lastUsedUtc`, `objects[].expiresUtc`, `objects[].active`, `objects[].isProtected`, `objects[].createdUtc`, `objects[].lastUpdateUtc`.
 
 Example:
 
@@ -1454,6 +1473,7 @@ Response (200):
       "authMode": "Hybrid",
       "agentProfileId": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ",
       "lockToProfile": false,
+      "inheritOwnerBypass": false,
       "active": true,
       "isProtected": false,
       "createdUtc": "2026-10-15T05:26:10.238699Z",
@@ -1465,7 +1485,7 @@ Response (200):
 
 ### POST `/v1.0/api/tenants/{tenantId}/credentials`
 
-Create a credential for a user (the caller when `userId` is omitted). The secret key appears in this response and nowhere else. `roleName` narrows the credential with a scope assignment, and `agentProfileId` with `lockToProfile` pins it to one profile. The example creates the credential a coding agent would use, bound to `Hugo` and narrowed to Operator.
+Create a credential for a user (the caller when `userId` is omitted). The secret key appears in this response and nowhere else. `roleName` grants the credential its permissions with a scope assignment, and `agentProfileId` with `lockToProfile` pins it to one profile. A credential does not inherit its owner's administrator bypass, so one created without `roleName` (and without a scope assignment added later) is denied every route. The example creates the credential a coding agent would use, bound to `Hugo` and narrowed to Operator.
 
 **Authentication:** Any REST scheme. Permission: Create on Credential.
 
@@ -1479,12 +1499,13 @@ Create a credential for a user (the caller when `userId` is omitted). The secret
 |---|---|---|
 | `name` | string | **Required.** Display name (on create). |
 | `userId` | string | Owner. Defaults to the caller; creating one for someone else needs Admin on Credential. |
-| `authMode` | enum | DirectHeader, SignedRequest, SessionExchange, or Hybrid (default). Values: DirectHeader, SignedRequest, SessionExchange, Hybrid. |
+| `authMode` | enum | DirectHeader (keys on every request), SignedRequest (HMAC signature on every request), SessionExchange (keys only at `POST /v1.0/token`, then a session token), or Hybrid (default; any of these). |
 | `expiresUtc` | date-time | Optional expiry. |
 | `active` | boolean | Default true. |
 | `roleName` | string | Built-in or custom role that narrows the credential (adds a credential scope assignment). |
 | `agentProfileId` | string | Profile the credential acts as by default (D-018). |
 | `lockToProfile` | boolean | When true the credential can only act as `agentProfileId`. |
+| `inheritOwnerBypass` | boolean | Default false. When true the credential also carries its owner's tenant or system administrator bypass instead of relying only on its scope assignments. Only a signed-in tenant or system administrator may set or change it (403 `BypassRequiresAdministrator` otherwise); every change is audited as `CredentialBypassChanged`. |
 
 **Status codes:** 201 Created, 400 Validation failed, 401 Not authenticated, 403 Forbidden, 404 Not found, 409 Conflict.
 
@@ -1513,6 +1534,7 @@ Response (201):
     "authMode": "Hybrid",
     "agentProfileId": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ",
     "lockToProfile": false,
+    "inheritOwnerBypass": false,
     "active": true,
     "isProtected": false,
     "createdUtc": "2026-10-15T05:26:10.238699Z",
@@ -1536,7 +1558,7 @@ One credential.
 
 **Status codes:** 200 OK, 401 Not authenticated, 403 Forbidden, 404 Not found.
 
-**Response fields:** `id`, `tenantId`, `userId`, `name`, `accessKey`, `secretKeyLast4`, `authMode`, `agentProfileId`, `lockToProfile`, `lastUsedUtc`, `expiresUtc`, `active`, `isProtected`, `createdUtc`, `lastUpdateUtc`.
+**Response fields:** `id`, `tenantId`, `userId`, `name`, `accessKey`, `secretKeyLast4`, `authMode`, `agentProfileId`, `lockToProfile`, `inheritOwnerBypass`, `lastUsedUtc`, `expiresUtc`, `active`, `isProtected`, `createdUtc`, `lastUpdateUtc`.
 
 Example:
 
@@ -1558,6 +1580,7 @@ Response (200):
   "authMode": "Hybrid",
   "agentProfileId": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ",
   "lockToProfile": false,
+  "inheritOwnerBypass": false,
   "active": true,
   "isProtected": false,
   "createdUtc": "2026-10-15T05:26:10.238699Z",
@@ -1567,7 +1590,7 @@ Response (200):
 
 ### PUT `/v1.0/api/tenants/{tenantId}/credentials/{id}`
 
-Change name, profile binding, lock, expiry, or active flag.
+Change name, profile binding, lock, expiry, active flag, or `inheritOwnerBypass` (tenant and system administrators only, audited).
 
 **Authentication:** Any REST scheme. Permission: Update on Credential.
 
@@ -1582,16 +1605,17 @@ Change name, profile binding, lock, expiry, or active flag.
 |---|---|---|
 | `name` | string | **Required.** Display name (on create). |
 | `userId` | string | Owner. Defaults to the caller; creating one for someone else needs Admin on Credential. |
-| `authMode` | enum | DirectHeader, SignedRequest, SessionExchange, or Hybrid (default). Values: DirectHeader, SignedRequest, SessionExchange, Hybrid. |
+| `authMode` | enum | DirectHeader (keys on every request), SignedRequest (HMAC signature on every request), SessionExchange (keys only at `POST /v1.0/token`, then a session token), or Hybrid (default; any of these). |
 | `expiresUtc` | date-time | Optional expiry. |
 | `active` | boolean | Default true. |
 | `roleName` | string | Built-in or custom role that narrows the credential (adds a credential scope assignment). |
 | `agentProfileId` | string | Profile the credential acts as by default (D-018). |
 | `lockToProfile` | boolean | When true the credential can only act as `agentProfileId`. |
+| `inheritOwnerBypass` | boolean | Default false. When true the credential also carries its owner's tenant or system administrator bypass instead of relying only on its scope assignments. Only a signed-in tenant or system administrator may set or change it (403 `BypassRequiresAdministrator` otherwise); every change is audited as `CredentialBypassChanged`. |
 
 **Status codes:** 200 OK, 400 Validation failed, 401 Not authenticated, 403 Forbidden, 404 Not found.
 
-**Response fields:** `id`, `tenantId`, `userId`, `name`, `accessKey`, `secretKeyLast4`, `authMode`, `agentProfileId`, `lockToProfile`, `lastUsedUtc`, `expiresUtc`, `active`, `isProtected`, `createdUtc`, `lastUpdateUtc`.
+**Response fields:** `id`, `tenantId`, `userId`, `name`, `accessKey`, `secretKeyLast4`, `authMode`, `agentProfileId`, `lockToProfile`, `inheritOwnerBypass`, `lastUsedUtc`, `expiresUtc`, `active`, `isProtected`, `createdUtc`, `lastUpdateUtc`.
 
 Example:
 
@@ -1615,6 +1639,7 @@ Response (200):
   "authMode": "Hybrid",
   "agentProfileId": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ",
   "lockToProfile": true,
+  "inheritOwnerBypass": false,
   "active": true,
   "isProtected": false,
   "createdUtc": "2026-10-15T05:26:10.238699Z",
@@ -1680,6 +1705,7 @@ Response (200):
     "authMode": "Hybrid",
     "agentProfileId": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ",
     "lockToProfile": true,
+    "inheritOwnerBypass": false,
     "lastUsedUtc": "2026-10-15T05:26:10.29657Z",
     "active": true,
     "isProtected": false,
@@ -3017,7 +3043,7 @@ Response: 204 with an empty body.
 
 ## Sessions
 
-Sign-ins create session records with the scheme, source IP, user agent, expiry, and last use. Revoking a session kills its token at once. Both the flat and the tenant-scoped paths exist.
+Sign-ins create session records with the scheme, source IP, user agent, expiry, and last use. Each session in a response carries `principalName`, the user's email or the credential's name, so a list reads without extra lookups. Revoking a session kills its token at once. Both the flat and the tenant-scoped paths exist.
 
 | Method | Path | Summary |
 |---|---|---|
@@ -3041,10 +3067,13 @@ Sessions in the caller's tenant, newest first. Needs Read on Session.
 | `ordering` | query | enum | CreatedDescending (default), CreatedAscending, NameAscending, NameDescending. |
 | `search` | query | string | Text to match. |
 | `activeOnly` | query | boolean | Only active records. Default false. |
+| `principalType` | query | enum | Only sessions of this principal type: Administrator, User, or Credential. |
+| `userId` | query | string | Only sessions of this user. |
+| `credentialId` | query | string | Only sessions of this credential. |
 
 **Status codes:** 200 OK, 401 Not authenticated, 403 Forbidden.
 
-**Response fields:** `success`, `maxResults`, `skip`, `totalRecords`, `recordsRemaining`, `endOfResults`, `timestampUtc`, `objects`, `objects[].id`, `objects[].tenantId`, `objects[].userId`, `objects[].credentialId`, `objects[].principalType`, `objects[].authScheme`, `objects[].sourceIp`, `objects[].userAgent`, `objects[].expiresUtc`, `objects[].lastUsedUtc`, `objects[].revokedUtc`, `objects[].revocationReason`, `objects[].reauthenticatedUtc`, `objects[].active`, `objects[].isProtected`, `objects[].createdUtc`, `objects[].lastUpdateUtc`.
+**Response fields:** `success`, `maxResults`, `skip`, `totalRecords`, `recordsRemaining`, `endOfResults`, `timestampUtc`, `objects`, `objects[].id`, `objects[].tenantId`, `objects[].userId`, `objects[].credentialId`, `objects[].principalType`, `objects[].principalName`, `objects[].authScheme`, `objects[].sourceIp`, `objects[].userAgent`, `objects[].expiresUtc`, `objects[].lastUsedUtc`, `objects[].revokedUtc`, `objects[].revocationReason`, `objects[].reauthenticatedUtc`, `objects[].active`, `objects[].isProtected`, `objects[].createdUtc`, `objects[].lastUpdateUtc`.
 
 Example:
 
@@ -3070,6 +3099,7 @@ Response (200):
       "tenantId": "default",
       "credentialId": "crd_mv93iptp_RLeBjgalMag75gi1klI",
       "principalType": "Credential",
+      "principalName": "claude-code-laptop",
       "authScheme": "AccessKeySecret",
       "sourceIp": "127.0.0.1",
       "userAgent": "PostmanRuntime/7.39.1",
@@ -3084,6 +3114,7 @@ Response (200):
       "tenantId": "default",
       "userId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
       "principalType": "User",
+      "principalName": "anderson@hugo.local",
       "authScheme": "PasswordHeaders",
       "sourceIp": "127.0.0.1",
       "userAgent": "PostmanRuntime/7.39.1",
@@ -3114,10 +3145,13 @@ The tenant-scoped twin.
 | `ordering` | query | enum | CreatedDescending (default), CreatedAscending, NameAscending, NameDescending. |
 | `search` | query | string | Text to match. |
 | `activeOnly` | query | boolean | Only active records. Default false. |
+| `principalType` | query | enum | Only sessions of this principal type: Administrator, User, or Credential. |
+| `userId` | query | string | Only sessions of this user. |
+| `credentialId` | query | string | Only sessions of this credential. |
 
 **Status codes:** 200 OK, 401 Not authenticated, 403 Forbidden, 404 Not found.
 
-**Response fields:** `success`, `maxResults`, `skip`, `totalRecords`, `recordsRemaining`, `endOfResults`, `timestampUtc`, `objects`, `objects[].id`, `objects[].tenantId`, `objects[].userId`, `objects[].credentialId`, `objects[].principalType`, `objects[].authScheme`, `objects[].sourceIp`, `objects[].userAgent`, `objects[].expiresUtc`, `objects[].lastUsedUtc`, `objects[].revokedUtc`, `objects[].revocationReason`, `objects[].reauthenticatedUtc`, `objects[].active`, `objects[].isProtected`, `objects[].createdUtc`, `objects[].lastUpdateUtc`.
+**Response fields:** `success`, `maxResults`, `skip`, `totalRecords`, `recordsRemaining`, `endOfResults`, `timestampUtc`, `objects`, `objects[].id`, `objects[].tenantId`, `objects[].userId`, `objects[].credentialId`, `objects[].principalType`, `objects[].principalName`, `objects[].authScheme`, `objects[].sourceIp`, `objects[].userAgent`, `objects[].expiresUtc`, `objects[].lastUsedUtc`, `objects[].revokedUtc`, `objects[].revocationReason`, `objects[].reauthenticatedUtc`, `objects[].active`, `objects[].isProtected`, `objects[].createdUtc`, `objects[].lastUpdateUtc`.
 
 Example:
 
@@ -3143,6 +3177,7 @@ Response (200):
       "tenantId": "default",
       "credentialId": "crd_mv93iptp_RLeBjgalMag75gi1klI",
       "principalType": "Credential",
+      "principalName": "claude-code-laptop",
       "authScheme": "AccessKeySecret",
       "sourceIp": "127.0.0.1",
       "userAgent": "PostmanRuntime/7.39.1",
@@ -3157,6 +3192,7 @@ Response (200):
       "tenantId": "default",
       "userId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
       "principalType": "User",
+      "principalName": "anderson@hugo.local",
       "authScheme": "PasswordHeaders",
       "sourceIp": "127.0.0.1",
       "userAgent": "PostmanRuntime/7.39.1",
@@ -3183,10 +3219,13 @@ Tenant-scoped read.
 |---|---|---|---|
 | `tenantId` | path | string | Tenant ID (`default` for the seeded tenant). |
 | `id` | path | string | Record ID. |
+| `principalType` | query | enum | Only sessions of this principal type: Administrator, User, or Credential. |
+| `userId` | query | string | Only sessions of this user. |
+| `credentialId` | query | string | Only sessions of this credential. |
 
 **Status codes:** 200 OK, 401 Not authenticated, 403 Forbidden, 404 Not found.
 
-**Response fields:** `id`, `tenantId`, `userId`, `credentialId`, `principalType`, `authScheme`, `sourceIp`, `userAgent`, `expiresUtc`, `lastUsedUtc`, `revokedUtc`, `revocationReason`, `reauthenticatedUtc`, `active`, `isProtected`, `createdUtc`, `lastUpdateUtc`.
+**Response fields:** `id`, `tenantId`, `userId`, `credentialId`, `principalType`, `principalName`, `authScheme`, `sourceIp`, `userAgent`, `expiresUtc`, `lastUsedUtc`, `revokedUtc`, `revocationReason`, `reauthenticatedUtc`, `active`, `isProtected`, `createdUtc`, `lastUpdateUtc`.
 
 Example:
 
@@ -3203,6 +3242,7 @@ Response (200):
   "tenantId": "default",
   "credentialId": "crd_mv93iptp_RLeBjgalMag75gi1klI",
   "principalType": "Credential",
+  "principalName": "claude-code-laptop",
   "authScheme": "AccessKeySecret",
   "sourceIp": "127.0.0.1",
   "userAgent": "PostmanRuntime/7.39.1",
@@ -3245,10 +3285,13 @@ One session: principal, scheme, source IP, user agent, expiry, last use, and rev
 | Parameter | In | Type | Description |
 |---|---|---|---|
 | `id` | path | string | Record ID. |
+| `principalType` | query | enum | Only sessions of this principal type: Administrator, User, or Credential. |
+| `userId` | query | string | Only sessions of this user. |
+| `credentialId` | query | string | Only sessions of this credential. |
 
 **Status codes:** 200 OK, 401 Not authenticated, 403 Forbidden, 404 Not found.
 
-**Response fields:** `id`, `tenantId`, `userId`, `credentialId`, `principalType`, `authScheme`, `sourceIp`, `userAgent`, `expiresUtc`, `lastUsedUtc`, `revokedUtc`, `revocationReason`, `reauthenticatedUtc`, `active`, `isProtected`, `createdUtc`, `lastUpdateUtc`.
+**Response fields:** `id`, `tenantId`, `userId`, `credentialId`, `principalType`, `principalName`, `authScheme`, `sourceIp`, `userAgent`, `expiresUtc`, `lastUsedUtc`, `revokedUtc`, `revocationReason`, `reauthenticatedUtc`, `active`, `isProtected`, `createdUtc`, `lastUpdateUtc`.
 
 Example:
 
@@ -3265,6 +3308,7 @@ Response (200):
   "tenantId": "default",
   "credentialId": "crd_mv93iptp_RLeBjgalMag75gi1klI",
   "principalType": "Credential",
+  "principalName": "claude-code-laptop",
   "authScheme": "AccessKeySecret",
   "sourceIp": "127.0.0.1",
   "userAgent": "PostmanRuntime/7.39.1",
@@ -3654,6 +3698,7 @@ Secret metadata and field names, never values.
 | `ordering` | query | enum | CreatedDescending (default), CreatedAscending, NameAscending, NameDescending. |
 | `search` | query | string | Text to match. |
 | `activeOnly` | query | boolean | Only active records. Default false. |
+| `kind` | query | enum | Only secrets of this kind: Password, PrivateKey, ApiToken, BearerToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, or Generic. |
 
 **Status codes:** 200 OK, 401 Not authenticated, 403 Forbidden.
 
@@ -3737,7 +3782,7 @@ Create a secret with its values; the response has metadata and field names only.
 
 | Field | Type | Description |
 |---|---|---|
-| `name` | string | **Required.** Unique within the tenant. Required on update too in 0.1.0-alpha. |
+| `name` | string | **Required.** Unique within the tenant. |
 | `description` | string | Free text. |
 | `kind` | enum | **Required.** Password, PrivateKey, ApiToken, BearerToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, or Generic. Cannot change. Use BearerToken for a token sent exactly as `Authorization: Bearer <token>`, ApiToken for one a service expects anywhere else (D-049). Values: Password, PrivateKey, ApiToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, Generic, BearerToken. |
 | `values` | object | **Required.** Field values by name (on create). Password: `password`, optional `username`. PrivateKey: `privateKey`, optional `passphrase`. ApiToken and BearerToken: `token`. AccessKeyPair: `accessKeyId`, `secretAccessKey`, optional `sessionToken`. ServiceAccountJson: `json`. Kubeconfig: `kubeconfig`. ConnectionString: `connectionString`. Certificate: `certificate`, optional `privateKey`, `caCertificate`. Generic: any names. Ignored on the metadata update. |
@@ -3847,6 +3892,7 @@ The tenant-scoped twin of List secrets.
 | `ordering` | query | enum | CreatedDescending (default), CreatedAscending, NameAscending, NameDescending. |
 | `search` | query | string | Text to match. |
 | `activeOnly` | query | boolean | Only active records. Default false. |
+| `kind` | query | enum | Only secrets of this kind: Password, PrivateKey, ApiToken, BearerToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, or Generic. |
 
 **Status codes:** 200 OK, 401 Not authenticated, 403 Forbidden, 404 Not found.
 
@@ -3934,7 +3980,7 @@ Create a Password secret through the tenant-scoped path.
 
 | Field | Type | Description |
 |---|---|---|
-| `name` | string | **Required.** Unique within the tenant. Required on update too in 0.1.0-alpha. |
+| `name` | string | **Required.** Unique within the tenant. |
 | `description` | string | Free text. |
 | `kind` | enum | **Required.** Password, PrivateKey, ApiToken, BearerToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, or Generic. Cannot change. Use BearerToken for a token sent exactly as `Authorization: Bearer <token>`, ApiToken for one a service expects anywhere else (D-049). Values: Password, PrivateKey, ApiToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, Generic, BearerToken. |
 | `values` | object | **Required.** Field values by name (on create). Password: `password`, optional `username`. PrivateKey: `privateKey`, optional `passphrase`. ApiToken and BearerToken: `token`. AccessKeyPair: `accessKeyId`, `secretAccessKey`, optional `sessionToken`. ServiceAccountJson: `json`. Kubeconfig: `kubeconfig`. ConnectionString: `connectionString`. Certificate: `certificate`, optional `privateKey`, `caCertificate`. Generic: any names. Ignored on the metadata update. |
@@ -4066,7 +4112,7 @@ Response (200):
 
 ### PUT `/v1.0/api/tenants/{tenantId}/secrets/{id}`
 
-Tenant-scoped metadata update.
+Tenant-scoped metadata update. Partial, like the flat route: omitted fields keep their values.
 
 **Authentication:** Any REST scheme. Permission: Update on Secret.
 
@@ -4079,11 +4125,10 @@ Tenant-scoped metadata update.
 
 | Field | Type | Description |
 |---|---|---|
-| `name` | string | **Required.** Unique within the tenant. Required on update too in 0.1.0-alpha. |
-| `description` | string | Free text. |
-| `kind` | enum | **Required.** Password, PrivateKey, ApiToken, BearerToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, or Generic. Cannot change. Use BearerToken for a token sent exactly as `Authorization: Bearer <token>`, ApiToken for one a service expects anywhere else (D-049). Values: Password, PrivateKey, ApiToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, Generic, BearerToken. |
-| `values` | object | **Required.** Field values by name (on create). Password: `password`, optional `username`. PrivateKey: `privateKey`, optional `passphrase`. ApiToken and BearerToken: `token`. AccessKeyPair: `accessKeyId`, `secretAccessKey`, optional `sessionToken`. ServiceAccountJson: `json`. Kubeconfig: `kubeconfig`. ConnectionString: `connectionString`. Certificate: `certificate`, optional `privateKey`, `caCertificate`. Generic: any names. Ignored on the metadata update. |
-| `expiresUtc` | date-time | Optional expiry, shown in the dashboard. |
+| `name` | string | New name, unique within the tenant. Omit to keep it. |
+| `description` | string | Free text. Omit to keep it. |
+| `kind` | enum | Cannot change. Omit it (or send the stored kind). |
+| `expiresUtc` | date-time | Optional expiry, shown in the dashboard. Omit to keep it. |
 
 **Status codes:** 200 OK, 400 Validation failed, 401 Not authenticated, 403 Forbidden, 404 Not found.
 
@@ -4095,7 +4140,7 @@ Example:
 curl -s -X PUT "$HUGO/v1.0/api/tenants/default/secrets/sec_mv93ipqs_SjgYJOike4K57wJecHk" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"name": "demo-db-password", "kind": "Password", "description": "Read-only login for the demo database"}'
+  -d '{"description": "Read-only login for the demo database"}'
 ```
 
 Response (200):
@@ -4317,7 +4362,7 @@ Response (200):
 
 ### PUT `/v1.0/api/secrets/{id}`
 
-Change name, description, or expiry.
+Change name, description, or expiry. The update is partial: omitted fields keep their values, and values are changed only through `/values`.
 
 **Authentication:** Any REST scheme. Permission: Update on Secret.
 
@@ -4329,11 +4374,10 @@ Change name, description, or expiry.
 
 | Field | Type | Description |
 |---|---|---|
-| `name` | string | **Required.** Unique within the tenant. Required on update too in 0.1.0-alpha. |
-| `description` | string | Free text. |
-| `kind` | enum | **Required.** Password, PrivateKey, ApiToken, BearerToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, or Generic. Cannot change. Use BearerToken for a token sent exactly as `Authorization: Bearer <token>`, ApiToken for one a service expects anywhere else (D-049). Values: Password, PrivateKey, ApiToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, Generic, BearerToken. |
-| `values` | object | **Required.** Field values by name (on create). Password: `password`, optional `username`. PrivateKey: `privateKey`, optional `passphrase`. ApiToken and BearerToken: `token`. AccessKeyPair: `accessKeyId`, `secretAccessKey`, optional `sessionToken`. ServiceAccountJson: `json`. Kubeconfig: `kubeconfig`. ConnectionString: `connectionString`. Certificate: `certificate`, optional `privateKey`, `caCertificate`. Generic: any names. Ignored on the metadata update. |
-| `expiresUtc` | date-time | Optional expiry, shown in the dashboard. |
+| `name` | string | New name, unique within the tenant. Omit to keep it. |
+| `description` | string | Free text. Omit to keep it. |
+| `kind` | enum | Cannot change. Omit it (or send the stored kind). |
+| `expiresUtc` | date-time | Optional expiry, shown in the dashboard. Omit to keep it. |
 
 **Status codes:** 200 OK, 400 Validation failed, 401 Not authenticated, 403 Forbidden, 404 Not found.
 
@@ -4345,7 +4389,7 @@ Example:
 curl -s -X PUT "$HUGO/v1.0/api/secrets/sec_mv93ipka_2Q4UthZo31bN0cPBZjq" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"name": "demo-api-token", "kind": "ApiToken", "description": "Example token, rotated quarterly", "expiresUtc": "2027-01-01T00:00:00Z"}'
+  -d '{"description": "Example token, rotated quarterly", "expiresUtc": "2027-01-01T00:00:00Z"}'
 ```
 
 Response (200):
@@ -4760,7 +4804,7 @@ Response (200):
 
 A resource is one configured system: this database, that host, that bucket. Settings are validated against the connector's schema on every write, and credentials are attached by secret slot, so the same AWS key pair can serve two resources without being copied. `defaultAccessModeCeiling` caps what any profile can do with the resource, whoever binds it.
 
-Test before you save with `POST /v1.0/api/resources/test`, which runs the connector's connection test on unsaved settings and stores nothing. A failed connection is a 200 with `success: false` and the reason, because the request itself succeeded. `POST /v1.0/api/resources/{id}/invoke` lets an administrator call a tool on a resource without going through a profile; it still runs through the full invocation pipeline.
+Test before you save with `POST /v1.0/api/resources/test`, which runs the connector's connection test on unsaved settings and stores nothing. A failed connection is a 200 with `success: false` and the reason, because the request itself succeeded. For the `http` connector, set `healthPath` (for example `/health`) to make the test require a 2xx or 3xx answer from that path; without it the test only checks that the server answers and flags a 4xx in the message. `POST /v1.0/api/resources/{id}/invoke` lets an administrator call a tool on a resource without going through a profile; it still runs through the full invocation pipeline.
 
 | Method | Path | Summary |
 |---|---|---|
@@ -4777,7 +4821,7 @@ Test before you save with `POST /v1.0/api/resources/test`, which runs the connec
 
 ### GET `/v1.0/api/resources`
 
-Resources visible to the caller. Filter with `connectorType`; page with `maxResults` and `skip`.
+Resources visible to the caller. Filter with `connectorType`, `environment`, and `health`; page with `maxResults` and `skip`.
 
 **Authentication:** Any REST scheme. Permission: Read on Resource.
 
@@ -4789,6 +4833,8 @@ Resources visible to the caller. Filter with `connectorType`; page with `maxResu
 | `ordering` | query | enum | CreatedDescending (default), CreatedAscending, NameAscending, NameDescending. |
 | `search` | query | string | Text to match. |
 | `activeOnly` | query | boolean | Only active records. Default false. |
+| `environment` | query | string | Only resources with this environment label (case-insensitive exact match, for example `production`). |
+| `health` | query | enum | Health from the last connection test: Healthy (passed), Unhealthy (failed), or Unknown (never tested). |
 
 **Status codes:** 200 OK, 401 Not authenticated, 403 Forbidden.
 
@@ -5326,7 +5372,7 @@ Response (200):
 
 ## Resource knowledge
 
-Knowledge is durable, tenant-scoped text attached to a resource, organized as scopes and keys. The SQL connectors keep the database context in the `database` scope and table context in `tables`; other connectors may keep host or bucket notes. The root entry of a scope (key `_root`, or the scope route itself) is what the instruction compiler includes in the resource's section, bounded by `Instructions.MaxKnowledgeCharsPerResource`. Every write is scrubbed for secrets, versioned, and audited, and operators, models, and agents are recorded as distinct sources.
+Knowledge is durable, tenant-scoped text attached to a resource, organized as scopes and keys. The SQL connectors keep the database context in the `database` scope and table context in `tables`; other connectors may keep host or bucket notes. The root entry of a scope (key `_root`, which is also what the scope routes read and write) is what the instruction compiler includes in the resource's section, bounded by `Instructions.MaxKnowledgeCharsPerResource`. Every write is scrubbed for secrets, versioned, and audited, and operators, models, and agents are recorded as distinct sources.
 
 | Method | Path | Summary |
 |---|---|---|
@@ -5369,7 +5415,7 @@ Response (200):
     "tenantId": "default",
     "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
     "scope": "database",
-    "key": "",
+    "key": "_root",
     "content": "demo-db is an in-memory SQLite database used for examples. It holds no business data.",
     "source": "Operator",
     "updatedBy": "anderson@hugo.local",
@@ -5474,7 +5520,7 @@ Response (200):
   "tenantId": "default",
   "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
   "scope": "database",
-  "key": "",
+  "key": "_root",
   "content": "demo-db is an in-memory SQLite database used for examples. It holds no business data.",
   "source": "Operator",
   "updatedBy": "anderson@hugo.local",
@@ -5699,7 +5745,7 @@ Profiles visible to the caller. Private profiles appear only to their owner and 
 
 **Status codes:** 200 OK, 401 Not authenticated, 403 Forbidden.
 
-**Response fields:** `success`, `maxResults`, `skip`, `totalRecords`, `recordsRemaining`, `endOfResults`, `timestampUtc`, `objects`, `objects[].id`, `objects[].tenantId`, `objects[].ownerUserId`, `objects[].visibility`, `objects[].name`, `objects[].displayName`, `objects[].personaName`, `objects[].userAddress`, `objects[].description`, `objects[].personaTemplateKey`, `objects[].inferenceEndpointId`, `objects[].fallbackInferenceEndpointId`, `objects[].embeddingEndpointId`, `objects[].maxIterations`, `objects[].maxToolCallsPerTurn`, `objects[].toolTimeoutSeconds`, `objects[].temperature`, `objects[].exposeA2A`, `objects[].exposeMcp`, `objects[].exposeOpenAI`, `objects[].exposeManagementTools`, `objects[].instructionsAppend`, `objects[].instructionDetail`, `objects[].isDefault`, `objects[].active`, `objects[].createdUtc`, `objects[].lastUpdateUtc`.
+**Response fields:** `success`, `maxResults`, `skip`, `totalRecords`, `recordsRemaining`, `endOfResults`, `timestampUtc`, `objects`, `objects[].id`, `objects[].tenantId`, `objects[].ownerUserId`, `objects[].visibility`, `objects[].name`, `objects[].displayName`, `objects[].personaName`, `objects[].userAddress`, `objects[].description`, `objects[].personaTemplateKey`, `objects[].inferenceEndpointId`, `objects[].fallbackInferenceEndpointId`, `objects[].embeddingEndpointId`, `objects[].maxIterations`, `objects[].maxToolCallsPerTurn`, `objects[].toolTimeoutSeconds`, `objects[].temperature`, `objects[].exposeA2A`, `objects[].exposeMcp`, `objects[].exposeOpenAI`, `objects[].exposeManagementTools`, `objects[].instructionsAppend`, `objects[].instructionDetail`, `objects[].isDefault`, `objects[].bindingCount`, `objects[].active`, `objects[].createdUtc`, `objects[].lastUpdateUtc`.
 
 Example:
 
@@ -5739,6 +5785,7 @@ Response (200):
       "exposeManagementTools": false,
       "instructionDetail": "Auto",
       "isDefault": true,
+      "bindingCount": 1,
       "active": true,
       "createdUtc": "2026-10-15T05:26:04.484063Z",
       "lastUpdateUtc": "2026-10-15T05:26:04.484063Z"
@@ -5782,7 +5829,7 @@ Create a profile. Unset fields take the defaults (persona template `persona.agen
 
 **Status codes:** 201 Created, 400 Validation failed, 401 Not authenticated, 403 Forbidden, 409 Conflict.
 
-**Response fields:** `id`, `tenantId`, `ownerUserId`, `visibility`, `name`, `displayName`, `personaName`, `userAddress`, `description`, `personaTemplateKey`, `inferenceEndpointId`, `fallbackInferenceEndpointId`, `embeddingEndpointId`, `maxIterations`, `maxToolCallsPerTurn`, `toolTimeoutSeconds`, `temperature`, `exposeA2A`, `exposeMcp`, `exposeOpenAI`, `exposeManagementTools`, `instructionsAppend`, `instructionDetail`, `isDefault`, `active`, `createdUtc`, `lastUpdateUtc`.
+**Response fields:** `id`, `tenantId`, `ownerUserId`, `visibility`, `name`, `displayName`, `personaName`, `userAddress`, `description`, `personaTemplateKey`, `inferenceEndpointId`, `fallbackInferenceEndpointId`, `embeddingEndpointId`, `maxIterations`, `maxToolCallsPerTurn`, `toolTimeoutSeconds`, `temperature`, `exposeA2A`, `exposeMcp`, `exposeOpenAI`, `exposeManagementTools`, `instructionsAppend`, `instructionDetail`, `isDefault`, `bindingCount`, `active`, `createdUtc`, `lastUpdateUtc`.
 
 Example:
 
@@ -5816,6 +5863,7 @@ Response (201):
   "exposeManagementTools": false,
   "instructionDetail": "Auto",
   "isDefault": false,
+  "bindingCount": 0,
   "active": true,
   "createdUtc": "2026-10-15T05:26:07.217946Z",
   "lastUpdateUtc": "2026-10-15T05:26:07.217946Z"
@@ -5834,7 +5882,7 @@ One profile with its settings (bindings are listed separately).
 
 **Status codes:** 200 OK, 401 Not authenticated, 403 Forbidden, 404 Not found.
 
-**Response fields:** `id`, `tenantId`, `ownerUserId`, `visibility`, `name`, `displayName`, `personaName`, `userAddress`, `description`, `personaTemplateKey`, `inferenceEndpointId`, `fallbackInferenceEndpointId`, `embeddingEndpointId`, `maxIterations`, `maxToolCallsPerTurn`, `toolTimeoutSeconds`, `temperature`, `exposeA2A`, `exposeMcp`, `exposeOpenAI`, `exposeManagementTools`, `instructionsAppend`, `instructionDetail`, `isDefault`, `active`, `createdUtc`, `lastUpdateUtc`.
+**Response fields:** `id`, `tenantId`, `ownerUserId`, `visibility`, `name`, `displayName`, `personaName`, `userAddress`, `description`, `personaTemplateKey`, `inferenceEndpointId`, `fallbackInferenceEndpointId`, `embeddingEndpointId`, `maxIterations`, `maxToolCallsPerTurn`, `toolTimeoutSeconds`, `temperature`, `exposeA2A`, `exposeMcp`, `exposeOpenAI`, `exposeManagementTools`, `instructionsAppend`, `instructionDetail`, `isDefault`, `bindingCount`, `active`, `createdUtc`, `lastUpdateUtc`.
 
 Example:
 
@@ -5865,6 +5913,7 @@ Response (200):
   "exposeManagementTools": false,
   "instructionDetail": "Auto",
   "isDefault": true,
+  "bindingCount": 1,
   "active": true,
   "createdUtc": "2026-10-15T05:26:04.484063Z",
   "lastUpdateUtc": "2026-10-15T05:26:04.484063Z"
@@ -5910,7 +5959,7 @@ Partial update: omitted fields keep their values.
 
 **Status codes:** 200 OK, 400 Validation failed, 401 Not authenticated, 403 Forbidden, 404 Not found.
 
-**Response fields:** `id`, `tenantId`, `ownerUserId`, `visibility`, `name`, `displayName`, `personaName`, `userAddress`, `description`, `personaTemplateKey`, `inferenceEndpointId`, `fallbackInferenceEndpointId`, `embeddingEndpointId`, `maxIterations`, `maxToolCallsPerTurn`, `toolTimeoutSeconds`, `temperature`, `exposeA2A`, `exposeMcp`, `exposeOpenAI`, `exposeManagementTools`, `instructionsAppend`, `instructionDetail`, `isDefault`, `active`, `createdUtc`, `lastUpdateUtc`.
+**Response fields:** `id`, `tenantId`, `ownerUserId`, `visibility`, `name`, `displayName`, `personaName`, `userAddress`, `description`, `personaTemplateKey`, `inferenceEndpointId`, `fallbackInferenceEndpointId`, `embeddingEndpointId`, `maxIterations`, `maxToolCallsPerTurn`, `toolTimeoutSeconds`, `temperature`, `exposeA2A`, `exposeMcp`, `exposeOpenAI`, `exposeManagementTools`, `instructionsAppend`, `instructionDetail`, `isDefault`, `bindingCount`, `active`, `createdUtc`, `lastUpdateUtc`.
 
 Example:
 
@@ -5944,6 +5993,7 @@ Response (200):
   "exposeManagementTools": false,
   "instructionDetail": "Auto",
   "isDefault": false,
+  "bindingCount": 0,
   "active": true,
   "createdUtc": "2026-10-15T05:26:07.217946Z",
   "lastUpdateUtc": "2026-10-15T05:26:07.245066Z"
@@ -5989,7 +6039,7 @@ Copy a profile and its bindings under a new name. Resources are shared, not copi
 
 **Status codes:** 201 Created, 400 Validation failed, 401 Not authenticated, 403 Forbidden, 404 Not found, 409 Conflict.
 
-**Response fields:** `id`, `tenantId`, `ownerUserId`, `visibility`, `name`, `displayName`, `personaName`, `userAddress`, `description`, `personaTemplateKey`, `inferenceEndpointId`, `fallbackInferenceEndpointId`, `embeddingEndpointId`, `maxIterations`, `maxToolCallsPerTurn`, `toolTimeoutSeconds`, `temperature`, `exposeA2A`, `exposeMcp`, `exposeOpenAI`, `exposeManagementTools`, `instructionsAppend`, `instructionDetail`, `isDefault`, `active`, `createdUtc`, `lastUpdateUtc`.
+**Response fields:** `id`, `tenantId`, `ownerUserId`, `visibility`, `name`, `displayName`, `personaName`, `userAddress`, `description`, `personaTemplateKey`, `inferenceEndpointId`, `fallbackInferenceEndpointId`, `embeddingEndpointId`, `maxIterations`, `maxToolCallsPerTurn`, `toolTimeoutSeconds`, `temperature`, `exposeA2A`, `exposeMcp`, `exposeOpenAI`, `exposeManagementTools`, `instructionsAppend`, `instructionDetail`, `isDefault`, `bindingCount`, `active`, `createdUtc`, `lastUpdateUtc`.
 
 Example:
 
@@ -6023,6 +6073,7 @@ Response (201):
   "exposeManagementTools": false,
   "instructionDetail": "Auto",
   "isDefault": false,
+  "bindingCount": 0,
   "active": true,
   "createdUtc": "2026-10-15T05:26:07.260312Z",
   "lastUpdateUtc": "2026-10-15T05:26:07.260312Z"
@@ -6237,7 +6288,7 @@ Delegate a task to the profile's own loop and wait for the answer: the REST twin
 | `message` | string | **Required.** The user message. |
 | `conversationId` | string | Conversation to continue (`/ask` only). |
 
-**Status codes:** 200 OK, 400 Validation failed, 401 Not authenticated, 403 Forbidden, 404 Not found.
+**Status codes:** 200 OK, 400 Validation failed, 401 Not authenticated, 403 Forbidden, 404 Not found, 409 A turn is already running in the conversation (`TurnInProgress`).
 
 **Response fields:** `finalText`, `conversationId`, `status`, `approvalId`, `toolTrace`.
 
@@ -6644,7 +6695,7 @@ Response (200):
 
 ## Prompt templates
 
-Hugo's instruction text lives in layered prompt templates: Built-in (shipped, immutable), Global (system administrators), and Tenant (tenant administrators). Reads show all three layers for a key and which one is in effect. Writes go to one layer and create a version. Reset moves a layer back to the one below it: resetting Tenant deactivates the override and keeps its history, and resetting Global adopts the current Built-in, which is how you pick up a shipped improvement after customizing. `render` previews content against sample data. [docs/PROMPTS.md](docs/PROMPTS.md) documents the keys, the template language, and the variables.
+Hugo's instruction text lives in layered prompt templates: Built-in (shipped, immutable), Global (system administrators), and Tenant (tenant administrators). Reads show all three layers for a key and which one is in effect. Writes go to one layer and create a version. Reset moves a layer back to the one below it: resetting Tenant deactivates the override and keeps its history, and resetting Global adopts the current Built-in, which is how you pick up a shipped improvement after customizing. `render` previews content against sample data. A save whose includes (`{{> key}}`) would form a cycle, directly or through other templates, is refused with 400 `ValidationFailed`, and `message` and `fields.content` name the cycle (for example `cycle.b > cycle.a > cycle.b`). [docs/PROMPTS.md](docs/PROMPTS.md) documents the keys, the template language, and the variables.
 
 The tenant-scoped routes under `/v1.0/api/tenants/{tenantId}/prompt-templates` predate the layered view. They manage stored template records by ID and are kept for compatibility; prefer the key-based routes for anything that affects compiled instructions.
 
@@ -7647,7 +7698,9 @@ Response (200):
 
 Model endpoints are the inference and embedding providers Hugo's own loop calls: Ollama, OpenAI, OpenAI-compatible servers, Anthropic, Gemini, Azure OpenAI, Bedrock, Vertex, and VoyageAI (embeddings). API keys stay in the vault and are referenced by secret ID. A profile needs an inference endpoint before dashboard chat, A2A, the OpenAI-compatible surface, or `ask_agent_smith` will run; MCP callers bring their own model and need none.
 
-`validate` sends a tiny prompt and records latency and health. Treat its `success` field, not its status code, as the answer: an unreachable provider is a successful validation request that reports failure.
+`validate` sends a tiny prompt and records latency and health. Treat its `success` field, not its status code, as the answer: an unreachable provider is a successful validation request that reports failure. Every validation and every background sweep (`Models.HealthIntervalSeconds`) adds a row to the endpoint's health history.
+
+Names are labels, so they are lenient: 1 to 128 characters of letters, digits, spaces, and `. _ - : / @`, starting with a letter or digit (`llama3:8b` and `ollama:llama3/8b @lab` are fine). Profiles reference endpoints by ID.
 
 | Method | Path | Summary |
 |---|---|---|
@@ -7659,10 +7712,11 @@ Model endpoints are the inference and embedding providers Hugo's own loop calls:
 | DELETE | `/v1.0/api/model-endpoints/{id}` | Delete a model endpoint (profiles lose the reference) |
 | POST | `/v1.0/api/model-endpoints/{id}/validate` | Send a tiny prompt (or embed a short string), record latency, dimensions, and health |
 | GET | `/v1.0/api/model-endpoints/{id}/models` | Models the provider offers (Ollama, OpenAI, OpenAI-compatible, Anthropic, Gemini) |
+| GET | `/v1.0/api/model-endpoints/{id}/health-history` | Recent health checks (sweep and validate), newest first; maxResults 1 to 1000, default 50 |
 
 ### GET `/v1.0/api/model-endpoints`
 
-Model endpoints in the tenant with their last health result.
+Model endpoints in the tenant with their last health result. Filter with `kind`, `provider`, and `health`.
 
 **Authentication:** Any REST scheme. Permission: Read on ModelEndpoint.
 
@@ -7673,6 +7727,9 @@ Model endpoints in the tenant with their last health result.
 | `ordering` | query | enum | CreatedDescending (default), CreatedAscending, NameAscending, NameDescending. |
 | `search` | query | string | Text to match. |
 | `activeOnly` | query | boolean | Only active records. Default false. |
+| `kind` | query | enum | Only Inference or Embedding endpoints. |
+| `provider` | query | enum | Only endpoints of this provider: Ollama, OpenAI, OpenAICompatible, Anthropic, Gemini, AzureOpenAI, Bedrock, VertexAI, or VoyageAI. |
+| `health` | query | enum | Only endpoints whose last health result is Healthy, Unhealthy, or Unknown (never checked). |
 
 **Status codes:** 200 OK, 401 Not authenticated, 403 Forbidden.
 
@@ -7791,7 +7848,7 @@ Response (201):
 
 ### POST `/v1.0/api/model-endpoints/validate`
 
-Run the same check as `validate` on settings that are not saved yet (the body is the create body); nothing is stored. The dashboard's Validate button on the create and edit forms uses it. An unreachable provider is a 200 with `success: false`.
+Run the same check as `validate` on settings that are not saved yet (the body is the create body, and `name` is optional here); nothing is stored and no health history is written. A missing provider answers 400. The dashboard's Validate button on the create and edit forms uses it. An unreachable provider is a 200 with `success: false`.
 
 **Authentication:** Any REST scheme. Permission: Create on ModelEndpoint.
 
@@ -7799,7 +7856,7 @@ Run the same check as `validate` on settings that are not saved yet (the body is
 
 | Field | Type | Description |
 |---|---|---|
-| `name` | string | **Required.** Unique within the tenant (on create). 1 to 128 characters: letters, digits, spaces, and `. _ - : / @`, starting with a letter or digit. |
+| `name` | string | Optional for a draft. Checked against the name rules when sent. 1 to 128 characters: letters, digits, spaces, and `. _ - : / @`, starting with a letter or digit. |
 | `kind` | enum | Inference (default) or Embedding. Values: Inference, Embedding. |
 | `provider` | enum | **Required.** Ollama, OpenAI, OpenAICompatible, Anthropic, Gemini, AzureOpenAI, Bedrock, VertexAI, or VoyageAI. Values: Ollama, OpenAI, OpenAICompatible, Anthropic, Gemini, AzureOpenAI, Bedrock, VertexAI, VoyageAI. |
 | `baseUrl` | string | Provider base URL without `/v1` (for example `http://127.0.0.1:11434`). Optional for hosted providers. |
@@ -8022,7 +8079,7 @@ Response (200):
 
 ### GET `/v1.0/api/model-endpoints/{id}/models`
 
-Models the provider offers (Ollama, OpenAI, OpenAI-compatible, Anthropic, Gemini). Known issue in 0.1.0-alpha: an unreachable provider answers 500 instead of 502.
+Models the provider offers (Ollama, OpenAI, OpenAI-compatible, Anthropic, Gemini). A provider that cannot be reached answers 502 `ProviderUnreachable`, and one that does not answer in time answers 502 `ProviderTimeout`, with the provider's error in `message`.
 
 **Authentication:** Any REST scheme. Permission: Read on ModelEndpoint.
 
@@ -8030,7 +8087,7 @@ Models the provider offers (Ollama, OpenAI, OpenAI-compatible, Anthropic, Gemini
 |---|---|---|---|
 | `id` | path | string | Record ID. |
 
-**Status codes:** 200 OK, 401 Not authenticated, 403 Forbidden, 404 Not found.
+**Status codes:** 200 OK, 401 Not authenticated, 403 Forbidden, 404 Not found, 502 Provider unreachable or timed out.
 
 Example:
 
@@ -8044,6 +8101,45 @@ Response (200):
 ```json
 [
   "stub-model"
+]
+```
+
+### GET `/v1.0/api/model-endpoints/{id}/health-history`
+
+Recent health checks of one endpoint, newest first: each manual `validate` (source Validate) and each background sweep (source Sweep). The dashboard draws the endpoint's health timeline from it.
+
+**Authentication:** Any REST scheme. Permission: Read on ModelEndpoint.
+
+| Parameter | In | Type | Description |
+|---|---|---|---|
+| `id` | path | string | Record ID. |
+| `maxResults` | query | integer | 1 to 1000 (values outside are clamped). Default 50. |
+
+**Status codes:** 200 OK, 401 Not authenticated, 403 Forbidden, 404 Not found.
+
+**Response fields:** `[].id`, `[].tenantId`, `[].modelEndpointId`, `[].status` (Healthy, Unhealthy, Unknown), `[].source` (Sweep, Validate), `[].latencyMs`, `[].message`, `[].checkedUtc`.
+
+Example:
+
+```bash
+curl -s "$HUGO/v1.0/api/model-endpoints/mep_mv9529bd_WsrkMzDkVkq3eV6yV5Y/health-history?maxResults=10" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+Response (200):
+
+```json
+[
+  {
+    "id": "mhc_mv9529ds_UPEOrOuiUsDrvq7fIbY",
+    "tenantId": "default",
+    "modelEndpointId": "mep_mv9529bd_WsrkMzDkVkq3eV6yV5Y",
+    "status": "Healthy",
+    "source": "Validate",
+    "latencyMs": 0,
+    "message": "OK in 0 ms",
+    "checkedUtc": "2026-10-15T06:09:21.664981Z"
+  }
 ]
 ```
 
@@ -8063,7 +8159,7 @@ Every tool call from every surface goes through one pipeline: resolve the profil
 
 ### GET `/v1.0/api/tool-invocations`
 
-Invocation records, newest first. Filters: `agentProfileId`, `resourceId`, `toolName`, `decision`, `status`, `surface`, `conversationId`, `principalId`, `since`.
+Invocation records, newest first. Filters: `agentProfileId`, `resourceId`, `toolName`, `decision`, `status`, `surface`, `effect`, `conversationId`, `principalId`, `fromUtc` (or its older name `since`), and `toUtc`.
 
 **Authentication:** Any REST scheme. Permission: Read on ToolInvocation.
 
@@ -8077,7 +8173,9 @@ Invocation records, newest first. Filters: `agentProfileId`, `resourceId`, `tool
 | `surface` | query | enum | Chat, Mcp, A2A, OpenAI, Rest. |
 | `conversationId` | query | string | Only this conversation. |
 | `principalId` | query | string | Only this principal. |
-| `since` | query | date-time | Only records created at or after this time (ISO 8601 UTC). |
+| `effect` | query | enum | Only calls classified Read, Write, or Destructive. |
+| `fromUtc` | query | date-time | Only records created at or after this time (ISO 8601). `since` is accepted as an alias. |
+| `toUtc` | query | date-time | Only records created before this time (ISO 8601). |
 | `maxResults` | query | integer | 1 to 1000. Default 25. |
 | `skip` | query | integer | Records to skip. Default 0. |
 | `ordering` | query | enum | CreatedDescending (default), CreatedAscending, NameAscending, NameDescending. |
@@ -8420,7 +8518,7 @@ Deciding needs Update on Approval. Self-approval is allowed by default, because 
 
 ### GET `/v1.0/api/approvals`
 
-Approvals in the tenant, newest first. Filters: `status`, `agentProfileId`, `resourceId`, `principalId`, `toolName`.
+Approvals in the tenant, newest first. Filters: `status`, `agentProfileId`, `resourceId`, `principalId`, `toolName`, `effect`, `fromUtc`, and `toUtc`.
 
 **Authentication:** Any REST scheme. Permission: Read on Approval.
 
@@ -8431,6 +8529,9 @@ Approvals in the tenant, newest first. Filters: `status`, `agentProfileId`, `res
 | `resourceId` | query | string | Only this resource. |
 | `principalId` | query | string | Only this requester. |
 | `toolName` | query | string | Only this tool. |
+| `effect` | query | enum | Only approvals for Read, Write, or Destructive calls. |
+| `fromUtc` | query | date-time | Only approvals requested at or after this time (ISO 8601). |
+| `toUtc` | query | date-time | Only approvals requested before this time (ISO 8601). |
 | `maxResults` | query | integer | 1 to 1000. Default 25. |
 | `skip` | query | integer | Records to skip. Default 0. |
 | `ordering` | query | enum | CreatedDescending (default), CreatedAscending, NameAscending, NameDescending. |
@@ -10154,7 +10255,7 @@ Settings are the contents of `hugo.json`, readable and writable through the API 
 
 ### GET `/v1.0/api/settings`
 
-Every setting with value (secrets masked), source, apply mode (Live or Restart), editability, range, and allowed values.
+Every setting with value (secrets masked), source, apply mode (Live or Restart), editability, range, and allowed values. Only settings the server reads are listed: `Connectors.McpAllowStdio` gates stdio MCP resources, and the unused `Connectors.AllowStdioMcp` and `Connectors.HealthSweepMinutes` are gone.
 
 **Authentication:** Any REST scheme. Permission: Read on Settings.
 
@@ -10203,7 +10304,7 @@ Response (200):
       "minimum": 1,
       "maximum": 65535
     },
-    "… 86 more"
+    "… 85 more"
   ]
 }
 ```
@@ -10894,13 +10995,7 @@ Response (200):
 
 ## Known differences from the OpenAPI document
 
-The OpenAPI document is generated from route metadata and is right about paths, methods, and most fields. In `0.1.0-alpha` it differs from the wire in these places:
+The OpenAPI document is generated from route metadata and is right about paths, methods, status codes, and most fields. In `0.1.0-alpha` it differs from the wire in these places:
 
-- Create routes answer 201, and `POST /v1.0/api/tool-invocations` and `POST /v1.0/api/resources/{id}/invoke` answer 202 while an approval is pending, but OpenAPI declares only 200 for them. `POST /v1.0/api/system/master-key/rotate` answers 202.
-- Fields that accept any JSON (`arguments` on tool calls, `context` on render requests) appear in OpenAPI as an object with a `valueKind` property. Send a plain JSON object.
-- The OpenAI-compatible request and response use snake_case (`stream_options`, `include_usage`, `max_tokens`, `finish_reason`, `owned_by`), while OpenAPI shows camelCase names.
-- `GET /v1.0/api/server-info` sends `a2aUrl`; OpenAPI names it `a2AUrl`.
-- `PUT /v1.0/api/secrets/{id}` and `PUT /v1.0/api/tenants/{tenantId}/prompt-templates/{id}` require `name` (and, for secrets, the unchanged `kind`) even though other updates are partial.
-- `GET /v1.0/api/model-endpoints/{id}/models` answers 500 when the provider is unreachable; `validate` reports the same condition as a 200 with `success: false`.
-- The 404 for an unknown route (`RouteNotFound`) has no `requestId`.
-- A query filter with an unrecognized enum value (for example `GET /v1.0/api/approvals?status=Bogus`) is ignored rather than rejected, so the list comes back unfiltered.
+- List filters (for example `effect`, `fromUtc`, and `toUtc` on approvals) are read from the query string but not declared as OpenAPI parameters. Each list route in this document names its filters.
+- `PUT /v1.0/api/tenants/{tenantId}/prompt-templates/{id}` requires `name` even though other updates are partial.

@@ -8,7 +8,8 @@ Usage:
     python run_harness.py [server] [extra pytest arguments]
 
 Environment (see tests/conftest.py): HUGO_SDK_SERVER (default http://127.0.0.1:8800), HUGO_SDK_ADMIN_EMAIL,
-HUGO_SDK_ADMIN_PASSWORD, HUGO_SDK_ADMIN_TENANT.
+HUGO_SDK_ADMIN_PASSWORD, HUGO_SDK_ADMIN_TENANT, HUGO_SDK_ADMIN_API_KEY. Works with the server's default settings: harness
+clients wait out the token route rate limit (429 with Retry-After) instead of failing.
 
 Exit code 0 when every test passed or was skipped, 1 otherwise.
 """

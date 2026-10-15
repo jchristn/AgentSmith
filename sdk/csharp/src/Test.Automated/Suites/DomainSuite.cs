@@ -14,7 +14,7 @@ namespace Test.Automated.Suites
     /// <summary>
     /// Hugo domain routes: connectors, resources, knowledge, agent profiles, bindings, prompt layers, model endpoints,
     /// tool invocations, approvals, and lockdown. Tests use an HTTP resource pointing at a closed loopback port, so
-    /// nothing outside the server is contacted. Conversations are a preview and skip on 404.
+    /// nothing outside the server is contacted. Model-backed routes (conversations, ask, analytics) are in ModelSuite.
     /// </summary>
     public class DomainSuite : TestSuite
     {
@@ -71,6 +71,23 @@ namespace Test.Automated.Suites
                     Check.NotEmpty(test.ErrorCode, "test error code");
                     Resource reread = await c.Resources.GetAsync(resource.Id).ConfigureAwait(false);
                     Check.True(reread.LastTestUtc.HasValue && reread.LastTestResult == false, "test result recorded");
+                    ResourceFilter unhealthy = new ResourceFilter();
+                    unhealthy.ConnectorType = "http";
+                    unhealthy.Environment = "test";
+                    unhealthy.Health = "Unhealthy";
+                    EnumerationResult<Resource> failing = await c.Resources.ListAsync(unhealthy).ConfigureAwait(false);
+                    Check.True(failing.Objects.Any(r => r.Id == resource.Id), "environment and health=Unhealthy filters include the failed resource");
+                    ResourceFilter healthy = new ResourceFilter();
+                    healthy.Health = "Healthy";
+                    EnumerationResult<Resource> passing = await c.Resources.ListAsync(healthy).ConfigureAwait(false);
+                    Check.True(passing.Objects.All(r => r.Id != resource.Id), "health=Healthy excludes it");
+                    ResourceFilter otherEnvironment = new ResourceFilter();
+                    otherEnvironment.Environment = "production";
+                    EnumerationResult<Resource> production = await c.Resources.ListAsync(otherEnvironment).ConfigureAwait(false);
+                    Check.True(production.Objects.All(r => r.Id != resource.Id), "environment filter excludes other environments");
+                    ResourceFilter badHealth = new ResourceFilter();
+                    badHealth.Health = "Sick";
+                    await Check.FailsAsync(() => c.Resources.ListAsync(badHealth), 400, "ValidationFailed").ConfigureAwait(false);
                     ResourceTestResult unsaved = await c.Resources.TestUnsavedAsync(HttpResource(Unique("unsaved"))).ConfigureAwait(false);
                     Check.True(!unsaved.Success, "unsaved test result");
                     Resource copy = await c.Resources.DuplicateAsync(resource.Id, Unique("rescopy")).ConfigureAwait(false);
@@ -181,6 +198,10 @@ namespace Test.Automated.Suites
                     Check.Equal(1, rules.Count, "rules listed");
                     List<Binding> bindings = await c.AgentProfiles.ListBindingsAsync(profile.Id).ConfigureAwait(false);
                     Check.True(bindings.Any(b => b.Id == binding.Id), "binding listed");
+                    AgentProfile counted = await c.AgentProfiles.GetAsync(profile.Id).ConfigureAwait(false);
+                    Check.Equal(1, counted.BindingCount, "bindingCount on read");
+                    EnumerationResult<AgentProfile> profiles = await c.AgentProfiles.ListAsync().ConfigureAwait(false);
+                    Check.Equal(1, profiles.Objects.First(p => p.Id == profile.Id).BindingCount, "bindingCount on list");
                     List<ResourceReferrer> referrers = await c.Resources.GetReferrersAsync(resource.Id).ConfigureAwait(false);
                     Check.True(referrers.Any(r => r.BindingId == binding.Id && r.AgentProfileId == profile.Id), "resource referrer");
                     await c.AgentProfiles.DeleteBindingAsync(profile.Id, binding.Id).ConfigureAwait(false);
@@ -263,6 +284,43 @@ namespace Test.Automated.Suites
                     byProfile.AgentProfileId = profile.Id;
                     EnumerationResult<ToolInvocation> history = await c.ToolInvocations.ListAsync(byProfile).ConfigureAwait(false);
                     Check.True(history.Objects.Count >= 2, "invocations recorded for the profile");
+
+                    ApprovalFilter windowed = new ApprovalFilter();
+                    windowed.AgentProfileId = profile.Id;
+                    windowed.Effect = "Write";
+                    windowed.FromUtc = DateTime.UtcNow.AddHours(-1);
+                    windowed.ToUtc = DateTime.UtcNow.AddMinutes(5);
+                    EnumerationResult<Approval> writes = await c.Approvals.ListAsync(windowed).ConfigureAwait(false);
+                    Check.True(writes.Objects.Any(a => a.Id == pending.ApprovalId) && writes.Objects.Any(a => a.Id == second.ApprovalId), "effect and time window filters include both approvals");
+                    ApprovalFilter destructive = new ApprovalFilter();
+                    destructive.AgentProfileId = profile.Id;
+                    destructive.Effect = "Destructive";
+                    EnumerationResult<Approval> none = await c.Approvals.ListAsync(destructive).ConfigureAwait(false);
+                    Check.Equal(0, none.Objects.Count, "effect=Destructive excludes Write approvals");
+                    ApprovalFilter future = new ApprovalFilter();
+                    future.AgentProfileId = profile.Id;
+                    future.FromUtc = DateTime.UtcNow.AddHours(1);
+                    EnumerationResult<Approval> later = await c.Approvals.ListAsync(future).ConfigureAwait(false);
+                    Check.Equal(0, later.Objects.Count, "fromUtc in the future matches nothing");
+                    ApprovalFilter badEffect = new ApprovalFilter();
+                    badEffect.Effect = "Explosive";
+                    await Check.FailsAsync(() => c.Approvals.ListAsync(badEffect), 400, "ValidationFailed").ConfigureAwait(false);
+
+                    ToolInvocationFilter writeCalls = new ToolInvocationFilter();
+                    writeCalls.AgentProfileId = profile.Id;
+                    writeCalls.Effect = "Write";
+                    writeCalls.FromUtc = DateTime.UtcNow.AddHours(-1);
+                    writeCalls.ToUtc = DateTime.UtcNow.AddMinutes(5);
+                    EnumerationResult<ToolInvocation> writeHistory = await c.ToolInvocations.ListAsync(writeCalls).ConfigureAwait(false);
+                    Check.True(writeHistory.Objects.Count >= 2 && writeHistory.Objects.All(i => i.Effect == "Write"), "tool invocation effect and window filters");
+                    ToolInvocationFilter before = new ToolInvocationFilter();
+                    before.AgentProfileId = profile.Id;
+                    before.ToUtc = DateTime.UtcNow.AddHours(-1);
+                    EnumerationResult<ToolInvocation> earlier = await c.ToolInvocations.ListAsync(before).ConfigureAwait(false);
+                    Check.Equal(0, earlier.Objects.Count, "toUtc in the past matches nothing");
+                    ToolInvocationFilter badDecision = new ToolInvocationFilter();
+                    badDecision.Decision = "Maybe";
+                    await Check.FailsAsync(() => c.ToolInvocations.ListAsync(badDecision), 400, "ValidationFailed").ConfigureAwait(false);
                     ToolInvocationSummary summary = await c.ToolInvocations.GetSummaryAsync(DateTime.UtcNow.AddHours(-1)).ConfigureAwait(false);
                     Check.True(summary.Total >= 2 && summary.ByTool.Any(t => t.Status == "http_request"), "summary by tool");
                 }
@@ -372,6 +430,50 @@ namespace Test.Automated.Suites
                     Check.Equal("Unhealthy", after.HealthStatus, "health recorded");
                     EnumerationResult<ModelEndpoint> page = await c.ModelEndpoints.ListAsync().ConfigureAwait(false);
                     Check.True(page.Objects.Any(m => m.Id == endpoint.Id), "listed");
+
+                    List<ModelEndpointHealthRecord> history = await c.ModelEndpoints.GetHealthHistoryAsync(endpoint.Id, 10).ConfigureAwait(false);
+                    Check.True(history.Count >= 1, "validation recorded in the health history");
+                    Check.Equal("Unhealthy", history[0].Status, "history status");
+                    Check.Equal("Validate", history[0].Source, "history source");
+                    Check.Equal(endpoint.Id, history[0].ModelEndpointId, "history endpoint");
+                    List<ModelEndpointHealthRecord> clamped = await c.ModelEndpoints.GetHealthHistoryAsync(endpoint.Id, 5000).ConfigureAwait(false);
+                    Check.Equal(history.Count, clamped.Count, "maxResults above 1000 is clamped");
+
+                    ModelEndpointFilter filter = new ModelEndpointFilter();
+                    filter.Kind = "Inference";
+                    filter.Provider = "Ollama";
+                    filter.Health = "Unhealthy";
+                    EnumerationResult<ModelEndpoint> filtered = await c.ModelEndpoints.ListAsync(filter).ConfigureAwait(false);
+                    Check.True(filtered.Objects.Any(m => m.Id == endpoint.Id), "kind, provider, and health filters include the endpoint");
+                    ModelEndpointFilter embedding = new ModelEndpointFilter();
+                    embedding.Kind = "Embedding";
+                    EnumerationResult<ModelEndpoint> embeddings = await c.ModelEndpoints.ListAsync(embedding).ConfigureAwait(false);
+                    Check.True(embeddings.Objects.All(m => m.Id != endpoint.Id), "kind=Embedding excludes it");
+                    ModelEndpointFilter badProvider = new ModelEndpointFilter();
+                    badProvider.Provider = "Skynet";
+                    await Check.FailsAsync(() => c.ModelEndpoints.ListAsync(badProvider), 400, "ValidationFailed").ConfigureAwait(false);
+
+                    long before = page.TotalRecords;
+                    ModelEndpointRequest draft = new ModelEndpointRequest();
+                    draft.Name = "draft:check";
+                    draft.Provider = "OpenAICompatible";
+                    draft.BaseUrl = "http://127.0.0.1:9";
+                    draft.Model = "m";
+                    draft.MaxRetries = 0;
+                    draft.TimeoutSeconds = 5;
+                    ModelValidationResult unreachable = await c.ModelEndpoints.ValidateDraftAsync(draft).ConfigureAwait(false);
+                    Check.True(!unreachable.Success && !String.IsNullOrEmpty(unreachable.Error), "an unreachable draft reports a failure");
+                    ModelEndpointRequest noProvider = new ModelEndpointRequest();
+                    noProvider.Model = "m";
+                    await Check.FailsAsync(() => c.ModelEndpoints.ValidateDraftAsync(noProvider), 400).ConfigureAwait(false);
+                    EnumerationResult<ModelEndpoint> afterDraft = await c.ModelEndpoints.ListAsync().ConfigureAwait(false);
+                    Check.Equal(before, afterDraft.TotalRecords, "draft validation stores nothing");
+                    await Check.FailsAsync(() => c.ModelEndpoints.ListModelsAsync(endpoint.Id), 502).ConfigureAwait(false);
+
+                    ModelEndpointRequest labelled = new ModelEndpointRequest();
+                    labelled.Name = "ollama:llama3/8b @lab " + HarnessContext.RandomHex(2);
+                    ModelEndpoint renamed = await c.ModelEndpoints.UpdateAsync(endpoint.Id, labelled).ConfigureAwait(false);
+                    Check.Equal(labelled.Name, renamed.Name, "names accept colons, slashes, at signs, and spaces");
                 }
                 finally
                 {
@@ -398,55 +500,6 @@ namespace Test.Automated.Suites
                 finally
                 {
                     await c.Resources.DeleteAsync(resource.Id).ConfigureAwait(false);
-                }
-            }).ConfigureAwait(false);
-
-            await runner.RunAsync("Conversations CRUD (preview)", async () =>
-            {
-                await RequireRouteAsync(() => c.Conversations.ListAsync()).ConfigureAwait(false);
-                ConversationRequest create = new ConversationRequest();
-                create.Title = Unique("chat");
-                Conversation conversation = await c.Conversations.CreateAsync(create).ConfigureAwait(false);
-                try
-                {
-                    List<ConversationMessage> messages = await c.Conversations.ListMessagesAsync(conversation.Id).ConfigureAwait(false);
-                    Check.Equal(0, messages.Count, "no messages yet");
-                }
-                finally
-                {
-                    await c.Conversations.DeleteAsync(conversation.Id).ConfigureAwait(false);
-                }
-            }).ConfigureAwait(false);
-
-            await runner.RunAsync("Chat streaming emits typed events (preview)", async () =>
-            {
-                await RequireRouteAsync(() => c.Conversations.ListAsync()).ConfigureAwait(false);
-                AgentProfile? profile = null;
-                await foreach (AgentProfile p in c.AgentProfiles.EnumerateAsync().ConfigureAwait(false))
-                {
-                    if (!String.IsNullOrEmpty(p.InferenceEndpointId))
-                    {
-                        profile = p;
-                        break;
-                    }
-                }
-                if (profile == null) throw new TestSkippedException("no agent profile with an inference endpoint in the test tenant");
-                ConversationRequest create = new ConversationRequest();
-                create.AgentProfileId = profile.Id;
-                Conversation conversation = await c.Conversations.CreateAsync(create).ConfigureAwait(false);
-                try
-                {
-                    List<string> types = new List<string>();
-                    await foreach (ChatEvent item in c.Conversations.StreamMessageAsync(conversation.Id, "Say hello.").ConfigureAwait(false))
-                    {
-                        types.Add(item.Type);
-                    }
-                    Check.True(types.Contains(ChatEventTypes.TurnStarted), "turn.started");
-                    Check.True(types.Contains(ChatEventTypes.TurnCompleted) || types.Contains(ChatEventTypes.Error), "terminal event");
-                }
-                finally
-                {
-                    await c.Conversations.DeleteAsync(conversation.Id).ConfigureAwait(false);
                 }
             }).ConfigureAwait(false);
         }

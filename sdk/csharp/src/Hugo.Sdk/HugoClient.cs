@@ -195,9 +195,14 @@ namespace Hugo.Sdk
         public LockdownClient Lockdown { get; }
 
         /// <summary>
-        /// Conversations and chat streaming (preview: verified when the Phase 7 conversation routes land).
+        /// Conversations, agent turns, and chat streaming.
         /// </summary>
         public ConversationsClient Conversations { get; }
+
+        /// <summary>
+        /// Tenant analytics (turns, tokens, tools, models).
+        /// </summary>
+        public AnalyticsClient Analytics { get; }
 
         #endregion
 
@@ -242,6 +247,7 @@ namespace Hugo.Sdk
             Approvals = new ApprovalsClient(Transport);
             Lockdown = new LockdownClient(Transport);
             Conversations = new ConversationsClient(Transport);
+            Analytics = new AnalyticsClient(Transport);
         }
 
         #endregion
@@ -249,8 +255,9 @@ namespace Hugo.Sdk
         #region Public-Methods
 
         /// <summary>
-        /// Sign in with email and password and use the issued session token for later requests. When the response says
-        /// MustChangePassword, call ChangePasswordAsync before anything else (other routes answer 403 PasswordChangeRequired).
+        /// Sign in with email and password and use the issued session token for later requests. MustChangePassword in the
+        /// response is advisory: the account still has a seeded or administrator-set password, every route works, and
+        /// ChangePasswordAsync clears the flag.
         /// </summary>
         /// <param name="email">Email.</param>
         /// <param name="password">Password.</param>
@@ -450,7 +457,8 @@ namespace Hugo.Sdk
         }
 
         /// <summary>
-        /// Change the signed-in user's password. Clears must-change-password; other sessions of the user are revoked.
+        /// Change the signed-in user's password. Clears the advisory must-change-password flag; other sessions of the
+        /// user are revoked.
         /// </summary>
         /// <param name="currentPassword">Current password.</param>
         /// <param name="newPassword">New password, 8 to 256 characters, different from the current one.</param>

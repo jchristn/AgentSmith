@@ -23,7 +23,7 @@ namespace Hugo.Sdk
         public string? Error { get; }
 
         /// <summary>
-        /// Stable error code, for example RouteNotFound, PasswordChangeRequired, or ReauthenticationRequired. Null
+        /// Stable error code, for example RouteNotFound, ValidationFailed, or ReauthenticationRequired. Null
         /// when the body was not JSON.
         /// </summary>
         public string? Code { get; }

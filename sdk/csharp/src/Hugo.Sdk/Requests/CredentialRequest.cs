@@ -41,6 +41,23 @@ namespace Hugo.Sdk.Requests
         /// </summary>
         public string? RoleName { get; set; } = null;
 
+        /// <summary>
+        /// Agent profile the credential is bound to, or null.
+        /// </summary>
+        public string? AgentProfileId { get; set; } = null;
+
+        /// <summary>
+        /// Whether the credential may only use its bound agent profile.
+        /// </summary>
+        public bool? LockToProfile { get; set; } = null;
+
+        /// <summary>
+        /// Whether the credential carries its owner's administrator or tenant administrator bypass. Default false: a
+        /// credential's access comes only from its role assignments. Only a signed-in tenant or system administrator
+        /// can set it (403 BypassRequiresAdministrator otherwise); every change is audited as CredentialBypassChanged.
+        /// </summary>
+        public bool? InheritOwnerBypass { get; set; } = null;
+
         #endregion
     }
 }
