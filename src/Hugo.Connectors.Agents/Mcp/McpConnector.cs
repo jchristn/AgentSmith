@@ -19,7 +19,7 @@ namespace Hugo.Connectors.Agents.Mcp
     /// (classified per call from the remote tool's annotations), <c>mcp_list_resources</c> (Read), and
     /// <c>mcp_read_resource</c> (Read). Thread-safe.
     /// </summary>
-    public class McpConnector : IConnector
+    public class McpConnector : IConnector, IRemoteInstructionsProvider
     {
         #region Public-Members
 
@@ -168,6 +168,42 @@ namespace Hugo.Connectors.Agents.Mcp
                 {
                     return ConnectorHealthResult.Fail(ConnectorErrorCodes.ConnectionFailed, "The MCP session failed: " + TextClip.Clip(e.Message, 300), sw.Elapsed.TotalMilliseconds);
                 }
+            }
+        }
+
+        /// <summary>
+        /// The external MCP server's own instructions (from its initialize result), clipped to
+        /// <see cref="McpConnectorOptions.MaxInstructionsChars"/>. Hugo fences the text as third-party content.
+        /// </summary>
+        /// <param name="resource">Resource context.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>The instructions, or null when the server sends none.</returns>
+        /// <exception cref="ConnectorException">Thrown when the server cannot be reached or answers with an error.</exception>
+        public async Task<string?> GetRemoteInstructionsAsync(ConnectorResourceContext resource, CancellationToken token = default)
+        {
+            ArgumentNullException.ThrowIfNull(resource);
+            McpResourceOptions options = McpResourceOptions.FromSettings(resource.Settings);
+            try
+            {
+                using (McpRemoteSession session = await McpRemoteSession.ConnectAsync(options, resource, Options, token).ConfigureAwait(false))
+                {
+                    string instructions = session.Server.Instructions;
+                    return String.IsNullOrWhiteSpace(instructions) ? null : TextClip.Clip(instructions, Options.MaxInstructionsChars);
+                }
+            }
+            catch (McpRemoteException e)
+            {
+                ToolResult mapped = McpToolBase.MapRemoteError(e);
+                throw new ConnectorException(mapped.ErrorCode ?? ConnectorErrorCodes.UpstreamError, mapped.Text);
+            }
+            catch (HttpRequestException e)
+            {
+                ToolResult mapped = McpToolBase.MapHttpError(e, options.EndpointName());
+                throw new ConnectorException(mapped.ErrorCode ?? ConnectorErrorCodes.ConnectionFailed, mapped.Text);
+            }
+            catch (InvalidOperationException e)
+            {
+                throw new ConnectorException(ConnectorErrorCodes.ConnectionFailed, "The MCP session failed: " + TextClip.Clip(e.Message, 300));
             }
         }
 

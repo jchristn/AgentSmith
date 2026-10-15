@@ -6,6 +6,7 @@ namespace Hugo.Connectors.Agents.A2A
     using System.Globalization;
     using System.Linq;
     using System.Net.Http;
+    using System.Text;
     using System.Text.Json;
     using System.Threading;
     using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace Hugo.Connectors.Agents.A2A
     /// through its agent card and reached over A2A 1.0 JSON-RPC (or HTTP+JSON). Tools: <c>a2a_get_card</c> (Read),
     /// <c>a2a_delegate</c> (Write), and <c>a2a_get_task</c> (Read). Thread-safe.
     /// </summary>
-    public class A2AAgentConnector : IConnector
+    public class A2AAgentConnector : IConnector, IRemoteInstructionsProvider
     {
         #region Public-Members
 
@@ -161,6 +162,57 @@ namespace Hugo.Connectors.Agents.A2A
                 {
                     return ConnectorHealthResult.Fail(ConnectorErrorCodes.UpstreamError, "The agent card could not be read: " + TextClip.Clip(e.Message, 300), sw.Elapsed.TotalMilliseconds);
                 }
+            }
+        }
+
+        /// <summary>
+        /// The remote agent's own description of itself from its agent card: the card description and its skills,
+        /// clipped to <see cref="A2AAgentConnectorOptions.MaxTextChars"/>. Hugo fences the text as third-party content.
+        /// </summary>
+        /// <param name="resource">Resource context.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>The card text, or null when the card has no description and no skills.</returns>
+        /// <exception cref="ConnectorException">Thrown when the agent card cannot be loaded.</exception>
+        public async Task<string?> GetRemoteInstructionsAsync(ConnectorResourceContext resource, CancellationToken token = default)
+        {
+            ArgumentNullException.ThrowIfNull(resource);
+            A2AAgentResourceOptions options = A2AAgentResourceOptions.FromSettings(resource.Settings);
+            string origin = options.CardUrl?.GetLeftPart(UriPartial.Authority) ?? "(no agentCardUrl)";
+            try
+            {
+                using (A2ARemoteSession session = await A2ARemoteSession.ConnectAsync(options, resource, token).ConfigureAwait(false))
+                {
+                    AgentCard card = session.Card;
+                    StringBuilder sb = new StringBuilder();
+                    if (!String.IsNullOrWhiteSpace(card.Description)) sb.Append(card.Description.Trim()).Append('\n');
+                    List<AgentSkill> skills = (card.Skills ?? new List<AgentSkill>()).Where(sk => sk != null).ToList();
+                    if (skills.Count > 0)
+                    {
+                        sb.Append("Skills:\n");
+                        foreach (AgentSkill skill in skills)
+                        {
+                            sb.Append("- ").Append(TextClip.OneLine(skill.Id));
+                            if (!String.IsNullOrWhiteSpace(skill.Name)) sb.Append(" (").Append(TextClip.OneLine(skill.Name)).Append(')');
+                            if (!String.IsNullOrWhiteSpace(skill.Description)) sb.Append(": ").Append(TextClip.OneLine(skill.Description));
+                            sb.Append('\n');
+                        }
+                    }
+                    return sb.Length == 0 ? null : TextClip.Clip(sb.ToString(), Options.MaxTextChars);
+                }
+            }
+            catch (HttpRequestException e)
+            {
+                ToolResult mapped = A2AToolBase.MapHttpError(e, origin);
+                throw new ConnectorException(mapped.ErrorCode ?? ConnectorErrorCodes.ConnectionFailed, mapped.Text);
+            }
+            catch (A2AProtocolException e)
+            {
+                ToolResult mapped = A2AToolBase.MapProtocolError(e);
+                throw new ConnectorException(mapped.ErrorCode ?? ConnectorErrorCodes.UpstreamError, mapped.Text);
+            }
+            catch (JsonException e)
+            {
+                throw new ConnectorException(ConnectorErrorCodes.UpstreamError, "The agent card could not be read: " + TextClip.Clip(e.Message, 300));
             }
         }
 
