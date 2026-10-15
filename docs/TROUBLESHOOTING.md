@@ -68,7 +68,6 @@ Hugo is deliberate about these, and the difference tells you where to look.
 |---|---|---|
 | 401 | `AuthenticationRequired` | No credentials, or credentials Hugo could not verify. |
 | 403 | `AuthorizationDenied` | You are who you say you are, and the target exists in your tenant, but your roles do not grant the operation. The body names `requiredPermission` and `resourceType`. |
-| 403 | `PasswordChangeRequired` | See below. |
 | 404 | `NotFound` | The object does not exist, or it belongs to another tenant. Hugo never confirms that another tenant's object exists. |
 | 404 | `RouteNotFound` | No route matches the method and path. Check for a typo or a missing `/v1.0`. |
 
@@ -76,9 +75,9 @@ A 401 also happens when more than one scheme is presented at once (for example a
 
 A 403 on a route you expect to work usually means the user is not a tenant administrator and has no role that grants the operation. `GET /v1.0/api/tenants/{tenantId}/users/{id}/permissions` shows the effective grants. [`SECURITY.md`](SECURITY.md) explains roles and bypass rules.
 
-### 403 PasswordChangeRequired
+### The dashboard keeps asking for a new password
 
-The seeded accounts `admin@hugo.local` and `anderson@hugo.local` start with the password `password` and must change it before doing anything else. Until they do, every route except these answers 403 `PasswordChangeRequired`: `GET`, `DELETE` `/v1.0/token`, `GET /v1.0/token/details`, `POST /v1.0/token/refresh`, `GET /v1.0/api/users/me`, `POST /v1.0/api/users/me/password`, `GET /v1.0/api/server-info`, and `GET /v1.0/api/info`. An administrator resetting someone's password sets the same flag unless the reset passes `mustChangePassword=false`.
+The seeded accounts `admin@hugo.local` and `anderson@hugo.local` start with the password `password` and the `mustChangePassword` flag, and an administrator's password reset sets the same flag unless it passes `mustChangePassword=false`. The flag is advisory (decision D-048): the dashboard asks for a new password at sign-in, you may skip it, and the API answers every route as usual. The prompt comes back until the password changes:
 
 ```bash
 curl -s -X POST http://127.0.0.1:8800/v1.0/api/users/me/password \

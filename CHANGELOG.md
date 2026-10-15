@@ -14,7 +14,7 @@ Everything below is new in this release. The images are `jchristn77/hugo-server:
 - A seeded demo stack in `docker/factory/` with its own project name and ports (API 8810, dashboard 8811), a demo profile, sample resources, and its own `factory/reset.sh`. See `docs/FACTORY.md`.
 - The stack runs the server, the dashboard, Prometheus, Tempo, Loki, Alloy, and Grafana, with a curl or wget healthcheck on every service and dependency ordering. Every host port binds to `127.0.0.1`.
 - SQLite by default; PostgreSQL with `HUGO_DB_TYPE=Postgresql` and the `postgres` Compose profile.
-- First boot seeds the `default` tenant, the system administrator `admin@hugo.local`, the tenant administrator `anderson@hugo.local`, the built-in roles, and the Hugo profile. Both seeded accounts must change their password at first sign-in.
+- First boot seeds the `default` tenant, the system administrator `admin@hugo.local`, the tenant administrator `anderson@hugo.local`, the built-in roles, and the Hugo profile. Both seeded accounts carry the advisory `mustChangePassword` flag: the dashboard prompts for a new password, and the prompt can be skipped (D-048).
 
 ### Identity, access control, and audit
 
@@ -29,7 +29,7 @@ Everything below is new in this release. The images are `jchristn77/hugo-server:
 ### Secrets vault
 
 - Secrets encrypted with AES-256-GCM under a versioned master key, with HKDF-derived keys and associated data binding each value to its tenant and secret.
-- Nine secret kinds (password, private key, API token, access key pair, service account JSON, kubeconfig, connection string, certificate, generic) with import parsing for SSH keys, GCP service accounts, kubeconfigs, and PEM certificates.
+- Ten secret kinds (password, private key, API token, bearer token, access key pair, service account JSON, kubeconfig, connection string, certificate, generic; BearerToken is for tokens sent exactly as `Authorization: Bearer`, D-049) with import parsing for SSH keys, GCP service accounts, kubeconfigs, and PEM certificates.
 - Values are never returned except through the audited reveal route, which needs the `Reveal` permission, a reason, and a recent password re-entry.
 - Startup refuses to run with a master key that does not match the database. Resumable master key rotation for system administrators.
 - A secret scrubber removes known secret values and credential patterns from tool output, logs, request history, and audit text.
@@ -65,7 +65,7 @@ Twenty connector types, each with its own settings schema, secret slots, tools, 
 
 ### Agent runtime and protocol surfaces
 
-- Model endpoints for Ollama, OpenAI, OpenAI-compatible servers, Anthropic, Gemini, Azure OpenAI, Bedrock, Vertex AI, and VoyageAI embeddings, with validation, health sweeps, concurrency gates, retries, a circuit breaker, and fallback.
+- Model endpoints for Ollama, OpenAI, OpenAI-compatible servers, Anthropic, Gemini, Azure OpenAI, Bedrock, Vertex AI, and VoyageAI embeddings, with validation of saved and unsaved settings (`POST /v1.0/api/model-endpoints/validate`), names that may contain spaces and `. _ - : / @`, health sweeps, concurrency gates, retries, a circuit breaker, and fallback.
 - Hugo's own agent loop: streaming, thinking blocks, parallel read calls, tool retrieval for large profiles, history compaction, cancellation, and a forced final answer at the iteration limit.
 - Conversations with Server-Sent Events chat streaming, export as Markdown or JSON, and analytics for turns, tokens, tools, and models.
 - **MCP** at `/mcp` and `/mcp/{profile}` over Streamable HTTP: per-caller tool lists, the `hugo_*` meta tools, `ask_agent_smith`, optional management tools, prompts, and resources.
@@ -75,7 +75,7 @@ Twenty connector types, each with its own settings schema, secret slots, tools, 
 
 ### Dashboard
 
-- React 19 operator console: home with external services, chat with inline tool calls and approval cards, agent profiles with a compiled-instructions preview, resources with schema-driven forms and Test Connection, secrets, connectors and their default instructions, model endpoints with a setup wizard, approvals inbox, tool invocations, conversations, analytics, request history, API explorer, audit, identity and access pages, settings with restart indicators, and lockdown.
+- React 19 operator console: home with external services, chat with inline tool calls and approval cards, agent profiles with a compiled-instructions preview, resources with schema-driven forms and Test Connection, secrets, connectors and their default instructions, model endpoints with a setup wizard, approvals inbox, tool invocations, conversations, analytics, request history, API explorer, audit, identity and access pages, settings with restart indicators, lockdown, and a Discord link in the topbar.
 - Twelve languages (English plus eleven machine-seeded catalogs marked beta), right-to-left support, and two pseudo-locales.
 
 ### SDKs and tools
@@ -99,3 +99,6 @@ Twenty connector types, each with its own settings schema, secret slots, tools, 
 - Saving `section.resource` or `instructions.root` to the Global or Tenant layer fails validation, because the save-time check does not accept `this` outside `{{#each}}` or the `compactInstructions` flag. Leave those two keys at their defaults for now.
 - Some create routes are documented in OpenAPI as returning 200 while they return 201.
 - MCP sessions live in memory, so clients reconnect after a server restart. Hugo runs as a single replica.
+- Approving a call while an MCP client is already waiting on it in `hugo_await_approval` leaves the call unexecuted; the waiter returns `approval_pending`. Approve first, then await (or let the original call wait).
+- A template that includes itself (for example `{{> system.tool-usage}}` saved as `system.tool-usage`) is accepted at save time; compilation then detects the cycle and falls back to the built-in templates for the whole profile, with only a warning.
+- List filters with an unrecognized enum value (`?status=Bogus`) are ignored instead of rejected.

@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "201ef823-b318-5721-b39d-2c160ae749e0",
     "name": "Hugo",
-    "description": "Every Hugo REST route, plus MCP and A2A JSON-RPC examples, organized by area. Hugo is a multi-tenant super agent server: you give it access to the systems behind your production stack, group that access into agent profiles, and reach those profiles over MCP, A2A, REST, an OpenAI-compatible endpoint, or the dashboard. The full reference is REST_API.md, MCP_API.md, and A2A_API.md in the repository.\n\nHow to use it\n\n1. Import this collection and `Hugo.postman_environment.json`, and select the environment.\n2. Set `host` and `port` for your server. The Docker stack serves the API on 127.0.0.1:8800; the seeded demo stack in `docker/factory/` serves it on 127.0.0.1:8810.\n3. Set `password` to the seeded password (`password` on a fresh stack) and `newPassword` to the password you want the accounts to have. On first use the collection signs in, performs the forced password change, and keeps going. Against the factory demo stack, set both to that stack's demo password.\n4. Run the folders in order (Collection Runner or `scripts/newman.sh`). Later folders use IDs that earlier folders capture into collection variables.\n\nAuthentication\n\nThe collection uses a bearer token. Its pre-request script keeps `{{token}}` (the tenant administrator `{{email}}`) and `{{adminToken}}` (the system administrator `{{adminEmail}}`) valid and only calls the server when a token is missing or about to expire. Requests that show another scheme (credential keys, a signed request, anonymous routes) set their own authorization. Token routes are rate limited to 10 per minute per IP by default (`Auth.RateLimitPerMinute`); the run stays under that.\n\nWhat runs where\n\nEverything runs against a fresh server with nothing else installed: the examples use `demo-db`, a SQLite resource on `:memory:`. Requests that need a model (chat, A2A tasks, the OpenAI-compatible completions, `ask_agent_smith`) are skipped unless `modelBaseUrl` is set to a reachable OpenAI-compatible endpoint. Requests that would restart the server or hold a stream open forever are documented but always skipped. The last folder deletes what the run created.",
+    "description": "Every Hugo REST route, plus MCP and A2A JSON-RPC examples, organized by area. Hugo is a multi-tenant super agent server: you give it access to the systems behind your production stack, group that access into agent profiles, and reach those profiles over MCP, A2A, REST, an OpenAI-compatible endpoint, or the dashboard. The full reference is REST_API.md, MCP_API.md, and A2A_API.md in the repository.\n\nHow to use it\n\n1. Import this collection and `Hugo.postman_environment.json`, and select the environment.\n2. Set `host` and `port` for your server. The Docker stack serves the API on 127.0.0.1:8800; the seeded demo stack in `docker/factory/` serves it on 127.0.0.1:8810.\n3. Set `password` to the seeded password (`password` on a fresh stack) and `newPassword` to the password you want the accounts to have. On first use the collection signs in with `password`, changes it to `newPassword` (Hugo asks for that, though since D-048 it no longer blocks anything until you do), and keeps going. Against the factory demo stack, set both to that stack's demo password.\n4. Run the folders in order (Collection Runner or `scripts/newman.sh`). Later folders use IDs that earlier folders capture into collection variables.\n\nAuthentication\n\nThe collection uses a bearer token. Its pre-request script keeps `{{token}}` (the tenant administrator `{{email}}`) and `{{adminToken}}` (the system administrator `{{adminEmail}}`) valid and only calls the server when a token is missing or about to expire. Requests that show another scheme (credential keys, a signed request, anonymous routes) set their own authorization. Token routes are rate limited to 10 per minute per IP by default (`Auth.RateLimitPerMinute`); the run stays under that.\n\nWhat runs where\n\nEverything runs against a fresh server with nothing else installed: the examples use `demo-db`, a SQLite resource on `:memory:`. Requests that need a model (chat, A2A tasks, the OpenAI-compatible completions, `ask_agent_smith`) are skipped unless `modelBaseUrl` is set to a reachable OpenAI-compatible endpoint. Requests that would restart the server or hold a stream open forever are documented but always skipped. The last folder deletes what the run created.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -24,8 +24,8 @@
           "// Collection pre-request script: keeps {{token}} (the tenant administrator, {{email}}) and {{adminToken}}",
           "// (the system administrator, {{adminEmail}}) valid. It runs before every request but only calls the server when a",
           "// token is missing or expires within a minute. Sign-in tries {{newPassword}} first; on a fresh server it falls back",
-          "// to the seeded {{password}}, changes it to {{newPassword}} as Hugo requires, and refreshes the session so the",
-          "// must-change-password flag is cleared. Token routes are rate limited (Auth.RateLimitPerMinute, default 10 per",
+          "// to the seeded {{password}}, changes it to {{newPassword}} (the seeded accounts carry the advisory",
+          "// mustChangePassword flag), and refreshes the session. Token routes are rate limited (Auth.RateLimitPerMinute, default 10 per",
           "// minute per IP), so this flow spends at most two sign-ins per account.",
           "const baseUrl = pm.variables.replaceIn('{{baseUrl}}');",
           "const tenantId = pm.variables.get('tenantId');",
@@ -148,7 +148,7 @@
       "key": "newPassword",
       "value": "Change-Me-Before-Use-1!",
       "type": "string",
-      "description": "Password both accounts end up with after the forced change."
+      "description": "Password both accounts end up with after the first-use change."
     },
     {
       "key": "profileName",
@@ -813,7 +813,7 @@
                 "server-info"
               ]
             },
-            "description": "Product version, node ID, the public REST, MCP, and A2A URLs, the database type, feature flags, and the observability endpoints. Any authenticated principal may call it, including one that still has to change its password.",
+            "description": "Product version, node ID, the public REST, MCP, and A2A URLs, the database type, feature flags, and the observability endpoints. Any authenticated principal may call it.",
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1020,7 +1020,7 @@
                 "token"
               ]
             },
-            "description": "Issue a session token from user login headers. The response says `mustChangePassword: true` on first sign-in; until the password is changed, only the token, `users/me`, and server-info routes answer. The token captured here as `{{sessionToken}}` is used to demonstrate refresh and logout without disturbing `{{token}}`.",
+            "description": "Issue a session token from user login headers. The response says `mustChangePassword: true` while the password is still a seeded or administrator-reset default; the flag is advisory (the dashboard prompts for a new password, and no route is blocked). The token captured here as `{{sessionToken}}` is used to demonstrate refresh and logout without disturbing `{{token}}`.",
             "auth": {
               "type": "noauth"
             }
@@ -1152,7 +1152,7 @@
                 "refresh"
               ]
             },
-            "description": "Issue a fresh token for the same principal, up to `Auth.SessionAbsoluteMaxHours` after the original sign-in. Refreshing after a forced password change also clears `mustChangePassword` from the new session.",
+            "description": "Issue a fresh token for the same principal, up to `Auth.SessionAbsoluteMaxHours` after the original sign-in. A refreshed session reflects the user's current `mustChangePassword` flag.",
             "auth": {
               "type": "noauth"
             }
@@ -1290,7 +1290,7 @@
                 "me"
               ]
             },
-            "description": "The signed-in user. Allowed while a password change is pending.",
+            "description": "The signed-in user.",
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1459,7 +1459,7 @@
                 "users"
               ]
             },
-            "description": "Create a user. `mustChangePassword` defaults to true, so the person picks their own password at first sign-in. Needs Create on User.",
+            "description": "Create a user. With `mustChangePassword: true` the dashboard asks the person to pick their own password at first sign-in (advisory; nothing is blocked). Needs Create on User.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"niobe@hugo.local\",\n  \"password\": \"Logos-Captain-1!\",\n  \"firstName\": \"Niobe\",\n  \"lastName\": \"Logos\",\n  \"isTenantAdmin\": false,\n  \"mustChangePassword\": true\n}",
@@ -1626,7 +1626,7 @@
                 "password"
               ]
             },
-            "description": "Administrator password reset. The user must change it at next sign-in unless `?mustChangePassword=false` is passed.",
+            "description": "Administrator password reset. It sets the advisory `mustChangePassword` flag, so the dashboard prompts the user for a new password at next sign-in, unless `?mustChangePassword=false` is passed.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"newPassword\": \"Temporary-Pass-2!\"\n}",
@@ -1779,7 +1779,7 @@
                 "password"
               ]
             },
-            "description": "Change your own password and clear `mustChangePassword`. The new password must differ from the current one. Sessions stay valid, but a session issued while the flag was set keeps it until you refresh the token or sign in again. This run changes the password to a temporary value and the next request changes it back.",
+            "description": "Change your own password and clear `mustChangePassword`. The new password must differ from the current one. Existing sessions stay valid. This run changes the password to a temporary value and the next request changes it back.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"currentPassword\": \"{{newPassword}}\",\n  \"newPassword\": \"{{newPassword}}-tmp\"\n}",
@@ -7132,10 +7132,68 @@
                 "model-endpoints"
               ]
             },
-            "description": "Create an inference endpoint. Provider is one of Ollama, OpenAI, OpenAICompatible, Anthropic, Gemini, AzureOpenAI, Bedrock, VertexAI, VoyageAI. API keys are referenced as vault secrets (`apiKeySecretId`, `apiKeySecretField`), never stored on the endpoint.",
+            "description": "Create an inference endpoint. Names are 1 to 128 characters: letters, digits, spaces, and `. _ - : / @`, starting with a letter or digit, so `llama3.1:8b @ ollama` is fine. Provider is one of Ollama, OpenAI, OpenAICompatible, Anthropic, Gemini, AzureOpenAI, Bedrock, VertexAI, VoyageAI. API keys are referenced as vault secrets (`apiKeySecretId`, `apiKeySecretField`), never stored on the endpoint.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"local-model\",\n  \"kind\": \"Inference\",\n  \"provider\": \"OpenAICompatible\",\n  \"baseUrl\": \"{{modelBaseUrlOrPlaceholder}}\",\n  \"model\": \"{{modelName}}\",\n  \"contextWindowTokens\": 32768,\n  \"supportsTools\": true,\n  \"supportsStreaming\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validate unsaved model endpoint settings",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [200]', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/model-endpoints/validate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "model-endpoints",
+                "validate"
+              ]
+            },
+            "description": "Run the same check as `validate` on settings that are not saved yet (the body is the create body); nothing is stored. The dashboard's Validate button on the create and edit forms uses it. An unreachable provider is a 200 with `success: false`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"draft\",\n  \"kind\": \"Inference\",\n  \"provider\": \"OpenAICompatible\",\n  \"baseUrl\": \"{{modelBaseUrlOrPlaceholder}}\",\n  \"model\": \"{{modelName}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

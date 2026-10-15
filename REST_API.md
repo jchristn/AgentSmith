@@ -1,6 +1,6 @@
 # Hugo REST API
 
-Hugo serves everything on one port (8800 in the Docker stack): the management API under `/v1.0/api`, tokens under `/v1.0/token`, MCP at `/mcp`, A2A at `/v1.0/a2a`, and an OpenAI-compatible chat surface at `/v1.0/openai/v1`. This document covers every HTTP route the server registers, 204 of them in `0.1.0-alpha`, grouped by area. MCP tools and A2A methods have their own references in [MCP_API.md](MCP_API.md) and [A2A_API.md](A2A_API.md); here they appear only as HTTP endpoints.
+Hugo serves everything on one port (8800 in the Docker stack): the management API under `/v1.0/api`, tokens under `/v1.0/token`, MCP at `/mcp`, A2A at `/v1.0/a2a`, and an OpenAI-compatible chat surface at `/v1.0/openai/v1`. This document covers every HTTP route the server registers, 205 of them in `0.1.0-alpha`, grouped by area. MCP tools and A2A methods have their own references in [MCP_API.md](MCP_API.md) and [A2A_API.md](A2A_API.md); here they appear only as HTTP endpoints.
 
 I wrote the descriptions by hand, but most of the mechanical detail is generated: field lists and status codes come from the server's OpenAPI document (`GET /openapi.json`), permissions come from the server's operation scope map, and every example is a real request and response recorded by running the Postman collection (`assets/postman/Hugo.postman_collection.json`) against a fresh server. When a route behaves differently from what its OpenAPI entry claims, the text says so; the known differences are collected in [Known differences from the OpenAPI document](#known-differences-from-the-openapi-document) at the end.
 
@@ -63,7 +63,7 @@ Every route except health, the OpenAPI document, the token and tenant lookup rou
 | Signed request | `x-access-key`, `x-date`, `x-nonce`, `x-signature`, optional `x-tenant-guid` | `x-signature` is the lowercase hex HMAC-SHA256, keyed with the secret key, of `METHOD\nPATH\nQUERY\nTENANT\nDATE\nNONCE\nSHA256(BODY)`. The date must be within `Auth.SignedRequestSkewSeconds` (300) of the server clock and a nonce works once. For SignedRequest and Hybrid credentials. |
 | Administrator API key | `x-api-key` | Disabled unless `HUGO_ADMIN_API_KEY` is set. Acts as a system administrator; send `x-tenant-guid` to pick a tenant. |
 
-A user whose `mustChangePassword` flag is set can reach only the token routes, `GET /v1.0/api/users/me`, `POST /v1.0/api/users/me/password`, and the server-info routes until the password changes; everything else answers 403 `PasswordChangeRequired`. Seeded accounts start that way.
+Seeded accounts, and users whose password an administrator reset, carry `mustChangePassword: true`. The flag is advisory (decision D-048): the dashboard prompts for a new password and the prompt can be skipped, and no route is blocked. Change the seeded passwords anyway.
 
 Token routes (`POST /v1.0/token`, `POST /v1.0/tenants/lookup`, `POST /v1.0/token/reauthenticate`) are rate limited per source IP and per identity, `Auth.RateLimitPerMinute` (10) in a fixed one-minute window, and answer 429 with `Retry-After: 60`. Secret reveal has its own limit.
 
@@ -106,7 +106,7 @@ Every error from the management API has the same shape. `error` is the HTTP stat
 |---|---|---|
 | 400 | Invalid JSON, a field of the wrong type or an unknown enum value, a failed validation | `ValidationFailed`, `SettingsInvalid`, `InvalidJson`, `InvalidBody`, `BadRequest` |
 | 401 | No principal, or an invalid or expired one | `AuthenticationRequired`, `InvalidCredentials` |
-| 403 | Authenticated but not allowed | `AuthorizationDenied`, `PasswordChangeRequired`, `RouteNotMapped` |
+| 403 | Authenticated but not allowed | `AuthorizationDenied`, `RouteNotMapped` |
 | 404 | No such record in your tenant, or no such route | `NotFound`, `TenantNotFound`, `RouteNotFound` |
 | 409 | Name taken, record in use, wrong state | `NameConflict`, `SelfApprovalNotAllowed`, `NoBuiltInDefault`, and others |
 | 429 | Too many token-route attempts | `RateLimited` |
@@ -320,7 +320,7 @@ Response (200):
   "schemaVersion": 8,
   "expectedSchemaVersion": 8,
   "background": "ok",
-  "utc": "2026-10-15T05:17:45.743345Z"
+  "utc": "2026-10-15T05:26:05.911484Z"
 }
 ```
 
@@ -351,7 +351,7 @@ Response (200):
   "schemaVersion": 8,
   "expectedSchemaVersion": 8,
   "background": "ok",
-  "utc": "2026-10-15T05:17:45.758864Z"
+  "utc": "2026-10-15T05:26:05.927038Z"
 }
 ```
 
@@ -382,7 +382,7 @@ Response (200):
   "schemaVersion": 0,
   "expectedSchemaVersion": 8,
   "background": "unknown",
-  "utc": "2026-10-15T05:17:45.771163Z"
+  "utc": "2026-10-15T05:26:05.940829Z"
 }
 ```
 
@@ -408,26 +408,26 @@ Response (200):
 target_info{service_name="hugo-server",service_instance_id="joels-mbp",telemetry_sdk_name="opentelemetry",telemetry_sdk_language="dotnet",telemetry_sdk_version="1.19.1"} 1
 # TYPE dotnet_assembly_count gauge
 # HELP dotnet_assembly_count The number of .NET assemblies that are currently loaded.
-dotnet_assembly_count{otel_scope_name="System.Runtime"} 103
+dotnet_assembly_count{otel_scope_name="System.Runtime"} 95
 # TYPE dotnet_exceptions_total counter
 # HELP dotnet_exceptions_total The number of exceptions that have been thrown in managed code.
-dotnet_exceptions_total{otel_scope_name="System.Runtime",error_type="TaskCanceledException"} 1314
-dotnet_exceptions_total{otel_scope_name="System.Runtime",error_type="ArgumentException"} 26
-dotnet_exceptions_total{otel_scope_name="System.Runtime",error_type="ValidationException"} 43
-dotnet_exceptions_total{otel_scope_name="System.Runtime",error_type="ConnectorException"} 1
-dotnet_exceptions_total{otel_scope_name="System.Runtime",error_type="SocketException"} 14
-dotnet_exceptions_total{otel_scope_name="System.Runtime",error_type="HttpRequestException"} 16
-dotnet_exceptions_total{otel_scope_name="System.Runtime",error_type="IOException"} 14
-dotnet_exceptions_total{otel_scope_name="System.Runtime",error_type="TemplateException"} 19
-dotnet_exceptions_total{otel_scope_name="System.Runtime",error_type="ConflictException"} 12
-dotnet_exceptions_total{otel_scope_name="System.Runtime",error_type="A2AAccessException"} 6
-dotnet_exceptions_total{otel_s
+dotnet_exceptions_total{otel_scope_name="System.Runtime",error_type="TaskCanceledException"} 12
+# TYPE dotnet_gc_collections_total counter
+# HELP dotnet_gc_collections_total The number of garbage collections that have occurred since the process has started.
+dotnet_gc_collections_total{otel_scope_name="System.Runtime",gc_heap_generation="gen2"} 2
+dotnet_gc_collections_total{otel_scope_name="System.Runtime",gc_heap_generation="gen1"} 1
+dotnet_gc_collections_total{otel_scope_name="System.Runtime",gc_heap_generation="gen0"} 1
+# TYPE dotnet_gc_heap_total_allocated_bytes_total counter
+# HELP dotnet_gc_heap_total_allocated_bytes_total The approximate number of bytes allocated on the managed GC heap since the process has started. The returned value does not include any native allocations.
+dotnet_gc_heap_total_allocated_bytes_total{otel_scope_name="System.Runtime"} 42788632
+# TYPE dotnet_gc_last_collection_heap_fragmentation_size_bytes gauge
+# HELP 
 …
 ```
 
 ### GET `/v1.0/api/server-info`
 
-Product version, node ID, the public REST, MCP, and A2A URLs, the database type, feature flags, and the observability endpoints. Any authenticated principal may call it, including one that still has to change its password.
+Product version, node ID, the public REST, MCP, and A2A URLs, the database type, feature flags, and the observability endpoints. Any authenticated principal may call it.
 
 **Authentication:** Any authenticated principal.
 
@@ -456,9 +456,9 @@ Response (200):
   "databaseType": "Sqlite",
   "telemetryEnabled": true,
   "requestHistoryEnabled": true,
-  "routeCount": 204,
+  "routeCount": 205,
   "repositoryUrl": "https://github.com/jchristn/AgentSmith",
-  "startedUtc": "2026-10-15T05:07:42.055536Z",
+  "startedUtc": "2026-10-15T05:26:04.505126Z",
   "features": [
     "mcp",
     "a2a",
@@ -506,9 +506,9 @@ Response (200):
   "databaseType": "Sqlite",
   "telemetryEnabled": true,
   "requestHistoryEnabled": true,
-  "routeCount": 204,
+  "routeCount": 205,
   "repositoryUrl": "https://github.com/jchristn/AgentSmith",
-  "startedUtc": "2026-10-15T05:07:42.055536Z",
+  "startedUtc": "2026-10-15T05:26:04.505126Z",
   "features": [
     "mcp",
     "a2a",
@@ -551,14 +551,14 @@ Response (200):
     "configured": false,
     "reachable": false,
     "version": null,
-    "checkedUtc": "2026-10-15T05:17:45.92586Z"
+    "checkedUtc": "2026-10-15T05:26:06.083874Z"
   },
   {
     "service": "prometheus",
     "configured": false,
     "reachable": false,
     "version": null,
-    "checkedUtc": "2026-10-15T05:17:45.925861Z"
+    "checkedUtc": "2026-10-15T05:26:06.083895Z"
   },
   "… 2 more"
 ]
@@ -614,9 +614,9 @@ Response (200):
 ```json
 {
   "token": "<token>",
-  "expiresUtc": "2026-10-15T06:17:46.026703Z",
+  "expiresUtc": "2026-10-15T06:26:06.18271Z",
   "tenantId": "default",
-  "sessionId": "ses_mv937wru_U2mWgTmj04DaN1enN6I",
+  "sessionId": "ses_mv93imp2_gsOY9p3eespCjeQwcz4",
   "principalType": "User",
   "mustChangePassword": false
 }
@@ -729,25 +729,25 @@ Response (200):
 ```json
 {
   "principalType": "User",
-  "principalId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "principalId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "principalName": "anderson@hugo.local",
   "tenantId": "default",
-  "userId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "userId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "mustChangePassword": false,
-  "sessionId": "ses_mv937whh_oAAtDPcjMqbuP8c6clO",
+  "sessionId": "ses_mv93im6q_tgRe3O1k573K5Vmx6oQ",
   "authScheme": "BearerToken",
   "isAdmin": false,
   "isTenantAdmin": true,
   "email": "anderson@hugo.local",
   "firstName": "Thomas",
   "lastName": "Anderson",
-  "expiresUtc": "2026-10-15T06:17:45.653372Z"
+  "expiresUtc": "2026-10-15T06:26:05.522792Z"
 }
 ```
 
 ### POST `/v1.0/token/refresh`
 
-Issue a fresh token for the same principal, up to `Auth.SessionAbsoluteMaxHours` after the original sign-in. Refreshing after a forced password change also clears `mustChangePassword` from the new session.
+Issue a fresh token for the same principal, up to `Auth.SessionAbsoluteMaxHours` after the original sign-in. A refreshed session reflects the user's current `mustChangePassword` flag.
 
 **Authentication:** Any authenticated principal.
 
@@ -767,9 +767,9 @@ Response (200):
 ```json
 {
   "token": "<token>",
-  "expiresUtc": "2026-10-15T06:17:46.068659Z",
+  "expiresUtc": "2026-10-15T06:26:06.226223Z",
   "tenantId": "default",
-  "sessionId": "ses_mv937wt0_KNkwtFhfsLcHlLoEmoP",
+  "sessionId": "ses_mv93imqa_DZf1xA6dSG1MR24ACd9",
   "principalType": "User",
   "mustChangePassword": false
 }
@@ -804,14 +804,14 @@ Response (200):
 
 ```json
 {
-  "reauthenticatedUtc": "2026-10-15T05:17:49.526132Z",
-  "revealAllowedUntilUtc": "2026-10-15T05:22:49.526132Z"
+  "reauthenticatedUtc": "2026-10-15T05:26:10.086477Z",
+  "revealAllowedUntilUtc": "2026-10-15T05:31:10.086477Z"
 }
 ```
 
 ## Users
 
-Users are people. Each belongs to one tenant, has a PBKDF2-hashed password, and may be a tenant administrator (`isTenantAdmin`) or a system administrator (`isAdmin`). Administrators manage users under `/v1.0/api/tenants/{tenantId}/users`; everyone manages themselves through `/v1.0/api/users/me`, which is also the one place a user with a pending forced password change can reach.
+Users are people. Each belongs to one tenant, has a PBKDF2-hashed password, and may be a tenant administrator (`isTenantAdmin`) or a system administrator (`isAdmin`). Administrators manage users under `/v1.0/api/tenants/{tenantId}/users`; everyone manages themselves through `/v1.0/api/users/me`, including the password change the dashboard prompts for while `mustChangePassword` is set.
 
 The effective-permission routes are the troubleshooting tool for RBAC. They show every grant that applies to a user, where it came from (a role assignment, a bypass), and a full matrix of resource types and operations with the resolved answer. Both paths exist because AUTHENTICATION.md mandates `/v1.0/tenants/...` while the rest of the API lives under `/v1.0/api`.
 
@@ -831,7 +831,7 @@ The effective-permission routes are the troubleshooting tool for RBAC. They show
 
 ### GET `/v1.0/api/users/me`
 
-The signed-in user. Allowed while a password change is pending.
+The signed-in user.
 
 **Authentication:** Any authenticated principal.
 
@@ -850,7 +850,7 @@ Response (200):
 
 ```json
 {
-  "id": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "id": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "tenantId": "default",
   "firstName": "Thomas",
   "lastName": "Anderson",
@@ -858,11 +858,10 @@ Response (200):
   "isAdmin": false,
   "isTenantAdmin": true,
   "mustChangePassword": false,
-  "preferredLocale": "en",
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:07:41.925246Z",
-  "lastUpdateUtc": "2026-10-15T05:12:03.567206Z"
+  "createdUtc": "2026-10-15T05:26:04.361588Z",
+  "lastUpdateUtc": "2026-10-15T05:26:05.516928Z"
 }
 ```
 
@@ -883,7 +882,7 @@ Change your own first and last name, preferred locale, and default agent profile
 | `isTenantAdmin` | boolean | Tenant administrator bypass. Default false. |
 | `isAdmin` | boolean | System administrator. Only system administrators may set it. |
 | `active` | boolean | Inactive users cannot sign in. Default true. |
-| `mustChangePassword` | boolean | Force a password change at next sign-in. Default true on create. |
+| `mustChangePassword` | boolean | Ask the user to change the password: the dashboard prompts at sign-in. Advisory only, no route is blocked (D-048). Seeded accounts start with true. |
 | `preferredLocale` | string | Dashboard locale, for example `en` or `de`. |
 | `defaultAgentProfileId` | string | Profile used when this user names none (D-018). |
 
@@ -904,7 +903,7 @@ Response (200):
 
 ```json
 {
-  "id": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "id": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "tenantId": "default",
   "firstName": "Thomas",
   "lastName": "Anderson",
@@ -915,14 +914,14 @@ Response (200):
   "preferredLocale": "en",
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:07:41.925246Z",
-  "lastUpdateUtc": "2026-10-15T05:17:46.196143Z"
+  "createdUtc": "2026-10-15T05:26:04.361588Z",
+  "lastUpdateUtc": "2026-10-15T05:26:06.353843Z"
 }
 ```
 
 ### POST `/v1.0/api/users/me/password`
 
-Change your own password and clear `mustChangePassword`. The new password must differ from the current one. Sessions stay valid, but a session issued while the flag was set keeps it until you refresh the token or sign in again. This run changes the password to a temporary value and the next request changes it back.
+Change your own password and clear `mustChangePassword`. The new password must differ from the current one. Existing sessions stay valid. This run changes the password to a temporary value and the next request changes it back.
 
 **Authentication:** Any authenticated principal.
 
@@ -950,7 +949,7 @@ Response (200):
 
 ```json
 {
-  "id": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "id": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "tenantId": "default",
   "firstName": "Thomas",
   "lastName": "Anderson",
@@ -961,8 +960,8 @@ Response (200):
   "preferredLocale": "en",
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:07:41.925246Z",
-  "lastUpdateUtc": "2026-10-15T05:17:46.790585Z"
+  "createdUtc": "2026-10-15T05:26:04.361588Z",
+  "lastUpdateUtc": "2026-10-15T05:26:06.909945Z"
 }
 ```
 
@@ -1002,10 +1001,10 @@ Response (200):
   "totalRecords": 2,
   "recordsRemaining": 0,
   "endOfResults": true,
-  "timestampUtc": "2026-10-15T05:17:46.214048Z",
+  "timestampUtc": "2026-10-15T05:26:06.371982Z",
   "objects": [
     {
-      "id": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+      "id": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
       "tenantId": "default",
       "firstName": "Thomas",
       "lastName": "Anderson",
@@ -1016,11 +1015,11 @@ Response (200):
       "preferredLocale": "en",
       "active": true,
       "isProtected": false,
-      "createdUtc": "2026-10-15T05:07:41.925246Z",
-      "lastUpdateUtc": "2026-10-15T05:17:46.196143Z"
+      "createdUtc": "2026-10-15T05:26:04.361588Z",
+      "lastUpdateUtc": "2026-10-15T05:26:06.353843Z"
     },
     {
-      "id": "usr_mv92uyjg_bbPSzjzpKyKcf0z80f2",
+      "id": "usr_mv93il6k_nnAlMd3jXMdCp1iZPxG",
       "tenantId": "default",
       "firstName": "System",
       "lastName": "Administrator",
@@ -1030,8 +1029,8 @@ Response (200):
       "mustChangePassword": false,
       "active": true,
       "isProtected": true,
-      "createdUtc": "2026-10-15T05:07:41.856084Z",
-      "lastUpdateUtc": "2026-10-15T05:07:43.633548Z"
+      "createdUtc": "2026-10-15T05:26:04.289433Z",
+      "lastUpdateUtc": "2026-10-15T05:26:05.899835Z"
     }
   ]
 }
@@ -1039,7 +1038,7 @@ Response (200):
 
 ### POST `/v1.0/api/tenants/{tenantId}/users`
 
-Create a user. `mustChangePassword` defaults to true, so the person picks their own password at first sign-in. Needs Create on User.
+Create a user. With `mustChangePassword: true` the dashboard asks the person to pick their own password at first sign-in (advisory; nothing is blocked). Needs Create on User.
 
 **Authentication:** Any REST scheme. Permission: Create on User.
 
@@ -1058,7 +1057,7 @@ Create a user. `mustChangePassword` defaults to true, so the person picks their 
 | `isTenantAdmin` | boolean | Tenant administrator bypass. Default false. |
 | `isAdmin` | boolean | System administrator. Only system administrators may set it. |
 | `active` | boolean | Inactive users cannot sign in. Default true. |
-| `mustChangePassword` | boolean | Force a password change at next sign-in. Default true on create. |
+| `mustChangePassword` | boolean | Ask the user to change the password: the dashboard prompts at sign-in. Advisory only, no route is blocked (D-048). Seeded accounts start with true. |
 | `preferredLocale` | string | Dashboard locale, for example `en` or `de`. |
 | `defaultAgentProfileId` | string | Profile used when this user names none (D-018). |
 
@@ -1079,7 +1078,7 @@ Response (201):
 
 ```json
 {
-  "id": "usr_mv937wxj_GEGzecwcebaxlLEgBuE",
+  "id": "usr_mv93imus_It5dds8oZjHxSHtWfCC",
   "tenantId": "default",
   "firstName": "Niobe",
   "lastName": "Logos",
@@ -1089,8 +1088,8 @@ Response (201):
   "mustChangePassword": true,
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:46.320248Z",
-  "lastUpdateUtc": "2026-10-15T05:17:46.320248Z"
+  "createdUtc": "2026-10-15T05:26:06.466727Z",
+  "lastUpdateUtc": "2026-10-15T05:26:06.466727Z"
 }
 ```
 
@@ -1112,7 +1111,7 @@ One user. Callers may always read themselves; reading others needs Read on User.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/tenants/default/users/usr_mv937wxj_GEGzecwcebaxlLEgBuE" \
+curl -s "$HUGO/v1.0/api/tenants/default/users/usr_mv93imus_It5dds8oZjHxSHtWfCC" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -1120,7 +1119,7 @@ Response (200):
 
 ```json
 {
-  "id": "usr_mv937wxj_GEGzecwcebaxlLEgBuE",
+  "id": "usr_mv93imus_It5dds8oZjHxSHtWfCC",
   "tenantId": "default",
   "firstName": "Niobe",
   "lastName": "Logos",
@@ -1130,8 +1129,8 @@ Response (200):
   "mustChangePassword": true,
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:46.320248Z",
-  "lastUpdateUtc": "2026-10-15T05:17:46.320248Z"
+  "createdUtc": "2026-10-15T05:26:06.466727Z",
+  "lastUpdateUtc": "2026-10-15T05:26:06.466727Z"
 }
 ```
 
@@ -1157,7 +1156,7 @@ Update a user. Omitted fields keep their values.
 | `isTenantAdmin` | boolean | Tenant administrator bypass. Default false. |
 | `isAdmin` | boolean | System administrator. Only system administrators may set it. |
 | `active` | boolean | Inactive users cannot sign in. Default true. |
-| `mustChangePassword` | boolean | Force a password change at next sign-in. Default true on create. |
+| `mustChangePassword` | boolean | Ask the user to change the password: the dashboard prompts at sign-in. Advisory only, no route is blocked (D-048). Seeded accounts start with true. |
 | `preferredLocale` | string | Dashboard locale, for example `en` or `de`. |
 | `defaultAgentProfileId` | string | Profile used when this user names none (D-018). |
 
@@ -1168,7 +1167,7 @@ Update a user. Omitted fields keep their values.
 Example:
 
 ```bash
-curl -s -X PUT "$HUGO/v1.0/api/tenants/default/users/usr_mv937wxj_GEGzecwcebaxlLEgBuE" \
+curl -s -X PUT "$HUGO/v1.0/api/tenants/default/users/usr_mv93imus_It5dds8oZjHxSHtWfCC" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"firstName": "Niobe", "lastName": "Logos", "active": true}'
@@ -1178,7 +1177,7 @@ Response (200):
 
 ```json
 {
-  "id": "usr_mv937wxj_GEGzecwcebaxlLEgBuE",
+  "id": "usr_mv93imus_It5dds8oZjHxSHtWfCC",
   "tenantId": "default",
   "firstName": "Niobe",
   "lastName": "Logos",
@@ -1188,8 +1187,8 @@ Response (200):
   "mustChangePassword": true,
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:46.320248Z",
-  "lastUpdateUtc": "2026-10-15T05:17:46.351789Z"
+  "createdUtc": "2026-10-15T05:26:06.466727Z",
+  "lastUpdateUtc": "2026-10-15T05:26:06.498586Z"
 }
 ```
 
@@ -1209,7 +1208,7 @@ Delete a user with their credentials, sessions, and assignments.
 Example:
 
 ```bash
-curl -s -X DELETE "$HUGO/v1.0/api/tenants/default/users/usr_mv937wxj_GEGzecwcebaxlLEgBuE" \
+curl -s -X DELETE "$HUGO/v1.0/api/tenants/default/users/usr_mv93imus_It5dds8oZjHxSHtWfCC" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -1233,7 +1232,7 @@ The grants RBAC resolves for the user (roles, scopes, deny entries) and a `hasPe
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/tenants/default/users/usr_mv937wxj_GEGzecwcebaxlLEgBuE/permissions" \
+curl -s "$HUGO/v1.0/api/tenants/default/users/usr_mv93imus_It5dds8oZjHxSHtWfCC/permissions" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -1242,7 +1241,7 @@ Response (200):
 ```json
 {
   "principalType": "User",
-  "principalId": "usr_mv937wxj_GEGzecwcebaxlLEgBuE",
+  "principalId": "usr_mv93imus_It5dds8oZjHxSHtWfCC",
   "tenantId": "default",
   "isAdmin": false,
   "isTenantAdmin": false,
@@ -1295,7 +1294,7 @@ The same document under the path AUTHENTICATION.md mandates.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/tenants/default/users/usr_mv937wxj_GEGzecwcebaxlLEgBuE/permissions" \
+curl -s "$HUGO/v1.0/tenants/default/users/usr_mv93imus_It5dds8oZjHxSHtWfCC/permissions" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -1304,7 +1303,7 @@ Response (200):
 ```json
 {
   "principalType": "User",
-  "principalId": "usr_mv937wxj_GEGzecwcebaxlLEgBuE",
+  "principalId": "usr_mv93imus_It5dds8oZjHxSHtWfCC",
   "tenantId": "default",
   "isAdmin": false,
   "isTenantAdmin": false,
@@ -1341,7 +1340,7 @@ Response (200):
 
 ### POST `/v1.0/api/tenants/{tenantId}/users/{id}/password`
 
-Administrator password reset. The user must change it at next sign-in unless `?mustChangePassword=false` is passed.
+Administrator password reset. It sets the advisory `mustChangePassword` flag, so the dashboard prompts the user for a new password at next sign-in, unless `?mustChangePassword=false` is passed.
 
 **Authentication:** Any REST scheme. Permission: Update on User.
 
@@ -1365,7 +1364,7 @@ Administrator password reset. The user must change it at next sign-in unless `?m
 Example:
 
 ```bash
-curl -s -X POST "$HUGO/v1.0/api/tenants/default/users/usr_mv937wxj_GEGzecwcebaxlLEgBuE/password" \
+curl -s -X POST "$HUGO/v1.0/api/tenants/default/users/usr_mv93imus_It5dds8oZjHxSHtWfCC/password" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"newPassword": "Temporary-Pass-2!"}'
@@ -1375,7 +1374,7 @@ Response (200):
 
 ```json
 {
-  "id": "usr_mv937wxj_GEGzecwcebaxlLEgBuE",
+  "id": "usr_mv93imus_It5dds8oZjHxSHtWfCC",
   "tenantId": "default",
   "firstName": "Niobe",
   "lastName": "Logos",
@@ -1385,8 +1384,8 @@ Response (200):
   "mustChangePassword": true,
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:46.320248Z",
-  "lastUpdateUtc": "2026-10-15T05:17:46.517832Z"
+  "createdUtc": "2026-10-15T05:26:06.466727Z",
+  "lastUpdateUtc": "2026-10-15T05:26:06.649603Z"
 }
 ```
 
@@ -1443,22 +1442,22 @@ Response (200):
   "totalRecords": 1,
   "recordsRemaining": 0,
   "endOfResults": true,
-  "timestampUtc": "2026-10-15T05:17:49.676549Z",
+  "timestampUtc": "2026-10-15T05:26:10.254544Z",
   "objects": [
     {
-      "id": "crd_mv937zkw_coIvDxQfarwIRkctwpQ",
+      "id": "crd_mv93iptp_RLeBjgalMag75gi1klI",
       "tenantId": "default",
-      "userId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+      "userId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
       "name": "claude-code",
-      "accessKey": "access_TeRfnOxKRXOhWQTiuyyScxHCsx92tb5Z",
-      "secretKeyLast4": "N6gY",
+      "accessKey": "access_RjJXdeBaXU0c4RphEPqRPfrRYr6JjvKI",
+      "secretKeyLast4": "nYC2",
       "authMode": "Hybrid",
-      "agentProfileId": "agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO",
+      "agentProfileId": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ",
       "lockToProfile": false,
       "active": true,
       "isProtected": false,
-      "createdUtc": "2026-10-15T05:17:49.664732Z",
-      "lastUpdateUtc": "2026-10-15T05:17:49.664732Z"
+      "createdUtc": "2026-10-15T05:26:10.238699Z",
+      "lastUpdateUtc": "2026-10-15T05:26:10.238699Z"
     }
   ]
 }
@@ -1497,7 +1496,7 @@ Example:
 curl -s -X POST "$HUGO/v1.0/api/tenants/default/credentials" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"name": "claude-code", "authMode": "Hybrid", "agentProfileId": "agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO", "lockToProfile": false, "roleName": "Operator"}'
+  -d '{"name": "claude-code", "authMode": "Hybrid", "agentProfileId": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ", "lockToProfile": false, "roleName": "Operator"}'
 ```
 
 Response (201):
@@ -1505,21 +1504,21 @@ Response (201):
 ```json
 {
   "credential": {
-    "id": "crd_mv937zkw_coIvDxQfarwIRkctwpQ",
+    "id": "crd_mv93iptp_RLeBjgalMag75gi1klI",
     "tenantId": "default",
-    "userId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+    "userId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
     "name": "claude-code",
-    "accessKey": "access_TeRfnOxKRXOhWQTiuyyScxHCsx92tb5Z",
-    "secretKeyLast4": "N6gY",
+    "accessKey": "access_RjJXdeBaXU0c4RphEPqRPfrRYr6JjvKI",
+    "secretKeyLast4": "nYC2",
     "authMode": "Hybrid",
-    "agentProfileId": "agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO",
+    "agentProfileId": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ",
     "lockToProfile": false,
     "active": true,
     "isProtected": false,
-    "createdUtc": "2026-10-15T05:17:49.664732Z",
-    "lastUpdateUtc": "2026-10-15T05:17:49.664732Z"
+    "createdUtc": "2026-10-15T05:26:10.238699Z",
+    "lastUpdateUtc": "2026-10-15T05:26:10.238699Z"
   },
-  "accessKey": "access_TeRfnOxKRXOhWQTiuyyScxHCsx92tb5Z",
+  "accessKey": "access_RjJXdeBaXU0c4RphEPqRPfrRYr6JjvKI",
   "secretKey": "<secret key, shown once>"
 }
 ```
@@ -1542,7 +1541,7 @@ One credential.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/tenants/default/credentials/crd_mv937zkw_coIvDxQfarwIRkctwpQ" \
+curl -s "$HUGO/v1.0/api/tenants/default/credentials/crd_mv93iptp_RLeBjgalMag75gi1klI" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -1550,19 +1549,19 @@ Response (200):
 
 ```json
 {
-  "id": "crd_mv937zkw_coIvDxQfarwIRkctwpQ",
+  "id": "crd_mv93iptp_RLeBjgalMag75gi1klI",
   "tenantId": "default",
-  "userId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "userId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "name": "claude-code",
-  "accessKey": "access_TeRfnOxKRXOhWQTiuyyScxHCsx92tb5Z",
-  "secretKeyLast4": "N6gY",
+  "accessKey": "access_RjJXdeBaXU0c4RphEPqRPfrRYr6JjvKI",
+  "secretKeyLast4": "nYC2",
   "authMode": "Hybrid",
-  "agentProfileId": "agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO",
+  "agentProfileId": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ",
   "lockToProfile": false,
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.664732Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.664732Z"
+  "createdUtc": "2026-10-15T05:26:10.238699Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.238699Z"
 }
 ```
 
@@ -1597,7 +1596,7 @@ Change name, profile binding, lock, expiry, or active flag.
 Example:
 
 ```bash
-curl -s -X PUT "$HUGO/v1.0/api/tenants/default/credentials/crd_mv937zkw_coIvDxQfarwIRkctwpQ" \
+curl -s -X PUT "$HUGO/v1.0/api/tenants/default/credentials/crd_mv93iptp_RLeBjgalMag75gi1klI" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"name": "claude-code-laptop", "lockToProfile": true}'
@@ -1607,19 +1606,19 @@ Response (200):
 
 ```json
 {
-  "id": "crd_mv937zkw_coIvDxQfarwIRkctwpQ",
+  "id": "crd_mv93iptp_RLeBjgalMag75gi1klI",
   "tenantId": "default",
-  "userId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "userId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "name": "claude-code-laptop",
-  "accessKey": "access_TeRfnOxKRXOhWQTiuyyScxHCsx92tb5Z",
-  "secretKeyLast4": "N6gY",
+  "accessKey": "access_RjJXdeBaXU0c4RphEPqRPfrRYr6JjvKI",
+  "secretKeyLast4": "nYC2",
   "authMode": "Hybrid",
-  "agentProfileId": "agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO",
+  "agentProfileId": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ",
   "lockToProfile": true,
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.664732Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.701867Z"
+  "createdUtc": "2026-10-15T05:26:10.238699Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.281767Z"
 }
 ```
 
@@ -1639,7 +1638,7 @@ Delete a credential and its sessions.
 Example:
 
 ```bash
-curl -s -X DELETE "$HUGO/v1.0/api/tenants/default/credentials/crd_mv937zkw_coIvDxQfarwIRkctwpQ" \
+curl -s -X DELETE "$HUGO/v1.0/api/tenants/default/credentials/crd_mv93iptp_RLeBjgalMag75gi1klI" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -1663,7 +1662,7 @@ Issue a new secret key (returned once). The access key stays; the old secret sto
 Example:
 
 ```bash
-curl -s -X POST "$HUGO/v1.0/api/tenants/default/credentials/crd_mv937zkw_coIvDxQfarwIRkctwpQ/rotate" \
+curl -s -X POST "$HUGO/v1.0/api/tenants/default/credentials/crd_mv93iptp_RLeBjgalMag75gi1klI/rotate" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -1672,22 +1671,22 @@ Response (200):
 ```json
 {
   "credential": {
-    "id": "crd_mv937zkw_coIvDxQfarwIRkctwpQ",
+    "id": "crd_mv93iptp_RLeBjgalMag75gi1klI",
     "tenantId": "default",
-    "userId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+    "userId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
     "name": "claude-code-laptop",
-    "accessKey": "access_TeRfnOxKRXOhWQTiuyyScxHCsx92tb5Z",
-    "secretKeyLast4": "2Mb9",
+    "accessKey": "access_RjJXdeBaXU0c4RphEPqRPfrRYr6JjvKI",
+    "secretKeyLast4": "qDkv",
     "authMode": "Hybrid",
-    "agentProfileId": "agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO",
+    "agentProfileId": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ",
     "lockToProfile": true,
-    "lastUsedUtc": "2026-10-15T05:17:49.714417Z",
+    "lastUsedUtc": "2026-10-15T05:26:10.29657Z",
     "active": true,
     "isProtected": false,
-    "createdUtc": "2026-10-15T05:17:49.664732Z",
-    "lastUpdateUtc": "2026-10-15T05:17:50.533715Z"
+    "createdUtc": "2026-10-15T05:26:10.238699Z",
+    "lastUpdateUtc": "2026-10-15T05:26:11.205488Z"
   },
-  "accessKey": "access_TeRfnOxKRXOhWQTiuyyScxHCsx92tb5Z",
+  "accessKey": "access_RjJXdeBaXU0c4RphEPqRPfrRYr6JjvKI",
   "secretKey": "<secret key, shown once>"
 }
 ```
@@ -1710,7 +1709,7 @@ What RBAC resolves for the credential after the owner ceiling and its scope assi
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/tenants/default/credentials/crd_mv937zkw_coIvDxQfarwIRkctwpQ/permissions" \
+curl -s "$HUGO/v1.0/api/tenants/default/credentials/crd_mv93iptp_RLeBjgalMag75gi1klI/permissions" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -1719,7 +1718,7 @@ Response (200):
 ```json
 {
   "principalType": "Credential",
-  "principalId": "crd_mv937zkw_coIvDxQfarwIRkctwpQ",
+  "principalId": "crd_mv93iptp_RLeBjgalMag75gi1klI",
   "tenantId": "default",
   "isAdmin": false,
   "isTenantAdmin": true,
@@ -1786,7 +1785,7 @@ The same document under the mandated path.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/tenants/default/credentials/crd_mv937zkw_coIvDxQfarwIRkctwpQ/permissions" \
+curl -s "$HUGO/v1.0/tenants/default/credentials/crd_mv93iptp_RLeBjgalMag75gi1klI/permissions" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -1795,7 +1794,7 @@ Response (200):
 ```json
 {
   "principalType": "Credential",
-  "principalId": "crd_mv937zkw_coIvDxQfarwIRkctwpQ",
+  "principalId": "crd_mv93iptp_RLeBjgalMag75gi1klI",
   "tenantId": "default",
   "isAdmin": false,
   "isTenantAdmin": true,
@@ -1903,7 +1902,7 @@ Response (200):
   "totalRecords": 11,
   "recordsRemaining": 0,
   "endOfResults": true,
-  "timestampUtc": "2026-10-15T05:17:49.778594Z",
+  "timestampUtc": "2026-10-15T05:26:10.36517Z",
   "objects": [
     {
       "id": "rol_builtin_custom",
@@ -1912,8 +1911,8 @@ Response (200):
       "isBuiltIn": true,
       "active": true,
       "isProtected": true,
-      "createdUtc": "2026-10-15T05:07:41.778381Z",
-      "lastUpdateUtc": "2026-10-15T05:07:41.778381Z"
+      "createdUtc": "2026-10-15T05:26:04.210567Z",
+      "lastUpdateUtc": "2026-10-15T05:26:04.210567Z"
     },
     {
       "id": "rol_builtin_tenantmember",
@@ -1922,8 +1921,8 @@ Response (200):
       "isBuiltIn": true,
       "active": true,
       "isProtected": true,
-      "createdUtc": "2026-10-15T05:07:41.778199Z",
-      "lastUpdateUtc": "2026-10-15T05:07:41.778199Z"
+      "createdUtc": "2026-10-15T05:26:04.21039Z",
+      "lastUpdateUtc": "2026-10-15T05:26:04.21039Z"
     },
     "… 9 more"
   ]
@@ -1965,15 +1964,15 @@ Response (201):
 
 ```json
 {
-  "id": "rol_mv937zof_AD3nbQ1lnvEQJsb6ovw",
+  "id": "rol_mv93ipxn_a8pOeG3cRKrOdUMhusT",
   "tenantId": "default",
   "name": "Night shift",
   "description": "Execute on the on-call profile, read everything else",
   "isBuiltIn": false,
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.791781Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.791781Z"
+  "createdUtc": "2026-10-15T05:26:10.379252Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.379252Z"
 }
 ```
 
@@ -1995,7 +1994,7 @@ One role.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/tenants/default/roles/rol_mv937zof_AD3nbQ1lnvEQJsb6ovw" \
+curl -s "$HUGO/v1.0/api/tenants/default/roles/rol_mv93ipxn_a8pOeG3cRKrOdUMhusT" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -2003,15 +2002,15 @@ Response (200):
 
 ```json
 {
-  "id": "rol_mv937zof_AD3nbQ1lnvEQJsb6ovw",
+  "id": "rol_mv93ipxn_a8pOeG3cRKrOdUMhusT",
   "tenantId": "default",
   "name": "Night shift",
   "description": "Execute on the on-call profile, read everything else",
   "isBuiltIn": false,
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.791781Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.791781Z"
+  "createdUtc": "2026-10-15T05:26:10.379252Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.379252Z"
 }
 ```
 
@@ -2041,7 +2040,7 @@ Update a custom role. Built-in roles answer 403.
 Example:
 
 ```bash
-curl -s -X PUT "$HUGO/v1.0/api/tenants/default/roles/rol_mv937zof_AD3nbQ1lnvEQJsb6ovw" \
+curl -s -X PUT "$HUGO/v1.0/api/tenants/default/roles/rol_mv93ipxn_a8pOeG3cRKrOdUMhusT" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"description": "Execute on the on-call profile; read-only elsewhere"}'
@@ -2051,15 +2050,15 @@ Response (200):
 
 ```json
 {
-  "id": "rol_mv937zof_AD3nbQ1lnvEQJsb6ovw",
+  "id": "rol_mv93ipxn_a8pOeG3cRKrOdUMhusT",
   "tenantId": "default",
   "name": "Night shift",
   "description": "Execute on the on-call profile; read-only elsewhere",
   "isBuiltIn": false,
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.791781Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.820556Z"
+  "createdUtc": "2026-10-15T05:26:10.379252Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.404796Z"
 }
 ```
 
@@ -2079,7 +2078,7 @@ Delete a custom role. Built-in roles cannot be deleted.
 Example:
 
 ```bash
-curl -s -X DELETE "$HUGO/v1.0/api/tenants/default/roles/rol_mv937zof_AD3nbQ1lnvEQJsb6ovw" \
+curl -s -X DELETE "$HUGO/v1.0/api/tenants/default/roles/rol_mv93ipxn_a8pOeG3cRKrOdUMhusT" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -2121,15 +2120,15 @@ Response (201):
 
 ```json
 {
-  "id": "rol_mv937zpn_PKCbvCjdlq9pO6cWCvV",
+  "id": "rol_mv93ipyp_EtGPswejV53lMfnlhe5",
   "tenantId": "default",
   "name": "Operator (custom)",
   "description": "Runs agent profiles, works with conversations, decides approvals, and reads resources and activity.",
   "isBuiltIn": false,
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.835284Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.835284Z"
+  "createdUtc": "2026-10-15T05:26:10.417539Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.417539Z"
 }
 ```
 
@@ -2156,7 +2155,7 @@ Mappings, filtered by `roleId`.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/tenants/default/role-permissions?roleId=rol_mv937zof_AD3nbQ1lnvEQJsb6ovw" \
+curl -s "$HUGO/v1.0/api/tenants/default/role-permissions?roleId=rol_mv93ipxn_a8pOeG3cRKrOdUMhusT" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -2170,17 +2169,17 @@ Response (200):
   "totalRecords": 1,
   "recordsRemaining": 0,
   "endOfResults": true,
-  "timestampUtc": "2026-10-15T05:17:49.913426Z",
+  "timestampUtc": "2026-10-15T05:26:10.5019Z",
   "objects": [
     {
-      "id": "rpm_mv937zrh_ae4glflr1PquWMoQtgR",
+      "id": "rpm_mv93iq0o_wP6CMbzp1bjJbNWDIP9",
       "tenantId": "default",
-      "roleId": "rol_mv937zof_AD3nbQ1lnvEQJsb6ovw",
-      "permissionId": "prm_mv937zqf_wkihonnhDQFOrnWKlv6",
+      "roleId": "rol_mv93ipxn_a8pOeG3cRKrOdUMhusT",
+      "permissionId": "prm_mv93ipzl_872crFhqV06emtwInOJ",
       "active": true,
       "isProtected": false,
-      "createdUtc": "2026-10-15T05:17:49.901124Z",
-      "lastUpdateUtc": "2026-10-15T05:17:49.901124Z"
+      "createdUtc": "2026-10-15T05:26:10.4881Z",
+      "lastUpdateUtc": "2026-10-15T05:26:10.4881Z"
     }
   ]
 }
@@ -2213,21 +2212,21 @@ Example:
 curl -s -X POST "$HUGO/v1.0/api/tenants/default/role-permissions" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"roleId": "rol_mv937zof_AD3nbQ1lnvEQJsb6ovw", "permissionId": "prm_mv937zqf_wkihonnhDQFOrnWKlv6"}'
+  -d '{"roleId": "rol_mv93ipxn_a8pOeG3cRKrOdUMhusT", "permissionId": "prm_mv93ipzl_872crFhqV06emtwInOJ"}'
 ```
 
 Response (201):
 
 ```json
 {
-  "id": "rpm_mv937zrh_ae4glflr1PquWMoQtgR",
+  "id": "rpm_mv93iq0o_wP6CMbzp1bjJbNWDIP9",
   "tenantId": "default",
-  "roleId": "rol_mv937zof_AD3nbQ1lnvEQJsb6ovw",
-  "permissionId": "prm_mv937zqf_wkihonnhDQFOrnWKlv6",
+  "roleId": "rol_mv93ipxn_a8pOeG3cRKrOdUMhusT",
+  "permissionId": "prm_mv93ipzl_872crFhqV06emtwInOJ",
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.901124Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.901124Z"
+  "createdUtc": "2026-10-15T05:26:10.4881Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.4881Z"
 }
 ```
 
@@ -2247,7 +2246,7 @@ Remove a permission from a role.
 Example:
 
 ```bash
-curl -s -X DELETE "$HUGO/v1.0/api/tenants/default/role-permissions/rpm_mv937zrh_ae4glflr1PquWMoQtgR" \
+curl -s -X DELETE "$HUGO/v1.0/api/tenants/default/role-permissions/rpm_mv93iq0o_wP6CMbzp1bjJbNWDIP9" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -2286,21 +2285,21 @@ Response (200):
   "success": true,
   "maxResults": 25,
   "skip": 0,
-  "totalRecords": 40,
-  "recordsRemaining": 15,
-  "endOfResults": false,
-  "timestampUtc": "2026-10-15T05:17:49.850336Z",
+  "totalRecords": 24,
+  "recordsRemaining": 0,
+  "endOfResults": true,
+  "timestampUtc": "2026-10-15T05:26:10.431561Z",
   "objects": [
     {
-      "id": "prm_mv937zpn_b37j8vai1y8YIiy205U",
+      "id": "prm_mv93ipyq_uqiGMYoimFNlfgIRpNf",
       "tenantId": "default",
       "name": "Operator (custom): Operator.Approval",
       "permissionType": "Permit",
       "isBuiltIn": false,
       "active": true,
       "isProtected": false,
-      "createdUtc": "2026-10-15T05:17:49.835947Z",
-      "lastUpdateUtc": "2026-10-15T05:17:49.835947Z",
+      "createdUtc": "2026-10-15T05:26:10.418269Z",
+      "lastUpdateUtc": "2026-10-15T05:26:10.418269Z",
       "resourceTypes": [
         "Approval"
       ],
@@ -2309,15 +2308,15 @@ Response (200):
       ]
     },
     {
-      "id": "prm_mv937zpn_kymZ870iJ30wxSbhUJe",
+      "id": "prm_mv93ipyq_s6V7ZXDfVpPpZNzcrMn",
       "tenantId": "default",
       "name": "Operator (custom): Operator.Conversation",
       "permissionType": "Permit",
       "isBuiltIn": false,
       "active": true,
       "isProtected": false,
-      "createdUtc": "2026-10-15T05:17:49.835798Z",
-      "lastUpdateUtc": "2026-10-15T05:17:49.835798Z",
+      "createdUtc": "2026-10-15T05:26:10.418152Z",
+      "lastUpdateUtc": "2026-10-15T05:26:10.418152Z",
       "resourceTypes": [
         "Conversation"
       ],
@@ -2327,7 +2326,7 @@ Response (200):
         "Update"
       ]
     },
-    "… 23 more"
+    "… 22 more"
   ]
 }
 ```
@@ -2369,15 +2368,15 @@ Response (201):
 
 ```json
 {
-  "id": "prm_mv937zqf_wkihonnhDQFOrnWKlv6",
+  "id": "prm_mv93ipzl_872crFhqV06emtwInOJ",
   "tenantId": "default",
   "name": "Execute profiles",
   "permissionType": "Permit",
   "isBuiltIn": false,
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.863477Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.863477Z",
+  "createdUtc": "2026-10-15T05:26:10.44981Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.44981Z",
   "resourceTypes": [
     "AgentProfile"
   ],
@@ -2406,7 +2405,7 @@ One permission.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/tenants/default/permissions/prm_mv937zqf_wkihonnhDQFOrnWKlv6" \
+curl -s "$HUGO/v1.0/api/tenants/default/permissions/prm_mv93ipzl_872crFhqV06emtwInOJ" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -2414,15 +2413,15 @@ Response (200):
 
 ```json
 {
-  "id": "prm_mv937zqf_wkihonnhDQFOrnWKlv6",
+  "id": "prm_mv93ipzl_872crFhqV06emtwInOJ",
   "tenantId": "default",
   "name": "Execute profiles",
   "permissionType": "Permit",
   "isBuiltIn": false,
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.863477Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.863477Z",
+  "createdUtc": "2026-10-15T05:26:10.44981Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.44981Z",
   "resourceTypes": [
     "AgentProfile"
   ],
@@ -2461,7 +2460,7 @@ Update a permission.
 Example:
 
 ```bash
-curl -s -X PUT "$HUGO/v1.0/api/tenants/default/permissions/prm_mv937zqf_wkihonnhDQFOrnWKlv6" \
+curl -s -X PUT "$HUGO/v1.0/api/tenants/default/permissions/prm_mv93ipzl_872crFhqV06emtwInOJ" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"name": "Execute and read profiles", "permissionType": "Permit", "resourceTypes": ["AgentProfile"], "operationTypes": ["Execute", "Read"]}'
@@ -2471,15 +2470,15 @@ Response (200):
 
 ```json
 {
-  "id": "prm_mv937zqf_wkihonnhDQFOrnWKlv6",
+  "id": "prm_mv93ipzl_872crFhqV06emtwInOJ",
   "tenantId": "default",
   "name": "Execute and read profiles",
   "permissionType": "Permit",
   "isBuiltIn": false,
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.863477Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.888673Z",
+  "createdUtc": "2026-10-15T05:26:10.44981Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.474458Z",
   "resourceTypes": [
     "AgentProfile"
   ],
@@ -2506,7 +2505,7 @@ Delete a custom permission.
 Example:
 
 ```bash
-curl -s -X DELETE "$HUGO/v1.0/api/tenants/default/permissions/prm_mv937zqf_wkihonnhDQFOrnWKlv6" \
+curl -s -X DELETE "$HUGO/v1.0/api/tenants/default/permissions/prm_mv93ipzl_872crFhqV06emtwInOJ" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -2552,7 +2551,7 @@ Assignments, filtered by `userId`.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/tenants/default/user-role-assignments?userId=usr_mv937wxj_GEGzecwcebaxlLEgBuE" \
+curl -s "$HUGO/v1.0/api/tenants/default/user-role-assignments?userId=usr_mv93imus_It5dds8oZjHxSHtWfCC" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -2566,34 +2565,34 @@ Response (200):
   "totalRecords": 2,
   "recordsRemaining": 0,
   "endOfResults": true,
-  "timestampUtc": "2026-10-15T05:17:49.937847Z",
+  "timestampUtc": "2026-10-15T05:26:10.530341Z",
   "objects": [
     {
-      "id": "ura_mv937x00_PZ6XPcnlIrLYUKOyBUc",
+      "id": "ura_mv93imwy_FpUZQaBf3tufFNS5qf9",
       "tenantId": "default",
-      "userId": "usr_mv937wxj_GEGzecwcebaxlLEgBuE",
+      "userId": "usr_mv93imus_It5dds8oZjHxSHtWfCC",
       "roleId": "rol_builtin_tenantmember",
       "roleName": "TenantMember",
       "resourceScope": "Tenant",
       "inheritsToChildren": true,
       "active": true,
       "isProtected": false,
-      "createdUtc": "2026-10-15T05:17:46.32044Z",
-      "lastUpdateUtc": "2026-10-15T05:17:46.32044Z"
+      "createdUtc": "2026-10-15T05:26:06.466934Z",
+      "lastUpdateUtc": "2026-10-15T05:26:06.466934Z"
     },
     {
-      "id": "ura_mv937zs5_hOaUygjovDH7CO1piZk",
+      "id": "ura_mv93iq1h_y8aEvQacs73Q8gABHFP",
       "tenantId": "default",
-      "userId": "usr_mv937wxj_GEGzecwcebaxlLEgBuE",
-      "roleId": "rol_mv937zof_AD3nbQ1lnvEQJsb6ovw",
+      "userId": "usr_mv93imus_It5dds8oZjHxSHtWfCC",
+      "roleId": "rol_mv93ipxn_a8pOeG3cRKrOdUMhusT",
       "roleName": "Night shift",
       "resourceScope": "Resource",
-      "resourceId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
+      "resourceId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
       "inheritsToChildren": false,
       "active": true,
       "isProtected": false,
-      "createdUtc": "2026-10-15T05:17:49.925817Z",
-      "lastUpdateUtc": "2026-10-15T05:17:49.925817Z"
+      "createdUtc": "2026-10-15T05:26:10.517908Z",
+      "lastUpdateUtc": "2026-10-15T05:26:10.517908Z"
     }
   ]
 }
@@ -2632,25 +2631,25 @@ Example:
 curl -s -X POST "$HUGO/v1.0/api/tenants/default/user-role-assignments" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"userId": "usr_mv937wxj_GEGzecwcebaxlLEgBuE", "roleId": "rol_mv937zof_AD3nbQ1lnvEQJsb6ovw", "resourceScope": "Resource", "resourceId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl", "inheritsToChildren": false}'
+  -d '{"userId": "usr_mv93imus_It5dds8oZjHxSHtWfCC", "roleId": "rol_mv93ipxn_a8pOeG3cRKrOdUMhusT", "resourceScope": "Resource", "resourceId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6", "inheritsToChildren": false}'
 ```
 
 Response (201):
 
 ```json
 {
-  "id": "ura_mv937zs5_hOaUygjovDH7CO1piZk",
+  "id": "ura_mv93iq1h_y8aEvQacs73Q8gABHFP",
   "tenantId": "default",
-  "userId": "usr_mv937wxj_GEGzecwcebaxlLEgBuE",
-  "roleId": "rol_mv937zof_AD3nbQ1lnvEQJsb6ovw",
+  "userId": "usr_mv93imus_It5dds8oZjHxSHtWfCC",
+  "roleId": "rol_mv93ipxn_a8pOeG3cRKrOdUMhusT",
   "roleName": "Night shift",
   "resourceScope": "Resource",
-  "resourceId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
+  "resourceId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
   "inheritsToChildren": false,
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.925817Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.925817Z"
+  "createdUtc": "2026-10-15T05:26:10.517908Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.517908Z"
 }
 ```
 
@@ -2672,7 +2671,7 @@ One assignment.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/tenants/default/user-role-assignments/ura_mv937zs5_hOaUygjovDH7CO1piZk" \
+curl -s "$HUGO/v1.0/api/tenants/default/user-role-assignments/ura_mv93iq1h_y8aEvQacs73Q8gABHFP" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -2680,18 +2679,18 @@ Response (200):
 
 ```json
 {
-  "id": "ura_mv937zs5_hOaUygjovDH7CO1piZk",
+  "id": "ura_mv93iq1h_y8aEvQacs73Q8gABHFP",
   "tenantId": "default",
-  "userId": "usr_mv937wxj_GEGzecwcebaxlLEgBuE",
-  "roleId": "rol_mv937zof_AD3nbQ1lnvEQJsb6ovw",
+  "userId": "usr_mv93imus_It5dds8oZjHxSHtWfCC",
+  "roleId": "rol_mv93ipxn_a8pOeG3cRKrOdUMhusT",
   "roleName": "Night shift",
   "resourceScope": "Resource",
-  "resourceId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
+  "resourceId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
   "inheritsToChildren": false,
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.925817Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.925817Z"
+  "createdUtc": "2026-10-15T05:26:10.517908Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.517908Z"
 }
 ```
 
@@ -2726,28 +2725,28 @@ Update an assignment.
 Example:
 
 ```bash
-curl -s -X PUT "$HUGO/v1.0/api/tenants/default/user-role-assignments/ura_mv937zs5_hOaUygjovDH7CO1piZk" \
+curl -s -X PUT "$HUGO/v1.0/api/tenants/default/user-role-assignments/ura_mv93iq1h_y8aEvQacs73Q8gABHFP" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"userId": "usr_mv937wxj_GEGzecwcebaxlLEgBuE", "roleId": "rol_mv937zof_AD3nbQ1lnvEQJsb6ovw", "resourceScope": "Resource", "resourceId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl", "inheritsToChildren": true}'
+  -d '{"userId": "usr_mv93imus_It5dds8oZjHxSHtWfCC", "roleId": "rol_mv93ipxn_a8pOeG3cRKrOdUMhusT", "resourceScope": "Resource", "resourceId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6", "inheritsToChildren": true}'
 ```
 
 Response (200):
 
 ```json
 {
-  "id": "ura_mv937zs5_hOaUygjovDH7CO1piZk",
+  "id": "ura_mv93iq1h_y8aEvQacs73Q8gABHFP",
   "tenantId": "default",
-  "userId": "usr_mv937wxj_GEGzecwcebaxlLEgBuE",
-  "roleId": "rol_mv937zof_AD3nbQ1lnvEQJsb6ovw",
+  "userId": "usr_mv93imus_It5dds8oZjHxSHtWfCC",
+  "roleId": "rol_mv93ipxn_a8pOeG3cRKrOdUMhusT",
   "roleName": "Night shift",
   "resourceScope": "Resource",
-  "resourceId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
+  "resourceId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
   "inheritsToChildren": true,
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.925817Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.962149Z"
+  "createdUtc": "2026-10-15T05:26:10.517908Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.557804Z"
 }
 ```
 
@@ -2767,7 +2766,7 @@ Remove a role assignment.
 Example:
 
 ```bash
-curl -s -X DELETE "$HUGO/v1.0/api/tenants/default/user-role-assignments/ura_mv937zs5_hOaUygjovDH7CO1piZk" \
+curl -s -X DELETE "$HUGO/v1.0/api/tenants/default/user-role-assignments/ura_mv93iq1h_y8aEvQacs73Q8gABHFP" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -2796,7 +2795,7 @@ Assignments, filtered by `credentialId`.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/tenants/default/credential-scope-assignments?credentialId=crd_mv937zkw_coIvDxQfarwIRkctwpQ" \
+curl -s "$HUGO/v1.0/api/tenants/default/credential-scope-assignments?credentialId=crd_mv93iptp_RLeBjgalMag75gi1klI" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -2810,34 +2809,34 @@ Response (200):
   "totalRecords": 2,
   "recordsRemaining": 0,
   "endOfResults": true,
-  "timestampUtc": "2026-10-15T05:17:49.985857Z",
+  "timestampUtc": "2026-10-15T05:26:10.584011Z",
   "objects": [
     {
-      "id": "csa_mv937zkw_CyxkSyXrbpqipvnvfHZ",
+      "id": "csa_mv93iptr_ETKyDGilepniURlWGjZ",
       "tenantId": "default",
-      "credentialId": "crd_mv937zkw_coIvDxQfarwIRkctwpQ",
+      "credentialId": "crd_mv93iptp_RLeBjgalMag75gi1klI",
       "roleId": "rol_builtin_operator",
       "roleName": "Operator",
       "resourceScope": "Tenant",
       "inheritsToChildren": true,
       "active": true,
       "isProtected": false,
-      "createdUtc": "2026-10-15T05:17:49.664777Z",
-      "lastUpdateUtc": "2026-10-15T05:17:49.664777Z"
+      "createdUtc": "2026-10-15T05:26:10.239463Z",
+      "lastUpdateUtc": "2026-10-15T05:26:10.239463Z"
     },
     {
-      "id": "csa_mv937zti_nLStAhNfmi6UZKi59iH",
+      "id": "csa_mv93iq2y_ye6srhfjC9AMY9cb9Yp",
       "tenantId": "default",
-      "credentialId": "crd_mv937zkw_coIvDxQfarwIRkctwpQ",
+      "credentialId": "crd_mv93iptp_RLeBjgalMag75gi1klI",
       "roleId": "rol_builtin_viewer",
       "roleName": "Viewer",
       "resourceScope": "Resource",
-      "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+      "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
       "inheritsToChildren": true,
       "active": true,
       "isProtected": false,
-      "createdUtc": "2026-10-15T05:17:49.974324Z",
-      "lastUpdateUtc": "2026-10-15T05:17:49.974324Z"
+      "createdUtc": "2026-10-15T05:26:10.570977Z",
+      "lastUpdateUtc": "2026-10-15T05:26:10.570977Z"
     }
   ]
 }
@@ -2876,25 +2875,25 @@ Example:
 curl -s -X POST "$HUGO/v1.0/api/tenants/default/credential-scope-assignments" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"credentialId": "crd_mv937zkw_coIvDxQfarwIRkctwpQ", "roleName": "Viewer", "resourceScope": "Resource", "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT"}'
+  -d '{"credentialId": "crd_mv93iptp_RLeBjgalMag75gi1klI", "roleName": "Viewer", "resourceScope": "Resource", "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz"}'
 ```
 
 Response (201):
 
 ```json
 {
-  "id": "csa_mv937zti_nLStAhNfmi6UZKi59iH",
+  "id": "csa_mv93iq2y_ye6srhfjC9AMY9cb9Yp",
   "tenantId": "default",
-  "credentialId": "crd_mv937zkw_coIvDxQfarwIRkctwpQ",
+  "credentialId": "crd_mv93iptp_RLeBjgalMag75gi1klI",
   "roleId": "rol_builtin_viewer",
   "roleName": "Viewer",
   "resourceScope": "Resource",
-  "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+  "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
   "inheritsToChildren": true,
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.974324Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.974324Z"
+  "createdUtc": "2026-10-15T05:26:10.570977Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.570977Z"
 }
 ```
 
@@ -2916,7 +2915,7 @@ One assignment.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/tenants/default/credential-scope-assignments/csa_mv937zti_nLStAhNfmi6UZKi59iH" \
+curl -s "$HUGO/v1.0/api/tenants/default/credential-scope-assignments/csa_mv93iq2y_ye6srhfjC9AMY9cb9Yp" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -2924,18 +2923,18 @@ Response (200):
 
 ```json
 {
-  "id": "csa_mv937zti_nLStAhNfmi6UZKi59iH",
+  "id": "csa_mv93iq2y_ye6srhfjC9AMY9cb9Yp",
   "tenantId": "default",
-  "credentialId": "crd_mv937zkw_coIvDxQfarwIRkctwpQ",
+  "credentialId": "crd_mv93iptp_RLeBjgalMag75gi1klI",
   "roleId": "rol_builtin_viewer",
   "roleName": "Viewer",
   "resourceScope": "Resource",
-  "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+  "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
   "inheritsToChildren": true,
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.974324Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.974324Z"
+  "createdUtc": "2026-10-15T05:26:10.570977Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.570977Z"
 }
 ```
 
@@ -2970,27 +2969,27 @@ Update an assignment.
 Example:
 
 ```bash
-curl -s -X PUT "$HUGO/v1.0/api/tenants/default/credential-scope-assignments/csa_mv937zti_nLStAhNfmi6UZKi59iH" \
+curl -s -X PUT "$HUGO/v1.0/api/tenants/default/credential-scope-assignments/csa_mv93iq2y_ye6srhfjC9AMY9cb9Yp" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"credentialId": "crd_mv937zkw_coIvDxQfarwIRkctwpQ", "roleName": "Viewer", "resourceScope": "Tenant"}'
+  -d '{"credentialId": "crd_mv93iptp_RLeBjgalMag75gi1klI", "roleName": "Viewer", "resourceScope": "Tenant"}'
 ```
 
 Response (200):
 
 ```json
 {
-  "id": "csa_mv937zti_nLStAhNfmi6UZKi59iH",
+  "id": "csa_mv93iq2y_ye6srhfjC9AMY9cb9Yp",
   "tenantId": "default",
-  "credentialId": "crd_mv937zkw_coIvDxQfarwIRkctwpQ",
+  "credentialId": "crd_mv93iptp_RLeBjgalMag75gi1klI",
   "roleId": "rol_builtin_viewer",
   "roleName": "Viewer",
   "resourceScope": "Tenant",
   "inheritsToChildren": true,
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.974324Z",
-  "lastUpdateUtc": "2026-10-15T05:17:50.008496Z"
+  "createdUtc": "2026-10-15T05:26:10.570977Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.609171Z"
 }
 ```
 
@@ -3010,7 +3009,7 @@ Remove a credential scope.
 Example:
 
 ```bash
-curl -s -X DELETE "$HUGO/v1.0/api/tenants/default/credential-scope-assignments/csa_mv937zti_nLStAhNfmi6UZKi59iH" \
+curl -s -X DELETE "$HUGO/v1.0/api/tenants/default/credential-scope-assignments/csa_mv93iq2y_ye6srhfjC9AMY9cb9Yp" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -3061,42 +3060,42 @@ Response (200):
   "success": true,
   "maxResults": 25,
   "skip": 0,
-  "totalRecords": 48,
-  "recordsRemaining": 23,
-  "endOfResults": false,
-  "timestampUtc": "2026-10-15T05:17:50.021545Z",
+  "totalRecords": 8,
+  "recordsRemaining": 0,
+  "endOfResults": true,
+  "timestampUtc": "2026-10-15T05:26:10.622247Z",
   "objects": [
     {
-      "id": "ses_mv937zmm_lyDbcvfnztT6MGWdzfo",
+      "id": "ses_mv93ipvq_CKldcRem6tb7k95AewR",
       "tenantId": "default",
-      "credentialId": "crd_mv937zkw_coIvDxQfarwIRkctwpQ",
+      "credentialId": "crd_mv93iptp_RLeBjgalMag75gi1klI",
       "principalType": "Credential",
       "authScheme": "AccessKeySecret",
       "sourceIp": "127.0.0.1",
       "userAgent": "PostmanRuntime/7.39.1",
-      "expiresUtc": "2026-10-15T06:17:49.726551Z",
+      "expiresUtc": "2026-10-15T06:26:10.310009Z",
       "active": true,
       "isProtected": false,
-      "createdUtc": "2026-10-15T05:17:49.726558Z",
-      "lastUpdateUtc": "2026-10-15T05:17:49.726558Z"
+      "createdUtc": "2026-10-15T05:26:10.310017Z",
+      "lastUpdateUtc": "2026-10-15T05:26:10.310017Z"
     },
     {
-      "id": "ses_mv937wvt_ExWweqvfGKP4ygR6e9E",
+      "id": "ses_mv93imsz_yhhkXASfkGpt5VQK9rS",
       "tenantId": "default",
-      "userId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+      "userId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
       "principalType": "User",
       "authScheme": "PasswordHeaders",
       "sourceIp": "127.0.0.1",
       "userAgent": "PostmanRuntime/7.39.1",
-      "expiresUtc": "2026-10-15T06:17:46.169362Z",
-      "revokedUtc": "2026-10-15T05:17:46.791133Z",
+      "expiresUtc": "2026-10-15T06:26:06.323691Z",
+      "revokedUtc": "2026-10-15T05:26:06.910264Z",
       "revocationReason": "Password changed.",
       "active": false,
       "isProtected": false,
-      "createdUtc": "2026-10-15T05:17:46.169376Z",
-      "lastUpdateUtc": "2026-10-15T05:17:46.791133Z"
+      "createdUtc": "2026-10-15T05:26:06.323704Z",
+      "lastUpdateUtc": "2026-10-15T05:26:06.910264Z"
     },
-    "… 23 more"
+    "… 6 more"
   ]
 }
 ```
@@ -3134,42 +3133,42 @@ Response (200):
   "success": true,
   "maxResults": 25,
   "skip": 0,
-  "totalRecords": 48,
-  "recordsRemaining": 23,
-  "endOfResults": false,
-  "timestampUtc": "2026-10-15T05:17:50.034529Z",
+  "totalRecords": 8,
+  "recordsRemaining": 0,
+  "endOfResults": true,
+  "timestampUtc": "2026-10-15T05:26:10.6367Z",
   "objects": [
     {
-      "id": "ses_mv937zmm_lyDbcvfnztT6MGWdzfo",
+      "id": "ses_mv93ipvq_CKldcRem6tb7k95AewR",
       "tenantId": "default",
-      "credentialId": "crd_mv937zkw_coIvDxQfarwIRkctwpQ",
+      "credentialId": "crd_mv93iptp_RLeBjgalMag75gi1klI",
       "principalType": "Credential",
       "authScheme": "AccessKeySecret",
       "sourceIp": "127.0.0.1",
       "userAgent": "PostmanRuntime/7.39.1",
-      "expiresUtc": "2026-10-15T06:17:49.726551Z",
+      "expiresUtc": "2026-10-15T06:26:10.310009Z",
       "active": true,
       "isProtected": false,
-      "createdUtc": "2026-10-15T05:17:49.726558Z",
-      "lastUpdateUtc": "2026-10-15T05:17:49.726558Z"
+      "createdUtc": "2026-10-15T05:26:10.310017Z",
+      "lastUpdateUtc": "2026-10-15T05:26:10.310017Z"
     },
     {
-      "id": "ses_mv937wvt_ExWweqvfGKP4ygR6e9E",
+      "id": "ses_mv93imsz_yhhkXASfkGpt5VQK9rS",
       "tenantId": "default",
-      "userId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+      "userId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
       "principalType": "User",
       "authScheme": "PasswordHeaders",
       "sourceIp": "127.0.0.1",
       "userAgent": "PostmanRuntime/7.39.1",
-      "expiresUtc": "2026-10-15T06:17:46.169362Z",
-      "revokedUtc": "2026-10-15T05:17:46.791133Z",
+      "expiresUtc": "2026-10-15T06:26:06.323691Z",
+      "revokedUtc": "2026-10-15T05:26:06.910264Z",
       "revocationReason": "Password changed.",
       "active": false,
       "isProtected": false,
-      "createdUtc": "2026-10-15T05:17:46.169376Z",
-      "lastUpdateUtc": "2026-10-15T05:17:46.791133Z"
+      "createdUtc": "2026-10-15T05:26:06.323704Z",
+      "lastUpdateUtc": "2026-10-15T05:26:06.910264Z"
     },
-    "… 23 more"
+    "… 6 more"
   ]
 }
 ```
@@ -3192,7 +3191,7 @@ Tenant-scoped read.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/tenants/default/sessions/ses_mv937zmm_lyDbcvfnztT6MGWdzfo" \
+curl -s "$HUGO/v1.0/api/tenants/default/sessions/ses_mv93ipvq_CKldcRem6tb7k95AewR" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -3200,18 +3199,18 @@ Response (200):
 
 ```json
 {
-  "id": "ses_mv937zmm_lyDbcvfnztT6MGWdzfo",
+  "id": "ses_mv93ipvq_CKldcRem6tb7k95AewR",
   "tenantId": "default",
-  "credentialId": "crd_mv937zkw_coIvDxQfarwIRkctwpQ",
+  "credentialId": "crd_mv93iptp_RLeBjgalMag75gi1klI",
   "principalType": "Credential",
   "authScheme": "AccessKeySecret",
   "sourceIp": "127.0.0.1",
   "userAgent": "PostmanRuntime/7.39.1",
-  "expiresUtc": "2026-10-15T06:17:49.726551Z",
+  "expiresUtc": "2026-10-15T06:26:10.310009Z",
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.726558Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.726558Z"
+  "createdUtc": "2026-10-15T05:26:10.310017Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.310017Z"
 }
 ```
 
@@ -3231,7 +3230,7 @@ Tenant-scoped revoke. Revoking an already revoked session is still 204.
 Example:
 
 ```bash
-curl -s -X DELETE "$HUGO/v1.0/api/tenants/default/sessions/ses_mv937wru_U2mWgTmj04DaN1enN6I" \
+curl -s -X DELETE "$HUGO/v1.0/api/tenants/default/sessions/ses_mv93imp2_gsOY9p3eespCjeQwcz4" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -3254,7 +3253,7 @@ One session: principal, scheme, source IP, user agent, expiry, last use, and rev
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/sessions/ses_mv937zmm_lyDbcvfnztT6MGWdzfo" \
+curl -s "$HUGO/v1.0/api/sessions/ses_mv93ipvq_CKldcRem6tb7k95AewR" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -3262,18 +3261,18 @@ Response (200):
 
 ```json
 {
-  "id": "ses_mv937zmm_lyDbcvfnztT6MGWdzfo",
+  "id": "ses_mv93ipvq_CKldcRem6tb7k95AewR",
   "tenantId": "default",
-  "credentialId": "crd_mv937zkw_coIvDxQfarwIRkctwpQ",
+  "credentialId": "crd_mv93iptp_RLeBjgalMag75gi1klI",
   "principalType": "Credential",
   "authScheme": "AccessKeySecret",
   "sourceIp": "127.0.0.1",
   "userAgent": "PostmanRuntime/7.39.1",
-  "expiresUtc": "2026-10-15T06:17:49.726551Z",
+  "expiresUtc": "2026-10-15T06:26:10.310009Z",
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.726558Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.726558Z"
+  "createdUtc": "2026-10-15T05:26:10.310017Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.310017Z"
 }
 ```
 
@@ -3292,7 +3291,7 @@ Revoke a session (the credential sign-in from the Credentials folder).
 Example:
 
 ```bash
-curl -s -X DELETE "$HUGO/v1.0/api/sessions/ses_mv937zmm_lyDbcvfnztT6MGWdzfo" \
+curl -s -X DELETE "$HUGO/v1.0/api/sessions/ses_mv93ipvq_CKldcRem6tb7k95AewR" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -3350,7 +3349,7 @@ Response (200):
   "totalRecords": 1,
   "recordsRemaining": 0,
   "endOfResults": true,
-  "timestampUtc": "2026-10-15T05:17:50.090808Z",
+  "timestampUtc": "2026-10-15T05:26:10.707702Z",
   "objects": [
     {
       "id": "default",
@@ -3358,10 +3357,10 @@ Response (200):
       "description": "Default tenant created on first boot.",
       "active": true,
       "isProtected": true,
-      "defaultAgentProfileId": "agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO",
+      "defaultAgentProfileId": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ",
       "lockdown": false,
-      "createdUtc": "2026-10-15T05:07:41.787395Z",
-      "lastUpdateUtc": "2026-10-15T05:12:07.208919Z"
+      "createdUtc": "2026-10-15T05:26:04.219392Z",
+      "lastUpdateUtc": "2026-10-15T05:26:04.219392Z"
     }
   ]
 }
@@ -3401,16 +3400,16 @@ Response (201):
 
 ```json
 {
-  "id": "ten_mv937zx2_thDJOZklJfc90aRx5p0",
+  "id": "ten_mv93iq77_zP6YXBSdXJjXPEEZoEx",
   "name": "zion",
   "description": "Staging tenant for the night shift",
   "active": true,
   "isProtected": false,
   "region": "us-east-1",
-  "defaultAgentProfileId": "agp_mv937zx2_8H0jkEUmT8oCQpZYYHm",
+  "defaultAgentProfileId": "agp_mv93iq78_QJ2YhHJpcdB2ZFbddcR",
   "lockdown": false,
-  "createdUtc": "2026-10-15T05:17:50.102619Z",
-  "lastUpdateUtc": "2026-10-15T05:17:50.102619Z"
+  "createdUtc": "2026-10-15T05:26:10.723953Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.723953Z"
 }
 ```
 
@@ -3520,7 +3519,7 @@ One tenant.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/tenants/ten_mv937zx2_thDJOZklJfc90aRx5p0" \
+curl -s "$HUGO/v1.0/api/tenants/ten_mv93iq77_zP6YXBSdXJjXPEEZoEx" \
   -H "Authorization: Bearer $ADMIN_TOKEN"
 ```
 
@@ -3528,16 +3527,16 @@ Response (200):
 
 ```json
 {
-  "id": "ten_mv937zx2_thDJOZklJfc90aRx5p0",
+  "id": "ten_mv93iq77_zP6YXBSdXJjXPEEZoEx",
   "name": "zion",
   "description": "Staging tenant for the night shift",
   "active": true,
   "isProtected": false,
   "region": "us-east-1",
-  "defaultAgentProfileId": "agp_mv937zx2_8H0jkEUmT8oCQpZYYHm",
+  "defaultAgentProfileId": "agp_mv93iq78_QJ2YhHJpcdB2ZFbddcR",
   "lockdown": false,
-  "createdUtc": "2026-10-15T05:17:50.102619Z",
-  "lastUpdateUtc": "2026-10-15T05:17:50.102619Z"
+  "createdUtc": "2026-10-15T05:26:10.723953Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.723953Z"
 }
 ```
 
@@ -3569,7 +3568,7 @@ Update name, description, region, active flag, or default profile.
 Example:
 
 ```bash
-curl -s -X PUT "$HUGO/v1.0/api/tenants/ten_mv937zx2_thDJOZklJfc90aRx5p0" \
+curl -s -X PUT "$HUGO/v1.0/api/tenants/ten_mv93iq77_zP6YXBSdXJjXPEEZoEx" \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"description": "The last human city"}'
@@ -3579,16 +3578,16 @@ Response (200):
 
 ```json
 {
-  "id": "ten_mv937zx2_thDJOZklJfc90aRx5p0",
+  "id": "ten_mv93iq77_zP6YXBSdXJjXPEEZoEx",
   "name": "zion",
   "description": "The last human city",
   "active": true,
   "isProtected": false,
   "region": "us-east-1",
-  "defaultAgentProfileId": "agp_mv937zx2_8H0jkEUmT8oCQpZYYHm",
+  "defaultAgentProfileId": "agp_mv93iq78_QJ2YhHJpcdB2ZFbddcR",
   "lockdown": false,
-  "createdUtc": "2026-10-15T05:17:50.102619Z",
-  "lastUpdateUtc": "2026-10-15T05:17:50.125961Z"
+  "createdUtc": "2026-10-15T05:26:10.723953Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.754918Z"
 }
 ```
 
@@ -3607,7 +3606,7 @@ Delete a tenant and everything it owns (system administrators). The default tena
 Example:
 
 ```bash
-curl -s -X DELETE "$HUGO/v1.0/api/tenants/ten_mv937zx2_thDJOZklJfc90aRx5p0" \
+curl -s -X DELETE "$HUGO/v1.0/api/tenants/ten_mv93iq77_zP6YXBSdXJjXPEEZoEx" \
   -H "Authorization: Bearer $ADMIN_TOKEN"
 ```
 
@@ -3619,7 +3618,7 @@ The vault stores credential material for connectors and model endpoints. Values 
 
 Reveal is the one exception and it is deliberately awkward: it needs the Reveal permission (tenant administrators and system administrators), a written reason, and a password re-entry on the same session within `Secrets.RevealReauthMinutes` (5). Every reveal is audited as SecretRevealed, rate limited, and kept out of request history.
 
-Two behaviors surprise people. Updating values replaces only the fields you send, and a field sent as the mask placeholder keeps its stored value, so a form can round-trip without ever holding the plaintext. And deleting a secret that a resource or model endpoint still references answers 409 until you remove the reference.
+Kinds matter to connectors: a slot accepts only certain kinds, and `BearerToken` (sent exactly as `Authorization: Bearer <token>`) is distinct from `ApiToken` (any other transport) since D-049. Two behaviors surprise people. Updating values replaces only the fields you send, and a field sent as the mask placeholder keeps its stored value, so a form can round-trip without ever holding the plaintext. And deleting a secret that a resource or model endpoint still references answers 409 until you remove the reference.
 
 | Method | Path | Summary |
 |---|---|---|
@@ -3677,52 +3676,52 @@ Response (200):
   "totalRecords": 3,
   "recordsRemaining": 0,
   "endOfResults": true,
-  "timestampUtc": "2026-10-15T05:17:49.383006Z",
+  "timestampUtc": "2026-10-15T05:26:09.912101Z",
   "objects": [
     {
-      "id": "sec_mv937zcp_sEmwxNsnTg5N6NBDWea",
+      "id": "sec_mv93ipka_2Q4UthZo31bN0cPBZjq",
       "tenantId": "default",
-      "ownerUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+      "ownerUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
       "name": "demo-api-token",
       "kind": "ApiToken",
       "description": "Token for the status page API",
       "keyVersion": 1,
       "fingerprint": "****6789",
-      "lastRotatedUtc": "2026-10-15T05:17:49.369892Z",
+      "lastRotatedUtc": "2026-10-15T05:26:09.89846Z",
       "active": true,
       "isProtected": false,
-      "createdUtc": "2026-10-15T05:17:49.369895Z",
-      "lastUpdateUtc": "2026-10-15T05:17:49.369895Z",
+      "createdUtc": "2026-10-15T05:26:09.898463Z",
+      "lastUpdateUtc": "2026-10-15T05:26:09.898463Z",
       "fields": [
         "token"
       ]
     },
     {
-      "id": "sec_mv937xyz_c0RnJRWnBkYs9qNjuxT",
+      "id": "sec_mv93inwm_D43OFhprE62dsMvgQXY",
       "tenantId": "default",
-      "ownerUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+      "ownerUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
       "name": "dryrun-token",
       "kind": "ApiToken",
       "keyVersion": 1,
       "fingerprint": "****oken",
-      "lastRotatedUtc": "2026-10-15T05:17:47.579861Z",
+      "lastRotatedUtc": "2026-10-15T05:26:07.75104Z",
       "active": true,
       "isProtected": false,
-      "createdUtc": "2026-10-15T05:17:47.579863Z",
-      "lastUpdateUtc": "2026-10-15T05:17:47.579863Z",
+      "createdUtc": "2026-10-15T05:26:07.75105Z",
+      "lastUpdateUtc": "2026-10-15T05:26:07.75105Z",
       "fields": [
         "token"
       ]
     },
     {
-      "id": "sec_mv937xyn_dfLnh9spzKfB1ZjMrUd",
+      "id": "sec_mv93inw7_4pCFfhCpGStFqQnccH7",
       "tenantId": "default",
-      "ownerUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+      "ownerUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
       "name": "dryrun-password",
       "kind": "Password",
       "keyVersion": 1,
       "fingerprint": "****word",
-      "lastRotatedUtc": "2026-10-15T05:17:47.567193Z",
+      "lastRotatedUtc": "2026-10-15T05:26:07.736241Z",
       "active": true,
       "isProtected": false,
 …
@@ -3740,8 +3739,8 @@ Create a secret with its values; the response has metadata and field names only.
 |---|---|---|
 | `name` | string | **Required.** Unique within the tenant. Required on update too in 0.1.0-alpha. |
 | `description` | string | Free text. |
-| `kind` | enum | **Required.** Password, PrivateKey, ApiToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, or Generic. Cannot change. Values: Password, PrivateKey, ApiToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, Generic. |
-| `values` | object | **Required.** Field values by name (on create). Password: `password`, optional `username`. PrivateKey: `privateKey`, optional `passphrase`. ApiToken: `token`. AccessKeyPair: `accessKeyId`, `secretAccessKey`, optional `sessionToken`. ServiceAccountJson: `json`. Kubeconfig: `kubeconfig`. ConnectionString: `connectionString`. Certificate: `certificate`, optional `privateKey`, `caCertificate`. Generic: any names. Ignored on the metadata update. |
+| `kind` | enum | **Required.** Password, PrivateKey, ApiToken, BearerToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, or Generic. Cannot change. Use BearerToken for a token sent exactly as `Authorization: Bearer <token>`, ApiToken for one a service expects anywhere else (D-049). Values: Password, PrivateKey, ApiToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, Generic, BearerToken. |
+| `values` | object | **Required.** Field values by name (on create). Password: `password`, optional `username`. PrivateKey: `privateKey`, optional `passphrase`. ApiToken and BearerToken: `token`. AccessKeyPair: `accessKeyId`, `secretAccessKey`, optional `sessionToken`. ServiceAccountJson: `json`. Kubeconfig: `kubeconfig`. ConnectionString: `connectionString`. Certificate: `certificate`, optional `privateKey`, `caCertificate`. Generic: any names. Ignored on the metadata update. |
 | `expiresUtc` | date-time | Optional expiry, shown in the dashboard. |
 
 **Status codes:** 201 Created, 400 Validation failed, 401 Not authenticated, 403 Forbidden, 409 Conflict.
@@ -3761,19 +3760,19 @@ Response (201):
 
 ```json
 {
-  "id": "sec_mv937zcp_sEmwxNsnTg5N6NBDWea",
+  "id": "sec_mv93ipka_2Q4UthZo31bN0cPBZjq",
   "tenantId": "default",
-  "ownerUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "ownerUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "name": "demo-api-token",
   "kind": "ApiToken",
   "description": "Token for the status page API",
   "keyVersion": 1,
   "fingerprint": "****6789",
-  "lastRotatedUtc": "2026-10-15T05:17:49.369892Z",
+  "lastRotatedUtc": "2026-10-15T05:26:09.89846Z",
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.369895Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.369895Z",
+  "createdUtc": "2026-10-15T05:26:09.898463Z",
+  "lastUpdateUtc": "2026-10-15T05:26:09.898463Z",
   "fields": [
     "token"
   ]
@@ -3870,54 +3869,54 @@ Response (200):
   "totalRecords": 3,
   "recordsRemaining": 0,
   "endOfResults": true,
-  "timestampUtc": "2026-10-15T05:17:49.553194Z",
+  "timestampUtc": "2026-10-15T05:26:10.119286Z",
   "objects": [
     {
-      "id": "sec_mv937zcp_sEmwxNsnTg5N6NBDWea",
+      "id": "sec_mv93ipka_2Q4UthZo31bN0cPBZjq",
       "tenantId": "default",
-      "ownerUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+      "ownerUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
       "name": "demo-api-token",
       "kind": "ApiToken",
       "description": "Example token, rotated quarterly",
       "keyVersion": 1,
       "fingerprint": "****9876",
-      "lastRotatedUtc": "2026-10-15T05:17:49.420816Z",
-      "lastRevealedUtc": "2026-10-15T05:17:49.539728Z",
+      "lastRotatedUtc": "2026-10-15T05:26:09.953644Z",
+      "lastRevealedUtc": "2026-10-15T05:26:10.106346Z",
       "expiresUtc": "2027-01-01T00:00:00Z",
       "active": true,
       "isProtected": false,
-      "createdUtc": "2026-10-15T05:17:49.369895Z",
-      "lastUpdateUtc": "2026-10-15T05:17:49.539729Z",
+      "createdUtc": "2026-10-15T05:26:09.898463Z",
+      "lastUpdateUtc": "2026-10-15T05:26:10.106348Z",
       "fields": [
         "token"
       ]
     },
     {
-      "id": "sec_mv937xyz_c0RnJRWnBkYs9qNjuxT",
+      "id": "sec_mv93inwm_D43OFhprE62dsMvgQXY",
       "tenantId": "default",
-      "ownerUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+      "ownerUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
       "name": "dryrun-token",
       "kind": "ApiToken",
       "keyVersion": 1,
       "fingerprint": "****oken",
-      "lastRotatedUtc": "2026-10-15T05:17:47.579861Z",
+      "lastRotatedUtc": "2026-10-15T05:26:07.75104Z",
       "active": true,
       "isProtected": false,
-      "createdUtc": "2026-10-15T05:17:47.579863Z",
-      "lastUpdateUtc": "2026-10-15T05:17:47.579863Z",
+      "createdUtc": "2026-10-15T05:26:07.75105Z",
+      "lastUpdateUtc": "2026-10-15T05:26:07.75105Z",
       "fields": [
         "token"
       ]
     },
     {
-      "id": "sec_mv937xyn_dfLnh9spzKfB1ZjMrUd",
+      "id": "sec_mv93inw7_4pCFfhCpGStFqQnccH7",
       "tenantId": "default",
-      "ownerUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+      "ownerUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
       "name": "dryrun-password",
       "kind": "Password",
       "keyVersion": 1,
       "fingerprint": "****word",
-      "lastRotatedUtc": "2026-10-15T05:17:47.567193Z",
+      "lastRotatedUtc": "2026-10-15T05:26:07.736241Z",
 …
 ```
 
@@ -3937,8 +3936,8 @@ Create a Password secret through the tenant-scoped path.
 |---|---|---|
 | `name` | string | **Required.** Unique within the tenant. Required on update too in 0.1.0-alpha. |
 | `description` | string | Free text. |
-| `kind` | enum | **Required.** Password, PrivateKey, ApiToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, or Generic. Cannot change. Values: Password, PrivateKey, ApiToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, Generic. |
-| `values` | object | **Required.** Field values by name (on create). Password: `password`, optional `username`. PrivateKey: `privateKey`, optional `passphrase`. ApiToken: `token`. AccessKeyPair: `accessKeyId`, `secretAccessKey`, optional `sessionToken`. ServiceAccountJson: `json`. Kubeconfig: `kubeconfig`. ConnectionString: `connectionString`. Certificate: `certificate`, optional `privateKey`, `caCertificate`. Generic: any names. Ignored on the metadata update. |
+| `kind` | enum | **Required.** Password, PrivateKey, ApiToken, BearerToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, or Generic. Cannot change. Use BearerToken for a token sent exactly as `Authorization: Bearer <token>`, ApiToken for one a service expects anywhere else (D-049). Values: Password, PrivateKey, ApiToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, Generic, BearerToken. |
+| `values` | object | **Required.** Field values by name (on create). Password: `password`, optional `username`. PrivateKey: `privateKey`, optional `passphrase`. ApiToken and BearerToken: `token`. AccessKeyPair: `accessKeyId`, `secretAccessKey`, optional `sessionToken`. ServiceAccountJson: `json`. Kubeconfig: `kubeconfig`. ConnectionString: `connectionString`. Certificate: `certificate`, optional `privateKey`, `caCertificate`. Generic: any names. Ignored on the metadata update. |
 | `expiresUtc` | date-time | Optional expiry, shown in the dashboard. |
 
 **Status codes:** 201 Created, 400 Validation failed, 401 Not authenticated, 403 Forbidden, 404 Not found, 409 Conflict.
@@ -3958,18 +3957,18 @@ Response (201):
 
 ```json
 {
-  "id": "sec_mv937zi5_VNEmIR3h9yX4e19gn0w",
+  "id": "sec_mv93ipqs_SjgYJOike4K57wJecHk",
   "tenantId": "default",
-  "ownerUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "ownerUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "name": "demo-db-password",
   "kind": "Password",
   "keyVersion": 1,
   "fingerprint": "****word",
-  "lastRotatedUtc": "2026-10-15T05:17:49.56546Z",
+  "lastRotatedUtc": "2026-10-15T05:26:10.132574Z",
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.565462Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.565462Z",
+  "createdUtc": "2026-10-15T05:26:10.132577Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.132577Z",
   "fields": [
     "password",
     "username"
@@ -4015,7 +4014,7 @@ Response (400):
   "error": "BadRequest",
   "code": "BadRequest",
   "message": "The file is not a recognized SSH private key, PEM certificate, Google Cloud service account key, or kubeconfig. (Parameter 'request')",
-  "requestId": "c8857a0ced7a4692a61ed9c36d166764"
+  "requestId": "232c8db6cc6f43d69dc4b3a6e80d877e"
 }
 ```
 
@@ -4037,7 +4036,7 @@ Tenant-scoped read.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/tenants/default/secrets/sec_mv937zi5_VNEmIR3h9yX4e19gn0w" \
+curl -s "$HUGO/v1.0/api/tenants/default/secrets/sec_mv93ipqs_SjgYJOike4K57wJecHk" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -4045,18 +4044,18 @@ Response (200):
 
 ```json
 {
-  "id": "sec_mv937zi5_VNEmIR3h9yX4e19gn0w",
+  "id": "sec_mv93ipqs_SjgYJOike4K57wJecHk",
   "tenantId": "default",
-  "ownerUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "ownerUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "name": "demo-db-password",
   "kind": "Password",
   "keyVersion": 1,
   "fingerprint": "****word",
-  "lastRotatedUtc": "2026-10-15T05:17:49.56546Z",
+  "lastRotatedUtc": "2026-10-15T05:26:10.132574Z",
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.565462Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.565462Z",
+  "createdUtc": "2026-10-15T05:26:10.132577Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.132577Z",
   "fields": [
     "password",
     "username"
@@ -4082,8 +4081,8 @@ Tenant-scoped metadata update.
 |---|---|---|
 | `name` | string | **Required.** Unique within the tenant. Required on update too in 0.1.0-alpha. |
 | `description` | string | Free text. |
-| `kind` | enum | **Required.** Password, PrivateKey, ApiToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, or Generic. Cannot change. Values: Password, PrivateKey, ApiToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, Generic. |
-| `values` | object | **Required.** Field values by name (on create). Password: `password`, optional `username`. PrivateKey: `privateKey`, optional `passphrase`. ApiToken: `token`. AccessKeyPair: `accessKeyId`, `secretAccessKey`, optional `sessionToken`. ServiceAccountJson: `json`. Kubeconfig: `kubeconfig`. ConnectionString: `connectionString`. Certificate: `certificate`, optional `privateKey`, `caCertificate`. Generic: any names. Ignored on the metadata update. |
+| `kind` | enum | **Required.** Password, PrivateKey, ApiToken, BearerToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, or Generic. Cannot change. Use BearerToken for a token sent exactly as `Authorization: Bearer <token>`, ApiToken for one a service expects anywhere else (D-049). Values: Password, PrivateKey, ApiToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, Generic, BearerToken. |
+| `values` | object | **Required.** Field values by name (on create). Password: `password`, optional `username`. PrivateKey: `privateKey`, optional `passphrase`. ApiToken and BearerToken: `token`. AccessKeyPair: `accessKeyId`, `secretAccessKey`, optional `sessionToken`. ServiceAccountJson: `json`. Kubeconfig: `kubeconfig`. ConnectionString: `connectionString`. Certificate: `certificate`, optional `privateKey`, `caCertificate`. Generic: any names. Ignored on the metadata update. |
 | `expiresUtc` | date-time | Optional expiry, shown in the dashboard. |
 
 **Status codes:** 200 OK, 400 Validation failed, 401 Not authenticated, 403 Forbidden, 404 Not found.
@@ -4093,7 +4092,7 @@ Tenant-scoped metadata update.
 Example:
 
 ```bash
-curl -s -X PUT "$HUGO/v1.0/api/tenants/default/secrets/sec_mv937zi5_VNEmIR3h9yX4e19gn0w" \
+curl -s -X PUT "$HUGO/v1.0/api/tenants/default/secrets/sec_mv93ipqs_SjgYJOike4K57wJecHk" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"name": "demo-db-password", "kind": "Password", "description": "Read-only login for the demo database"}'
@@ -4103,19 +4102,19 @@ Response (200):
 
 ```json
 {
-  "id": "sec_mv937zi5_VNEmIR3h9yX4e19gn0w",
+  "id": "sec_mv93ipqs_SjgYJOike4K57wJecHk",
   "tenantId": "default",
-  "ownerUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "ownerUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "name": "demo-db-password",
   "kind": "Password",
   "description": "Read-only login for the demo database",
   "keyVersion": 1,
   "fingerprint": "****word",
-  "lastRotatedUtc": "2026-10-15T05:17:49.56546Z",
+  "lastRotatedUtc": "2026-10-15T05:26:10.132574Z",
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.565462Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.590448Z",
+  "createdUtc": "2026-10-15T05:26:10.132577Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.160134Z",
   "fields": [
     "password",
     "username"
@@ -4139,7 +4138,7 @@ Delete a secret. 409 while a resource or model endpoint references it.
 Example:
 
 ```bash
-curl -s -X DELETE "$HUGO/v1.0/api/tenants/default/secrets/sec_mv937zi5_VNEmIR3h9yX4e19gn0w" \
+curl -s -X DELETE "$HUGO/v1.0/api/tenants/default/secrets/sec_mv93ipqs_SjgYJOike4K57wJecHk" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -4170,7 +4169,7 @@ Tenant-scoped value update. `remove` drops an optional field.
 Example:
 
 ```bash
-curl -s -X PUT "$HUGO/v1.0/api/tenants/default/secrets/sec_mv937zi5_VNEmIR3h9yX4e19gn0w/values" \
+curl -s -X PUT "$HUGO/v1.0/api/tenants/default/secrets/sec_mv93ipqs_SjgYJOike4K57wJecHk/values" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"values": {"password": "not-a-real-password-2"}, "remove": ["username"]}'
@@ -4180,19 +4179,19 @@ Response (200):
 
 ```json
 {
-  "id": "sec_mv937zi5_VNEmIR3h9yX4e19gn0w",
+  "id": "sec_mv93ipqs_SjgYJOike4K57wJecHk",
   "tenantId": "default",
-  "ownerUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "ownerUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "name": "demo-db-password",
   "kind": "Password",
   "description": "Read-only login for the demo database",
   "keyVersion": 1,
   "fingerprint": "****rd-2",
-  "lastRotatedUtc": "2026-10-15T05:17:49.603195Z",
+  "lastRotatedUtc": "2026-10-15T05:26:10.173975Z",
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.565462Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.603197Z",
+  "createdUtc": "2026-10-15T05:26:10.132577Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.173977Z",
   "fields": [
     "password"
   ]
@@ -4217,7 +4216,7 @@ Tenant-scoped referrers.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/tenants/default/secrets/sec_mv937zi5_VNEmIR3h9yX4e19gn0w/referrers" \
+curl -s "$HUGO/v1.0/api/tenants/default/secrets/sec_mv93ipqs_SjgYJOike4K57wJecHk/referrers" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -4251,7 +4250,7 @@ Tenant-scoped reveal.
 Example:
 
 ```bash
-curl -s -X POST "$HUGO/v1.0/api/tenants/default/secrets/sec_mv937zi5_VNEmIR3h9yX4e19gn0w/reveal" \
+curl -s -X POST "$HUGO/v1.0/api/tenants/default/secrets/sec_mv93ipqs_SjgYJOike4K57wJecHk/reveal" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"reason": "Checking the demo database password"}'
@@ -4261,13 +4260,13 @@ Response (200):
 
 ```json
 {
-  "secretId": "sec_mv937zi5_VNEmIR3h9yX4e19gn0w",
+  "secretId": "sec_mv93ipqs_SjgYJOike4K57wJecHk",
   "name": "demo-db-password",
   "kind": "Password",
   "values": {
     "password": "not-a-real-password-2"
   },
-  "revealedUtc": "2026-10-15T05:17:49.638763Z"
+  "revealedUtc": "2026-10-15T05:26:10.21133Z"
 }
 ```
 
@@ -4288,7 +4287,7 @@ Metadata, field names, fingerprint, and referrers.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/secrets/sec_mv937zcp_sEmwxNsnTg5N6NBDWea" \
+curl -s "$HUGO/v1.0/api/secrets/sec_mv93ipka_2Q4UthZo31bN0cPBZjq" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -4296,19 +4295,19 @@ Response (200):
 
 ```json
 {
-  "id": "sec_mv937zcp_sEmwxNsnTg5N6NBDWea",
+  "id": "sec_mv93ipka_2Q4UthZo31bN0cPBZjq",
   "tenantId": "default",
-  "ownerUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "ownerUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "name": "demo-api-token",
   "kind": "ApiToken",
   "description": "Token for the status page API",
   "keyVersion": 1,
   "fingerprint": "****6789",
-  "lastRotatedUtc": "2026-10-15T05:17:49.369892Z",
+  "lastRotatedUtc": "2026-10-15T05:26:09.89846Z",
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.369895Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.369895Z",
+  "createdUtc": "2026-10-15T05:26:09.898463Z",
+  "lastUpdateUtc": "2026-10-15T05:26:09.898463Z",
   "fields": [
     "token"
   ],
@@ -4332,8 +4331,8 @@ Change name, description, or expiry.
 |---|---|---|
 | `name` | string | **Required.** Unique within the tenant. Required on update too in 0.1.0-alpha. |
 | `description` | string | Free text. |
-| `kind` | enum | **Required.** Password, PrivateKey, ApiToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, or Generic. Cannot change. Values: Password, PrivateKey, ApiToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, Generic. |
-| `values` | object | **Required.** Field values by name (on create). Password: `password`, optional `username`. PrivateKey: `privateKey`, optional `passphrase`. ApiToken: `token`. AccessKeyPair: `accessKeyId`, `secretAccessKey`, optional `sessionToken`. ServiceAccountJson: `json`. Kubeconfig: `kubeconfig`. ConnectionString: `connectionString`. Certificate: `certificate`, optional `privateKey`, `caCertificate`. Generic: any names. Ignored on the metadata update. |
+| `kind` | enum | **Required.** Password, PrivateKey, ApiToken, BearerToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, or Generic. Cannot change. Use BearerToken for a token sent exactly as `Authorization: Bearer <token>`, ApiToken for one a service expects anywhere else (D-049). Values: Password, PrivateKey, ApiToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, Generic, BearerToken. |
+| `values` | object | **Required.** Field values by name (on create). Password: `password`, optional `username`. PrivateKey: `privateKey`, optional `passphrase`. ApiToken and BearerToken: `token`. AccessKeyPair: `accessKeyId`, `secretAccessKey`, optional `sessionToken`. ServiceAccountJson: `json`. Kubeconfig: `kubeconfig`. ConnectionString: `connectionString`. Certificate: `certificate`, optional `privateKey`, `caCertificate`. Generic: any names. Ignored on the metadata update. |
 | `expiresUtc` | date-time | Optional expiry, shown in the dashboard. |
 
 **Status codes:** 200 OK, 400 Validation failed, 401 Not authenticated, 403 Forbidden, 404 Not found.
@@ -4343,7 +4342,7 @@ Change name, description, or expiry.
 Example:
 
 ```bash
-curl -s -X PUT "$HUGO/v1.0/api/secrets/sec_mv937zcp_sEmwxNsnTg5N6NBDWea" \
+curl -s -X PUT "$HUGO/v1.0/api/secrets/sec_mv93ipka_2Q4UthZo31bN0cPBZjq" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"name": "demo-api-token", "kind": "ApiToken", "description": "Example token, rotated quarterly", "expiresUtc": "2027-01-01T00:00:00Z"}'
@@ -4353,20 +4352,20 @@ Response (200):
 
 ```json
 {
-  "id": "sec_mv937zcp_sEmwxNsnTg5N6NBDWea",
+  "id": "sec_mv93ipka_2Q4UthZo31bN0cPBZjq",
   "tenantId": "default",
-  "ownerUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "ownerUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "name": "demo-api-token",
   "kind": "ApiToken",
   "description": "Example token, rotated quarterly",
   "keyVersion": 1,
   "fingerprint": "****6789",
-  "lastRotatedUtc": "2026-10-15T05:17:49.369892Z",
+  "lastRotatedUtc": "2026-10-15T05:26:09.89846Z",
   "expiresUtc": "2027-01-01T00:00:00Z",
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.369895Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.408443Z",
+  "createdUtc": "2026-10-15T05:26:09.898463Z",
+  "lastUpdateUtc": "2026-10-15T05:26:09.938393Z",
   "fields": [
     "token"
   ]
@@ -4388,7 +4387,7 @@ Delete a secret. 409 while referenced.
 Example:
 
 ```bash
-curl -s -X DELETE "$HUGO/v1.0/api/secrets/sec_mv937zcp_sEmwxNsnTg5N6NBDWea" \
+curl -s -X DELETE "$HUGO/v1.0/api/secrets/sec_mv93ipka_2Q4UthZo31bN0cPBZjq" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -4418,7 +4417,7 @@ Replace the supplied fields. Omitted fields, and fields sent as the mask placeho
 Example:
 
 ```bash
-curl -s -X PUT "$HUGO/v1.0/api/secrets/sec_mv937zcp_sEmwxNsnTg5N6NBDWea/values" \
+curl -s -X PUT "$HUGO/v1.0/api/secrets/sec_mv93ipka_2Q4UthZo31bN0cPBZjq/values" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"values": {"token": "not-a-real-token-rotated-9876"}}'
@@ -4428,20 +4427,20 @@ Response (200):
 
 ```json
 {
-  "id": "sec_mv937zcp_sEmwxNsnTg5N6NBDWea",
+  "id": "sec_mv93ipka_2Q4UthZo31bN0cPBZjq",
   "tenantId": "default",
-  "ownerUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "ownerUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "name": "demo-api-token",
   "kind": "ApiToken",
   "description": "Example token, rotated quarterly",
   "keyVersion": 1,
   "fingerprint": "****9876",
-  "lastRotatedUtc": "2026-10-15T05:17:49.420816Z",
+  "lastRotatedUtc": "2026-10-15T05:26:09.953644Z",
   "expiresUtc": "2027-01-01T00:00:00Z",
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.369895Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.420818Z",
+  "createdUtc": "2026-10-15T05:26:09.898463Z",
+  "lastUpdateUtc": "2026-10-15T05:26:09.95365Z",
   "fields": [
     "token"
   ]
@@ -4465,7 +4464,7 @@ Resources and model endpoints that use the secret. Delete answers 409 while any 
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/secrets/sec_mv937zcp_sEmwxNsnTg5N6NBDWea/referrers" \
+curl -s "$HUGO/v1.0/api/secrets/sec_mv93ipka_2Q4UthZo31bN0cPBZjq/referrers" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -4498,7 +4497,7 @@ Return plaintext values. Needs Reveal on Secret (TenantAdmin and system administ
 Example:
 
 ```bash
-curl -s -X POST "$HUGO/v1.0/api/secrets/sec_mv937zcp_sEmwxNsnTg5N6NBDWea/reveal" \
+curl -s -X POST "$HUGO/v1.0/api/secrets/sec_mv93ipka_2Q4UthZo31bN0cPBZjq/reveal" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"reason": "Confirming the rotated token before handing it to the on-call engineer"}'
@@ -4508,13 +4507,13 @@ Response (200):
 
 ```json
 {
-  "secretId": "sec_mv937zcp_sEmwxNsnTg5N6NBDWea",
+  "secretId": "sec_mv93ipka_2Q4UthZo31bN0cPBZjq",
   "name": "demo-api-token",
   "kind": "ApiToken",
   "values": {
     "token": "not-a-real-token-rotated-9876"
   },
-  "revealedUtc": "2026-10-15T05:17:49.539728Z"
+  "revealedUtc": "2026-10-15T05:26:10.106346Z"
 }
 ```
 
@@ -4553,9 +4552,7 @@ Response (200):
   "total": 0,
   "completed": 0,
   "failed": 0,
-  "remaining": 0,
-  "startedUtc": "2026-10-15T05:12:07.442203Z",
-  "completedUtc": "2026-10-15T05:12:07.442386Z"
+  "remaining": 0
 }
 ```
 
@@ -4586,7 +4583,7 @@ Response (202):
   "completed": 0,
   "failed": 0,
   "remaining": 0,
-  "startedUtc": "2026-10-15T05:17:50.417523Z"
+  "startedUtc": "2026-10-15T05:26:11.07601Z"
 }
 ```
 
@@ -4814,12 +4811,12 @@ Response (200):
   "totalRecords": 1,
   "recordsRemaining": 0,
   "endOfResults": true,
-  "timestampUtc": "2026-10-15T05:17:47.391855Z",
+  "timestampUtc": "2026-10-15T05:26:07.504528Z",
   "objects": [
     {
-      "id": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+      "id": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
       "tenantId": "default",
-      "ownerUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+      "ownerUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
       "visibility": "Tenant",
       "name": "demo-db",
       "connectorType": "sqlite",
@@ -4828,8 +4825,8 @@ Response (200):
       "environment": "dev",
       "notes": "Empty on every connection.",
       "active": true,
-      "createdUtc": "2026-10-15T05:17:47.118942Z",
-      "lastUpdateUtc": "2026-10-15T05:17:47.118942Z",
+      "createdUtc": "2026-10-15T05:26:07.193556Z",
+      "lastUpdateUtc": "2026-10-15T05:26:07.193556Z",
       "settings": [
         {
           "key": "filename",
@@ -4888,9 +4885,9 @@ Response (201):
 
 ```json
 {
-  "id": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+  "id": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
   "tenantId": "default",
-  "ownerUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "ownerUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "visibility": "Tenant",
   "name": "demo-db",
   "connectorType": "sqlite",
@@ -4899,8 +4896,8 @@ Response (201):
   "environment": "dev",
   "notes": "Empty on every connection.",
   "active": true,
-  "createdUtc": "2026-10-15T05:17:47.118942Z",
-  "lastUpdateUtc": "2026-10-15T05:17:47.118942Z",
+  "createdUtc": "2026-10-15T05:26:07.193556Z",
+  "lastUpdateUtc": "2026-10-15T05:26:07.193556Z",
   "settings": [
     {
       "key": "filename",
@@ -4959,7 +4956,7 @@ Response (200):
 {
   "success": true,
   "message": "Connected to SQLite 3.53.3",
-  "latencyMs": 0.14,
+  "latencyMs": 1.11,
   "details": {
     "serverVersion": "3.53.3",
     "engine": "sqlite",
@@ -4989,7 +4986,7 @@ One resource with its settings and secret slot bindings (secret IDs and names, n
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/resources/res_mv937xm6_qFsDalpjfsqe3DAHONT" \
+curl -s "$HUGO/v1.0/api/resources/res_mv93ingy_5MbE7PEfWqTHpqSI8nz" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -4997,9 +4994,9 @@ Response (200):
 
 ```json
 {
-  "id": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+  "id": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
   "tenantId": "default",
-  "ownerUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "ownerUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "visibility": "Tenant",
   "name": "demo-db",
   "connectorType": "sqlite",
@@ -5008,8 +5005,8 @@ Response (200):
   "environment": "dev",
   "notes": "Empty on every connection.",
   "active": true,
-  "createdUtc": "2026-10-15T05:17:47.118942Z",
-  "lastUpdateUtc": "2026-10-15T05:17:47.118942Z",
+  "createdUtc": "2026-10-15T05:26:07.193556Z",
+  "lastUpdateUtc": "2026-10-15T05:26:07.193556Z",
   "settings": [
     {
       "key": "filename",
@@ -5060,7 +5057,7 @@ Update a resource. Omitted fields keep their values; `settings` is merged by key
 Example:
 
 ```bash
-curl -s -X PUT "$HUGO/v1.0/api/resources/res_mv937xm6_qFsDalpjfsqe3DAHONT" \
+curl -s -X PUT "$HUGO/v1.0/api/resources/res_mv93ingy_5MbE7PEfWqTHpqSI8nz" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"notes": "Empty on every connection. Use it for examples and smoke tests.", "defaultAccessModeCeiling": "ReadWriteWithApproval"}'
@@ -5070,9 +5067,9 @@ Response (200):
 
 ```json
 {
-  "id": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+  "id": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
   "tenantId": "default",
-  "ownerUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "ownerUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "visibility": "Tenant",
   "name": "demo-db",
   "connectorType": "sqlite",
@@ -5082,8 +5079,8 @@ Response (200):
   "notes": "Empty on every connection. Use it for examples and smoke tests.",
   "defaultAccessModeCeiling": "ReadWriteWithApproval",
   "active": true,
-  "createdUtc": "2026-10-15T05:17:47.118942Z",
-  "lastUpdateUtc": "2026-10-15T05:17:47.418511Z",
+  "createdUtc": "2026-10-15T05:26:07.193556Z",
+  "lastUpdateUtc": "2026-10-15T05:26:07.529754Z",
   "settings": [
     {
       "key": "filename",
@@ -5110,7 +5107,7 @@ Delete a resource with its bindings, settings, secret slots, schema cache, and k
 Example:
 
 ```bash
-curl -s -X DELETE "$HUGO/v1.0/api/resources/res_mv937xm6_qFsDalpjfsqe3DAHONT" \
+curl -s -X DELETE "$HUGO/v1.0/api/resources/res_mv93ingy_5MbE7PEfWqTHpqSI8nz" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -5133,7 +5130,7 @@ Test a saved resource's connection and record the result in `lastTestUtc`, `last
 Example:
 
 ```bash
-curl -s -X POST "$HUGO/v1.0/api/resources/res_mv937xm6_qFsDalpjfsqe3DAHONT/test" \
+curl -s -X POST "$HUGO/v1.0/api/resources/res_mv93ingy_5MbE7PEfWqTHpqSI8nz/test" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -5143,7 +5140,7 @@ Response (200):
 {
   "success": true,
   "message": "Connected to SQLite 3.53.3",
-  "latencyMs": 0.07,
+  "latencyMs": 0.08,
   "details": {
     "serverVersion": "3.53.3",
     "engine": "sqlite",
@@ -5179,7 +5176,7 @@ Copy a resource with its settings and secret slot bindings under a new name.
 Example:
 
 ```bash
-curl -s -X POST "$HUGO/v1.0/api/resources/res_mv937xm6_qFsDalpjfsqe3DAHONT/duplicate" \
+curl -s -X POST "$HUGO/v1.0/api/resources/res_mv93ingy_5MbE7PEfWqTHpqSI8nz/duplicate" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"name": "demo-db-copy"}'
@@ -5189,9 +5186,9 @@ Response (201):
 
 ```json
 {
-  "id": "res_mv937xv8_VyX9BrRrStQyt7AjzFG",
+  "id": "res_mv93inr8_GuN9g4EkANhXWsqQdWT",
   "tenantId": "default",
-  "ownerUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "ownerUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "visibility": "Tenant",
   "name": "demo-db-copy",
   "connectorType": "sqlite",
@@ -5201,8 +5198,8 @@ Response (201):
   "notes": "Empty on every connection. Use it for examples and smoke tests.",
   "defaultAccessModeCeiling": "ReadWriteWithApproval",
   "active": true,
-  "createdUtc": "2026-10-15T05:17:47.44436Z",
-  "lastUpdateUtc": "2026-10-15T05:17:47.44436Z",
+  "createdUtc": "2026-10-15T05:26:07.556672Z",
+  "lastUpdateUtc": "2026-10-15T05:26:07.556672Z",
   "settings": [
     {
       "key": "filename",
@@ -5231,7 +5228,7 @@ Profiles and bindings that use a resource. Check it before deleting or tightenin
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/resources/res_mv937xm6_qFsDalpjfsqe3DAHONT/referrers" \
+curl -s "$HUGO/v1.0/api/resources/res_mv93ingy_5MbE7PEfWqTHpqSI8nz/referrers" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -5240,17 +5237,17 @@ Response (200):
 ```json
 [
   {
-    "agentProfileId": "agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO",
+    "agentProfileId": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ",
     "agentProfileName": "Hugo",
-    "bindingId": "bnd_mv937xo7_7a5SmrbpdWse5AY9Bzo",
+    "bindingId": "bnd_mv93inji_O4aT9EQlXXqt4wWbEYP",
     "alias": "demo-db",
     "accessMode": "ReadOnly",
     "enabled": true
   },
   {
-    "agentProfileId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
+    "agentProfileId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
     "agentProfileName": "Oncall",
-    "bindingId": "bnd_mv937xok_kfPjNftrNgz1vLdpehn",
+    "bindingId": "bnd_mv93ink2_ZTrDfysgbs4R7mC2Jp1",
     "alias": "demo-db",
     "accessMode": "ReadWriteWithApproval",
     "enabled": true
@@ -5286,7 +5283,7 @@ Administrator direct invoke without a profile. Needs Execute on Resource; the ac
 Example:
 
 ```bash
-curl -s -X POST "$HUGO/v1.0/api/resources/res_mv937xm6_qFsDalpjfsqe3DAHONT/invoke" \
+curl -s -X POST "$HUGO/v1.0/api/resources/res_mv93ingy_5MbE7PEfWqTHpqSI8nz/invoke" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"toolName": "sql_query", "arguments": {"sql": "SELECT '\''red pill'\'' AS choice"}}'
@@ -5296,11 +5293,11 @@ Response (200):
 
 ```json
 {
-  "invocationId": "tiv_mv937xvk_hbd6F3Ck6ghvBqYeNoa",
+  "invocationId": "tiv_mv93inrq_FBSPYrilGzlHWAVMMEn",
   "dryRun": false,
   "toolName": "sql_query",
   "bindingAlias": "demo-db",
-  "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+  "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
   "connectorType": "sqlite",
   "decision": "Allowed",
   "decisionCode": "allowed",
@@ -5312,17 +5309,17 @@ Response (200):
   "status": "Succeeded",
   "result": {
     "isError": false,
-    "text": "1 row in 0.03 ms.\n| choice |\n| --- |\n| red pill |\n",
-    "structuredJson": "{\"statementType\":\"SELECT\",\"columns\":[{\"name\":\"choice\",\"type\":\"TEXT\"}],\"rows\":[[\"red pill\"]],\"rowCount\":1,\"rowLimit\":500,\"truncated\":false,\"elapsedMs\":0.03}",
+    "text": "1 row in 0.73 ms.\n| choice |\n| --- |\n| red pill |\n",
+    "structuredJson": "{\"statementType\":\"SELECT\",\"columns\":[{\"name\":\"choice\",\"type\":\"TEXT\"}],\"rows\":[[\"red pill\"]],\"rowCount\":1,\"rowLimit\":500,\"truncated\":false,\"elapsedMs\":0.73}",
     "mimeType": "text/plain",
     "truncated": false,
     "originalBytes": 50,
     "metrics": {
       "rows": 1,
-      "upstreamMs": 0.1
+      "upstreamMs": 3.77
     }
   },
-  "durationMs": 0,
+  "durationMs": 5,
   "approvalWaitMs": 0
 }
 ```
@@ -5359,7 +5356,7 @@ Every knowledge entry of a resource.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/resources/res_mv937xm6_qFsDalpjfsqe3DAHONT/knowledge" \
+curl -s "$HUGO/v1.0/api/resources/res_mv93ingy_5MbE7PEfWqTHpqSI8nz/knowledge" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -5368,30 +5365,30 @@ Response (200):
 ```json
 [
   {
-    "id": "rkn_mv937xvx_gPkTb0ppkYF89DGfbsF",
+    "id": "rkn_mv93insr_9U3Zg7rkyYmi42rc66U",
     "tenantId": "default",
-    "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+    "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
     "scope": "database",
     "key": "",
     "content": "demo-db is an in-memory SQLite database used for examples. It holds no business data.",
     "source": "Operator",
     "updatedBy": "anderson@hugo.local",
     "version": 1,
-    "createdUtc": "2026-10-15T05:17:47.469923Z",
-    "lastUpdateUtc": "2026-10-15T05:17:47.469923Z"
+    "createdUtc": "2026-10-15T05:26:07.612689Z",
+    "lastUpdateUtc": "2026-10-15T05:26:07.612689Z"
   },
   {
-    "id": "rkn_mv937xwb_cI9M7R8irgHc2YPncWu",
+    "id": "rkn_mv93intb_4NfhWZvmeoHSzormHql",
     "tenantId": "default",
-    "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+    "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
     "scope": "tables",
     "key": "main.orders",
     "content": "orders: one row per checkout. status is pending, paid, or refunded.",
     "source": "Operator",
     "updatedBy": "anderson@hugo.local",
     "version": 1,
-    "createdUtc": "2026-10-15T05:17:47.483522Z",
-    "lastUpdateUtc": "2026-10-15T05:17:47.483522Z"
+    "createdUtc": "2026-10-15T05:26:07.631955Z",
+    "lastUpdateUtc": "2026-10-15T05:26:07.631955Z"
   }
 ]
 ```
@@ -5414,7 +5411,7 @@ Entries of one scope.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/resources/res_mv937xm6_qFsDalpjfsqe3DAHONT/knowledge/tables" \
+curl -s "$HUGO/v1.0/api/resources/res_mv93ingy_5MbE7PEfWqTHpqSI8nz/knowledge/tables" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -5423,17 +5420,17 @@ Response (200):
 ```json
 [
   {
-    "id": "rkn_mv937xwb_cI9M7R8irgHc2YPncWu",
+    "id": "rkn_mv93intb_4NfhWZvmeoHSzormHql",
     "tenantId": "default",
-    "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+    "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
     "scope": "tables",
     "key": "main.orders",
     "content": "orders: one row per checkout. status is pending, paid, or refunded.",
     "source": "Operator",
     "updatedBy": "anderson@hugo.local",
     "version": 1,
-    "createdUtc": "2026-10-15T05:17:47.483522Z",
-    "lastUpdateUtc": "2026-10-15T05:17:47.483522Z"
+    "createdUtc": "2026-10-15T05:26:07.631955Z",
+    "lastUpdateUtc": "2026-10-15T05:26:07.631955Z"
   }
 ]
 ```
@@ -5463,7 +5460,7 @@ Write the root entry of a knowledge scope (operator edit). Knowledge is durable 
 Example:
 
 ```bash
-curl -s -X PUT "$HUGO/v1.0/api/resources/res_mv937xm6_qFsDalpjfsqe3DAHONT/knowledge/database" \
+curl -s -X PUT "$HUGO/v1.0/api/resources/res_mv93ingy_5MbE7PEfWqTHpqSI8nz/knowledge/database" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"content": "demo-db is an in-memory SQLite database used for examples. It holds no business data.", "source": "Operator"}'
@@ -5473,17 +5470,17 @@ Response (200):
 
 ```json
 {
-  "id": "rkn_mv937xvx_gPkTb0ppkYF89DGfbsF",
+  "id": "rkn_mv93insr_9U3Zg7rkyYmi42rc66U",
   "tenantId": "default",
-  "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+  "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
   "scope": "database",
   "key": "",
   "content": "demo-db is an in-memory SQLite database used for examples. It holds no business data.",
   "source": "Operator",
   "updatedBy": "anderson@hugo.local",
   "version": 1,
-  "createdUtc": "2026-10-15T05:17:47.469923Z",
-  "lastUpdateUtc": "2026-10-15T05:17:47.469923Z"
+  "createdUtc": "2026-10-15T05:26:07.612689Z",
+  "lastUpdateUtc": "2026-10-15T05:26:07.612689Z"
 }
 ```
 
@@ -5503,7 +5500,7 @@ Delete the root entry of a scope.
 Example:
 
 ```bash
-curl -s -X DELETE "$HUGO/v1.0/api/resources/res_mv937xm6_qFsDalpjfsqe3DAHONT/knowledge/database" \
+curl -s -X DELETE "$HUGO/v1.0/api/resources/res_mv93ingy_5MbE7PEfWqTHpqSI8nz/knowledge/database" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -5528,7 +5525,7 @@ One entry. Use the key `_root` to read a scope's root entry.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/resources/res_mv937xm6_qFsDalpjfsqe3DAHONT/knowledge/tables/main.orders" \
+curl -s "$HUGO/v1.0/api/resources/res_mv93ingy_5MbE7PEfWqTHpqSI8nz/knowledge/tables/main.orders" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -5536,17 +5533,17 @@ Response (200):
 
 ```json
 {
-  "id": "rkn_mv937xwb_cI9M7R8irgHc2YPncWu",
+  "id": "rkn_mv93intb_4NfhWZvmeoHSzormHql",
   "tenantId": "default",
-  "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+  "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
   "scope": "tables",
   "key": "main.orders",
   "content": "orders: one row per checkout. status is pending, paid, or refunded.",
   "source": "Operator",
   "updatedBy": "anderson@hugo.local",
   "version": 1,
-  "createdUtc": "2026-10-15T05:17:47.483522Z",
-  "lastUpdateUtc": "2026-10-15T05:17:47.483522Z"
+  "createdUtc": "2026-10-15T05:26:07.631955Z",
+  "lastUpdateUtc": "2026-10-15T05:26:07.631955Z"
 }
 ```
 
@@ -5576,7 +5573,7 @@ Every write adds a version.
 Example:
 
 ```bash
-curl -s -X PUT "$HUGO/v1.0/api/resources/res_mv937xm6_qFsDalpjfsqe3DAHONT/knowledge/tables/main.orders" \
+curl -s -X PUT "$HUGO/v1.0/api/resources/res_mv93ingy_5MbE7PEfWqTHpqSI8nz/knowledge/tables/main.orders" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"content": "orders: one row per checkout. status is pending, paid, or refunded.", "source": "Operator"}'
@@ -5586,17 +5583,17 @@ Response (200):
 
 ```json
 {
-  "id": "rkn_mv937xwb_cI9M7R8irgHc2YPncWu",
+  "id": "rkn_mv93intb_4NfhWZvmeoHSzormHql",
   "tenantId": "default",
-  "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+  "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
   "scope": "tables",
   "key": "main.orders",
   "content": "orders: one row per checkout. status is pending, paid, or refunded.",
   "source": "Operator",
   "updatedBy": "anderson@hugo.local",
   "version": 1,
-  "createdUtc": "2026-10-15T05:17:47.483522Z",
-  "lastUpdateUtc": "2026-10-15T05:17:47.483522Z"
+  "createdUtc": "2026-10-15T05:26:07.631955Z",
+  "lastUpdateUtc": "2026-10-15T05:26:07.631955Z"
 }
 ```
 
@@ -5617,7 +5614,7 @@ Delete one entry. Its history is kept.
 Example:
 
 ```bash
-curl -s -X DELETE "$HUGO/v1.0/api/resources/res_mv937xm6_qFsDalpjfsqe3DAHONT/knowledge/tables/main.orders" \
+curl -s -X DELETE "$HUGO/v1.0/api/resources/res_mv93ingy_5MbE7PEfWqTHpqSI8nz/knowledge/tables/main.orders" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -5642,7 +5639,7 @@ Version history of one entry, newest first, including deletions.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/resources/res_mv937xm6_qFsDalpjfsqe3DAHONT/knowledge/tables/main.orders/versions" \
+curl -s "$HUGO/v1.0/api/resources/res_mv93ingy_5MbE7PEfWqTHpqSI8nz/knowledge/tables/main.orders/versions" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -5651,10 +5648,10 @@ Response (200):
 ```json
 [
   {
-    "id": "rkv_mv937xwb_0LfqjsUqu6q6SnsumeQ",
+    "id": "rkv_mv93intb_Eig5xm5j1unAMTdw11C",
     "tenantId": "default",
-    "knowledgeId": "rkn_mv937xwb_cI9M7R8irgHc2YPncWu",
-    "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+    "knowledgeId": "rkn_mv93intb_4NfhWZvmeoHSzormHql",
+    "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
     "scope": "tables",
     "key": "main.orders",
     "version": 1,
@@ -5662,7 +5659,7 @@ Response (200):
     "source": "Operator",
     "updatedBy": "anderson@hugo.local",
     "deleted": false,
-    "createdUtc": "2026-10-15T05:17:47.483554Z"
+    "createdUtc": "2026-10-15T05:26:07.632001Z"
   }
 ]
 ```
@@ -5721,10 +5718,10 @@ Response (200):
   "totalRecords": 1,
   "recordsRemaining": 0,
   "endOfResults": true,
-  "timestampUtc": "2026-10-15T05:17:47.105387Z",
+  "timestampUtc": "2026-10-15T05:26:07.164514Z",
   "objects": [
     {
-      "id": "agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO",
+      "id": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ",
       "tenantId": "default",
       "visibility": "Tenant",
       "name": "Hugo",
@@ -5743,8 +5740,8 @@ Response (200):
       "instructionDetail": "Auto",
       "isDefault": true,
       "active": true,
-      "createdUtc": "2026-10-15T05:07:42.035721Z",
-      "lastUpdateUtc": "2026-10-15T05:12:07.65386Z"
+      "createdUtc": "2026-10-15T05:26:04.484063Z",
+      "lastUpdateUtc": "2026-10-15T05:26:04.484063Z"
     }
   ]
 }
@@ -5800,9 +5797,9 @@ Response (201):
 
 ```json
 {
-  "id": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
+  "id": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
   "tenantId": "default",
-  "ownerUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "ownerUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "visibility": "Tenant",
   "name": "Oncall",
   "displayName": "On-call",
@@ -5820,8 +5817,8 @@ Response (201):
   "instructionDetail": "Auto",
   "isDefault": false,
   "active": true,
-  "createdUtc": "2026-10-15T05:17:47.13367Z",
-  "lastUpdateUtc": "2026-10-15T05:17:47.13367Z"
+  "createdUtc": "2026-10-15T05:26:07.217946Z",
+  "lastUpdateUtc": "2026-10-15T05:26:07.217946Z"
 }
 ```
 
@@ -5842,7 +5839,7 @@ One profile with its settings (bindings are listed separately).
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/agent-profiles/agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO" \
+curl -s "$HUGO/v1.0/api/agent-profiles/agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -5850,7 +5847,7 @@ Response (200):
 
 ```json
 {
-  "id": "agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO",
+  "id": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ",
   "tenantId": "default",
   "visibility": "Tenant",
   "name": "Hugo",
@@ -5869,8 +5866,8 @@ Response (200):
   "instructionDetail": "Auto",
   "isDefault": true,
   "active": true,
-  "createdUtc": "2026-10-15T05:07:42.035721Z",
-  "lastUpdateUtc": "2026-10-15T05:12:07.65386Z"
+  "createdUtc": "2026-10-15T05:26:04.484063Z",
+  "lastUpdateUtc": "2026-10-15T05:26:04.484063Z"
 }
 ```
 
@@ -5918,7 +5915,7 @@ Partial update: omitted fields keep their values.
 Example:
 
 ```bash
-curl -s -X PUT "$HUGO/v1.0/api/agent-profiles/agp_mv937xml_XArgAHQfG5v6uUkrkbl" \
+curl -s -X PUT "$HUGO/v1.0/api/agent-profiles/agp_mv93inht_U9r5iA7jz7TdPM1R6U6" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"description": "Night shift profile: every write waits for a human.", "maxIterations": 10}'
@@ -5928,9 +5925,9 @@ Response (200):
 
 ```json
 {
-  "id": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
+  "id": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
   "tenantId": "default",
-  "ownerUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "ownerUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "visibility": "Tenant",
   "name": "Oncall",
   "displayName": "On-call",
@@ -5948,8 +5945,8 @@ Response (200):
   "instructionDetail": "Auto",
   "isDefault": false,
   "active": true,
-  "createdUtc": "2026-10-15T05:17:47.13367Z",
-  "lastUpdateUtc": "2026-10-15T05:17:47.164828Z"
+  "createdUtc": "2026-10-15T05:26:07.217946Z",
+  "lastUpdateUtc": "2026-10-15T05:26:07.245066Z"
 }
 ```
 
@@ -5968,7 +5965,7 @@ Delete `Oncall` and its bindings.
 Example:
 
 ```bash
-curl -s -X DELETE "$HUGO/v1.0/api/agent-profiles/agp_mv937xml_XArgAHQfG5v6uUkrkbl" \
+curl -s -X DELETE "$HUGO/v1.0/api/agent-profiles/agp_mv93inht_U9r5iA7jz7TdPM1R6U6" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -5997,7 +5994,7 @@ Copy a profile and its bindings under a new name. Resources are shared, not copi
 Example:
 
 ```bash
-curl -s -X POST "$HUGO/v1.0/api/agent-profiles/agp_mv937xml_XArgAHQfG5v6uUkrkbl/duplicate" \
+curl -s -X POST "$HUGO/v1.0/api/agent-profiles/agp_mv93inht_U9r5iA7jz7TdPM1R6U6/duplicate" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"name": "Oncall-Copy"}'
@@ -6007,9 +6004,9 @@ Response (201):
 
 ```json
 {
-  "id": "agp_mv937xnu_SsPELmxkfNN753SNBx2",
+  "id": "agp_mv93inj0_xbplqlihtdIyquvLMWc",
   "tenantId": "default",
-  "ownerUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "ownerUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "visibility": "Tenant",
   "name": "Oncall-Copy",
   "displayName": "Oncall-Copy",
@@ -6027,8 +6024,8 @@ Response (201):
   "instructionDetail": "Auto",
   "isDefault": false,
   "active": true,
-  "createdUtc": "2026-10-15T05:17:47.178284Z",
-  "lastUpdateUtc": "2026-10-15T05:17:47.178284Z"
+  "createdUtc": "2026-10-15T05:26:07.260312Z",
+  "lastUpdateUtc": "2026-10-15T05:26:07.260312Z"
 }
 ```
 
@@ -6051,7 +6048,7 @@ The exact text a caller receives on a surface (`Chat`, `Mcp`, `A2A`, `OpenAI`), 
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/agent-profiles/agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO/compiled-instructions?surface=Mcp" \
+curl -s "$HUGO/v1.0/api/agent-profiles/agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ/compiled-instructions?surface=Mcp" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -6059,7 +6056,7 @@ Response (200):
 
 ```json
 {
-  "profileId": "agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO",
+  "profileId": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ",
   "profileName": "Hugo",
   "surface": "Mcp",
   "text": "You are Agent Smith, an operations agent working for Mr. Anderson in the \"default\" environment. You speak with calm, precise confidence and an occasional dry, formal wit, and you always address the pe… (12234 characters)",
@@ -6086,7 +6083,7 @@ Response (200):
   ],
   "warnings": [],
   "fromCache": false,
-  "compiledUtc": "2026-10-15T05:17:47.277743Z"
+  "compiledUtc": "2026-10-15T05:26:07.389234Z"
 }
 ```
 
@@ -6108,7 +6105,7 @@ The tool list after visibility filtering, with the `resource` enum per tool and 
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/agent-profiles/agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO/tools?surface=mcp" \
+curl -s "$HUGO/v1.0/api/agent-profiles/agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ/tools?surface=mcp" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -6116,7 +6113,7 @@ Response (200):
 
 ```text
 {
-  "profileId": "agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO",
+  "profileId": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ",
   "profileName": "Hugo",
   "hasModel": false,
   "resourceCount": 1,
@@ -6190,7 +6187,7 @@ The A2A agent card this profile publishes.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/agent-profiles/agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO/card" \
+curl -s "$HUGO/v1.0/api/agent-profiles/agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ/card" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -6247,7 +6244,7 @@ Delegate a task to the profile's own loop and wait for the answer: the REST twin
 Example:
 
 ```bash
-curl -s -X POST "$HUGO/v1.0/api/agent-profiles/agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO/ask" \
+curl -s -X POST "$HUGO/v1.0/api/agent-profiles/agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ/ask" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"message": "Agent Smith, is demo-db reachable?"}'
@@ -6258,7 +6255,7 @@ Response (200):
 ```json
 {
   "finalText": "Good evening, Mr. Anderson. I am Agent Smith. Ask me about the resources bound to this profile.",
-  "conversationId": "cnv_mv937yp6_glN9IaAdoL8a8fvjwhl",
+  "conversationId": "cnv_mv93iorb_TD0atK2rLecqtscs5EA",
   "status": "Completed",
   "toolTrace": []
 }
@@ -6297,7 +6294,7 @@ Every binding of a profile with its resource name and connector type.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/agent-profiles/agp_mv937xml_XArgAHQfG5v6uUkrkbl/bindings" \
+curl -s "$HUGO/v1.0/api/agent-profiles/agp_mv93inht_U9r5iA7jz7TdPM1R6U6/bindings" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -6306,10 +6303,10 @@ Response (200):
 ```json
 [
   {
-    "id": "bnd_mv937xok_kfPjNftrNgz1vLdpehn",
+    "id": "bnd_mv93ink2_ZTrDfysgbs4R7mC2Jp1",
     "tenantId": "default",
-    "agentProfileId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
-    "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+    "agentProfileId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
+    "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
     "alias": "demo-db",
     "accessMode": "ReadWriteWithApproval",
     "requireApprovalForDestructive": true,
@@ -6327,8 +6324,8 @@ Response (200):
     ],
     "resourceName": "demo-db",
     "connectorType": "sqlite",
-    "createdUtc": "2026-10-15T05:17:47.204213Z",
-    "lastUpdateUtc": "2026-10-15T05:17:47.204213Z"
+    "createdUtc": "2026-10-15T05:26:07.299895Z",
+    "lastUpdateUtc": "2026-10-15T05:26:07.299895Z"
   }
 ]
 ```
@@ -6369,20 +6366,20 @@ Attach `demo-db` to `Hugo` as ReadOnly. The alias is what tools take as their `r
 Example:
 
 ```bash
-curl -s -X POST "$HUGO/v1.0/api/agent-profiles/agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO/bindings" \
+curl -s -X POST "$HUGO/v1.0/api/agent-profiles/agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ/bindings" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT", "alias": "demo-db", "accessMode": "ReadOnly"}'
+  -d '{"resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz", "alias": "demo-db", "accessMode": "ReadOnly"}'
 ```
 
 Response (201):
 
 ```json
 {
-  "id": "bnd_mv937xo7_7a5SmrbpdWse5AY9Bzo",
+  "id": "bnd_mv93inji_O4aT9EQlXXqt4wWbEYP",
   "tenantId": "default",
-  "agentProfileId": "agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO",
-  "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+  "agentProfileId": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ",
+  "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
   "alias": "demo-db",
   "accessMode": "ReadOnly",
   "requireApprovalForDestructive": true,
@@ -6393,8 +6390,8 @@ Response (201):
   "denyPatterns": [],
   "resourceName": "demo-db",
   "connectorType": "sqlite",
-  "createdUtc": "2026-10-15T05:17:47.191509Z",
-  "lastUpdateUtc": "2026-10-15T05:17:47.191509Z"
+  "createdUtc": "2026-10-15T05:26:07.279899Z",
+  "lastUpdateUtc": "2026-10-15T05:26:07.279899Z"
 }
 ```
 
@@ -6416,7 +6413,7 @@ One binding.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/agent-profiles/agp_mv937xml_XArgAHQfG5v6uUkrkbl/bindings/bnd_mv937xok_kfPjNftrNgz1vLdpehn" \
+curl -s "$HUGO/v1.0/api/agent-profiles/agp_mv93inht_U9r5iA7jz7TdPM1R6U6/bindings/bnd_mv93ink2_ZTrDfysgbs4R7mC2Jp1" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -6424,10 +6421,10 @@ Response (200):
 
 ```json
 {
-  "id": "bnd_mv937xok_kfPjNftrNgz1vLdpehn",
+  "id": "bnd_mv93ink2_ZTrDfysgbs4R7mC2Jp1",
   "tenantId": "default",
-  "agentProfileId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
-  "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+  "agentProfileId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
+  "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
   "alias": "demo-db",
   "accessMode": "ReadWriteWithApproval",
   "requireApprovalForDestructive": true,
@@ -6445,8 +6442,8 @@ Response (200):
   ],
   "resourceName": "demo-db",
   "connectorType": "sqlite",
-  "createdUtc": "2026-10-15T05:17:47.204213Z",
-  "lastUpdateUtc": "2026-10-15T05:17:47.204213Z"
+  "createdUtc": "2026-10-15T05:26:07.299895Z",
+  "lastUpdateUtc": "2026-10-15T05:26:07.299895Z"
 }
 ```
 
@@ -6487,7 +6484,7 @@ Partial update of a binding: access mode, approval policy, instruction override,
 Example:
 
 ```bash
-curl -s -X PUT "$HUGO/v1.0/api/agent-profiles/agp_mv937xml_XArgAHQfG5v6uUkrkbl/bindings/bnd_mv937xok_kfPjNftrNgz1vLdpehn" \
+curl -s -X PUT "$HUGO/v1.0/api/agent-profiles/agp_mv93inht_U9r5iA7jz7TdPM1R6U6/bindings/bnd_mv93ink2_ZTrDfysgbs4R7mC2Jp1" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"instructionMode": "Append", "instructionText": "The demo database is disposable; prefer CREATE TEMP TABLE for experiments."}'
@@ -6497,10 +6494,10 @@ Response (200):
 
 ```json
 {
-  "id": "bnd_mv937xok_kfPjNftrNgz1vLdpehn",
+  "id": "bnd_mv93ink2_ZTrDfysgbs4R7mC2Jp1",
   "tenantId": "default",
-  "agentProfileId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
-  "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+  "agentProfileId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
+  "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
   "alias": "demo-db",
   "accessMode": "ReadWriteWithApproval",
   "requireApprovalForDestructive": true,
@@ -6519,8 +6516,8 @@ Response (200):
   ],
   "resourceName": "demo-db",
   "connectorType": "sqlite",
-  "createdUtc": "2026-10-15T05:17:47.204213Z",
-  "lastUpdateUtc": "2026-10-15T05:17:47.240018Z"
+  "createdUtc": "2026-10-15T05:26:07.299895Z",
+  "lastUpdateUtc": "2026-10-15T05:26:07.338326Z"
 }
 ```
 
@@ -6540,7 +6537,7 @@ Remove a binding. The resource stays.
 Example:
 
 ```bash
-curl -s -X DELETE "$HUGO/v1.0/api/agent-profiles/agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO/bindings/bnd_mv937xo7_7a5SmrbpdWse5AY9Bzo" \
+curl -s -X DELETE "$HUGO/v1.0/api/agent-profiles/agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ/bindings/bnd_mv93inji_O4aT9EQlXXqt4wWbEYP" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -6564,7 +6561,7 @@ The binding's tool rules. `Deny` always wins, `RequireApproval` upgrades an allo
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/agent-profiles/agp_mv937xml_XArgAHQfG5v6uUkrkbl/bindings/bnd_mv937xok_kfPjNftrNgz1vLdpehn/tool-rules" \
+curl -s "$HUGO/v1.0/api/agent-profiles/agp_mv93inht_U9r5iA7jz7TdPM1R6U6/bindings/bnd_mv93ink2_ZTrDfysgbs4R7mC2Jp1/tool-rules" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -6604,7 +6601,7 @@ Replace the whole rule list. The body is a JSON array.
 Example:
 
 ```bash
-curl -s -X PUT "$HUGO/v1.0/api/agent-profiles/agp_mv937xml_XArgAHQfG5v6uUkrkbl/bindings/bnd_mv937xok_kfPjNftrNgz1vLdpehn/tool-rules" \
+curl -s -X PUT "$HUGO/v1.0/api/agent-profiles/agp_mv93inht_U9r5iA7jz7TdPM1R6U6/bindings/bnd_mv93ink2_ZTrDfysgbs4R7mC2Jp1/tool-rules" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '[{"toolName": "sql_generate_context", "rule": "Deny"}, {"toolName": "sql_update_context", "rule": "RequireApproval"}]'
@@ -6614,10 +6611,10 @@ Response (200):
 
 ```json
 {
-  "id": "bnd_mv937xok_kfPjNftrNgz1vLdpehn",
+  "id": "bnd_mv93ink2_ZTrDfysgbs4R7mC2Jp1",
   "tenantId": "default",
-  "agentProfileId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
-  "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+  "agentProfileId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
+  "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
   "alias": "demo-db",
   "accessMode": "ReadWriteWithApproval",
   "requireApprovalForDestructive": true,
@@ -6640,8 +6637,8 @@ Response (200):
   ],
   "resourceName": "demo-db",
   "connectorType": "sqlite",
-  "createdUtc": "2026-10-15T05:17:47.204213Z",
-  "lastUpdateUtc": "2026-10-15T05:17:47.264055Z"
+  "createdUtc": "2026-10-15T05:26:07.299895Z",
+  "lastUpdateUtc": "2026-10-15T05:26:07.363697Z"
 }
 ```
 
@@ -6706,12 +6703,12 @@ Response (200):
     "global": {
       "layer": "Global",
       "exists": true,
-      "templateId": "tpl_mv92uypr_Xssi4hUgHFGNyMGjPKa",
+      "templateId": "tpl_mv93ildh_pZmwLdYonCrxG01gzTI",
       "content": "{{profile.displayName}} ({{profile.personaName}}) investigates and operates the systems attached to it{{#if profile.hasBindings}}: {{profile.familySummary}}{{/if}}. Send a plain-language request; changes may require human approval.\n",
       "version": 1,
       "customized": false,
       "defaultUpdatedSinceCustomized": false,
-      "lastUpdateUtc": "2026-10-15T05:07:42.015957Z"
+      "lastUpdateUtc": "2026-10-15T05:26:04.469425Z"
     },
     "tenant": {
       "layer": "Tenant",
@@ -6732,12 +6729,12 @@ Response (200):
     "global": {
       "layer": "Global",
       "exists": true,
-      "templateId": "tpl_mv92uypt_bKwdV0hfemuAvwK3svl",
+      "templateId": "tpl_mv93ildj_XzWrK0XgScXFQiwJoda",
       "content": "Use the a2a_* tools with the resource argument set to this resource. Call hugo_describe_resource for full guidance before anything beyond simple reads.\n",
       "version": 1,
       "customized": false,
       "defaultUpdatedSinceCustomized": false,
-      "lastUpdateUtc": "2026-10-15T05:07:42.017704Z"
+      "lastUpdateUtc": "2026-10-15T05:26:04.471803Z"
     },
     "tenant": {
       "layer": "Tenant",
@@ -6828,30 +6825,13 @@ Response (200):
   "success": true,
   "maxResults": 25,
   "skip": 0,
-  "totalRecords": 2,
+  "totalRecords": 1,
   "recordsRemaining": 0,
   "endOfResults": true,
-  "timestampUtc": "2026-10-15T05:17:49.235472Z",
+  "timestampUtc": "2026-10-15T05:26:09.758202Z",
   "objects": [
     {
-      "id": "tpl_mv92v2jq_JjM5WwOj4UNNcj8NRW7",
-      "tenantId": "default",
-      "name": "system.tool-usage",
-      "description": "How to use the resource argument, limits, and error codes.",
-      "kind": "System",
-      "content": "{{> system.tool-usage}}",
-      "currentVersion": 2,
-      "isBuiltIn": false,
-      "builtInKey": "system.tool-usage",
-      "baseHash": "7223ec3ee25a8e3230cc3b7a628ca0388d3d7ab497ce66d3a45d65bb942952de",
-      "active": false,
-      "isProtected": false,
-      "createdUtc": "2026-10-15T05:07:46.98289Z",
-      "lastUpdateUtc": "2026-10-15T05:16:59.567887Z",
-      "variables": []
-    },
-    {
-      "id": "tpl_mv92uyq6_ivgZ1p7levtoLycXvo7",
+      "id": "tpl_mv93ildr_Oa4FtvOlBM1F4Z5bVPQ",
       "name": "system.tool-usage",
       "description": "How to use the resource argument, limits, and error codes.",
       "kind": "System",
@@ -6862,8 +6842,8 @@ Response (200):
       "baseHash": "7223ec3ee25a8e3230cc3b7a628ca0388d3d7ab497ce66d3a45d65bb942952de",
       "active": true,
       "isProtected": true,
-      "createdUtc": "2026-10-15T05:07:42.030871Z",
-      "lastUpdateUtc": "2026-10-15T05:07:42.030871Z",
+      "createdUtc": "2026-10-15T05:26:04.479089Z",
+      "lastUpdateUtc": "2026-10-15T05:26:04.479089Z",
       "variables": []
     }
   ]
@@ -6914,7 +6894,7 @@ Response (201):
 
 ```json
 {
-  "id": "tpl_mv937z9b_FLo4UXDc3Phb7yVvmS1",
+  "id": "tpl_mv93ipgv_sgbaHUlguTpQ4d5alSs",
   "tenantId": "default",
   "name": "runbook.checkout",
   "description": "Checkout triage steps",
@@ -6924,8 +6904,8 @@ Response (201):
   "isBuiltIn": false,
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.247564Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.247564Z",
+  "createdUtc": "2026-10-15T05:26:09.775549Z",
+  "lastUpdateUtc": "2026-10-15T05:26:09.775549Z",
   "variables": []
 }
 ```
@@ -6993,7 +6973,7 @@ One stored template.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/tenants/default/prompt-templates/tpl_mv937z9b_FLo4UXDc3Phb7yVvmS1" \
+curl -s "$HUGO/v1.0/api/tenants/default/prompt-templates/tpl_mv93ipgv_sgbaHUlguTpQ4d5alSs" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -7001,7 +6981,7 @@ Response (200):
 
 ```json
 {
-  "id": "tpl_mv937z9b_FLo4UXDc3Phb7yVvmS1",
+  "id": "tpl_mv93ipgv_sgbaHUlguTpQ4d5alSs",
   "tenantId": "default",
   "name": "runbook.checkout",
   "description": "Checkout triage steps",
@@ -7011,8 +6991,8 @@ Response (200):
   "isBuiltIn": false,
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.247564Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.247564Z",
+  "createdUtc": "2026-10-15T05:26:09.775549Z",
+  "lastUpdateUtc": "2026-10-15T05:26:09.775549Z",
   "variables": []
 }
 ```
@@ -7052,7 +7032,7 @@ Update it; content changes create a version.
 Example:
 
 ```bash
-curl -s -X PUT "$HUGO/v1.0/api/tenants/default/prompt-templates/tpl_mv937z9b_FLo4UXDc3Phb7yVvmS1" \
+curl -s -X PUT "$HUGO/v1.0/api/tenants/default/prompt-templates/tpl_mv93ipgv_sgbaHUlguTpQ4d5alSs" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"name": "runbook.checkout", "description": "Checkout triage steps", "kind": "Fragment", "content": "Check papertrail for checkout errors, then sql_activity on prod-db, then uptime on web-01.", "changeNote": "add host check"}'
@@ -7062,7 +7042,7 @@ Response (200):
 
 ```json
 {
-  "id": "tpl_mv937z9b_FLo4UXDc3Phb7yVvmS1",
+  "id": "tpl_mv93ipgv_sgbaHUlguTpQ4d5alSs",
   "tenantId": "default",
   "name": "runbook.checkout",
   "description": "Checkout triage steps",
@@ -7072,8 +7052,8 @@ Response (200):
   "isBuiltIn": false,
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.247564Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.271516Z",
+  "createdUtc": "2026-10-15T05:26:09.775549Z",
+  "lastUpdateUtc": "2026-10-15T05:26:09.800906Z",
   "variables": []
 }
 ```
@@ -7094,7 +7074,7 @@ Delete a stored template and its versions.
 Example:
 
 ```bash
-curl -s -X DELETE "$HUGO/v1.0/api/tenants/default/prompt-templates/tpl_mv937z9b_FLo4UXDc3Phb7yVvmS1" \
+curl -s -X DELETE "$HUGO/v1.0/api/tenants/default/prompt-templates/tpl_mv93ipgv_sgbaHUlguTpQ4d5alSs" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -7118,7 +7098,7 @@ Versions, newest first.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/tenants/default/prompt-templates/tpl_mv937z9b_FLo4UXDc3Phb7yVvmS1/versions" \
+curl -s "$HUGO/v1.0/api/tenants/default/prompt-templates/tpl_mv93ipgv_sgbaHUlguTpQ4d5alSs/versions" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -7127,30 +7107,30 @@ Response (200):
 ```json
 [
   {
-    "id": "tpv_mv937z9z_lxSZgaBpd57Ldm8vVv5",
+    "id": "tpv_mv93iphk_NKpgdfLhucj3gNFBvA1",
     "tenantId": "default",
-    "templateId": "tpl_mv937z9b_FLo4UXDc3Phb7yVvmS1",
+    "templateId": "tpl_mv93ipgv_sgbaHUlguTpQ4d5alSs",
     "version": 2,
     "content": "Check papertrail for checkout errors, then sql_activity on prod-db, then uptime on web-01.",
     "changeNote": "add host check",
     "createdBy": "anderson@hugo.local",
     "active": true,
     "isProtected": false,
-    "createdUtc": "2026-10-15T05:17:49.271558Z",
-    "lastUpdateUtc": "2026-10-15T05:17:49.271558Z"
+    "createdUtc": "2026-10-15T05:26:09.800957Z",
+    "lastUpdateUtc": "2026-10-15T05:26:09.800957Z"
   },
   {
-    "id": "tpv_mv937z9b_T1iKSmfluBXfkcgFUJ8",
+    "id": "tpv_mv93ipgv_UtcLf7crvHN3vGw5g90",
     "tenantId": "default",
-    "templateId": "tpl_mv937z9b_FLo4UXDc3Phb7yVvmS1",
+    "templateId": "tpl_mv93ipgv_sgbaHUlguTpQ4d5alSs",
     "version": 1,
     "content": "Check papertrail for checkout errors, then pg_stat_activity on prod-db.",
     "changeNote": "first version",
     "createdBy": "anderson@hugo.local",
     "active": true,
     "isProtected": false,
-    "createdUtc": "2026-10-15T05:17:49.247605Z",
-    "lastUpdateUtc": "2026-10-15T05:17:49.247605Z"
+    "createdUtc": "2026-10-15T05:26:09.775759Z",
+    "lastUpdateUtc": "2026-10-15T05:26:09.775759Z"
   }
 ]
 ```
@@ -7174,7 +7154,7 @@ One version.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/tenants/default/prompt-templates/tpl_mv937z9b_FLo4UXDc3Phb7yVvmS1/versions/1" \
+curl -s "$HUGO/v1.0/api/tenants/default/prompt-templates/tpl_mv93ipgv_sgbaHUlguTpQ4d5alSs/versions/1" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -7182,17 +7162,17 @@ Response (200):
 
 ```json
 {
-  "id": "tpv_mv937z9b_T1iKSmfluBXfkcgFUJ8",
+  "id": "tpv_mv93ipgv_UtcLf7crvHN3vGw5g90",
   "tenantId": "default",
-  "templateId": "tpl_mv937z9b_FLo4UXDc3Phb7yVvmS1",
+  "templateId": "tpl_mv93ipgv_sgbaHUlguTpQ4d5alSs",
   "version": 1,
   "content": "Check papertrail for checkout errors, then pg_stat_activity on prod-db.",
   "changeNote": "first version",
   "createdBy": "anderson@hugo.local",
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.247605Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.247605Z"
+  "createdUtc": "2026-10-15T05:26:09.775759Z",
+  "lastUpdateUtc": "2026-10-15T05:26:09.775759Z"
 }
 ```
 
@@ -7215,7 +7195,7 @@ Restore a version as a new version.
 Example:
 
 ```bash
-curl -s -X POST "$HUGO/v1.0/api/tenants/default/prompt-templates/tpl_mv937z9b_FLo4UXDc3Phb7yVvmS1/restore/1" \
+curl -s -X POST "$HUGO/v1.0/api/tenants/default/prompt-templates/tpl_mv93ipgv_sgbaHUlguTpQ4d5alSs/restore/1" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -7223,7 +7203,7 @@ Response (200):
 
 ```json
 {
-  "id": "tpl_mv937z9b_FLo4UXDc3Phb7yVvmS1",
+  "id": "tpl_mv93ipgv_sgbaHUlguTpQ4d5alSs",
   "tenantId": "default",
   "name": "runbook.checkout",
   "description": "Checkout triage steps",
@@ -7233,8 +7213,8 @@ Response (200):
   "isBuiltIn": false,
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.247564Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.306634Z",
+  "createdUtc": "2026-10-15T05:26:09.775549Z",
+  "lastUpdateUtc": "2026-10-15T05:26:09.837603Z",
   "variables": []
 }
 ```
@@ -7263,7 +7243,7 @@ Copy a stored template, built-in or tenant, under a new name. The example clones
 Example:
 
 ```bash
-curl -s -X POST "$HUGO/v1.0/api/tenants/default/prompt-templates/tpl_mv92uyq6_ivgZ1p7levtoLycXvo7/clone" \
+curl -s -X POST "$HUGO/v1.0/api/tenants/default/prompt-templates/tpl_mv93ildr_Oa4FtvOlBM1F4Z5bVPQ/clone" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"name": "tool-usage.night"}'
@@ -7273,7 +7253,7 @@ Response (201):
 
 ```json
 {
-  "id": "tpl_mv937zbb_EAewmQPp9fyvPEwjAId",
+  "id": "tpl_mv93ipiy_3DQHG2urufnfoOF3pKp",
   "tenantId": "default",
   "name": "tool-usage.night",
   "description": "How to use the resource argument, limits, and error codes.",
@@ -7284,8 +7264,8 @@ Response (201):
   "builtInKey": "system.tool-usage",
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.319742Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.319742Z",
+  "createdUtc": "2026-10-15T05:26:09.850778Z",
+  "lastUpdateUtc": "2026-10-15T05:26:09.850778Z",
   "variables": []
 }
 ```
@@ -7308,7 +7288,7 @@ Reset a clone of a built-in template to the shipped default. A template that was
 Example:
 
 ```bash
-curl -s -X POST "$HUGO/v1.0/api/tenants/default/prompt-templates/tpl_mv937zbb_EAewmQPp9fyvPEwjAId/reset" \
+curl -s -X POST "$HUGO/v1.0/api/tenants/default/prompt-templates/tpl_mv93ipiy_3DQHG2urufnfoOF3pKp/reset" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -7316,7 +7296,7 @@ Response (200):
 
 ```json
 {
-  "id": "tpl_mv937zbb_EAewmQPp9fyvPEwjAId",
+  "id": "tpl_mv93ipiy_3DQHG2urufnfoOF3pKp",
   "tenantId": "default",
   "name": "tool-usage.night",
   "description": "How to use the resource argument, limits, and error codes.",
@@ -7327,8 +7307,8 @@ Response (200):
   "builtInKey": "system.tool-usage",
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.319742Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.319742Z",
+  "createdUtc": "2026-10-15T05:26:09.850778Z",
+  "lastUpdateUtc": "2026-10-15T05:26:09.850778Z",
   "variables": []
 }
 ```
@@ -7359,7 +7339,7 @@ Render a stored template with sample data.
 Example:
 
 ```bash
-curl -s -X POST "$HUGO/v1.0/api/tenants/default/prompt-templates/tpl_mv937z9b_FLo4UXDc3Phb7yVvmS1/render" \
+curl -s -X POST "$HUGO/v1.0/api/tenants/default/prompt-templates/tpl_mv93ipgv_sgbaHUlguTpQ4d5alSs/render" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"context": {}}'
@@ -7412,22 +7392,19 @@ Response (200):
   "global": {
     "layer": "Global",
     "exists": true,
-    "templateId": "tpl_mv92uyq6_ivgZ1p7levtoLycXvo7",
+    "templateId": "tpl_mv93ildr_Oa4FtvOlBM1F4Z5bVPQ",
     "content": "Using Hugo's tools:\n- Tools are named family_operation (for example sql_query, ssh_exec, storage_list, logs_search). Every resource tool takes a required \"resource\" argument: use the resource name exa… (710 characters)",
     "version": 1,
     "customized": false,
     "defaultUpdatedSinceCustomized": false,
-    "lastUpdateUtc": "2026-10-15T05:07:42.030871Z"
+    "lastUpdateUtc": "2026-10-15T05:26:04.479089Z"
   },
   "tenant": {
     "layer": "Tenant",
     "exists": false,
-    "templateId": "tpl_mv92v2jq_JjM5WwOj4UNNcj8NRW7",
-    "content": "{{> system.tool-usage}}",
-    "version": 2,
+    "version": 0,
     "customized": false,
-    "defaultUpdatedSinceCustomized": false,
-    "lastUpdateUtc": "2026-10-15T05:16:59.567887Z"
+    "defaultUpdatedSinceCustomized": false
   }
 }
 ```
@@ -7477,22 +7454,22 @@ Response (200):
   "global": {
     "layer": "Global",
     "exists": true,
-    "templateId": "tpl_mv92uyq6_bwBFGqdprnwOMgsxjJf",
+    "templateId": "tpl_mv93ildq_kSGd8SScUMUuqU1uBcc",
     "content": "You are {{profile.personaName | default: profile.displayName}}, an operations assistant for {{profile.userAddress}} in the \"{{tenant.name}}\" environment. Be direct, accurate, and brief.\n\nHelp manage, … (770 characters)",
     "version": 1,
     "customized": false,
     "defaultUpdatedSinceCustomized": false,
-    "lastUpdateUtc": "2026-10-15T05:07:42.030062Z"
+    "lastUpdateUtc": "2026-10-15T05:26:04.478627Z"
   },
   "tenant": {
     "layer": "Tenant",
     "exists": true,
-    "templateId": "tpl_mv92v2k5_thQvNGxfXyhQ6NT4MyO",
+    "templateId": "tpl_mv93ipe5_sZJ4mbaoyWUjETSUcIG",
     "content": "You are {{profile.personaName}}, an operations agent for {{profile.userAddress}} in the {{tenant.name}} tenant. Be brief and cite the resource behind every finding.",
-    "version": 9,
+    "version": 1,
     "customized": true,
     "defaultUpdatedSinceCustomized": false,
-    "lastUpdateUtc": "2026-10-15T05:17:49.164103Z"
+    "lastUpdateUtc": "2026-10-15T05:26:09.677297Z"
   }
 }
 ```
@@ -7533,22 +7510,22 @@ Response (200):
   "global": {
     "layer": "Global",
     "exists": true,
-    "templateId": "tpl_mv92uyq6_bwBFGqdprnwOMgsxjJf",
+    "templateId": "tpl_mv93ildq_kSGd8SScUMUuqU1uBcc",
     "content": "You are {{profile.personaName | default: profile.displayName}}, an operations assistant for {{profile.userAddress}} in the \"{{tenant.name}}\" environment. Be direct, accurate, and brief.\n\nHelp manage, … (770 characters)",
     "version": 1,
     "customized": false,
     "defaultUpdatedSinceCustomized": false,
-    "lastUpdateUtc": "2026-10-15T05:07:42.030062Z"
+    "lastUpdateUtc": "2026-10-15T05:26:04.478627Z"
   },
   "tenant": {
     "layer": "Tenant",
     "exists": false,
-    "templateId": "tpl_mv92v2k5_thQvNGxfXyhQ6NT4MyO",
+    "templateId": "tpl_mv93ipe5_sZJ4mbaoyWUjETSUcIG",
     "content": "You are {{profile.personaName}}, an operations agent for {{profile.userAddress}} in the {{tenant.name}} tenant. Be brief and cite the resource behind every finding.",
-    "version": 10,
+    "version": 2,
     "customized": false,
     "defaultUpdatedSinceCustomized": false,
-    "lastUpdateUtc": "2026-10-15T05:17:49.210772Z"
+    "lastUpdateUtc": "2026-10-15T05:26:09.727925Z"
   }
 }
 ```
@@ -7580,32 +7557,18 @@ Response (200):
 ```json
 [
   {
-    "id": "tpv_mv937z70_evLYwysnwWvFlR46qn6",
+    "id": "tpv_mv93ipe5_wABPQremJe2GkwFPZFi",
     "tenantId": "default",
-    "templateId": "tpl_mv92v2k5_thQvNGxfXyhQ6NT4MyO",
-    "version": 9,
+    "templateId": "tpl_mv93ipe5_sZJ4mbaoyWUjETSUcIG",
+    "version": 1,
     "content": "You are {{profile.personaName}}, an operations agent for {{profile.userAddress}} in the {{tenant.name}} tenant. Be brief and cite the resource behind every finding.",
     "changeNote": "Shorter neutral persona",
     "createdBy": "anderson@hugo.local",
     "active": true,
     "isProtected": false,
-    "createdUtc": "2026-10-15T05:17:49.164154Z",
-    "lastUpdateUtc": "2026-10-15T05:17:49.164154Z"
-  },
-  {
-    "id": "tpv_mv930miw_JNHEYeDmqeJijRmtmBq",
-    "tenantId": "default",
-    "templateId": "tpl_mv92v2k5_thQvNGxfXyhQ6NT4MyO",
-    "version": 8,
-    "content": "You are {{profile.personaName}}, an operations agent for {{profile.userAddress}} in the {{tenant.name}} tenant. Be brief and cite the resource behind every finding.",
-    "changeNote": "Reset to the Global default.",
-    "createdBy": "anderson@hugo.local",
-    "active": true,
-    "isProtected": false,
-    "createdUtc": "2026-10-15T05:12:06.152606Z",
-    "lastUpdateUtc": "2026-10-15T05:12:06.152606Z"
-  },
-  "… 7 more"
+    "createdUtc": "2026-10-15T05:26:09.677353Z",
+    "lastUpdateUtc": "2026-10-15T05:26:09.677353Z"
+  }
 ]
 ```
 
@@ -7690,6 +7653,7 @@ Model endpoints are the inference and embedding providers Hugo's own loop calls:
 |---|---|---|
 | GET | `/v1.0/api/model-endpoints` | List model endpoints |
 | POST | `/v1.0/api/model-endpoints` | Create a model endpoint (API key as a vault secret reference) |
+| POST | `/v1.0/api/model-endpoints/validate` | Validate unsaved model endpoint settings with a tiny prompt (or embedding); nothing is stored |
 | GET | `/v1.0/api/model-endpoints/{id}` | Read a model endpoint |
 | PUT | `/v1.0/api/model-endpoints/{id}` | Update a model endpoint |
 | DELETE | `/v1.0/api/model-endpoints/{id}` | Delete a model endpoint (profiles lose the reference) |
@@ -7731,10 +7695,10 @@ Response (200):
   "totalRecords": 1,
   "recordsRemaining": 0,
   "endOfResults": true,
-  "timestampUtc": "2026-10-15T05:17:48.317895Z",
+  "timestampUtc": "2026-10-15T05:26:08.587418Z",
   "objects": [
     {
-      "id": "mep_mv937yj6_RbhrM8KfcgiBVTuL8o2",
+      "id": "mep_mv93ioio_pZjmchLfpNQgWS1aZ9h",
       "tenantId": "default",
       "name": "local-model",
       "kind": "Inference",
@@ -7750,8 +7714,8 @@ Response (200):
       "maxRetries": 2,
       "healthStatus": "Unknown",
       "active": true,
-      "createdUtc": "2026-10-15T05:17:48.30602Z",
-      "lastUpdateUtc": "2026-10-15T05:17:48.30602Z"
+      "createdUtc": "2026-10-15T05:26:08.545573Z",
+      "lastUpdateUtc": "2026-10-15T05:26:08.545573Z"
     }
   ]
 }
@@ -7759,7 +7723,7 @@ Response (200):
 
 ### POST `/v1.0/api/model-endpoints`
 
-Create an inference endpoint. Provider is one of Ollama, OpenAI, OpenAICompatible, Anthropic, Gemini, AzureOpenAI, Bedrock, VertexAI, VoyageAI. API keys are referenced as vault secrets (`apiKeySecretId`, `apiKeySecretField`), never stored on the endpoint.
+Create an inference endpoint. Names are 1 to 128 characters: letters, digits, spaces, and `. _ - : / @`, starting with a letter or digit, so `llama3.1:8b @ ollama` is fine. Provider is one of Ollama, OpenAI, OpenAICompatible, Anthropic, Gemini, AzureOpenAI, Bedrock, VertexAI, VoyageAI. API keys are referenced as vault secrets (`apiKeySecretId`, `apiKeySecretField`), never stored on the endpoint.
 
 **Authentication:** Any REST scheme. Permission: Create on ModelEndpoint.
 
@@ -7767,7 +7731,7 @@ Create an inference endpoint. Provider is one of Ollama, OpenAI, OpenAICompatibl
 
 | Field | Type | Description |
 |---|---|---|
-| `name` | string | **Required.** Unique within the tenant (on create). |
+| `name` | string | **Required.** Unique within the tenant (on create). 1 to 128 characters: letters, digits, spaces, and `. _ - : / @`, starting with a letter or digit. |
 | `kind` | enum | Inference (default) or Embedding. Values: Inference, Embedding. |
 | `provider` | enum | **Required.** Ollama, OpenAI, OpenAICompatible, Anthropic, Gemini, AzureOpenAI, Bedrock, VertexAI, or VoyageAI. Values: Ollama, OpenAI, OpenAICompatible, Anthropic, Gemini, AzureOpenAI, Bedrock, VertexAI, VoyageAI. |
 | `baseUrl` | string | Provider base URL without `/v1` (for example `http://127.0.0.1:11434`). Optional for hosted providers. |
@@ -7804,7 +7768,7 @@ Response (201):
 
 ```json
 {
-  "id": "mep_mv937yj6_RbhrM8KfcgiBVTuL8o2",
+  "id": "mep_mv93ioio_pZjmchLfpNQgWS1aZ9h",
   "tenantId": "default",
   "name": "local-model",
   "kind": "Inference",
@@ -7820,8 +7784,65 @@ Response (201):
   "maxRetries": 2,
   "healthStatus": "Unknown",
   "active": true,
-  "createdUtc": "2026-10-15T05:17:48.30602Z",
-  "lastUpdateUtc": "2026-10-15T05:17:48.30602Z"
+  "createdUtc": "2026-10-15T05:26:08.545573Z",
+  "lastUpdateUtc": "2026-10-15T05:26:08.545573Z"
+}
+```
+
+### POST `/v1.0/api/model-endpoints/validate`
+
+Run the same check as `validate` on settings that are not saved yet (the body is the create body); nothing is stored. The dashboard's Validate button on the create and edit forms uses it. An unreachable provider is a 200 with `success: false`.
+
+**Authentication:** Any REST scheme. Permission: Create on ModelEndpoint.
+
+**Request body** (JSON; every field optional unless the description says otherwise):
+
+| Field | Type | Description |
+|---|---|---|
+| `name` | string | **Required.** Unique within the tenant (on create). 1 to 128 characters: letters, digits, spaces, and `. _ - : / @`, starting with a letter or digit. |
+| `kind` | enum | Inference (default) or Embedding. Values: Inference, Embedding. |
+| `provider` | enum | **Required.** Ollama, OpenAI, OpenAICompatible, Anthropic, Gemini, AzureOpenAI, Bedrock, VertexAI, or VoyageAI. Values: Ollama, OpenAI, OpenAICompatible, Anthropic, Gemini, AzureOpenAI, Bedrock, VertexAI, VoyageAI. |
+| `baseUrl` | string | Provider base URL without `/v1` (for example `http://127.0.0.1:11434`). Optional for hosted providers. |
+| `model` | string | **Required.** Model name. |
+| `apiKeySecretId` | string | Vault secret holding the API key. |
+| `apiKeySecretField` | string | Field of that secret, when it has more than one. |
+| `region` | string | Bedrock and Vertex region. |
+| `deploymentName` | string | Azure OpenAI deployment. |
+| `apiVersion` | string | Azure OpenAI API version. |
+| `contextWindowTokens` | integer | Context window used for compaction decisions. Default 32768. |
+| `maxOutputTokens` | integer | Default 4096. |
+| `supportsTools` | boolean | Whether the model can call tools. |
+| `supportsStreaming` | boolean | Whether to stream. |
+| `embeddingDimensions` | integer | Embedding size (embedding endpoints). |
+| `maxConcurrency` | integer | Concurrent calls. Default 4. |
+| `timeoutSeconds` | integer | Default 120. |
+| `maxRetries` | integer | Default 2. |
+| `active` | boolean | Default true. |
+
+**Status codes:** 200 OK, 400 Validation failed, 401 Not authenticated, 403 Forbidden.
+
+**Response fields:** `success`, `kind`, `latencyMs`, `dimensions`, `model`, `responsePreview`, `statusCode`, `error`, `problems`.
+
+Example:
+
+```bash
+curl -s -X POST "$HUGO/v1.0/api/model-endpoints/validate" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "draft", "kind": "Inference", "provider": "OpenAICompatible", "baseUrl": "http://127.0.0.1:63806", "model": "stub-model"}'
+```
+
+Response (200):
+
+```json
+{
+  "success": true,
+  "kind": "Inference",
+  "latencyMs": 8,
+  "model": "stub-model",
+  "responsePreview": "Good evening, Mr. Anderson. I am Agent Smith. Ask me about the resources bound t",
+  "statusCode": 200,
+  "problems": []
 }
 ```
 
@@ -7842,7 +7863,7 @@ One endpoint.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/model-endpoints/mep_mv937yj6_RbhrM8KfcgiBVTuL8o2" \
+curl -s "$HUGO/v1.0/api/model-endpoints/mep_mv93ioio_pZjmchLfpNQgWS1aZ9h" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -7850,7 +7871,7 @@ Response (200):
 
 ```json
 {
-  "id": "mep_mv937yj6_RbhrM8KfcgiBVTuL8o2",
+  "id": "mep_mv93ioio_pZjmchLfpNQgWS1aZ9h",
   "tenantId": "default",
   "name": "local-model",
   "kind": "Inference",
@@ -7866,8 +7887,8 @@ Response (200):
   "maxRetries": 2,
   "healthStatus": "Unknown",
   "active": true,
-  "createdUtc": "2026-10-15T05:17:48.30602Z",
-  "lastUpdateUtc": "2026-10-15T05:17:48.30602Z"
+  "createdUtc": "2026-10-15T05:26:08.545573Z",
+  "lastUpdateUtc": "2026-10-15T05:26:08.545573Z"
 }
 ```
 
@@ -7885,7 +7906,7 @@ Partial update.
 
 | Field | Type | Description |
 |---|---|---|
-| `name` | string | **Required.** Unique within the tenant (on create). |
+| `name` | string | **Required.** Unique within the tenant (on create). 1 to 128 characters: letters, digits, spaces, and `. _ - : / @`, starting with a letter or digit. |
 | `kind` | enum | Inference (default) or Embedding. Values: Inference, Embedding. |
 | `provider` | enum | **Required.** Ollama, OpenAI, OpenAICompatible, Anthropic, Gemini, AzureOpenAI, Bedrock, VertexAI, or VoyageAI. Values: Ollama, OpenAI, OpenAICompatible, Anthropic, Gemini, AzureOpenAI, Bedrock, VertexAI, VoyageAI. |
 | `baseUrl` | string | Provider base URL without `/v1` (for example `http://127.0.0.1:11434`). Optional for hosted providers. |
@@ -7912,7 +7933,7 @@ Partial update.
 Example:
 
 ```bash
-curl -s -X PUT "$HUGO/v1.0/api/model-endpoints/mep_mv937yj6_RbhrM8KfcgiBVTuL8o2" \
+curl -s -X PUT "$HUGO/v1.0/api/model-endpoints/mep_mv93ioio_pZjmchLfpNQgWS1aZ9h" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"maxConcurrency": 2, "timeoutSeconds": 90}'
@@ -7922,7 +7943,7 @@ Response (200):
 
 ```json
 {
-  "id": "mep_mv937yj6_RbhrM8KfcgiBVTuL8o2",
+  "id": "mep_mv93ioio_pZjmchLfpNQgWS1aZ9h",
   "tenantId": "default",
   "name": "local-model",
   "kind": "Inference",
@@ -7938,8 +7959,8 @@ Response (200):
   "maxRetries": 2,
   "healthStatus": "Unknown",
   "active": true,
-  "createdUtc": "2026-10-15T05:17:48.30602Z",
-  "lastUpdateUtc": "2026-10-15T05:17:48.340229Z"
+  "createdUtc": "2026-10-15T05:26:08.545573Z",
+  "lastUpdateUtc": "2026-10-15T05:26:08.613035Z"
 }
 ```
 
@@ -7958,7 +7979,7 @@ Delete a model endpoint; profiles lose the reference.
 Example:
 
 ```bash
-curl -s -X DELETE "$HUGO/v1.0/api/model-endpoints/mep_mv937yj6_RbhrM8KfcgiBVTuL8o2" \
+curl -s -X DELETE "$HUGO/v1.0/api/model-endpoints/mep_mv93ioio_pZjmchLfpNQgWS1aZ9h" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -7981,7 +8002,7 @@ Send a tiny prompt (or embed a short string) and record latency, dimensions, and
 Example:
 
 ```bash
-curl -s -X POST "$HUGO/v1.0/api/model-endpoints/mep_mv937yj6_RbhrM8KfcgiBVTuL8o2/validate" \
+curl -s -X POST "$HUGO/v1.0/api/model-endpoints/mep_mv93ioio_pZjmchLfpNQgWS1aZ9h/validate" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -7991,7 +8012,7 @@ Response (200):
 {
   "success": true,
   "kind": "Inference",
-  "latencyMs": 0,
+  "latencyMs": 1,
   "model": "stub-model",
   "responsePreview": "Good evening, Mr. Anderson. I am Agent Smith. Ask me about the resources bound t",
   "statusCode": 200,
@@ -8014,7 +8035,7 @@ Models the provider offers (Ollama, OpenAI, OpenAI-compatible, Anthropic, Gemini
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/model-endpoints/mep_mv937yj6_RbhrM8KfcgiBVTuL8o2/models" \
+curl -s "$HUGO/v1.0/api/model-endpoints/mep_mv93ioio_pZjmchLfpNQgWS1aZ9h/models" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -8081,22 +8102,22 @@ Response (200):
   "success": true,
   "maxResults": 10,
   "skip": 0,
-  "totalRecords": 42,
-  "recordsRemaining": 32,
-  "endOfResults": false,
-  "timestampUtc": "2026-10-15T05:17:48.279366Z",
+  "totalRecords": 6,
+  "recordsRemaining": 0,
+  "endOfResults": true,
+  "timestampUtc": "2026-10-15T05:26:08.51104Z",
   "objects": [
     {
-      "id": "tiv_mv937yhp_90sUCNwh7zrR2pY2WAm",
+      "id": "tiv_mv93iogz_JSmbd9vp8Q8gY1Zerz4",
       "tenantId": "default",
       "surface": "Rest",
       "principalType": "User",
-      "principalId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+      "principalId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
       "principalName": "anderson@hugo.local",
-      "agentProfileId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
-      "bindingId": "bnd_mv937xok_kfPjNftrNgz1vLdpehn",
+      "agentProfileId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
+      "bindingId": "bnd_mv93ink2_ZTrDfysgbs4R7mC2Jp1",
       "bindingAlias": "demo-db",
-      "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+      "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
       "connectorType": "sqlite",
       "toolName": "sql_query",
       "argumentsRedacted": "{\n    \"resource\": \"demo-db\",\n    \"sql\": \"DROP TABLE notes\"\n  }",
@@ -8107,27 +8128,27 @@ Response (200):
       "decision": "Cancelled",
       "decisionCode": "cancelled",
       "decisionReason": "The approval was cancelled: Requested by mistake.",
-      "approvalId": "apr_mv937yhq_zc4il02n4bLIC9m6MVV",
+      "approvalId": "apr_mv93iogz_PuJIdJEg3bE98VwoLF0",
       "status": "NotExecuted",
       "outputBytes": 0,
       "outputTruncated": false,
       "durationMs": 0,
-      "traceId": "4b1fc50e280f76bbe5892f6fbef70331",
-      "correlationId": "e01d226bcad54ebf9d49aa9b86ad1ae0",
-      "createdUtc": "2026-10-15T05:17:48.254364Z",
-      "lastUpdateUtc": "2026-10-15T05:17:48.266701Z"
+      "traceId": "769871ad8c16c0bb479d708b5ef000c9",
+      "correlationId": "ae3e27de9db34a658aebf06ea39c54fe",
+      "createdUtc": "2026-10-15T05:26:08.483592Z",
+      "lastUpdateUtc": "2026-10-15T05:26:08.497352Z"
     },
     {
-      "id": "tiv_mv937yh0_ggpZA4lnIa4kjG1QQfc",
+      "id": "tiv_mv93iog9_IYpBYzsmSXCKbbk8P9l",
       "tenantId": "default",
       "surface": "Rest",
       "principalType": "User",
-      "principalId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+      "principalId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
       "principalName": "anderson@hugo.local",
-      "agentProfileId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
-      "bindingId": "bnd_mv937xok_kfPjNftrNgz1vLdpehn",
+      "agentProfileId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
+      "bindingId": "bnd_mv93ink2_ZTrDfysgbs4R7mC2Jp1",
       "bindingAlias": "demo-db",
-      "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+      "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
       "connectorType": "sqlite",
       "toolName": "sql_query",
       "argumentsRedacted": "{\n    \"resource\": \"demo-db\",\n    \"sql\": \"DELETE FROM notes\"\n  }",
@@ -8169,12 +8190,12 @@ Response (200):
 
 ```json
 {
-  "invocationId": "tiv_mv937yek_wNDQyL0oshngJNw80tk",
+  "invocationId": "tiv_mv93iode_ViimTIio0arMTQGH0h5",
   "dryRun": false,
   "toolName": "sql_query",
-  "profileId": "agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO",
+  "profileId": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ",
   "bindingAlias": "demo-db",
-  "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+  "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
   "connectorType": "sqlite",
   "decision": "Allowed",
   "decisionCode": "allowed",
@@ -8193,7 +8214,7 @@ Response (200):
     "originalBytes": 81,
     "metrics": {
       "rows": 1,
-      "upstreamMs": 0.11
+      "upstreamMs": 0.13
     }
   },
   "durationMs": 0,
@@ -8226,51 +8247,47 @@ Response (200):
 
 ```json
 {
-  "total": 54,
+  "total": 6,
   "sinceUtc": "2026-01-01T00:00:00Z",
   "byDecision": [
     {
       "status": "Allowed",
-      "count": 26
+      "count": 2
     },
     {
-      "status": "Denied",
-      "count": 13
+      "status": "Rejected",
+      "count": 1
     },
     "… 3 more"
   ],
   "byStatus": [
     {
       "status": "Succeeded",
-      "count": 31
+      "count": 3
     },
     {
       "status": "NotExecuted",
-      "count": 23
+      "count": 3
     }
   ],
   "byEffect": [
     {
-      "status": "Read",
-      "count": 26
+      "status": "Write",
+      "count": 2
     },
     {
-      "status": "Write",
-      "count": 18
+      "status": "Read",
+      "count": 2
     },
     {
       "status": "Destructive",
-      "count": 10
+      "count": 2
     }
   ],
   "byTool": [
     {
       "status": "sql_query",
-      "count": 42
-    },
-    {
-      "status": "sql_list_tables",
-      "count": 12
+      "count": 6
     }
   ]
 }
@@ -8312,9 +8329,9 @@ Response (200):
 {
   "dryRun": true,
   "toolName": "ssh_exec",
-  "profileId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
+  "profileId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
   "bindingAlias": "web-01",
-  "resourceId": "res_mv937xzb_h6cEk5plT1Y0XSPD30i",
+  "resourceId": "res_mv93inwz_Ns50H5DjyT5dKLgjtcw",
   "connectorType": "ssh",
   "decision": "ApprovalRequired",
   "decisionCode": "approval_required",
@@ -8346,7 +8363,7 @@ One invocation record: principal, profile, binding, redacted arguments, effect a
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/tool-invocations/tiv_mv937yf9_19yL1ZqeBR70iAfeIc6" \
+curl -s "$HUGO/v1.0/api/tool-invocations/tiv_mv93ioe4_39E9ZKOrUQJTBbpx6is" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -8354,16 +8371,16 @@ Response (200):
 
 ```json
 {
-  "id": "tiv_mv937yf9_19yL1ZqeBR70iAfeIc6",
+  "id": "tiv_mv93ioe4_39E9ZKOrUQJTBbpx6is",
   "tenantId": "default",
   "surface": "Rest",
   "principalType": "User",
-  "principalId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "principalId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "principalName": "anderson@hugo.local",
-  "agentProfileId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
-  "bindingId": "bnd_mv937xok_kfPjNftrNgz1vLdpehn",
+  "agentProfileId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
+  "bindingId": "bnd_mv93ink2_ZTrDfysgbs4R7mC2Jp1",
   "bindingAlias": "demo-db",
-  "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+  "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
   "connectorType": "sqlite",
   "toolName": "sql_query",
   "argumentsRedacted": "{\n    \"resource\": \"demo-db\",\n    \"sql\": \"CREATE TABLE notes (id INTEGER)\"\n  }",
@@ -8374,16 +8391,16 @@ Response (200):
   "decision": "Approved",
   "decisionCode": "approval_required",
   "decisionReason": "Write calls on this resource require approval (statement type CREATE).",
-  "approvalId": "apr_mv937yfa_HRLgbiJodej1rcJ618J",
+  "approvalId": "apr_mv93ioe7_Iuemh1Ygk00uLDe879L",
   "status": "Succeeded",
   "outputBytes": 50,
   "outputTruncated": false,
-  "outputPreview": "Statement executed; 0 row(s) affected in 0.04 ms.\n",
+  "outputPreview": "Statement executed; 0 row(s) affected in 0.05 ms.\n",
   "durationMs": 0,
-  "traceId": "6c150ce50ac19470dde82fc1c8b494b7",
-  "correlationId": "02c62f8757524ef889091115d356f685",
-  "createdUtc": "2026-10-15T05:17:48.165963Z",
-  "lastUpdateUtc": "2026-10-15T05:17:48.204729Z"
+  "traceId": "6671eb9ac9a462bdc3451bd61a95a294",
+  "correlationId": "f5a1df7860f14996be3f7219d50a105b",
+  "createdUtc": "2026-10-15T05:26:08.383267Z",
+  "lastUpdateUtc": "2026-10-15T05:26:08.433205Z"
 }
 ```
 
@@ -8441,29 +8458,29 @@ Response (200):
   "totalRecords": 1,
   "recordsRemaining": 0,
   "endOfResults": true,
-  "timestampUtc": "2026-10-15T05:17:48.178306Z",
+  "timestampUtc": "2026-10-15T05:26:08.400957Z",
   "objects": [
     {
-      "id": "apr_mv937yfa_HRLgbiJodej1rcJ618J",
+      "id": "apr_mv93ioe7_Iuemh1Ygk00uLDe879L",
       "tenantId": "default",
-      "toolInvocationId": "tiv_mv937yf9_19yL1ZqeBR70iAfeIc6",
-      "agentProfileId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
-      "bindingId": "bnd_mv937xok_kfPjNftrNgz1vLdpehn",
+      "toolInvocationId": "tiv_mv93ioe4_39E9ZKOrUQJTBbpx6is",
+      "agentProfileId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
+      "bindingId": "bnd_mv93ink2_ZTrDfysgbs4R7mC2Jp1",
       "bindingAlias": "demo-db",
-      "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+      "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
       "toolName": "sql_query",
       "surface": "Rest",
       "requestedByPrincipalType": "User",
-      "requestedByPrincipalId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+      "requestedByPrincipalId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
       "requestedByName": "anderson@hugo.local",
       "summary": "Run SQL on demo-db: CREATE TABLE notes (id INTEGER)",
       "effect": "Write",
       "effectReason": "Write calls on this resource require approval (statement type CREATE).",
       "argumentsRedacted": "{\n    \"resource\": \"demo-db\",\n    \"sql\": \"CREATE TABLE notes (id INTEGER)\"\n  }",
       "status": "Pending",
-      "expiresUtc": "2026-10-15T05:32:48.166026Z",
-      "createdUtc": "2026-10-15T05:17:48.166027Z",
-      "lastUpdateUtc": "2026-10-15T05:17:48.166027Z"
+      "expiresUtc": "2026-10-15T05:41:08.383743Z",
+      "createdUtc": "2026-10-15T05:26:08.383963Z",
+      "lastUpdateUtc": "2026-10-15T05:26:08.383963Z"
     }
   ]
 }
@@ -8486,7 +8503,7 @@ One approval with its tool invocation, and the result once executed.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/approvals/apr_mv937yfa_HRLgbiJodej1rcJ618J" \
+curl -s "$HUGO/v1.0/api/approvals/apr_mv93ioe7_Iuemh1Ygk00uLDe879L" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -8494,35 +8511,35 @@ Response (200):
 
 ```json
 {
-  "id": "apr_mv937yfa_HRLgbiJodej1rcJ618J",
+  "id": "apr_mv93ioe7_Iuemh1Ygk00uLDe879L",
   "tenantId": "default",
-  "toolInvocationId": "tiv_mv937yf9_19yL1ZqeBR70iAfeIc6",
-  "agentProfileId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
-  "bindingId": "bnd_mv937xok_kfPjNftrNgz1vLdpehn",
+  "toolInvocationId": "tiv_mv93ioe4_39E9ZKOrUQJTBbpx6is",
+  "agentProfileId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
+  "bindingId": "bnd_mv93ink2_ZTrDfysgbs4R7mC2Jp1",
   "bindingAlias": "demo-db",
-  "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+  "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
   "toolName": "sql_query",
   "surface": "Rest",
   "requestedByPrincipalType": "User",
-  "requestedByPrincipalId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "requestedByPrincipalId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "requestedByName": "anderson@hugo.local",
   "summary": "Run SQL on demo-db: CREATE TABLE notes (id INTEGER)",
   "effect": "Write",
   "effectReason": "Write calls on this resource require approval (statement type CREATE).",
   "argumentsRedacted": "{\n    \"resource\": \"demo-db\",\n    \"sql\": \"CREATE TABLE notes (id INTEGER)\"\n  }",
   "status": "Pending",
-  "expiresUtc": "2026-10-15T05:32:48.166026Z",
+  "expiresUtc": "2026-10-15T05:41:08.383743Z",
   "invocation": {
-    "id": "tiv_mv937yf9_19yL1ZqeBR70iAfeIc6",
+    "id": "tiv_mv93ioe4_39E9ZKOrUQJTBbpx6is",
     "tenantId": "default",
     "surface": "Rest",
     "principalType": "User",
-    "principalId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+    "principalId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
     "principalName": "anderson@hugo.local",
-    "agentProfileId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
-    "bindingId": "bnd_mv937xok_kfPjNftrNgz1vLdpehn",
+    "agentProfileId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
+    "bindingId": "bnd_mv93ink2_ZTrDfysgbs4R7mC2Jp1",
     "bindingAlias": "demo-db",
-    "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+    "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
     "connectorType": "sqlite",
     "toolName": "sql_query",
     "argumentsRedacted": "{\n    \"resource\": \"demo-db\",\n    \"sql\": \"CREATE TABLE notes (id INTEGER)\"\n  }",
@@ -8533,18 +8550,18 @@ Response (200):
     "decision": "ApprovalRequired",
     "decisionCode": "approval_required",
     "decisionReason": "Write calls on this resource require approval (statement type CREATE).",
-    "approvalId": "apr_mv937yfa_HRLgbiJodej1rcJ618J",
+    "approvalId": "apr_mv93ioe7_Iuemh1Ygk00uLDe879L",
     "status": "Pending",
     "outputBytes": 0,
     "outputTruncated": false,
     "durationMs": 0,
-    "traceId": "6c150ce50ac19470dde82fc1c8b494b7",
-    "correlationId": "02c62f8757524ef889091115d356f685",
-    "createdUtc": "2026-10-15T05:17:48.165963Z",
-    "lastUpdateUtc": "2026-10-15T05:17:48.166098Z"
+    "traceId": "6671eb9ac9a462bdc3451bd61a95a294",
+    "correlationId": "f5a1df7860f14996be3f7219d50a105b",
+    "createdUtc": "2026-10-15T05:26:08.383267Z",
+    "lastUpdateUtc": "2026-10-15T05:26:08.385592Z"
   },
-  "createdUtc": "2026-10-15T05:17:48.166027Z",
-  "lastUpdateUtc": "2026-10-15T05:17:48.166027Z"
+  "createdUtc": "2026-10-15T05:26:08.383963Z",
+  "lastUpdateUtc": "2026-10-15T05:26:08.383963Z"
 }
 ```
 
@@ -8571,7 +8588,7 @@ Approve a pending call. Nobody is waiting on this one (REST returned 202), so Hu
 Example:
 
 ```bash
-curl -s -X POST "$HUGO/v1.0/api/approvals/apr_mv937yfa_HRLgbiJodej1rcJ618J/approve" \
+curl -s -X POST "$HUGO/v1.0/api/approvals/apr_mv93ioe7_Iuemh1Ygk00uLDe879L/approve" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"note": "Creating a scratch table on the demo database is fine."}'
@@ -8581,39 +8598,39 @@ Response (200):
 
 ```json
 {
-  "id": "apr_mv937yfa_HRLgbiJodej1rcJ618J",
+  "id": "apr_mv93ioe7_Iuemh1Ygk00uLDe879L",
   "tenantId": "default",
-  "toolInvocationId": "tiv_mv937yf9_19yL1ZqeBR70iAfeIc6",
-  "agentProfileId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
-  "bindingId": "bnd_mv937xok_kfPjNftrNgz1vLdpehn",
+  "toolInvocationId": "tiv_mv93ioe4_39E9ZKOrUQJTBbpx6is",
+  "agentProfileId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
+  "bindingId": "bnd_mv93ink2_ZTrDfysgbs4R7mC2Jp1",
   "bindingAlias": "demo-db",
-  "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+  "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
   "toolName": "sql_query",
   "surface": "Rest",
   "requestedByPrincipalType": "User",
-  "requestedByPrincipalId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "requestedByPrincipalId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "requestedByName": "anderson@hugo.local",
   "summary": "Run SQL on demo-db: CREATE TABLE notes (id INTEGER)",
   "effect": "Write",
   "effectReason": "Write calls on this resource require approval (statement type CREATE).",
   "argumentsRedacted": "{\n    \"resource\": \"demo-db\",\n    \"sql\": \"CREATE TABLE notes (id INTEGER)\"\n  }",
   "status": "Approved",
-  "decidedByUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "decidedByUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "decidedByName": "anderson@hugo.local",
   "decisionNote": "Creating a scratch table on the demo database is fine.",
-  "decidedUtc": "2026-10-15T05:17:48.203843Z",
-  "expiresUtc": "2026-10-15T05:32:48.166026Z",
+  "decidedUtc": "2026-10-15T05:26:08.431042Z",
+  "expiresUtc": "2026-10-15T05:41:08.383743Z",
   "invocation": {
-    "id": "tiv_mv937yf9_19yL1ZqeBR70iAfeIc6",
+    "id": "tiv_mv93ioe4_39E9ZKOrUQJTBbpx6is",
     "tenantId": "default",
     "surface": "Rest",
     "principalType": "User",
-    "principalId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+    "principalId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
     "principalName": "anderson@hugo.local",
-    "agentProfileId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
-    "bindingId": "bnd_mv937xok_kfPjNftrNgz1vLdpehn",
+    "agentProfileId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
+    "bindingId": "bnd_mv93ink2_ZTrDfysgbs4R7mC2Jp1",
     "bindingAlias": "demo-db",
-    "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+    "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
     "connectorType": "sqlite",
     "toolName": "sql_query",
     "argumentsRedacted": "{\n    \"resource\": \"demo-db\",\n    \"sql\": \"CREATE TABLE notes (id INTEGER)\"\n  }",
@@ -8624,19 +8641,19 @@ Response (200):
     "decision": "Approved",
     "decisionCode": "approval_required",
     "decisionReason": "Write calls on this resource require approval (statement type CREATE).",
-    "approvalId": "apr_mv937yfa_HRLgbiJodej1rcJ618J",
+    "approvalId": "apr_mv93ioe7_Iuemh1Ygk00uLDe879L",
     "status": "Succeeded",
     "outputBytes": 50,
     "outputTruncated": false,
-    "outputPreview": "Statement executed; 0 row(s) affected in 0.04 ms.\n",
+    "outputPreview": "Statement executed; 0 row(s) affected in 0.05 ms.\n",
     "durationMs": 0,
-    "traceId": "6c150ce50ac19470dde82fc1c8b494b7",
-    "correlationId": "02c62f8757524ef889091115d356f685",
-    "createdUtc": "2026-10-15T05:17:48.165963Z",
-    "lastUpdateUtc": "2026-10-15T05:17:48.204729Z"
+    "traceId": "6671eb9ac9a462bdc3451bd61a95a294",
+    "correlationId": "f5a1df7860f14996be3f7219d50a105b",
+    "createdUtc": "2026-10-15T05:26:08.383267Z",
+    "lastUpdateUtc": "2026-10-15T05:26:08.433205Z"
   },
-  "createdUtc": "2026-10-15T05:17:48.166027Z",
-  "lastUpdateUtc": "2026-10-15T05:17:48.203843Z"
+  "createdUtc": "2026-10-15T05:26:08.383963Z",
+  "lastUpdateUtc": "2026-10-15T05:26:08.431042Z"
 }
 ```
 
@@ -8663,7 +8680,7 @@ Reject a pending call. The invocation ends NotExecuted and the requester sees th
 Example:
 
 ```bash
-curl -s -X POST "$HUGO/v1.0/api/approvals/apr_mv937yh1_itxzoGmfwGK79Y0R2pP/reject" \
+curl -s -X POST "$HUGO/v1.0/api/approvals/apr_mv93ioga_1Ga1ioXlCI61xXVgGAK/reject" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"note": "Not during business hours."}'
@@ -8673,39 +8690,39 @@ Response (200):
 
 ```json
 {
-  "id": "apr_mv937yh1_itxzoGmfwGK79Y0R2pP",
+  "id": "apr_mv93ioga_1Ga1ioXlCI61xXVgGAK",
   "tenantId": "default",
-  "toolInvocationId": "tiv_mv937yh0_ggpZA4lnIa4kjG1QQfc",
-  "agentProfileId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
-  "bindingId": "bnd_mv937xok_kfPjNftrNgz1vLdpehn",
+  "toolInvocationId": "tiv_mv93iog9_IYpBYzsmSXCKbbk8P9l",
+  "agentProfileId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
+  "bindingId": "bnd_mv93ink2_ZTrDfysgbs4R7mC2Jp1",
   "bindingAlias": "demo-db",
-  "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+  "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
   "toolName": "sql_query",
   "surface": "Rest",
   "requestedByPrincipalType": "User",
-  "requestedByPrincipalId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "requestedByPrincipalId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "requestedByName": "anderson@hugo.local",
   "summary": "Run SQL on demo-db: DELETE FROM notes",
   "effect": "Destructive",
   "effectReason": "Destructive calls on this resource require approval (statement type DELETE).",
   "argumentsRedacted": "{\n    \"resource\": \"demo-db\",\n    \"sql\": \"DELETE FROM notes\"\n  }",
   "status": "Rejected",
-  "decidedByUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "decidedByUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "decidedByName": "anderson@hugo.local",
   "decisionNote": "Not during business hours.",
-  "decidedUtc": "2026-10-15T05:17:48.241192Z",
-  "expiresUtc": "2026-10-15T05:32:48.229174Z",
+  "decidedUtc": "2026-10-15T05:26:08.470684Z",
+  "expiresUtc": "2026-10-15T05:41:08.458387Z",
   "invocation": {
-    "id": "tiv_mv937yh0_ggpZA4lnIa4kjG1QQfc",
+    "id": "tiv_mv93iog9_IYpBYzsmSXCKbbk8P9l",
     "tenantId": "default",
     "surface": "Rest",
     "principalType": "User",
-    "principalId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+    "principalId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
     "principalName": "anderson@hugo.local",
-    "agentProfileId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
-    "bindingId": "bnd_mv937xok_kfPjNftrNgz1vLdpehn",
+    "agentProfileId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
+    "bindingId": "bnd_mv93ink2_ZTrDfysgbs4R7mC2Jp1",
     "bindingAlias": "demo-db",
-    "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+    "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
     "connectorType": "sqlite",
     "toolName": "sql_query",
     "argumentsRedacted": "{\n    \"resource\": \"demo-db\",\n    \"sql\": \"DELETE FROM notes\"\n  }",
@@ -8716,18 +8733,18 @@ Response (200):
     "decision": "Rejected",
     "decisionCode": "rejected",
     "decisionReason": "The approval was rejected by anderson@hugo.local: Not during business hours.",
-    "approvalId": "apr_mv937yh1_itxzoGmfwGK79Y0R2pP",
+    "approvalId": "apr_mv93ioga_1Ga1ioXlCI61xXVgGAK",
     "status": "NotExecuted",
     "outputBytes": 0,
     "outputTruncated": false,
     "durationMs": 0,
-    "traceId": "80cdf0c11ec15e74a7f8693a514e79db",
-    "correlationId": "af875ff76fa24d1e91fb3f5ebcc439be",
-    "createdUtc": "2026-10-15T05:17:48.229108Z",
-    "lastUpdateUtc": "2026-10-15T05:17:48.241367Z"
+    "traceId": "e8e68f485d38fc2e98735f2b29dc5d3a",
+    "correlationId": "c8e36b5136124f0c9ecb16c6e4d4bf80",
+    "createdUtc": "2026-10-15T05:26:08.45831Z",
+    "lastUpdateUtc": "2026-10-15T05:26:08.471202Z"
   },
-  "createdUtc": "2026-10-15T05:17:48.229176Z",
-  "lastUpdateUtc": "2026-10-15T05:17:48.241192Z"
+  "createdUtc": "2026-10-15T05:26:08.458393Z",
+  "lastUpdateUtc": "2026-10-15T05:26:08.470684Z"
 }
 ```
 
@@ -8754,7 +8771,7 @@ Cancel a pending call. The requester may cancel its own; others need Update on A
 Example:
 
 ```bash
-curl -s -X POST "$HUGO/v1.0/api/approvals/apr_mv937yhq_zc4il02n4bLIC9m6MVV/cancel" \
+curl -s -X POST "$HUGO/v1.0/api/approvals/apr_mv93iogz_PuJIdJEg3bE98VwoLF0/cancel" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"note": "Requested by mistake."}'
@@ -8764,39 +8781,39 @@ Response (200):
 
 ```json
 {
-  "id": "apr_mv937yhq_zc4il02n4bLIC9m6MVV",
+  "id": "apr_mv93iogz_PuJIdJEg3bE98VwoLF0",
   "tenantId": "default",
-  "toolInvocationId": "tiv_mv937yhp_90sUCNwh7zrR2pY2WAm",
-  "agentProfileId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
-  "bindingId": "bnd_mv937xok_kfPjNftrNgz1vLdpehn",
+  "toolInvocationId": "tiv_mv93iogz_JSmbd9vp8Q8gY1Zerz4",
+  "agentProfileId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
+  "bindingId": "bnd_mv93ink2_ZTrDfysgbs4R7mC2Jp1",
   "bindingAlias": "demo-db",
-  "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+  "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
   "toolName": "sql_query",
   "surface": "Rest",
   "requestedByPrincipalType": "User",
-  "requestedByPrincipalId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "requestedByPrincipalId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "requestedByName": "anderson@hugo.local",
   "summary": "Run SQL on demo-db: DROP TABLE notes",
   "effect": "Destructive",
   "effectReason": "Destructive calls on this resource require approval (statement type DROP).",
   "argumentsRedacted": "{\n    \"resource\": \"demo-db\",\n    \"sql\": \"DROP TABLE notes\"\n  }",
   "status": "Cancelled",
-  "decidedByUserId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "decidedByUserId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "decidedByName": "anderson@hugo.local",
   "decisionNote": "Requested by mistake.",
-  "decidedUtc": "2026-10-15T05:17:48.266502Z",
-  "expiresUtc": "2026-10-15T05:32:48.254431Z",
+  "decidedUtc": "2026-10-15T05:26:08.497135Z",
+  "expiresUtc": "2026-10-15T05:41:08.483651Z",
   "invocation": {
-    "id": "tiv_mv937yhp_90sUCNwh7zrR2pY2WAm",
+    "id": "tiv_mv93iogz_JSmbd9vp8Q8gY1Zerz4",
     "tenantId": "default",
     "surface": "Rest",
     "principalType": "User",
-    "principalId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+    "principalId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
     "principalName": "anderson@hugo.local",
-    "agentProfileId": "agp_mv937xml_XArgAHQfG5v6uUkrkbl",
-    "bindingId": "bnd_mv937xok_kfPjNftrNgz1vLdpehn",
+    "agentProfileId": "agp_mv93inht_U9r5iA7jz7TdPM1R6U6",
+    "bindingId": "bnd_mv93ink2_ZTrDfysgbs4R7mC2Jp1",
     "bindingAlias": "demo-db",
-    "resourceId": "res_mv937xm6_qFsDalpjfsqe3DAHONT",
+    "resourceId": "res_mv93ingy_5MbE7PEfWqTHpqSI8nz",
     "connectorType": "sqlite",
     "toolName": "sql_query",
     "argumentsRedacted": "{\n    \"resource\": \"demo-db\",\n    \"sql\": \"DROP TABLE notes\"\n  }",
@@ -8807,18 +8824,18 @@ Response (200):
     "decision": "Cancelled",
     "decisionCode": "cancelled",
     "decisionReason": "The approval was cancelled: Requested by mistake.",
-    "approvalId": "apr_mv937yhq_zc4il02n4bLIC9m6MVV",
+    "approvalId": "apr_mv93iogz_PuJIdJEg3bE98VwoLF0",
     "status": "NotExecuted",
     "outputBytes": 0,
     "outputTruncated": false,
     "durationMs": 0,
-    "traceId": "4b1fc50e280f76bbe5892f6fbef70331",
-    "correlationId": "e01d226bcad54ebf9d49aa9b86ad1ae0",
-    "createdUtc": "2026-10-15T05:17:48.254364Z",
-    "lastUpdateUtc": "2026-10-15T05:17:48.266701Z"
+    "traceId": "769871ad8c16c0bb479d708b5ef000c9",
+    "correlationId": "ae3e27de9db34a658aebf06ea39c54fe",
+    "createdUtc": "2026-10-15T05:26:08.483592Z",
+    "lastUpdateUtc": "2026-10-15T05:26:08.497352Z"
   },
-  "createdUtc": "2026-10-15T05:17:48.254432Z",
-  "lastUpdateUtc": "2026-10-15T05:17:48.266502Z"
+  "createdUtc": "2026-10-15T05:26:08.483652Z",
+  "lastUpdateUtc": "2026-10-15T05:26:08.497135Z"
 }
 ```
 
@@ -8874,40 +8891,24 @@ Response (200):
   "success": true,
   "maxResults": 25,
   "skip": 0,
-  "totalRecords": 17,
+  "totalRecords": 1,
   "recordsRemaining": 0,
   "endOfResults": true,
-  "timestampUtc": "2026-10-15T05:17:48.405631Z",
+  "timestampUtc": "2026-10-15T05:26:08.687977Z",
   "objects": [
     {
-      "id": "cnv_mv937yll_CMt9BzVpkZZ17oVKxTh",
+      "id": "cnv_mv93iom7_q0A44TCisWg3atHkEIJ",
       "tenantId": "default",
-      "userId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
-      "agentProfileId": "agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO",
+      "userId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
+      "agentProfileId": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ",
       "title": "Why is checkout slow?",
       "source": "Dashboard",
       "messageCount": 0,
       "totalInputTokens": 0,
       "totalOutputTokens": 0,
-      "createdUtc": "2026-10-15T05:17:48.393462Z",
-      "lastUpdateUtc": "2026-10-15T05:17:48.393462Z"
-    },
-    {
-      "id": "cnv_mv930me7_xHPCX3roXEZbXwVgDLz",
-      "tenantId": "default",
-      "userId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
-      "agentProfileId": "agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO",
-      "title": "Good evening, Mr. Anderson. I am Agent Smith. Ask me about the resources bound t...",
-      "source": "A2A",
-      "a2AContextId": "cnv_mv930me7_xHPCX3roXEZbXwVgDLz",
-      "messageCount": 2,
-      "lastMessageUtc": "2026-10-15T05:12:05.985857Z",
-      "totalInputTokens": 3171,
-      "totalOutputTokens": 46,
-      "createdUtc": "2026-10-15T05:12:05.983211Z",
-      "lastUpdateUtc": "2026-10-15T05:12:05.986584Z"
-    },
-    "… 15 more"
+      "createdUtc": "2026-10-15T05:26:08.671689Z",
+      "lastUpdateUtc": "2026-10-15T05:26:08.671689Z"
+    }
   ]
 }
 ```
@@ -8935,24 +8936,24 @@ Example:
 curl -s -X POST "$HUGO/v1.0/api/conversations" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"agentProfileId": "agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO", "title": "Why is checkout slow?"}'
+  -d '{"agentProfileId": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ", "title": "Why is checkout slow?"}'
 ```
 
 Response (201):
 
 ```json
 {
-  "id": "cnv_mv937yll_CMt9BzVpkZZ17oVKxTh",
+  "id": "cnv_mv93iom7_q0A44TCisWg3atHkEIJ",
   "tenantId": "default",
-  "userId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
-  "agentProfileId": "agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO",
+  "userId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
+  "agentProfileId": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ",
   "title": "Why is checkout slow?",
   "source": "Dashboard",
   "messageCount": 0,
   "totalInputTokens": 0,
   "totalOutputTokens": 0,
-  "createdUtc": "2026-10-15T05:17:48.393462Z",
-  "lastUpdateUtc": "2026-10-15T05:17:48.393462Z"
+  "createdUtc": "2026-10-15T05:26:08.671689Z",
+  "lastUpdateUtc": "2026-10-15T05:26:08.671689Z"
 }
 ```
 
@@ -8973,7 +8974,7 @@ One conversation with message count and token totals.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/conversations/cnv_mv937yll_CMt9BzVpkZZ17oVKxTh" \
+curl -s "$HUGO/v1.0/api/conversations/cnv_mv93iom7_q0A44TCisWg3atHkEIJ" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -8981,17 +8982,17 @@ Response (200):
 
 ```json
 {
-  "id": "cnv_mv937yll_CMt9BzVpkZZ17oVKxTh",
+  "id": "cnv_mv93iom7_q0A44TCisWg3atHkEIJ",
   "tenantId": "default",
-  "userId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
-  "agentProfileId": "agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO",
+  "userId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
+  "agentProfileId": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ",
   "title": "Why is checkout slow?",
   "source": "Dashboard",
   "messageCount": 0,
   "totalInputTokens": 0,
   "totalOutputTokens": 0,
-  "createdUtc": "2026-10-15T05:17:48.393462Z",
-  "lastUpdateUtc": "2026-10-15T05:17:48.393462Z"
+  "createdUtc": "2026-10-15T05:26:08.671689Z",
+  "lastUpdateUtc": "2026-10-15T05:26:08.671689Z"
 }
 ```
 
@@ -9019,7 +9020,7 @@ Change the title.
 Example:
 
 ```bash
-curl -s -X PUT "$HUGO/v1.0/api/conversations/cnv_mv937yll_CMt9BzVpkZZ17oVKxTh" \
+curl -s -X PUT "$HUGO/v1.0/api/conversations/cnv_mv93iom7_q0A44TCisWg3atHkEIJ" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"title": "Checkout latency, Thursday"}'
@@ -9029,17 +9030,17 @@ Response (200):
 
 ```json
 {
-  "id": "cnv_mv937yll_CMt9BzVpkZZ17oVKxTh",
+  "id": "cnv_mv93iom7_q0A44TCisWg3atHkEIJ",
   "tenantId": "default",
-  "userId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
-  "agentProfileId": "agp_mv92uyqb_LM9EdE7i2KwfKe6GfaO",
+  "userId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
+  "agentProfileId": "agp_mv93ildv_AUpzHWKj1dOTwAFVdzQ",
   "title": "Checkout latency, Thursday",
   "source": "Dashboard",
   "messageCount": 0,
   "totalInputTokens": 0,
   "totalOutputTokens": 0,
-  "createdUtc": "2026-10-15T05:17:48.393462Z",
-  "lastUpdateUtc": "2026-10-15T05:17:48.430805Z"
+  "createdUtc": "2026-10-15T05:26:08.671689Z",
+  "lastUpdateUtc": "2026-10-15T05:26:08.713058Z"
 }
 ```
 
@@ -9058,7 +9059,7 @@ Delete a conversation and its messages.
 Example:
 
 ```bash
-curl -s -X DELETE "$HUGO/v1.0/api/conversations/cnv_mv937yll_CMt9BzVpkZZ17oVKxTh" \
+curl -s -X DELETE "$HUGO/v1.0/api/conversations/cnv_mv93iom7_q0A44TCisWg3atHkEIJ" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -9086,7 +9087,7 @@ Messages in order, including compacted ones and their tool calls.
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/conversations/cnv_mv937yll_CMt9BzVpkZZ17oVKxTh/messages" \
+curl -s "$HUGO/v1.0/api/conversations/cnv_mv93iom7_q0A44TCisWg3atHkEIJ/messages" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -9100,13 +9101,13 @@ Response (200):
   "totalRecords": 6,
   "recordsRemaining": 0,
   "endOfResults": true,
-  "timestampUtc": "2026-10-15T05:17:48.4819Z",
+  "timestampUtc": "2026-10-15T05:26:08.809375Z",
   "objects": [
     {
-      "id": "msg_mv937yn2_cQX9hSzqJ1hmioAiNgj",
+      "id": "msg_mv93ionz_0BJBghTps0Szqg8L1ub",
       "tenantId": "default",
-      "conversationId": "cnv_mv937yll_CMt9BzVpkZZ17oVKxTh",
-      "turnId": "trn_mv937yn2_B1Z67OCqzvGUYfvk0hO",
+      "conversationId": "cnv_mv93iom7_q0A44TCisWg3atHkEIJ",
+      "turnId": "trn_mv93ionx_cp5zFgAr3AG5riSggPn",
       "sequence": 1,
       "role": "User",
       "content": "Which tables does demo-db have?",
@@ -9114,28 +9115,28 @@ Response (200):
       "inputTokens": 0,
       "outputTokens": 0,
       "compacted": false,
-      "createdUtc": "2026-10-15T05:17:48.446317Z"
+      "createdUtc": "2026-10-15T05:26:08.735964Z"
     },
     {
-      "id": "msg_mv937yn3_anOGtOCrvekYhBg1tKE",
+      "id": "msg_mv93iooh_sYU6pzliljTw9hb8oqA",
       "tenantId": "default",
-      "conversationId": "cnv_mv937yll_CMt9BzVpkZZ17oVKxTh",
-      "turnId": "trn_mv937yn2_B1Z67OCqzvGUYfvk0hO",
+      "conversationId": "cnv_mv93iom7_q0A44TCisWg3atHkEIJ",
+      "turnId": "trn_mv93ionx_cp5zFgAr3AG5riSggPn",
       "sequence": 2,
       "role": "Assistant",
       "content": "",
       "toolCalls": [
         {
-          "callId": "call_stub_be9afbc69b88",
+          "callId": "call_stub_2eaf4fbea4b1",
           "name": "sql_list_tables",
           "argumentsJson": "{\"resource\":\"demo-db\"}"
         }
       ],
-      "modelEndpointId": "mep_mv937yj6_RbhrM8KfcgiBVTuL8o2",
+      "modelEndpointId": "mep_mv93ioio_pZjmchLfpNQgWS1aZ9h",
       "inputTokens": 3034,
       "outputTokens": 9,
       "compacted": false,
-      "createdUtc": "2026-10-15T05:17:48.447074Z"
+      "createdUtc": "2026-10-15T05:26:08.753519Z"
     },
     "… 4 more"
   ]
@@ -9166,7 +9167,7 @@ Run a turn and wait for it. The result has the final text, every message the tur
 Example:
 
 ```bash
-curl -s -X POST "$HUGO/v1.0/api/conversations/cnv_mv937yll_CMt9BzVpkZZ17oVKxTh/messages" \
+curl -s -X POST "$HUGO/v1.0/api/conversations/cnv_mv93iom7_q0A44TCisWg3atHkEIJ/messages" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"message": "Which tables does demo-db have?"}'
@@ -9176,49 +9177,49 @@ Response (200):
 
 ```text
 {
-  "turnId": "trn_mv937yn2_B1Z67OCqzvGUYfvk0hO",
-  "conversationId": "cnv_mv937yll_CMt9BzVpkZZ17oVKxTh",
+  "turnId": "trn_mv93ionx_cp5zFgAr3AG5riSggPn",
+  "conversationId": "cnv_mv93iom7_q0A44TCisWg3atHkEIJ",
   "finalText": "Mr. Anderson, demo-db answered. It is an in-memory SQLite database, so it holds no tables until something creates them. Nothing needs your attention.",
   "messages": [
     {
-      "id": "msg_mv937yn2_cQX9hSzqJ1hmioAiNgj",
-      "conversationId": "cnv_mv937yll_CMt9BzVpkZZ17oVKxTh",
-      "turnId": "trn_mv937yn2_B1Z67OCqzvGUYfvk0hO",
+      "id": "msg_mv93ionz_0BJBghTps0Szqg8L1ub",
+      "conversationId": "cnv_mv93iom7_q0A44TCisWg3atHkEIJ",
+      "turnId": "trn_mv93ionx_cp5zFgAr3AG5riSggPn",
       "role": "User",
       "content": "Which tables does demo-db have?",
       "toolCalls": [],
       "tokensIn": 0,
       "tokensOut": 0,
-      "createdUtc": "2026-10-15T05:17:48.446317Z"
+      "createdUtc": "2026-10-15T05:26:08.735964Z"
     },
     {
-      "id": "msg_mv937yn3_anOGtOCrvekYhBg1tKE",
-      "conversationId": "cnv_mv937yll_CMt9BzVpkZZ17oVKxTh",
-      "turnId": "trn_mv937yn2_B1Z67OCqzvGUYfvk0hO",
+      "id": "msg_mv93iooh_sYU6pzliljTw9hb8oqA",
+      "conversationId": "cnv_mv93iom7_q0A44TCisWg3atHkEIJ",
+      "turnId": "trn_mv93ionx_cp5zFgAr3AG5riSggPn",
       "role": "Assistant",
       "content": "",
       "toolCalls": [
         {
-          "id": "call_stub_be9afbc69b88",
+          "id": "call_stub_2eaf4fbea4b1",
           "name": "sql_list_tables",
           "argumentsJson": "{\"resource\":\"demo-db\"}"
         }
       ],
       "tokensIn": 3034,
       "tokensOut": 9,
-      "createdUtc": "2026-10-15T05:17:48.447074Z"
+      "createdUtc": "2026-10-15T05:26:08.753519Z"
     },
     "… 2 more"
   ],
   "toolCalls": [
     {
-      "callId": "call_stub_be9afbc69b88",
+      "callId": "call_stub_2eaf4fbea4b1",
       "toolName": "sql_list_tables",
       "resource": "demo-db",
       "argumentsJson": "{\"resource\":\"demo-db\"}",
       "effect": "Read",
       "decision": "Allowed",
-      "durationMs": 0,
+      "durationMs": 5,
       "approvalWaitMs": 0,
       "isError": false,
       "truncated": false,
@@ -9250,7 +9251,7 @@ Cancel the turn running in a conversation. With no turn running, `cancelled` is 
 Example:
 
 ```bash
-curl -s -X POST "$HUGO/v1.0/api/conversations/cnv_mv937yll_CMt9BzVpkZZ17oVKxTh/cancel" \
+curl -s -X POST "$HUGO/v1.0/api/conversations/cnv_mv93iom7_q0A44TCisWg3atHkEIJ/cancel" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -9258,7 +9259,7 @@ Response (200):
 
 ```json
 {
-  "conversationId": "cnv_mv937yll_CMt9BzVpkZZ17oVKxTh",
+  "conversationId": "cnv_mv93iom7_q0A44TCisWg3atHkEIJ",
   "cancelled": false
 }
 ```
@@ -9279,7 +9280,7 @@ Export a conversation as Markdown (`format=md`, default) or JSON (`format=json`)
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/conversations/cnv_mv937yll_CMt9BzVpkZZ17oVKxTh/export?format=md" \
+curl -s "$HUGO/v1.0/api/conversations/cnv_mv93iom7_q0A44TCisWg3atHkEIJ/export?format=md" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -9288,10 +9289,10 @@ Response (200):
 ```text
 # Checkout latency, Thursday
 
-- Conversation: `cnv_mv937yll_CMt9BzVpkZZ17oVKxTh`
+- Conversation: `cnv_mv93iom7_q0A44TCisWg3atHkEIJ`
 - Profile: Hugo
 - Source: Dashboard
-- Started: 2026-10-15 05:17:48Z
+- Started: 2026-10-15 05:26:08Z
 - Tokens: 9293 in, 69 out
 
 ## Mr. Anderson
@@ -9385,21 +9386,21 @@ Response (200):
 {
   "kind": "overview",
   "fromUtc": "2026-10-08T05:00:00Z",
-  "toUtc": "2026-10-15T05:17:50.188728Z",
+  "toUtc": "2026-10-15T05:26:10.825757Z",
   "interval": "hour",
-  "conversations": 22,
+  "conversations": 7,
   "totals": {
     "startUtc": "2026-10-08T05:00:00Z",
-    "turns": 30,
-    "inputTokens": 135731,
-    "outputTokens": 989,
-    "toolCalls": 61,
-    "toolErrors": 20,
-    "approvals": 15,
-    "avgTimeToFirstTokenMs": 1.5333333333333334,
-    "avgTurnDurationMs": 2.1666666666666665
+    "turns": 9,
+    "inputTokens": 40517,
+    "outputTokens": 299,
+    "toolCalls": 13,
+    "toolErrors": 4,
+    "approvals": 3,
+    "avgTimeToFirstTokenMs": 5.222222222222222,
+    "avgTurnDurationMs": 5.555555555555555
   },
-  "approvalsRequested": 15,
+  "approvalsRequested": 3,
   "buckets": [
     {
       "startUtc": "2026-10-08T05:00:00Z",
@@ -9453,21 +9454,21 @@ Response (200):
 {
   "kind": "tokens",
   "fromUtc": "2026-10-08T05:00:00Z",
-  "toUtc": "2026-10-15T05:17:50.201755Z",
+  "toUtc": "2026-10-15T05:26:10.846244Z",
   "interval": "hour",
-  "conversations": 22,
+  "conversations": 7,
   "totals": {
     "startUtc": "2026-10-08T05:00:00Z",
-    "turns": 30,
-    "inputTokens": 135731,
-    "outputTokens": 989,
-    "toolCalls": 61,
-    "toolErrors": 20,
-    "approvals": 15,
-    "avgTimeToFirstTokenMs": 1.5333333333333334,
-    "avgTurnDurationMs": 2.1666666666666665
+    "turns": 9,
+    "inputTokens": 40517,
+    "outputTokens": 299,
+    "toolCalls": 13,
+    "toolErrors": 4,
+    "approvals": 3,
+    "avgTimeToFirstTokenMs": 5.222222222222222,
+    "avgTurnDurationMs": 5.555555555555555
   },
-  "approvalsRequested": 15,
+  "approvalsRequested": 3,
   "buckets": [
     {
       "startUtc": "2026-10-08T05:00:00Z",
@@ -9521,21 +9522,21 @@ Response (200):
 {
   "kind": "tools",
   "fromUtc": "2026-10-08T05:00:00Z",
-  "toUtc": "2026-10-15T05:17:50.215847Z",
+  "toUtc": "2026-10-15T05:26:10.858512Z",
   "interval": "hour",
-  "conversations": 22,
+  "conversations": 7,
   "totals": {
     "startUtc": "2026-10-08T05:00:00Z",
-    "turns": 30,
-    "inputTokens": 135731,
-    "outputTokens": 989,
-    "toolCalls": 61,
-    "toolErrors": 20,
-    "approvals": 15,
-    "avgTimeToFirstTokenMs": 1.5333333333333334,
-    "avgTurnDurationMs": 2.1666666666666665
+    "turns": 9,
+    "inputTokens": 40517,
+    "outputTokens": 299,
+    "toolCalls": 13,
+    "toolErrors": 4,
+    "approvals": 3,
+    "avgTimeToFirstTokenMs": 5.222222222222222,
+    "avgTurnDurationMs": 5.555555555555555
   },
-  "approvalsRequested": 15,
+  "approvalsRequested": 3,
   "buckets": [
     {
       "startUtc": "2026-10-08T05:00:00Z",
@@ -9561,20 +9562,20 @@ Response (200):
     {
       "toolName": "sql_query",
       "connectorType": "sqlite",
-      "calls": 45,
+      "calls": 9,
       "errors": 0,
-      "denied": 20,
-      "approvals": 15,
-      "avgDurationMs": 0.35
+      "denied": 4,
+      "approvals": 3,
+      "avgDurationMs": 1.25
     },
     {
       "toolName": "sql_list_tables",
       "connectorType": "sqlite",
-      "calls": 16,
+      "calls": 4,
       "errors": 0,
       "denied": 0,
       "approvals": 0,
-      "avgDurationMs": 0.25
+      "avgDurationMs": 1.25
     }
   ]
 }
@@ -9605,25 +9606,25 @@ curl -s "$HUGO/v1.0/api/analytics/models?interval=hour" \
 
 Response (200):
 
-```text
+```json
 {
   "kind": "models",
   "fromUtc": "2026-10-08T05:00:00Z",
-  "toUtc": "2026-10-15T05:17:50.229836Z",
+  "toUtc": "2026-10-15T05:26:10.872625Z",
   "interval": "hour",
-  "conversations": 22,
+  "conversations": 7,
   "totals": {
     "startUtc": "2026-10-08T05:00:00Z",
-    "turns": 30,
-    "inputTokens": 135731,
-    "outputTokens": 989,
-    "toolCalls": 61,
-    "toolErrors": 20,
-    "approvals": 15,
-    "avgTimeToFirstTokenMs": 1.5333333333333334,
-    "avgTurnDurationMs": 2.1666666666666665
+    "turns": 9,
+    "inputTokens": 40517,
+    "outputTokens": 299,
+    "toolCalls": 13,
+    "toolErrors": 4,
+    "approvals": 3,
+    "avgTimeToFirstTokenMs": 5.222222222222222,
+    "avgTurnDurationMs": 5.555555555555555
   },
-  "approvalsRequested": 15,
+  "approvalsRequested": 3,
   "buckets": [
     {
       "startUtc": "2026-10-08T05:00:00Z",
@@ -9647,21 +9648,18 @@ Response (200):
   ],
   "models": [
     {
-      "modelEndpointId": "mep_mv937yj6_RbhrM8KfcgiBVTuL8o2",
+      "modelEndpointId": "mep_mv93ioio_pZjmchLfpNQgWS1aZ9h",
       "name": "local-model",
       "provider": "OpenAICompatible",
       "model": "stub-model",
       "turns": 9,
-      "inputTokens": 41288,
+      "inputTokens": 40517,
       "outputTokens": 299,
-      "avgTimeToFirstTokenMs": 0.6666666666666666,
-      "avgTurnDurationMs": 1.2222222222222223
-    },
-    {
-      "modelEndpointId": "mep_mv930ljf_IUsKZfloacTdv6M5Dfc",
-      "turns": 7,
-      "inputTokens": 31738,
-…
+      "avgTimeToFirstTokenMs": 5.222222222222222,
+      "avgTurnDurationMs": 5.555555555555555
+    }
+  ]
+}
 ```
 
 ## Audit
@@ -9709,60 +9707,59 @@ Response (200):
 {
   "pageNumber": 1,
   "pageSize": 5,
-  "totalCount": 6,
-  "totalPages": 2,
+  "totalCount": 2,
+  "totalPages": 1,
   "objects": [
     {
-      "id": "aud_mv937zk6_IQYZUsgpPKkvkt63orK",
+      "id": "aud_mv93ipsz_WdaKRE6ht6vYU2qXWhh",
       "tenantId": "default",
       "eventType": "SecretRevealed",
-      "requestId": "c98aad2d443649e5a5bc0768e7d25f9a",
-      "traceId": "0e987cc380c8d1e5e7fd86ecb9a737e8",
+      "requestId": "88934f7ca4b549d4b2497e95d3868a24",
+      "traceId": "6d613412b69b6bd3a1ffb48957e701ef",
       "authScheme": "BearerToken",
       "principalType": "User",
-      "principalId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+      "principalId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
       "principalName": "anderson@hugo.local",
-      "sessionId": "ses_mv937whh_oAAtDPcjMqbuP8c6clO",
+      "sessionId": "ses_mv93im6q_tgRe3O1k573K5Vmx6oQ",
       "resourceType": "Secret",
-      "resourceId": "sec_mv937zi5_VNEmIR3h9yX4e19gn0w",
+      "resourceId": "sec_mv93ipqs_SjgYJOike4K57wJecHk",
       "operation": "Reveal",
       "method": "POST",
-      "path": "/v1.0/api/tenants/default/secrets/sec_mv937zi5_VNEmIR3h9yX4e19gn0w/reveal",
+      "path": "/v1.0/api/tenants/default/secrets/sec_mv93ipqs_SjgYJOike4K57wJecHk/reveal",
       "sourceIp": "127.0.0.1",
       "reason": "Checking the demo database password",
       "statusCode": 200,
       "description": "Revealed secret demo-db-password (fields password). Reason: Checking the demo database password",
       "active": true,
       "isProtected": false,
-      "createdUtc": "2026-10-15T05:17:49.638842Z",
-      "lastUpdateUtc": "2026-10-15T05:17:49.638842Z"
+      "createdUtc": "2026-10-15T05:26:10.211413Z",
+      "lastUpdateUtc": "2026-10-15T05:26:10.211413Z"
     },
     {
-      "id": "aud_mv937zhf_gwkKge6nEomGgCOZjK2",
+      "id": "aud_mv93ipq2_eOaCf2QkyHqhBOFbyBe",
       "tenantId": "default",
       "eventType": "SecretRevealed",
-      "requestId": "28844fcee6f341b9828d2ce19a2cf638",
-      "traceId": "1e875cde5a619b0ac76cc414497f49c6",
+      "requestId": "8674c8757aaa4782a583d0802ced300b",
+      "traceId": "84d70b672aae747fce8bbdb19449dfd0",
       "authScheme": "BearerToken",
       "principalType": "User",
-      "principalId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+      "principalId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
       "principalName": "anderson@hugo.local",
-      "sessionId": "ses_mv937whh_oAAtDPcjMqbuP8c6clO",
+      "sessionId": "ses_mv93im6q_tgRe3O1k573K5Vmx6oQ",
       "resourceType": "Secret",
-      "resourceId": "sec_mv937zcp_sEmwxNsnTg5N6NBDWea",
+      "resourceId": "sec_mv93ipka_2Q4UthZo31bN0cPBZjq",
       "operation": "Reveal",
       "method": "POST",
-      "path": "/v1.0/api/secrets/sec_mv937zcp_sEmwxNsnTg5N6NBDWea/reveal",
+      "path": "/v1.0/api/secrets/sec_mv93ipka_2Q4UthZo31bN0cPBZjq/reveal",
       "sourceIp": "127.0.0.1",
       "reason": "Confirming the rotated token before handing it to the on-call engineer",
       "statusCode": 200,
       "description": "Revealed secret demo-api-token (fields token). Reason: Confirming the rotated token before handing it to the on-call engineer",
       "active": true,
       "isProtected": false,
-      "createdUtc": "2026-10-15T05:17:49.53981Z",
-      "lastUpdateUtc": "2026-10-15T05:17:49.53981Z"
-    },
-    "… 3 more"
+      "createdUtc": "2026-10-15T05:26:10.106662Z",
+      "lastUpdateUtc": "2026-10-15T05:26:10.106662Z"
+    }
   ]
 }
 ```
@@ -9819,7 +9816,7 @@ One record with request ID, trace ID, scheme, principal, resource, result, and d
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/tenants/default/audit/aud_mv937zk6_IQYZUsgpPKkvkt63orK" \
+curl -s "$HUGO/v1.0/api/tenants/default/audit/aud_mv93ipsz_WdaKRE6ht6vYU2qXWhh" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -9827,29 +9824,29 @@ Response (200):
 
 ```json
 {
-  "id": "aud_mv937zk6_IQYZUsgpPKkvkt63orK",
+  "id": "aud_mv93ipsz_WdaKRE6ht6vYU2qXWhh",
   "tenantId": "default",
   "eventType": "SecretRevealed",
-  "requestId": "c98aad2d443649e5a5bc0768e7d25f9a",
-  "traceId": "0e987cc380c8d1e5e7fd86ecb9a737e8",
+  "requestId": "88934f7ca4b549d4b2497e95d3868a24",
+  "traceId": "6d613412b69b6bd3a1ffb48957e701ef",
   "authScheme": "BearerToken",
   "principalType": "User",
-  "principalId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "principalId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "principalName": "anderson@hugo.local",
-  "sessionId": "ses_mv937whh_oAAtDPcjMqbuP8c6clO",
+  "sessionId": "ses_mv93im6q_tgRe3O1k573K5Vmx6oQ",
   "resourceType": "Secret",
-  "resourceId": "sec_mv937zi5_VNEmIR3h9yX4e19gn0w",
+  "resourceId": "sec_mv93ipqs_SjgYJOike4K57wJecHk",
   "operation": "Reveal",
   "method": "POST",
-  "path": "/v1.0/api/tenants/default/secrets/sec_mv937zi5_VNEmIR3h9yX4e19gn0w/reveal",
+  "path": "/v1.0/api/tenants/default/secrets/sec_mv93ipqs_SjgYJOike4K57wJecHk/reveal",
   "sourceIp": "127.0.0.1",
   "reason": "Checking the demo database password",
   "statusCode": 200,
   "description": "Revealed secret demo-db-password (fields password). Reason: Checking the demo database password",
   "active": true,
   "isProtected": false,
-  "createdUtc": "2026-10-15T05:17:49.638842Z",
-  "lastUpdateUtc": "2026-10-15T05:17:49.638842Z"
+  "createdUtc": "2026-10-15T05:26:10.211413Z",
+  "lastUpdateUtc": "2026-10-15T05:26:10.211413Z"
 }
 ```
 
@@ -9869,7 +9866,7 @@ Delete one record. Needs Delete on Audit.
 Example:
 
 ```bash
-curl -s -X DELETE "$HUGO/v1.0/api/tenants/default/audit/aud_mv937zk6_IQYZUsgpPKkvkt63orK" \
+curl -s -X DELETE "$HUGO/v1.0/api/tenants/default/audit/aud_mv93ipsz_WdaKRE6ht6vYU2qXWhh" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -9922,49 +9919,49 @@ Response (200):
 {
   "pageNumber": 1,
   "pageSize": 5,
-  "totalCount": 218,
-  "totalPages": 44,
+  "totalCount": 31,
+  "totalPages": 7,
   "objects": [
     {
-      "id": "req_mv937yd9_D0GfkwbfF96TsubmadO",
+      "id": "req_mv93iobv_nLdkfsSonlb5gYSVxUu",
       "tenantId": "default",
-      "userId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+      "userId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
       "principalName": "anderson@hugo.local",
       "method": "POST",
       "path": "/v1.0/api/resources",
       "url": "/v1.0/api/resources",
       "statusCode": 201,
-      "durationMs": 0.6,
+      "durationMs": 1.18,
       "sourceIp": "127.0.0.1",
-      "traceId": "3edcd19c0aa0210bf02ed17288cd0e63",
-      "correlationId": "80b9657c67c2427bb0dc9e9547aabcb3",
+      "traceId": "af4f9a518d7ddf64f933edbe41fb7056",
+      "correlationId": "77389b8cb45e4be69bd333c68a0c3f1a",
       "requestBodyBytes": 213,
       "requestBodyTruncated": false,
-      "responseBodyBytes": 516,
+      "responseBodyBytes": 518,
       "responseBodyTruncated": false,
-      "createdUtc": "2026-10-15T05:17:48.092613Z",
-      "completedUtc": "2026-10-15T05:17:48.09321Z",
+      "createdUtc": "2026-10-15T05:26:08.298057Z",
+      "completedUtc": "2026-10-15T05:26:08.299233Z",
       "headers": []
     },
     {
-      "id": "req_mv937yc7_7WA42ePndY4ffVHg8bl",
+      "id": "req_mv93ioap_YJNBEbBorYsEJjnZZwE",
       "tenantId": "default",
-      "userId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+      "userId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
       "principalName": "anderson@hugo.local",
       "method": "POST",
       "path": "/v1.0/api/resources",
       "url": "/v1.0/api/resources",
       "statusCode": 201,
-      "durationMs": 0.51,
+      "durationMs": 2.7,
       "sourceIp": "127.0.0.1",
-      "traceId": "1999c7436369e5f28e3d4010de3c7161",
-      "correlationId": "6c3050bfe50543d3a61285abe741dfec",
+      "traceId": "51a5051ec99046d273c4eb138227f0ab",
+      "correlationId": "5bc982c416794073b1e45d55a45e306d",
       "requestBodyBytes": 208,
       "requestBodyTruncated": false,
       "responseBodyBytes": 507,
       "responseBodyTruncated": false,
-      "createdUtc": "2026-10-15T05:17:48.055295Z",
-      "completedUtc": "2026-10-15T05:17:48.055806Z",
+      "createdUtc": "2026-10-15T05:26:08.254918Z",
+      "completedUtc": "2026-10-15T05:26:08.257614Z",
       "headers": []
     },
     "… 3 more"
@@ -10033,21 +10030,21 @@ Response (200):
 
 ```json
 {
-  "totalCount": 1469,
-  "totalSuccess": 1443,
-  "totalFailure": 26,
-  "averageDurationMs": 3.92,
+  "totalCount": 260,
+  "totalSuccess": 258,
+  "totalFailure": 2,
+  "averageDurationMs": 7.63,
   "buckets": [
     {
-      "bucketStartUtc": "2026-10-14T05:17:50.315462Z",
-      "bucketEndUtc": "2026-10-14T06:17:50.315462Z",
+      "bucketStartUtc": "2026-10-14T05:26:10.964514Z",
+      "bucketEndUtc": "2026-10-14T06:26:10.964514Z",
       "successCount": 0,
       "failureCount": 0,
       "averageDurationMs": 0
     },
     {
-      "bucketStartUtc": "2026-10-14T06:17:50.315462Z",
-      "bucketEndUtc": "2026-10-14T07:17:50.315462Z",
+      "bucketStartUtc": "2026-10-14T06:26:10.964514Z",
+      "bucketEndUtc": "2026-10-14T07:26:10.964514Z",
       "successCount": 0,
       "failureCount": 0,
       "averageDurationMs": 0
@@ -10074,7 +10071,7 @@ One captured request with its headers and bodies. Authorization headers and secr
 Example:
 
 ```bash
-curl -s "$HUGO/v1.0/api/request-history/req_mv937yd9_D0GfkwbfF96TsubmadO" \
+curl -s "$HUGO/v1.0/api/request-history/req_mv93iobv_nLdkfsSonlb5gYSVxUu" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -10082,37 +10079,37 @@ Response (200):
 
 ```json
 {
-  "id": "req_mv937yd9_D0GfkwbfF96TsubmadO",
+  "id": "req_mv93iobv_nLdkfsSonlb5gYSVxUu",
   "tenantId": "default",
-  "userId": "usr_mv92uyld_OiAAkEipyBHSoJjTUut",
+  "userId": "usr_mv93il8j_L7SSsz5jlF8uCzffYrs",
   "principalName": "anderson@hugo.local",
   "method": "POST",
   "path": "/v1.0/api/resources",
   "url": "/v1.0/api/resources",
   "statusCode": 201,
-  "durationMs": 0.6,
+  "durationMs": 1.18,
   "sourceIp": "127.0.0.1",
-  "traceId": "3edcd19c0aa0210bf02ed17288cd0e63",
-  "correlationId": "80b9657c67c2427bb0dc9e9547aabcb3",
+  "traceId": "af4f9a518d7ddf64f933edbe41fb7056",
+  "correlationId": "77389b8cb45e4be69bd333c68a0c3f1a",
   "requestBody": "{\n  \"name\": \"billing-agent-dryrun\",\n  \"connectorType\": \"a2a-agent\",\n  \"environment\": \"example\",\n  \"settings\": {\n    \"agentCardUrl\": \"http://10.0.0.81:9000/.well-known/agent-card.json\"\n  },\n  \"secretBindings\": []\n}",
   "requestBodyBytes": 213,
   "requestBodyTruncated": false,
-  "responseBody": "{\"id\":\"res_mv937yd8_KljZFxRo8gtN9IXa5kA\",\"tenantId\":\"default\",\"ownerUserId\":\"usr_mv92uyld_OiAAkEipyBHSoJjTUut\",\"visibility\":\"Tenant\",\"name\":\"billing-agent-dryrun\",\"connectorType\":\"a2a-agent\",\"endpoint… (516 characters)",
-  "responseBodyBytes": 516,
+  "responseBody": "{\"id\":\"res_mv93iobu_59egE18lVRKSpzbvFUz\",\"tenantId\":\"default\",\"ownerUserId\":\"usr_mv93il8j_L7SSsz5jlF8uCzffYrs\",\"visibility\":\"Tenant\",\"name\":\"billing-agent-dryrun\",\"connectorType\":\"a2a-agent\",\"endpoint… (518 characters)",
+  "responseBodyBytes": 518,
   "responseBodyTruncated": false,
-  "createdUtc": "2026-10-15T05:17:48.092613Z",
-  "completedUtc": "2026-10-15T05:17:48.09321Z",
+  "createdUtc": "2026-10-15T05:26:08.298057Z",
+  "completedUtc": "2026-10-15T05:26:08.299233Z",
   "headers": [
     {
-      "id": "chr_mv937yda_Ikmyep1ldo4qrZ3LrDz_0000hea",
-      "requestHistoryEntryId": "req_mv937yd9_D0GfkwbfF96TsubmadO",
+      "id": "chr_mv93iobv_me7ehykjfUSG6kAgL9M_0000hea",
+      "requestHistoryEntryId": "req_mv93iobv_nLdkfsSonlb5gYSVxUu",
       "direction": "Request",
       "name": "Content-Type",
       "value": "application/json"
     },
     {
-      "id": "chr_mv937yda_Ikmyep1ldo4qrZ3LrDz_0001hea",
-      "requestHistoryEntryId": "req_mv937yd9_D0GfkwbfF96TsubmadO",
+      "id": "chr_mv93iobv_me7ehykjfUSG6kAgL9M_0001hea",
+      "requestHistoryEntryId": "req_mv93iobv_nLdkfsSonlb5gYSVxUu",
       "direction": "Request",
       "name": "Authorization",
       "value": "[redacted]"
@@ -10137,7 +10134,7 @@ Delete one entry.
 Example:
 
 ```bash
-curl -s -X DELETE "$HUGO/v1.0/api/request-history/req_mv937yd9_D0GfkwbfF96TsubmadO" \
+curl -s -X DELETE "$HUGO/v1.0/api/request-history/req_mv93iobv_nLdkfsSonlb5gYSVxUu" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -10391,9 +10388,9 @@ Response (200):
 
 ```json
 {
-  "id": "chatcmpl-1d5ff9e057dc4cd8bb50ed69d262344e",
+  "id": "chatcmpl-025e282a111b4c9bb89917300c986df4",
   "object": "chat.completion",
-  "created": 1792041468,
+  "created": 1792041968,
   "model": "Hugo",
   "choices": [
     {
@@ -10406,13 +10403,13 @@ Response (200):
     }
   ],
   "usage": {
-    "prompt_tokens": 6922,
+    "prompt_tokens": 6151,
     "completion_tokens": 46,
-    "total_tokens": 6968
+    "total_tokens": 6197
   },
   "hugo": {
-    "conversation_id": "cnv_mv92w3rb_uEnwcdfgABZf2WNBYXX",
-    "turn_id": "trn_mv937yq3_1ZQZzoqeq9XU1Y2b1km",
+    "conversation_id": "cnv_mv93iosi_OjQyR7Nlcq2IYVXMpcS",
+    "turn_id": "trn_mv93iosj_Z2oYhNbg8eOlQhWguLU",
     "finish_reason": "completed"
   }
 }
@@ -10444,19 +10441,19 @@ Response (200):
     {
       "id": "Hugo",
       "object": "model",
-      "created": 1792040862,
+      "created": 1792041964,
       "owned_by": "hugo"
     },
     {
       "id": "Oncall",
       "object": "model",
-      "created": 1792041467,
+      "created": 1792041967,
       "owned_by": "hugo"
     },
     {
       "id": "Oncall-Copy",
       "object": "model",
-      "created": 1792041467,
+      "created": 1792041967,
       "owned_by": "hugo"
     }
   ]
@@ -10548,7 +10545,7 @@ Example:
 ```bash
 curl -s -X DELETE "$HUGO/mcp" \
   -H "Authorization: Bearer $TOKEN" \
-  -H "Mcp-Session-Id: 205506a4-cb11-4cc0-822a-922249e6bdc6"
+  -H "Mcp-Session-Id: 027490cb-6317-42b2-b99a-2c40250fff7e"
 ```
 
 Response: 200 with an empty body.
@@ -10637,7 +10634,7 @@ Example:
 ```bash
 curl -s -X DELETE "$HUGO/mcp/Oncall" \
   -H "Authorization: Bearer $TOKEN" \
-  -H "Mcp-Session-Id: 23807fb3-2fd7-4eac-bf0c-23168cb64618"
+  -H "Mcp-Session-Id: d05f8af2-8059-4e1e-ae77-4d824a714ad8"
 ```
 
 Response: 200 with an empty body.

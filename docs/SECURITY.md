@@ -40,7 +40,7 @@ Every route except health, the token and tenant lookup routes, the agent card, `
 
 `x-tenant-id` is accepted everywhere (`x-tenant-guid` is the AUTHENTICATION.md name for the same header). With a session or a credential it must match the principal's tenant or the request fails; it is mainly useful at login, where an email can exist in several tenants. `POST /v1.0/tenants/lookup` with `{ "email": "..." }` returns the active tenants an email can sign in to, which is how the dashboard's login form finds the tenant.
 
-Users flagged `mustChangePassword` (both seeded accounts start that way) can reach only the token routes, `GET /v1.0/api/users/me`, `POST /v1.0/api/users/me/password`, and server info until they change it.
+Both seeded accounts, and any user whose password an administrator resets, carry `mustChangePassword`. Since decision D-048 the flag is advisory: the dashboard prompts for a new password and the prompt can be skipped, and no route is blocked. That makes changing the seeded `password` your job, not Hugo's; do it before the server is reachable from anywhere but your own machine.
 
 ### Sessions
 
