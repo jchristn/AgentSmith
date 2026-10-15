@@ -1,0 +1,13 @@
+# Rules for the Hugo observability testbed: one alert that always fires and one recording rule.
+groups:
+  - name: hugo-testbed
+    interval: 5s
+    rules:
+      - alert: HugoTestbedAlwaysFiring
+        expr: vector(1)
+        labels:
+          severity: info
+        annotations:
+          summary: Always firing so prom_alerts has data.
+      - record: hugo:up:sum
+        expr: sum(up)

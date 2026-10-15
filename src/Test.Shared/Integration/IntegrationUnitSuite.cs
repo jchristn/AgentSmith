@@ -185,7 +185,8 @@ namespace Test.Shared.Integration
             {
                 ConnectorRegistrations.RegisterBuiltIns(registry);
                 List<string> types = registry.All().Select(c => c.Descriptor.Type).OrderBy(t => t, StringComparer.Ordinal).ToList();
-                Assert.Equal("azure-blob,gcs,mysql,papertrail,postgresql,s3,solarwinds-observability,sqlite,sqlserver,ssh", String.Join(",", types), "wave 1 connectors");
+                foreach (string type in new[] { "azure-blob", "gcs", "mysql", "papertrail", "postgresql", "s3", "solarwinds-observability", "sqlite", "sqlserver", "ssh" }) Assert.True(types.Contains(type), "wave 1 connector " + type);
+                Assert.Equal(types.Count, types.Distinct(StringComparer.Ordinal).Count(), "unique types");
                 Assert.True(registry.FamilyTools("sql").Any(t => t.Descriptor.Name == "sql_query"), "family tools");
                 bool duplicate = false;
                 try

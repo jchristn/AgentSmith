@@ -37,6 +37,12 @@ namespace Test.Shared
                 suites.AddRange(StorageSuites.Build());
                 suites.AddRange(SqlSuites.Build());
                 suites.AddRange(LoggingSuites.Build());
+                suites.AddRange(AwsSuites.Build());
+                suites.AddRange(RedisSuites.Build());
+                suites.AddRange(HttpSuites.Build());
+                suites.AddRange(ObservabilitySuites.Build());
+                suites.AddRange(KubernetesSuites.Build());
+                suites.AddRange(DockerSuites.Build());
                 suites.AddRange(Test.Shared.Integration.PipelineSuite.Build());
                 suites.AddRange(Test.Shared.Integration.ConfigurationIntegrationSuite.Build());
                 suites.AddRange(Test.Shared.Integration.ModelAgentSuite.Build());

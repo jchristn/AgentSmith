@@ -3,7 +3,13 @@ namespace Hugo.Server.Services
     using System;
     using System.Collections.Generic;
     using Hugo.Connectors.Abstractions;
+    using Hugo.Connectors.Aws;
+    using Hugo.Connectors.Docker;
+    using Hugo.Connectors.Http;
+    using Hugo.Connectors.Kubernetes;
     using Hugo.Connectors.Logging;
+    using Hugo.Connectors.Observability;
+    using Hugo.Connectors.Redis;
     using Hugo.Connectors.Sql;
     using Hugo.Connectors.Ssh;
     using Hugo.Connectors.Storage;
@@ -18,8 +24,9 @@ namespace Hugo.Server.Services
         #region Public-Methods
 
         /// <summary>
-        /// New instances of every built-in connector (wave 1: ssh, s3, azure-blob, gcs, sqlite, mysql, sqlserver,
-        /// postgresql, papertrail, solarwinds-observability).
+        /// New instances of every built-in connector. Wave 1: ssh, s3, azure-blob, gcs, sqlite, mysql, sqlserver,
+        /// postgresql, papertrail, solarwinds-observability. Wave 2: redis, http, prometheus, loki, elasticsearch, aws,
+        /// kubernetes, docker.
         /// </summary>
         /// <returns>Connectors.</returns>
         public static List<IConnector> BuiltIns()
@@ -35,7 +42,15 @@ namespace Hugo.Server.Services
                 new SqlServerConnector(),
                 new PostgresqlConnector(),
                 new PapertrailConnector(),
-                new SolarWindsObservabilityConnector()
+                new SolarWindsObservabilityConnector(),
+                new RedisConnector(),
+                new HttpConnector(),
+                new PrometheusConnector(),
+                new LokiConnector(),
+                new ElasticsearchConnector(),
+                new AwsConnector(),
+                new KubernetesConnector(),
+                new DockerConnector()
             };
         }
 

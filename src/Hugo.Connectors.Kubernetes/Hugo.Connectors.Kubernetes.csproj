@@ -3,7 +3,7 @@
   <PropertyGroup>
     <RootNamespace>Hugo.Connectors.Kubernetes</RootNamespace>
     <AssemblyName>Hugo.Connectors.Kubernetes</AssemblyName>
-    <Description>Hugo connector for Kubernetes clusters.</Description>
+    <Description>Hugo connector for Kubernetes clusters (any kind, including custom resources).</Description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,6 +11,10 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Instructions\**\*.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="KubernetesClient" Version="21.0.8" />
+    <PackageReference Include="YamlDotNet" Version="18.1.0" />
   </ItemGroup>
 
 </Project>
