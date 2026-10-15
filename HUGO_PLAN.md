@@ -112,6 +112,14 @@ Milestones:
 ### Current state and where to pick up (updated 2026-10-14)
 
 - Execution started 2026-10-14. Phase 0 skeleton is committed: solution, connector contract (P3.1), CI workflow, assets. The foundation is being forked from Garrison (D-032).
+- In flight 2026-10-14 (parallel agents, one git worktree each, merged by the coordinator):
+  1. Backend foundation fork from Garrison: Phase 1 and Phase 2.
+  2. Dashboard foundation fork from Garrison: P0.10 and the Phase 8 shell, shared components, and admin pages.
+  3. SSH connector: P4.3 to P4.9.
+  4. Object storage connectors: P4.10 to P4.14.
+  5. SQL connectors: P0.15 and P4.15 to P4.19.
+  6. Papertrail and SolarWinds Observability connectors: P4.20 to P4.27.
+- Next after the merges: Phase 3 pipeline (resources, invocation service, approvals), Phase 5 profiles and instructions, Phase 6 runtime, Phase 7 protocols.
 - Decisions D-001 through D-034 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
 - Before P0.1, confirm the open questions in [section 23](#23-risks-and-open-questions) that are marked "before Phase 0".
 
