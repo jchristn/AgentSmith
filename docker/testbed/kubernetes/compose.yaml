@@ -26,6 +26,9 @@ services:
       - server
       - --disable=traefik,servicelb,metrics-server,local-storage
       - --disable-helm-controller
+      # The kubelet keeps one dead container per container by default, so once the crasher's newest instance
+      # exits, the instance before it (what k8s_logs previous: true reads) is garbage collected. Keep two.
+      - --kubelet-arg=maximum-dead-containers-per-container=2
       - --tls-san=127.0.0.1
       - --tls-san=k3s
       - --write-kubeconfig=/output/kubeconfig.yaml
