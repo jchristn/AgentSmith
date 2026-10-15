@@ -130,6 +130,7 @@ Milestones:
   - docs/connectors/redis-acl.md still says KEYS lives in the default deniedCommands; it is now a built-in denial.
   - Kubernetes testbed has one timing-sensitive crash-loop case (k8s_events or k8s_logs) that fails intermittently.
   - Security review item from the MCP work: a credential inherits its owner's tenant-admin flag in AuthenticationService even when scoped to a narrower role; review whether credentials should carry the owner's bypass flags (P16.3).
+  - Follow-ups merged 2026-10-14 (credential bypass security fix with audited inheritOwnerBypass opt-in, approval-await execution fix, list filters, model endpoint health history, 502 for unreachable providers, template cycle detection, header echo removal, SessionExchange enforcement, HostKeyMismatch audit, OpenAPI fixes, storage fixtures, Loki empty test, HTTP healthPath). Remaining: SDK harnesses still expect the old forced password change and lack /ask and /analytics methods; REST_API.md and Postman need the follow-up API changes.
   - From the dashboard live journey: fixed on main 2026-10-14, a stack overflow at startup when telemetry is enabled (HugoTelemetry closure). Still open: GET /v1.0/api/model-endpoints/{id}/models returns 500 when the provider is unreachable (should be 502 or 503 like /validate); template includes use {{> key}}, not the {{> include key}} written in section 10.3; list filters from section 18.3 not supported by the server (approvals effect and fromUtc, tool-invocations effect and toUtc, resources environment and health, secrets kind, model-endpoints kind, provider, and health, session principal filters); profiles lack bindingCount and sessions lack principalName; no model endpoint health-history route; the dashboard analytics page should switch to the new analytics routes.
   - Dynamic tools (D-044): add optional `IDynamicToolProvider` so external MCP tools appear as `<prefix>__<tool>`; fence remote instructions inside compiled instructions (P13.28).
   - SSH `jumpResourceName` (reuse another resource as bastion) needs a related-resource resolver; the jump settings cover the case today.
@@ -949,7 +950,7 @@ Templates use a small, safe renderer (Garrison `TemplateRenderer` ported):
 - `{{variable}}` substitution, with filters `upper`, `lower`, `default:"x"`, `join:", "`, `indent:2`;
 - `{{#if}}` and `{{#unless}}`;
 - `{{#each}}`;
-- `{{> include key}}` for template includes.
+- `{{> key}}` for template includes.
 
 No code execution and no filesystem access. Rendering failures fall back to the next layer and log a warning.
 
@@ -2355,7 +2356,7 @@ The full Built-in texts are written in P4.8, P4.13, P4.19, P4.23, P4.26, and P13
   "Telemetry": { "Enable": true, "ServiceName": "hugo-server", "OtlpEndpoint": "http://127.0.0.1:4317", "Prometheus": { "Enable": true, "Path": "/metrics" } },
   "Agent": { "DefaultMaxIterations": 12, "DefaultMaxToolCallsPerTurn": 24, "MaxParallelToolCalls": 4, "ToolRetrievalThreshold": 40, "CompactionThresholdRatio": 0.75 },
   "Approvals": { "ExpirySeconds": 900, "McpWaitSeconds": 90, "AllowSelfApproval": true },
-  "Connectors": { "EnablePlugins": false, "PluginDirectory": "plugins", "DefaultToolTimeoutSeconds": 120, "HealthSweepMinutes": 15, "Mcp": { "AllowStdio": false } },
+  "Connectors": { "EnablePlugins": false, "PluginDirectory": "plugins", "DefaultToolTimeoutSeconds": 120, "Mcp": { "AllowStdio": false } },
   "Models": { "HealthIntervalSeconds": 300 },
   "Mcp": { "Enable": true, "InternalPort": 0, "SessionIdleTimeoutSeconds": 900, "MaxMessageSize": 4194304 },
   "A2A": { "Enable": true },
