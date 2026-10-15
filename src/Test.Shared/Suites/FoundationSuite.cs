@@ -35,6 +35,7 @@ namespace Test.Shared.Suites
             List<TestCaseDescriptor> unit = new List<TestCaseDescriptor>();
             unit.Add(new TestCaseDescriptor("foundation-unit", "settings-environment", "HUGO_* overrides apply with field paths and invalid values are rejected", SettingsEnvironmentAsync));
             unit.Add(new TestCaseDescriptor("foundation-unit", "settings-validation", "Settings clamp to documented ranges and reject unusable combinations", SettingsValidationAsync));
+            unit.Add(new TestCaseDescriptor("foundation-unit", "telemetry-document", "docs/TELEMETRY.md matches the metric catalog and every metric is hugo_ prefixed", TelemetryDocumentAsync));
             suites.Add(new TestSuiteDescriptor("foundation-unit", "Foundation unit", unit));
 
             foreach (DatabaseTypeEnum provider in TestEnvironment.Providers())
@@ -121,6 +122,34 @@ namespace Test.Shared.Suites
             }
             Assert.True(threw, "A short signing key was accepted.");
             return Task.CompletedTask;
+        }
+
+        private static Task TelemetryDocumentAsync(CancellationToken token)
+        {
+            foreach (Hugo.Core.Telemetry.MetricDescriptor metric in Hugo.Core.Telemetry.HugoMetricCatalog.All())
+            {
+                Assert.True(metric.PrometheusName.StartsWith("hugo_", StringComparison.Ordinal), metric.Name + " is not hugo_ prefixed.");
+            }
+            string expected = Hugo.Core.Telemetry.TelemetryDocument.Render();
+            string path = System.IO.Path.Combine(RepositoryRoot(), "docs", "TELEMETRY.md");
+            if (Environment.GetEnvironmentVariable("HUGO_WRITE_DOCS") == "true")
+            {
+                System.IO.File.WriteAllText(path, expected);
+            }
+            Assert.True(System.IO.File.Exists(path), "docs/TELEMETRY.md is missing; run with HUGO_WRITE_DOCS=true.");
+            Assert.Equal(expected, System.IO.File.ReadAllText(path).Replace("\r\n", "\n"), "docs/TELEMETRY.md is out of date; run with HUGO_WRITE_DOCS=true");
+            return Task.CompletedTask;
+        }
+
+        private static string RepositoryRoot()
+        {
+            System.IO.DirectoryInfo? directory = new System.IO.DirectoryInfo(AppContext.BaseDirectory);
+            while (directory != null)
+            {
+                if (System.IO.File.Exists(System.IO.Path.Combine(directory.FullName, "HUGO_PLAN.md"))) return directory.FullName;
+                directory = directory.Parent;
+            }
+            throw new TestAssertionException("Could not find the repository root (HUGO_PLAN.md) above " + AppContext.BaseDirectory + ".");
         }
 
         private static async Task RouteContractAsync(DatabaseTypeEnum provider, CancellationToken token)

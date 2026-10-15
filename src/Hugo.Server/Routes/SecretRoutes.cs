@@ -22,6 +22,21 @@ namespace Hugo.Server.Routes
     /// </summary>
     public class SecretRoutes
     {
+        #region Public-Members
+
+        /// <summary>
+        /// The reveal route template; request history never captures its bodies.
+        /// </summary>
+        public static string RevealPath
+        {
+            get
+            {
+                return _Base + "/{id}/reveal";
+            }
+        }
+
+        #endregion
+
         #region Private-Members
 
         private static readonly string _Base = "/v1.0/api/tenants/{tenantId}/secrets";
@@ -53,17 +68,6 @@ namespace Hugo.Server.Routes
         #endregion
 
         #region Public-Methods
-
-        /// <summary>
-        /// The reveal route template; request history never captures its bodies.
-        /// </summary>
-        public static string RevealPath
-        {
-            get
-            {
-                return _Base + "/{id}/reveal";
-            }
-        }
 
         /// <summary>
         /// Register routes.

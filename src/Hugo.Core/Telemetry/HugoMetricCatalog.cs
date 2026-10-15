@@ -17,7 +17,7 @@ namespace Hugo.Core.Telemetry
         #region Public-Members
 
         /// <summary>REST requests handled.</summary>
-        public static readonly MetricDescriptor HttpRequests = new MetricDescriptor("hugo.http.requests", MetricKindEnum.Counter, "{request}", "method, route, status_code, status_class, tenant", "REST requests handled, by route template (never the raw path), method, status, and tenant. Requests the client abandoned (a worker dropping its cancellation watch, a closed browser tab) have status_code 499 and status_class aborted, never 5xx", "server", "HTTP", "hugo-http");
+        public static readonly MetricDescriptor HttpRequests = new MetricDescriptor("hugo.http.requests", MetricKindEnum.Counter, "{request}", "method, route, status_code, status_class, tenant", "REST requests handled, by route template (never the raw path), method, status, and tenant. Requests the client abandoned (for example a closed browser tab) have status_code 499 and status_class aborted, never 5xx", "server", "HTTP", "hugo-http");
 
         /// <summary>REST request duration.</summary>
         public static readonly MetricDescriptor HttpRequestDuration = new MetricDescriptor("hugo.http.request.duration", MetricKindEnum.Histogram, "s", "method, route, status_class, tenant", "Time from the request arriving to the response being sent", "server", "HTTP", "hugo-http", TelemetryBuckets.Request);
@@ -41,7 +41,7 @@ namespace Hugo.Core.Telemetry
         public static readonly MetricDescriptor AuthzDenials = new MetricDescriptor("hugo.authz.denials", MetricKindEnum.Counter, "{request}", "resource, operation, result", "Authorization denials by resource type, operation, and result (Forbidden, NotFound)", "server", "Security", "hugo-security");
 
         /// <summary>Authentication cache lookups.</summary>
-        public static readonly MetricDescriptor AuthCacheLookups = new MetricDescriptor("hugo.auth.cache_lookups", MetricKindEnum.Counter, "{lookup}", "entity, result", "Authentication lookups by record (session, tenant, user, credential) and result: hit (answered from the per-replica cache, Auth.CacheSeconds) or miss (read from the database)", "server", "Security", "hugo-security");
+        public static readonly MetricDescriptor AuthCacheLookups = new MetricDescriptor("hugo.auth.cache_lookups", MetricKindEnum.Counter, "{lookup}", "entity, result", "Authentication lookups by record (session, tenant, user, credential) and result: hit (answered from the in-process cache, Auth.CacheSeconds) or miss (read from the database)", "server", "Security", "hugo-security");
 
         /// <summary>Tokens issued.</summary>
         public static readonly MetricDescriptor AuthTokensIssued = new MetricDescriptor("hugo.auth.tokens_issued", MetricKindEnum.Counter, "{token}", "scheme, principal", "Session tokens issued (sign-ins and token exchanges) by scheme and principal type (User, Credential)", "server", "Security", "hugo-security");
@@ -50,7 +50,7 @@ namespace Hugo.Core.Telemetry
         public static readonly MetricDescriptor AuditEvents = new MetricDescriptor("hugo.audit.events", MetricKindEnum.Counter, "{event}", "type", "Audit records written, by event type", "server", "Security", "hugo-security");
 
         /// <summary>SSE streams active.</summary>
-        public static readonly MetricDescriptor SseStreamsActive = new MetricDescriptor("hugo.sse.streams.active", MetricKindEnum.ObservableGauge, "{stream}", "stream", "Server-sent event streams open on this replica (run_events, a2a)", "server", "Protocols", "hugo-protocols");
+        public static readonly MetricDescriptor SseStreamsActive = new MetricDescriptor("hugo.sse.streams.active", MetricKindEnum.ObservableGauge, "{stream}", "stream", "Server-sent event streams open on this server (events, chat, A2A)", "server", "Protocols", "hugo-protocols");
 
         /// <summary>SSE events sent.</summary>
         public static readonly MetricDescriptor SseEvents = new MetricDescriptor("hugo.sse.events", MetricKindEnum.Counter, "{event}", "stream", "Server-sent events written", "server", "Protocols", "hugo-protocols");
