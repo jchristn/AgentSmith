@@ -82,11 +82,11 @@ These rules keep the plan honest:
 
 | Phase | Name | Milestone | Status | Done / Total |
 |---|---|---|---|---|
-| 0 | Repository bootstrap | M1 | In progress | 9 / 16 |
+| 0 | Repository bootstrap | M1 | In progress | 10 / 16 |
 | 1 | Core foundation: settings, data layer, identity, RBAC, sessions, audit, history, telemetry base | M1 | In progress | 0 / 44 |
 | 2 | Secrets vault | M1 | Not started | 0 / 12 |
 | 3 | Connector framework and tool invocation pipeline | M1 | In progress | 4 / 24 |
-| 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | In progress | 20 / 30 |
+| 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | In progress | 25 / 30 |
 | 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | In progress | 0 / 20 |
 | 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | Not started | 0 / 24 |
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Not started | 0 / 22 |
@@ -115,11 +115,12 @@ Milestones:
 - In flight 2026-10-14 (parallel agents, one git worktree each, merged by the coordinator):
   1. Backend foundation fork from Garrison: Phase 1 and Phase 2.
   2. Dashboard foundation fork from Garrison: P0.10 and the Phase 8 shell, shared components, and admin pages.
-  5. SQL connectors: P0.15 and P4.15 to P4.19.
 - Follow-ups recorded from connector work (fold into the named tasks):
   - P3.13: the pipeline applies binding-level command deny patterns (the invocation context has no binding policy).
   - P3.8: audit every `LearnSetting` call (pinned host keys, D-028) as `HostKeyPinned`.
   - P4.29: document OpenSSH `PerSourcePenalties`; repeated auth failures from Hugo's single IP can temporarily lock it out of a host.
+  - IConnectorTool docs: caller cancellation throws `OperationCanceledException`; a connector's own timeout returns a `timeout` error result (SQL behavior, make it the contract rule).
+  - Package alignment: Hugo.Core must use the same Microsoft.Data.Sqlite (10.0.13) and Npgsql (10.0.3) versions as the SQL connectors.
   - SSH `jumpResourceName` (reuse another resource as bastion) needs a related-resource resolver; the jump settings cover the case today.
 - Next after the merges: Phase 3 pipeline (resources, invocation service, approvals), Phase 5 profiles and instructions, Phase 6 runtime, Phase 7 protocols.
 - Decisions D-001 through D-037 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
@@ -1657,7 +1658,7 @@ Each phase lists its tasks in rough execution order. An italic *Accept:* note st
 - [~] P0.12 GitHub Actions `build-test.yaml`: restore, build, Touchstone on SQLite, Touchstone on PostgreSQL (service container), dashboard lint, unit, and i18n check, on every push and PR.  | claude 2026-10-14 build-test.yaml written (SQLite and PostgreSQL service container); first green run pending
 - [x] P0.13 Em-dash guard: a CI step fails if U+2014 appears in any tracked text file.  | claude 2026-10-14 scripts/check-em-dash.sh/.bat, wired into CI
 - [ ] P0.14 Create the `docker/` layout with placeholder `compose.yaml`, `update.bat`/`.sh`, `factory/reset.bat`/`.sh`.
-- [ ] P0.15 Vendor the Tablix crawler and classifier sources into `Hugo.Connectors.Sql/Vendored/Tablix` with an attribution header and a `VENDORED.md` noting the source commit.
+- [x] P0.15 Vendor the Tablix crawler and classifier sources into `Hugo.Connectors.Sql/Vendored/Tablix` with an attribution header and a `VENDORED.md` noting the source commit.  | claude 2026-10-14 Tablix 450bc76 vendored into Hugo.Connectors.Sql/Vendored/Tablix with attribution and VENDORED.md; fixed MySQL PK join, parameterized SQLite pragmas, MySQL longtext overflow
 - [ ] P0.16 Port Garrison helpers that Hugo reuses unchanged (TemplateRenderer, LabelGuard, StrictEnumConverterFactory) with attribution notes. *Accept:* each compiles in Hugo namespaces and has its original tests ported.
 
 ### Phase 1: Core foundation (M1)
@@ -1787,11 +1788,11 @@ Object storage
 - [x] P4.14 Storage testbed suites against MinIO or Less3, Azurite, fake-gcs-server.  | claude 2026-10-14 docker/testbed/storage: pgsty/minio (official image gone), Azurite 3.35.0, fake-gcs-server 1.56.1 with timestamp-padding proxy; connectors.storage 28/28, testbed.storage 75/75 (run on alternate MinIO port; 28900 was taken by an unrelated local process)
 
 SQL
-- [ ] P4.15 `Hugo.Connectors.Sql` descriptors for `sqlite`, `mysql`, `sqlserver`, `postgresql`, plus settings, slots, and connection builders.
-- [ ] P4.16 Statement classifier from the vendored Tablix `QueryValidator`, extended for multi-statement, CTE, `EXPLAIN ANALYZE`, and comments. *Accept:* table test with at least 200 cases across dialects.
-- [ ] P4.17 Read-only enforcement per engine (section 9.1) and row-capped execution with column metadata.
-- [ ] P4.18 Tools `sql_list_schemas`, `sql_list_tables`, `sql_describe_table`, `sql_describe_schema` (cached), `sql_query`, `sql_explain`.
-- [ ] P4.19 Tools `sql_activity`, `sql_table_sizes`, `sql_locks` per engine. Default instructions for all four. SQL testbed suites.
+- [x] P4.15 `Hugo.Connectors.Sql` descriptors for `sqlite`, `mysql`, `sqlserver`, `postgresql`, plus settings, slots, and connection builders.  | claude 2026-10-14 sqlite, mysql, sqlserver, postgresql (family sql); added username, connectTimeoutSeconds, schemaCacheMinutes settings; slots password (username field overrides setting) and connectionString (overrides discrete settings)
+- [x] P4.16 Statement classifier from the vendored Tablix `QueryValidator`, extended for multi-statement, CTE, `EXPLAIN ANALYZE`, and comments. *Accept:* table test with at least 200 cases across dialects.  | claude 2026-10-14 StatementClassifier with dialect-aware tokenizer (MySQL escapes and /*! */, Postgres dollar quotes and E strings, T-SQL batches without semicolons, dynamic SQL, side-effecting functions); 276-row table
+- [x] P4.17 Read-only enforcement per engine (section 9.1) and row-capped execution with column metadata.  | claude 2026-10-14 engine read-only enforcement per plan; Read calls run read-only even under ReadWrite; server-side cancel on row cap, timeout, and caller cancellation
+- [x] P4.18 Tools `sql_list_schemas`, `sql_list_tables`, `sql_describe_table`, `sql_describe_schema` (cached), `sql_query`, `sql_explain`.  | claude 2026-10-14 all schema and query tools on four engines; schema cache in-memory (persisted connector_schema_cache needs a server hook, P3.4 follow-up)
+- [x] P4.19 Tools `sql_activity`, `sql_table_sizes`, `sql_locks` per engine. Default instructions for all four. SQL testbed suites.  | claude 2026-10-14 sql_activity, sql_table_sizes, sql_locks per engine (SQLite not applicable); instructions for all four; connectors.sql 313/313, testbed.sql 61/61 (MySQL 8.4.11, SQL Server 2022 CU27, PostgreSQL 16.4)
 
 Papertrail
 - [x] P4.20 Verify the current Papertrail API (search, systems, groups, saved searches, auth header, paging, rate limits) and record the shapes in `docs/CONNECTORS.md`.  | claude 2026-10-14 Papertrail API verified; facts and sources in docs/connectors/logging-api-notes.md (fold into docs/CONNECTORS.md at P4.29)
