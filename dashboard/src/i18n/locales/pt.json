@@ -2203,7 +2203,12 @@
       "generateInstructions": "Orientação extra para o modelo",
       "generate": "Gerar",
       "generating": "Gerando...",
-      "generateProgress": "Gerando contexto... {{elapsed}} decorridos. O modelo lê o esquema e escreve notas."
+      "generateProgress": "Gerando contexto... {{elapsed}} decorridos. O modelo lê o esquema e escreve notas.",
+      "severity": {
+        "info": "Informação",
+        "warning": "Aviso",
+        "error": "Erro"
+      }
     }
   },
   "tips": {

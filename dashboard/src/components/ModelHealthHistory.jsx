@@ -71,7 +71,7 @@ export function ModelHealthHistory({ endpointId }) {
       {items.length === 0 ? (
         <p className="text-muted">{t('resources.models.history.empty')}</p>
       ) : (
-        <ul className="plain-list">
+        <ul className="plain-list bare-list">
           {items.map((v) => (
             <li key={v.utc}>
               <Badge tone={v.success ? 'success' : 'danger'}>{v.success ? t('components.result.succeeded') : t('components.result.failed')}</Badge>{' '}

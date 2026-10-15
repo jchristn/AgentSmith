@@ -2203,7 +2203,12 @@
       "generateInstructions": "モデルへの追加の指示",
       "generate": "生成",
       "generating": "生成中...",
-      "generateProgress": "コンテキストを生成中... 経過 {{elapsed}}。モデルがスキーマを読みメモを書いています。"
+      "generateProgress": "コンテキストを生成中... 経過 {{elapsed}}。モデルがスキーマを読みメモを書いています。",
+      "severity": {
+        "info": "情報",
+        "warning": "警告",
+        "error": "エラー"
+      }
     }
   },
   "tips": {

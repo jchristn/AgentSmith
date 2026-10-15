@@ -2203,7 +2203,12 @@
       "generateInstructions": "Zusätzliche Hinweise für das Modell",
       "generate": "Erzeugen",
       "generating": "Wird erzeugt...",
-      "generateProgress": "Kontext wird erzeugt... {{elapsed}} vergangen. Das Modell liest das Schema und schreibt Notizen."
+      "generateProgress": "Kontext wird erzeugt... {{elapsed}} vergangen. Das Modell liest das Schema und schreibt Notizen.",
+      "severity": {
+        "info": "Info",
+        "warning": "Warnung",
+        "error": "Fehler"
+      }
     }
   },
   "tips": {

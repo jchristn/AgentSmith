@@ -2203,7 +2203,12 @@
       "generateInstructions": "मॉडल के लिए अतिरिक्त मार्गदर्शन",
       "generate": "बनाएँ",
       "generating": "बना रहा है...",
-      "generateProgress": "संदर्भ बना रहा है... {{elapsed}} बीते। मॉडल स्कीमा पढ़कर नोट लिख रहा है।"
+      "generateProgress": "संदर्भ बना रहा है... {{elapsed}} बीते। मॉडल स्कीमा पढ़कर नोट लिख रहा है।",
+      "severity": {
+        "info": "जानकारी",
+        "warning": "चेतावनी",
+        "error": "त्रुटि"
+      }
     }
   },
   "tips": {

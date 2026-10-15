@@ -105,6 +105,9 @@ test('sends the binding alias with a dry run and shows a pending approval after 
   await installMocks(page, { onRequest: (r) => requests.push(r) });
   await login(page, { expect });
   await page.goto(`${pathFor('resources', 'res_0001')}?tab=tools`);
+  // The panel fills the arguments once the profile's bindings and tools load; wait for that before typing.
+  await expect(page.locator('#try-tool-name')).toHaveValue('ssh_exec');
+  await expect(page.locator('#try-args')).toHaveValue(/command/);
   await page.locator('#try-args').fill('{ "command": "restart nginx" }');
   await page.getByTestId('dry-run').click();
   await expect(page.getByTestId('dry-run-result')).toHaveAttribute('data-decision', 'ApprovalRequired');

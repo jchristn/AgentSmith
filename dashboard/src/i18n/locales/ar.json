@@ -2279,7 +2279,12 @@
       "generateInstructions": "إرشادات إضافية للنموذج",
       "generate": "توليد",
       "generating": "جارٍ التوليد...",
-      "generateProgress": "جارٍ توليد السياق... مضى {{elapsed}}. يقرأ النموذج المخطط ويكتب الملاحظات."
+      "generateProgress": "جارٍ توليد السياق... مضى {{elapsed}}. يقرأ النموذج المخطط ويكتب الملاحظات.",
+      "severity": {
+        "info": "معلومة",
+        "warning": "تحذير",
+        "error": "خطأ"
+      }
     }
   },
   "tips": {

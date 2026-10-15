@@ -97,7 +97,7 @@ export default function CompiledInstructionsView({ compiled }) {
       {ordered.length > 0 && (
         <aside className="source-map" aria-label={t('views.profile.instructions.sourceMap')}>
           <h3 className="section-title">{t('views.profile.instructions.sourceMap')}</h3>
-          <ol className="plain-list" data-testid="source-map">
+          <ol className="plain-list bare-list" data-testid="source-map">
             {ordered.map((s) => (
               <li key={segmentId(s)} className={`source-map-item depth-${Math.min(s.depth ?? 0, 3)}`}>
                 <button

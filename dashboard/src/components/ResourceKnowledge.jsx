@@ -271,7 +271,7 @@ function ContextEditor({ resource, isSql, reloadKey, onChanged }) {
       <aside className="panel knowledge-list" aria-label={t('views.knowledge.entries')}>
         <h3 className="section-title">{t('views.knowledge.entries')}</h3>
         {entries.length === 0 && <p className="text-muted">{t('views.knowledge.noEntries')}</p>}
-        <ul className="plain-list">
+        <ul className="plain-list bare-list">
           {entries.map((e) => {
             const id = entryId(e.scope, e.key);
             const active = current && !newEntry && entryId(current.scope, current.key) === id;
@@ -425,10 +425,13 @@ export function IntelligenceView({ data }) {
       {(quality.signals || []).length > 0 && (
         <>
           <h3 className="section-title">{t('views.knowledge.gaps')}</h3>
-          <ul className="plain-list" data-testid="quality-signals">
+          <ul className="plain-list bare-list" data-testid="quality-signals">
             {quality.signals.map((s) => (
               <li key={s.key}>
-                <Badge tone={s.severity === 'warning' ? 'warning' : s.severity === 'error' ? 'danger' : 'neutral'}>{s.severity}</Badge> {s.message}
+                <Badge tone={s.severity === 'warning' ? 'warning' : s.severity === 'error' ? 'danger' : 'neutral'}>
+                  {t(`views.knowledge.severity.${s.severity}`, { defaultValue: s.severity })}
+                </Badge>{' '}
+                {s.message}
                 {s.recommendation && <div className="field-hint">{s.recommendation}</div>}
               </li>
             ))}
@@ -490,7 +493,7 @@ export function IntelligenceView({ data }) {
       {(data.ambiguities || []).length > 0 && (
         <>
           <h3 className="section-title">{t('views.knowledge.ambiguities')}</h3>
-          <ul className="plain-list" data-testid="intelligence-ambiguities">
+          <ul className="plain-list bare-list" data-testid="intelligence-ambiguities">
             {data.ambiguities.map((a) => (
               <li key={a.term}>
                 <strong>{a.term}</strong>: {a.question}
@@ -503,7 +506,7 @@ export function IntelligenceView({ data }) {
       {(data.suggestedQuestions || []).length > 0 && (
         <>
           <h3 className="section-title">{t('views.knowledge.questions')}</h3>
-          <ul className="plain-list">
+          <ul className="plain-list bare-list">
             {data.suggestedQuestions.map((q) => (
               <li key={q}>{q}</li>
             ))}

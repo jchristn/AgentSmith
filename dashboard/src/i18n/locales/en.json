@@ -2188,7 +2188,12 @@
       "generateInstructions": "Extra guidance for the model",
       "generate": "Generate",
       "generating": "Generating...",
-      "generateProgress": "Generating context... {{elapsed}} elapsed. The model is reading the schema and writing notes."
+      "generateProgress": "Generating context... {{elapsed}} elapsed. The model is reading the schema and writing notes.",
+      "severity": {
+        "info": "Info",
+        "warning": "Warning",
+        "error": "Error"
+      }
     }
   },
   "tips": {

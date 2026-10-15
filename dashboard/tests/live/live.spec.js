@@ -19,6 +19,7 @@ async function login(page) {
 }
 
 test('signs in and visits every page without page errors', async ({ page }) => {
+  test.setTimeout(180000);
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('dialog', (dialog) => {
@@ -27,8 +28,10 @@ test('signs in and visits every page without page errors', async ({ page }) => {
   await login(page);
   for (const p of PAGES) {
     await page.goto(pathFor(p.id));
-    await expect(page.locator('.page-header-title').first(), p.id).toBeVisible();
-    await page.waitForLoadState('networkidle');
+    // A page the signed-in role may not use shows the forbidden state instead of its header.
+    await expect(page.locator('.page-header-title, main .state-block').first(), p.id).toBeVisible();
+    // The tenant event stream (Server-Sent Events) keeps a request open, so network idle is a short, bounded wait.
+    await page.waitForLoadState('networkidle', { timeout: 3000 }).catch(() => {});
     await expect(page.locator('.loading-spinner'), p.id).toHaveCount(0);
   }
   expect(errors).toEqual([]);

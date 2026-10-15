@@ -2203,7 +2203,12 @@
       "generateInstructions": "Consignes supplémentaires pour le modèle",
       "generate": "Générer",
       "generating": "Génération...",
-      "generateProgress": "Génération du contexte... {{elapsed}} écoulées. Le modèle lit le schéma et rédige des notes."
+      "generateProgress": "Génération du contexte... {{elapsed}} écoulées. Le modèle lit le schéma et rédige des notes.",
+      "severity": {
+        "info": "Info",
+        "warning": "Avertissement",
+        "error": "Erreur"
+      }
     }
   },
   "tips": {

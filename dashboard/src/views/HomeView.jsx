@@ -34,6 +34,18 @@ export function startOfToday(now = new Date()) {
  * Load every Home panel independently (partial failure handling): request totals, tool call totals and recent
  * failures, unhealthy resources, model endpoints, and today's tokens. Each entry is { ok, value } or { ok, error }.
  */
+/** Routes this server answered 404 for; Home stops polling them until the page is reloaded. */
+const MISSING_ROUTES = new Set();
+
+/** Settle a call unless its route is known to be missing; remember a missing route. */
+function settleRoute(key, call) {
+  if (MISSING_ROUTES.has(key)) return Promise.resolve({ ok: false, error: { status: 404, code: 'RouteNotFound' } });
+  return settle(call()).then((r) => {
+    if (!r.ok && isMissingEndpoint(r.error)) MISSING_ROUTES.add(key);
+    return r;
+  });
+}
+
 export async function loadHomeData(apiClient) {
   const day = requestRangeToParams('day');
   const [requests, tools, failures, resources, models, analytics] = await Promise.all([
@@ -42,7 +54,7 @@ export async function loadHomeData(apiClient) {
     settle(apiClient.listToolInvocations({ pageNumber: 1, pageSize: 5, status: 'Failed' })),
     settle(apiClient.listResources({ pageNumber: 1, pageSize: 1000 })),
     settle(apiClient.listModelEndpoints({ pageNumber: 1, pageSize: 1 })),
-    settle(apiClient.getAnalyticsOverview({ fromUtc: startOfToday(), toUtc: new Date().toISOString() }))
+    settleRoute('analytics', () => apiClient.getAnalyticsOverview({ fromUtc: startOfToday(), toUtc: new Date().toISOString() }))
   ]);
   // The server has no health filter on resources; unhealthy means the last connection test failed.
   const unhealthy = resources.ok

@@ -45,7 +45,7 @@ function BarList({ rows, label, enumGroup, testId }) {
       {sorted.length === 0 ? (
         <p className="text-muted">{t('views.analytics.derived.none')}</p>
       ) : (
-        <ul className="plain-list">
+        <ul className="plain-list bare-list">
           {sorted.map((r) => (
             <li key={r.status} className="bar-row">
               <span className="bar-label">{enumGroup ? t(`enums.${enumGroup}.${r.status}`, { defaultValue: r.status }) : <code>{r.status}</code>}</span>

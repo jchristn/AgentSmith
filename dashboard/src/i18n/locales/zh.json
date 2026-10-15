@@ -2203,7 +2203,12 @@
       "generateInstructions": "给模型的额外指引",
       "generate": "生成",
       "generating": "正在生成...",
-      "generateProgress": "正在生成上下文... 已用时 {{elapsed}}。模型正在读取模式并编写说明。"
+      "generateProgress": "正在生成上下文... 已用时 {{elapsed}}。模型正在读取模式并编写说明。",
+      "severity": {
+        "info": "信息",
+        "warning": "警告",
+        "error": "错误"
+      }
     }
   },
   "tips": {

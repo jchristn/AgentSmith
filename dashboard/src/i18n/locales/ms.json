@@ -2203,7 +2203,12 @@
       "generateInstructions": "Panduan tambahan untuk model",
       "generate": "Jana",
       "generating": "Sedang menjana...",
-      "generateProgress": "Menjana konteks... {{elapsed}} berlalu. Model sedang membaca skema dan menulis nota."
+      "generateProgress": "Menjana konteks... {{elapsed}} berlalu. Model sedang membaca skema dan menulis nota.",
+      "severity": {
+        "info": "Maklumat",
+        "warning": "Amaran",
+        "error": "Ralat"
+      }
     }
   },
   "tips": {

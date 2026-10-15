@@ -1167,3 +1167,8 @@ code,
     grid-template-columns: 1fr;
   }
 }
+
+/* A list without the check-mark bullets of .plain-list (data lists rather than feature lists). */
+.plain-list.bare-list li::before {
+  content: none;
+}
