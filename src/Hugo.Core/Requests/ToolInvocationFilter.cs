@@ -1,6 +1,7 @@
 namespace Hugo.Core.Requests
 {
     using System;
+    using Hugo.Connectors.Abstractions;
     using Hugo.Core.Enums;
 
     /// <summary>
@@ -57,5 +58,15 @@ namespace Hugo.Core.Requests
         /// Only records created at or after this time (UTC).
         /// </summary>
         public DateTime? SinceUtc { get; set; } = null;
+
+        /// <summary>
+        /// Only records created before this time (UTC, exclusive).
+        /// </summary>
+        public DateTime? UntilUtc { get; set; } = null;
+
+        /// <summary>
+        /// Effect classification (Read, Write, or Destructive).
+        /// </summary>
+        public EffectEnum? Effect { get; set; } = null;
     }
 }

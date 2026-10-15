@@ -87,6 +87,7 @@ namespace Hugo.Core.Database
             "binding_tool_rules",
             "binding_deny_patterns",
             "model_endpoints",
+            "model_endpoint_health",
             "conversations",
             "messages",
             "message_tool_calls",

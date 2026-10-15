@@ -1,10 +1,10 @@
 // The pages wired to the integration routes (P8.33, P8.34, P8.35, P8.38, P8.53) against mocks with the server's real
 // shapes: layered default instructions on a connector, the layered Prompt Templates list and editor, the resource
 // detail page with Try a Tool and the Knowledge tab, the compiled-instructions source map, model validation history,
-// derived analytics, and the approval error codes.
+// analytics from the report routes, server-side list filters, the credential owner bypass, and the approval error codes.
 
 import { test, expect } from '@playwright/test';
-import { installMocks, login } from './mocks.js';
+import { installMocks, login, PRINCIPAL } from './mocks.js';
 import { pathFor } from '../../src/config/navConfig.js';
 
 test.beforeEach(async ({ page }) => {
@@ -64,6 +64,13 @@ test('opens a resource, dry runs and executes a tool, and works with its knowled
 
   await page.getByRole('tab', { name: 'Knowledge' }).click();
   await expect(page.getByTestId('knowledge-context')).toContainText('Database context');
+  // The stored root entry (key _root) is the database context itself: no placeholder row next to it.
+  await expect(page.getByTestId('knowledge-item')).toHaveCount(2);
+  await expect(page.getByTestId('knowledge-item').first()).not.toContainText('_root');
+  await expect(page.getByTestId('knowledge-entry')).toHaveAttribute('data-key', '_root');
+  await page.locator('[data-testid="knowledge-entry"] textarea').fill('Shop database.');
+  await page.getByTestId('knowledge-save').click();
+  await expect.poll(() => requests.some((r) => r.method === 'PUT' && r.path === '/v1.0/api/resources/res_0002/knowledge/database/_root')).toBe(true);
   await page.getByTestId('knowledge-item').nth(1).click();
   await expect(page.getByTestId('knowledge-entry')).toHaveAttribute('data-key', 'public.orders');
   await page.getByTestId('knowledge-history').click();
@@ -128,8 +135,9 @@ test('shows the compiled instructions with a gutter per template layer', async (
   await expect(page.locator('.src-chunk.active')).toHaveCount(1);
 });
 
-test('keeps the validation history of a model endpoint for the session', async ({ page }) => {
-  await installMocks(page);
+test('shows the health history of a model endpoint from the server', async ({ page }) => {
+  const requests = [];
+  await installMocks(page, { onRequest: (r) => requests.push(r) });
   await login(page, { expect });
   await page.goto(pathFor('models'));
   await page.locator('.data-table tbody tr').first().locator('[aria-haspopup="menu"]').first().click();
@@ -139,16 +147,90 @@ test('keeps the validation history of a model endpoint for the session', async (
   await expect(page.getByTestId('model-validation').locator('.kv-grid')).toBeVisible();
   await page.getByTestId('result-modal').getByRole('button', { name: 'Close', exact: true }).last().click();
   await page.locator('.data-table tbody tr').first().click();
-  await expect(page.getByTestId('model-health-history')).toContainText('Succeeded');
+  const history = page.getByTestId('model-health-history');
+  await expect(history.getByTestId('model-health-record')).toHaveCount(3);
+  await expect(history.getByTestId('model-health-record').first()).toContainText('Validation');
+  await expect(history.getByTestId('model-health-record').nth(1)).toContainText('Health sweep');
+  await expect(history.getByTestId('model-health-record').nth(1)).toContainText('Connection refused');
+  expect(requests.some((r) => r.method === 'GET' && r.path === '/v1.0/api/model-endpoints/mdl_0001/health-history')).toBe(true);
 });
 
-test('derives analytics from tool invocations and approvals while the analytics routes are missing', async ({ page }) => {
-  await installMocks(page, { missing: ['analytics'] });
+test('shows the provider message when listing a model endpoint models fails with 502', async ({ page }) => {
+  await installMocks(page);
+  await page.route('**/v1.0/api/model-endpoints/*/models', (route) =>
+    route.fulfill({
+      status: 502,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        error: 'BadGateway',
+        code: 'ProviderUnreachable',
+        message: 'The Ollama provider could not list models: connection refused',
+        requestId: 'r1'
+      })
+    })
+  );
+  await login(page, { expect });
+  await page.goto(pathFor('models'));
+  await page.locator('.data-table tbody tr').first().locator('[aria-haspopup="menu"]').first().click();
+  await page.getByRole('menuitem', { name: 'List provider models' }).click();
+  await expect(page.getByTestId('result-modal')).toContainText('The Ollama provider could not list models: connection refused');
+});
+
+test('draws analytics from the analytics report routes', async ({ page }) => {
+  const requests = [];
+  await installMocks(page, { onRequest: (r) => requests.push(r) });
   await login(page, { expect });
   await page.goto(pathFor('analytics'));
-  await expect(page.getByTestId('analytics-derived')).toBeVisible();
-  await expect(page.getByTestId('derived-effect')).toContainText('Destructive');
-  await expect(page.getByTestId('derived-tool')).toContainText('ssh_exec');
+  await expect(page.getByTestId('analytics-kpis')).toContainText('42');
+  await expect(page.getByTestId('analytics-tools')).toContainText('ssh_exec');
+  await expect(page.getByTestId('analytics-models')).toContainText('local-llm');
+  await expect(page.getByTestId('chart-tokens')).toBeVisible();
+  for (const kind of ['overview', 'tokens', 'tools', 'models']) expect(requests.some((r) => r.path === `/v1.0/api/analytics/${kind}`)).toBe(true);
+});
+
+test('filters lists on the server with query parameters', async ({ page }) => {
+  const urls = [];
+  await installMocks(page);
+  page.on('request', (req) => urls.push(new URL(req.url())));
+  await login(page, { expect });
+  await page.goto(`${pathFor('resources')}${pathFor('resources').includes('?') ? '&' : '?'}health=Unhealthy`);
+  await expect(page.locator('.data-table tbody tr')).toHaveCount(1);
+  await expect(page.locator('.data-table tbody')).toContainText('prod-db');
+  expect(urls.some((u) => u.pathname === '/v1.0/api/resources' && u.searchParams.get('health') === 'Unhealthy')).toBe(true);
+  await page.goto(pathFor('sessions'));
+  await page.locator('select[aria-label="Principal type"]').selectOption('Credential');
+  await expect(page.locator('.data-table tbody tr')).toHaveCount(1);
+  await expect(page.locator('.data-table tbody')).toContainText('claude-code-1');
+  expect(urls.some((u) => u.pathname === '/v1.0/api/sessions' && u.searchParams.get('principalType') === 'Credential')).toBe(true);
+});
+
+test('offers the credential owner bypass to administrators with a warning', async ({ page }) => {
+  await installMocks(page);
+  await login(page, { expect });
+  await page.goto(pathFor('credentials'));
+  await expect(page.locator('.data-table tbody')).toContainText('Owner bypass');
+  await page.getByTestId('add-button').first().click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toContainText('A credential without a role gets no access');
+  await expect(dialog.getByTestId('owner-bypass-warning')).toHaveCount(0);
+  await dialog.getByLabel("Carry the owner's administrator bypass").check();
+  await expect(dialog.getByTestId('owner-bypass-warning')).toBeVisible();
+});
+
+test('hides the credential owner bypass from principals that are not administrators', async ({ page }) => {
+  await installMocks(page);
+  await page.route('**/v1.0/token/details', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ ...PRINCIPAL, isAdmin: false, isTenantAdmin: false })
+    })
+  );
+  await login(page, { expect });
+  await page.goto(pathFor('credentials'));
+  await page.getByTestId('add-button').first().click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await expect(page.getByRole('dialog').getByLabel("Carry the owner's administrator bypass")).toHaveCount(0);
 });
 
 test('explains a self-approval refusal instead of calling it already decided', async ({ page }) => {

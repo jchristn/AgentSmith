@@ -17,6 +17,8 @@
  * the Garrison path on 404.
  */
 
+import { ROOT_KEY, isRootKey } from './knowledge';
+
 const enc = encodeURIComponent;
 
 class ApiClient {
@@ -401,7 +403,10 @@ class ApiClient {
 
   // ------------------------------------------------------------------ sessions (plan section 14.2)
 
-  /** Sessions in the caller's tenant (flat alias of the tenant-scoped route). */
+  /**
+   * Sessions in the caller's tenant (flat alias of the tenant-scoped route). filters: principalType (User,
+   * Credential, Administrator), userId, credentialId. Each row carries principalName.
+   */
   listSessions(params) {
     return this._list('/v1.0/api/sessions', params);
   }
@@ -452,6 +457,7 @@ class ApiClient {
 
   // ------------------------------------------------------------------ secrets (plan section 12.2)
 
+  /** filters: kind (a secret kind such as Password or ApiToken), search. */
   listSecrets(params) {
     return this._list('/v1.0/api/secrets', params);
   }
@@ -508,7 +514,10 @@ class ApiClient {
 
   // ------------------------------------------------------------------ resources
 
-  /** filters: connectorType, search. */
+  /**
+   * filters: connectorType, environment (case-insensitive exact match), health (Healthy, Unhealthy, or Unknown from
+   * the last connection test), search.
+   */
   listResources(params) {
     return this._list('/v1.0/api/resources', params);
   }
@@ -563,9 +572,9 @@ class ApiClient {
     return this._request('GET', scope ? `/v1.0/api/resources/${enc(id)}/knowledge/${enc(scope)}` : `/v1.0/api/resources/${enc(id)}/knowledge`);
   }
 
-  /** Path of one knowledge entry; the empty key (a scope's root entry) is addressed as _root. */
+  /** Path of one knowledge entry; a scope's root entry (key _root, or empty) is addressed as _root. */
   _knowledgePath(id, scope, key) {
-    return `/v1.0/api/resources/${enc(id)}/knowledge/${enc(scope)}/${key ? enc(key) : '_root'}`;
+    return `/v1.0/api/resources/${enc(id)}/knowledge/${enc(scope)}/${isRootKey(key) ? ROOT_KEY : enc(key)}`;
   }
 
   getResourceKnowledge(id, scope, key) {
@@ -588,6 +597,7 @@ class ApiClient {
 
   // ------------------------------------------------------------------ agent profiles and bindings
 
+  /** Profiles; each row carries bindingCount. */
   listProfiles(params) {
     return this._list('/v1.0/api/agent-profiles', params);
   }
@@ -702,6 +712,7 @@ class ApiClient {
 
   // ------------------------------------------------------------------ model endpoints
 
+  /** filters: kind (Inference, Embedding), provider (a model provider), health (Unknown, Healthy, Unhealthy), search. */
   listModelEndpoints(params) {
     return this._list('/v1.0/api/model-endpoints', params);
   }
@@ -735,9 +746,20 @@ class ApiClient {
     return this._request('POST', '/v1.0/api/model-endpoints/validate', { body });
   }
 
-  /** The provider's model names (a bare array of strings), where the provider supports listing. */
+  /**
+   * The provider's model names (a bare array of strings), where the provider supports listing. 502 with code
+   * ProviderUnreachable or ProviderTimeout and the provider's message when the provider cannot be reached.
+   */
   listProviderModels(id) {
     return this._request('GET', `/v1.0/api/model-endpoints/${enc(id)}/models`);
+  }
+
+  /**
+   * Recent health checks of an endpoint, newest first: [{ id, tenantId, modelEndpointId, status (Unknown, Healthy,
+   * Unhealthy), source (Sweep, Validate), latencyMs, message, checkedUtc }]. maxResults 1 to 1000 (server default 50).
+   */
+  getModelEndpointHealthHistory(id, maxResults) {
+    return this._request('GET', `/v1.0/api/model-endpoints/${enc(id)}/health-history`, { query: { maxResults } });
   }
 
   // ------------------------------------------------------------------ conversations and chat
@@ -789,12 +811,11 @@ class ApiClient {
   // ------------------------------------------------------------------ tool invocations
 
   /**
-   * filters: surface, agentProfileId, resourceId, toolName, decision, status, principalId, conversationId, and
-   * fromUtc (sent as since). The server enumerates newest first with maxResults and skip.
+   * filters: surface, agentProfileId, resourceId, toolName, effect, decision, status, principalId, conversationId,
+   * fromUtc (inclusive), and toUtc (exclusive). The server enumerates newest first with maxResults and skip.
    */
   listToolInvocations(params = {}) {
-    const { fromUtc, ...rest } = params || {};
-    return this._list('/v1.0/api/tool-invocations', { ...rest, since: fromUtc || rest.since });
+    return this._list('/v1.0/api/tool-invocations', params);
   }
 
   getToolInvocation(id) {
@@ -828,7 +849,10 @@ class ApiClient {
 
   // ------------------------------------------------------------------ approvals
 
-  /** filters: status, agentProfileId, resourceId, principalId, toolName, pageNumber, pageSize. */
+  /**
+   * filters: status, effect, agentProfileId, resourceId, principalId, toolName, fromUtc (inclusive) and toUtc
+   * (exclusive) on the created time, pageNumber, pageSize.
+   */
   listApprovals(params) {
     return this._list('/v1.0/api/approvals', params);
   }
@@ -882,21 +906,32 @@ class ApiClient {
 
   // ------------------------------------------------------------------ analytics
 
-  /** query: { fromUtc, toUtc, bucketMinutes, agentProfileId, modelEndpointId }. */
+  /**
+   * One analytics report (kind: overview, tokens, tools, or models). query: { fromUtc, toUtc, interval (minute,
+   * hour, day) }, sent as from, to, and interval. Returns { kind, fromUtc, toUtc, interval, conversations,
+   * approvalsRequested, totals, buckets: [{ startUtc, turns, inputTokens, outputTokens, toolCalls, toolErrors,
+   * approvals, avgTimeToFirstTokenMs, avgTurnDurationMs }], tools (tools report), models (models report) }. The
+   * server fills every bucket in the window.
+   */
+  getAnalyticsReport(kind, query = {}) {
+    const { fromUtc, toUtc, interval } = query || {};
+    return this._request('GET', `/v1.0/api/analytics/${enc(kind)}`, { query: { from: fromUtc, to: toUtc, interval } });
+  }
+
   getAnalyticsOverview(query) {
-    return this._request('GET', '/v1.0/api/analytics/overview', { query });
+    return this.getAnalyticsReport('overview', query);
   }
 
   getAnalyticsTokens(query) {
-    return this._request('GET', '/v1.0/api/analytics/tokens', { query });
+    return this.getAnalyticsReport('tokens', query);
   }
 
   getAnalyticsTools(query) {
-    return this._request('GET', '/v1.0/api/analytics/tools', { query });
+    return this.getAnalyticsReport('tools', query);
   }
 
   getAnalyticsModels(query) {
-    return this._request('GET', '/v1.0/api/analytics/models', { query });
+    return this.getAnalyticsReport('models', query);
   }
 
   // ------------------------------------------------------------------ plugins (system administrators)

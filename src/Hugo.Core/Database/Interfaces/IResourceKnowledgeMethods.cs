@@ -18,7 +18,7 @@ namespace Hugo.Core.Database.Interfaces
         /// <param name="tenantId">Tenant identifier.</param>
         /// <param name="resourceId">Resource identifier.</param>
         /// <param name="scope">Scope.</param>
-        /// <param name="key">Key (empty for the scope root).</param>
+        /// <param name="key">Key; empty or _root for the scope root (stored as _root).</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Entry or null.</returns>
         Task<ResourceKnowledge?> ReadAsync(string tenantId, string resourceId, string scope, string key, CancellationToken token = default);

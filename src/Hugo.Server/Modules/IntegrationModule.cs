@@ -114,7 +114,7 @@ namespace Hugo.Server.Modules
             resources.TestTimeoutSeconds = () => settings.Connectors.TestTimeoutSeconds;
             context.Register(resources);
 
-            AgentProfileService profiles = new AgentProfileService(context.Database, context.Audit, events);
+            AgentProfileService profiles = new AgentProfileService(context.Database, context.Audit, events, () => settings.Agent.DefaultMaxIterations, () => settings.Agent.DefaultMaxToolCallsPerTurn);
             context.Register(profiles);
             BindingService bindings = new BindingService(context.Database, _Registry, profiles, context.Audit, events);
             context.Register(bindings);

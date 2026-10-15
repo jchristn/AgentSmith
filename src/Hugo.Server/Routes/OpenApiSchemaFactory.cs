@@ -5,11 +5,14 @@ namespace Hugo.Server.Routes
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using System.Text.Json;
+    using System.Text.Json.Nodes;
     using System.Text.Json.Serialization;
     using WatsonWebserver.Core.OpenApi;
 
     /// <summary>
-    /// Builds OpenAPI schemas from C# types by reflection (camelCase properties, enums as string lists, depth-limited).
+    /// Builds OpenAPI schemas from C# types by reflection (camelCase properties unless a JsonPropertyName attribute names
+    /// the property, as the serializer does; enums as string lists; depth-limited).
     /// Used so the API Explorer can template request bodies. Thread-safe.
     /// </summary>
     public static class OpenApiSchemaFactory
@@ -62,6 +65,14 @@ namespace Hugo.Server.Routes
             Type? underlying = Nullable.GetUnderlyingType(type);
             if (underlying != null) type = underlying;
 
+            // Raw JSON carriers (tool arguments, render context, structured content) are free-form JSON on the wire, not
+            // objects with the CLR members of JsonElement (valueKind).
+            if (type == typeof(object) || type == typeof(JsonElement) || type == typeof(JsonDocument) || typeof(JsonNode).IsAssignableFrom(type))
+            {
+                OpenApiSchemaMetadata any = new OpenApiSchemaMetadata();
+                any.Description = "Any JSON value.";
+                return any;
+            }
             if (type == typeof(string)) return OpenApiSchemaMetadata.String();
             if (type == typeof(bool)) return OpenApiSchemaMetadata.Boolean();
             if (type == typeof(int) || type == typeof(long) || type == typeof(short)) return OpenApiSchemaMetadata.Integer(type == typeof(long) ? "int64" : "int32");
@@ -92,7 +103,8 @@ namespace Hugo.Server.Routes
             {
                 if (property.GetCustomAttribute<JsonIgnoreAttribute>() != null) continue;
                 if (!property.CanRead || property.GetIndexParameters().Length > 0) continue;
-                string name = Char.ToLowerInvariant(property.Name[0]) + property.Name.Substring(1);
+                JsonPropertyNameAttribute? named = property.GetCustomAttribute<JsonPropertyNameAttribute>();
+                string name = named != null ? named.Name : Char.ToLowerInvariant(property.Name[0]) + property.Name.Substring(1);
                 schema.Properties[name] = Build(property.PropertyType, depth + 1);
             }
             return schema;

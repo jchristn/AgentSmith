@@ -6,6 +6,7 @@ namespace Hugo.Core.Database.Interfaces
     using System.Threading.Tasks;
     using Hugo.Core.Enumeration;
     using Hugo.Core.Models;
+    using Hugo.Core.Requests;
 
     /// <summary>
     /// AuthSession data access methods.
@@ -66,9 +67,10 @@ namespace Hugo.Core.Database.Interfaces
         /// </summary>
         /// <param name="tenantId">Tenant identifier, or null to enumerate across tenants (system administrators only).</param>
         /// <param name="query">Enumeration query.</param>
+        /// <param name="filter">Optional principal filters (principal type, user, credential), or null.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>A page of records.</returns>
-        Task<EnumerationResult<AuthSession>> EnumerateAsync(string? tenantId, EnumerationQuery query, CancellationToken token = default);
+        Task<EnumerationResult<AuthSession>> EnumerateAsync(string? tenantId, EnumerationQuery query, SessionFilter? filter = null, CancellationToken token = default);
 
         /// <summary>
         /// Read a session by token identifier.

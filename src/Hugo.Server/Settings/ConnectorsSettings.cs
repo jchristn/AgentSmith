@@ -41,26 +41,6 @@ namespace Hugo.Server.Settings
         }
 
         /// <summary>
-        /// Minutes between resource health sweeps; 0 turns them off. Maximum 1440, default 15.
-        /// </summary>
-        public int HealthSweepMinutes
-        {
-            get
-            {
-                return _HealthSweepMinutes;
-            }
-            set
-            {
-                _HealthSweepMinutes = Math.Clamp(value, 0, 1440);
-            }
-        }
-
-        /// <summary>
-        /// Whether external MCP servers may use the stdio transport. Default false.
-        /// </summary>
-        public bool AllowStdioMcp { get; set; } = false;
-
-        /// <summary>
         /// Seconds after which the server cancels a connection test (D-036). Default 30, minimum 1, maximum 600.
         /// </summary>
         public int TestTimeoutSeconds
@@ -142,7 +122,6 @@ namespace Hugo.Server.Settings
         #region Private-Members
 
         private int _DefaultToolTimeoutSeconds = 120;
-        private int _HealthSweepMinutes = 15;
         private int _TestTimeoutSeconds = 30;
         private int _ModelToolTimeoutSeconds = 600;
         private int _MaxConcurrencyPerResource = 4;

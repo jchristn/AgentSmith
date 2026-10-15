@@ -541,7 +541,17 @@ namespace Test.Shared.Connectors.Http
                 HttpTestHelper.Assert(ok.Success && ok.Details["status"] == "200" && ok.LatencyMs > 0, "ok: " + ok.Message);
                 HttpTestHelper.Assert(stub.Requests.Last().Path == "/v1/status", "probes the first allowed prefix: " + stub.Requests.Last().Path);
                 status = 404;
-                HttpTestHelper.Assert((await Isolated().TestConnectionAsync(resource, token).ConfigureAwait(false)).Success, "404 still means reachable");
+                ConnectorHealthResult reachable = await Isolated().TestConnectionAsync(resource, token).ConfigureAwait(false);
+                HttpTestHelper.Assert(reachable.Success && reachable.Details["reachableOnly"] == "true" && reachable.Details["healthChecked"] == "false", "404 without healthPath means reachable only");
+                HttpTestHelper.Assert(reachable.Message.Contains("HTTP 404", StringComparison.Ordinal) && reachable.Message.Contains("healthPath", StringComparison.Ordinal) && !reachable.Message.StartsWith("Reached", StringComparison.Ordinal), "the 404 is flagged: " + reachable.Message);
+                ConnectorResourceContext withHealth = HttpTestHelper.Resource(HttpTestHelper.Settings(stub.BaseAddress + "/v1", HttpSettingKeys.AllowedPathPrefixes, "/status", HttpSettingKeys.HealthPath, "/status/health"));
+                ConnectorHealthResult unhealthy = await Isolated().TestConnectionAsync(withHealth, token).ConfigureAwait(false);
+                HttpTestHelper.Assert(!unhealthy.Success && unhealthy.ErrorCode == "upstream_error" && stub.Requests.Last().Path == "/v1/status/health", "404 on healthPath fails: " + unhealthy.Message);
+                status = 200;
+                ConnectorHealthResult healthy = await Isolated().TestConnectionAsync(withHealth, token).ConfigureAwait(false);
+                HttpTestHelper.Assert(healthy.Success && healthy.Details["healthChecked"] == "true" && healthy.Message.StartsWith("Healthy", StringComparison.Ordinal), "2xx on healthPath passes: " + healthy.Message);
+                ConnectorValidationResult outside = await Isolated().ValidateAsync(HttpTestHelper.Resource(HttpTestHelper.Settings(stub.BaseAddress + "/v1", HttpSettingKeys.AllowedPathPrefixes, "/status", HttpSettingKeys.HealthPath, "/admin")), token).ConfigureAwait(false);
+                HttpTestHelper.Assert(outside.Errors.Any(e => e.Field == HttpSettingKeys.HealthPath), "healthPath outside the allowed prefixes is invalid");
                 status = 403;
                 HttpTestHelper.Assert((await Isolated().TestConnectionAsync(resource, token).ConfigureAwait(false)).ErrorCode == "auth_failed", "403 auth_failed");
                 status = 503;

@@ -120,7 +120,7 @@ namespace Hugo.Core.Templates
             if (includes.Contains(include.Name)) throw new TemplateException("Include cycle detected: " + String.Join(" > ", includes) + " > " + include.Name + ".", name, include.Line, include.Column);
             if (includes.Count >= options.MaxIncludeDepth) throw new TemplateException("Include depth exceeds " + options.MaxIncludeDepth + ".", name, include.Line, include.Column);
             string? content = options.IncludeResolver(include.Name);
-            if (content == null) throw new TemplateException("Included template '" + include.Name + "' was not found.", name, include.Line, include.Column);
+            if (content == null) throw new TemplateException("Included template '" + include.Name + "' was not found. {{> key}} takes the key of an existing prompt template, for example {{> persona.agent-smith}}.", name, include.Line, include.Column);
 
             options.UsedIncludes.Add(include.Name);
             includes.Push(include.Name);

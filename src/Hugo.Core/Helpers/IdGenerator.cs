@@ -145,6 +145,10 @@ namespace Hugo.Core.Helpers
         /// <returns>Identifier.</returns>
         public static string NewModelEndpointId() { return New(Constants.ModelEndpointIdPrefix); }
 
+        /// <summary>New model endpoint health check record identifier.</summary>
+        /// <returns>Identifier.</returns>
+        public static string NewModelHealthCheckId() { return New(Constants.ModelHealthCheckIdPrefix); }
+
         /// <summary>New plugin record identifier.</summary>
         /// <returns>Identifier.</returns>
         public static string NewPluginId() { return New(Constants.PluginIdPrefix); }

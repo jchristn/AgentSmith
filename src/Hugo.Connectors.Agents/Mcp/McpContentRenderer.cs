@@ -4,6 +4,7 @@ namespace Hugo.Connectors.Agents.Mcp
     using System.Collections.Generic;
     using System.Globalization;
     using System.Text;
+    using Hugo.Connectors.Abstractions;
     using Hugo.Connectors.Agents.Mcp.Payloads;
     using Hugo.Connectors.Agents.Mcp.Wire;
 

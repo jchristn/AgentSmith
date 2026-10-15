@@ -18,7 +18,6 @@ import { requestRangeToParams } from '../utils/constants';
 import { pathFor } from '../config/navConfig';
 import { formatNumber, formatRelativeTime, formatTime } from '../i18n/formatters';
 import { tip } from '../components/Tooltip';
-import { resourceHealth } from '../utils/resources';
 import { isMissingEndpoint } from '../utils/errors';
 
 const settle = (promise) => promise.then((value) => ({ ok: true, value })).catch((error) => ({ ok: false, error }));
@@ -34,35 +33,18 @@ export function startOfToday(now = new Date()) {
  * Load every Home panel independently (partial failure handling): request totals, tool call totals and recent
  * failures, unhealthy resources, model endpoints, and today's tokens. Each entry is { ok, value } or { ok, error }.
  */
-/** Routes this server answered 404 for; Home stops polling them until the page is reloaded. */
-const MISSING_ROUTES = new Set();
-
-/** Settle a call unless its route is known to be missing; remember a missing route. */
-function settleRoute(key, call) {
-  if (MISSING_ROUTES.has(key)) return Promise.resolve({ ok: false, error: { status: 404, code: 'RouteNotFound' } });
-  return settle(call()).then((r) => {
-    if (!r.ok && isMissingEndpoint(r.error)) MISSING_ROUTES.add(key);
-    return r;
-  });
-}
-
 export async function loadHomeData(apiClient) {
   const day = requestRangeToParams('day');
-  const [requests, tools, failures, resources, models, analytics] = await Promise.all([
+  const [requests, tools, failures, resources, unhealthy, models, analytics] = await Promise.all([
     settle(apiClient.getRequestHistorySummary(day)),
     settle(apiClient.getToolInvocationSummary({ fromUtc: day.fromUtc })),
     settle(apiClient.listToolInvocations({ pageNumber: 1, pageSize: 5, status: 'Failed' })),
-    settle(apiClient.listResources({ pageNumber: 1, pageSize: 1000 })),
+    settle(apiClient.listResources({ pageNumber: 1, pageSize: 1 })),
+    // Unhealthy means the last connection test failed; the server filters and counts them.
+    settle(apiClient.listResources({ pageNumber: 1, pageSize: 5, health: 'Unhealthy' })),
     settle(apiClient.listModelEndpoints({ pageNumber: 1, pageSize: 1 })),
-    settleRoute('analytics', () => apiClient.getAnalyticsOverview({ fromUtc: startOfToday(), toUtc: new Date().toISOString() }))
+    settle(apiClient.getAnalyticsOverview({ fromUtc: startOfToday(), toUtc: new Date().toISOString(), interval: 'hour' }))
   ]);
-  // The server has no health filter on resources; unhealthy means the last connection test failed.
-  const unhealthy = resources.ok
-    ? (() => {
-        const items = (resources.value.items || []).filter((r) => resourceHealth(r) === 'Unhealthy');
-        return { ok: true, value: { items: items.slice(0, 5), totalCount: items.length } };
-      })()
-    : resources;
   return { requests, tools, failures, resources, unhealthy, models, analytics };
 }
 
@@ -125,7 +107,7 @@ export default function HomeView() {
     : null;
   const tokensToday = data?.analytics?.ok ? (data.analytics.value?.totals?.inputTokens ?? 0) + (data.analytics.value?.totals?.outputTokens ?? 0) : null;
   const firstRun = data && data.resources?.ok && data.models?.ok && (data.resources.value.totalCount ?? 0) === 0 && (data.models.value.totalCount ?? 0) === 0;
-  // A route this server does not expose yet (analytics while it is being built) is not a failure.
+  // A route this server does not expose (a capability switched off) is not a failure.
   const missingPanels = data
     ? ['tools', 'resources', 'models', 'analytics'].filter((k) => data[k] && !data[k].ok && !isMissingEndpoint(data[k].error)).length
     : 0;
@@ -194,7 +176,7 @@ export default function HomeView() {
           tip={t('tips.views.home.kpis.unhealthy')}
           value={num(data?.unhealthy, (v) => v.totalCount)}
           tone={data?.unhealthy?.ok && data.unhealthy.value.totalCount > 0 ? 'danger' : undefined}
-          onClick={() => navigate(pathFor('resources'))}
+          onClick={() => navigate(pathFor('resources', null, { health: 'Unhealthy' }))}
           testId="kpi-unhealthy"
         />
         <KpiCard

@@ -478,11 +478,11 @@ namespace Test.Shared.Suites
                 Assert.True(await db.Secrets.ReadAsync("ten_b", secret.Id, token).ConfigureAwait(false) == null, "Secret visible in another tenant.");
                 Assert.True(await db.Secrets.ReadByNameAsync("ten_b", "aws-prod", token).ConfigureAwait(false) == null, "Secret name visible in another tenant.");
 
-                EnumerationResult<Secret> page = await db.Secrets.EnumerateAsync("ten_a", new EnumerationQuery(), token).ConfigureAwait(false);
+                EnumerationResult<Secret> page = await db.Secrets.EnumerateAsync("ten_a", new EnumerationQuery(), null, token).ConfigureAwait(false);
                 Assert.Equal(1L, page.TotalRecords, "Enumerate");
                 Assert.Equal(2, page.Objects[0].Fields.Count, "Field names on enumerate");
                 Assert.Equal(0, page.Objects[0].Values.Count, "Ciphertexts are not loaded on enumerate");
-                Assert.Equal(0L, (await db.Secrets.EnumerateAsync("ten_b", new EnumerationQuery(), token).ConfigureAwait(false)).TotalRecords, "Other tenant enumerate");
+                Assert.Equal(0L, (await db.Secrets.EnumerateAsync("ten_b", new EnumerationQuery(), null, token).ConfigureAwait(false)).TotalRecords, "Other tenant enumerate");
 
                 read.Values = new List<SecretValue> { Value("accessKeyId", "c3", 2) };
                 read.Description = "rotated";

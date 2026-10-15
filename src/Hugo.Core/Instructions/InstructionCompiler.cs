@@ -458,7 +458,7 @@ namespace Hugo.Core.Instructions
         {
             if (_MaxKnowledgeChars == 0) return String.Empty;
             List<ResourceKnowledge> entries = await _Database.ResourceKnowledge.ListAsync(item.Resource.TenantId, item.Resource.Id, null, token).ConfigureAwait(false);
-            List<string> roots = entries.Where(e => String.IsNullOrEmpty(e.Key) && !String.IsNullOrWhiteSpace(e.Content)).Select(e => Clean(e.Content).Trim()).ToList();
+            List<string> roots = entries.Where(e => ResourceKnowledge.IsRootKey(e.Key) && !String.IsNullOrWhiteSpace(e.Content)).Select(e => Clean(e.Content).Trim()).ToList();
             if (roots.Count == 0) return String.Empty;
             string text = String.Join("\n\n", roots);
             if (text.Length > _MaxKnowledgeChars) text = text.Substring(0, _MaxKnowledgeChars).TrimEnd() + "\n[context truncated; use the resource's knowledge tools for the rest]";

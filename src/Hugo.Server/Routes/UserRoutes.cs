@@ -50,7 +50,7 @@ namespace Hugo.Server.Routes
         {
             _Routes = routes;
             routes.Scoped(HttpMethod.GET, "/v1.0/api/tenants/{tenantId}/users", ResourceTypeEnum.User, OperationTypeEnum.Read, ListAsync, "List users", "Users", null, typeof(EnumerationResult<User>));
-            routes.Scoped(HttpMethod.POST, "/v1.0/api/tenants/{tenantId}/users", ResourceTypeEnum.User, OperationTypeEnum.Create, CreateAsync, "Create a user", "Users", typeof(UserRequest), typeof(User));
+            routes.Scoped(HttpMethod.POST, "/v1.0/api/tenants/{tenantId}/users", ResourceTypeEnum.User, OperationTypeEnum.Create, CreateAsync, "Create a user", "Users", typeof(UserRequest), typeof(User), statuses: new[] { 201 });
             routes.Authenticated(HttpMethod.GET, "/v1.0/api/tenants/{tenantId}/users/{id}", ReadAsync, "Read a user (self or with User Read)", "Users", null, typeof(User));
             routes.Scoped(HttpMethod.PUT, "/v1.0/api/tenants/{tenantId}/users/{id}", ResourceTypeEnum.User, OperationTypeEnum.Update, UpdateAsync, "Update a user", "Users", typeof(UserRequest), typeof(User));
             routes.Scoped(HttpMethod.DELETE, "/v1.0/api/tenants/{tenantId}/users/{id}", ResourceTypeEnum.User, OperationTypeEnum.Delete, DeleteAsync, "Delete a user with credentials, sessions, and assignments", "Users");

@@ -163,6 +163,13 @@ namespace Hugo.Core.Instructions
         public int? MaxRows { get; set; } = null;
 
         /// <summary>
+        /// The third party's own guidance for the resource (an external MCP server's instructions, a remote agent's card),
+        /// already wrapped in an untrusted-content fence, or null when the connector offers none. Filled only by
+        /// hugo_describe_resource; compiled instructions never include remote text.
+        /// </summary>
+        public string? RemoteInstructions { get; set; } = null;
+
+        /// <summary>
         /// Rendering warnings.
         /// </summary>
         public List<string> Warnings

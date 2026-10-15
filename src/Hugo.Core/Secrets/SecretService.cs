@@ -92,30 +92,32 @@ namespace Hugo.Core.Secrets
             Dictionary<string, string> errors = new Dictionary<string, string>();
             Dictionary<string, string> codes = new Dictionary<string, string>();
             ValidateMetadata(request, errors, codes, true);
+            SecretKindEnum kind = request.Kind ?? SecretKindEnum.Generic;
             Dictionary<string, string> values = request.Values ?? new Dictionary<string, string>();
-            ValidateValues(request.Kind, values, errors, codes, true);
-            List<string> missing = SecretFieldRules.Required(request.Kind).Where(f => !values.ContainsKey(f)).ToList();
+            ValidateValues(kind, values, errors, codes, true);
+            List<string> missing = SecretFieldRules.Required(kind).Where(f => !values.ContainsKey(f)).ToList();
             if (missing.Count > 0)
             {
-                errors["values"] = "A " + request.Kind + " secret requires the field(s) " + String.Join(", ", missing) + ".";
+                errors["values"] = "A " + kind + " secret requires the field(s) " + String.Join(", ", missing) + ".";
                 codes["values"] = "RequiredFieldMissing";
             }
-            if (request.Kind == SecretKindEnum.Generic && values.Count == 0)
+            if (kind == SecretKindEnum.Generic && values.Count == 0)
             {
                 errors["values"] = "A secret requires at least one field value.";
                 codes["values"] = "RequiredFieldMissing";
             }
             if (errors.Count > 0) throw new ValidationException("The secret is invalid: " + String.Join(" ", errors.Values), errors, codes);
 
-            Secret? existing = await _Database.Secrets.ReadByNameAsync(tenantId, request.Name.Trim(), token).ConfigureAwait(false);
-            if (existing != null) throw new ConflictException("NameConflict", "The name '" + request.Name.Trim() + "' is already used in this tenant.");
+            string name = request.Name!.Trim();
+            Secret? existing = await _Database.Secrets.ReadByNameAsync(tenantId, name, token).ConfigureAwait(false);
+            if (existing != null) throw new ConflictException("NameConflict", "The name '" + name + "' is already used in this tenant.");
 
             Secret secret = new Secret();
             secret.TenantId = tenantId;
             secret.OwnerUserId = ownerUserId;
-            secret.Name = request.Name.Trim();
+            secret.Name = name;
             secret.Description = request.Description;
-            secret.Kind = request.Kind;
+            secret.Kind = kind;
             secret.ExpiresUtc = request.ExpiresUtc;
             foreach (KeyValuePair<string, string> field in values) secret.Values.Add(Encrypt(secret, field.Key, field.Value));
             Finish(secret, values);
@@ -138,7 +140,9 @@ namespace Hugo.Core.Secrets
         }
 
         /// <summary>
-        /// Update name, description, and expiry. The kind cannot change.
+        /// Update name, description, and expiry. Omitted (null) name, kind, and description keep the stored values; an empty
+        /// description clears it. The expiry is replaced, so a null expiry clears it. The kind cannot change: when supplied
+        /// it must equal the stored kind.
         /// </summary>
         /// <param name="tenantId">Tenant identifier.</param>
         /// <param name="id">Secret identifier.</param>
@@ -157,18 +161,21 @@ namespace Hugo.Core.Secrets
             Dictionary<string, string> errors = new Dictionary<string, string>();
             Dictionary<string, string> codes = new Dictionary<string, string>();
             ValidateMetadata(request, errors, codes, false);
-            if (request.Kind != secret.Kind)
+            if (request.Kind.HasValue && request.Kind.Value != secret.Kind)
             {
                 errors["kind"] = "The kind of a secret cannot change; create a new secret instead.";
                 codes["kind"] = "KindImmutable";
             }
             if (errors.Count > 0) throw new ValidationException("The secret is invalid: " + String.Join(" ", errors.Values), errors, codes);
 
-            Secret? named = await _Database.Secrets.ReadByNameAsync(tenantId, request.Name.Trim(), token).ConfigureAwait(false);
-            if (named != null && named.Id != secret.Id) throw new ConflictException("NameConflict", "The name '" + request.Name.Trim() + "' is already used in this tenant.");
-
-            secret.Name = request.Name.Trim();
-            secret.Description = request.Description;
+            if (request.Name != null)
+            {
+                string name = request.Name.Trim();
+                Secret? named = await _Database.Secrets.ReadByNameAsync(tenantId, name, token).ConfigureAwait(false);
+                if (named != null && named.Id != secret.Id) throw new ConflictException("NameConflict", "The name '" + name + "' is already used in this tenant.");
+                secret.Name = name;
+            }
+            if (request.Description != null) secret.Description = request.Description.Length == 0 ? null : request.Description;
             secret.ExpiresUtc = request.ExpiresUtc;
             return await _Database.Secrets.UpdateAsync(secret, token).ConfigureAwait(false);
         }
@@ -382,7 +389,7 @@ namespace Hugo.Core.Secrets
         private static void ValidateMetadata(SecretRequest request, Dictionary<string, string> errors, Dictionary<string, string> codes, bool create)
         {
             string name = (request.Name ?? String.Empty).Trim();
-            if (name.Length == 0)
+            if (name.Length == 0 && (create || request.Name != null))
             {
                 errors["name"] = "A name is required.";
                 codes["name"] = "Required";

@@ -1,6 +1,21 @@
 // Helpers for resource knowledge (plan D-038): durable, tenant-scoped notes per resource that connectors read and
-// write. The SQL connectors keep database context at scope `database` (key '') and table context at scope `table`
-// (key schema.table); any connector may use other scopes.
+// write. The SQL connectors keep database context at scope `database` (the root entry, key _root) and table context
+// at scope `table` (key schema.table); any connector may use other scopes.
+
+/** The key the server stores and returns for a scope's root entry. Inputs accept it or an empty key. */
+export const ROOT_KEY = '_root';
+
+/** Whether a key names a scope's root entry (_root, or empty from older data and new-entry forms). */
+export const isRootKey = (key) => !key || key === ROOT_KEY;
+
+/** A key in its canonical form: _root for the root entry, otherwise unchanged. */
+export const normalizeKey = (key) => (isRootKey(key) ? ROOT_KEY : key);
+
+/** What to call an entry in lists and headings: the database context, the scope for a root entry, or the key. */
+export function entryLabel(t, entry) {
+  if (entry?.scope === 'database' && isRootKey(entry?.key)) return t('views.knowledge.databaseContext');
+  return isRootKey(entry?.key) ? entry?.scope : entry.key;
+}
 
 /** Source tones: operator edits are the most trusted, generated text needs review, agent notes are unverified. */
 export function knowledgeSourceTone(source) {
@@ -28,28 +43,31 @@ export function structuredResult(outcome) {
   }
 }
 
-/** A stable identity for an entry: scope plus key. */
-export const entryId = (scope, key) => `${scope}::${key || ''}`;
+/** A stable identity for an entry: scope plus key (the root entry is one identity whether its key is _root or empty). */
+export const entryId = (scope, key) => `${scope}::${normalizeKey(key)}`;
 
 /**
  * The entries to list in the context editor: every stored entry, plus a placeholder per table that has no context
  * yet (from sql_get_context with includeEmpty), plus the database entry even when it is missing (SQL resources).
- * Sorted: database first, then tables by key, then other scopes.
+ * Root keys are normalized to _root, so a stored root entry never gets a duplicate placeholder. Sorted: database
+ * first, then tables by key, then other scopes (each scope's root entry first).
  */
 export function contextEntries(stored, { isSql = false, tablesWithoutContext = [], extra = [] } = {}) {
   const map = new Map();
-  for (const e of stored || []) map.set(entryId(e.scope, e.key), { ...e, exists: true });
-  if (isSql && !map.has(entryId('database', ''))) map.set(entryId('database', ''), { scope: 'database', key: '', exists: false });
+  for (const e of stored || []) map.set(entryId(e.scope, e.key), { ...e, key: normalizeKey(e.key), exists: true });
+  if (isSql && !map.has(entryId('database', ROOT_KEY))) map.set(entryId('database', ROOT_KEY), { scope: 'database', key: ROOT_KEY, exists: false });
   for (const table of tablesWithoutContext || []) {
     const id = entryId('table', table);
     if (!map.has(id)) map.set(id, { scope: 'table', key: table, exists: false });
   }
   for (const e of extra || []) {
     const id = entryId(e.scope, e.key);
-    if (!map.has(id)) map.set(id, { scope: e.scope, key: e.key || '', exists: false });
+    if (!map.has(id)) map.set(id, { scope: e.scope, key: normalizeKey(e.key), exists: false });
   }
   const rank = (e) => (e.scope === 'database' ? 0 : e.scope === 'table' ? 1 : 2);
-  return [...map.values()].sort((a, b) => rank(a) - rank(b) || a.scope.localeCompare(b.scope) || (a.key || '').localeCompare(b.key || ''));
+  // Within a scope the root entry comes first.
+  const keyRank = (e) => (isRootKey(e.key) ? '' : e.key);
+  return [...map.values()].sort((a, b) => rank(a) - rank(b) || a.scope.localeCompare(b.scope) || keyRank(a).localeCompare(keyRank(b)));
 }
 
 /** Whether a connector is one of the SQL family (it has the knowledge tools this page drives). */

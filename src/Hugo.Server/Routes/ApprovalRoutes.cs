@@ -2,6 +2,7 @@ namespace Hugo.Server.Routes
 {
     using System;
     using System.Threading.Tasks;
+    using Hugo.Connectors.Abstractions;
     using Hugo.Core.Enumeration;
     using Hugo.Core.Enums;
     using Hugo.Core.Models;
@@ -52,7 +53,7 @@ namespace Hugo.Server.Routes
         public void Register(RouteRegistrar routes)
         {
             _Routes = routes ?? throw new ArgumentNullException(nameof(routes));
-            routes.Scoped(HttpMethod.GET, _Base, ResourceTypeEnum.Approval, OperationTypeEnum.Read, ListAsync, "List approvals (filters: status, agentProfileId, resourceId, principalId, toolName)", "Approvals", null, typeof(EnumerationResult<Approval>));
+            routes.Scoped(HttpMethod.GET, _Base, ResourceTypeEnum.Approval, OperationTypeEnum.Read, ListAsync, "List approvals (filters: status, agentProfileId, resourceId, principalId, toolName, effect, fromUtc, toUtc)", "Approvals", null, typeof(EnumerationResult<Approval>));
             routes.Scoped(HttpMethod.GET, _Base + "/{id}", ResourceTypeEnum.Approval, OperationTypeEnum.Read, ReadAsync, "Read an approval with its tool invocation (and result once executed)", "Approvals", null, typeof(Approval));
             routes.Scoped(HttpMethod.POST, _Base + "/{id}/approve", ResourceTypeEnum.Approval, OperationTypeEnum.Update, ApproveAsync, "Approve a pending call; when nobody is waiting, the call runs before the response returns", "Approvals", typeof(ApprovalDecisionRequest), typeof(Approval));
             routes.Scoped(HttpMethod.POST, _Base + "/{id}/reject", ResourceTypeEnum.Approval, OperationTypeEnum.Update, RejectAsync, "Reject a pending call", "Approvals", typeof(ApprovalDecisionRequest), typeof(Approval));
@@ -71,6 +72,9 @@ namespace Hugo.Server.Routes
             filter.ResourceId = RouteHelpers.Query(http, "resourceId");
             filter.PrincipalId = RouteHelpers.Query(http, "principalId");
             filter.ToolName = RouteHelpers.Query(http, "toolName");
+            filter.Effect = RouteHelpers.QueryEnum<EffectEnum>(http, "effect");
+            filter.SinceUtc = RouteHelpers.QueryDate(http, "fromUtc");
+            filter.UntilUtc = RouteHelpers.QueryDate(http, "toUtc");
             EnumerationResult<Approval> page = await _Server.Database.Approvals.EnumerateAsync(RouteHelpers.Tenant(http), RouteHelpers.Enumeration(http), filter, http.Token).ConfigureAwait(false);
             await RouteHelpers.JsonAsync(http, 200, page).ConfigureAwait(false);
         }

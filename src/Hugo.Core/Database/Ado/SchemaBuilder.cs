@@ -109,6 +109,10 @@ namespace Hugo.Core.Database.Ado
             v8.BuildVersion8();
             migrations.Add(new SchemaMigration(8, "Agent profile instruction detail (compact connector instructions)", v8._Statements, v8._Columns));
 
+            SchemaBuilder v9 = new SchemaBuilder(catalog, dialect);
+            v9.BuildVersion9();
+            migrations.Add(new SchemaMigration(9, "Credential owner bypass opt-in, model endpoint health history, and the _root knowledge key", v9._Statements, v9._Columns));
+
             return migrations;
         }
 
@@ -896,6 +900,34 @@ namespace Hugo.Core.Database.Ado
         private void BuildVersion8()
         {
             _Columns.Add(new SchemaColumnAddition("agent_profiles", "instruction_detail", "VARCHAR(16)"));
+        }
+
+        private void BuildVersion9()
+        {
+            SqlDialect d = _Dialect;
+
+            // A credential carries its owner's administrator bypass only when a tenant or system administrator opts in.
+            _Columns.Add(new SchemaColumnAddition("credentials", "inherit_owner_bypass", d.TypeBool + " NOT NULL DEFAULT " + d.BooleanLiteral(false)));
+
+            // model_endpoint_health: recent health checks per endpoint (sweep and validate), pruned on insert
+            Table("model_endpoint_health",
+                Id(),
+                Ref("tenant_id", true),
+                Ref("model_endpoint_id", true),
+                "status VARCHAR(32) NOT NULL",
+                "source VARCHAR(32) NOT NULL",
+                "latency_ms " + d.TypeBigInt,
+                Text("message", false),
+                Timestamp("checked_utc", true));
+            Index("model_endpoint_health", "endpoint", false, "tenant_id", "model_endpoint_id", "checked_utc");
+
+            // Knowledge scope roots are stored with the key _root (they were stored with an empty key). A stray literal
+            // _root row that collides with an empty-key root is the duplicate and is removed first.
+            string knowledge = _Catalog.Reference("resource_knowledge");
+            string versions = _Catalog.Reference("resource_knowledge_versions");
+            _Statements.Add("DELETE FROM " + knowledge + " WHERE knowledge_key = '_root' AND EXISTS (SELECT 1 FROM " + knowledge + " r2 WHERE r2.resource_id = " + knowledge + ".resource_id AND r2.scope = " + knowledge + ".scope AND r2.knowledge_key = '');");
+            _Statements.Add("UPDATE " + knowledge + " SET knowledge_key = '_root' WHERE knowledge_key = '';");
+            _Statements.Add("UPDATE " + versions + " SET knowledge_key = '_root' WHERE knowledge_key = '';");
         }
 
         private void BuildVersion6()

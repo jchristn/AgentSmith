@@ -340,6 +340,9 @@ namespace Test.Shared.Suites
                 {
                     anonymous.BaseAddress = new Uri(host.BaseUrl);
                     List<int> statuses = new List<int>();
+                    // The limiter counts per calendar minute; start early in a minute so the five attempts share one window.
+                    DateTime now = DateTime.UtcNow;
+                    if (now.Second >= 50) await Task.Delay(TimeSpan.FromSeconds(61 - now.Second), token).ConfigureAwait(false);
                     for (int i = 0; i < 5; i++)
                     {
                         statuses.Add((await HttpTestHelpers.SendAsync(anonymous, System.Net.Http.HttpMethod.Post, "/v1.0/token", new { email = "anderson@hugo.local", password = "wrong" }, token).ConfigureAwait(false)).StatusCode);

@@ -7,6 +7,7 @@ namespace Hugo.Core.Database.Interfaces
     using Hugo.Core.Enumeration;
     using Hugo.Core.Enums;
     using Hugo.Core.Models;
+    using Hugo.Core.Requests;
 
     /// <summary>
     /// Model endpoint data access. Implementations must be thread-safe.
@@ -62,9 +63,10 @@ namespace Hugo.Core.Database.Interfaces
         /// </summary>
         /// <param name="tenantId">Tenant identifier.</param>
         /// <param name="query">Paging, search (name), and ordering.</param>
+        /// <param name="filter">Optional filters (kind, provider, health), or null.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Page.</returns>
-        Task<EnumerationResult<ModelEndpoint>> EnumerateAsync(string tenantId, EnumerationQuery query, CancellationToken token = default);
+        Task<EnumerationResult<ModelEndpoint>> EnumerateAsync(string tenantId, EnumerationQuery query, ModelEndpointFilter? filter = null, CancellationToken token = default);
 
         /// <summary>
         /// Every active endpoint across tenants (for the health sweep).

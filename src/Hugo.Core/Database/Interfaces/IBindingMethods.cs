@@ -64,5 +64,13 @@ namespace Hugo.Core.Database.Interfaces
         /// <param name="token">Cancellation token.</param>
         /// <returns>Bindings.</returns>
         Task<List<Binding>> ListByResourceAsync(string tenantId, string resourceId, CancellationToken token = default);
+
+        /// <summary>
+        /// Number of bindings per profile in a tenant. Profiles without bindings are absent from the result.
+        /// </summary>
+        /// <param name="tenantId">Tenant identifier.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Binding count by profile identifier.</returns>
+        Task<Dictionary<string, int>> CountByProfileAsync(string tenantId, CancellationToken token = default);
     }
 }

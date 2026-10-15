@@ -176,6 +176,13 @@ namespace Hugo.Server.Services
                     return await FailAsync(ctx, AuthSchemeEnum.AccessKeySecret, AuthResultEnum.Invalid, "Tenant header does not match the credential tenant.", token).ConfigureAwait(false);
                 }
 
+                if (credential.AuthMode == CredentialAuthModeEnum.SessionExchange)
+                {
+                    // A SessionExchange credential only obtains a session token (POST /v1.0/token, which reads the keys
+                    // itself); it cannot authenticate other requests directly with its keys.
+                    return await FailAsync(ctx, String.IsNullOrEmpty(signature) ? AuthSchemeEnum.AccessKeySecret : AuthSchemeEnum.AccessKeySignature, AuthResultEnum.Invalid, "The credential can only be exchanged for a session token at POST /v1.0/token; send that token as a bearer token.", token).ConfigureAwait(false);
+                }
+
                 string storedSecret = DecryptCredentialSecret(credential);
                 if (!String.IsNullOrEmpty(signature))
                 {
@@ -290,7 +297,7 @@ namespace Hugo.Server.Services
             await _Database.Sessions.CreateAsync(session, token).ConfigureAwait(false);
             TokenPayload payload = Payload(session, absolute);
             payload.UserId = user.Id;
-            await _Audit.WriteAsync(null, AuditEventTypeEnum.SessionIssued, "Session", session.Id, "Session issued to user " + user.Email + ".", user.TenantId, token).ConfigureAwait(false);
+            await SessionIssuedAsync(session, user.Id, user.Email, "Session issued to user " + user.Email + ".", token).ConfigureAwait(false);
             HugoMetrics.Count(HugoMetricCatalog.AuthTokensIssued, "scheme", scheme.ToString(), "principal", PrincipalTypeEnum.User.ToString());
             TokenResponse response = Response(session, payload, user.TenantId);
             response.MustChangePassword = user.MustChangePassword;
@@ -319,7 +326,7 @@ namespace Hugo.Server.Services
             await _Database.Sessions.CreateAsync(session, token).ConfigureAwait(false);
             TokenPayload payload = Payload(session, absolute);
             payload.CredentialId = credential.Id;
-            await _Audit.WriteAsync(null, AuditEventTypeEnum.SessionIssued, "Session", session.Id, "Session issued to credential " + credential.Name + ".", credential.TenantId, token).ConfigureAwait(false);
+            await SessionIssuedAsync(session, credential.Id, credential.Name, "Session issued to credential " + credential.Name + ".", token).ConfigureAwait(false);
             HugoMetrics.Count(HugoMetricCatalog.AuthTokensIssued, "scheme", scheme.ToString(), "principal", PrincipalTypeEnum.Credential.ToString());
             return Response(session, payload, credential.TenantId);
         }
@@ -524,8 +531,11 @@ namespace Hugo.Server.Services
             ctx.Credential = credential;
             ctx.User = owner;
             ctx.PrincipalName = credential.Name;
-            ctx.IsAdmin = owner != null && owner.IsAdmin;
-            ctx.IsTenantAdmin = owner != null && owner.IsTenantAdmin;
+            // Least privilege (AUTHENTICATION.md): a credential does not carry its owner's administrator bypass unless an
+            // administrator opted it in. Without the opt-in it is authorized by its own scope assignments, capped by the
+            // owner's access (the owner ceiling in AuthorizationService).
+            ctx.IsAdmin = credential.InheritOwnerBypass && owner != null && owner.IsAdmin;
+            ctx.IsTenantAdmin = credential.InheritOwnerBypass && owner != null && owner.IsTenantAdmin;
             Succeeded(scheme);
             return ctx;
         }
@@ -539,6 +549,26 @@ namespace Hugo.Server.Services
             if (tenant == null || !tenant.Active) return false;
             User? owner = await Cache.UserAsync(credential.TenantId, credential.UserId, token).ConfigureAwait(false);
             return owner != null && owner.Active;
+        }
+
+        private async Task SessionIssuedAsync(AuthSession session, string principalId, string principalName, string description, CancellationToken token)
+        {
+            // Token issuance and refresh answer 200, so the audit record carries that status like every request audit.
+            AuditRecord record = new AuditRecord();
+            record.EventType = AuditEventTypeEnum.SessionIssued;
+            record.TenantId = session.TenantId;
+            record.ResourceType = "Session";
+            record.ResourceId = session.Id;
+            record.SessionId = session.Id;
+            record.Description = description;
+            record.AuthScheme = session.AuthScheme;
+            record.AuthResult = AuthResultEnum.Success;
+            record.PrincipalType = session.PrincipalType;
+            record.PrincipalId = principalId;
+            record.PrincipalName = principalName;
+            record.SourceIp = session.SourceIp;
+            record.StatusCode = 200;
+            await _Audit.WriteAsync(record, token).ConfigureAwait(false);
         }
 
         private static void Succeeded(AuthSchemeEnum scheme)

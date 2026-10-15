@@ -47,8 +47,8 @@ namespace Hugo.Server.Routes
         {
             routes.Scoped(HttpMethod.GET, "/v1.0/api/settings", ResourceTypeEnum.Settings, OperationTypeEnum.Read, ReadAsync, "Read settings with source, apply mode, and editability metadata", "Settings", null, typeof(SettingsView));
             routes.Scoped(HttpMethod.PUT, "/v1.0/api/settings", ResourceTypeEnum.Settings, OperationTypeEnum.Update, UpdateAsync, "Update settings", "Settings", typeof(SettingsUpdateRequest), typeof(SettingsSaveResponse));
-            routes.Scoped(HttpMethod.POST, "/v1.0/api/settings/restart", ResourceTypeEnum.Settings, OperationTypeEnum.Admin, RestartAsync, "Restart this server process (the container runtime restarts it)", "Settings", null, typeof(RestartResponse));
-            routes.Scoped(HttpMethod.POST, "/v1.0/api/system/restart", ResourceTypeEnum.Settings, OperationTypeEnum.Admin, RestartAsync, "Restart this server process (same as /v1.0/api/settings/restart; exit code 75 for the container restart policy)", "Settings", null, typeof(RestartResponse));
+            routes.Scoped(HttpMethod.POST, "/v1.0/api/settings/restart", ResourceTypeEnum.Settings, OperationTypeEnum.Admin, RestartAsync, "Restart this server process (the container runtime restarts it)", "Settings", null, typeof(RestartResponse), statuses: new[] { 202 });
+            routes.Scoped(HttpMethod.POST, "/v1.0/api/system/restart", ResourceTypeEnum.Settings, OperationTypeEnum.Admin, RestartAsync, "Restart this server process (same as /v1.0/api/settings/restart; exit code 75 for the container restart policy)", "Settings", null, typeof(RestartResponse), statuses: new[] { 202 });
             routes.Scoped(HttpMethod.POST, "/v1.0/api/settings/database/test", ResourceTypeEnum.Settings, OperationTypeEnum.Admin, TestDatabaseAsync, "Test database connectivity", "Settings", null, typeof(DatabaseTestResponse));
         }
 

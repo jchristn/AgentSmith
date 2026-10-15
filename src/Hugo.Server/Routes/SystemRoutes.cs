@@ -45,7 +45,7 @@ namespace Hugo.Server.Routes
         {
             if (routes == null) throw new ArgumentNullException(nameof(routes));
             routes.Scoped(HttpMethod.GET, "/v1.0/api/system/master-key", ResourceTypeEnum.Admin, OperationTypeEnum.Read, StatusAsync, "Master key version and rotation progress (system administrators)", "System", null, typeof(MasterKeyRotationStatus));
-            routes.Scoped(HttpMethod.POST, "/v1.0/api/system/master-key/rotate", ResourceTypeEnum.Admin, OperationTypeEnum.Admin, RotateAsync, "Re-encrypt every secret value and credential secret under the current master key version, in batches; resumable (system administrators)", "System", null, typeof(MasterKeyRotationStatus));
+            routes.Scoped(HttpMethod.POST, "/v1.0/api/system/master-key/rotate", ResourceTypeEnum.Admin, OperationTypeEnum.Admin, RotateAsync, "Re-encrypt every secret value and credential secret under the current master key version, in batches; resumable (system administrators)", "System", null, typeof(MasterKeyRotationStatus), statuses: new[] { 202 });
         }
 
         #endregion

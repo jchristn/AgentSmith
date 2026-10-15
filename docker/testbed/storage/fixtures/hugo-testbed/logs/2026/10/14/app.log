@@ -1,0 +1,3 @@
+2026-10-14T08:00:00Z INFO checkout started
+2026-10-14T08:00:05Z WARN slow payment provider response 2300ms
+2026-10-14T08:01:00Z ERROR order 1042 failed: card declined

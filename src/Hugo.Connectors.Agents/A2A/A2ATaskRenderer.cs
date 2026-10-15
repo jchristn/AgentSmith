@@ -5,6 +5,7 @@ namespace Hugo.Connectors.Agents.A2A
     using System.Globalization;
     using System.Linq;
     using System.Text;
+    using Hugo.Connectors.Abstractions;
     using Hugo.Connectors.Agents.A2A.Payloads;
     using Voltaic.A2A;
 

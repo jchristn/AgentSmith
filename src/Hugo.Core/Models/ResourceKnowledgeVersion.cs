@@ -87,7 +87,7 @@ namespace Hugo.Core.Models
         }
 
         /// <summary>
-        /// Key.
+        /// Key; _root for the scope root (see <see cref="ResourceKnowledge.NormalizeKey"/>).
         /// </summary>
         public string Key
         {
@@ -97,7 +97,7 @@ namespace Hugo.Core.Models
             }
             set
             {
-                _Key = value ?? String.Empty;
+                _Key = ResourceKnowledge.NormalizeKey(value);
             }
         }
 
@@ -160,7 +160,7 @@ namespace Hugo.Core.Models
         private string _KnowledgeId = String.Empty;
         private string _ResourceId = String.Empty;
         private string _Scope = String.Empty;
-        private string _Key = String.Empty;
+        private string _Key = Constants.KnowledgeRootKey;
         private string _Content = String.Empty;
         private DateTime _CreatedUtc = DateTime.UtcNow;
 

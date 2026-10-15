@@ -11,6 +11,7 @@ namespace Hugo.Core.Database.Ado
     using Hugo.Core.Enums;
     using Hugo.Core.Inference;
     using Hugo.Core.Models;
+    using Hugo.Core.Requests;
 
     /// <summary>
     /// Provider-neutral model endpoint data access. Thread-safe.
@@ -115,18 +116,25 @@ namespace Hugo.Core.Database.Ado
         }
 
         /// <inheritdoc />
-        public async Task<EnumerationResult<ModelEndpoint>> EnumerateAsync(string tenantId, EnumerationQuery query, CancellationToken token = default)
+        public async Task<EnumerationResult<ModelEndpoint>> EnumerateAsync(string tenantId, EnumerationQuery query, ModelEndpointFilter? filter = null, CancellationToken token = default)
         {
             if (String.IsNullOrEmpty(tenantId)) throw new ArgumentNullException(nameof(tenantId));
             if (query == null) throw new ArgumentNullException(nameof(query));
+            ModelEndpointFilter f = filter ?? new ModelEndpointFilter();
             List<string> clauses = new List<string> { "tenant_id = @tenant_id" };
             if (!String.IsNullOrEmpty(query.Search)) clauses.Add(_Driver.Dialect.CaseInsensitiveLike("name", "search"));
             if (query.ActiveOnly) clauses.Add("active = " + _Driver.Dialect.BooleanLiteral(true));
+            if (f.Kind.HasValue) clauses.Add("kind = @kind");
+            if (f.Provider.HasValue) clauses.Add("provider = @provider");
+            if (f.Health.HasValue) clauses.Add("health_status = @health");
             string where = " WHERE " + String.Join(" AND ", clauses);
             Action<DbCommand> bind = command =>
             {
                 AdoDatabaseDriver.Add(command, "tenant_id", tenantId);
                 if (!String.IsNullOrEmpty(query.Search)) AdoDatabaseDriver.Add(command, "search", "%" + query.Search + "%");
+                if (f.Kind.HasValue) AdoDatabaseDriver.Add(command, "kind", f.Kind.Value.ToString());
+                if (f.Provider.HasValue) AdoDatabaseDriver.Add(command, "provider", f.Provider.Value.ToString());
+                if (f.Health.HasValue) AdoDatabaseDriver.Add(command, "health", f.Health.Value.ToString());
             };
             object? countValue = await _Driver.ScalarAsync("SELECT COUNT(*) FROM " + _Table + where + ";", bind, token).ConfigureAwait(false);
             long total = countValue == null ? 0 : Convert.ToInt64(countValue, CultureInfo.InvariantCulture);

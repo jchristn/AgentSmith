@@ -158,7 +158,10 @@
     "PasswordChangeRequired": "Tukar kata laluan anda sebelum meneruskan.",
     "SystemAdminRequired": "Hanya pentadbir sistem boleh melakukan ini.",
     "SettingsInvalid": "Tetapan sumber tidak sah.",
-    "Duplicate": "Rekod dengan nama itu sudah wujud."
+    "Duplicate": "Rekod dengan nama itu sudah wujud.",
+    "ProviderUnreachable": "Pembekal model tidak dapat dihubungi.",
+    "ProviderTimeout": "Pembekal model tidak menjawab tepat pada masanya.",
+    "BypassRequiresAdministrator": "Hanya pentadbir penyewa atau sistem yang telah log masuk boleh mengubah pintasan pemilik sesuatu kelayakan."
   },
   "enums": {
     "principalType": {
@@ -261,7 +264,8 @@
       "RestartRequested": "Mula semula diminta",
       "KnowledgeChanged": "Pengetahuan ditukar",
       "ModelEndpointChanged": "Titik akhir model ditukar",
-      "SettingLearned": "Tetapan dipelajari"
+      "SettingLearned": "Tetapan dipelajari",
+      "CredentialBypassChanged": "Pintasan kelayakan diubah"
     },
     "secretKind": {
       "Password": "Kata laluan",
@@ -402,6 +406,10 @@
       "Generated": "Dijana",
       "Agent": "Ejen",
       "Derived": "Diterbitkan"
+    },
+    "modelHealthSource": {
+      "Sweep": "Semakan automatik",
+      "Validate": "Pengesahan"
     }
   },
   "login": {
@@ -860,7 +868,8 @@
         "active": "Aktif",
         "id": "ID",
         "agentProfileId": "Profil",
-        "lockToProfile": "Dikunci"
+        "lockToProfile": "Dikunci",
+        "inheritOwnerBypass": "Pintasan pemilik"
       },
       "fields": {
         "name": "Nama",
@@ -869,15 +878,21 @@
         "expiresUtc": "Tamat tempoh",
         "active": "Aktif",
         "agentProfileId": "Profil terikat",
-        "lockToProfile": "Kunci pada profil ini"
+        "lockToProfile": "Kunci pada profil ini",
+        "inheritOwnerBypass": "Warisi pintasan pentadbir pemilik",
+        "roleName": "Peranan"
       },
       "hints": {
-        "userId": "Kelayakan tidak boleh melebihi kebenaran pemiliknya."
+        "userId": "Kelayakan tidak boleh melebihi kebenaran pemiliknya.",
+        "inheritOwnerBypass": "Dimatikan secara lalai. Apabila dihidupkan, kelayakan mendapat pintasan penuh pentadbir sistem atau penyewa pemiliknya dan melangkau semakan peranan. Hanya pentadbir boleh mengubahnya, dan setiap perubahan diaudit.",
+        "roleName": "Kelayakan tanpa peranan tidak mendapat akses. Pilih peranan di sini, atau tambah tugasan skop kelayakan selepas menciptanya."
       },
       "actions": {
         "rotate": "Putar rahsia",
         "scopes": "Penugasan skop"
-      }
+      },
+      "ownerBypass": "Pintasan pemilik",
+      "ownerBypassWarning": "Kelayakan ini akan bertindak dengan pintasan pentadbir penuh pemiliknya dan melangkau setiap semakan peranan dan kebenaran. Hidupkan hanya untuk automasi yang dipercayai; perubahan ini diaudit."
     },
     "roles": {
       "title": "Peranan",
@@ -1319,9 +1334,9 @@
       },
       "noProviderModels": "Penyedia tidak menyenaraikan sebarang model.",
       "history": {
-        "title": "Sejarah pengesahan (sesi ini)",
-        "note": "Pelayan hanya menyimpan semakan kesihatan terakhir. Pengesahan yang anda jalankan dalam sesi pelayar ini disenaraikan di sini.",
-        "empty": "Belum ada pengesahan dalam sesi ini. Gunakan Sahkan untuk menjalankannya."
+        "title": "Sejarah kesihatan",
+        "note": "Semakan kesihatan terkini, yang terbaru dahulu: pengesahan yang dijalankan oleh orang dan semakan kesihatan latar belakang pelayan. Pelayan menyimpan bilangan terhad bagi setiap titik akhir.",
+        "empty": "Belum ada semakan kesihatan direkodkan. Gunakan Sahkan untuk menjalankannya."
       },
       "validation": {
         "button": "Sahkan",
@@ -1456,7 +1471,9 @@
         "sourceIp": "IP sumber",
         "userAgent": "Klien",
         "principalType": "Jenis prinsipal",
-        "principalId": "ID prinsipal"
+        "principalId": "ID prinsipal",
+        "userId": "ID pengguna",
+        "credentialId": "ID kelayakan"
       }
     },
     "conversations": {
@@ -1751,7 +1768,8 @@
           "UserSessionMinutes": "Tempoh sesi pengguna (minit)",
           "AdminSessionMinutes": "Tempoh sesi pentadbir (minit)",
           "SessionAbsoluteMaxHours": "Had mutlak sesi (jam)",
-          "RateLimitPerMinute": "Percubaan log masuk setiap minit"
+          "RateLimitPerMinute": "Percubaan log masuk setiap minit",
+          "PasswordHashIterations": "Lelaran cincangan kata laluan"
         },
         "Secrets": {
           "MasterKey": "Kunci induk (pembangunan sahaja)",
@@ -1773,7 +1791,7 @@
           "EnablePlugins": "Dayakan pemalam penyambung",
           "PluginDirectory": "Direktori pemalam",
           "DefaultToolTimeoutSeconds": "Tamat masa alat lalai (saat)",
-          "HealthSweepMinutes": "Sapuan kesihatan sumber (minit)"
+          "McpAllowStdio": "Benarkan pelayan MCP melalui stdio"
         },
         "Models": {
           "HealthIntervalSeconds": "Selang semakan kesihatan model (saat)"
@@ -1812,28 +1830,25 @@
       "dataTable": "Jadual data",
       "bucketStart": "Permulaan baldi",
       "title": "Analitik",
-      "subtitle": "Penggunaan token, panggilan alat mengikut kesan dan penyambung, kependaman dan ralat model, serta masa pusingan kelulusan.",
+      "subtitle": "Perbualan, giliran, token, panggilan alat, kelulusan dan kependaman model dari masa ke masa.",
       "purpose": "Analitik menukar panggilan alat, giliran sembang dan panggilan model kepada trend penggunaan dan kos bagi setiap profil dan model.",
-      "profile": "Profil",
       "panels": {
         "overview": "Jumlah",
         "tokens": "Penggunaan token",
-        "tools": "Panggilan alat mengikut kesan",
+        "tools": "Panggilan alat",
         "models": "Model",
-        "modelLatency": "Kependaman model",
-        "modelErrors": "Ralat model"
+        "modelLatency": "Kependaman model"
       },
       "purposes": {
-        "overview": "Jumlah giliran, panggilan alat, kegagalan, token dan kelulusan dalam julat yang dipilih.",
+        "overview": "Jumlah perbualan, giliran, token, panggilan alat, kegagalan, kelulusan dan kependaman dalam julat yang dipilih.",
         "tokens": "Token input dan output dari semasa ke semasa, merentas setiap permukaan yang menjalankan gelung Hugo sendiri.",
-        "tools": "Panggilan alat dari semasa ke semasa dibahagikan mengikut kesan, serta panggilan, kegagalan dan kependaman bagi setiap penyambung.",
-        "models": "Persentil kependaman dan bilangan ralat bagi setiap titik akhir model."
+        "tools": "Panggilan alat, kegagalan dan kelulusan dari masa ke masa, serta panggilan bagi setiap alat.",
+        "models": "Purata masa ke token pertama dan tempoh giliran dari masa ke masa, serta giliran dan token bagi setiap titik akhir model."
       },
       "help": {
         "tokens": "Token input dan output bagi setiap baldi masa.",
-        "tools": "Panggilan alat bagi setiap baldi masa mengikut kesan: Baca, Tulis dan Memusnahkan.",
-        "modelLatency": "Masa respons model median (p50) dan p95 bagi setiap baldi.",
-        "modelErrors": "Permintaan model yang gagal bagi setiap baldi."
+        "tools": "Panggilan alat, panggilan gagal atau ditolak dan panggilan yang memerlukan kelulusan bagi setiap selang masa.",
+        "modelLatency": "Purata masa ke token pertama dan purata tempoh giliran bagi setiap selang masa."
       },
       "kpis": {
         "turns": "Giliran sembang",
@@ -1841,35 +1856,39 @@
         "failures": "Panggilan alat yang gagal",
         "tokens": "Token",
         "approvals": "Kelulusan",
-        "turnaround": "Tempoh pemprosesan kelulusan",
-        "approvalRate": "Bahagian diluluskan"
+        "conversations": "Perbualan",
+        "firstToken": "Masa ke token pertama",
+        "turnDuration": "Tempoh giliran"
       },
       "metrics": {
         "inputTokens": "Token input",
         "outputTokens": "Token output",
-        "latencyMsP50": "Median (p50)",
-        "latencyMsP95": "p95",
-        "errors": "Ralat",
-        "Read": "Baca",
-        "Write": "Tulis",
-        "Destructive": "Memusnahkan"
+        "toolCalls": "Panggilan alat",
+        "toolErrors": "Gagal atau dinafikan",
+        "approvals": "Memerlukan kelulusan",
+        "avgTimeToFirstTokenMs": "Masa ke token pertama",
+        "avgTurnDurationMs": "Tempoh giliran"
       },
       "columns": {
-        "connector": "Penyambung",
         "calls": "Panggilan",
-        "failures": "Kegagalan",
-        "p95": "Tempoh p95"
+        "toolName": "Alat",
+        "connectorType": "Penyambung",
+        "errors": "Ralat",
+        "denied": "Dinafikan",
+        "approvals": "Kelulusan",
+        "avgDurationMs": "Purata tempoh",
+        "name": "Titik akhir model",
+        "provider": "Pembekal",
+        "turns": "Giliran",
+        "inputTokens": "Token input",
+        "outputTokens": "Token output",
+        "avgTimeToFirstTokenMs": "Masa ke token pertama",
+        "avgTurnDurationMs": "Tempoh giliran"
       },
-      "derived": {
-        "title": "Daripada panggilan alat dan kelulusan",
-        "body": "Sehingga laluan analitik tersedia, angka ini datang daripada ringkasan panggilan alat dan senarai kelulusan untuk julat yang dipilih.",
-        "none": "Tiada apa-apa dalam julat ini.",
-        "byEffect": "Panggilan alat mengikut kesan",
-        "byDecision": "Panggilan alat mengikut keputusan",
-        "byStatus": "Panggilan alat mengikut status",
-        "byTool": "Alat paling banyak digunakan",
-        "approvalsByStatus": "Kelulusan mengikut status"
-      }
+      "noRows": "Tiada apa yang direkodkan dalam julat ini.",
+      "toolsTable": "Panggilan bagi setiap alat",
+      "modelsTable": "Giliran bagi setiap titik akhir model",
+      "unknownModel": "Tiada titik akhir model"
     },
     "chat": {
       "title": "Sembang",
@@ -2357,7 +2376,8 @@
       "principalType": "Tunjukkan hanya sesi pentadbir, pengguna atau kelayakan.",
       "visibility": "Tunjukkan hanya rekod peribadi atau seluruh penyewa.",
       "activeLayer": "Tunjukkan hanya templat yang teksnya datang daripada lapisan ini.",
-      "customized": "Tunjukkan templat mengikut lapisan yang disesuaikan, atau yang lalainya berubah sejak itu."
+      "customized": "Tunjukkan templat mengikut lapisan yang disesuaikan, atau yang lalainya berubah sejak itu.",
+      "credentialId": "Tunjukkan sesi bagi satu kelayakan sahaja. Tampal ID kelayakan; senarai dikemas kini apabila anda berhenti menaip."
     },
     "form": {
       "option": "Sertakan {{option}} dalam {{field}}. Pilihan yang ditanda disimpan; yang tidak ditanda ditinggalkan.",
@@ -2430,7 +2450,8 @@
       "defaultProfile": "Profil lalai penyewa: pemanggil yang tidak menamakan profil akan mendapat profil ini.",
       "expiringSoon": "Rahsia ini luput dalam tempoh 14 hari. Gantikan nilainya atau lanjutkan tarikh luput sebelum sumber berhenti berfungsi.",
       "lockdown": "Penyewa ini berada dalam sekatan penuh: hanya panggilan baca dibenarkan sehingga pentadbir penyewa menarik baliknya.",
-      "locked": "Dikunci pada profilnya: kelayakan hanya boleh bertindak sebagai profil terikat, walau apa pun yang diminta oleh pemanggil."
+      "locked": "Dikunci pada profilnya: kelayakan hanya boleh bertindak sebagai profil terikat, walau apa pun yang diminta oleh pemanggil.",
+      "ownerBypass": "Kelayakan ini mewarisi pintasan pentadbir pemiliknya dan melangkau semakan peranan."
     },
     "permissions": {
       "source": "Peranan asal pemberian ini. Betulkan akses dengan mengubah peranan itu atau penugasan yang memberikannya.",
@@ -2551,13 +2572,18 @@
         "RestartRequested": "Seseorang meminta pelayan dimulakan semula.",
         "KnowledgeChanged": "Pengetahuan sumber ditulis atau dipadam oleh pengendali, ejen atau model.",
         "ModelEndpointChanged": "Titik akhir model dicipta, ditukar atau dipadam.",
-        "SettingLearned": "Penyambung merekod tetapan pada penggunaan pertama, contohnya kunci hos SSH."
+        "SettingLearned": "Penyambung merekod tetapan pada penggunaan pertama, contohnya kunci hos SSH.",
+        "CredentialBypassChanged": "Satu kelayakan mula atau berhenti mewarisi pintasan pentadbir pemiliknya."
       },
       "knowledgeSource": {
         "Operator": "Ditulis atau disunting oleh seseorang dalam papan pemuka atau API.",
         "Generated": "Didraf oleh model dengan sql_generate_context. Semak sebelum bergantung padanya.",
         "Agent": "Direkodkan oleh ejen semasa bekerja (sql_update_context). Belum disahkan.",
         "Derived": "Dikira oleh Hugo daripada imbasan, bukan ditulis oleh orang atau model."
+      },
+      "modelHealthSource": {
+        "Sweep": "Direkodkan oleh semakan kesihatan latar belakang pelayan bagi setiap titik akhir.",
+        "Validate": "Direkodkan apabila seseorang menjalankan Sahkan pada titik akhir ini."
       }
     },
     "resources": {
@@ -2603,7 +2629,9 @@
           "scopes": "Buka penugasan skop kelayakan yang ditapis kepada kelayakan ini."
         },
         "agentProfileId": "Profil yang diwakili oleh kelayakan ini secara lalai. Abah-abah harus menggunakan kelayakan terikat.",
-        "lockToProfile": "Apabila dihidupkan, kelayakan hanya boleh bertindak sebagai profil terikatnya, walau apa pun yang diminta oleh pemanggil."
+        "lockToProfile": "Apabila dihidupkan, kelayakan hanya boleh bertindak sebagai profil terikatnya, walau apa pun yang diminta oleh pemanggil.",
+        "inheritOwnerBypass": "Sama ada kelayakan ini mewarisi pintasan pentadbir sistem atau penyewa pemiliknya. Hanya pentadbir boleh mengubahnya.",
+        "roleName": "Peranan terbina dalam atau tersuai yang diberikan kepada kelayakan pada skop penyewa semasa ia dicipta."
       },
       "roles": {
         "add": "Cipta peranan tersuai, kemudian tambah kebenaran padanya dan tugaskannya kepada pengguna atau kunci.",
@@ -3020,21 +3048,31 @@
         "events": "Setiap peristiwa yang distrim seperti yang dihantar oleh pelayan."
       },
       "analytics": {
-        "profile": "Hadkan setiap carta kepada satu profil ejen, atau tunjukkan seluruh penyewa.",
         "kpis": {
           "turns": "Giliran sembang, A2A dan serasi OpenAI yang menjalankan gelung ejen Hugo sendiri dalam julat.",
           "toolCalls": "Panggilan alat daripada setiap permukaan dalam julat, termasuk yang ditolak.",
-          "failures": "Panggilan alat yang berakhir dengan Failed atau TimedOut dalam julat.",
+          "failures": "Panggilan alat dalam julat yang gagal, tamat masa, atau dinafikan, ditolak atau luput.",
           "tokens": "Token input dan output yang digunakan oleh panggilan model Hugo dalam julat.",
           "approvals": "Kelulusan yang diminta dalam julat, walau apa pun hasilnya.",
-          "turnaround": "Masa median daripada kelulusan diminta sehingga seseorang memutuskannya.",
-          "approvalRate": "Bahagian kelulusan yang telah diputuskan yang diluluskan dan bukan ditolak."
+          "conversations": "Perbualan yang bermula dalam julat yang dipilih, daripada mana-mana permukaan.",
+          "firstToken": "Purata masa dari permulaan giliran hingga model menghantar token pertama, merentasi giliran yang selesai dalam julat.",
+          "turnDuration": "Purata masa giliran yang selesai dari mula hingga akhir, termasuk panggilan model dan panggilan alat."
         },
         "columns": {
-          "connector": "Jenis penyambung yang menjadi destinasi panggilan.",
-          "calls": "Panggilan alat kepada penyambung ini dalam julat.",
-          "failures": "Panggilan kepada penyambung ini yang gagal atau tamat masa.",
-          "p95": "95 peratus panggilan kepada penyambung ini selesai dalam masa ini."
+          "calls": "Panggilan kepada alat ini dalam julat, daripada mana-mana permukaan.",
+          "toolName": "Alat yang dipanggil, seperti yang dilihat oleh ejen dan klien.",
+          "connectorType": "Jenis penyambung yang menyediakan alat ini, seperti SSH atau PostgreSQL.",
+          "errors": "Panggilan kepada alat ini yang gagal atau tamat masa.",
+          "denied": "Panggilan kepada alat ini yang dinafikan, ditolak oleh seseorang atau luput sebelum keputusan.",
+          "approvals": "Panggilan kepada alat ini yang memerlukan kelulusan seseorang terlebih dahulu.",
+          "avgDurationMs": "Purata masa larian panggilan kepada alat ini yang dijalankan, berjaya atau tidak.",
+          "name": "Titik akhir model yang menjawab giliran ini, bersama nama modelnya.",
+          "provider": "Pembekal di sebalik titik akhir model, seperti Ollama atau Anthropic.",
+          "turns": "Giliran selesai yang dijawab oleh titik akhir model ini dalam julat.",
+          "inputTokens": "Token prompt yang dihantar ke titik akhir model ini dalam julat.",
+          "outputTokens": "Token yang dijana oleh titik akhir model ini dalam julat.",
+          "avgTimeToFirstTokenMs": "Purata masa sehingga titik akhir model ini menghantar token pertama sesuatu giliran.",
+          "avgTurnDurationMs": "Purata tempoh giliran yang dijawab oleh titik akhir model ini, dari mula hingga akhir."
         }
       },
       "chat": {
@@ -3170,7 +3208,7 @@
           "Telemetry": "Jejak dan metrik yang dieksport ke Tempo dan Prometheus terbungkus.",
           "Agent": "Had dan tingkah laku gelung ejen Hugo sendiri untuk sembang, A2A dan klien OpenAI.",
           "Approvals": "Berapa lama kelulusan menunggu, berapa lama panggilan MCP tersekat menunggunya, dan sama ada kelulusan sendiri dibenarkan.",
-          "Connectors": "Pemalam, had masa alat dan sapuan kesihatan latar belakang bagi sumber.",
+          "Connectors": "Pemalam, had masa alat dan sama ada sumber MCP boleh melancarkan pelayan MCP setempat melalui stdio.",
           "Models": "Berapa kerap titik akhir model disemak kesihatannya.",
           "Mcp": "Titik akhir MCP: hidup atau mati, had masa sesi dan saiz mesej.",
           "A2A": "Sama ada profil boleh dicapai melalui A2A.",

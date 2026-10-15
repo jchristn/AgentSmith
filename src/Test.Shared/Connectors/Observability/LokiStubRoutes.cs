@@ -23,6 +23,11 @@ namespace Test.Shared.Connectors.Observability
         /// </summary>
         public int LinesPerStream { get; set; } = 30;
 
+        /// <summary>
+        /// When true, labels answer {"status":"success"} without a data field, like a Loki that has no lines yet.
+        /// </summary>
+        public bool Empty { get; set; } = false;
+
         #endregion
 
         #region Public-Methods
@@ -39,6 +44,7 @@ namespace Test.Shared.Connectors.Observability
             switch (r.Path)
             {
                 case "/loki/api/v1/labels":
+                    if (Empty) return StubReply.Json("{\"status\":\"success\"}");
                     return StubReply.Json("{\"status\":\"success\",\"data\":[\"app\",\"env\",\"level\"]}");
                 case "/loki/api/v1/label/app/values":
                     return StubReply.Json("{\"status\":\"success\",\"data\":[\"hugo-worker\",\"hugo-api\"]}");

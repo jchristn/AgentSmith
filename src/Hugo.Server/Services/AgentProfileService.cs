@@ -45,6 +45,8 @@ namespace Hugo.Server.Services
         private readonly DatabaseDriverBase _Database;
         private readonly AuditService _Audit;
         private readonly EventHub? _Events;
+        private readonly Func<int>? _DefaultMaxIterations;
+        private readonly Func<int>? _DefaultMaxToolCallsPerTurn;
 
         #endregion
 
@@ -58,10 +60,26 @@ namespace Hugo.Server.Services
         /// <param name="events">Event hub, or null.</param>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is null.</exception>
         public AgentProfileService(DatabaseDriverBase database, AuditService audit, EventHub? events)
+            : this(database, audit, events, null, null)
+        {
+        }
+
+        /// <summary>
+        /// Instantiate with the server defaults for new profiles.
+        /// </summary>
+        /// <param name="database">Database.</param>
+        /// <param name="audit">Audit.</param>
+        /// <param name="events">Event hub, or null.</param>
+        /// <param name="defaultMaxIterations">Agent.DefaultMaxIterations, read when a profile is created; null keeps the model default.</param>
+        /// <param name="defaultMaxToolCallsPerTurn">Agent.DefaultMaxToolCallsPerTurn, read when a profile is created; null keeps the model default.</param>
+        /// <exception cref="ArgumentNullException">Thrown when a required argument is null.</exception>
+        public AgentProfileService(DatabaseDriverBase database, AuditService audit, EventHub? events, Func<int>? defaultMaxIterations, Func<int>? defaultMaxToolCallsPerTurn)
         {
             _Database = database ?? throw new ArgumentNullException(nameof(database));
             _Audit = audit ?? throw new ArgumentNullException(nameof(audit));
             _Events = events;
+            _DefaultMaxIterations = defaultMaxIterations;
+            _DefaultMaxToolCallsPerTurn = defaultMaxToolCallsPerTurn;
         }
 
         #endregion
@@ -127,6 +145,9 @@ namespace Hugo.Server.Services
             AgentProfile profile = new AgentProfile();
             profile.TenantId = tenantId;
             profile.OwnerUserId = ctx.UserId;
+            // Server defaults (Agent.DefaultMaxIterations, Agent.DefaultMaxToolCallsPerTurn); the request's values win.
+            if (_DefaultMaxIterations != null) profile.MaxIterations = _DefaultMaxIterations();
+            if (_DefaultMaxToolCallsPerTurn != null) profile.MaxToolCallsPerTurn = _DefaultMaxToolCallsPerTurn();
             await ApplyAsync(profile, request, token).ConfigureAwait(false);
             profile.IsDefault = false;
             await _Database.AgentProfiles.CreateAsync(profile, token).ConfigureAwait(false);
@@ -192,6 +213,8 @@ namespace Hugo.Server.Services
             int before = page.Objects.Count;
             page.Objects = page.Objects.Where(p => ResourceVisibility.CanSee(p, ctx)).ToList();
             page.TotalRecords -= before - page.Objects.Count;
+            Dictionary<string, int> counts = await _Database.Bindings.CountByProfileAsync(tenantId, token).ConfigureAwait(false);
+            foreach (AgentProfile profile in page.Objects) profile.BindingCount = counts.TryGetValue(profile.Id, out int count) ? count : 0;
             return page;
         }
 

@@ -80,7 +80,7 @@ namespace Test.Shared.Connectors.Http
         {
             string[] keys = new[]
             {
-                "baseUrl", "defaultHeaders", "authType", "apiKeyHeaderName", "tokenUrl", "scopes", "allowedMethods", "allowedPathPrefixes",
+                "baseUrl", "healthPath", "defaultHeaders", "authType", "apiKeyHeaderName", "tokenUrl", "scopes", "allowedMethods", "allowedPathPrefixes",
                 "methodEffectOverrides", "timeoutSeconds", "maxResponseBytes", "maxRequestBytes", "followRedirects", "maxRedirects", "verifyTls"
             };
             ConnectorSettingsSchema schema = _Connector.Descriptor.SettingsSchema;

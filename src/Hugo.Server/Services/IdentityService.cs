@@ -299,7 +299,9 @@ namespace Hugo.Server.Services
 
             EnumerationQuery query = new EnumerationQuery();
             query.MaxResults = 1000;
-            EnumerationResult<AuthSession> sessions = await _Database.Sessions.EnumerateAsync(tenantId, query, token).ConfigureAwait(false);
+            SessionFilter userSessions = new SessionFilter();
+            userSessions.UserId = user.Id;
+            EnumerationResult<AuthSession> sessions = await _Database.Sessions.EnumerateAsync(tenantId, query, userSessions, token).ConfigureAwait(false);
             foreach (AuthSession session in sessions.Objects.Where(x => x.UserId == user.Id && x.Id != ctx.SessionId && !x.RevokedUtc.HasValue))
             {
                 await _Database.Sessions.RevokeAsync(session.Id, "Password changed.", token).ConfigureAwait(false);
@@ -365,6 +367,11 @@ namespace Hugo.Server.Services
             credential.AuthMode = request.AuthMode ?? CredentialAuthModeEnum.Hybrid;
             credential.ExpiresUtc = request.ExpiresUtc;
             credential.Active = request.Active ?? true;
+            if (request.InheritOwnerBypass == true)
+            {
+                RequireBypassAdministrator(ctx);
+                credential.InheritOwnerBypass = true;
+            }
             await ApplyProfileBindingAsync(credential, tenantId, request, token).ConfigureAwait(false);
             await _Database.Credentials.CreateAsync(credential, token).ConfigureAwait(false);
 
@@ -380,6 +387,7 @@ namespace Hugo.Server.Services
 
             _Authorization.Invalidate();
             await _Audit.WriteAsync(ctx, AuditEventTypeEnum.CredentialCreated, "Credential", credential.Id, "Credential " + credential.Name + " created for " + owner.Email + ".", tenantId, token).ConfigureAwait(false);
+            if (credential.InheritOwnerBypass) await AuditBypassAsync(ctx, credential, owner, tenantId, token).ConfigureAwait(false);
 
             CredentialCreateResponse response = new CredentialCreateResponse();
             response.Credential = credential;
@@ -410,9 +418,20 @@ namespace Hugo.Server.Services
                 if (credential.IsProtected && !request.Active.Value) throw new ConflictException("Protected", "Protected credentials cannot be deactivated.");
                 credential.Active = request.Active.Value;
             }
+            bool bypassChanged = request.InheritOwnerBypass.HasValue && request.InheritOwnerBypass.Value != credential.InheritOwnerBypass;
+            if (bypassChanged)
+            {
+                RequireBypassAdministrator(ctx);
+                credential.InheritOwnerBypass = request.InheritOwnerBypass!.Value;
+            }
             await ApplyProfileBindingAsync(credential, tenantId, request, token).ConfigureAwait(false);
             await _Database.Credentials.UpdateAsync(credential, token).ConfigureAwait(false);
             _Authorization.Invalidate();
+            if (bypassChanged)
+            {
+                User? owner = await _Database.Users.ReadAsync(tenantId, credential.UserId, token).ConfigureAwait(false);
+                await AuditBypassAsync(ctx, credential, owner, tenantId, token).ConfigureAwait(false);
+            }
             await _Audit.WriteAsync(ctx, AuditEventTypeEnum.ConfigurationChanged, "Credential", credential.Id, "Credential updated" + (String.IsNullOrEmpty(credential.AgentProfileId) ? "." : " (agent profile " + credential.AgentProfileId + (credential.LockToProfile ? ", locked" : String.Empty) + ")."), tenantId, token).ConfigureAwait(false);
             return credential;
         }
@@ -582,8 +601,9 @@ namespace Hugo.Server.Services
             principal.TenantId = tenantId;
             principal.CredentialId = credential.Id;
             principal.UserId = credential.UserId;
-            principal.IsAdmin = owner != null && owner.IsAdmin;
-            principal.IsTenantAdmin = owner != null && owner.IsTenantAdmin;
+            principal.User = owner;
+            principal.IsAdmin = credential.InheritOwnerBypass && owner != null && owner.IsAdmin;
+            principal.IsTenantAdmin = credential.InheritOwnerBypass && owner != null && owner.IsTenantAdmin;
             List<PermissionGrant> grants = await _Authorization.GrantsForCredentialAsync(tenantId, credential.Id, token).ConfigureAwait(false);
             return await BuildEffectiveAsync(principal, credential.Id, grants, token).ConfigureAwait(false);
         }
@@ -591,6 +611,22 @@ namespace Hugo.Server.Services
         #endregion
 
         #region Private-Methods
+
+        private static void RequireBypassAdministrator(RequestContext ctx)
+        {
+            // Only an interactive tenant or system administrator may let a credential carry its owner's bypass; a
+            // credential can never grant it (not even one that carries the bypass itself).
+            bool administrator = ctx.PrincipalType == PrincipalTypeEnum.Administrator
+                || (ctx.PrincipalType == PrincipalTypeEnum.User && (ctx.IsAdmin || ctx.IsTenantAdmin));
+            if (!administrator) throw new ForbiddenException("BypassRequiresAdministrator", "Only a signed-in tenant or system administrator can change inheritOwnerBypass.");
+        }
+
+        private async Task AuditBypassAsync(RequestContext ctx, Credential credential, User? owner, string tenantId, CancellationToken token)
+        {
+            string ownerFlags = owner == null ? "owner not found" : (owner.IsAdmin ? "owner is a system administrator" : owner.IsTenantAdmin ? "owner is a tenant administrator" : "owner holds no bypass, so this has no effect");
+            string description = "Credential " + credential.Name + (credential.InheritOwnerBypass ? " now carries" : " no longer carries") + " its owner's administrator bypass (" + ownerFlags + ").";
+            await _Audit.WriteAsync(ctx, AuditEventTypeEnum.CredentialBypassChanged, "Credential", credential.Id, description, tenantId, token).ConfigureAwait(false);
+        }
 
         private async Task<EffectivePermissionsResponse> BuildEffectiveAsync(RequestContext principal, string principalId, List<PermissionGrant> grants, CancellationToken token)
         {

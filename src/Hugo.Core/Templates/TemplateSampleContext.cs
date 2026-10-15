@@ -29,7 +29,14 @@ namespace Hugo.Core.Templates
             context.Set("user.firstName", "Thomas");
             context.Set("user.lastName", "Anderson");
             context.Set("user.email", "anderson@hugo.local");
-            context.Set("now.utc", DateTime.UtcNow.ToString("o", System.Globalization.CultureInfo.InvariantCulture));
+            // The values below mirror what the instruction compiler provides, so a preview renders like compilation.
+            context.Set("profile.instructionsAppend", String.Empty);
+            context.Set("profile.hasBindings", true);
+            context.Set("profile.bindingCount", 1);
+            context.Set("profile.singleBinding", true);
+            context.Set("profile.familySummary", "PostgreSQL (prod-db)");
+            context.Set("now.utc", DateTime.UtcNow.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture));
+            context.Set("compactInstructions", false);
             Dictionary<string, object?> binding = TemplateContext.NewMap();
             binding["alias"] = "prod-db";
             binding["connectorType"] = "postgresql";
@@ -49,7 +56,14 @@ namespace Hugo.Core.Templates
             context.Set("bindingsByFamily", byFamily);
             context.Set("limits.maxIterations", 12);
             context.Set("limits.maxToolCallsPerTurn", 24);
-            context.Set("surface", "Chat");
+            context.Set("limits.toolTimeoutSeconds", 120);
+            Dictionary<string, object?> surface = TemplateContext.NewMap();
+            surface["name"] = "Chat";
+            surface["isChat"] = true;
+            surface["isMcp"] = false;
+            surface["isA2A"] = false;
+            surface["isOpenAI"] = false;
+            context.Set("surface", surface);
             context.Set("hugo.version", Constants.ProductVersion);
             if (overrides.HasValue && overrides.Value.ValueKind == JsonValueKind.Object) Merge(context.Root, overrides.Value);
             return context;

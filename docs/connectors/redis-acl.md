@@ -42,7 +42,7 @@ ACL SETUSER hugo-reader reset on >CHANGE-ME-TO-A-LONG-RANDOM-PASSWORD
 
 The command is wrapped here for reading. Run it as a single line in `redis-cli`, or put everything after the user name on one `user hugo-reader ...` line of an `aclfile`, which survives restarts.
 
-`+@read` is Redis's own category of commands that only read data. It covers `SCAN`, `TYPE`, `PTTL`, `DBSIZE`, `EXISTS`, every type-specific read the tools use, and the read-only commands an agent might reasonably send through `redis_command` (`GET`, `MGET`, `HGETALL`, `XINFO`, `OBJECT ENCODING`). `-keys` takes `KEYS` back out, matching Hugo's default `deniedCommands`. Administrative reads such as `SLOWLOG GET`, `CLIENT LIST`, and `CONFIG GET` are not in `@read`, so they are granted one subcommand at a time. Granting `+slowlog`, `+latency`, or `+memory` whole would also allow `SLOWLOG RESET`, `LATENCY RESET`, and `MEMORY PURGE`, which Hugo classifies as Destructive or Write.
+`+@read` is Redis's own category of commands that only read data. It covers `SCAN`, `TYPE`, `PTTL`, `DBSIZE`, `EXISTS`, every type-specific read the tools use, and the read-only commands an agent might reasonably send through `redis_command` (`GET`, `MGET`, `HGETALL`, `XINFO`, `OBJECT ENCODING`). `-keys` takes `KEYS` back out, matching Hugo, which refuses `KEYS` on its own. That denial is built in and separate from `deniedCommands`: anything listed there is denied in addition to `KEYS`, and only turning on `allowKeysCommand` lets `KEYS` through. Administrative reads such as `SLOWLOG GET`, `CLIENT LIST`, and `CONFIG GET` are not in `@read`, so they are granted one subcommand at a time. Granting `+slowlog`, `+latency`, or `+memory` whole would also allow `SLOWLOG RESET`, `LATENCY RESET`, and `MEMORY PURGE`, which Hugo classifies as Destructive or Write.
 
 Two of those grants deserve a second look. `CONFIG GET` can read `requirepass` and `masterauth`. Hugo scrubs the resource's own password from every result, but not other secrets the server's configuration might hold, so leave `+config|get` out if your configuration carries credentials and you can live without `redis_latency` showing the monitor threshold. `CLIENT LIST` shows client addresses and the last command each client ran, which is the point of `redis_client_list`.
 
@@ -64,7 +64,7 @@ ACL SETUSER hugo-operator reset on >CHANGE-ME-TO-A-DIFFERENT-PASSWORD
   +set +expire +persist +unlink
 ```
 
-The last line is the whole difference: `SET` for `redis_set`, `EXPIRE` and `PERSIST` for `redis_expire`, and `UNLINK` for `redis_delete`. Every Write and Destructive tool works, and every one of them still goes through the binding's access mode and approvals.
+The last line is the whole difference: `SET` for `redis_set`, `EXPIRE` and `PERSIST` for `redis_expire`, and `UNLINK` for `redis_delete`. Every Write and Destructive tool works, and every one of them still goes through the binding's access mode and approvals. Deletes always wait for a human, whatever the access mode: `redis_delete`, and `DEL`, `UNLINK`, or `GETDEL` sent through `redis_command`.
 
 What this user cannot do matters as much. It cannot `FLUSHALL`, `FLUSHDB`, `CONFIG SET`, `SHUTDOWN`, `DEBUG`, `REPLICAOF`, `SCRIPT FLUSH`, or `EVAL`, and it cannot change other users. Hugo already marks the flush, shutdown, debug, replication, and failover commands as always needing a human, but an approval is a person reading a card under time pressure. The ACL does not get tired.
 

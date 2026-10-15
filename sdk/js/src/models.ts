@@ -953,6 +953,18 @@ export interface ModelValidationResult extends Json {
   problems?: string[];
 }
 
+/** One recorded health check of a model endpoint. */
+export interface ModelEndpointHealthRecord extends Json {
+  id: string;
+  tenantId: string;
+  modelEndpointId: string;
+  status?: string;
+  source?: string;
+  latencyMs?: number | null;
+  message?: string | null;
+  checkedUtc?: string;
+}
+
 export interface ToolCallRequest extends Json {
   /** Agent profile ID; or name via profile. */
   profileId?: string;

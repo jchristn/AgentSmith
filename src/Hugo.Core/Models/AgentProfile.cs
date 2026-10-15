@@ -224,6 +224,12 @@ namespace Hugo.Core.Models
         public bool IsDefault { get; set; } = false;
 
         /// <summary>
+        /// Number of resources bound to the profile. Filled by the profile list and read routes; not stored. Null when
+        /// not computed.
+        /// </summary>
+        public int? BindingCount { get; set; } = null;
+
+        /// <summary>
         /// Whether the profile is active.
         /// </summary>
         public bool Active { get; set; } = true;

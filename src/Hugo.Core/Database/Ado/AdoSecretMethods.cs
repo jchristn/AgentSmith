@@ -10,6 +10,7 @@ namespace Hugo.Core.Database.Ado
     using Hugo.Core.Database.Interfaces;
     using Hugo.Core.Enumeration;
     using Hugo.Core.Models;
+    using Hugo.Core.Requests;
 
     /// <summary>
     /// Provider-neutral secret data access over the secrets and secret_values tables. Thread-safe.
@@ -153,20 +154,23 @@ namespace Hugo.Core.Database.Ado
         }
 
         /// <inheritdoc />
-        public async Task<EnumerationResult<Secret>> EnumerateAsync(string? tenantId, EnumerationQuery query, CancellationToken token = default)
+        public async Task<EnumerationResult<Secret>> EnumerateAsync(string? tenantId, EnumerationQuery query, SecretFilter? filter = null, CancellationToken token = default)
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
+            SecretKindEnum? kind = filter?.Kind;
 
             List<string> clauses = new List<string>();
             if (!String.IsNullOrEmpty(tenantId)) clauses.Add("tenant_id = @tenant_id");
             if (!String.IsNullOrEmpty(query.Search)) clauses.Add(_Driver.Dialect.CaseInsensitiveLike("name", "search"));
             if (query.ActiveOnly) clauses.Add("active = " + _Driver.Dialect.BooleanLiteral(true));
+            if (kind.HasValue) clauses.Add("secret_kind = @kind");
             string where = clauses.Count > 0 ? " WHERE " + String.Join(" AND ", clauses) : String.Empty;
 
             Action<DbCommand> bind = command =>
             {
                 if (!String.IsNullOrEmpty(tenantId)) AdoDatabaseDriver.Add(command, "tenant_id", tenantId);
                 if (!String.IsNullOrEmpty(query.Search)) AdoDatabaseDriver.Add(command, "search", "%" + query.Search + "%");
+                if (kind.HasValue) AdoDatabaseDriver.Add(command, "kind", kind.Value.ToString());
             };
 
             object? countValue = await _Driver.ScalarAsync("SELECT COUNT(*) FROM " + _Table + where + ";", bind, token).ConfigureAwait(false);

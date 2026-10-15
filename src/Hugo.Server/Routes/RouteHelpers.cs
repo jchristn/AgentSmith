@@ -10,6 +10,7 @@ namespace Hugo.Server.Routes
     using Hugo.Core.Responses;
     using Hugo.Core.Security;
     using Hugo.Core.Serialization;
+    using Hugo.Core.Services;
     using WatsonWebserver.Core;
 
     /// <summary>
@@ -294,12 +295,15 @@ namespace Hugo.Server.Routes
         /// <typeparam name="T">Enum type.</typeparam>
         /// <param name="context">HTTP context.</param>
         /// <param name="key">Key.</param>
-        /// <returns>Value or null.</returns>
+        /// <returns>Value, or null when the parameter is absent or empty.</returns>
+        /// <exception cref="ValidationException">Thrown when the value is not one of the enum's names, so a mistyped filter
+        /// is refused instead of silently matching everything.</exception>
         public static T? QueryEnum<T>(HttpContextBase context, string key) where T : struct, Enum
         {
             string? value = Query(context, key);
-            if (!String.IsNullOrEmpty(value) && Enum.TryParse<T>(value, true, out T parsed)) return parsed;
-            return null;
+            if (String.IsNullOrEmpty(value)) return null;
+            if (Enum.TryParse<T>(value, true, out T parsed) && Enum.IsDefined(parsed) && !Int64.TryParse(value, out long _)) return parsed;
+            throw new ValidationException("Query parameter " + key + " must be one of: " + String.Join(", ", Enum.GetNames<T>()) + ".", new Dictionary<string, string> { { key, "Unknown value '" + value + "'." } });
         }
 
         /// <summary>
@@ -377,6 +381,7 @@ namespace Hugo.Server.Routes
                 case 404: return "NotFound";
                 case 409: return "Conflict";
                 case 429: return "TooManyRequests";
+                case 502: return "BadGateway";
                 case 503: return "ServiceUnavailable";
                 default: return statusCode >= 500 ? "InternalServerError" : "Error";
             }

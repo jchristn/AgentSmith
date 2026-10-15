@@ -28,6 +28,7 @@ import type {
   Message,
   ModelEndpoint,
   ModelEndpointRequest,
+  ModelEndpointHealthRecord,
   ModelValidationResult,
   PromptDiffLine,
   PromptLayer,
@@ -222,6 +223,11 @@ export class ModelEndpointsClient extends FlatCollection<ModelEndpoint, ModelEnd
 
   models(id: string): Promise<string[]> {
     return this.t.request("GET", `${this.item(id)}/models`);
+  }
+
+  /** Recent health checks (validate and the server's health sweep), newest first. maxResults 1 to 1000, default 50. */
+  healthHistory(id: string, maxResults?: number): Promise<ModelEndpointHealthRecord[]> {
+    return this.t.request("GET", `${this.item(id)}/health-history`, { query: maxResults === undefined ? undefined : { maxResults: String(maxResults) } });
   }
 }
 

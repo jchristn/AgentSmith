@@ -5,6 +5,7 @@ namespace Hugo.Core.Database.Interfaces
     using System.Threading.Tasks;
     using Hugo.Core.Enumeration;
     using Hugo.Core.Models;
+    using Hugo.Core.Requests;
 
     /// <summary>
     /// Secret data access. A secret and its encrypted values (secret_values) are always written together in one
@@ -75,9 +76,10 @@ namespace Hugo.Core.Database.Interfaces
         /// </summary>
         /// <param name="tenantId">Tenant identifier, or null for every tenant.</param>
         /// <param name="query">Enumeration query.</param>
+        /// <param name="filter">Optional filters (kind), or null.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Page of secrets.</returns>
-        Task<EnumerationResult<Secret>> EnumerateAsync(string? tenantId, EnumerationQuery query, CancellationToken token = default);
+        Task<EnumerationResult<Secret>> EnumerateAsync(string? tenantId, EnumerationQuery query, SecretFilter? filter = null, CancellationToken token = default);
 
         /// <summary>
         /// Read up to <paramref name="maxResults"/> value rows whose key version differs from <paramref name="keyVersion"/>,

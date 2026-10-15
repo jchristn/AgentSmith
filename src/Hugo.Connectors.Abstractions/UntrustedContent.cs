@@ -1,4 +1,4 @@
-namespace Hugo.Connectors.Agents
+namespace Hugo.Connectors.Abstractions
 {
     using System;
     using System.Text;

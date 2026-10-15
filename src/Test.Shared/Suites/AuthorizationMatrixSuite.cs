@@ -10,6 +10,7 @@ namespace Test.Shared.Suites
     using Hugo.Core.Enums;
     using Hugo.Core.Models;
     using Hugo.Core.Requests;
+    using Hugo.Core.Responses;
     using Hugo.Core.Security;
     using Hugo.Server.Routes;
     using Test.Shared.Infrastructure;
@@ -48,6 +49,7 @@ namespace Test.Shared.Suites
                 string id = "authz-matrix-" + provider.ToString().ToLowerInvariant();
                 List<TestCaseDescriptor> cases = new List<TestCaseDescriptor>();
                 cases.Add(new TestCaseDescriptor(id, "every-route-every-role", "Every scoped route by every built-in role matches the expected decision (" + provider + ")", ct => MatrixAsync(provider, ct)));
+                cases.Add(new TestCaseDescriptor(id, "credential-every-route-every-role", "A credential owned by a system administrator and scoped to each built-in role gets exactly that role's decisions on every scoped route, never the owner's bypass (" + provider + ")", ct => CredentialMatrixAsync(provider, ct)));
                 cases.Add(new TestCaseDescriptor(id, "foreign-tenant", "A tenant administrator of another tenant gets 404 on every tenant route (" + provider + ")", ct => ForeignTenantAsync(provider, ct)));
                 suites.Add(new TestSuiteDescriptor(id, "Authorization matrix (" + provider + ")", cases));
             }
@@ -122,19 +124,50 @@ namespace Test.Shared.Suites
 
                     using (HttpClient client = await host.UserClientAsync(email, "password123", host.TenantId, token).ConfigureAwait(false))
                     {
-                        foreach (OperationScope scope in scopes)
-                        {
-                            // The event stream never ends; its authorization is covered by the foundation suite.
-                            if (scope.Path == "/v1.0/api/events") continue;
-                            bool expected = Allowed(role.Name, scope.ResourceType!.Value, scope.Operation!.Value);
-                            string path = Concrete(scope.Path, host.TenantId);
-                            TestResponse response = await HttpTestHelpers.SendAsync(client, new HttpMethod(scope.Method), path, scope.Method == "GET" || scope.Method == "DELETE" ? null : "{}", token).ConfigureAwait(false);
-                            bool denied = response.StatusCode == 403 && response.Body.Contains("AuthorizationDenied", StringComparison.Ordinal);
-                            if (denied == expected) failures.Add(role.Name + " " + scope.Method + " " + scope.Path + ": expected " + (expected ? "allowed" : "denied") + ", got " + response.StatusCode + " " + Truncate(response.Body));
-                        }
+                        await CheckRoutesAsync(host, client, role.Name, role.Name, scopes, failures, token).ConfigureAwait(false);
                     }
                 }
                 Assert.True(failures.Count == 0, failures.Count + " matrix mismatches: " + String.Join(" | ", failures.Take(20)));
+            }
+        }
+
+        private static async Task CredentialMatrixAsync(DatabaseTypeEnum provider, CancellationToken token)
+        {
+            // The owner is the seeded system administrator (IsAdmin and IsTenantAdmin). Without the inheritOwnerBypass
+            // opt-in, its credentials are authorized by their scope assignment alone (the owner ceiling never narrows an
+            // administrator), so each credential must behave exactly like a user holding the same role.
+            await using (TestServerHost host = await TestServerHost.StartAsync(provider, null, token).ConfigureAwait(false))
+            {
+                List<OperationScope> scopes = host.Server.Context.Scopes.All().Where(s => s.Authorization == RouteAuthorizationEnum.Scoped && s.ResourceType.HasValue && s.Operation.HasValue).ToList();
+                User admin = Assert.NotNull(await host.Server.Context.Database.Users.ReadByEmailAsync(host.TenantId, "admin@hugo.local", token).ConfigureAwait(false), "seeded administrator");
+                Assert.True(admin.IsAdmin && admin.IsTenantAdmin, "the owner holds both bypass flags");
+                List<string> failures = new List<string>();
+                foreach (BuiltInRole role in BuiltInRoles.All)
+                {
+                    CredentialCreateResponse credential = await HttpTestHelpers.SendAsync<CredentialCreateResponse>(host.AdminClient, HttpMethod.Post, "/v1.0/api/tenants/" + host.TenantId + "/credentials", new CredentialRequest { Name = "matrix-" + role.Name.ToLowerInvariant(), UserId = admin.Id, RoleName = role.Name }, 201, token).ConfigureAwait(false);
+                    Assert.True(!credential.Credential.InheritOwnerBypass, "inheritOwnerBypass defaults to false");
+                    using (HttpClient client = host.CredentialClient(credential.AccessKey, credential.SecretKey))
+                    {
+                        TokenDetailsResponse details = await HttpTestHelpers.SendAsync<TokenDetailsResponse>(client, HttpMethod.Get, "/v1.0/token/details", null, 200, token).ConfigureAwait(false);
+                        Assert.True(!details.IsAdmin && !details.IsTenantAdmin, "a " + role.Name + " credential does not carry the owner's bypass flags");
+                        await CheckRoutesAsync(host, client, role.Name, "credential:" + role.Name, scopes, failures, token).ConfigureAwait(false);
+                    }
+                }
+                Assert.True(failures.Count == 0, failures.Count + " credential matrix mismatches: " + String.Join(" | ", failures.Take(20)));
+            }
+        }
+
+        private static async Task CheckRoutesAsync(TestServerHost host, HttpClient client, string roleName, string label, List<OperationScope> scopes, List<string> failures, CancellationToken token)
+        {
+            foreach (OperationScope scope in scopes)
+            {
+                // The event stream never ends; its authorization is covered by the foundation suite.
+                if (scope.Path == "/v1.0/api/events") continue;
+                bool expected = Allowed(roleName, scope.ResourceType!.Value, scope.Operation!.Value);
+                string path = Concrete(scope.Path, host.TenantId);
+                TestResponse response = await HttpTestHelpers.SendAsync(client, new HttpMethod(scope.Method), path, scope.Method == "GET" || scope.Method == "DELETE" ? null : "{}", token).ConfigureAwait(false);
+                bool denied = response.StatusCode == 403 && response.Body.Contains("AuthorizationDenied", StringComparison.Ordinal);
+                if (denied == expected) failures.Add(label + " " + scope.Method + " " + scope.Path + ": expected " + (expected ? "allowed" : "denied") + ", got " + response.StatusCode + " " + Truncate(response.Body));
             }
         }
 

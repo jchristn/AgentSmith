@@ -9,6 +9,7 @@ namespace Hugo.Core.Database.Ado
     using Hugo.Core.Enumeration;
     using Hugo.Core.Enums;
     using Hugo.Core.Models;
+    using Hugo.Core.Requests;
 
     /// <summary>
     /// Provider-neutral AuthSession data access. Thread-safe.
@@ -144,9 +145,10 @@ namespace Hugo.Core.Database.Ado
         }
 
         /// <inheritdoc />
-        public async Task<EnumerationResult<AuthSession>> EnumerateAsync(string? tenantId, EnumerationQuery query, CancellationToken token = default)
+        public async Task<EnumerationResult<AuthSession>> EnumerateAsync(string? tenantId, EnumerationQuery query, SessionFilter? filter = null, CancellationToken token = default)
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
+            SessionFilter f = filter ?? new SessionFilter();
 
             List<string> clauses = new List<string>();
             if (!String.IsNullOrEmpty(tenantId))
@@ -154,11 +156,17 @@ namespace Hugo.Core.Database.Ado
                 clauses.Add("tenant_id = @tenant_id");
             }
             if (query.ActiveOnly) clauses.Add("active = " + _Driver.Dialect.BooleanLiteral(true));
+            if (f.PrincipalType.HasValue) clauses.Add("principal_type = @principal_type");
+            if (!String.IsNullOrEmpty(f.UserId)) clauses.Add("user_id = @user_id");
+            if (!String.IsNullOrEmpty(f.CredentialId)) clauses.Add("credential_id = @credential_id");
             string where = clauses.Count > 0 ? " WHERE " + String.Join(" AND ", clauses) : String.Empty;
 
             Action<DbCommand> bind = command =>
             {
                 if (!String.IsNullOrEmpty(tenantId)) AdoDatabaseDriver.Add(command, "tenant_id", tenantId);
+                if (f.PrincipalType.HasValue) AdoDatabaseDriver.Add(command, "principal_type", f.PrincipalType.Value.ToString());
+                if (!String.IsNullOrEmpty(f.UserId)) AdoDatabaseDriver.Add(command, "user_id", f.UserId);
+                if (!String.IsNullOrEmpty(f.CredentialId)) AdoDatabaseDriver.Add(command, "credential_id", f.CredentialId);
             };
 
             object? countValue = await _Driver.ScalarAsync("SELECT COUNT(*) FROM " + _Table + where + ";", bind, token).ConfigureAwait(false);

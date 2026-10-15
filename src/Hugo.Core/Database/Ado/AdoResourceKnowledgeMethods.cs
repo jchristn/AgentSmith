@@ -50,7 +50,7 @@ namespace Hugo.Core.Database.Ado
                 AdoDatabaseDriver.Add(command, "tenant_id", tenantId);
                 AdoDatabaseDriver.Add(command, "resource_id", resourceId);
                 AdoDatabaseDriver.Add(command, "scope", scope ?? String.Empty);
-                AdoDatabaseDriver.Add(command, "key", key ?? String.Empty);
+                AdoDatabaseDriver.Add(command, "key", ResourceKnowledge.NormalizeKey(key));
             }, Map, token).ConfigureAwait(false);
         }
 
@@ -79,7 +79,7 @@ namespace Hugo.Core.Database.Ado
                     AdoDatabaseDriver.Add(command, "tenant_id", entry.TenantId);
                     AdoDatabaseDriver.Add(command, "resource_id", entry.ResourceId);
                     AdoDatabaseDriver.Add(command, "scope", entry.Scope);
-                    AdoDatabaseDriver.Add(command, "key", entry.Key);
+                    AdoDatabaseDriver.Add(command, "key", ResourceKnowledge.NormalizeKey(entry.Key));
                 }, Map, ct).ConfigureAwait(false);
                 DateTime now = DateTime.UtcNow;
                 if (existing.Count == 0)
@@ -90,7 +90,7 @@ namespace Hugo.Core.Database.Ado
                         AdoDatabaseDriver.Add(command, "tenant_id", entry.TenantId);
                         AdoDatabaseDriver.Add(command, "resource_id", entry.ResourceId);
                         AdoDatabaseDriver.Add(command, "scope", entry.Scope);
-                        AdoDatabaseDriver.Add(command, "key", entry.Key);
+                        AdoDatabaseDriver.Add(command, "key", ResourceKnowledge.NormalizeKey(entry.Key));
                     }, reader => AdoConverters.Int(reader, "v"), ct).ConfigureAwait(false);
                     entry.Version = (previous.Count > 0 ? previous[0] : 0) + 1;
                     entry.CreatedUtc = now;
@@ -101,7 +101,7 @@ namespace Hugo.Core.Database.Ado
                         AdoDatabaseDriver.Add(command, "tenant_id", entry.TenantId);
                         AdoDatabaseDriver.Add(command, "resource_id", entry.ResourceId);
                         AdoDatabaseDriver.Add(command, "scope", entry.Scope);
-                        AdoDatabaseDriver.Add(command, "key", entry.Key);
+                        AdoDatabaseDriver.Add(command, "key", ResourceKnowledge.NormalizeKey(entry.Key));
                         AdoDatabaseDriver.Add(command, "content", entry.Content);
                         AdoDatabaseDriver.Add(command, "source", entry.Source.ToString());
                         AdoDatabaseDriver.Add(command, "updated_by", entry.UpdatedBy);
@@ -146,7 +146,7 @@ namespace Hugo.Core.Database.Ado
                     AdoDatabaseDriver.Add(command, "tenant_id", tenantId);
                     AdoDatabaseDriver.Add(command, "resource_id", resourceId);
                     AdoDatabaseDriver.Add(command, "scope", scope ?? String.Empty);
-                    AdoDatabaseDriver.Add(command, "key", key ?? String.Empty);
+                    AdoDatabaseDriver.Add(command, "key", ResourceKnowledge.NormalizeKey(key));
                 }, Map, ct).ConfigureAwait(false);
                 deleted = false;
                 if (existing.Count == 0) return;
@@ -170,7 +170,7 @@ namespace Hugo.Core.Database.Ado
                 AdoDatabaseDriver.Add(command, "tenant_id", tenantId);
                 AdoDatabaseDriver.Add(command, "resource_id", resourceId);
                 AdoDatabaseDriver.Add(command, "scope", scope ?? String.Empty);
-                AdoDatabaseDriver.Add(command, "key", key ?? String.Empty);
+                AdoDatabaseDriver.Add(command, "key", ResourceKnowledge.NormalizeKey(key));
             }, reader =>
             {
                 ResourceKnowledgeVersion v = new ResourceKnowledgeVersion();
@@ -225,7 +225,7 @@ namespace Hugo.Core.Database.Ado
                 AdoDatabaseDriver.Add(command, "knowledge_id", entry.Id);
                 AdoDatabaseDriver.Add(command, "resource_id", entry.ResourceId);
                 AdoDatabaseDriver.Add(command, "scope", entry.Scope);
-                AdoDatabaseDriver.Add(command, "key", entry.Key);
+                AdoDatabaseDriver.Add(command, "key", ResourceKnowledge.NormalizeKey(entry.Key));
                 AdoDatabaseDriver.Add(command, "version", entry.Version);
                 AdoDatabaseDriver.Add(command, "content", deleted ? String.Empty : entry.Content);
                 AdoDatabaseDriver.Add(command, "source", entry.Source.ToString());

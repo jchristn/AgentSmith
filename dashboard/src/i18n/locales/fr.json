@@ -158,7 +158,10 @@
     "PasswordChangeRequired": "Changez votre mot de passe avant de continuer.",
     "SystemAdminRequired": "Seuls les administrateurs système peuvent faire cela.",
     "SettingsInvalid": "Les paramètres de la ressource ne sont pas valides.",
-    "Duplicate": "Un enregistrement portant ce nom existe déjà."
+    "Duplicate": "Un enregistrement portant ce nom existe déjà.",
+    "ProviderUnreachable": "Le fournisseur du modèle est injoignable.",
+    "ProviderTimeout": "Le fournisseur du modèle n'a pas répondu à temps.",
+    "BypassRequiresAdministrator": "Seul un administrateur de tenant ou système connecté peut modifier le contournement du propriétaire d'un identifiant."
   },
   "enums": {
     "principalType": {
@@ -261,7 +264,8 @@
       "RestartRequested": "Redémarrage demandé",
       "KnowledgeChanged": "Connaissance modifiée",
       "ModelEndpointChanged": "Point de terminaison de modèle modifié",
-      "SettingLearned": "Paramètre appris"
+      "SettingLearned": "Paramètre appris",
+      "CredentialBypassChanged": "Contournement d'identifiant modifié"
     },
     "secretKind": {
       "Password": "Mot de passe",
@@ -402,6 +406,10 @@
       "Generated": "Généré",
       "Agent": "Agent",
       "Derived": "Dérivé"
+    },
+    "modelHealthSource": {
+      "Sweep": "Contrôle automatique",
+      "Validate": "Validation"
     }
   },
   "login": {
@@ -860,7 +868,8 @@
         "active": "Active",
         "id": "ID",
         "agentProfileId": "Profil",
-        "lockToProfile": "Verrouillé"
+        "lockToProfile": "Verrouillé",
+        "inheritOwnerBypass": "Contournement du propriétaire"
       },
       "fields": {
         "name": "Nom",
@@ -869,15 +878,21 @@
         "expiresUtc": "Expiration",
         "active": "Active",
         "agentProfileId": "Profil lié",
-        "lockToProfile": "Verrouiller sur ce profil"
+        "lockToProfile": "Verrouiller sur ce profil",
+        "inheritOwnerBypass": "Hériter du contournement administrateur du propriétaire",
+        "roleName": "Rôle"
       },
       "hints": {
-        "userId": "Une clé d'accès ne peut jamais dépasser les autorisations de son propriétaire."
+        "userId": "Une clé d'accès ne peut jamais dépasser les autorisations de son propriétaire.",
+        "inheritOwnerBypass": "Désactivé par défaut. Une fois activé, l'identifiant obtient le contournement complet d'administrateur système ou de tenant de son propriétaire et ignore les vérifications de rôle. Seuls les administrateurs peuvent le modifier, et chaque modification est auditée.",
+        "roleName": "Un identifiant sans rôle n'a aucun accès. Choisissez un rôle ici, ou ajoutez une affectation de portée d'identifiant après sa création."
       },
       "actions": {
         "rotate": "Renouveler le secret",
         "scopes": "Attributions de portée"
-      }
+      },
+      "ownerBypass": "Contournement du propriétaire",
+      "ownerBypassWarning": "Cet identifiant agira avec le contournement administrateur complet de son propriétaire et ignorera toutes les vérifications de rôle et d'autorisation. Activez-le uniquement pour une automatisation de confiance ; la modification est auditée."
     },
     "roles": {
       "title": "Rôles",
@@ -1319,9 +1334,9 @@
       },
       "noProviderModels": "Le fournisseur n'a listé aucun modèle.",
       "history": {
-        "title": "Historique des validations (cette session)",
-        "note": "Le serveur ne conserve que la dernière vérification d'état. Les validations lancées dans cette session du navigateur sont listées ici.",
-        "empty": "Aucune validation dans cette session. Utilisez Valider pour en lancer une."
+        "title": "Historique de santé",
+        "note": "Contrôles de santé récents, du plus récent au plus ancien : validations lancées par des personnes et contrôle de santé en arrière-plan du serveur. Le serveur en conserve un nombre limité par endpoint.",
+        "empty": "Aucun contrôle de santé enregistré pour l'instant. Utilisez Valider pour en lancer un."
       },
       "validation": {
         "button": "Valider",
@@ -1456,7 +1471,9 @@
         "sourceIp": "IP source",
         "userAgent": "Client",
         "principalType": "Type de principal",
-        "principalId": "ID du principal"
+        "principalId": "ID du principal",
+        "userId": "ID utilisateur",
+        "credentialId": "ID d'identifiant"
       }
     },
     "conversations": {
@@ -1751,7 +1768,8 @@
           "UserSessionMinutes": "Durée de session utilisateur (minutes)",
           "AdminSessionMinutes": "Durée de session administrateur (minutes)",
           "SessionAbsoluteMaxHours": "Limite absolue de session (heures)",
-          "RateLimitPerMinute": "Tentatives de connexion par minute"
+          "RateLimitPerMinute": "Tentatives de connexion par minute",
+          "PasswordHashIterations": "Itérations du hachage des mots de passe"
         },
         "Secrets": {
           "MasterKey": "Clé maîtresse (développement uniquement)",
@@ -1773,7 +1791,7 @@
           "EnablePlugins": "Activer les plugins de connecteur",
           "PluginDirectory": "Répertoire des plugins",
           "DefaultToolTimeoutSeconds": "Délai d'expiration des outils par défaut (secondes)",
-          "HealthSweepMinutes": "Balayage de santé des ressources (minutes)"
+          "McpAllowStdio": "Autoriser les serveurs MCP en stdio"
         },
         "Models": {
           "HealthIntervalSeconds": "Intervalle de vérification de santé des modèles (secondes)"
@@ -1812,28 +1830,25 @@
       "dataTable": "Tableau de données",
       "bucketStart": "Début de l'intervalle",
       "title": "Analyses",
-      "subtitle": "Utilisation des jetons, appels d'outil par effet et par connecteur, latence et erreurs des modèles, et délai de traitement des approbations.",
+      "subtitle": "Conversations, tours, jetons, appels d'outils, approbations et latence des modèles dans le temps.",
       "purpose": "Les analyses transforment les invocations d'outil, les tours de chat et les appels de modèle en tendances d'utilisation et de coût par profil et par modèle.",
-      "profile": "Profil",
       "panels": {
         "overview": "Totaux",
         "tokens": "Utilisation des jetons",
-        "tools": "Appels d'outil par effet",
+        "tools": "Appels d'outils",
         "models": "Modèles",
-        "modelLatency": "Latence des modèles",
-        "modelErrors": "Erreurs des modèles"
+        "modelLatency": "Latence des modèles"
       },
       "purposes": {
-        "overview": "Totaux des tours, appels d'outil, échecs, jetons et approbations sur la période sélectionnée.",
+        "overview": "Totaux des conversations, tours, jetons, appels d'outils, échecs, approbations et latence sur la période choisie.",
         "tokens": "Jetons en entrée et en sortie au fil du temps, sur toutes les surfaces qui exécutent la boucle propre à Hugo.",
-        "tools": "Appels d'outil au fil du temps répartis par effet, ainsi que les appels, échecs et latence par connecteur.",
-        "models": "Percentiles de latence et nombre d'erreurs pour chaque point de terminaison de modèle."
+        "tools": "Appels d'outils, échecs et approbations dans le temps, et appels par outil.",
+        "models": "Délai moyen avant le premier jeton et durée des tours dans le temps, et tours et jetons par endpoint de modèle."
       },
       "help": {
         "tokens": "Jetons en entrée et en sortie par intervalle de temps.",
-        "tools": "Appels d'outil par intervalle de temps selon l'effet : Lecture, Écriture et Destructif.",
-        "modelLatency": "Temps de réponse médian (p50) et p95 des modèles par intervalle.",
-        "modelErrors": "Requêtes de modèle en échec par intervalle."
+        "tools": "Appels d'outils, appels échoués ou refusés et appels ayant nécessité une approbation, par intervalle.",
+        "modelLatency": "Délai moyen avant le premier jeton et durée moyenne des tours, par intervalle."
       },
       "kpis": {
         "turns": "Tours de chat",
@@ -1841,35 +1856,39 @@
         "failures": "Appels d'outil en échec",
         "tokens": "Jetons",
         "approvals": "Approbations",
-        "turnaround": "Délai de traitement des approbations",
-        "approvalRate": "Part approuvée"
+        "conversations": "Conversations",
+        "firstToken": "Délai avant le premier jeton",
+        "turnDuration": "Durée du tour"
       },
       "metrics": {
         "inputTokens": "Jetons en entrée",
         "outputTokens": "Jetons en sortie",
-        "latencyMsP50": "Médiane (p50)",
-        "latencyMsP95": "p95",
-        "errors": "Erreurs",
-        "Read": "Lecture",
-        "Write": "Écriture",
-        "Destructive": "Destructif"
+        "toolCalls": "Appels d'outils",
+        "toolErrors": "Échoués ou refusés",
+        "approvals": "Approbation requise",
+        "avgTimeToFirstTokenMs": "Délai avant le premier jeton",
+        "avgTurnDurationMs": "Durée du tour"
       },
       "columns": {
-        "connector": "Connecteur",
         "calls": "Appels",
-        "failures": "Échecs",
-        "p95": "Durée p95"
+        "toolName": "Outil",
+        "connectorType": "Connecteur",
+        "errors": "Erreurs",
+        "denied": "Refusés",
+        "approvals": "Approbations",
+        "avgDurationMs": "Durée moyenne",
+        "name": "Endpoint de modèle",
+        "provider": "Fournisseur",
+        "turns": "Tours",
+        "inputTokens": "Jetons d'entrée",
+        "outputTokens": "Jetons de sortie",
+        "avgTimeToFirstTokenMs": "Délai avant le premier jeton",
+        "avgTurnDurationMs": "Durée du tour"
       },
-      "derived": {
-        "title": "À partir des invocations et des approbations",
-        "body": "En attendant les routes d'analytique, ces chiffres viennent du résumé des invocations et de la liste des approbations pour la période choisie.",
-        "none": "Rien sur cette période.",
-        "byEffect": "Appels par effet",
-        "byDecision": "Appels par décision",
-        "byStatus": "Appels par statut",
-        "byTool": "Outils les plus utilisés",
-        "approvalsByStatus": "Approbations par statut"
-      }
+      "noRows": "Rien d'enregistré sur cette période.",
+      "toolsTable": "Appels par outil",
+      "modelsTable": "Tours par endpoint de modèle",
+      "unknownModel": "Aucun endpoint de modèle"
     },
     "chat": {
       "title": "Chat",
@@ -2357,7 +2376,8 @@
       "principalType": "Afficher uniquement les sessions des administrateurs, des utilisateurs ou des identifiants.",
       "visibility": "Afficher uniquement les enregistrements privés ou partagés dans le locataire.",
       "activeLayer": "N'affiche que les modèles dont le texte vient de cette couche.",
-      "customized": "Affiche les modèles selon la couche personnalisée, ou dont la valeur par défaut a changé depuis."
+      "customized": "Affiche les modèles selon la couche personnalisée, ou dont la valeur par défaut a changé depuis.",
+      "credentialId": "Affiche uniquement les sessions d'un identifiant. Collez un ID d'identifiant ; la liste se met à jour quand vous arrêtez de taper."
     },
     "form": {
       "option": "Inclure {{option}} dans {{field}}. Les options cochées sont enregistrées ; les options non cochées sont exclues.",
@@ -2430,7 +2450,8 @@
       "defaultProfile": "Le profil par défaut du locataire : les appelants qui ne nomment aucun profil obtiennent celui-ci.",
       "expiringSoon": "Ce secret expire dans moins de 14 jours. Remplacez ses valeurs ou prolongez l'expiration avant que les ressources cessent de fonctionner.",
       "lockdown": "Ce locataire est verrouillé : seuls les appels en lecture sont autorisés jusqu'à ce qu'un administrateur du locataire lève le verrouillage.",
-      "locked": "Verrouillé sur son profil : l'identifiant ne peut agir qu'en tant que profil lié, quoi que demande l'appelant."
+      "locked": "Verrouillé sur son profil : l'identifiant ne peut agir qu'en tant que profil lié, quoi que demande l'appelant.",
+      "ownerBypass": "Cet identifiant hérite du contournement administrateur de son propriétaire et ignore les vérifications de rôle."
     },
     "permissions": {
       "source": "Le rôle dont provient cet accord. Corrigez l'accès en modifiant ce rôle ou l'attribution qui l'accorde.",
@@ -2551,13 +2572,18 @@
         "RestartRequested": "Quelqu'un a demandé le redémarrage du serveur.",
         "KnowledgeChanged": "Des connaissances de ressource ont été écrites ou supprimées par un opérateur, un agent ou un modèle.",
         "ModelEndpointChanged": "Un point de terminaison de modèle a été créé, modifié ou supprimé.",
-        "SettingLearned": "Un connecteur a enregistré un paramètre à la première utilisation, par exemple une clé d'hôte SSH."
+        "SettingLearned": "Un connecteur a enregistré un paramètre à la première utilisation, par exemple une clé d'hôte SSH.",
+        "CredentialBypassChanged": "Un identifiant a commencé ou cessé d'hériter du contournement administrateur de son propriétaire."
       },
       "knowledgeSource": {
         "Operator": "Écrit ou modifié par une personne dans la console ou l'API.",
         "Generated": "Rédigé par un modèle avec sql_generate_context. À relire avant de s'y fier.",
         "Agent": "Noté par un agent pendant son travail (sql_update_context). Non vérifié.",
         "Derived": "Calculé par Hugo à partir de l'exploration, non écrit par une personne ou un modèle."
+      },
+      "modelHealthSource": {
+        "Sweep": "Enregistré par le contrôle de santé en arrière-plan que le serveur effectue sur chaque endpoint.",
+        "Validate": "Enregistré lorsque quelqu'un a lancé Valider sur cet endpoint."
       }
     },
     "resources": {
@@ -2603,7 +2629,9 @@
           "scopes": "Ouvrir les attributions de portée des identifiants filtrées sur cet identifiant."
         },
         "agentProfileId": "Le profil en tant que lequel cet identifiant agit par défaut. Les harnais doivent utiliser un identifiant lié.",
-        "lockToProfile": "Lorsque cette option est activée, l'identifiant ne peut agir qu'en tant que profil lié, quoi que demande l'appelant."
+        "lockToProfile": "Lorsque cette option est activée, l'identifiant ne peut agir qu'en tant que profil lié, quoi que demande l'appelant.",
+        "inheritOwnerBypass": "Indique si cet identifiant hérite du contournement administrateur système ou de tenant de son propriétaire. Seuls les administrateurs peuvent le modifier.",
+        "roleName": "Un rôle intégré ou personnalisé accordé à l'identifiant au niveau du tenant lors de sa création."
       },
       "roles": {
         "add": "Créer un rôle personnalisé, puis lui ajouter des autorisations et l'attribuer à des utilisateurs ou à des clés.",
@@ -3020,21 +3048,31 @@
         "events": "Chaque événement diffusé, tel que le serveur l'a envoyé."
       },
       "analytics": {
-        "profile": "Limiter chaque graphique à un profil d'agent, ou afficher tout le locataire.",
         "kpis": {
           "turns": "Tours de chat, A2A et compatibles OpenAI qui ont exécuté la boucle d'agent propre à Hugo sur la période.",
           "toolCalls": "Appels d'outil de toutes les surfaces sur la période, y compris ceux refusés et rejetés.",
-          "failures": "Appels d'outil terminés en Failed ou TimedOut sur la période.",
+          "failures": "Appels d'outils de la période qui ont échoué, expiré ou été refusés ou rejetés.",
           "tokens": "Jetons en entrée et en sortie utilisés par les appels de modèle de Hugo sur la période.",
           "approvals": "Approbations demandées sur la période, quel que soit leur résultat.",
-          "turnaround": "Temps médian entre la demande d'une approbation et la décision d'une personne.",
-          "approvalRate": "Part des approbations traitées qui ont été approuvées plutôt que rejetées."
+          "conversations": "Conversations commencées sur la période choisie, depuis toutes les surfaces.",
+          "firstToken": "Délai moyen entre le début d'un tour et le premier jeton envoyé par le modèle, pour les tours terminés de la période.",
+          "turnDuration": "Durée moyenne d'un tour terminé du début à la fin, appels au modèle et aux outils compris."
         },
         "columns": {
-          "connector": "Le type de connecteur visé par les appels.",
-          "calls": "Appels d'outil à ce connecteur sur la période.",
-          "failures": "Appels à ce connecteur qui ont échoué ou dépassé le délai.",
-          "p95": "95 % des appels à ce connecteur se sont terminés dans ce délai."
+          "calls": "Appels à cet outil sur la période, depuis toutes les surfaces.",
+          "toolName": "L'outil appelé, tel que le voient les agents et les clients.",
+          "connectorType": "Le type de connecteur qui fournit cet outil, par exemple SSH ou PostgreSQL.",
+          "errors": "Appels à cet outil qui ont échoué ou expiré.",
+          "denied": "Appels à cet outil refusés, rejetés par une personne ou expirés avant une décision.",
+          "approvals": "Appels à cet outil qui ont dû d'abord être approuvés par une personne.",
+          "avgDurationMs": "Durée moyenne d'exécution des appels à cet outil qui ont été exécutés, réussis ou non.",
+          "name": "L'endpoint de modèle qui a répondu à ces tours, avec le nom de son modèle.",
+          "provider": "Le fournisseur derrière l'endpoint de modèle, par exemple Ollama ou Anthropic.",
+          "turns": "Tours terminés auxquels cet endpoint de modèle a répondu sur la période.",
+          "inputTokens": "Jetons de prompt envoyés à cet endpoint de modèle sur la période.",
+          "outputTokens": "Jetons générés par cet endpoint de modèle sur la période.",
+          "avgTimeToFirstTokenMs": "Délai moyen avant que cet endpoint de modèle envoie le premier jeton d'un tour.",
+          "avgTurnDurationMs": "Durée moyenne des tours auxquels cet endpoint de modèle a répondu, du début à la fin."
         }
       },
       "chat": {
@@ -3170,7 +3208,7 @@
           "Telemetry": "Traces et métriques exportées vers les instances Tempo et Prometheus fournies.",
           "Agent": "Limites et comportement de la boucle d'agent propre à Hugo pour le chat, A2A et les clients OpenAI.",
           "Approvals": "Durée d'attente des approbations, durée de blocage des appels MCP sur celles-ci et autorisation ou non de l'auto-approbation.",
-          "Connectors": "Plugins, délais d'expiration des outils et balayage de santé des ressources en arrière-plan.",
+          "Connectors": "Plugins, délais des outils et possibilité pour les ressources MCP de lancer des serveurs MCP locaux en stdio.",
           "Models": "Fréquence des vérifications de santé des points de terminaison de modèle.",
           "Mcp": "Le point de terminaison MCP : activé ou désactivé, délais d'expiration des sessions et taille des messages.",
           "A2A": "Si les profils peuvent être atteints via A2A.",

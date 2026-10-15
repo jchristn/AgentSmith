@@ -51,6 +51,20 @@ namespace Hugo.Sdk.Clients
             return GetAsync<List<string>>(Item(id) + "/models", null, token);
         }
 
+        /// <summary>
+        /// Recent health checks of an endpoint, newest first.
+        /// </summary>
+        /// <param name="id">Endpoint identifier.</param>
+        /// <param name="maxResults">Most records, 1 to 1000, or null for the server default (50).</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Health records.</returns>
+        /// <exception cref="HugoException">Thrown on a non-success status.</exception>
+        public Task<List<ModelEndpointHealthRecord>> GetHealthHistoryAsync(string id, int? maxResults = null, CancellationToken token = default)
+        {
+            Dictionary<string, string?>? query = maxResults.HasValue ? new Dictionary<string, string?> { { "maxResults", maxResults.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) } } : null;
+            return GetAsync<List<ModelEndpointHealthRecord>>(Item(id) + "/health-history", query, token);
+        }
+
         #endregion
     }
 }

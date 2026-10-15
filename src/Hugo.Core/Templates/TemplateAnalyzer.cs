@@ -23,13 +23,28 @@ namespace Hugo.Core.Templates
             }
         }
 
+        /// <summary>
+        /// One-sentence reference for template authors, used in error messages: the valid variable roots, how to write a
+        /// variable, the loop variables, and the include syntax.
+        /// </summary>
+        public static string SyntaxHint
+        {
+            get
+            {
+                return "Valid variable roots: " + String.Join(", ", _KnownRoots.Where(r => !r.StartsWith("@", StringComparison.Ordinal) && r != "this"))
+                    + ". Write a variable as {{root.field}}, for example {{profile.name}}, {{user.firstName}}, or {{input.name}} (resource action parameters)"
+                    + "; inside {{#each}} use {{this}}, {{@index}}, {{@first}}, and {{@last}}"
+                    + "; include another template with {{> key}}, for example {{> persona.agent-smith}} (no 'include' keyword).";
+            }
+        }
+
         #endregion
 
         #region Private-Members
 
         private static readonly HashSet<string> _KnownRoots = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            "tenant", "profile", "persona", "user", "now", "bindings", "bindingsByFamily", "binding", "connector", "resources", "resource", "limits", "surface", "tool", "hugo", "input", "conversation", "approval", "secret", "this", "@index", "@first", "@last"
+            "tenant", "profile", "persona", "user", "now", "bindings", "bindingsByFamily", "binding", "connector", "resources", "resource", "limits", "surface", "tool", "hugo", "input", "compactInstructions", "conversation", "approval", "secret", "this", "@index", "@first", "@last"
         };
 
         #endregion
@@ -120,7 +135,7 @@ namespace Hugo.Core.Templates
             string where = (String.IsNullOrEmpty(name) ? "template" : "template '" + name + "'") + " at line " + node.Line + ", column " + node.Column + ": ";
             if (!_KnownRoots.Contains(root))
             {
-                analysis.Errors.Add(where + "unknown variable root '" + root + "' in '" + path + "'. Known roots: " + String.Join(", ", _KnownRoots.Where(r => !r.StartsWith("@", StringComparison.Ordinal) && r != "this")) + ".");
+                analysis.Errors.Add(where + "unknown variable root '" + root + "' in '" + path + "'. " + SyntaxHint);
                 return;
             }
             if ((root == "this" || root.StartsWith("@", StringComparison.Ordinal)) && loopDepth == 0)

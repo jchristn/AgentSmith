@@ -31,6 +31,8 @@ namespace Test.Shared.Connectors.Kubernetes
 
         private static readonly KubernetesConnector _Connector = new KubernetesConnector();
         private static readonly string _Run = Guid.NewGuid().ToString("N").Substring(0, 6);
+        private static readonly TimeSpan _CrasherTimeout = TimeSpan.FromSeconds(120);
+        private static readonly TimeSpan _PollInterval = TimeSpan.FromSeconds(2);
 
         #endregion
 
@@ -407,9 +409,10 @@ namespace Test.Shared.Connectors.Kubernetes
 
         private static async Task<int> WaitForCrasherRestart(KubernetesTestResource r, CancellationToken token)
         {
-            DateTime deadline = DateTime.UtcNow.AddSeconds(90);
+            DateTime deadline = DateTime.UtcNow.Add(_CrasherTimeout);
             while (true)
             {
+                token.ThrowIfCancellationRequested();
                 ToolResult pod = await Run(r, "k8s_get", new { kind = "Pod", name = "crasher", output = "json" }, token).ConfigureAwait(false);
                 SshAssert.Ok(pod, "get crasher");
                 using (JsonDocument doc = JsonDocument.Parse(pod.Text))
@@ -419,8 +422,22 @@ namespace Test.Shared.Connectors.Kubernetes
                         restarts = cs[0].GetProperty("restartCount").GetInt32();
                     if (restarts >= 1) return restarts;
                 }
-                if (DateTime.UtcNow > deadline) throw new InvalidOperationException("crasher did not restart within 90 seconds.");
-                await Task.Delay(2000, token).ConfigureAwait(false);
+                if (DateTime.UtcNow > deadline) throw new TimeoutException("crasher did not restart within " + _CrasherTimeout.TotalSeconds + " seconds.");
+                await Task.Delay(_PollInterval, token).ConfigureAwait(false);
+            }
+        }
+
+        private static async Task<ToolResult> PollUntil(KubernetesTestResource r, string tool, object args, Func<ToolResult, bool> condition, string expectation, CancellationToken token)
+        {
+            DateTime deadline = DateTime.UtcNow.Add(_CrasherTimeout);
+            while (true)
+            {
+                token.ThrowIfCancellationRequested();
+                ToolResult result = await Run(r, tool, args, token).ConfigureAwait(false);
+                if (!result.IsError && condition(result)) return result;
+                if (DateTime.UtcNow > deadline)
+                    throw new TimeoutException(tool + " did not show " + expectation + " within " + _CrasherTimeout.TotalSeconds + " seconds (polled every " + _PollInterval.TotalSeconds + " seconds). Last result: " + result.Text);
+                await Task.Delay(_PollInterval, token).ConfigureAwait(false);
             }
         }
 
@@ -432,7 +449,13 @@ namespace Test.Shared.Connectors.Kubernetes
                 ToolResult all = await Run(r, "k8s_events", new { sinceMinutes = 120 }, token).ConfigureAwait(false);
                 SshAssert.Ok(all, "events");
                 SshAssert.Contains(all.Text, "LAST SEEN", "columns");
-                ToolResult warnings = await Run(r, "k8s_events", new { type = "Warning", kind = "Pod", name = "crasher", sinceMinutes = 120 }, token).ConfigureAwait(false);
+                ToolResult warnings = await PollUntil(
+                    r,
+                    "k8s_events",
+                    new { type = "Warning", kind = "Pod", name = "crasher", sinceMinutes = 120 },
+                    res => res.Text.Contains("BackOff", StringComparison.Ordinal),
+                    "a Warning BackOff event for pod crasher",
+                    token).ConfigureAwait(false);
                 SshAssert.Ok(warnings, "warnings");
                 SshAssert.Contains(warnings.Text, "BackOff", "crash loop back-off");
                 SshAssert.NotContains(warnings.Text, "web-", "filtered to crasher");
@@ -458,7 +481,13 @@ namespace Test.Shared.Connectors.Kubernetes
                 SshAssert.True(noPrevious.IsError, "no previous instance: " + noPrevious.Text);
 
                 await WaitForCrasherRestart(r, token).ConfigureAwait(false);
-                ToolResult previous = await Run(r, "k8s_logs", new { pod = "crasher", previous = true }, token).ConfigureAwait(false);
+                ToolResult previous = await PollUntil(
+                    r,
+                    "k8s_logs",
+                    new { pod = "crasher", previous = true },
+                    res => res.Text.Contains("crasher-marker starting", StringComparison.Ordinal),
+                    "the previous crasher instance's stdout",
+                    token).ConfigureAwait(false);
                 SshAssert.Ok(previous, "previous logs");
                 SshAssert.Contains(previous.Text, "crasher-marker starting", "stdout of the crashed instance");
                 SshAssert.Contains(previous.Text, "previous instance", "header");

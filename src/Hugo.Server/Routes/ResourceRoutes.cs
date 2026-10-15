@@ -5,6 +5,7 @@ namespace Hugo.Server.Routes
     using System.Linq;
     using System.Threading.Tasks;
     using Hugo.Connectors.Abstractions;
+    using Hugo.Core;
     using Hugo.Core.Enumeration;
     using Hugo.Core.Enums;
     using Hugo.Core.Models;
@@ -27,7 +28,6 @@ namespace Hugo.Server.Routes
         #region Private-Members
 
         private static readonly string _Base = "/v1.0/api/resources";
-        private static readonly string _RootKey = "_root";
         private readonly ServerContext _Server;
         private readonly ResourceService _Resources;
 
@@ -59,16 +59,16 @@ namespace Hugo.Server.Routes
         public void Register(RouteRegistrar routes)
         {
             if (routes == null) throw new ArgumentNullException(nameof(routes));
-            routes.Scoped(HttpMethod.GET, _Base, ResourceTypeEnum.Resource, OperationTypeEnum.Read, ListAsync, "List resources (filter with connectorType)", "Resources", null, typeof(EnumerationResult<Resource>));
-            routes.Scoped(HttpMethod.POST, _Base, ResourceTypeEnum.Resource, OperationTypeEnum.Create, CreateAsync, "Create a resource (settings validated against the connector schema; secrets by slot)", "Resources", typeof(ResourceRequest), typeof(Resource));
+            routes.Scoped(HttpMethod.GET, _Base, ResourceTypeEnum.Resource, OperationTypeEnum.Read, ListAsync, "List resources (filters: connectorType, environment, health = Healthy, Unhealthy, or Unknown from the last connection test)", "Resources", null, typeof(EnumerationResult<Resource>));
+            routes.Scoped(HttpMethod.POST, _Base, ResourceTypeEnum.Resource, OperationTypeEnum.Create, CreateAsync, "Create a resource (settings validated against the connector schema; secrets by slot)", "Resources", typeof(ResourceRequest), typeof(Resource), statuses: new[] { 201 });
             routes.Scoped(HttpMethod.POST, _Base + "/test", ResourceTypeEnum.Resource, OperationTypeEnum.Create, TestUnsavedAsync, "Validate and test unsaved resource settings (nothing is stored)", "Resources", typeof(ResourceRequest), typeof(ResourceTestResponse));
             routes.Scoped(HttpMethod.GET, _Base + "/{id}", ResourceTypeEnum.Resource, OperationTypeEnum.Read, ReadAsync, "Read a resource", "Resources", null, typeof(Resource));
             routes.Scoped(HttpMethod.PUT, _Base + "/{id}", ResourceTypeEnum.Resource, OperationTypeEnum.Update, UpdateAsync, "Update a resource", "Resources", typeof(ResourceRequest), typeof(Resource));
             routes.Scoped(HttpMethod.DELETE, _Base + "/{id}", ResourceTypeEnum.Resource, OperationTypeEnum.Delete, DeleteAsync, "Delete a resource with its bindings, settings, secret slots, schema cache, and knowledge", "Resources");
             routes.Scoped(HttpMethod.POST, _Base + "/{id}/test", ResourceTypeEnum.Resource, OperationTypeEnum.Read, TestAsync, "Test a saved resource's connection and record the result", "Resources", null, typeof(ResourceTestResponse));
-            routes.Scoped(HttpMethod.POST, _Base + "/{id}/duplicate", ResourceTypeEnum.Resource, OperationTypeEnum.Create, DuplicateAsync, "Copy a resource with its settings and secret slots under a new name", "Resources", typeof(CloneRequest), typeof(Resource));
+            routes.Scoped(HttpMethod.POST, _Base + "/{id}/duplicate", ResourceTypeEnum.Resource, OperationTypeEnum.Create, DuplicateAsync, "Copy a resource with its settings and secret slots under a new name", "Resources", typeof(CloneRequest), typeof(Resource), statuses: new[] { 201 });
             routes.Scoped(HttpMethod.GET, _Base + "/{id}/referrers", ResourceTypeEnum.Resource, OperationTypeEnum.Read, ReferrersAsync, "Profiles and bindings that use a resource", "Resources", null, typeof(List<ResourceReferrer>));
-            routes.Scoped(HttpMethod.POST, _Base + "/{id}/invoke", ResourceTypeEnum.Resource, OperationTypeEnum.Execute, InvokeAsync, "Invoke a tool on a resource directly, without a profile (access mode is the resource ceiling or ReadWriteWithApproval); 202 while approval is pending", "Resources", typeof(ToolCallRequest), typeof(ToolInvocationOutcome));
+            routes.Scoped(HttpMethod.POST, _Base + "/{id}/invoke", ResourceTypeEnum.Resource, OperationTypeEnum.Execute, InvokeAsync, "Invoke a tool on a resource directly, without a profile (access mode is the resource ceiling or ReadWriteWithApproval); 202 while approval is pending", "Resources", typeof(ToolCallRequest), typeof(ToolInvocationOutcome), statuses: new[] { 200, 202 });
             routes.Scoped(HttpMethod.GET, _Base + "/{id}/knowledge", ResourceTypeEnum.Knowledge, OperationTypeEnum.Read, KnowledgeListAsync, "List a resource's knowledge entries", "Knowledge", null, typeof(List<ResourceKnowledge>));
             routes.Scoped(HttpMethod.GET, _Base + "/{id}/knowledge/{scope}", ResourceTypeEnum.Knowledge, OperationTypeEnum.Read, KnowledgeScopeAsync, "List the knowledge entries of one scope", "Knowledge", null, typeof(List<ResourceKnowledge>));
             routes.Scoped(HttpMethod.PUT, _Base + "/{id}/knowledge/{scope}", ResourceTypeEnum.Knowledge, OperationTypeEnum.Update, KnowledgePutAsync, "Write a scope's root knowledge entry (operator edit; scrubbed and audited)", "Knowledge", typeof(KnowledgeRequest), typeof(ResourceKnowledge));
@@ -85,7 +85,11 @@ namespace Hugo.Server.Routes
 
         private async Task ListAsync(HttpContextBase http)
         {
-            EnumerationResult<Resource> page = await _Resources.EnumerateAsync(RouteHelpers.Context(http), RouteHelpers.Tenant(http), RouteHelpers.Enumeration(http), RouteHelpers.Query(http, "connectorType"), http.Token).ConfigureAwait(false);
+            ResourceFilter filter = new ResourceFilter();
+            filter.ConnectorType = RouteHelpers.Query(http, "connectorType");
+            filter.Environment = RouteHelpers.Query(http, "environment");
+            filter.Health = RouteHelpers.QueryEnum<ModelHealthStatusEnum>(http, "health");
+            EnumerationResult<Resource> page = await _Resources.EnumerateAsync(RouteHelpers.Context(http), RouteHelpers.Tenant(http), RouteHelpers.Enumeration(http), filter, http.Token).ConfigureAwait(false);
             await RouteHelpers.JsonAsync(http, 200, page).ConfigureAwait(false);
         }
 
@@ -225,8 +229,8 @@ namespace Hugo.Server.Routes
         private static string Key(HttpContextBase http)
         {
             string? key = RouteHelpers.Param(http, "key");
-            if (String.IsNullOrEmpty(key) || key == _RootKey) return String.Empty;
-            return Uri.UnescapeDataString(key);
+            if (String.IsNullOrEmpty(key)) return Constants.KnowledgeRootKey;
+            return ResourceKnowledge.NormalizeKey(Uri.UnescapeDataString(key));
         }
 
         #endregion

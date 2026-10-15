@@ -15,6 +15,7 @@ import { tip } from '../components/Tooltip';
 import NamedId from '../components/NamedId';
 import ValuePromptModal from '../components/ValuePromptModal';
 import { mcpConfigSnippet } from '../utils/snippets';
+import { principalCaps } from '../utils/principal';
 import { field, col, idCol, nameCol, createdCol, activeCol, builtInCol, enumBadge, actionTip, notBuiltIn, safeList, tenantApi } from './configHelpers';
 
 // ---------------------------------------------------------------- administration
@@ -162,7 +163,8 @@ export const credentialsConfig = {
   api: tenantApi('listCredentials', 'createCredential', 'updateCredential', 'deleteCredential'),
   loadOptions: async ({ apiClient, tenantId }) => ({
     users: await safeList(apiClient.listUsers(tenantId, { pageNumber: 1, pageSize: 1000 })),
-    profiles: await safeList(apiClient.listProfiles({ pageNumber: 1, pageSize: 1000 }))
+    profiles: await safeList(apiClient.listProfiles({ pageNumber: 1, pageSize: 1000 })),
+    roles: await safeList(apiClient.listRoles(tenantId, { pageNumber: 1, pageSize: 1000 }))
   }),
   loadLookups: async ({ apiClient, tenantId }) => ({
     users: Object.fromEntries((await safeList(apiClient.listUsers(tenantId, { pageNumber: 1, pageSize: 1000 }))).map((u) => [u.id, u.email])),
@@ -172,8 +174,10 @@ export const credentialsConfig = {
     name: '',
     userId: ctx?.principal?.userId || '',
     authMode: 'Hybrid',
+    roleName: '',
     agentProfileId: '',
     lockToProfile: false,
+    inheritOwnerBypass: false,
     expiresUtc: null,
     active: true
   }),
@@ -201,23 +205,58 @@ export const credentialsConfig = {
         ),
       { defaultHidden: true }
     ),
+    col(
+      'credentials',
+      t,
+      'inheritOwnerBypass',
+      (r) =>
+        r.inheritOwnerBypass ? (
+          <Badge tone="warning" tip={t('tips.badges.ownerBypass')}>
+            {t('resources.credentials.ownerBypass')}
+          </Badge>
+        ) : (
+          '-'
+        ),
+      { csv: (r) => String(!!r.inheritOwnerBypass) }
+    ),
     col('credentials', t, 'lastUsedUtc', (r) => (r.lastUsedUtc ? formatRelativeTime(r.lastUsedUtc, i18n.language) : t('common.generic.never'))),
     col('credentials', t, 'expiresUtc', (r) => (r.expiresUtc ? formatDateTime(r.expiresUtc, i18n.language) : t('common.generic.never'))),
     activeCol('credentials', t),
     idCol('credentials', t)
   ],
-  fields: (_d, { t, options, mode }) => [
+  fields: (_d, { t, options, mode, principal }) => [
     field('credentials', t, 'name', 'text', { required: true }),
     field('credentials', t, 'userId', 'select', {
       required: true,
       readOnly: mode === 'edit',
       options: (options.users || []).map((u) => ({ value: u.id, label: u.email }))
     }),
+    // A role granted at tenant scope on create; without one (or a later scope assignment) the credential has no access.
+    ...(mode === 'create'
+      ? [field('credentials', t, 'roleName', 'select', { options: (options.roles || []).map((r) => ({ value: r.name, label: r.name })) })]
+      : []),
     field('credentials', t, 'authMode', 'select', { required: true, options: enumOptions(t, 'credentialAuthMode') }),
     field('credentials', t, 'agentProfileId', 'select', { options: (options.profiles || []).map((p) => ({ value: p.id, label: p.displayName || p.name })) }),
     field('credentials', t, 'lockToProfile', 'checkbox', { showIf: (x) => !!x.agentProfileId }),
     field('credentials', t, 'expiresUtc', 'datetime', { futureOnly: true }),
-    field('credentials', t, 'active', 'checkbox')
+    field('credentials', t, 'active', 'checkbox'),
+    // Only a signed-in tenant or system administrator may set the owner bypass (the server answers 403
+    // BypassRequiresAdministrator otherwise), so other principals do not see the field.
+    ...(principalCaps(principal).isAdminOfSomething
+      ? [
+          field('credentials', t, 'inheritOwnerBypass', 'checkbox'),
+          {
+            name: 'inheritOwnerBypassWarning',
+            type: 'custom',
+            showIf: (x) => !!x.inheritOwnerBypass,
+            render: () => (
+              <div className="warning-banner" data-testid="owner-bypass-warning">
+                {t('resources.credentials.ownerBypassWarning')}
+              </div>
+            )
+          }
+        ]
+      : [])
   ],
   validate: (d, t) => {
     const e = {};
@@ -225,12 +264,15 @@ export const credentialsConfig = {
     if (!d.userId) e.userId = t('common.errors.required');
     return e;
   },
-  toBody: (d) => ({
+  toBody: (d, mode) => ({
     name: d.name,
     userId: d.userId,
     authMode: d.authMode,
     agentProfileId: d.agentProfileId || null,
     lockToProfile: !!(d.agentProfileId && d.lockToProfile),
+    // Unchanged values pass the server's administrator check; only a change needs a signed-in administrator.
+    inheritOwnerBypass: !!d.inheritOwnerBypass,
+    ...(mode === 'create' && d.roleName ? { roleName: d.roleName } : {}),
     expiresUtc: d.expiresUtc || null,
     active: !!d.active
   }),

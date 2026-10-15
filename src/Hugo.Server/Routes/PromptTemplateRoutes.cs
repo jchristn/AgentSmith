@@ -49,7 +49,7 @@ namespace Hugo.Server.Routes
         public void Register(RouteRegistrar routes)
         {
             routes.Scoped(HttpMethod.GET, _Base, ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Read, ListAsync, "List prompt templates (tenant and built-in)", "Prompt Templates", null, typeof(EnumerationResult<PromptTemplate>));
-            routes.Scoped(HttpMethod.POST, _Base, ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Create, CreateAsync, "Create a prompt template", "Prompt Templates", typeof(PromptTemplateRequest), typeof(PromptTemplate));
+            routes.Scoped(HttpMethod.POST, _Base, ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Create, CreateAsync, "Create a prompt template", "Prompt Templates", typeof(PromptTemplateRequest), typeof(PromptTemplate), statuses: new[] { 201 });
             routes.Scoped(HttpMethod.POST, _Base + "/render", ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Read, RenderAdHocAsync, "Render ad hoc template content with sample data", "Prompt Templates", typeof(PromptRenderRequest), typeof(PromptRenderResponse));
             routes.Scoped(HttpMethod.GET, _Base + "/{id}", ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Read, ReadAsync, "Read a prompt template", "Prompt Templates", null, typeof(PromptTemplate));
             routes.Scoped(HttpMethod.PUT, _Base + "/{id}", ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Update, UpdateAsync, "Update a prompt template (content changes create a version)", "Prompt Templates", typeof(PromptTemplateRequest), typeof(PromptTemplate));
@@ -57,7 +57,7 @@ namespace Hugo.Server.Routes
             routes.Scoped(HttpMethod.GET, _Base + "/{id}/versions", ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Read, VersionsAsync, "List template versions, newest first", "Prompt Templates", null, typeof(List<PromptTemplateVersion>));
             routes.Scoped(HttpMethod.GET, _Base + "/{id}/versions/{version}", ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Read, VersionAsync, "Read one template version", "Prompt Templates", null, typeof(PromptTemplateVersion));
             routes.Scoped(HttpMethod.POST, _Base + "/{id}/restore/{version}", ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Update, RestoreAsync, "Restore a version as a new version", "Prompt Templates", null, typeof(PromptTemplate));
-            routes.Scoped(HttpMethod.POST, _Base + "/{id}/clone", ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Create, CloneAsync, "Clone a template (built-in or tenant)", "Prompt Templates", typeof(CloneRequest), typeof(PromptTemplate));
+            routes.Scoped(HttpMethod.POST, _Base + "/{id}/clone", ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Create, CloneAsync, "Clone a template (built-in or tenant)", "Prompt Templates", typeof(CloneRequest), typeof(PromptTemplate), statuses: new[] { 201 });
             routes.Scoped(HttpMethod.POST, _Base + "/{id}/reset", ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Update, ResetAsync, "Reset a cloned built-in template to the shipped default", "Prompt Templates", null, typeof(PromptTemplate));
             routes.Scoped(HttpMethod.POST, _Base + "/{id}/render", ResourceTypeEnum.PromptTemplate, OperationTypeEnum.Read, RenderAsync, "Render a stored template with sample data", "Prompt Templates", typeof(PromptRenderRequest), typeof(PromptRenderResponse));
         }
@@ -77,6 +77,7 @@ namespace Hugo.Server.Routes
             string tenantId = RouteHelpers.Tenant(http);
             PromptTemplateRequest request = RouteHelpers.RequiredBody<PromptTemplateRequest>(http);
             ConfigurationValidator.PromptTemplate(request.Name, request.Content);
+            await EnsureNoCycleAsync(tenantId, request.Name, request.Content, http).ConfigureAwait(false);
             await EnsureNameAsync(tenantId, request.Name, null, http).ConfigureAwait(false);
 
             PromptTemplate template = new PromptTemplate();
@@ -101,6 +102,7 @@ namespace Hugo.Server.Routes
             ConfigurationSupport.EnsureEditable(existing.TenantId, existing.IsBuiltIn, existing.IsProtected, tenantId, "Prompt template " + existing.Name);
             PromptTemplateRequest request = RouteHelpers.RequiredBody<PromptTemplateRequest>(http);
             ConfigurationValidator.PromptTemplate(request.Name, request.Content);
+            await EnsureNoCycleAsync(tenantId, request.Name, request.Content, http).ConfigureAwait(false);
             await EnsureNameAsync(tenantId, request.Name, existing.Id, http).ConfigureAwait(false);
 
             bool contentChanged = existing.Content != request.Content;
@@ -264,6 +266,16 @@ namespace Hugo.Server.Routes
             if (!Int32.TryParse(RouteHelpers.Param(http, "version"), out int number)) throw new ArgumentException("The version must be an integer.");
             PromptTemplateVersion? version = await _Server.Database.PromptTemplateVersions.ReadByVersionAsync(template.Id, number, http.Token).ConfigureAwait(false);
             return version ?? throw new NotFoundException("Version " + number + " of prompt template " + template.Name + " not found.");
+        }
+
+        private async Task EnsureNoCycleAsync(string tenantId, string name, string? content, HttpContextBase http)
+        {
+            string? cycle = await TemplateIncludeGraph.FindCycleAsync(name, content, async (include, ct) =>
+            {
+                PromptTemplate? found = await _Server.Database.PromptTemplates.ReadByNameAsync(tenantId, include, ct).ConfigureAwait(false);
+                return found?.Content;
+            }, http.Token).ConfigureAwait(false);
+            if (cycle != null) throw new ValidationException("The prompt template includes itself: " + cycle + ". Remove the include that closes the cycle.", new Dictionary<string, string> { { "content", "Include cycle: " + cycle + "." } });
         }
 
         private async Task EnsureNameAsync(string tenantId, string name, string? currentId, HttpContextBase http)

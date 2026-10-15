@@ -50,7 +50,7 @@ namespace Hugo.Server.Routes
         {
             _Routes = routes;
             routes.Scoped(HttpMethod.GET, "/v1.0/api/tenants/{tenantId}/credentials", ResourceTypeEnum.Credential, OperationTypeEnum.Read, ListAsync, "List credentials", "Credentials", null, typeof(EnumerationResult<Credential>));
-            routes.Scoped(HttpMethod.POST, "/v1.0/api/tenants/{tenantId}/credentials", ResourceTypeEnum.Credential, OperationTypeEnum.Create, CreateAsync, "Create a credential (the secret is returned once)", "Credentials", typeof(CredentialRequest), typeof(CredentialCreateResponse));
+            routes.Scoped(HttpMethod.POST, "/v1.0/api/tenants/{tenantId}/credentials", ResourceTypeEnum.Credential, OperationTypeEnum.Create, CreateAsync, "Create a credential (the secret is returned once)", "Credentials", typeof(CredentialRequest), typeof(CredentialCreateResponse), statuses: new[] { 201 });
             routes.Scoped(HttpMethod.GET, "/v1.0/api/tenants/{tenantId}/credentials/{id}", ResourceTypeEnum.Credential, OperationTypeEnum.Read, ReadAsync, "Read a credential", "Credentials", null, typeof(Credential));
             routes.Scoped(HttpMethod.PUT, "/v1.0/api/tenants/{tenantId}/credentials/{id}", ResourceTypeEnum.Credential, OperationTypeEnum.Update, UpdateAsync, "Update a credential", "Credentials", typeof(CredentialRequest), typeof(Credential));
             routes.Scoped(HttpMethod.POST, "/v1.0/api/tenants/{tenantId}/credentials/{id}/rotate", ResourceTypeEnum.Credential, OperationTypeEnum.Update, RotateAsync, "Rotate a credential secret (the new secret is returned once)", "Credentials", null, typeof(CredentialCreateResponse));

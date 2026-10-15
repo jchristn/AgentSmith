@@ -114,6 +114,8 @@ namespace Hugo.Core.Database.Ado
             if (f.Status.HasValue) clauses.Add("status = @status");
             if (f.Surface.HasValue) clauses.Add("surface = @surface");
             if (f.SinceUtc.HasValue) clauses.Add("created_utc >= @since");
+            if (f.UntilUtc.HasValue) clauses.Add("created_utc < @until");
+            if (f.Effect.HasValue) clauses.Add("effect = @effect");
             string where = " WHERE " + String.Join(" AND ", clauses);
             Action<DbCommand> bind = command =>
             {
@@ -128,6 +130,8 @@ namespace Hugo.Core.Database.Ado
                 if (f.Status.HasValue) AdoDatabaseDriver.Add(command, "status", f.Status.Value.ToString());
                 if (f.Surface.HasValue) AdoDatabaseDriver.Add(command, "surface", f.Surface.Value.ToString());
                 if (f.SinceUtc.HasValue) AdoDatabaseDriver.Add(command, "since", f.SinceUtc.Value);
+                if (f.UntilUtc.HasValue) AdoDatabaseDriver.Add(command, "until", f.UntilUtc.Value);
+                if (f.Effect.HasValue) AdoDatabaseDriver.Add(command, "effect", f.Effect.Value.ToString());
             };
             object? countValue = await _Driver.ScalarAsync("SELECT COUNT(*) FROM " + _Table + where + ";", bind, token).ConfigureAwait(false);
             long total = countValue == null ? 0 : Convert.ToInt64(countValue, CultureInfo.InvariantCulture);

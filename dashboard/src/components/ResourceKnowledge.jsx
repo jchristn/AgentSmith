@@ -14,7 +14,17 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { errorMessage, isMissingEndpoint } from '../utils/errors';
 import { formatDateTime, formatDuration, formatNumber, formatPercent } from '../i18n/formatters';
-import { knowledgeSourceTone, structuredResult, contextEntries, entryId, isSqlConnector, relationshipLayout, tableLabel } from '../utils/knowledge';
+import {
+  knowledgeSourceTone,
+  structuredResult,
+  contextEntries,
+  entryId,
+  entryLabel,
+  normalizeKey,
+  isSqlConnector,
+  relationshipLayout,
+  tableLabel
+} from '../utils/knowledge';
 
 /** Run a read tool on the resource directly and return the parsed structured result (throws on a tool error). */
 async function readTool(apiClient, resourceId, toolName, args) {
@@ -77,11 +87,11 @@ function KnowledgeEntryEditor({ resourceId, entry, onSaved }) {
     }
   };
 
-  const title = entry.scope === 'database' ? t('views.knowledge.databaseContext') : entry.key ? entry.key : entry.scope;
+  const title = entryLabel(t, entry);
   const editorId = `knowledge-${entryId(entry.scope, entry.key).replace(/[^A-Za-z0-9_-]/g, '-')}`;
 
   return (
-    <section className="panel knowledge-entry" data-testid="knowledge-entry" data-scope={entry.scope} data-key={entry.key || ''}>
+    <section className="panel knowledge-entry" data-testid="knowledge-entry" data-scope={entry.scope} data-key={normalizeKey(entry.key)}>
       <header className="panel-header">
         <h3 className="section-title">
           {title} <span className="text-muted">({entry.scope})</span>
@@ -287,7 +297,7 @@ function ContextEditor({ resource, isSql, reloadKey, onChanged }) {
                   data-testid="knowledge-item"
                   {...tip(t('tips.views.knowledge.select'))}
                 >
-                  <span className="knowledge-item-name">{e.scope === 'database' ? t('views.knowledge.databaseContext') : e.key || e.scope}</span>{' '}
+                  <span className="knowledge-item-name">{entryLabel(t, e)}</span>{' '}
                   {e.exists ? (
                     <EnumBadge group="knowledgeSource" value={e.source} tone={knowledgeSourceTone(e.source)} />
                   ) : (
@@ -380,7 +390,7 @@ function NewEntryForm({ entry, onChange, onCancel, onCreate }) {
           type="button"
           className="button-primary"
           disabled={!valid}
-          onClick={() => onCreate({ scope: entry.scope.trim(), key: entry.key.trim() })}
+          onClick={() => onCreate({ scope: entry.scope.trim(), key: normalizeKey(entry.key.trim()) })}
           {...tip(t('tips.views.knowledge.create'))}
         >
           {t('common.actions.next')}

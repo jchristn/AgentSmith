@@ -16,7 +16,8 @@ namespace Hugo.Server.Services
     /// <summary>
     /// Authorization per AUTHENTICATION.md: bypass order (system administrator, IsAdmin, IsTenantAdmin), expanded
     /// RBAC grants with explicit deny, resource scope and inheritance, credential owner ceiling, and the run principal
-    /// ceiling used for delegation. Denials and privileged bypasses are audited. Grants are cached per principal and
+    /// ceiling used for delegation. A credential is authorized by its own scope assignments intersected with its owner's
+    /// access; it carries the owner's bypass flags only with the audited inheritOwnerBypass opt-in. Denials and privileged bypasses are audited. Grants are cached per principal and
     /// invalidated by <see cref="Invalidate"/> (on every replica, through the backplane) and a time-to-live. Thread-safe.
     /// </summary>
     public class AuthorizationService
@@ -203,6 +204,12 @@ namespace Hugo.Server.Services
                 AuthorizationDecision credentialDecision = PermissionEvaluator.Evaluate(credentialGrants, resourceType, operation, resourceId);
                 if (!credentialDecision.Permitted) return credentialDecision;
                 if (String.IsNullOrEmpty(ctx.UserId)) return credentialDecision;
+
+                // Owner ceiling: an owner who is a system administrator, or a tenant administrator of this tenant, holds
+                // everything in the tenant, so the credential's own grants decide. The credential does not inherit the
+                // bypass itself (that needs the audited inheritOwnerBypass opt-in).
+                User? owner = ctx.User != null && ctx.User.Id == ctx.UserId ? ctx.User : await _Database.Users.ReadAsync(effectiveTenant, ctx.UserId, token).ConfigureAwait(false);
+                if (owner != null && owner.Active && (owner.IsAdmin || (owner.IsTenantAdmin && owner.TenantId == effectiveTenant))) return credentialDecision;
 
                 List<PermissionGrant> ownerGrants = await GrantsForUserAsync(effectiveTenant, ctx.UserId, token).ConfigureAwait(false);
                 AuthorizationDecision ownerDecision = PermissionEvaluator.Evaluate(ownerGrants, resourceType, operation, resourceId);
