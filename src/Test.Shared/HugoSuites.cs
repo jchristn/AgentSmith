@@ -17,6 +17,7 @@ namespace Test.Shared
             get
             {
                 List<TestSuiteDescriptor> suites = new List<TestSuiteDescriptor>();
+                suites.AddRange(Test.Shared.Suites.ConnectorFrameworkSuites.Build());
                 suites.AddRange(AbstractionsSuites.Build());
                 suites.AddRange(SshSuites.Build());
                 suites.AddRange(StorageSuites.Build());
