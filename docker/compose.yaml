@@ -113,7 +113,8 @@ services:
       hugo-loki:
         condition: service_healthy
     healthcheck:
-      test: ['CMD-SHELL', 'wget -q -O /dev/null http://127.0.0.1:12345/-/ready || (exec 3<>/dev/tcp/127.0.0.1/12345)']
+      # The Alloy image ships bash but neither curl nor wget (D-037): probe the HTTP port over a bash TCP socket.
+      test: ['CMD', 'bash', '-c', 'exec 3<>/dev/tcp/127.0.0.1/12345 && printf "GET /-/ready HTTP/1.0\r\n\r\n" >&3 && grep -q "200" <&3']
       interval: 5s
       timeout: 5s
       retries: 2
@@ -141,8 +142,17 @@ services:
       HUGO_AUTH_SIGNING_KEY: '${HUGO_AUTH_SIGNING_KEY:-hugo-development-signing-key-not-for-production}'
       HUGO_OTLP_ENDPOINT: 'http://hugo-alloy:4317'
       HUGO_EXTERNAL_BASE_URL: '${HUGO_EXTERNAL_BASE_URL:-http://127.0.0.1:${HUGO_REST_PORT:-8800}}'
+      # Shown on the dashboard's external services card (host URLs) and used for server-side checks (internal URLs).
+      HUGO_GRAFANA_URL: 'http://127.0.0.1:${HUGO_GRAFANA_PORT:-3000}'
+      HUGO_PROMETHEUS_URL: 'http://127.0.0.1:${HUGO_PROMETHEUS_PORT:-9090}'
+      HUGO_TEMPO_URL: 'http://127.0.0.1:${HUGO_TEMPO_PORT:-3200}'
+      HUGO_LOKI_URL: 'http://127.0.0.1:${HUGO_LOKI_PORT:-3100}'
+      HUGO_GRAFANA_INTERNAL_URL: 'http://hugo-grafana:3000'
+      HUGO_PROMETHEUS_INTERNAL_URL: 'http://hugo-prometheus:9090'
+      HUGO_TEMPO_INTERNAL_URL: 'http://hugo-tempo:3200'
+      HUGO_LOKI_INTERNAL_URL: 'http://hugo-loki:3100'
     volumes:
-      - ./hugo/hugo.json:/app/config/hugo.json
+      - ./hugo:/app/config
       - hugo-data:/app/data
     depends_on:
       hugo-tempo:

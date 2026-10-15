@@ -36,3 +36,4 @@ sdk/js/
 user-testing/
 *.md
 !src/**/README.md
+!README.md
