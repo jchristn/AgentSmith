@@ -170,7 +170,7 @@ Each resource is one bucket or container. Settings common to all three:
 | `prefixRestriction` | String |  |  | all | When set, every key the agent lists, reads, writes, copies, or deletes must start with this prefix (for example 'reports/'). Include the trailing '/' to restrict to a folder. Empty means the whole bucket or container. |
 | `maxObjectReadBytes` | Integer | `1048576` | 1024 to 16777216 | all | Largest amount of object content storage_read returns in one call; larger objects are read in ranges. Default 1048576 (1 MiB), minimum 1024, maximum 16777216. |
 | `maxListResults` | Integer | `1000` | 1 to 10000 | all | Largest page storage_list returns. Default 1000, minimum 1, maximum 10000. The call's output row limit also applies. |
-| `maxScanObjects` | Integer | `100000` | 100 to 10000000 | all | Most objects storage_stats and folder-style storage_list examine in one call before reporting a truncated result. Default 100000, minimum 100, maximum 10000000. |
+| `maxScanObjects` | Integer | `100000` | 100 to 10000000 | all | Most objects storage_stats examines in one call, and storage_list examines per page past its continuation point, before reporting a truncated result. A storage_list page may also re-walk up to ten times this many keys that earlier pages returned. Default 100000, minimum 100, maximum 10000000. |
 
 Provider settings:
 
@@ -207,7 +207,7 @@ An S3 resource without `accessKeyPair` makes anonymous requests, which only work
 
 **Effects.** Before anything else, every tool checks its keys and prefixes. A key with a leading `/`, a backslash, a control character, a `.` or `..` segment, more than 1024 bytes, or one outside `prefixRestriction` is rejected at classification time, so it never reaches an approval card. Listing, metadata, reads, and stats are Read. `storage_write` and `storage_copy` are Write, and Destructive with `overwrite: true`; without it they fail with `already_exists` when the target exists. `storage_delete` is Destructive and takes exactly one key. `storage_presign_url` is Write for `GET`, because a signed URL hands access to someone outside Hugo, and Destructive for `PUT`, because the holder can replace the object. URLs are signed with the provider SDKs (SigV4, SAS, or a GCS V4 signature).
 
-**Limits.** `storage_read` returns at most `maxObjectReadBytes` per call and gives `nextOffset` to continue. `storage_list` pages with a continuation token, and `storage_stats` scans at most `maxScanObjects` objects before reporting lower bounds. `storage_write` accepts up to 16 MiB of content, and `storage_copy`, which reads the object through Hugo rather than copying server-side, up to 256 MiB.
+**Limits.** `storage_read` returns at most `maxObjectReadBytes` per call and gives `nextOffset` to continue. `storage_list` pages with a continuation token (see below for how deep it can go), and `storage_stats` scans at most `maxScanObjects` objects before reporting lower bounds. `storage_write` accepts up to 16 MiB of content, and `storage_copy`, which reads the object through Hugo rather than copying server-side, up to 256 MiB.
 
 **Test connection** lists the first key under `prefixRestriction` and reports either that key or that the prefix is empty.
 
@@ -219,7 +219,7 @@ An S3 resource without `accessKeyPair` makes anonymous requests, which only work
 
 - Blobject decides S3 addressing: path-style when `endpoint` is set, virtual-hosted otherwise. There is no `forcePathStyle` setting, and the path part of `endpoint` is dropped.
 - S3 cannot use instance roles or the ambient AWS credential chain (there is no `useInstanceRole`), and temporary credentials with a session token are refused.
-- Blobject lists flat, so folders and continuation tokens are computed by the connector. Each page re-walks the listing from the start, and paging past roughly `maxScanObjects` keys fails with `scan_limit`. Narrow the prefix instead.
+- Blobject lists flat and cannot resume a listing from a marker, so folders and continuation tokens are computed by the connector. The token carries the last key returned, and each later page re-walks the listing from the start of the prefix, dropping keys up to that one without counting them against `maxScanObjects`. A page may skip at most ten times `maxScanObjects` keys (one million with the default), so a listing can page through roughly that many keys under one prefix before a page fails with `scan_limit`. Deep pages also get slower, because every skipped key is still fetched from the provider. Narrow the prefix for anything larger.
 - GCS reads buffer the whole object and refuse objects over 64 MiB.
 - Azure presigned URLs need an account key; a connection string without `AccountKey` returns `not_supported`.
 - The overwrite check on write and copy is not atomic. Two writers racing for the same key can both succeed.
