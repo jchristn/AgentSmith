@@ -1,16 +1,12 @@
-# Hugo connector testbed (D-030). Brings up every connector test target on 127.0.0.1 in the 28xxx port block.
+# Wave 1 connector testbed (P4.1): SSH, storage, and SQL targets on loopback ports in the 28xxx block.
+# SSH client keys are generated automatically into the ignored generated/ssh bind volume.
 #   docker compose -f docker/testbed/compose.yaml up -d --wait
-#   HUGO_TESTBED=1 dotnet run --project src/Test.Automated -f net10.0 -- --suites testbed
+#   HUGO_TESTBED=1 dotnet run --project src/Test.Automated -f net10.0 -- --suites testbed.ssh,testbed.storage,testbed.sql
 #   docker compose -f docker/testbed/compose.yaml down -v
-# Each family keeps its own compose file so it can also be started alone.
+# compose.all.yaml additionally includes the privileged wave 2 targets. Families can also start independently.
 name: hugo-testbed
 
 include:
   - ssh/compose.yaml
   - storage/compose.yaml
   - sql/compose.yaml
-  - aws/compose.yaml
-  - redis/compose.yaml
-  - observability/compose.yaml
-  - kubernetes/compose.yaml
-  - docker/compose.yaml

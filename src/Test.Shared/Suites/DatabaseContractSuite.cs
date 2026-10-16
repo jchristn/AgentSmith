@@ -318,6 +318,7 @@ namespace Test.Shared.Suites
                     record.TenantId = "ten_a";
                     record.EventType = i == 0 ? AuditEventTypeEnum.SecretRevealed : AuditEventTypeEnum.AuthorizationDenied;
                     record.PrincipalId = "usr_a";
+                    record.AuthorizationResult = AuthorizationResultEnum.DeniedImplicit;
                     record.Description = "event " + i;
                     record.StatusCode = 403;
                     await db.Audit.CreateAsync(record, token).ConfigureAwait(false);
@@ -330,6 +331,28 @@ namespace Test.Shared.Suites
                 AuditFilter filter = new AuditFilter();
                 filter.TenantId = "ten_a";
                 Assert.Equal(3L, (await db.Audit.EnumerateAsync(filter, token).ConfigureAwait(false)).TotalCount, "Tenant A audit");
+                filter.PageSize = 1;
+                filter.PageNumber = 99;
+                AuditSummary summary = await db.Audit.SummarizeAsync(filter, token).ConfigureAwait(false);
+                Assert.Equal(3L, summary.TotalCount, "Summary ignores paging and excludes other tenants");
+                Assert.Equal(2L, summary.EventCounts["AuthorizationDenied"], "Denied event count");
+                Assert.Equal(1L, summary.EventCounts["SecretRevealed"], "Reveal event count");
+                filter.PrincipalId = "missing";
+                summary = await db.Audit.SummarizeAsync(filter, token).ConfigureAwait(false);
+                Assert.True(summary.TotalCount == 0 && summary.EventCounts.Count == 0, "Empty summary");
+                filter.PrincipalId = "usr_a";
+                filter.Result = AuthorizationResultEnum.Permitted;
+                Assert.Equal(0L, (await db.Audit.SummarizeAsync(filter, token).ConfigureAwait(false)).TotalCount, "Result filter");
+                filter.Result = AuthorizationResultEnum.DeniedImplicit;
+                filter.ToUtc = DateTime.UtcNow.AddMinutes(-1);
+                Assert.Equal(0L, (await db.Audit.SummarizeAsync(filter, token).ConfigureAwait(false)).TotalCount, "Upper time bound");
+                filter.ToUtc = null;
+                filter.FromUtc = DateTime.UtcNow.AddMinutes(1);
+                Assert.Equal(0L, (await db.Audit.SummarizeAsync(filter, token).ConfigureAwait(false)).TotalCount, "Lower time bound");
+                filter.FromUtc = DateTime.UtcNow.AddMinutes(-1);
+                filter.EventType = AuditEventTypeEnum.SecretRevealed;
+                Assert.Equal(1L, (await db.Audit.SummarizeAsync(filter, token).ConfigureAwait(false)).TotalCount, "Combined summary filters");
+                filter.PageNumber = 1;
                 filter.EventType = AuditEventTypeEnum.SecretRevealed;
                 AuditPage revealed = await db.Audit.EnumerateAsync(filter, token).ConfigureAwait(false);
                 Assert.Equal(1L, revealed.TotalCount, "Reveal events");
@@ -363,10 +386,25 @@ namespace Test.Shared.Suites
                 header.Name = "accept";
                 header.Value = "application/json";
                 entry.Headers.Add(header);
+                entry.Headers.Add(new RequestHistoryHeader
+                {
+                    Direction = HeaderDirectionEnum.Response,
+                    Name = "x-test",
+                    Value = "quote ' and semicolon ; remain data"
+                });
                 await db.RequestHistory.CreateAsync(entry, token).ConfigureAwait(false);
 
                 RequestHistoryEntry read = Assert.NotNull(await db.RequestHistory.ReadAsync("ten_a", entry.Id, token).ConfigureAwait(false), "Entry");
-                Assert.Equal(1, read.Headers.Count, "Headers round-trip through the child table");
+                Assert.Equal(2, read.Headers.Count, "Both header directions round-trip through the child table");
+                Assert.Equal("application/json", read.Headers.Single(h => h.Direction == HeaderDirectionEnum.Request).Value, "Request header value");
+                Assert.Equal("quote ' and semicolon ; remain data", read.Headers.Single(h => h.Direction == HeaderDirectionEnum.Response).Value, "Parameterized response header value");
+                Assert.True(read.Headers.All(h => h.RequestHistoryEntryId == entry.Id), "Headers reference their parent entry.");
+                read.Headers.RemoveAll(h => h.Direction == HeaderDirectionEnum.Response);
+                read.Headers[0].Value = "text/plain";
+                await db.RequestHistory.UpdateAsync(read, token).ConfigureAwait(false);
+                read = Assert.NotNull(await db.RequestHistory.ReadAsync("ten_a", entry.Id, token).ConfigureAwait(false), "Updated entry");
+                Assert.Equal(1, read.Headers.Count, "Header replacement removes deleted child rows");
+                Assert.Equal("text/plain", read.Headers[0].Value, "Updated header value");
                 Assert.Equal("0123456789abcdef0123456789abcdef", read.TraceId, "Trace id");
                 Assert.Equal("corr-1", read.CorrelationId, "Correlation id");
                 Assert.True(await db.RequestHistory.ReadAsync("ten_b", entry.Id, token).ConfigureAwait(false) == null, "Entry visible in another tenant.");
@@ -380,6 +418,10 @@ namespace Test.Shared.Suites
                 Assert.Equal(1L, summary.TotalCount, "Summary count");
                 Assert.True(summary.Buckets.Count > 1, "Summary is gap filled.");
                 Assert.True(await db.RequestHistory.DeleteAsync(entry.Id, token).ConfigureAwait(false), "Delete");
+                AdoDatabaseDriver ado = (AdoDatabaseDriver)db;
+                object? orphanCount = await ado.ScalarAsync("SELECT COUNT(*) FROM " + ado.Table("request_history_headers") + " WHERE request_history_entry_id = @entry_id;",
+                    command => AdoDatabaseDriver.Add(command, "entry_id", entry.Id), token).ConfigureAwait(false);
+                Assert.Equal(0L, Convert.ToInt64(orphanCount), "Deleting history removes its header children");
             }
         }
 

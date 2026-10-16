@@ -263,6 +263,9 @@ namespace Hugo.Server
                 _Stopping.Dispose();
                 _InFlightGauge.Dispose();
                 if (_Server is IDisposable disposable) disposable.Dispose();
+                _Context.Logging.Export = null;
+                _Context.Telemetry.Dispose();
+                _Context.Logging.Dispose();
             }
             _Disposed = true;
         }
@@ -273,6 +276,7 @@ namespace Hugo.Server
 
         private void ConfigureServer()
         {
+            _Server.Events.Logger = message => _Context.Logging.Debug("[Watson] " + message);
             _Server.Routes.AuthenticateRequest = AuthenticateAsync;
             _Server.Routes.Exception = ExceptionRouteAsync;
             _Server.Routes.Preflight = PreflightAsync;

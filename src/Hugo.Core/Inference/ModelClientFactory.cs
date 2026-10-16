@@ -7,6 +7,7 @@ namespace Hugo.Core.Inference
     using System.Security.Cryptography;
     using System.Text;
     using System.Threading;
+    using Hugo.Core.Telemetry;
     using PolyPrompt.Auth;
     using PolyPrompt.Clients;
     using SyslogLogging;
@@ -26,7 +27,7 @@ namespace Hugo.Core.Inference
         /// <summary>
         /// Logging module handed to PolyPrompt clients. Never null.
         /// </summary>
-        public LoggingModule Logging
+        public HugoLog Logging
         {
             get
             {
@@ -38,7 +39,8 @@ namespace Hugo.Core.Inference
 
         #region Private-Members
 
-        private readonly LoggingModule _Logging;
+        private readonly HugoLog _Logging;
+        private readonly bool _OwnLogging;
         private readonly HttpClient _HttpClient;
         private readonly ConcurrentDictionary<string, ServiceAccountCredential> _VertexCredentials = new ConcurrentDictionary<string, ServiceAccountCredential>(StringComparer.Ordinal);
         private bool _Disposed = false;
@@ -53,12 +55,15 @@ namespace Hugo.Core.Inference
         /// <param name="logging">Logging module for PolyPrompt clients. Null creates a quiet module (console off).</param>
         /// <param name="innerHandler">Innermost HTTP handler. Null uses a pooled <see cref="SocketsHttpHandler"/>.
         /// Tests may supply a handler. The factory owns and disposes it.</param>
-        public ModelClientFactory(LoggingModule? logging = null, HttpMessageHandler? innerHandler = null)
+        public ModelClientFactory(HugoLog? logging = null, HttpMessageHandler? innerHandler = null)
         {
             if (logging == null)
             {
-                logging = new LoggingModule();
-                logging.Settings.EnableConsole = false;
+                LoggingModule output = new LoggingModule();
+                output.Settings.EnableConsole = false;
+                output.Servers = new List<SyslogServer>();
+                logging = new HugoLog(output, true);
+                _OwnLogging = true;
             }
             _Logging = logging;
             HttpMessageHandler inner = innerHandler ?? new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(5) };
@@ -69,6 +74,28 @@ namespace Hugo.Core.Inference
         #endregion
 
         #region Public-Methods
+
+        /// <summary>Create a provider model-listing client using the private scrubbed library ingress.</summary>
+        /// <param name="config">Endpoint configuration.</param><param name="logging">Scrubbed logger.</param>
+        /// <param name="http">Caller-owned HTTP client.</param>
+        /// <returns>Disposable listing client.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when an argument is null.</exception>
+        /// <exception cref="NotSupportedException">Thrown for providers without a model-listing API.</exception>
+        public static ModelClientBase CreateModelListingClient(ModelEndpointConfig config, HugoLog logging, HttpClient http)
+        {
+            ArgumentNullException.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(logging);
+            ArgumentNullException.ThrowIfNull(http);
+            Hugo.Core.Security.SecretScrubber.Shared.AddKnownValue(config.ApiKey);
+            return config.Provider switch
+            {
+                ModelProviderEnum.Ollama => new OllamaModelClient(config.BaseUrl ?? "http://127.0.0.1:11434", config.ApiKey, logging.LibraryLogger, http),
+                ModelProviderEnum.OpenAI or ModelProviderEnum.OpenAICompatible => new OpenAiModelClient(config.BaseUrl ?? "https://api.openai.com", config.ApiKey, logging.LibraryLogger, http),
+                ModelProviderEnum.Anthropic => new AnthropicModelClient(config.BaseUrl ?? "https://api.anthropic.com", config.ApiKey, logging.LibraryLogger, http),
+                ModelProviderEnum.Gemini => new GeminiModelClient(config.BaseUrl ?? "https://generativelanguage.googleapis.com", config.ApiKey ?? String.Empty, logging.LibraryLogger, http),
+                _ => throw new NotSupportedException("Listing models is not supported for " + config.Provider + ".")
+            };
+        }
 
         /// <summary>
         /// Whether a provider can serve a kind. Anthropic has no embeddings API and Voyage AI has no inference API.
@@ -162,38 +189,40 @@ namespace Hugo.Core.Inference
 
             string? baseUrl = String.IsNullOrWhiteSpace(config.BaseUrl) ? null : config.BaseUrl;
             string? apiKey = String.IsNullOrEmpty(config.ApiKey) ? null : config.ApiKey;
+            Hugo.Core.Security.SecretScrubber.Shared.AddKnownValue(apiKey);
+            Hugo.Core.Security.SecretScrubber.Shared.AddKnownValue(config.AccessKeyId);
             CompletionClientBase client;
             switch (config.Provider)
             {
                 case ModelProviderEnum.Ollama:
                     client = baseUrl == null
-                        ? new OllamaCompletionClient(apiKey: apiKey, logging: _Logging, httpClient: _HttpClient)
-                        : new OllamaCompletionClient(baseUrl, apiKey, _Logging, _HttpClient);
+                        ? new OllamaCompletionClient(apiKey: apiKey, logging: _Logging.LibraryLogger, httpClient: _HttpClient)
+                        : new OllamaCompletionClient(baseUrl, apiKey, _Logging.LibraryLogger, _HttpClient);
                     break;
                 case ModelProviderEnum.OpenAI:
                 case ModelProviderEnum.OpenAICompatible:
                     client = baseUrl == null
-                        ? new OpenAiCompletionClient(apiKey: apiKey, logging: _Logging, httpClient: _HttpClient)
-                        : new OpenAiCompletionClient(baseUrl, apiKey, _Logging, _HttpClient);
+                        ? new OpenAiCompletionClient(apiKey: apiKey, logging: _Logging.LibraryLogger, httpClient: _HttpClient)
+                        : new OpenAiCompletionClient(baseUrl, apiKey, _Logging.LibraryLogger, _HttpClient);
                     break;
                 case ModelProviderEnum.Anthropic:
                     client = baseUrl == null
-                        ? new AnthropicCompletionClient(apiKey: apiKey, logging: _Logging, httpClient: _HttpClient)
-                        : new AnthropicCompletionClient(baseUrl, apiKey, _Logging, _HttpClient);
+                        ? new AnthropicCompletionClient(apiKey: apiKey, logging: _Logging.LibraryLogger, httpClient: _HttpClient)
+                        : new AnthropicCompletionClient(baseUrl, apiKey, _Logging.LibraryLogger, _HttpClient);
                     break;
                 case ModelProviderEnum.Gemini:
                     client = baseUrl == null
-                        ? new GeminiCompletionClient(apiKey: apiKey, logging: _Logging, httpClient: _HttpClient)
-                        : new GeminiCompletionClient(baseUrl, apiKey, _Logging, _HttpClient);
+                        ? new GeminiCompletionClient(apiKey: apiKey, logging: _Logging.LibraryLogger, httpClient: _HttpClient)
+                        : new GeminiCompletionClient(baseUrl, apiKey, _Logging.LibraryLogger, _HttpClient);
                     break;
                 case ModelProviderEnum.AzureOpenAI:
-                    client = new AzureOpenAiCompletionClient(Require(baseUrl, "Azure OpenAI requires a base URL."), AzureDeployment(config), Require(apiKey, "Azure OpenAI requires an API key."), config.ApiVersion, _Logging, _HttpClient);
+                    client = new AzureOpenAiCompletionClient(Require(baseUrl, "Azure OpenAI requires a base URL."), AzureDeployment(config), Require(apiKey, "Azure OpenAI requires an API key."), config.ApiVersion, _Logging.LibraryLogger, _HttpClient);
                     break;
                 case ModelProviderEnum.VertexAI:
-                    client = new VertexAiCompletionClient(Require(config.Project, "Vertex AI requires a project."), Require(config.Region, "Vertex AI requires a region."), VertexCredential(apiKey), baseUrl, _Logging, _HttpClient);
+                    client = new VertexAiCompletionClient(Require(config.Project, "Vertex AI requires a project."), Require(config.Region, "Vertex AI requires a region."), VertexCredential(apiKey), baseUrl, _Logging.LibraryLogger, _HttpClient);
                     break;
                 case ModelProviderEnum.Bedrock:
-                    client = new BedrockCompletionClient(BedrockCredential(config, apiKey), Require(config.Region, "Bedrock requires a region."), baseUrl, _Logging, _HttpClient);
+                    client = new BedrockCompletionClient(BedrockCredential(config, apiKey), Require(config.Region, "Bedrock requires a region."), baseUrl, _Logging.LibraryLogger, _HttpClient);
                     break;
                 default:
                     throw new InvalidOperationException("Unsupported inference provider " + config.Provider.ToString() + ".");
@@ -221,38 +250,40 @@ namespace Hugo.Core.Inference
 
             string? baseUrl = String.IsNullOrWhiteSpace(config.BaseUrl) ? null : config.BaseUrl;
             string? apiKey = String.IsNullOrEmpty(config.ApiKey) ? null : config.ApiKey;
+            Hugo.Core.Security.SecretScrubber.Shared.AddKnownValue(apiKey);
+            Hugo.Core.Security.SecretScrubber.Shared.AddKnownValue(config.AccessKeyId);
             EmbeddingClientBase client;
             switch (config.Provider)
             {
                 case ModelProviderEnum.Ollama:
                     client = baseUrl == null
-                        ? new OllamaEmbeddingClient(apiKey: apiKey, logging: _Logging, httpClient: _HttpClient)
-                        : new OllamaEmbeddingClient(baseUrl, apiKey, _Logging, _HttpClient);
+                        ? new OllamaEmbeddingClient(apiKey: apiKey, logging: _Logging.LibraryLogger, httpClient: _HttpClient)
+                        : new OllamaEmbeddingClient(baseUrl, apiKey, _Logging.LibraryLogger, _HttpClient);
                     break;
                 case ModelProviderEnum.OpenAI:
                 case ModelProviderEnum.OpenAICompatible:
                     client = baseUrl == null
-                        ? new OpenAiEmbeddingClient(apiKey: apiKey, logging: _Logging, httpClient: _HttpClient)
-                        : new OpenAiEmbeddingClient(baseUrl, apiKey, _Logging, _HttpClient);
+                        ? new OpenAiEmbeddingClient(apiKey: apiKey, logging: _Logging.LibraryLogger, httpClient: _HttpClient)
+                        : new OpenAiEmbeddingClient(baseUrl, apiKey, _Logging.LibraryLogger, _HttpClient);
                     break;
                 case ModelProviderEnum.Gemini:
                     client = baseUrl == null
-                        ? new GeminiEmbeddingClient(apiKey: apiKey, logging: _Logging, httpClient: _HttpClient)
-                        : new GeminiEmbeddingClient(baseUrl, apiKey, _Logging, _HttpClient);
+                        ? new GeminiEmbeddingClient(apiKey: apiKey, logging: _Logging.LibraryLogger, httpClient: _HttpClient)
+                        : new GeminiEmbeddingClient(baseUrl, apiKey, _Logging.LibraryLogger, _HttpClient);
                     break;
                 case ModelProviderEnum.VoyageAI:
                     client = baseUrl == null
-                        ? new VoyageAiEmbeddingClient(apiKey: apiKey, logging: _Logging, httpClient: _HttpClient)
-                        : new VoyageAiEmbeddingClient(baseUrl, apiKey, _Logging, _HttpClient);
+                        ? new VoyageAiEmbeddingClient(apiKey: apiKey, logging: _Logging.LibraryLogger, httpClient: _HttpClient)
+                        : new VoyageAiEmbeddingClient(baseUrl, apiKey, _Logging.LibraryLogger, _HttpClient);
                     break;
                 case ModelProviderEnum.AzureOpenAI:
-                    client = new AzureOpenAiEmbeddingClient(Require(baseUrl, "Azure OpenAI requires a base URL."), AzureDeployment(config), Require(apiKey, "Azure OpenAI requires an API key."), config.ApiVersion, _Logging, _HttpClient);
+                    client = new AzureOpenAiEmbeddingClient(Require(baseUrl, "Azure OpenAI requires a base URL."), AzureDeployment(config), Require(apiKey, "Azure OpenAI requires an API key."), config.ApiVersion, _Logging.LibraryLogger, _HttpClient);
                     break;
                 case ModelProviderEnum.VertexAI:
-                    client = new VertexAiEmbeddingClient(Require(config.Project, "Vertex AI requires a project."), Require(config.Region, "Vertex AI requires a region."), VertexCredential(apiKey), baseUrl, _Logging, _HttpClient);
+                    client = new VertexAiEmbeddingClient(Require(config.Project, "Vertex AI requires a project."), Require(config.Region, "Vertex AI requires a region."), VertexCredential(apiKey), baseUrl, _Logging.LibraryLogger, _HttpClient);
                     break;
                 case ModelProviderEnum.Bedrock:
-                    client = new BedrockEmbeddingClient(BedrockCredential(config, apiKey), Require(config.Region, "Bedrock requires a region."), baseUrl, _Logging, _HttpClient);
+                    client = new BedrockEmbeddingClient(BedrockCredential(config, apiKey), Require(config.Region, "Bedrock requires a region."), baseUrl, _Logging.LibraryLogger, _HttpClient);
                     break;
                 default:
                     throw new InvalidOperationException("Unsupported embedding provider " + config.Provider.ToString() + ".");
@@ -289,6 +320,7 @@ namespace Hugo.Core.Inference
                 foreach (ServiceAccountCredential credential in _VertexCredentials.Values) credential.Dispose();
                 _VertexCredentials.Clear();
                 _HttpClient.Dispose();
+                if (_OwnLogging) _Logging.Dispose();
             }
         }
 

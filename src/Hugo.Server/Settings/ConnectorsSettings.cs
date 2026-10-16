@@ -56,6 +56,25 @@ namespace Hugo.Server.Settings
         }
 
         /// <summary>
+        /// Seconds between resource health sweeps. Default 300, minimum 0 (disabled), maximum 86400.
+        /// </summary>
+        public int HealthIntervalSeconds
+        {
+            get { return _HealthIntervalSeconds; }
+            set { _HealthIntervalSeconds = Math.Clamp(value, 0, 86400); }
+        }
+
+        /// <summary>
+        /// Comma-separated connector types allowed in scheduled health sweeps. Default http,redis.
+        /// Empty disables all types. Expensive connectors require explicit inclusion; wildcards are not supported.
+        /// </summary>
+        public string HealthConnectorTypes
+        {
+            get { return _HealthConnectorTypes; }
+            set { _HealthConnectorTypes = value ?? String.Empty; }
+        }
+
+        /// <summary>
         /// Tool timeout in seconds for tools that call the profile's model (RequiresModel), which run longer than other tools.
         /// Default 600, minimum 1, maximum 3600.
         /// </summary>
@@ -123,6 +142,8 @@ namespace Hugo.Server.Settings
 
         private int _DefaultToolTimeoutSeconds = 120;
         private int _TestTimeoutSeconds = 30;
+        private int _HealthIntervalSeconds = 300;
+        private string _HealthConnectorTypes = "http,redis";
         private int _ModelToolTimeoutSeconds = 600;
         private int _MaxConcurrencyPerResource = 4;
         private int _SessionIdleMinutes = 10;

@@ -4,7 +4,16 @@
 import { describe, it, expect, vi } from 'vitest';
 import { normalizeSchema, groupSchema, initialValues, validateSchemaValues, toSubmitValues, kindOf, schemaSummary } from '../utils/schemaForm';
 import { secretFieldsFor, validateSecretValues, secretValuesBody, describeSecretFile, secretsForSlot, SECRET_FIELDS } from '../utils/secrets';
-import { initialChatState, beginTurn, applyChatEvent, endTurn, fromStoredMessages, messageText, pendingApprovals } from '../utils/chatStream';
+import {
+  initialChatState,
+  beginTurn,
+  applyChatEvent,
+  endTurn,
+  fromStoredMessages,
+  messageText,
+  pendingApprovals,
+  conversationUsage
+} from '../utils/chatStream';
 import { createEventStream } from '../utils/eventStream';
 import { extractVariables, renderTemplateLocal, insertAtCursor } from '../utils/templates';
 import { rpcRequest, readRpcResponse, responseFor, groupToolsByFamily, jsonSchemaToDescriptors, argumentsFromValues } from '../utils/jsonRpc';
@@ -124,6 +133,24 @@ describe('secret kinds', () => {
 
 describe('chat stream reducer (D-022 events)', () => {
   const ev = (event, data) => ({ event, data });
+  it('counts persisted conversation usage once, adds live turns, and stays stable after reload', () => {
+    const stored = [{ id: 'assistant-1', role: 'Assistant', inputTokens: 136452, outputTokens: 1642 }];
+    const conversation = { totalInputTokens: 136452, totalOutputTokens: 1642 };
+    let state = initialChatState(fromStoredMessages(stored));
+    expect(conversationUsage(conversation, state.messages)).toEqual({ input: 136452, output: 1642 });
+    state = beginTurn(state, 'Continue');
+    expect(conversationUsage(conversation, state.messages)).toEqual({ input: 136452, output: 1642 });
+    state = applyChatEvent(state, { event: 'turn.completed', data: { tokensIn: 100, tokensOut: 20 } });
+    expect(conversationUsage(conversation, state.messages)).toEqual({ input: 136552, output: 1662 });
+    state = initialChatState(fromStoredMessages([...stored, { id: 'assistant-2', role: 'Assistant', inputTokens: 100, outputTokens: 20 }]));
+    expect(conversationUsage({ totalInputTokens: 136552, totalOutputTokens: 1662 }, state.messages)).toEqual({ input: 136552, output: 1662 });
+    // The transcript can be a page of messages; the server counters retain all earlier usage.
+    expect(conversationUsage(conversation, fromStoredMessages([]))).toEqual({ input: 136452, output: 1642 });
+    let fresh = beginTurn(initialChatState(), 'Hello');
+    fresh = applyChatEvent(fresh, { event: 'turn.completed', data: { tokensIn: 12, tokensOut: 3 } });
+    expect(conversationUsage(null, fresh.messages)).toEqual({ input: 12, output: 3 });
+  });
+
   it('builds a streamed turn with interleaved text, tool rows, and an approval', () => {
     let s = beginTurn(initialChatState(), 'Why is checkout slow?', 1000);
     expect(s.streaming).toBe(true);

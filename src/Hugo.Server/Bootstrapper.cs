@@ -90,14 +90,19 @@ namespace Hugo.Server
         /// <returns>Started server.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is null.</exception>
         /// <exception cref="MasterKeyException">Thrown when the master key is missing or does not match the stored canary.</exception>
-        public static async Task<HugoServer> StartAsync(HugoSettings settings, LoggingModule logging, CancellationToken token = default, MasterKeyOptions? keyOptions = null, System.Collections.Generic.IEnumerable<Hugo.Connectors.Abstractions.IConnector>? additionalConnectors = null)
+        public static async Task<HugoServer> StartAsync(HugoSettings settings, HugoLog logging, CancellationToken token = default, MasterKeyOptions? keyOptions = null, System.Collections.Generic.IEnumerable<Hugo.Connectors.Abstractions.IConnector>? additionalConnectors = null)
         {
             if (settings == null) throw new ArgumentNullException(nameof(settings));
             if (logging == null) throw new ArgumentNullException(nameof(logging));
 
+            RegisterConfiguredSecrets(settings, keyOptions);
+            SecretScrubber.Shared.MaximumKnownValues = settings.Logging.MaximumKnownSecretValues;
+            SecretScrubber.Shared.MaximumKnownCharacters = settings.Logging.MaximumKnownSecretCharacters;
             settings.Validate();
 
             DatabaseDriverBase database = await DatabaseDriverFactory.CreateAndInitializeAsync(settings.Database, token).ConfigureAwait(false);
+            HugoTelemetry? telemetry = null;
+            HugoServer? server = null;
             try
             {
                 if (database.MigrationsApplied > 0) logging.Info("[Hugo] applied " + database.MigrationsApplied + " schema migrations");
@@ -108,27 +113,28 @@ namespace Hugo.Server
                 SecretCipher cipher = key.Cipher;
                 await MasterKeyGuard.VerifyAsync(database, cipher, message => logging.Info("[Hugo] " + message), token).ConfigureAwait(false);
                 logging.Info("[Hugo] secrets master key version " + cipher.KeyVersion + " loaded from " + key.Source + (key.HasPreviousKey ? " (previous key configured)" : String.Empty));
-                if (settings.Auth.SigningKey == new AuthSettings().SigningKey) logging.Warn("[Hugo] Auth.SigningKey is the built-in default. Set HUGO_AUTH_SIGNING_KEY.");
+                if (settings.Auth.SigningKey == new AuthSettings().SigningKey) logging.Warn("[Hugo] Auth.SigningKey is the built-in legacy-token compatibility default. Set HUGO_AUTH_SIGNING_KEY to reject tokens from installations using the default.");
 
                 SeedOptions seed = new SeedOptions();
                 seed.PasswordHashIterations = settings.Auth.PasswordHashIterations;
                 Tenant defaultTenant = await new DefaultSeeder(database, message => logging.Info("[Hugo] " + message)).SeedAsync(seed, token).ConfigureAwait(false);
 
                 AuditService audit = new AuditService(database, message => logging.Warn("[Hugo] " + message));
-                TokenService tokens = new TokenService(settings.Auth.SigningKey, settings.Auth.Issuer, settings.Auth.UserSessionMinutes);
+                TokenService tokens = new TokenService(cipher, settings.Auth.Issuer, settings.Auth.UserSessionMinutes, settings.Auth.SigningKey);
                 AuthenticationService authentication = new AuthenticationService(database, tokens, cipher, settings, audit);
                 AuthorizationService authorization = new AuthorizationService(database, audit);
-                HugoTelemetry telemetry = new HugoTelemetry(settings.Telemetry, settings.EffectiveNodeId, message =>
+                telemetry = new HugoTelemetry(settings.Telemetry, settings.EffectiveNodeId, message =>
                 {
-                    if (message.StartsWith("telemetry", StringComparison.Ordinal)) logging.Warn("[Hugo.Telemetry] " + message);
-                    else logging.Debug("[Hugo.Telemetry] " + message);
+                    if (message.StartsWith("telemetry", StringComparison.Ordinal)) logging.Local(Severity.Warn, "[Hugo.Telemetry] " + message);
+                    else logging.Local(Severity.Debug, "[Hugo.Telemetry] " + message);
                 });
 
+                logging.Export = telemetry.Log;
                 ServerContext context = new ServerContext(settings, logging, database, cipher, tokens, audit, authentication, authorization, telemetry, new OperationScopeMap());
                 context.DefaultTenantId = defaultTenant.Id;
                 context.MasterKeySource = key.Source;
 
-                HugoServer server = new HugoServer(context);
+                server = new HugoServer(context);
                 if (additionalConnectors != null)
                 {
                     foreach (Hugo.Server.Modules.IntegrationModule module in System.Linq.Enumerable.OfType<Hugo.Server.Modules.IntegrationModule>(server.Modules)) module.AdditionalConnectors.AddRange(additionalConnectors);
@@ -136,8 +142,21 @@ namespace Hugo.Server
                 await server.StartAsync(token).ConfigureAwait(false);
                 return server;
             }
-            catch
+            catch (Exception failure)
             {
+                logging.Export = null;
+                if (server != null)
+                {
+                    if (failure is not OperationCanceledException || !token.IsCancellationRequested)
+                        logging.Local(Severity.Alert, "[Hugo] startup failed: " + failure.Message);
+                    using (CancellationTokenSource cleanup = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+                    {
+                        try { await server.StopAsync(cleanup.Token).ConfigureAwait(false); }
+                        catch (Exception) { }
+                    }
+                    server.Dispose();
+                }
+                else telemetry?.Dispose();
                 database.Dispose();
                 throw;
             }
@@ -154,6 +173,7 @@ namespace Hugo.Server
             if (settings == null) throw new ArgumentNullException(nameof(settings));
             LoggingModule logging = new LoggingModule();
             // Skip SyslogLogging's terminal probe: containers have no terminal, but their stdout is still collected.
+            logging.Servers = new System.Collections.Generic.List<SyslogServer>();
             logging.Settings.DetectConsole = false;
             logging.Settings.EnableConsole = settings.ConsoleLogging;
             logging.Settings.MinimumSeverity = (Severity)settings.MinimumSeverity;
@@ -171,6 +191,7 @@ namespace Hugo.Server
 
         private static async Task<int> RunAsync(string[] args, CancellationToken shutdown)
         {
+            foreach (string variable in new[] { "HUGO_MASTER_KEY", "HUGO_MASTER_KEY_PREVIOUS", "HUGO_AUTH_SIGNING_KEY", "HUGO_ADMIN_API_KEY", "HUGO_DB_PASSWORD" }) SecretScrubber.Shared.AddKnownValue(Environment.GetEnvironmentVariable(variable));
             string settingsFile = ResolveSettingsFile(args);
             HugoSettings settings;
             try
@@ -192,11 +213,14 @@ namespace Hugo.Server
             }
             catch (Exception e) when (e is System.IO.InvalidDataException || e is InvalidOperationException || e is ArgumentException)
             {
-                Console.Error.WriteLine("[Hugo] invalid settings: " + e.Message);
+                Console.Error.WriteLine("[Hugo] invalid settings: " + SecretScrubber.Shared.Scrub(e.Message));
                 return 1;
             }
 
-            LoggingModule logging = BuildLogging(settings.Logging);
+            RegisterConfiguredSecrets(settings, null);
+            SecretScrubber.Shared.MaximumKnownValues = settings.Logging.MaximumKnownSecretValues;
+            SecretScrubber.Shared.MaximumKnownCharacters = settings.Logging.MaximumKnownSecretCharacters;
+            HugoLog logging = new HugoLog(BuildLogging(settings.Logging), true);
             logging.Info("[Hugo] " + Constants.ProductName + " " + Constants.ProductVersion + " starting on node " + settings.EffectiveNodeId + " with settings " + settingsFile);
 
             HugoServer server;
@@ -207,6 +231,7 @@ namespace Hugo.Server
             catch (Exception e) when (e is not OperationCanceledException)
             {
                 logging.Alert("[Hugo] startup failed: " + SecretScrubber.Shared.Scrub(e.Message));
+                logging.Dispose();
                 return 1;
             }
 
@@ -227,6 +252,16 @@ namespace Hugo.Server
             server.Context.Telemetry.Dispose();
             server.Context.Database.Dispose();
             return RestartCoordinator.ExitCode;
+        }
+
+        private static void RegisterConfiguredSecrets(HugoSettings settings, MasterKeyOptions? options)
+        {
+            SecretScrubber.Shared.AddKnownValues(new[]
+            {
+                settings.Auth.AdminApiKey, settings.Auth.SigningKey, settings.Database.Password, settings.Secrets.MasterKey,
+                options?.EnvironmentKey, options?.EnvironmentPreviousKey, options?.SettingsKey,
+                Environment.GetEnvironmentVariable("HUGO_MASTER_KEY"), Environment.GetEnvironmentVariable("HUGO_MASTER_KEY_PREVIOUS")
+            });
         }
 
         private static string ResolveSettingsFile(string[] args)

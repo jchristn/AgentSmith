@@ -287,6 +287,18 @@ namespace Test.Shared.Suites
                 RequestContext admin = Principal(PrincipalTypeEnum.User, host.TenantId, "usr_admin", true, false);
                 AuthorizationDecision adminDecision = await authorization.EvaluateAsync(admin, "ten_other", ResourceTypeEnum.Settings, OperationTypeEnum.Update, null, token).ConfigureAwait(false);
                 Assert.True(adminDecision.Permitted && adminDecision.BypassReason == "IsAdmin", "System administrator bypass");
+                foreach (RequestContext principal in new[] { admin, ta, Principal(PrincipalTypeEnum.Administrator, host.TenantId, "adm_key", false, false) })
+                {
+                    principal.RequestId = Guid.NewGuid().ToString("N");
+                    await authorization.AuthorizeAsync(principal, host.TenantId, ResourceTypeEnum.Secret, OperationTypeEnum.Read, "sec_read", token).ConfigureAwait(false);
+                    AuditPage bypasses = await host.Server.Context.Database.Audit.EnumerateAsync(new AuditFilter { TenantId = host.TenantId, EventType = AuditEventTypeEnum.AuthorizationBypass, PrincipalId = principal.PrincipalId }, token).ConfigureAwait(false);
+                    AuditRecord? readBypass = bypasses.Objects.FirstOrDefault(r => r.RequestId == principal.RequestId);
+                    Assert.True(readBypass != null, "Read bypass was not persisted for " + principal.PrincipalType);
+                    Assert.Equal("Read", readBypass!.Operation, "Read bypass operation");
+                    Assert.Equal("sec_read", readBypass.ResourceId, "Read bypass target");
+                    Assert.True(!String.IsNullOrEmpty(readBypass.BypassReason), "Bypass reason missing.");
+                }
+
 
             }
         }
@@ -479,6 +491,17 @@ namespace Test.Shared.Suites
                 Assert.Equal(record.Id, read.Id, "Audit read");
                 AuditPage created = await HttpTestHelpers.SendAsync<AuditPage>(host.AdminClient, HttpMethod.Get, "/v1.0/api/tenants/" + host.TenantId + "/audit?eventType=ConfigurationChanged", null, 200, token).ConfigureAwait(false);
                 Assert.True(created.TotalCount >= 1, "User creation not audited.");
+                string summaryPath = "/v1.0/api/tenants/" + host.TenantId + "/audit/summary?eventType=AuthorizationDenied&principalId=" + user.Id;
+                AuditSummary summary = await HttpTestHelpers.SendAsync<AuditSummary>(host.AdminClient, HttpMethod.Get, summaryPath, null, 200, token).ConfigureAwait(false);
+                Assert.Equal(page.TotalCount, summary.TotalCount, "Summary matches filtered audit list");
+                Assert.Equal(summary.TotalCount, summary.EventCounts["AuthorizationDenied"], "Summary event count");
+                using (HttpClient client = await host.UserClientAsync("denied@example.com", "password123", host.TenantId, token).ConfigureAwait(false))
+                {
+                    Assert.Equal(403, (await HttpTestHelpers.SendAsync(client, HttpMethod.Get, summaryPath, null, token).ConfigureAwait(false)).StatusCode, "Audit summary requires Read permission");
+                    Assert.Equal(404, (await HttpTestHelpers.SendAsync(client, HttpMethod.Get, "/v1.0/api/tenants/ten_other/audit/summary", null, token).ConfigureAwait(false)).StatusCode, "Cross-tenant summary hidden");
+                }
+                TestResponse invalid = await HttpTestHelpers.SendAsync(host.AdminClient, HttpMethod.Get, summaryPath + "&result=invalid", null, token).ConfigureAwait(false);
+                Assert.Equal(400, invalid.StatusCode, "Summary validates filters");
             }
         }
 

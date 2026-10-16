@@ -81,6 +81,15 @@ namespace Hugo.Core.Database.Interfaces
         Task<AuditPage> EnumerateAsync(AuditFilter filter, CancellationToken token = default);
 
         /// <summary>
+        /// Count matching audit records by event type, ignoring pagination.
+        /// </summary>
+        /// <param name="filter">Filter. A null tenant selects all tenants for internal or system-admin use.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Total and per-event counts.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when filter is null.</exception>
+        Task<AuditSummary> SummarizeAsync(AuditFilter filter, CancellationToken token = default);
+
+        /// <summary>
         /// Delete records matching a filter.
         /// </summary>
         /// <param name="filter">Filter.</param>

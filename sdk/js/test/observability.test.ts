@@ -41,6 +41,9 @@ describe("audit", () => {
     const record = await client.audit.get(page.objects[0].id);
     expect(record.id).toBe(page.objects[0].id);
     expect(record.tenantId).toBe(ctx().tenantId);
+    const summary = await client.audit.summary({ eventType: "SessionIssued", pageSize: 1 });
+    expect(summary.totalCount).toBe(page.totalCount);
+    expect(summary.eventCounts.SessionIssued).toBe(summary.totalCount);
   });
 });
 

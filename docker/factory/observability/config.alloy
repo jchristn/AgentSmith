@@ -1,13 +1,8 @@
-// Grafana Alloy for the Hugo factory stack. Identical to docker/observability/config.alloy except that it falls
-// back to the hugo-factory Compose project instead of hugo when HUGO_COMPOSE_PROJECT is unset.
+// Grafana Alloy for the Docker Compose observability profile.
 //
-// 1. OTLP receiver (gRPC 4317, HTTP 4318) for traces from the server, forwarded to Tempo. OTLP metrics
-//    and logs are accepted and dropped: Prometheus scrapes the metrics, and logs are read from the containers.
-// 2. Container logs of this Compose project's Hugo services (server, dashboard), read through the
-//    Docker socket and shipped to Loki with the labels app="hugo", component (server, dashboard),
-//    node (the container name, which is also the Hugo node name), level when the line has a Hugo
-//    severity, and tenant when the line names one. The labels match the Kubernetes configuration, so the
-//    dashboards and deep links work unchanged.
+// 1. OTLP receiver for Radiant traces and already scrubbed server logs. Logs carry the original trace/span IDs.
+// 2. Dashboard and worker container logs are read through the Docker socket. Server logs use OTLP so every server
+//    entry is ingested once. Startup lines emitted before Radiant starts remain in local console/file sinks.
 
 otelcol.receiver.otlp "default" {
   grpc {
@@ -20,7 +15,25 @@ otelcol.receiver.otlp "default" {
 
   output {
     traces = [otelcol.processor.filter.probes.input]
+    logs   = [otelcol.processor.attributes.hugo_logs.input]
   }
+}
+
+// Promote only stable service/severity dimensions; trace IDs remain structured log fields.
+otelcol.processor.attributes "hugo_logs" {
+  action {
+    key    = "loki.attribute.labels"
+    value  = "app,component,node,level,pipeline"
+    action = "insert"
+  }
+
+  output {
+    logs = [otelcol.exporter.loki.hugo.input]
+  }
+}
+
+otelcol.exporter.loki "hugo" {
+  forward_to = [loki.write.default.receiver]
 }
 
 // Health probes and Prometheus scrapes would otherwise produce several traces a second that nobody reads.
@@ -83,7 +96,7 @@ discovery.docker "containers" {
     name   = "label"
     // HUGO_COMPOSE_PROJECT is set by compose.yaml from ${COMPOSE_PROJECT_NAME}, so logs keep flowing when the
     // stack runs under another project name (docker compose -p). The literal is the fallback when it is unset.
-    values = ["com.docker.compose.project=" + coalesce(sys.env("HUGO_COMPOSE_PROJECT"), "hugo-factory")]
+    values = ["com.docker.compose.project=" + coalesce(sys.env("HUGO_COMPOSE_PROJECT"), "hugo")]
   }
 }
 
@@ -92,7 +105,7 @@ discovery.relabel "hugo" {
 
   rule {
     source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
-    regex         = "hugo-(server|worker-\\d+|dashboard)"
+    regex         = "hugo-(worker-\\d+|dashboard)"
     action        = "keep"
   }
 

@@ -27,6 +27,8 @@ namespace Test.Shared
                 suites.AddRange(TemplateSuite.Build());
                 suites.AddRange(IdentitySuite.Build());
                 suites.AddRange(FoundationSuite.Build());
+                suites.AddRange(HelperPortSuite.Build());
+                suites.AddRange(Test.Shared.Telemetry.LoggingSuite.Build());
                 suites.AddRange(AuthorizationMatrixSuite.Build());
                 suites.AddRange(TenantScopingSuite.Build());
                 suites.AddRange(SecretsSuite.Build());
@@ -47,6 +49,7 @@ namespace Test.Shared
                 suites.AddRange(Test.Shared.Integration.ConfigurationIntegrationSuite.Build());
                 suites.AddRange(Test.Shared.Integration.ModelAgentSuite.Build());
                 suites.AddRange(Test.Shared.Integration.IntegrationUnitSuite.Build());
+                suites.AddRange(Test.Shared.Integration.ResourceHealthSuite.Build());
                 suites.AddRange(Test.Shared.Integration.IntegrationDataSuite.Build());
                 suites.AddRange(Test.Shared.Integration.FollowUpSuite.Build());
                 suites.AddRange(Test.Shared.Integration.ThirdPartyInstructionsSuite.Build());

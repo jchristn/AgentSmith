@@ -1,0 +1,12 @@
+# Opt in to host Docker daemon access for the Docker connector.
+# Merge with compose.yaml explicitly; docs/DOCKER.md explains socket permissions.
+services:
+  hugo-server:
+    group_add:
+      - '${HUGO_DOCKER_SOCKET_GID:?Set HUGO_DOCKER_SOCKET_GID to the socket group ID}'
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        bind:
+          create_host_path: false

@@ -1,6 +1,6 @@
 # Hugo SSH testbed: a target sshd and a bastion sshd that can reach the target.
 #
-#   ./generate-keys.sh                                  # once: client keys into ../generated/ssh
+# Client keys are generated automatically into ../generated/ssh on first start.
 #   docker compose -f docker/testbed/ssh/compose.yaml up -d --wait
 #   HUGO_TESTBED=1 dotnet run --project src/Test.Automated -f net10.0 -- --suites testbed.ssh
 #   docker compose -f docker/testbed/ssh/compose.yaml down
@@ -21,12 +21,15 @@ x-sshd: &sshd
     USER_NAME: hugo
     USER_PASSWORD: hugo-testbed-password
     PASSWORD_ACCESS: "true"
-    PUBLIC_KEY_DIR: /testbed/keys
+    PUBLIC_KEY_DIR: /testbed/keys/authorized
     SUDO_ACCESS: "false"
     LOG_STDOUT: "true"
   volumes:
     - ./setup.sh:/testbed/setup.sh:ro
-    - ../generated/ssh/authorized:/testbed/keys:ro
+    - ../generated/ssh:/testbed/keys:ro
+  depends_on:
+    ssh-keys:
+      condition: service_completed_successfully
   networks:
     - ssh
   healthcheck:
@@ -39,6 +42,14 @@ x-sshd: &sshd
   restart: "no"
 
 services:
+  ssh-keys:
+    image: lscr.io/linuxserver/openssh-server:10.3_p1-r1-ls237
+    entrypoint: ["/bin/bash", "/testbed/ssh/generate-keys.sh"]
+    volumes:
+      - ./generate-keys.sh:/testbed/ssh/generate-keys.sh:ro
+      - ../generated/ssh:/testbed/generated/ssh
+    restart: "no"
+
   ssh-target:
     <<: *sshd
     container_name: hugo-ssh-target
@@ -53,6 +64,8 @@ services:
     ports:
       - "127.0.0.1:28023:2222"
     depends_on:
+      ssh-keys:
+        condition: service_completed_successfully
       ssh-target:
         condition: service_healthy
 

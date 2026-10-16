@@ -9771,6 +9771,7 @@ The audit log records security-relevant events: sign-ins and failures, session i
 |---|---|---|
 | GET | `/v1.0/api/tenants/{tenantId}/audit` | List audit records (eventType, principalId, result, fromUtc, toUtc, pageNumber, pageSize) |
 | DELETE | `/v1.0/api/tenants/{tenantId}/audit` | Delete audit records matching the filter |
+| GET | `/v1.0/api/tenants/{tenantId}/audit/summary` | Count matching records by event type |
 | GET | `/v1.0/api/tenants/{tenantId}/audit/{id}` | Read an audit record |
 | DELETE | `/v1.0/api/tenants/{tenantId}/audit/{id}` | Delete an audit record |
 
@@ -9898,6 +9899,22 @@ Response (200):
   "deletedCount": 0
 }
 ```
+
+### GET `/v1.0/api/tenants/{tenantId}/audit/summary`
+
+Returns counts for the route's tenant, grouped by event type. Requires Read on Audit and accepts the same `eventType`, `principalId`, `result`, `fromUtc` (inclusive), and `toUtc` (exclusive) filters as the list route. Omitted time bounds include all matching records. Pagination does not affect counts. Invalid enum or date filters return 400.
+
+```json
+{
+  "totalCount": 3,
+  "eventCounts": {
+    "AuthorizationDenied": 2,
+    "SecretRevealed": 1
+  }
+}
+```
+
+An empty result is `{"totalCount": 0, "eventCounts": {}}`. Only event types with matching records appear. Status codes: 200, 400, 401, 403, 404.
 
 ### GET `/v1.0/api/tenants/{tenantId}/audit/{id}`
 

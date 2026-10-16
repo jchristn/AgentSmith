@@ -28,6 +28,11 @@ The Global layer is what makes the defaults editable. On every startup Hugo comp
 
 ## Shipped template keys
 
+The `templates` Touchstone suite verifies the shipped personas, safety and tool guidance, surface-specific
+preambles, A2A skill descriptions, and resource sections for every approval mode. Run it with
+`dotnet run --project src/Test.Automated -f net10.0 -- --suites templates`. The configuration integration
+suite also checks layer edits, resets, compiled output, and cache invalidation against each database provider.
+
 A fresh server lists the keys below at `GET /v1.0/api/prompt-templates`. Connector keys come in pairs, one full and one compact, for each of the twenty connector types.
 
 | Key | Purpose |

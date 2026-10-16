@@ -1,0 +1,16 @@
+# Full Hugo connector testbed, including privileged wave 2 targets (D-030).
+#   docker compose -f docker/testbed/compose.all.yaml up -d --wait
+#   HUGO_TESTBED=1 dotnet run --project src/Test.Automated -f net10.0 -- --suites testbed
+#   docker compose -f docker/testbed/compose.all.yaml down -v
+# Each family keeps its own compose file so it can also be started alone.
+name: hugo-testbed-all
+
+include:
+  - ssh/compose.yaml
+  - storage/compose.yaml
+  - sql/compose.yaml
+  - aws/compose.yaml
+  - redis/compose.yaml
+  - observability/compose.yaml
+  - kubernetes/compose.yaml
+  - docker/compose.yaml

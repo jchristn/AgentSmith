@@ -1,5 +1,5 @@
 # Hugo dashboard image. Build from the repository root:
-#   docker build -t jchristn/hugo-dashboard:<tag> dashboard
+#   docker build -t jchristn77/hugo-dashboard:<tag> dashboard
 
 FROM node:22-alpine AS build
 WORKDIR /app

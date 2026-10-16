@@ -42,6 +42,7 @@ namespace Hugo.Server.Routes
         public void Register(RouteRegistrar routes)
         {
             routes.Scoped(HttpMethod.GET, "/v1.0/api/tenants/{tenantId}/audit", ResourceTypeEnum.Audit, OperationTypeEnum.Read, ListAsync, "List audit records (eventType, principalId, result, fromUtc, toUtc, pageNumber, pageSize)", "Audit", null, typeof(AuditPage));
+            routes.Scoped(HttpMethod.GET, "/v1.0/api/tenants/{tenantId}/audit/summary", ResourceTypeEnum.Audit, OperationTypeEnum.Read, SummaryAsync, "Count audit records by event type (eventType, principalId, result, fromUtc, toUtc)", "Audit", null, typeof(AuditSummary));
             routes.Scoped(HttpMethod.GET, "/v1.0/api/tenants/{tenantId}/audit/{id}", ResourceTypeEnum.Audit, OperationTypeEnum.Read, ReadAsync, "Read an audit record", "Audit", null, typeof(AuditRecord));
             routes.Scoped(HttpMethod.DELETE, "/v1.0/api/tenants/{tenantId}/audit/{id}", ResourceTypeEnum.Audit, OperationTypeEnum.Delete, DeleteAsync, "Delete an audit record", "Audit");
             routes.Scoped(HttpMethod.DELETE, "/v1.0/api/tenants/{tenantId}/audit", ResourceTypeEnum.Audit, OperationTypeEnum.Delete, DeleteManyAsync, "Delete audit records matching the filter", "Audit", null, typeof(DeleteCountResponse));
@@ -68,6 +69,11 @@ namespace Hugo.Server.Routes
         private async Task ListAsync(HttpContextBase context)
         {
             await RouteHelpers.JsonAsync(context, 200, await _Context.Database.Audit.EnumerateAsync(Filter(context), context.Token).ConfigureAwait(false)).ConfigureAwait(false);
+        }
+
+        private async Task SummaryAsync(HttpContextBase context)
+        {
+            await RouteHelpers.JsonAsync(context, 200, await _Context.Database.Audit.SummarizeAsync(Filter(context), context.Token).ConfigureAwait(false)).ConfigureAwait(false);
         }
 
         private async Task ReadAsync(HttpContextBase context)

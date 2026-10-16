@@ -30,7 +30,7 @@ HUGO_TEST_PROVIDERS=sqlite,postgresql dotnet run --project src/Test.Automated -f
 HUGO_TESTBED=1 dotnet run --project src/Test.Automated -f net10.0 -- --suites testbed
 dotnet test src/Test.Xunit -f net10.0
 dotnet test src/Test.Nunit -f net10.0
-docker compose -f docker/testbed/compose.yaml up -d --wait                 # connector test targets
+docker compose -f docker/testbed/compose.all.yaml up -d --wait             # all connector test targets
 cd dashboard && npm install && npm run lint && npm run build && npm test
 scripts/check-em-dash.sh
 ```

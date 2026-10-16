@@ -20,7 +20,7 @@ if ! id hugokey >/dev/null 2>&1; then
 fi
 usermod -p '*' hugokey
 mkdir -p /home/hugokey/.ssh
-cat /testbed/keys/*.pub > /home/hugokey/.ssh/authorized_keys
+cat "${PUBLIC_KEY_DIR:-/testbed/keys}"/*.pub > /home/hugokey/.ssh/authorized_keys
 chown -R hugokey:hugokey /home/hugokey/.ssh
 chmod 700 /home/hugokey/.ssh
 chmod 600 /home/hugokey/.ssh/authorized_keys

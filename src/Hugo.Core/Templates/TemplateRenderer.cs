@@ -1,3 +1,4 @@
+// Ported from Garrison at 693ab8ece3dfba3839f2e4bcc1c4bb17745bfa2c (MIT); see docs/PROVENANCE.md for Hugo adaptations.
 namespace Hugo.Core.Templates
 {
     using System;

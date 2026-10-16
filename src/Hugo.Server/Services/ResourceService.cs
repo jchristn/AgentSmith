@@ -1,6 +1,7 @@
 namespace Hugo.Server.Services
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
@@ -75,6 +76,8 @@ namespace Hugo.Server.Services
         #region Private-Members
 
         private static readonly Regex _NamePattern = new Regex("^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$", RegexOptions.CultureInvariant);
+        private readonly object _ScheduledProbeLock = new object();
+        private readonly ConcurrentDictionary<string, Task<ConnectorHealthResult>> _ScheduledProbes = new ConcurrentDictionary<string, Task<ConnectorHealthResult>>(StringComparer.Ordinal);
         private readonly DatabaseDriverBase _Database;
         private readonly ConnectorRegistry _Registry;
         private readonly SecretService _Secrets;
@@ -360,6 +363,27 @@ namespace Hugo.Server.Services
         }
 
         /// <summary>
+        /// Probe an active saved resource for the background sweep, without learning settings or writing knowledge.
+        /// The caller must enumerate tenants internally; the read and result write are explicitly tenant-scoped.
+        /// </summary>
+        /// <param name="tenantId">Owning tenant.</param>
+        /// <param name="id">Resource identifier.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Result, or null if the resource was removed or disabled.</returns>
+        public async Task<ResourceTestResponse?> TestScheduledAsync(string tenantId, string id, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            Resource? resource = await _Database.Resources.ReadAsync(tenantId, id, token).ConfigureAwait(false);
+            if (resource == null || !resource.Active) return null;
+            RequestContext system = new RequestContext { TenantId = tenantId, PrincipalName = "resource health sweep" };
+            ResourceTestResponse result = await ProbeAsync(system, resource, false, token, true).ConfigureAwait(false);
+            Resource? current = await _Database.Resources.ReadAsync(tenantId, id, token).ConfigureAwait(false);
+            if (current == null || !current.Active) return null;
+            await _Database.Resources.UpdateTestResultAsync(tenantId, id, result.Success, Truncate(result.Message, 2000), token).ConfigureAwait(false);
+            return result;
+        }
+
+        /// <summary>
         /// Test unsaved settings. Nothing is stored, including settings the connector learns.
         /// </summary>
         /// <param name="ctx">Caller.</param>
@@ -573,24 +597,53 @@ namespace Hugo.Server.Services
             return response;
         }
 
-        private async Task<ResourceTestResponse> ProbeAsync(RequestContext ctx, Resource resource, bool persisted, CancellationToken token)
+        private async Task<ResourceTestResponse> ProbeAsync(RequestContext ctx, Resource resource, bool persisted, CancellationToken token, bool scheduled = false)
         {
             IConnector connector = Connector(resource.ConnectorType);
             ResourceTestResponse response = new ResourceTestResponse();
             long started = Stopwatch.GetTimestamp();
+            string probeKey = resource.TenantId + ":" + resource.Id;
+            if (scheduled && _ScheduledProbes.TryGetValue(probeKey, out Task<ConnectorHealthResult>? running) && !running.IsCompleted)
+            {
+                return new ResourceTestResponse { Success = false, ErrorCode = ConnectorErrorCodes.Timeout, Message = "The previous scheduled probe is still stopping; no overlapping probe was started." };
+            }
             using (CancellationTokenSource timeout = CancellationTokenSource.CreateLinkedTokenSource(token))
             {
                 timeout.CancelAfter(TimeSpan.FromSeconds(Math.Clamp(_TestTimeoutSeconds(), 1, 600)));
                 ConnectorContextLease? lease = null;
+                Task<ConnectorHealthResult>? probe = null;
                 try
                 {
                     lease = await _Contexts.BuildAsync(resource, persisted, ctx, ctx.PrincipalName ?? "operator", false, timeout.Token).ConfigureAwait(false);
-                    ConnectorHealthResult health = await connector.TestConnectionAsync(lease.Context, timeout.Token).ConfigureAwait(false);
+                    if (scheduled)
+                    {
+                        lease.Context.LearnSetting = (key, value) => throw new ConnectorException("scheduled_learning_disabled", "Scheduled probes cannot trust new host keys or learn settings; run an explicit connection test first.");
+                        if (resource.ConnectorType == "ssh" && (String.IsNullOrWhiteSpace(lease.Context.Settings.GetString("hostKeyFingerprint")) || (!String.IsNullOrWhiteSpace(lease.Context.Settings.GetString("jumpHost")) && String.IsNullOrWhiteSpace(lease.Context.Settings.GetString("jumpHostKeyFingerprint")))))
+                        {
+                            throw new ConnectorException("scheduled_learning_disabled", "Pin target and jump-host keys with an explicit connection test before scheduling SSH probes.");
+                        }
+                    }
+                    ConnectorResourceContext probeContext = lease.Context;
+                    CancellationToken probeToken = timeout.Token;
+                    if (scheduled)
+                    {
+                        lock (_ScheduledProbeLock)
+                        {
+                            if (_ScheduledProbes.TryGetValue(probeKey, out Task<ConnectorHealthResult>? previous) && !previous.IsCompleted)
+                            {
+                                return new ResourceTestResponse { Success = false, ErrorCode = ConnectorErrorCodes.Timeout, Message = "The previous scheduled probe is still stopping; no overlapping probe was started." };
+                            }
+                            probe = Task.Run(() => connector.TestConnectionAsync(probeContext, probeToken));
+                            _ScheduledProbes[probeKey] = probe;
+                        }
+                    }
+                    else probe = connector.TestConnectionAsync(probeContext, probeToken);
+                    ConnectorHealthResult health = scheduled ? await probe.WaitAsync(timeout.Token).ConfigureAwait(false) : await probe.ConfigureAwait(false);
                     await lease.FlushAsync().ConfigureAwait(false);
                     response.Success = health.Success;
                     response.Message = lease.Scrubber.Scrub(health.Message) ?? String.Empty;
                     response.ErrorCode = health.ErrorCode;
-                    if (!health.Success && health.ErrorCode == ConnectorErrorCodes.HostKeyMismatch) await _Contexts.AuditHostKeyMismatchAsync(ctx, resource.TenantId, persisted ? resource.Id : null, resource.Name, response.Message).ConfigureAwait(false);
+                    if (!health.Success && health.ErrorCode == ConnectorErrorCodes.HostKeyMismatch) await _Contexts.AuditHostKeyMismatchAsync(ctx, resource.TenantId, persisted || scheduled ? resource.Id : null, resource.Name, response.Message).ConfigureAwait(false);
                     response.LatencyMs = health.LatencyMs > 0 ? health.LatencyMs : Stopwatch.GetElapsedTime(started).TotalMilliseconds;
                     foreach (KeyValuePair<string, string> detail in health.Details ?? new Dictionary<string, string>()) response.Details[detail.Key] = lease.Scrubber.Scrub(detail.Value) ?? String.Empty;
                     foreach (KeyValuePair<string, string> learned in lease.LearnedSettings) response.LearnedSettings[learned.Key] = learned.Value;
@@ -608,7 +661,7 @@ namespace Hugo.Server.Services
                     response.ErrorCode = e.Code;
                     response.Message = (lease?.Scrubber ?? SecretScrubber.Shared).Scrub(e.Message) ?? String.Empty;
                     response.LatencyMs = Stopwatch.GetElapsedTime(started).TotalMilliseconds;
-                    if (e.Code == ConnectorErrorCodes.HostKeyMismatch) await _Contexts.AuditHostKeyMismatchAsync(ctx, resource.TenantId, persisted ? resource.Id : null, resource.Name, response.Message).ConfigureAwait(false);
+                    if (e.Code == ConnectorErrorCodes.HostKeyMismatch) await _Contexts.AuditHostKeyMismatchAsync(ctx, resource.TenantId, persisted || scheduled ? resource.Id : null, resource.Name, response.Message).ConfigureAwait(false);
                 }
                 catch (Exception e) when (e is not OperationCanceledException)
                 {
@@ -619,7 +672,24 @@ namespace Hugo.Server.Services
                 }
                 finally
                 {
-                    lease?.Dispose();
+                    if (probe != null && !probe.IsCompleted && scheduled && lease != null)
+                    {
+                        // A noncooperative connector retains its lease until it stops. Keep it registered so a later
+                        // sweep cannot launch another call for this resource, and observe late failures.
+                        ConnectorContextLease retained = lease;
+                        Task<ConnectorHealthResult> pending = probe;
+                        _ = pending.ContinueWith(completed =>
+                        {
+                            _ = completed.Exception;
+                            retained.Dispose();
+                            _ScheduledProbes.TryRemove(new KeyValuePair<string, Task<ConnectorHealthResult>>(probeKey, pending));
+                        }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+                    }
+                    else
+                    {
+                        lease?.Dispose();
+                        if (scheduled && probe != null) _ScheduledProbes.TryRemove(new KeyValuePair<string, Task<ConnectorHealthResult>>(probeKey, probe));
+                    }
                 }
             }
             return response;

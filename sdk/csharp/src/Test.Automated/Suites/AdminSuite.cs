@@ -86,6 +86,9 @@ namespace Test.Automated.Suites
                 byType.PageSize = 5;
                 PageResult<AuditRecord> sessions = await ctx.Owner.Audit.ListAsync(byType).ConfigureAwait(false);
                 Check.True(sessions.Objects.All(r => r.EventType == "SessionIssued"), "event type filter");
+                AuditSummary summary = await ctx.Owner.Audit.SummaryAsync(byType).ConfigureAwait(false);
+                Check.Equal(sessions.TotalCount, summary.TotalCount, "summary ignores pagination");
+                Check.Equal(summary.TotalCount, summary.EventCounts["SessionIssued"], "summary event count");
             }).ConfigureAwait(false);
 
             await runner.RunAsync("Prompt templates CRUD, versions, restore, and clone", async () =>

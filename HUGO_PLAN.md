@@ -82,23 +82,23 @@ These rules keep the plan honest:
 
 | Phase | Name | Milestone | Status | Done / Total |
 |---|---|---|---|---|
-| 0 | Repository bootstrap | M1 | In progress | 11 / 16 |
-| 1 | Core foundation: settings, data layer, identity, RBAC, sessions, audit, history, telemetry base | M1 | In progress | 39 / 44 |
-| 2 | Secrets vault | M1 | In progress | 11 / 12 |
+| 0 | Repository bootstrap | M1 | Complete | 16 / 16 |
+| 1 | Core foundation: settings, data layer, identity, RBAC, sessions, audit, history, telemetry base | M1 | Complete | 44 / 44 |
+| 2 | Secrets vault | M1 | Complete | 12 / 12 |
 | 3 | Connector framework and tool invocation pipeline | M1 | Complete | 26 / 26 |
-| 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | In progress | 33 / 37 |
-| 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | In progress | 20 / 21 |
-| 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | In progress | 23 / 24 |
-| 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | In progress | 21 / 22 |
-| 8 | Dashboard | M1 | In progress | 51 / 53 |
-| 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | In progress | 14 / 15 |
-| 10 | Docker, testbed, and observability stack | M1 | In progress | 18 / 24 |
+| 4 | Connectors wave 1: SSH, object storage, SQL databases, Papertrail, SolarWinds Observability | M1 | Complete | 37 / 37 |
+| 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | Complete | 21 / 21 |
+| 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | Complete | 24 / 24 |
+| 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Complete | 22 / 22 |
+| 8 | Dashboard | M1 | Complete | 55 / 55 |
+| 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | Complete | 14 / 14 |
+| 10 | Docker, testbed, and observability stack | M1 | Complete | 24 / 24 |
 | 11 | Documentation and Postman | M1 | Complete | 18 / 18 |
-| 12 | MVP verification (milestone M1) | M1 | In progress | 9 / 14 |
+| 12 | MVP verification (milestone M1) | M1 | Complete | 12 / 12 |
 | 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | In progress | 37 / 38 |
 | 14 | Knowledge, runbooks, and operator conveniences | M2 | Not started | 0 / 12 |
 | 15 | Benchmarking | M3 | Not started | 0 / 16 |
-| 17 | Kubernetes and minikube | M2 | In progress | 15 / 16 |
+| 17 | Kubernetes and minikube | M2 | Complete | 16 / 16 |
 | 16 | Hardening, simulated user testing, and 1.0 release | M4 | Not started | 0 / 18 |
 
 Milestones:
@@ -110,18 +110,36 @@ Milestones:
 | **M3: Measured** | Benchmark suite, CI gate, round 0 results. | 15 |
 | **M4: 1.0** | Security review, simulated user testing, upgrade path, release process. | 16 |
 
-### Current state and where to pick up (updated 2026-10-14)
+### Current state and where to pick up (updated 2026-10-16)
+
+- Dashboard binding fix published 2026-10-16 (P8.55): required resource selection no longer falsely displays the first resource as selected; binding edit locks the immutable resource and omits it from PUT. Three full-form regressions and all 260 dashboard tests, lint/build pass. Dashboard v0.1.0/latest multi-architecture tags now resolve to sha256:e4dac99585bf7903ea93dddcc1e5db6aae4dcb2c4d443c1c88ff3be5245f5e11; pull/recreate the dashboard and refresh the browser to apply it.
+
+- Live verification completed 2026-10-16: P0.12/P9.13 removed per user direction (D-055); phases 0 and 9 are complete. P6.22 passes real qwen3.8:27b smoke across SSE, A2A, and OpenAI-compatible chat (phase 6 complete). P12.6 passes the real-model four-resource investigation and real nginx approval/rejection; P12.7 passes an actual local mux/Ollama client with exact eight-binding instructions, 44 exposed tools, four model-selected calls, and real SQLite results. Codex initialization and two calls also ran, but its partial run is not claimed as full acceptance. All private model addresses remain outside repository artifacts.
+
+- Live verification evidence: user-testing/P6.22_REAL_OLLAMA_SMOKE_2026-10-16.md, user-testing/2026-10-16-real-model-primary-journey.md (17 screenshots and transcript), and user-testing/P12.7_LOCAL_MCP_2026-10-16.md. Journey finding P8.54 fixes doubled chat token totals; 257 dashboard tests, lint/build, and reloaded browser totals pass (phase 8 now 54/54). A model narration discrepancy about approval is recorded separately from the authoritative gate/PID evidence. Temporary fixtures, credentials, configs, images, and processes were cleaned up; shared Ollama and user client settings were left intact.
+
+- Third parallel batch completed 2026-10-15: P0.6, P0.16, P0.17 (new provenance-corrected helper scope), P1.37, P2.9, P4.1, P4.2, P4.30, P10.11, and P12.4. Phases 1, 2, 4, and 10 are complete. HugoLog redacts before managed sinks; bounded Radiant logs flow through Alloy or direct Loki. Docker, factory, and Kubernetes collector configs avoid duplicate server logs and retain dashboard/worker collection. Package inventories and helper provenance are verified; strict Hugo API enum inputs preserve file-setting compatibility.
+- Third batch verification: .NET 8/10 solution build has zero warnings/errors; full Touchstone regression on SQLite/PostgreSQL reports 2011 passed, 309 expected testbed skips, zero failures. Separate live wave 1 verification passes 197 cases, and the two-provider CI selection passes 963 cases without skips/failures. Ordered logging integration passes 64 cases; final redaction interactions pass 11. Real Hugo to Alloy to Loki delivers 11 labeled records with planted secrets redacted. Factory Newman passes 325 HTTP requests/408 assertions with zero failures; 14 model requests plus five intentional stream/restart requests are excluded. Python SDK passes 82 with one optional admin-key skip. Pinned Alloy validation, Kubernetes render checks, package/version/Grafana guards, shell syntax, and diff checks pass. Temporary services/storage/images are cleaned up. Hosted CI execution remains unverified; its external scheduling dependency is no longer a plan task (D-055).
+
+- Second parallel batch completed 2026-10-15: P1.14, P4.28, P5.14, P7.21, P8.38, P10.2, P10.5, and P10.10. Phases 5, 7, and 8 are complete. Resource health defaults to HTTP/Redis every 300 seconds; other types require explicit inclusion and scheduled SSH probes require existing host-key pins. Docker start scripts preserve populated keys and repair missing/blank entries. The following batch addresses logging, scrubbing, helper provenance, package pins, and wave 1 testbed verification/CI.
+- Second batch verification: solution build on .NET 8/10 has zero warnings/errors; 59 targeted cases pass on SQLite/PostgreSQL with no skips or failures; dashboard lint/build and 256 mocked tests pass; eight isolated key-generation scenarios and pinned Tempo configuration validation pass. Windows launcher execution remains unverified because local PowerShell crashes even on a trivial command. Temporary PostgreSQL container removed.
+
+- Parallel batch completed 2026-10-15: P0.5, P0.14, P1.18, P1.25, P8.51, P10.19, P10.21, and P17.16. Version and Grafana checks are wired into CI; Hosted GitHub execution was unverified at that checkpoint. Phase 17 is complete. New sessions use the master key; retain the configured previous key until its sessions expire, and keep Auth.SigningKey for pre-upgrade token compatibility.
+- Parallel batch verification: solution builds with zero warnings/errors; Touchstone on SQLite/PostgreSQL reports 1993 passed, 309 testbed skips, zero failures; xUnit 2193 passed; NUnit 1884 passed; dashboard 60 browser tests passed with 56 reviewed captures; Python SDK 82 passed and one optional admin-key skip. Temporary services cleaned up.
+
+- P1.30 completed 2026-10-15: audit summaries aggregate all filtered records by event type, independent of paging. REST, Postman, and all three SDKs support the endpoint. P1.37, P2.9, and P4.28 are complete.
 
 - Execution started 2026-10-14. Phase 0 skeleton is committed: solution, connector contract (P3.1), CI workflow, assets. The foundation is being forked from Garrison (D-032).
-- Paused 2026-10-14 at the user's request after the in-flight work completed. Nothing is running. Main builds with zero warnings and 2173 Touchstone cases pass on SQLite (309 testbed cases skip without HUGO_TESTBED=1); suites also pass on PostgreSQL. GitHub Actions cannot run until the account billing issue is resolved (P0.12).
-- Where to pick up next (in order): the follow-ups below, Phase 11 documentation and Postman (REST_API.md, MCP_API.md, A2A_API.md, Postman collection), the factory demo profile (P10.7, P10.8), Phase 12 MVP verification, then Phase 17 (Kubernetes and minikube).
+- Historical checkpoint, superseded by the active execution above: paused 2026-10-14 at the user's request after the in-flight work completed. Main builds with zero warnings and 2173 Touchstone cases pass on SQLite (309 testbed cases skip without HUGO_TESTBED=1); suites also pass on PostgreSQL. Hosted GitHub execution was unverified at that checkpoint; the external dependency is no longer tracked as a plan task (D-055).
+- Build completed 2026-10-16: `./build-all.sh v0.1.0` exited zero, pushed server and dashboard `v0.1.0` plus `latest`, and pulled both tags locally. Remote manifests independently verify linux/amd64 and linux/arm64 for all four tags; version/latest digests match per image. Server index: `sha256:b014817a86fe3cb6710beca2649f8b6e200ee4b5f2ba2512fce8286ba22d27db`; dashboard index: `sha256:18cb53d94c62fd48095a6dfcc0d1f6245a2044a40417c7c6c2a7b734fd313e53`. User waived P12.13/P12.14 for this build (D-056); phase 12 has 12 completed active tasks and two waived tasks. Later roadmap work and M2 connector sign-off P13.38 remain separate.
+- Model verification used the supplied self-hosted Ollama service and qwen3.8:27b without downloading models or changing shared server settings. Model calls were sequenced across agents. Private endpoint settings were temporary; retained text and screenshots are sanitized. P12.7 uses mux per the user's accepted local-client alternatives, not a claim of full Claude Code or Codex acceptance.
 - Follow-ups recorded from connector work (fold into the named tasks):
   - P3.13: the pipeline applies binding-level command deny patterns (the invocation context has no binding policy).
   - P3.8: audit every `LearnSetting` call (pinned host keys, D-028) as `HostKeyPinned`.
   - P4.29: document OpenSSH `PerSourcePenalties`; repeated auth failures from Hugo's single IP can temporarily lock it out of a host.
   - IConnectorTool docs: caller cancellation throws `OperationCanceledException`; a connector's own timeout returns a `timeout` error result (SQL behavior, make it the contract rule).
   - Package alignment: Hugo.Core must use the same Microsoft.Data.Sqlite (10.0.13) and Npgsql (10.0.3) versions as the SQL connectors.
-  - PolyPrompt: verify the forced final answer (`tool_choice: none` with no tools) against real OpenAI (P6.22); list provider models through PolyPrompt model clients (P6.5).
+  - PolyPrompt: hosted-provider forced-final-answer compatibility (`tool_choice: none` with no tools) remains a future provider-specific check; completed P6.22 verifies the user-supplied Ollama service and does not claim hosted OpenAI coverage. Provider model listing uses PolyPrompt model clients (P6.5).
   - Server must implement IAgentToolCatalog, IAgentToolExecutor, IAgentEventSink, IConversationStore (Hugo.Core.Agent) and set AgentRuntime.IdFactory to PrettyId.
   - Knowledge contract follow-ups from the SQL intelligence work: compare-and-swap put (expected version) for append races, `FinishReason` on `ConnectorModelResponse`, a JSON-mode hint, reason and reviewed fields on entries, `ToolArguments.GetDouble`, a crawl cache persistence hook, and a per-invocation model-call budget (`sql_generate_context` can make up to 51 calls; invocation timeouts for RequiresModel tools need to be longer than 120 seconds).
   - Server inconsistencies found by the SDK harnesses (fix after the Phase 7 merges): secret PUT requires kind and name instead of keeping omitted fields; RouteNotFound body lacks requestId; OpenAPI declares 200 for create routes that return 201; OpenAPI names `a2AUrl` where the server sends `a2aUrl`; SessionIssued audit records have statusCode 0; knowledge scope root stored as key "" but read as `_root`; template variable roots (`{{input.name}}`) documented only in an error message.
@@ -134,10 +152,10 @@ Milestones:
   - Phase 12 verification merged 2026-10-15. Fixed: dashboard chat sent `content` instead of `message` and misread tool events; request history recorded its own reads (self-amplifying); metric catalog name `hugo_tool_output_bytes`; verify-telemetry and leftover forced-password text. Open: tool arguments are not scrubbed (an operator-typed secret is visible to the approver). Resolved 2026-10-15: user-admin labels and tips in all 12 locales describe the advisory prompt (D-048) instead of a forced change; update.sh and update.bat add `--profile postgres` when HUGO_DB_TYPE is Postgresql; Alloy (plain and factory) filters on `HUGO_COMPOSE_PROJECT`, set from `${COMPOSE_PROJECT_NAME}`, so `docker compose -p` keeps logs flowing; the testbed README documents `ssh/generate-keys.sh`. Remaining for the user: real-model journey, Claude Code over MCP, full simulated user testing, M1 sign-off.
   - From the dashboard live journey (all resolved 2026-10-14): telemetry startup stack overflow, model list 500, include syntax wording, missing list filters, bindingCount, principalName, model endpoint health history, analytics routes in the dashboard.
   - Dynamic tools (D-044): add optional `IDynamicToolProvider` so external MCP tools appear as `<prefix>__<tool>` (fencing in compiled instructions is done, P13.28).
-  - Phase 13 wrap-up merged 2026-10-15 (P13.1, P13.28, P13.32 to P13.35, P13.37). Only P13.38 (user M2 connector sign-off) remains. Open: Grafana panels use `hugo_connector_sessions_active` and `hugo_resource_health`, which HugoMetricCatalog does not define (emitters belong to P4.28 and the telemetry base; the panels fall back to 0); the nightly wave 2 workflow has not run on GitHub; wave 1 dashboard setting labels are untranslated.
+  - Phase 13 wrap-up merged 2026-10-15 (P13.1, P13.28, P13.32 to P13.35, P13.37). Only P13.38 (user M2 connector sign-off) remains. Resolved 2026-10-15: P4.28 defines and emits `hugo_resource_health`. Open: Grafana still uses `hugo_connector_sessions_active`, which HugoMetricCatalog does not define (the panel falls back to 0); the nightly wave 2 workflow has not run on GitHub; wave 1 dashboard setting labels are untranslated.
   - SSH `jumpResourceName` (reuse another resource as bastion) needs a related-resource resolver; the jump settings cover the case today.
 - Next after the merges: Phase 3 pipeline (resources, invocation service, approvals), Phase 5 profiles and instructions, Phase 6 runtime, Phase 7 protocols.
-- Decisions D-001 through D-051 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
+- Decisions D-001 through D-056 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
 - Before P0.1, confirm the open questions in [section 23](#23-risks-and-open-questions) that are marked "before Phase 0".
 
 ---
@@ -207,7 +225,7 @@ Hugo holds the access and the judgment about how to use it.
 
 This journey is the acceptance story for M1. Phase 12 replays it end to end.
 
-1. Mr. Anderson runs `docker compose up -d` in `docker/`, opens the dashboard, logs in with the seeded account, and is forced to change the password.
+1. Mr. Anderson runs `docker compose up -d` in `docker/`, opens the dashboard, logs in with the seeded account, and sees an advisory prompt to change the password, which he may skip (D-048).
 2. The setup wizard asks for one inference endpoint (for example a local Ollama, or Anthropic with an API key) and optionally an embedding endpoint.
 3. He adds secrets: an SSH private key, a PostgreSQL password, an AWS access key pair, a Papertrail API token.
 4. He adds resources: `web-01` (SSH), `prod-db` (PostgreSQL), `assets` (S3), `papertrail` (Papertrail). Each form is generated from the connector's settings schema, and each one has a Test Connection button.
@@ -275,6 +293,11 @@ This journey is the acceptance story for M1. Phase 12 replays it end to end.
 | D-049 | Secrets have a distinct `BearerToken` kind (field `token`) for tokens sent exactly as `Authorization: Bearer`, alongside `ApiToken` for tokens whose header or format depends on the service. Slots that send a bearer header (HTTP and observability bearer auth, Kubernetes service account tokens, MCP and A2A connectors, SolarWinds Observability, model endpoint API keys in the dashboard) accept both; slots with their own header (Papertrail's `X-Papertrail-Token`, API key headers, the Azure account key) accept only `ApiToken`. The dashboard topbar also links the project Discord (https://discord.gg/tRAN8HgvK5) next to GitHub. | User direction 2026-10-14. | 12, 18 |
 | D-050 | Model endpoints (user direction 2026-10-14): names accept letters, digits, spaces, and `. _ - : / @` (model identifiers like `llama3:8b` are common names; names are labels, endpoints are referenced by ID). The create and edit forms have a Validate button backed by `POST /v1.0/api/model-endpoints/validate`, which checks unsaved settings with a tiny prompt or embedding and stores nothing. Validation results are shown as a laid-out view (outcome, model, kind, latency, dimensions, provider HTTP status, reply preview, error, problems), never as raw JSON. | Validating before saving avoids create-then-fix loops; raw JSON is not an operator experience. | 13.1, 18 |
 | D-051 | Kubernetes details from Phase 17: startup probes allow 5 minutes for first boot (readiness and liveness keep the 2-failure rule); third-party images use kubelet HTTP or TCP probes (the Kubernetes form of D-037); the dashboard pod runs as root with a writable root filesystem because the stock nginx image writes its config at startup (capabilities trimmed); the server PodDisruptionBudget is `maxUnavailable: 1` so node drains are not blocked; the namespace is fixed to `hugo`; the settings file is read-only in Kubernetes, so the dashboard Settings page cannot persist file changes there; components are add-ons layered on an overlay. | Recorded from the live minikube and k3s runs. | 17.5 |
+| D-052 | Use the implemented .NET concurrency/cache/HTTP primitives rather than adding unused Padlock, Caching, or RestWrapper dependencies: keyed SemaphoreSlim gates, concurrent dictionaries with idle/LRU eviction, and shared HttpClient instances. Direct package references are fixed in project files and audited against scripts/package-pins.json; Touchstone stays 0.2.1 per D-034. | Reconciles the original library proposals with verified P3.9/P4.21/P6.20 implementations; avoids unused dependencies. | 6, 8, 9, 11, 13, P0.6 |
+| D-053 | TemplateRenderer and LabelGuard are the actual Garrison helper ports. No StrictEnumConverterFactory exists in the recorded Garrison fork/current tree, so P0.17 implements and tests Hugo's own strict enum converters. Hugo API enums require declared names; file settings and third-party enums retain numeric compatibility. | Corrects the original port assumption while preserving shipped settings and the REST enum contract. | 14.1, P0.16, P0.17 |
+| D-054 | HugoLog is the redaction boundary before console, file, syslog, tracing, and telemetry sinks. Caller-supplied SyslogLogging modules are output sinks; library callbacks use a private sinkless ingress with raw tracing disabled. Radiant log export uses a bounded best-effort queue. | SyslogLogging 2.4.1 exposes only a post-write event, so post-write redaction cannot protect sinks. | 12, 21, P1.37, P2.9, P10.11 |
+| D-055 | Remove P0.12 and P9.13 from the execution plan at the user's direction (2026-10-16); retain their implemented CI workflows. External billing/capacity recovery is not product work or a milestone blocker. IDs are retired without renumbering other tasks. Live model verification uses operator-supplied endpoints through temporary runtime settings; private infrastructure addresses are excluded from repository artifacts. | The workflows will run when hosted capacity is available, and model acceptance can proceed against the supplied Ollama service. | 0, 6, 9, 12 |
+| D-056 | User waived P12.13 and the formal P12.14 step on 2026-10-16 and requested `build-all v0.1.0`. Preserve both waived IDs, exclude them from active task totals, and do not claim the testing or formal sign-off occurred. Build-all retains its existing multi-architecture push behavior for version and latest tags. | Explicit user direction to proceed with the build. | 12, build scripts |
 
 ---
 
@@ -354,7 +377,7 @@ Ports: `8800` server (REST, MCP, A2A, OpenAI-compatible), `8801` dashboard. Graf
 | `Hugo.Connectors.Ssh` | SSH.NET-based SSH and SFTP tools, command effect classifier, host key pinning, jump hosts. |
 | `Hugo.Connectors.Storage` | Blobject-based `s3`, `azure-blob`, `gcs` connectors sharing one tool set. |
 | `Hugo.Connectors.Sql` | `sqlite`, `mysql`, `sqlserver`, `postgresql` connectors. Crawlers and the statement classifier are derived from Tablix (`IDatabaseCrawler`, `QueryValidator`), vendored with attribution because Tablix.Core is not on NuGet. |
-| `Hugo.Connectors.Logging` | `papertrail` and `solarwinds-observability` connectors on RestWrapper. |
+| `Hugo.Connectors.Logging` | `papertrail` and `solarwinds-observability` connectors on shared HttpClient instances (D-052). |
 | `Hugo.Connectors.Redis` | StackExchange.Redis connector with a command classification table (M2). |
 | `Hugo.Connectors.Aws` | AWSSDK-based EC2, CloudWatch, CloudWatch Logs, ECS, RDS, Lambda, ELBv2, Route 53, SQS, SNS tools (M2). |
 | `Hugo.Connectors.Kubernetes` | KubernetesClient-based tools (M2). |
@@ -378,7 +401,7 @@ Ports: `8800` server (REST, MCP, A2A, OpenAI-compatible), `8801` dashboard. Graf
 
 **Chat turn (Hugo's LLM drives).**
 1. The dashboard sends `POST /v1.0/api/conversations/{id}/messages` and receives an SSE stream.
-2. The agent runtime takes a per-conversation lock (Padlock) and builds the context: compiled instructions, history (compacted if needed), and tool definitions from the same catalog MCP uses.
+2. The agent runtime takes a keyed SemaphoreSlim per-conversation lock (D-052) and builds the context: compiled instructions, history (compacted if needed), and tool definitions from the same catalog MCP uses.
 3. It calls the profile's inference endpoint through PolyPrompt `ToolChatStreamingAsync`. Each tool call runs through the same pipeline as MCP. An approval-gated call emits `approval.required` and the turn waits.
 4. On approval, denial, or expiry, the loop continues. The final iteration forces `ToolChoice = none` so the turn always ends with an answer. Messages and tool calls are persisted.
 
@@ -563,7 +586,7 @@ Supporting types, one per file:
 | `ToolArguments` | Validated arguments with typed getters. Validation against the tool's JSON schema happens in the pipeline before `Classify` is called. |
 | `EffectClassification` | `Effect` (`Read`, `Write`, `Destructive`) and a human-readable `Reason` (for example "statement type DELETE"). It also carries `ApprovalSummary`, the text shown on an approval card. |
 | `ToolResult` | `IsError`, `Content` (text, or structured JSON for MCP `structuredContent`), `MimeType`, `Truncated`, `OriginalBytes`, `Metrics` (rows, bytes, latency breakdown), `ErrorCode`. |
-| `ConnectorSessionPool` | Keyed pool (`resourceId` plus a settings hash) of reusable sessions such as SSH clients, Redis multiplexers, and database connections, with idle eviction (Caching `LRUCache`) and per-resource concurrency caps (Padlock). |
+| `ConnectorSessionPool` | Keyed pool (`resourceId` plus a settings hash) of reusable sessions such as SSH clients, Redis multiplexers, and database connections, with idle/LRU eviction in concurrent dictionaries and per-resource keyed SemaphoreSlim concurrency caps (D-052). |
 
 ### 8.2 Registration and discovery
 
@@ -720,7 +743,7 @@ Crawling tells an agent what columns exist; it does not tell it what the data me
 
 #### Papertrail (`papertrail`, family `logs`)
 
-- **Library:** RestWrapper against the Papertrail HTTP API (`https://papertrailapp.com/api/v1/`, header `X-Papertrail-Token`). Endpoint shapes are verified against the current API documentation in P4.20 and recorded in `docs/CONNECTORS.md`.
+- **Library:** shared HttpClient (D-052) against the Papertrail HTTP API (`https://papertrailapp.com/api/v1/`, header `X-Papertrail-Token`). Endpoint shapes are verified against the current API documentation in P4.20 and recorded in `docs/CONNECTORS.md`.
 - **Settings:** `baseUrl` (default above), `defaultGroup`, `defaultSystem`, `maxEvents` (500), `maxTimeRangeHours` (168).
 - **Secret slot:** `apiToken`.
 - **Tools:**
@@ -734,7 +757,7 @@ Crawling tells an agent what columns exist; it does not tell it what the data me
 
 #### SolarWinds Observability (`solarwinds-observability`, family `logs`)
 
-- **Library:** RestWrapper against the SolarWinds Observability (SWO) public API (`https://api.<datacenter>.cloud.solarwinds.com/v1/`, bearer API token). Endpoint shapes (logs search, entities, metrics) are verified against current documentation in P4.24.
+- **Library:** shared HttpClient (D-052) against the SolarWinds Observability (SWO) public API (`https://api.<datacenter>.cloud.solarwinds.com/v1/`, bearer API token). Endpoint shapes (logs search, entities, metrics) are verified against current documentation in P4.24.
 - **Settings:** `dataCenter` (`na-01`, `na-02`, `eu-01`, `ap-01`, or a custom base URL), `defaultGroup`, `maxEvents` (500), `maxTimeRangeHours` (168).
 - **Secret slot:** `apiToken`.
 - **Tools:**
@@ -835,7 +858,7 @@ Papertrail and SWO share the `logs` family, so `logs_search` takes `resource` an
 
 #### Generic HTTP (`http`, family `http`)
 
-- **Library:** RestWrapper.
+- **Library:** shared HttpClient (D-052).
 - **Settings:** `baseUrl`, `defaultHeaders` (list), `authType` (`None`, `Basic`, `Bearer`, `ApiKeyHeader`, `OAuth2ClientCredentials`), `apiKeyHeaderName`, `tokenUrl`, `scopes`, `allowedMethods`, `allowedPathPrefixes`, `methodEffectOverrides` (list of `METHOD /prefix=Effect`), `timeoutSeconds`, `maxResponseBytes`, `followRedirects`, `verifyTls`.
 - **Secret slots:** `basicAuth` (Password plus username field), `bearerToken`, `apiKey`, `clientCredentials`.
 - **Tools:**
@@ -845,7 +868,7 @@ Papertrail and SWO share the `logs` family, so `logs_search` takes `resource` an
 
 #### Observability backends (`prometheus`, `loki`, `elasticsearch`, families `prom`, `loki`, `es`)
 
-- **Library:** RestWrapper.
+- **Library:** shared HttpClient (D-052).
 - **Settings:** `baseUrl`, `authType`, `tenantHeader` (Loki `X-Scope-OrgID`), `maxSeries`, `maxLines`, `maxHits`, `allowedIndexPatterns` (es).
 - **Secret slots:** as HTTP.
 - **Tools:**
@@ -1072,7 +1095,7 @@ Approval rules:
 
 ### 11.5 Guardrails beyond access modes
 
-- **Limits.** Output limits (D-029) apply to every connector, along with per-tool timeouts, per-resource concurrency caps (Padlock), per-turn tool call caps, and per-profile max iterations.
+- **Limits.** Output limits (D-029) apply to every connector, along with per-tool timeouts, per-resource keyed SemaphoreSlim concurrency caps (D-052), per-turn tool call caps, and per-profile max iterations.
 - **Target allow lists.** Path, prefix, namespace, index, method, and service allow lists apply at the resource level, enforced in the connector.
 - **Prompt-injection posture.** Tool outputs are wrapped as data in the agent loop (`<tool_output resource="..." truncated="...">`), the persona instructs the model never to follow instructions found inside tool output, and approvals show the exact action so a human catches an injected destructive call.
 - **No secrets in model context.** Secrets are never placed in prompts. Connectors receive them out of band, and the scrubber removes known secret values and common credential patterns from every output.
@@ -1149,7 +1172,7 @@ Vectors are stored in the database as binary float arrays, and similarity is bru
 
 `AgentRuntime.RunTurnAsync` is built on Pneuma `AgenticChatService`, Wilson `ToolAgentService` (approvals), and AssistantHub `AssistantToolPolicy` (limits):
 
-1. Acquire the per-conversation Padlock (one turn at a time per conversation).
+1. Acquire the keyed per-conversation SemaphoreSlim gate (D-052) (one turn at a time per conversation).
 2. Load the compiled instructions, the conversation history, knowledge context (M2), and tool definitions (with retrieval if over threshold).
 3. If the history exceeds `Agent.CompactionThresholdRatio` of the context window, compact the oldest turns into a summary message (persisted).
 4. Loop up to `max_iterations`:
@@ -1186,7 +1209,7 @@ A2A contexts and OpenAI-compatible sessions map onto conversations, so every sur
 ### 14.1 Conventions
 
 - **Base and port.** All REST routes are served on port 8800 under `/v1.0` (D-019).
-- **Bodies.** JSON is camelCase, with enums as strings through a strict enum converter (Constellation `StrictEnumConverterFactory`).
+- **Bodies.** JSON is camelCase, with enums as strings through Hugo's strict enum converter (D-053). File settings retain their historical numeric compatibility.
 - **Enumeration** takes query parameters `pageNumber` (1-based), `pageSize` (default 25, max 1000), `sort`, `order`, `search`, and resource-specific filters. The response shape is:
   ```json
   { "items": [ ... ], "pageNumber": 1, "pageSize": 25, "totalCount": 248, "totalPages": 10 }
@@ -1726,18 +1749,18 @@ Each phase lists its tasks in rough execution order. An italic *Accept:* note st
 - [x] P0.2 Create `src/Hugo.sln` with every project in section 6.2 (empty shells), `net8.0;net10.0` targets.  | claude 2026-10-14 src/Hugo.sln with Core, Server, Cli, Abstractions, 11 connector shells, Test.Shared/Automated/Xunit/Nunit; Test.Benchmark deferred to Phase 15
 - [x] P0.3 `src/Directory.Build.props`: `Nullable` enable, `ImplicitUsings` disable, `GenerateDocumentationFile`, `TreatWarningsAsErrors` for libraries, common package metadata (`IncludeSymbols`, `snupkg`, README, `assets/icon.png`, LICENSE).  | claude 2026-10-14 net8.0;net10.0, warnings as errors and XML docs on Hugo.* projects, package metadata
 - [x] P0.4 `CLAUDE.md` with the CODE_STYLE.md rules verbatim plus Hugo specifics (connector rules, no em-dashes, `127.0.0.1`, plan annotation rules).  | claude 2026-10-14 CLAUDE.md adapted from Garrison with Hugo rules
-- [~] P0.5 Version `0.1.0-alpha` in `Directory.Build.props` only, mirrored by `dashboard/package.json` and the SDK manifests. *Accept:* one place to change, and a CI check verifies the mirrors match.  | claude 2026-10-14 0.1.0-alpha in Directory.Build.props; mirror check lands with dashboard and SDK manifests
-- [ ] P0.6 Pin package versions: Watson 7.3.1, Voltaic 2.3.0, PolyPrompt 3.2.0, PrettyId 2.0.2, Radiant 0.1.3, SyslogLogging 2.4.1, Blobject 6.1.2, Padlock 1.2.1, Caching, RestWrapper, Touchstone 0.1.12, Microsoft.Data.Sqlite, Npgsql, MySqlConnector, Microsoft.Data.SqlClient, SSH.NET (latest stable at this date, recorded in the annotation).
+- [x] P0.5 Version `0.1.0-alpha` in `Directory.Build.props` only, mirrored by `dashboard/package.json` and the SDK manifests. *Accept:* one place to change, and a CI check verifies the mirrors match.  | codex 2026-10-15 nine manifest, lockfile, and Python runtime mirrors checked by scripts/check-version-mirrors.sh; explicit --sync copies the authoritative source version; independent CI job added; positive and mismatch checks pass; product version unchanged
+- [x] P0.6 Pin package versions: Watson 7.3.1, Voltaic 2.3.0, PolyPrompt 3.2.0, PrettyId 2.0.2, Radiant 0.1.3, SyslogLogging 2.4.1, Blobject 6.1.2, Padlock 1.2.1, Caching, RestWrapper, Touchstone 0.1.12, Microsoft.Data.Sqlite, Npgsql, MySqlConnector, Microsoft.Data.SqlClient, SSH.NET (latest stable at this date, recorded in the annotation).  | codex 2026-10-15 51 direct references/45 packages verified and guarded by scripts/check-package-pins.sh plus repository-checks CI; official NuGet sources in docs/PACKAGE_VERSIONS.md; SQL pins 10.0.13/10.0.3/2.6.2/7.1.1, SSH.NET 2026.0.0; D-034/D-052 govern Touchstone and unused replacements; no versions changed
 - [x] P0.7 `README.md` skeleton (what Hugo is, quick start placeholder, architecture image placeholder), `CHANGELOG.md` (`0.1.0-alpha` Unreleased).  | claude 2026-10-14 README and CHANGELOG skeletons
 - [x] P0.8 `DOCKERHUB_README.md` skeleton with explicit asset URLs.  | claude 2026-10-14 DOCKERHUB_README skeleton with raw.githubusercontent asset URLs
 - [x] P0.9 `assets/` logo and icon (placeholder art acceptable until P16).  | claude 2026-10-14 user-supplied assets/logo.png; generated assets/icon.png (512px), assets/logo.ico and assets/favicon.ico (16 to 256px, PNG-in-ICO)
 - [x] P0.10 `dashboard/` scaffold: Vite 6 + React 19 + React Router 7, ESLint flat config, Prettier, Vitest, Playwright, i18n skeleton. *Accept:* `npm run lint`, `npm test`, and `npm run build` pass.  | claude 2026-10-14 dashboard forked from Garrison: React 19, Vite 6, Router 7, ESLint flat, Vitest, Playwright, i18n; lint, build, 186 unit and 47 mocked Playwright tests pass
 - [x] P0.11 `sdk/csharp`, `sdk/python`, `sdk/js` scaffolds with READMEs and empty harnesses.  | claude 2026-10-14 sdk/csharp, sdk/python, sdk/js scaffolds with READMEs; harnesses land in Phase 9
-- [!] P0.12 GitHub Actions `build-test.yaml`: restore, build, Touchstone on SQLite, Touchstone on PostgreSQL (service container), dashboard lint, unit, and i18n check, on every push and PR.  | claude 2026-10-14 workflow has .NET (SQLite and PostgreSQL) and dashboard jobs, but GitHub does not start them: account billing or spending limit (run 38666645075). Full suites run locally until the user resolves billing
 - [x] P0.13 Em-dash guard: a CI step fails if U+2014 appears in any tracked text file.  | claude 2026-10-14 scripts/check-em-dash.sh/.bat, wired into CI
-- [ ] P0.14 Create the `docker/` layout with placeholder `compose.yaml`, `update.bat`/`.sh`, `factory/reset.bat`/`.sh`.
+- [x] P0.14 Create the `docker/` layout with placeholder `compose.yaml`, `update.bat`/`.sh`, `factory/reset.bat`/`.sh`.  | codex 2026-10-15 existing real Compose, update, and reset assets verified; base/factory Compose configs pass; shell syntax passes; Windows pairs inspected, not executed
 - [x] P0.15 Vendor the Tablix crawler and classifier sources into `Hugo.Connectors.Sql/Vendored/Tablix` with an attribution header and a `VENDORED.md` noting the source commit.  | claude 2026-10-14 Tablix 450bc76 vendored into Hugo.Connectors.Sql/Vendored/Tablix with attribution and VENDORED.md; fixed MySQL PK join, parameterized SQLite pragmas, MySQL longtext overflow
-- [ ] P0.16 Port Garrison helpers that Hugo reuses unchanged (TemplateRenderer, LabelGuard, StrictEnumConverterFactory) with attribution notes. *Accept:* each compiles in Hugo namespaces and has its original tests ported.
+- [x] P0.16 Port the actual Garrison helpers Hugo reuses unchanged (TemplateRenderer, LabelGuard) with attribution notes. *Accept:* each compiles in Hugo namespaces and has its original tests ported.  | codex 2026-10-15 D-053 splits the nonexistent Garrison strict-enum helper into P0.17; original template cases and LabelGuard case ported; .NET 8/10 build and helper-ports/template checks pass
+- [x] P0.17 Implement Hugo strict enum converters and wire Hugo API enums through them, preserving file-settings and third-party enum compatibility. *Accept:* named/nullable/invalid enum and shipped-settings tests pass; provenance identifies this as Hugo code.  | codex 2026-10-15 new task per D-053; implementation, shipped-settings compatibility, helper-ports checks, and .NET 8/10 build pass
 
 ### Phase 1: Core foundation (M1)
 
@@ -1757,13 +1780,13 @@ Data layer
 - [x] P1.11 Migration 1: identity and security tables (section 7.3) for both providers. *Accept:* migrate twice is a no-op on both.  | claude 2026-10-14 migration 1, snake_case; migrate twice is a no-op on both providers
 - [x] P1.12 `I*Methods` and implementations for tenants, admins, users, credentials, sessions (both providers).  | claude 2026-10-14 tenants, users, credentials, sessions on both providers (system admins are users with is_admin, D-039)
 - [x] P1.13 `I*Methods` and implementations for roles, permissions (with normalized type tables), maps, user role assignments, credential scope assignments (both providers).  | claude 2026-10-14 roles, permissions, maps, assignments on both providers
-- [ ] P1.14 `I*Methods` and implementations for audit records and request history, with the header child table (both providers).
+- [x] P1.14 `I*Methods` and implementations for audit records and request history, with the header child table (both providers).  | codex 2026-10-15 existing interfaces and ADO methods verified on SQLite/PostgreSQL; structured audit/history CRUD and tenant isolation pass; strengthened request/response header value, replacement, and orphan cleanup checks
 - [x] P1.15 First-boot seeder: default tenant, system admin, Thomas Anderson tenant admin, built-in roles and permissions (refresh with stable IDs). *Accept:* seeding twice changes nothing, and built-in edits are reverted on startup.  | claude 2026-10-14 idempotent seed (tenant id default, admin@hugo.local, anderson@hugo.local), built-in edits reverted at startup
 
 Identity and authentication
 - [x] P1.16 `PasswordHasher` (PBKDF2-SHA256, 600k, salted; D-009) with constant-time verify, and `must_change_password` enforcement on every route except password change and logout.  | claude 2026-10-14 PBKDF2 floor 600,000; must-change-password returns 403 PasswordChangeRequired outside token, users/me, password routes
 - [x] P1.17 `KeyGenerator` (`access_` plus 32, `secret_` plus 48) and credential secret encryption (depends on P2.2; stub with an interface first).  | claude 2026-10-14 access_+32 and secret_+48 keys encrypted with SecretCipher
-- [~] P1.18 `SessionTokenCodec` (AES-256, random IV, opaque) and the auth sessions lifecycle.  | claude 2026-10-14 Garrison token service (random-IV AES plus HMAC) keyed by Auth.SigningKey; moving to the master-key HKDF subkey remains
+- [x] P1.18 `SessionTokenCodec` (AES-256, random IV, opaque) and the auth sessions lifecycle.  | codex 2026-10-15 new AES-256-GCM tokens use master-key HKDF session subkey and issuer AAD; legacy signing-key tokens remain readable; rotation, expiry, tamper, and compatibility checks pass on SQLite/PostgreSQL
 - [x] P1.19 `AuthenticationService`: every scheme in section 15.2, conflicting schemes rejected, tenant resolution and agreement checks, `RequestContext` built and stored in `ctx.Metadata`.  | claude 2026-10-14 every scheme, conflicting schemes rejected, tenant agreement
 - [x] P1.20 `RequestSigner` and the signed-request verifier with clock skew and nonce store.  | claude 2026-10-14 signed requests with skew and nonce store
 - [x] P1.21 Token routes (`/v1.0/token` family, reauthenticate, tenant lookup).  | claude 2026-10-14 token family, reauthenticate, tenant lookup
@@ -1772,14 +1795,14 @@ Identity and authentication
 Authorization
 - [x] P1.23 `PermissionEvaluator` (deny, then permit, then implicit deny), effective-permission resolver with the owner ceiling, and the cache with an `authz_version` counter.  | claude 2026-10-14 deny-overrides, owner ceiling, grants cache
 - [x] P1.24 `RouteAuthorizationRegistry` with a startup self-check for unmapped routes. *Accept:* the unit test enumerates registered Watson routes, and any unmapped route fails the test.  | claude 2026-10-14 fail-closed registry plus test that every Watson route is mapped
-- [~] P1.25 `AuthorizationService` with bypass rules and audited bypasses. Denials persisted synchronously, and the denial body per D-020.  | claude 2026-10-14 bypasses audited for non-Read operations only (Garrison behavior); AUTHENTICATION.md asks for every bypass
+- [x] P1.25 `AuthorizationService` with bypass rules and audited bypasses. Denials persisted synchronously, and the denial body per D-020.  | codex 2026-10-15 all administrator bypasses including Read are audited with principal, target, reason, session, scheme, and source; all three bypass types verified on SQLite/PostgreSQL
 - [x] P1.26 Effective-permission inspection routes.  | claude 2026-10-14 Garrison paths plus AUTHENTICATION.md /v1.0/tenants/... paths
 
 CRUD routes
 - [x] P1.27 Tenant routes (system admin), user routes (including `me` and password), credential routes (secret shown once, rotate).  | claude 2026-10-14 tenants, users (me, password), credentials (secret once, rotate)
 - [x] P1.28 RBAC routes (roles with clone, permissions, maps, assignments), session routes.  | claude 2026-10-14 RBAC routes and session routes
 - [x] P1.29 Cascading deletes per section 7.7, each in one transaction.  | claude 2026-10-14 tenant, user, credential cascades in one transaction
-- [~] P1.30 Audit routes with filtered search, bulk delete, and summary.  | claude 2026-10-14 audit routes; /audit/summary route missing
+- [x] P1.30 Audit routes with filtered search, bulk delete, and summary.  | codex 2026-10-15 added tenant-scoped /audit/summary with SQL event counts and shared list filters; database and HTTP regression checks on SQLite and PostgreSQL; REST, Postman, and all three SDKs updated
 
 Request history and background services
 - [x] P1.31 `RequestHistoryCaptureService` (bounded channel, header redaction including `x-password`, `x-secret-key`, `x-signature`, `x-api-key`, `Authorization`, `Cookie`; body truncation; per-route capture opt-out used by reveal).  | claude 2026-10-14 redaction of auth, password, secret, signature, api key, access key headers and cookies; bodies scrubbed; reveal opt-out
@@ -1790,7 +1813,7 @@ Request history and background services
 
 Telemetry base
 - [x] P1.36 `HugoMetrics`, `HugoTracing`, `LabelGuard`, and the metric catalog doc generator (`docs/TELEMETRY.md` table generated from the catalog, checked in CI).  | claude 2026-10-14 metric catalog complete incl. agent, model, MCP, A2A families; docs/TELEMETRY.md regenerated
-- [~] P1.37 Radiant host wiring (OTLP, Prometheus scrape toggle, Loki logs), best-effort initialization.  | claude 2026-10-14 Radiant OTLP and Prometheus; Loki log export pending
+- [x] P1.37 Radiant host wiring (OTLP, Prometheus scrape toggle, Loki logs), best-effort initialization.  | codex 2026-10-15 bounded Radiant log queue and direct Loki/OTLP wiring; pinned Alloy configs validate; real Hugo to Alloy to Loki produced 11 redacted labeled records; outage/initialization checks and final two-provider regression pass
 - [x] P1.38 Watson telemetry settings on, `traceparent` propagation, and `x-request-id` on responses.  | claude 2026-10-14 Watson telemetry on, x-request-id
 - [x] P1.39 Auth and authz metrics from AUTHENTICATION.md (`hugo_auth_requests_total`, `hugo_authz_requests_total`, denials by reason).  | claude 2026-10-14 auth and authz metrics, denials by reason
 
@@ -1811,7 +1834,7 @@ Tests and runners
 - [x] P2.6 Secret routes per section 12.2, excluding reveal.  | claude 2026-10-14 routes under /v1.0/api/tenants/{tenantId}/secrets (D-039)
 - [x] P2.7 Reveal flow: `Reveal` operation, reauthenticate route, recent-reauth check, reason, audit, rate limit, request history capture opt-out. *Accept:* reveal response body absent from request history, and the audit row present.  | claude 2026-10-14 Reveal permission, reason, recent re-auth, rate limit, audit, no history capture; admin API key counts as fresh auth; credentials never reveal
 - [x] P2.8 Import parsers: SSH private key (OpenSSH and PEM, fingerprint), GCP service account JSON, kubeconfig (contexts), PEM certificate and key.  | claude 2026-10-14 OpenSSH, PKCS#1, PKCS#8, SEC1 keys with ssh-keygen-matching fingerprints, GCP JSON, kubeconfig, PEM
-- [~] P2.9 `SecretScrubber` with known-value and pattern redaction, wired into logging, history, and audit.  | claude 2026-10-14 scrubber on audit, history, server and route error logs; not every log line (SyslogLogging has no interception hook)
+- [x] P2.9 `SecretScrubber` with known-value and pattern redaction, wired into logging, history, and audit.  | codex 2026-10-15 HugoLog redacts managed console/file/syslog/trace/export sinks and private library ingress; secret-boundary registration is bounded; known-key/marker collisions and nested quoted/unquoted secret patterns covered; 64 ordered checks, 11 final focused cases, and full regression pass; direct host/plugin stdout scope documented
 - [x] P2.10 Master key rotation job (batched, resumable, progress in events) and route.  | claude 2026-10-14 batched, resumable rotation with status and rotate routes
 - [x] P2.11 Credential secrets switched from the P1.17 stub to `SecretCipher`.  | claude 2026-10-14 no stub needed
 - [x] P2.12 Secrets suites: cipher, service, routes, reveal, scrubber, rotation, tenant scoping.  | claude 2026-10-14 secrets suites pass on both providers
@@ -1848,8 +1871,8 @@ Tests and runners
 ### Phase 4: Connectors wave 1 (M1)
 
 Testbed first
-- [ ] P4.1 `docker/testbed/compose.yaml` for wave 1: two sshd containers (one as bastion), MinIO or Less3, Azurite, fake-gcs-server, MySQL 8, SQL Server 2022, PostgreSQL 16. Seed scripts for the "shop" schema and bucket fixtures, and SSH keys generated at startup into a volume. *Accept:* `docker compose -f docker/testbed/compose.yaml up -d --wait` succeeds, with every target healthy.
-- [ ] P4.2 `Test.Shared` testbed fixture (`HUGO_TESTBED=1`), resource factory helpers per connector.
+- [x] P4.1 `docker/testbed/compose.yaml` for wave 1: two sshd containers (one as bastion), MinIO or Less3, Azurite, fake-gcs-server, MySQL 8, SQL Server 2022, PostgreSQL 16. Seed scripts for the "shop" schema and bucket fixtures, and SSH keys generated at startup into a volume. *Accept:* `docker compose -f docker/testbed/compose.yaml up -d --wait` succeeds, with every target healthy.  | codex 2026-10-15 wave1-only compose --wait passes with 11 healthy targets/seeders plus SSH key initializer; supported S3 ports 28930/28931 avoid unrelated listener; SQL Server 2022 works under amd64 emulation; full stack preserved in compose.all.yaml; all created resources cleaned up
+- [x] P4.2 `Test.Shared` testbed fixture (`HUGO_TESTBED=1`), resource factory helpers per connector.  | codex 2026-10-15 existing SSH/bastion, storage, and SQL factories verified by 197 live tests without failures/skips; no C# fixture gaps; automatic SSH keys preserve private modes and rerun hashes
 
 SSH
 - [x] P4.3 `Hugo.Connectors.Ssh` descriptor, settings schema, secret slots, validation.  | claude 2026-10-14 SshConnector on SSH.NET 2026.0.0; plan 9.1 settings plus jumpHost/jumpPort/jumpUsername/jumpHostKeyFingerprint, keepAliveSeconds, destructiveCommandPatterns, maxFileWriteBytes; slots password, privateKey, jumpPassword, jumpPrivateKey
@@ -1887,7 +1910,7 @@ SolarWinds Observability
 - [x] P4.27 Shared `logs` family routing (one `logs_search` tool across providers, with `providerOptions`).  | claude 2026-10-14 logs_search and logs_tail share one schema plus providerOptions; providers reject unsupported options. Registry-level parity check is a P3.3 follow-up
 
 Wrap-up
-- [ ] P4.28 Health sweep background job: periodic `TestConnectionAsync` per active resource (configurable, off by default for expensive connectors), `hugo_resource_health` gauge.
+- [x] P4.28 Health sweep background job: periodic `TestConnectionAsync` per active resource (configurable, off by default for expensive connectors), `hugo_resource_health` gauge.  | codex 2026-10-15 periodic tenant-scoped sweeps and aggregate hugo_resource_health gauge; 300-second/http,redis defaults with explicit opt-in for other types; timeout/cancellation, retained leases/no overlap, SSH trust, active filtering, invalidation, and actual gauge emissions verified on both providers
 - [x] P4.29 `docs/CONNECTORS.md` sections for every wave 1 connector (settings, slots, tools, effects, least-privilege setup guidance for the upstream credential).  | claude 2026-10-14 docs/CONNECTORS.md (18 connector types, generated from descriptors), docs/MCP_CONNECTOR_TOOLS.md (111 tools with schemas and examples)
 Database intelligence (D-038)
 - [x] P4.31 Port Tablix `SchemaProjection` and `DatabaseIntelligenceBuilder` into `Hugo.Connectors.Sql/Intelligence` (attribution in `VENDORED.md`); full crawl cache with refresh.  | claude 2026-10-14 Intelligence/ port of DatabaseIntelligenceBuilder and SchemaProjection (Tablix 450bc76, VENDORED.md); one shared crawl cache, refresh:true recrawls
@@ -1897,7 +1920,7 @@ Database intelligence (D-038)
 - [x] P4.35 `sql_ask`: ambiguity detection with clarification, NL2SQL planning from context and intelligence, Read-only validation of generated SQL, guarded execution, verification envelope.  | claude 2026-10-14 sql_ask: ambiguity check (fixed Tablix status-term bug), relevant-table selection, single Read statement required, one retry, verification envelope (Verified, Partial, Blocked, Ambiguous)
 - [x] P4.36 Default SQL instructions rewritten around the intelligence workflow (agent pack first, then context, relationships, and queries; record discoveries with `sql_update_context`).  | claude 2026-10-14 four instruction files rewritten around agent pack, context, relationships, sql_ask, recording discoveries
 - [x] P4.37 Suites: intelligence and inferred relationships on the shop schema (all four engines in the testbed), context round trip through the knowledge store, generation and NL2SQL with the stub LLM, ambiguity cases, verification statuses.  | claude 2026-10-14 connectors.sql 329/329; testbed.sql 91/91 incl. 30 intelligence cases on PostgreSQL, MySQL, SQL Server; legacy_accounts/legacy_invoices seed proves name-based inference
-- [ ] P4.30 CI starts the wave 1 testbed and runs the testbed suites on SQLite and PostgreSQL.
+- [x] P4.30 CI starts the wave 1 testbed and runs the testbed suites on SQLite and PostgreSQL.  | codex 2026-10-15 dedicated wave1-testbed.yaml push/PR/manual matrix with provider DB, required-suite coverage guard, artifacts and always-cleanup; exact CI selection passes locally 963/963 across both providers; hosted execution unverified; external scheduling is no longer a plan task (D-055)
 
 ### Phase 5: Agent profiles, bindings, prompt templates, instruction composition (M1)
 
@@ -1914,7 +1937,7 @@ Database intelligence (D-038)
 - [x] P5.11 `InstructionCompiler` with source map, token estimate, and cache invalidation on every relevant change.  | claude 2026-10-14 InstructionCompiler with source map, token estimate, cache invalidation; connector headings shifted under resource headings
 - [x] P5.12 Compiled instruction and caller tool-view routes (`compiled-instructions`, `tools`).  | claude 2026-10-14 compiled-instructions and tools routes
 - [x] P5.13 Profile resolution service (D-018) used by every surface, with credential `lock_to_profile`.  | claude 2026-10-14 ProfileResolver (D-018)
-- [~] P5.14 Write `persona.agent-smith` (Appendix A), `persona.neutral`, `system.safety`, `system.tool-usage`, the preambles, `section.resource`, and the A2A skill text.  | claude 2026-10-14 templates wired; section.resource extended for knowledge and destructive-only approvals
+- [x] P5.14 Write `persona.agent-smith` (Appendix A), `persona.neutral`, `system.safety`, `system.tool-usage`, the preambles, `section.resource`, and the A2A skill text.  | codex 2026-10-15 all required built-in texts verified without unnecessary rewrites; three render acceptance cases cover personas, safety/tool usage, surface preambles/A2A skills, resource approval modes, notes, and knowledge
 - [x] P5.15 Review every wave 1 connector's default instructions against the compiled output for the joel scenario. *Accept:* snapshot committed and reviewed by the user.  | claude 2026-10-14 user reviewed 2026-10-14 and asked for shorter connector text: compact connector.<type>.compact templates, profile instructionDetail Auto/Full/Compact (migration 8), Auto compact above Instructions.CompactBindingThreshold=3; eight-binding golden now about 10 KB (was 50 KB) (D-043)
 - [x] P5.16 Tool visibility filter (section 11.3) shared by MCP, chat, and the tools route.  | claude 2026-10-14 tool visibility filter
 - [x] P5.17 Suites: layer resolution, reset at each layer, versions, append and replace, compiled snapshot, visibility, profile resolution order.  | claude 2026-10-14 configuration suites
@@ -1946,7 +1969,7 @@ Database intelligence (D-038)
 - [x] P6.19 Agent metrics and spans (stages per section 21).  | claude 2026-10-14 AgentTelemetry on meter and source Hugo with section 21 names; folds into HugoMetrics when the foundation lands
 - [x] P6.20 Per-conversation Padlock and the concurrent turn rejection (409) path.  | claude 2026-10-14 keyed SemaphoreSlim lock (not Padlock); AgentTurnConflictException maps to 409
 - [x] P6.21 Agent suites with the stub LLM: multi-tool turn, approval approve and reject mid-turn, max iterations, compaction, cancellation, fallback endpoint, tool retrieval.  | claude 2026-10-14 agent.units 11, agent.inference 9, agent.runtime 16, passing on net8.0 and net10.0
-- [~] P6.22 A live smoke script (`scripts/smoke-chat.sh`) against a real local Ollama, documented, not in CI.  | claude 2026-10-14 scripts/smoke-chat.sh written; run against the stub LLM only (no local Ollama available)
+- [x] P6.22 A live smoke script (`scripts/smoke-chat.sh`) against a real Ollama service, documented, not in CI.  | codex 2026-10-16 real qwen3.8:27b inference: dashboard SSE persona, A2A completed task, OpenAI-compatible nonempty completion and model listing pass in 41.03s; bounded script assertions and cleanup verified; user-testing/P6.22_REAL_OLLAMA_SMOKE_2026-10-16.md
 - [x] P6.23 `ask_agent_smith` service entry point shared by MCP and REST.  | claude 2026-10-14 IAgentDelegationService implementation, POST /v1.0/api/agent-profiles/{id}/ask, ask_agent_smith on MCP
 - [x] P6.24 Conversation visibility rules and suites (own vs tenant admin).  | claude 2026-10-14 users see their own conversations, tenant admins all; owners may delete their own
 
@@ -1977,7 +2000,7 @@ OpenAI-compatible and CLI
 - [x] P7.18 `/v1.0/openai/v1/chat/completions` (stream and non-stream) and `/models`.  | claude 2026-10-14 /v1.0/openai/v1/chat/completions (stream and non-stream) and /models; client tools rejected; continuity via user or x-hugo-conversation
 - [x] P7.19 OpenAI-compatible suites (official OpenAI client shape compatibility via raw JSON fixtures).  | claude 2026-10-14 OpenAI suites from raw JSON fixtures
 - [x] P7.20 `Hugo.Cli` `hugo mcp stdio` relay, `login`, `whoami`, `profiles list`. Packaged as a .NET tool.  | claude 2026-10-14 hugo CLI: mcp stdio relay (renew on 401, new session on 404, Last-Event-ID resume), login (0600 credentials file), logout, whoami, profiles list; packs as Hugo.Cli tool
-- [ ] P7.21 CLI suite: stdio relay round trip with a real MCP client over stdio.
+- [x] P7.21 CLI suite: stdio relay round trip with a real MCP client over stdio.  | codex 2026-10-15 Voltaic MCP client launches actual Hugo CLI subprocess against isolated real Hugo servers on SQLite/PostgreSQL; initialize, tools/list, echo call, ReadOnly denial, and ping pass
 - [x] P7.22 Protocol telemetry (MCP and A2A metrics and spans).  | claude 2026-10-14 hugo_mcp_requests_total and hugo_a2a_requests_total with spans; agent and model families in the catalog; hugo_authz_requests_total now recorded
 
 ### Phase 8: Dashboard (M1)
@@ -2024,7 +2047,7 @@ Pages
 - [x] P8.35 Prompt Templates page.  | claude 2026-10-14 Prompt Templates as a key list with active-layer and customized filters, each opening the layered editor
 - [x] P8.36 Tool Invocations page with detail modal and Tempo trace link.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
 - [x] P8.37 Request History page and Request Details modal per FRONTEND_ARCHITECTURE.md.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
-- [~] P8.38 Analytics page (tokens, tools, models, approvals).  | claude 2026-10-14 analytics panels from tool invocation and approval routes; switch to the /v1.0/api/analytics routes merged with Phase 6
+- [x] P8.38 Analytics page (tokens, tools, models, approvals).  | codex 2026-10-15 verified overview/tokens/tools/models analytics integration with approval counts and series; dashboard lint, production build, and 256 mocked tests pass
 - [x] P8.39 Audit page.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
 - [x] P8.40 API Explorer (OpenAPI-driven, SSE streaming with Stop, snippets curl, fetch, C#, history of 12, destructive confirm).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
 - [x] P8.41 MCP Explorer.  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
@@ -2039,8 +2062,10 @@ Quality
 - [x] P8.48 i18n completion: every string in catalogs, 12 locales registered, `i18n:check` clean, pseudo-locale smoke tests in CI.  | claude 2026-10-14 all strings cataloged; non-English machine-seeded, review notes in dashboard/I18N.md
 - [x] P8.49 Vitest suites (api client, formatters, persistence, table behaviors, schema form, prompt editor).  | claude 2026-10-14 built in the dashboard foundation (Garrison fork plus Hugo pages); backend contract in dashboard/README.md
 - [x] P8.50 Playwright flows (login, wizard, secret, resource with test, binding, chat with stub LLM, approval, request history, explorer).  | claude 2026-10-14 live journey spec passes against a fresh server: password change, wizard, secret, SQLite resource, binding, instructions, dry run, invoke, approval, knowledge, history, audit
-- [~] P8.51 Visual QA: screenshots at 1280, 768, and 390 in light and dark for the shell, Home, Chat, Profile detail, Resources, Request History, the details modal, API Explorer, and Settings. *Accept:* artifacts in CI, and a summary of issues found and fixed in the annotation.  | claude 2026-10-14 visual screenshots generated in test-results/visual; CI artifact upload pending
+- [x] P8.51 Visual QA: screenshots at 1280, 768, and 390 in light and dark for the shell, Home, Chat, Profile detail, Resources, Request History, the details modal, API Explorer, and Settings. *Accept:* artifacts in CI, and a summary of issues found and fixed in the annotation.  | codex 2026-10-15 60 mocked browser tests pass; 56 PNGs in dashboard/test-results/visual include nine required views at all widths/themes; reviewed contact sheets, fixed modal loading-state captures; CI always uploads dashboard-visual
 - [x] P8.53 Resource Knowledge tab: database and table context editor (Markdown, version history, source badges), Generate Context with progress, intelligence view (entities, metrics, filters, freshness, quality gaps), relationship list and graph (declared vs inferred, with confidence).  | claude 2026-10-14 resource page /dashboard/resources/:id with Overview, Try a Tool, Knowledge (context editor with source badges and versions, Generate Context, intelligence, relationships list and SVG graph)
+- [x] P8.54 Correct chat token totals when persisted conversation counters and loaded message usage overlap. *Accept:* loaded/paginated history retains server totals, streamed turns add usage once, and reloading does not double totals. | codex 2026-10-16 new finding from real-model P12.6 journey; stored baseline plus live-only usage fixes duplication; 257 dashboard tests, lint/build pass; reloaded browser totals 136452/1642 match persisted/SSE sums, before/after captures recorded
+- [x] P8.55 Fix dashboard binding creation and immutable resource editing. *Accept:* first existing resource can be explicitly selected and bound without changing away/back; unselected required dropdowns show an empty choice; binding edits lock the resource and omit resourceId from PUT, including resources absent from the options list. | codex 2026-10-16 reported dashboard defect; three full-form regressions, all 260 dashboard tests, lint and build pass; dashboard v0.1.0/latest rebuilt and pushed for amd64/arm64; matching index sha256:e4dac99585bf7903ea93dddcc1e5db6aae4dcb2c4d443c1c88ff3be5245f5e11 verified
 - [x] P8.52 Accessibility and responsive pass (landmarks, labels, focus, reduced motion, tap targets, no body horizontal scroll), and the dashboard Docker image (nginx, proxy, SSE buffering off, `/health`).  | claude 2026-10-14 accessibility checks, responsive pass, nginx image proxying /v1.0, /mcp, /openapi.json with buffering off
 
 ### Phase 9: SDKs (M1)
@@ -2057,23 +2082,22 @@ Quality
 - [x] P9.10 JS/TS SDK resources.  | claude 2026-10-14 done in C#, Python, and JS/TS; verified against the live server (C# 56, Python 65, JS 55 passed; conversations skip until Phase 7 chat lands)
 - [x] P9.11 JS/TS SDK streaming, tool invoke, approvals.  | claude 2026-10-14 done in C#, Python, and JS/TS; verified against the live server (C# 56, Python 65, JS 55 passed; conversations skip until Phase 7 chat lands)
 - [x] P9.12 JS/TS test harness (Vitest) and README.  | claude 2026-10-14 done in C#, Python, and JS/TS; verified against the live server (C# 56, Python 65, JS 55 passed; conversations skip until Phase 7 chat lands)
-- [~] P9.13 CI job running all three harnesses against a server started in the job.  | claude 2026-10-14 sdks job added to build-test.yaml (starts the server, runs sdk/scripts/run-harnesses.sh); blocked with the rest of CI on GitHub billing
 - [x] P9.14 SDK examples in `sdk/*/examples` mirroring the README quick start.  | claude 2026-10-14 quick start examples in all three SDKs run end to end
 - [x] P9.15 Contract check: an SDK coverage script compares SDK methods against `/openapi.json` operations and fails on gaps.  | claude 2026-10-14 sdk/scripts/check_coverage.py: 181 operations covered, 21 excluded by design
 
 ### Phase 10: Docker, testbed, and observability stack (M1)
 
 - [x] P10.1 `Hugo.Server` Dockerfile (multi-stage, `mcr.microsoft.com/dotnet/aspnet` runtime, `curl` installed, non-root user, `/app/data` and `/app/config` volumes).  | claude 2026-10-14 src/Hugo.Server/Dockerfile: sdk 10.0 build, runtime 10.0, curl, non-root uid 10001, /app/data, /app/config, /app/plugins
-- [ ] P10.2 Dashboard Dockerfile and `nginx.conf` (P8.52 output) wired into compose.
+- [x] P10.2 Dashboard Dockerfile and `nginx.conf` (P8.52 output) wired into compose.  | codex 2026-10-15 existing dashboard Dockerfile/nginx/entrypoint and Compose build/upstream/port/health/dependency wiring verified; image namespace build comment corrected
 - [x] P10.3 `docker/compose.yaml` with the section 17.1 services, pinned images, healthchecks, `depends_on` conditions, volumes, and the `postgres` profile.  | claude 2026-10-14 compose up verified 2026-10-14: server, Prometheus, Tempo, Loki, Alloy, Grafana all healthy; Prometheus scrapes hugo-server (191 hugo_ series); token issued for anderson@hugo.local. Dashboard service joins when its branch merges
 - [x] P10.4 `docker/hugo/hugo.json` default settings (SQLite) and a `hugo.postgres.json` variant.  | claude 2026-10-14 docker/hugo/hugo.json mounted as /app/config (0.0.0.0, /app/data paths, OTLP to Alloy); PostgreSQL via HUGO_DB_TYPE and the postgres profile
-- [~] P10.5 `.env.example`, plus `docker/start.sh`/`.bat` generating missing keys into `.env`.  | claude 2026-10-14 docker/.env.example and start.sh/.bat generating HUGO_MASTER_KEY and HUGO_AUTH_SIGNING_KEY; compose falls back to labeled development keys
+- [x] P10.5 `.env.example`, plus `docker/start.sh`/`.bat` generating missing keys into `.env`.  | codex 2026-10-15 fixed missing-final-newline and blank/quoted-whitespace .env key generation, preserved populated/last-wins keys and safe reruns; eight isolated shell scenarios pass; batch inspected but local PowerShell runtime crashes even on trivial commands; documented development fallbacks retained
 - [x] P10.6 `docker/update.bat` and `update.sh` per REPOSITORY_REQUIREMENTS.md.  | claude 2026-10-14 docker/update.sh and update.bat: pull, down, up -d, ps -a (non-destructive)
 - [x] P10.7 `docker/factory/compose.yaml`, seeded data, `reset.bat` and `reset.sh`.  | claude 2026-10-14 docker/factory: compose.yaml (project hugo-factory, ports 8810/8811/3010/9091/3110/3210, testbed targets, ssh-keys and seed one-shots), reset.sh/.bat for the factory stack; docker/reset.sh/.bat resets the plain stack
 - [x] P10.8 Factory demo content: demo resources pointing at the testbed, a profile with eight bindings (the joel scenario), and a demo credential.  | claude 2026-10-14 seed.py through the REST API: demo password, six secrets, eight resources bound to Hugo with mixed access modes, optional Ollama endpoint, demo credential locked to Hugo, idempotent; verified with published v0.1.0 images incl. MCP initialize, tools/list (61), dry run, invoke, approval 202; docs/FACTORY.md
 - [x] P10.9 Prometheus config scraping `hugo-server:8800/metrics` on the internal network.  | claude 2026-10-14 Prometheus target hugo-server up
-- [~] P10.10 Tempo config (OTLP gRPC and HTTP), pinned to 2.6.1.  | claude 2026-10-14 docker/observability/tempo.yaml from Garrison; Alloy OTLP receiver forwards to Tempo
-- [~] P10.11 Loki config and Radiant log export.  | claude 2026-10-14 docker/observability/loki.yaml and Alloy container log shipping
+- [x] P10.10 Tempo config (OTLP gRPC and HTTP), pinned to 2.6.1.  | codex 2026-10-15 existing grafana/tempo:2.6.1 pin and gRPC/HTTP OTLP listeners verified by the actual pinned binary with -config.verify=true in a network-isolated disposable container
+- [x] P10.11 Loki config and Radiant log export.  | codex 2026-10-15 production/factory/Kubernetes Alloy native OTLP branch and fallback container/pod collection configured; pinned Alloy validation, Kubernetes renders, live labeled/redacted Loki ingestion, and final regression pass
 - [x] P10.12 Grafana provisioning (datasources with UIDs `prometheus`, `tempo`, `loki`; dashboards provider folder `Hugo`).  | claude 2026-10-14 Grafana healthy with provisioned datasources; Hugo dashboards land with P10.13 onward
 - [x] P10.13 Grafana dashboard: Overview.  | claude 2026-10-14 hugo-overview
 - [x] P10.14 Grafana dashboard: HTTP.  | claude 2026-10-14 hugo-http
@@ -2081,9 +2105,9 @@ Quality
 - [x] P10.16 Grafana dashboard: Tools and Connectors.  | claude 2026-10-14 hugo-tools
 - [x] P10.17 Grafana dashboard: Models.  | claude 2026-10-14 hugo-models
 - [x] P10.18 Grafana dashboards: MCP and A2A, Security.  | claude 2026-10-14 hugo-protocols and hugo-security, plus hugo-database, hugo-integrations, hugo-control-plane, hugo-logs; docs/GRAFANA.md
-- [~] P10.19 Dashboard JSON mirrored into `assets/grafana/` and `docker/factory/`, with a CI check that they match.  | claude 2026-10-14 factory Grafana mirror in docker/factory/grafana, check-grafana-mirror.sh passes; CI wiring pending
+- [x] P10.19 Dashboard JSON mirrored into `assets/grafana/` and `docker/factory/`, with a CI check that they match.  | codex 2026-10-15 11 dashboards and required factory mirror verified; scripts/check-grafana-mirror.sh now rejects absent factory mirror; independent CI job runs guard; mismatch negative checks pass
 - [x] P10.20 Telemetry verifier script (`scripts/verify-telemetry.sh`): every catalog metric appears in Prometheus after a scripted workload.  | claude 2026-10-14 scripts/verify-telemetry.sh/.bat: PASS on a fresh stack (21 required families); hugo_authz_requests_total has no call site (gap)
-- [ ] P10.21 `compose.docker-socket.yaml` override for the Docker connector, documented.
+- [x] P10.21 `compose.docker-socket.yaml` override for the Docker connector, documented.  | codex 2026-10-15 opt-in compose.docker-socket.yaml with non-root socket GID and docs/DOCKER.md instructions; merged Compose checks retain data mount and reject missing GID; no socket mounted
 - [x] P10.22 Multi-arch image build scripts (`build-server`, `build-dashboard`, `build-all`, `.sh` and `.bat`).  | claude 2026-10-14 build-server, build-dashboard, build-all (.sh and .bat) at the repository root: Docker Build Cloud, linux/amd64 and linux/arm64, tags <tag> and latest, push then pull back (Garrison pattern); compose.yaml references jchristn77/hugo-server:v0.1.0 and jchristn77/hugo-dashboard:v0.1.0
 - [x] P10.23 Image publication to Docker Hub (`jchristn/hugo-server`, `jchristn/hugo-dashboard`) when the user approves.  | claude 2026-10-14 v0.1.0 and latest republished from 16b4d99 (D-048, D-049, D-050, docs): hugo-server sha256:ea659d78..., hugo-dashboard sha256:074d8113..., linux/amd64 and linux/arm64
 - [x] P10.24 `docs/DOCKER.md` (networking to targets, volumes, keys, Postgres profile, upgrade, factory reset).  | claude 2026-10-14 docs/DOCKER.md: services, first start and keys, configuration, PostgreSQL, reaching your own systems, Docker socket override, data and backups, update and reset, health
@@ -2114,22 +2138,22 @@ Quality
 - [x] P12.1 Full Touchstone run on SQLite and PostgreSQL, all suites including the testbed. *Accept:* zero failures, counts in the annotation.  | claude 2026-10-14 Touchstone SQLite and PostgreSQL with testbed 2295/2295; Xunit 2189, Nunit 1880; 0 warnings
 - [x] P12.2 Dashboard unit, Playwright, i18n, and visual QA suites green.  | claude 2026-10-14 lint clean, 217 unit, 60 Playwright (i18n, a11y, visual), i18n check, live page sweep
 - [x] P12.3 SDK harnesses green.  | claude 2026-10-14 C# 63, Python 83, JS 74 pass against a fresh server with default settings; Newman 338 requests 0 failures
-- [~] P12.4 Newman run of the full Postman collection against the factory stack, zero failures.  | claude 2026-10-14 Newman 338 requests 0 failures against a fresh server; factory-stack run remains
+- [x] P12.4 Newman run of the full Postman collection against the factory stack, zero failures.  | codex 2026-10-15 actual isolated factory stack from final checkout: 342 items traversed, 325 HTTP requests, 408 assertions, zero failures; 14 model requests and five intentional stream/restart requests skipped; seed exited zero, full cleanup verified; docs/FACTORY.md records evidence
 - [x] P12.5 Clean-machine Docker quick start following the README literally (Docker is the only documented deployment until Phase 17 adds Kubernetes and minikube). *Accept:* time to first chat recorded, and every doc deviation fixed.  | claude 2026-10-14 start.sh on a copy of docker/ with published v0.1.0 images, healthy in 33s, advisory password prompt
-- [~] P12.6 Primary journey (section 3.6) replayed end to end with a real model endpoint and the testbed. *Accept:* screenshots and transcript in the annotation.  | claude 2026-10-14 journey passed with a scripted stub model (ReadOnly deny, scrub, approval approve/reject); real-model run remains
-- [~] P12.7 Claude Code over MCP with the joel scenario (eight bindings), confirming compiled instructions and the tool list.  | claude 2026-10-14 raw MCP client and hugo mcp stdio relay: per-caller tools/list, tool calls on surface Mcp; real Claude Code run remains
+- [x] P12.6 Primary journey (section 3.6) replayed end to end with a real model endpoint and the testbed. *Accept:* screenshots and transcript in the annotation.  | codex 2026-10-16 real qwen3.8:27b four-resource journey passes: locking SQL denied, read investigation succeeds, approved nginx PID changes 123 to 1453, rejected restart stays 1453; transcript, 17 screenshots, MCP credential and persistence evidence in user-testing/2026-10-16-real-model-primary-journey.md; token defect fixed under P8.54; model gate-wording discrepancy recorded as quality finding; isolated fixtures cleaned
+- [x] P12.7 A real local Claude Code, Codex, or mux client over MCP with the joel scenario (eight bindings), confirming compiled instructions and the tool list, using the supplied Ollama service (user clarification 2026-10-16).  | codex 2026-10-16 actual local mux 1.5.0 with qwen3.8:27b completes four model-selected calls through Hugo stdio MCP; golden instructions match 10206 chars, 44 filtered tools, real SQLite paid=2/pending=1; Codex run partial and documented separately; sanitized transcript and cleanup in user-testing/P12.7_LOCAL_MCP_2026-10-16.md
 - [x] P12.8 A2A interop: one external A2A client (Voltaic sample client or another agent framework) completes a task, including an approval.  | claude 2026-10-14 raw JSON-RPC client: agent card, SendMessage, GetTask, input-required approval, 401 and cross-tenant 404
 - [x] P12.9 Security checks: cross-tenant attempts on every entity, reveal without re-auth, approval self-decision rules, lockdown, secret scrubbing in every sink.  | claude 2026-10-14 15 entity kinds cross-tenant 404, reveal re-auth, lockdown, planted secrets absent from audit, logs, Loki, history
 - [x] P12.10 Telemetry verifier passes, and every Grafana dashboard renders with data.  | claude 2026-10-14 verify-telemetry passes after metric name fix; 10 of 11 dashboards with data, Tempo trace, Loki logs
 - [x] P12.11 Restart and persistence: `docker compose down` and `up` without `-v` keeps everything. The settings restart endpoint works. `update.bat` works. Factory reset works.  | claude 2026-10-14 data and secrets survive restart and update.sh; wrong master key refuses start
 - [x] P12.12 Degraded dependencies: stop the PostgreSQL target, the model endpoint, and Tempo in turn. Hugo stays up, health reports accurately, and recovery happens without restart.  | claude 2026-10-14 PostgreSQL target, model, Tempo, Hugo database stopped in turn: clean errors, 503 degraded, recovery without restart
-- [~] P12.13 Focused simulated user testing session (SIMULATED_USER_TESTING.md) on the M1 build, with the report in `user-testing/` and findings triaged with the user.  | claude 2026-10-14 short scripted Playwright walkthrough passed after the chat fix; full SIMULATED_USER_TESTING session remains
-- [ ] P12.14 M1 sign-off by the user, recorded in the Decision Log.
+- [-] P12.13 Focused simulated user testing session (SIMULATED_USER_TESTING.md) on the M1 build, with the report in `user-testing/` and findings triaged with the user. | user 2026-10-16 waived for this build; not claimed as executed (D-056)
+- [-] P12.14 M1 sign-off by the user, recorded in the Decision Log. | user 2026-10-16 waived this formal step and requested build-all v0.1.0; not recorded as formal sign-off (D-056)
 
 ### Phase 13: Connectors wave 2 (M2)
 
 Testbed
-- [x] P13.1 Testbed additions: Redis 7, LocalStack, k3s, Docker-in-Docker, OpenSearch, plus seed data. Nightly CI workflow for wave 2.  | claude 2026-10-15 testbeds for redis, observability, aws, kubernetes, docker; MCP and A2A targets are the in-process Voltaic servers (README); .github/workflows/nightly-wave2.yaml (06:30 UTC and manual) runs the wave 2 testbed and connector suites; not yet run on GitHub (P0.12 billing)
+- [x] P13.1 Testbed additions: Redis 7, LocalStack, k3s, Docker-in-Docker, OpenSearch, plus seed data. Nightly CI workflow for wave 2.  | claude 2026-10-15 testbeds for redis, observability, aws, kubernetes, docker; MCP and A2A targets are the in-process Voltaic servers (README); .github/workflows/nightly-wave2.yaml (06:30 UTC and manual) runs the wave 2 testbed and connector suites; hosted execution unverified; external scheduling is no longer a plan task (D-055)
 
 Redis
 - [x] P13.2 `redis` descriptor, settings, slot, connection (standalone, sentinel, cluster, TLS).  | claude 2026-10-14 RedisConnector on StackExchange.Redis 3.4.5 (RESP2 pinned): standalone, Sentinel, Cluster, TLS; one pooled multiplexer per resource
@@ -2235,7 +2259,7 @@ Wrap-up
 - [x] P17.13 Live verification on minikube: deploy from a clean profile, smoke test passes, the primary journey works through the dashboard, Grafana shows data, update keeps data, factory reset clears it. *Accept:* transcript and screenshots in the annotation.  | claude 2026-10-14 minikube hugo-verify profile with published v0.1.0 images: smoke 10/10, Grafana data, ingress, update keeps data, reset clears, teardown
 - [x] P17.14 Live verification on k3s (k3s in Docker is acceptable): the same checks with the k3s overlay, with and without the postgres and observability components.  | claude 2026-10-14 k3s v1.35.5 via k3d: SQLite smoke 8/8 with Traefik ingress and SSE; PostgreSQL plus observability 10/10 with network policies; Helm install smoke 8/8
 - [x] P17.15 `docs/KUBERNETES.md` and `minikube/README.md`, plus `k8s/README.md`: choosing a runtime, secrets first, deploy, reach, update, reset, back up (PVC plus the Secret together), and the single-replica limit.  | claude 2026-10-14 docs/KUBERNETES.md, k8s/README.md, minikube/README.md
-- [~] P17.16 README, DOCKERHUB_README, and the simulated user testing inventory list all three deployment paths; CI renders the manifests and Helm chart on every push.  | claude 2026-10-14 README pointer and stale wording fixed; .github/workflows/k8s.yaml renders, validates (kubeconform), and compares; DOCKERHUB_README and simulated user testing inventory pending
+- [x] P17.16 README, DOCKERHUB_README, and the simulated user testing inventory list all three deployment paths; CI renders the manifests and Helm chart on every push.  | codex 2026-10-15 DOCKERHUB_README and user-testing/DEPLOYMENT_INVENTORY.md cover all three paths; existing push/PR CI verified locally with 576 resources, 20 rendered files, and 10 matching Helm/Kustomize shapes
 
 ### Phase 16: Hardening, simulated user testing, and 1.0 (M4)
 

@@ -82,7 +82,7 @@ namespace Hugo.Server.Routes
         private readonly AuthorizationService _Authorization;
         private readonly DatabaseDriverBase _Database;
         private readonly OperationScopeMap _Scopes;
-        private readonly LoggingModule _Logging;
+        private readonly HugoLog _Logging;
         private readonly string _Header = "[Routes] ";
         private Func<int> _DatabaseRetryAfterSeconds = () => 2;
         private readonly ConcurrentDictionary<string, byte> _UndeclaredStatuses = new ConcurrentDictionary<string, byte>(StringComparer.Ordinal);
@@ -100,7 +100,7 @@ namespace Hugo.Server.Routes
         /// <param name="scopes">Operation scope map.</param>
         /// <param name="logging">Logging.</param>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is null.</exception>
-        public RouteRegistrar(Webserver server, AuthorizationService authorization, DatabaseDriverBase database, OperationScopeMap scopes, LoggingModule logging)
+        public RouteRegistrar(Webserver server, AuthorizationService authorization, DatabaseDriverBase database, OperationScopeMap scopes, HugoLog logging)
         {
             _Server = server ?? throw new ArgumentNullException(nameof(server));
             _Authorization = authorization ?? throw new ArgumentNullException(nameof(authorization));

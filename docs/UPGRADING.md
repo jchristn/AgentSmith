@@ -80,12 +80,12 @@ Rotation is a separate operation from upgrading, and Hugo never does it on its o
    ```
 
    It re-encrypts secret values and credential secret keys in batches of `Secrets.RotationBatchSize` (200) and returns its progress. Poll `GET /v1.0/api/system/master-key` until `remaining` is 0 and `running` is false. If it stops part way (a restart, a database hiccup), run it again; it only touches rows still on the old version.
-5. Remove `HUGO_MASTER_KEY_PREVIOUS` (and `HUGO_MASTER_KEY_PREVIOUS_VERSION`) and restart. Keep `HUGO_MASTER_KEY_VERSION` at its new value from now on.
+5. Once sessions issued under the previous key have expired, remove `HUGO_MASTER_KEY_PREVIOUS` (and `HUGO_MASTER_KEY_PREVIOUS_VERSION`) and restart. Removing it sooner signs out those sessions. Keep `HUGO_MASTER_KEY_VERSION` at its new value from now on.
 6. Take a fresh backup, because the old `.env` no longer matches the database.
 
 Rotation is audited as `MasterKeyRotated`. If the server refuses to start during any of this, the message tells you which key or version it could not match; [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md#the-server-will-not-start) walks through each one.
 
-The session signing key (`HUGO_AUTH_SIGNING_KEY`) has no rotation procedure because nothing durable depends on it. Changing it signs everyone out, and that is all.
+New session tokens use the versioned master key with the `hugo-sessions-v1` HKDF subkey. Keep the previous master key configured until its outstanding sessions expire; removing it signs out those sessions. After upgrading, keep `HUGO_AUTH_SIGNING_KEY` unchanged to preserve pre-upgrade CBC/HMAC tokens until expiry. Changing that legacy validation key invalidates only pre-upgrade tokens.
 
 ## After the upgrade
 

@@ -75,7 +75,7 @@ namespace Hugo.Server.Services
         private readonly ModelEndpointService _Models;
         private readonly ToolInvocationRecorder _Recorder;
         private readonly HugoSettings _Settings;
-        private readonly LoggingModule _Logging;
+        private readonly HugoLog _Logging;
         private readonly EventHub? _Events;
         private readonly ConcurrentDictionary<string, string> _PendingArguments = new ConcurrentDictionary<string, string>(StringComparer.Ordinal);
         private readonly ConcurrentDictionary<string, ToolInvocationOutcome> _Completed = new ConcurrentDictionary<string, ToolInvocationOutcome>(StringComparer.Ordinal);
@@ -100,7 +100,7 @@ namespace Hugo.Server.Services
         /// <param name="logging">Logging.</param>
         /// <param name="events">Event hub, or null.</param>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is null.</exception>
-        public ToolInvocationService(DatabaseDriverBase database, ConnectorRegistry registry, AuthorizationService authorization, ConnectorContextBuilder contexts, ConnectorSessionPool pool, ApprovalService approvals, ModelEndpointService models, ToolInvocationRecorder recorder, HugoSettings settings, LoggingModule logging, EventHub? events)
+        public ToolInvocationService(DatabaseDriverBase database, ConnectorRegistry registry, AuthorizationService authorization, ConnectorContextBuilder contexts, ConnectorSessionPool pool, ApprovalService approvals, ModelEndpointService models, ToolInvocationRecorder recorder, HugoSettings settings, HugoLog logging, EventHub? events)
         {
             _Database = database ?? throw new ArgumentNullException(nameof(database));
             _Registry = registry ?? throw new ArgumentNullException(nameof(registry));

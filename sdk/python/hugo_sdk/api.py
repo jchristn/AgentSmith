@@ -247,6 +247,13 @@ class AuditApi(_Api):
         return self._run(Call("GET", self._tp("/audit"), _audit_params(event_type, principal_id, result, from_utc, to_utc, page_number, page_size),
                               parse=_paged(m.AuditRecord)))
 
+    def summary(self, event_type: Optional[str] = None, principal_id: Optional[str] = None, result: Optional[str] = None,
+                from_utc: Optional[datetime] = None, to_utc: Optional[datetime] = None) -> Any:
+        """Count matching records by event type. Returns AuditSummary."""
+        return self._run(Call("GET", self._tp("/audit/summary"),
+                              _audit_params(event_type, principal_id, result, from_utc, to_utc, None, None),
+                              parse=m.AuditSummary.from_dict))
+
     def get(self, id: str) -> Any:
         return self._run(Call("GET", self._tp("/audit/" + seg(id)), parse=m.AuditRecord.from_dict))
 

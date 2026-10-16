@@ -128,9 +128,16 @@ namespace Hugo.Core.Security
                 }
                 if (salt.Length == 0 || expected.Length == 0) return false;
                 byte[] actual = Rfc2898DeriveBytes.Pbkdf2(Encoding.UTF8.GetBytes(password), salt, iterations, HashAlgorithmName.SHA256, expected.Length);
-                return CryptographicOperations.FixedTimeEquals(actual, expected);
+                bool verified = CryptographicOperations.FixedTimeEquals(actual, expected);
+                if (verified) SecretScrubber.Shared.AddKnownValue(password);
+                return verified;
             }
-            if (IsLegacy(stored)) return FixedTimeEquals(LegacySha256(password), stored.ToLowerInvariant());
+            if (IsLegacy(stored))
+            {
+                bool verified = FixedTimeEquals(LegacySha256(password), stored.ToLowerInvariant());
+                if (verified) SecretScrubber.Shared.AddKnownValue(password);
+                return verified;
+            }
             return false;
         }
 

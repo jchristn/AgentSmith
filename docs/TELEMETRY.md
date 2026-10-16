@@ -4,6 +4,14 @@ This file is generated from `HugoMetricCatalog` (`src/Hugo.Core/Telemetry`). Do 
 
 Hugo records metrics through the `Hugo` meter and spans through the `Hugo` activity source. Watson adds its own HTTP server metrics and one span per request. Radiant exports metrics to Prometheus (the `/metrics` scrape) and traces to OTLP when `Telemetry.OtlpEnable` is true. Label values are bounded by `LabelGuard`; identifiers never appear in labels.
 
+## Logs
+
+Every Hugo-managed server and library entry is scrubbed before console, file, syslog, log activities, or Radiant. Structured sensitive-key properties and exception text are scrubbed too. SyslogLogging has a post-write event, so Hugo uses a private ingress with console, file, syslog, metrics, and tracing disabled, then forwards only sanitized entries to the configured output module.
+
+`Telemetry.LogsEnable` enables a bounded, nonblocking bridge into Radiant. `Telemetry.OtlpEnable` sends logs to the collector alongside traces and metrics; `Telemetry.LokiEnable` optionally also sends OTLP-HTTP directly to `Telemetry.LokiEndpoint` (`/v1/logs` is appended). Captured trace/span context survives queuing, and ambient logging scopes are excluded. Queue overflow drops new entries; `HugoTelemetry.LogsDropped` reports bridge drops. The OpenTelemetry exporters also use their own bounded batch queues. Network failures do not fail requests, and shutdown drains the bridge before disposing exporters.
+
+Bundled Alloy forwards native server logs with `app=hugo`, `component=server`, `node`, `level`, and `pipeline=otlp`; trace/span IDs remain structured fields. Dashboard container logs retain their existing collection path. Server container logs are excluded to prevent duplicate ingestion. Lines emitted before Radiant starts remain in local console/file sinks. If you disable native log export, restore server container/pod collection in Alloy. Direct Loki export uses Loki's default `service_name` and `service_instance_id` resource labels instead of Alloy's label mapping.
+
 ## Metrics
 
 | Metric (Prometheus) | Type | Labels | Category | Meaning |
@@ -33,6 +41,7 @@ Hugo records metrics through the `Hugo` meter and spans through the `Hugo` activ
 | `hugo_observability_reachable` | gauge | `service` | Integrations | 1 when the server's last probe reached the observability service (Grafana, Prometheus, Loki, Tempo), 0 when not; absent when not configured |
 | `hugo_outbound_duration_seconds` | histogram | `service`, `operation`, `result` | Integrations | Outbound call duration |
 | `hugo_outbound_requests_total` | counter | `service`, `operation`, `result` | Integrations | Outbound calls (observability probes, metrics relay, and later connectors) by result (ok, error, status class) |
+| `hugo_resource_health` | gauge | `connector`, `status` | Integrations | Active resources checked by the last completed scheduled sweep, grouped by connector and healthy/unhealthy status |
 | `hugo_model_connector_requests_total` | counter | `provider`, `purpose`, `outcome` | Models | Model calls made by connector tools through the calling profile's inference endpoint (IConnectorModel), by purpose and outcome (ok, error, budget_exhausted) |
 | `hugo_model_connector_tokens_total` | counter | `provider`, `purpose`, `direction` | Models | Tokens used by connector model calls, by purpose and direction (input, output) |
 | `hugo_model_health_checks_total` | counter | `provider`, `kind`, `outcome` | Models | Model endpoint validations and health sweep checks by outcome (healthy, unhealthy) |

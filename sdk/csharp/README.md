@@ -1,5 +1,7 @@
 # Hugo C# SDK
 
+Audit summaries return total and per-event counts for matching records: `await client.Audit.SummaryAsync(filter, token)`. They accept the audit list filters and ignore pagination.
+
 `Hugo.Sdk` is the .NET client for the Hugo REST API. It targets `net8.0` and `net10.0`, has no dependencies beyond the base class library, and is versioned with the product (`0.1.0-alpha`).
 
 It covers:

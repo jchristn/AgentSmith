@@ -57,10 +57,14 @@ export function validateBinding(t, binding, existing = []) {
   return e;
 }
 
-function bindingFields(t, resources) {
+function bindingFields(t, resources, binding) {
   const f = (name, type, extra = {}) => ({ name, type, label: t(`views.profile.bindings.fields.${name}`), tip: resourceTip(t, 'bindings', name), ...extra });
+  const resourceOptions = resources.map((r) => ({ value: r.id, label: `${r.name} (${r.connectorType})` }));
+  if (binding?.resourceId && !resourceOptions.some((r) => r.value === binding.resourceId)) {
+    resourceOptions.push({ value: binding.resourceId, label: binding.resourceName || binding.resourceId });
+  }
   return [
-    f('resourceId', 'select', { required: true, options: resources.map((r) => ({ value: r.id, label: `${r.name} (${r.connectorType})` })) }),
+    f('resourceId', 'select', { required: true, readOnly: !!binding?.id, options: resourceOptions }),
     f('alias', 'text', { required: true }),
     f('accessMode', 'select', { required: true, options: enumOptions(t, 'accessMode') }),
     f('requireApprovalForDestructive', 'checkbox', { showIf: (d) => d.accessMode === 'ReadWrite' }),
@@ -325,7 +329,7 @@ export default function ProfileDetailView({ recordId }) {
     setBusy(true);
     try {
       const body = {
-        resourceId: b.resourceId,
+        ...(!b.id ? { resourceId: b.resourceId } : {}),
         alias: b.alias,
         accessMode: b.accessMode,
         requireApprovalForDestructive: !!b.requireApprovalForDestructive,
@@ -708,7 +712,7 @@ export default function ProfileDetailView({ recordId }) {
           <>
             {resources.length === 0 && <div className="warning-banner">{t('views.profile.bindings.noResources')}</div>}
             <FormFields
-              fields={bindingFields(t, resources)}
+              fields={bindingFields(t, resources, editingBinding)}
               data={editingBinding}
               errors={bindingErrors}
               idPrefix="binding"

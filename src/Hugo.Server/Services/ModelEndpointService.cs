@@ -72,7 +72,7 @@ namespace Hugo.Server.Services
         private readonly SecretService _Secrets;
         private readonly IModelGateway _Gateway;
         private readonly AuditService _Audit;
-        private readonly LoggingModule _Logging;
+        private readonly HugoLog _Logging;
         private readonly EventHub? _Events;
         private int _HealthHistoryLimit = 100;
 
@@ -90,7 +90,7 @@ namespace Hugo.Server.Services
         /// <param name="logging">Logging.</param>
         /// <param name="events">Event hub, or null.</param>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is null.</exception>
-        public ModelEndpointService(DatabaseDriverBase database, SecretService secrets, IModelGateway gateway, AuditService audit, LoggingModule logging, EventHub? events)
+        public ModelEndpointService(DatabaseDriverBase database, SecretService secrets, IModelGateway gateway, AuditService audit, HugoLog logging, EventHub? events)
         {
             _Database = database ?? throw new ArgumentNullException(nameof(database));
             _Secrets = secrets ?? throw new ArgumentNullException(nameof(secrets));
@@ -293,25 +293,9 @@ namespace Hugo.Server.Services
             using (HttpClient http = new HttpClient())
             {
                 http.Timeout = TimeSpan.FromSeconds(config.TimeoutSeconds);
-                ModelClientBase client;
-                switch (config.Provider)
-                {
-                    case ModelProviderEnum.Ollama:
-                        client = new OllamaModelClient(config.BaseUrl ?? "http://127.0.0.1:11434", config.ApiKey, _Logging, http);
-                        break;
-                    case ModelProviderEnum.OpenAI:
-                    case ModelProviderEnum.OpenAICompatible:
-                        client = new OpenAiModelClient(config.BaseUrl ?? "https://api.openai.com", config.ApiKey, _Logging, http);
-                        break;
-                    case ModelProviderEnum.Anthropic:
-                        client = new AnthropicModelClient(config.BaseUrl ?? "https://api.anthropic.com", config.ApiKey, _Logging, http);
-                        break;
-                    case ModelProviderEnum.Gemini:
-                        client = new GeminiModelClient(config.BaseUrl ?? "https://generativelanguage.googleapis.com", config.ApiKey ?? String.Empty, _Logging, http);
-                        break;
-                    default:
-                        throw new ConflictException("NotSupported", "Listing models is not supported for " + config.Provider + " endpoints.");
-                }
+                if (config.Provider != ModelProviderEnum.Ollama && config.Provider != ModelProviderEnum.OpenAI && config.Provider != ModelProviderEnum.OpenAICompatible && config.Provider != ModelProviderEnum.Anthropic && config.Provider != ModelProviderEnum.Gemini)
+                    throw new ConflictException("NotSupported", "Listing models is not supported for " + config.Provider + " endpoints.");
+                ModelClientBase client = ModelClientFactory.CreateModelListingClient(config, _Logging, http);
                 using (client)
                 {
                     try

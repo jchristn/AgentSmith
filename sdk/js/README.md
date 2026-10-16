@@ -1,5 +1,7 @@
 # Hugo JavaScript and TypeScript SDK
 
+Audit summaries return total and per-event counts for matching records: `await client.audit.summary({ eventType: "AuthorizationDenied" })`. They accept the audit list filters and ignore pagination.
+
 `@jchristn/hugo-sdk` is the TypeScript client for the Hugo REST API. It is built on `fetch`, ships ESM and CommonJS builds with type declarations, and works on Node 18 and later (and in Deno, Bun, and browsers that provide `fetch` and WebCrypto). Version `0.1.0-alpha`, matching the server.
 
 Every client (identity, secrets, request history, audit, settings, events, connectors, resources, knowledge, agent profiles, bindings, ask, prompt layers, model endpoints, tool invocations, approvals, lockdown, conversations and chat streaming, and analytics) is verified against a live server by the harness. Models are permissive: fields the server adds later are kept on the returned objects.

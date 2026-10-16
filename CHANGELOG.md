@@ -10,7 +10,13 @@ Everything below is new in this release. The images are `jchristn77/hugo-server:
 
 ### Deployment
 
-- Docker Compose is the supported deployment (`docker/`). `start.sh` and `start.bat` generate the master key and session signing key on first run; `update.sh` and `update.bat` pull and recreate the stack without touching data; `reset.sh` and `reset.bat` delete everything after you type RESET.
+- Wave 1 testbed starts SSH, storage, and SQL targets with automatic SSH key initialization; the full testbed remains available through `compose.all.yaml`. Dedicated CI validates live connector coverage for SQLite and PostgreSQL.
+- CI checks a reviewed direct-package inventory and rejects floating or unreviewed dependency pins.
+
+- Docker start helpers repair missing, blank, and quoted-whitespace keys without replacing populated keys, including existing files without a final newline.
+- Opt-in Docker socket override keeps the server non-root and joins the socket group; deployment testing inventory covers Compose, Kubernetes, and minikube.
+- CI checks product version mirrors and Grafana dashboard mirrors; visual QA captures all nine required views at three widths in both themes.
+- Docker Compose deployment (`docker/`): `start.sh` and `start.bat` generate the master key and legacy token validation key on first run; `update.sh` and `update.bat` pull and recreate the stack without touching data; `reset.sh` and `reset.bat` delete everything after you type RESET.
 - Kubernetes (`k8s/`: Kustomize base and overlays, a Helm chart, and scripts) and minikube (`minikube/`) deployments on the same images, one server replica by design. See `docs/KUBERNETES.md`.
 - A seeded demo stack in `docker/factory/` with its own project name and ports (API 8810, dashboard 8811), a demo profile, sample resources, and its own `factory/reset.sh`. See `docs/FACTORY.md`.
 - The stack runs the server, the dashboard, Prometheus, Tempo, Loki, Alloy, and Grafana, with a curl or wget healthcheck on every service and dependency ordering. Every host port binds to `127.0.0.1`.
@@ -19,12 +25,19 @@ Everything below is new in this release. The images are `jchristn77/hugo-server:
 
 ### Identity, access control, and audit
 
+- Logs pass through a shared redaction boundary before console, file, syslog, trace, and telemetry sinks, including model-library messages. Bounded secret registration covers configured and decrypted credentials, and quoted sensitive values retain valid JSON framing.
+- Native application logs export through a bounded Radiant queue to OTLP/Alloy or directly to Loki. Deployment collectors retain dashboard and worker logs while avoiding duplicate server collection.
+
+- REST API enum inputs require declared names; numeric enum settings files retain compatibility.
+
 - Tenants, users, credentials (access key and secret, returned once), roles, permissions, user role assignments, and credential scope assignments, with tenant-wide or per-resource scope.
 - Authentication by bearer session token (`Authorization` or `x-token`), user login headers, access key and secret, HMAC-signed requests with nonce and clock-skew checks, and an optional system administrator API key.
 - Passwords hashed with PBKDF2-HMAC-SHA256 (600,000 iterations). Sessions expire (60 minutes for users, 30 for administrators) and refresh up to an absolute 12 hours. Re-authentication route for sensitive actions.
 - Built-in roles including the Hugo-specific Operator, Builder, and ProfileUser; effective-permission inspection for users and credentials; deny-overrides; a credential can never exceed its owner.
+- Session tokens use the versioned master-key HKDF subkey with AES-256-GCM; pre-upgrade signing-key tokens remain readable until expiry or revocation. All administrator bypasses, including reads, are audited.
 - Every route, MCP tool, and A2A method is mapped to a resource type and operation, and unmapped routes fail closed.
 - Cross-tenant reads return 404. Authorization denials return 403 with the required permission and are always audited.
+- Filtered audit summaries with total and per-event counts, available through REST and all three SDKs.
 - Audit trail, request history with captured headers and bodies (secrets scrubbed), and rate limiting on sign-in and secret reveal.
 
 ### Secrets vault
@@ -36,6 +49,8 @@ Everything below is new in this release. The images are `jchristn77/hugo-server:
 - A secret scrubber removes known secret values and credential patterns from tool output, logs, request history, and audit text.
 
 ### Connectors
+
+- Scheduled resource health checks default to HTTP and Redis every five minutes, with explicit connector opt-in, bounded probes, and aggregate health metrics. Scheduled checks cannot learn SSH host keys.
 
 Twenty connector types, each with its own settings schema, secret slots, tools, effect classifier, default instructions, and test-connection check:
 
@@ -76,10 +91,16 @@ Twenty connector types, each with its own settings schema, secret slots, tools, 
 
 ### Dashboard
 
+- Required dropdowns show an empty choice until selected. New profile bindings can select the first existing resource directly; editing a binding locks its resource to match the API contract.
+
+- Chat token totals count persisted history once and add new streamed turns without doubling the total after reload.
+
 - React 19 operator console: home with external services, chat with inline tool calls and approval cards, agent profiles with a compiled-instructions preview, resources with schema-driven forms and Test Connection, secrets, connectors and their default instructions, model endpoints with a setup wizard, approvals inbox, tool invocations, conversations, analytics, request history, API explorer, audit, identity and access pages, settings with restart indicators, lockdown, and a Discord link in the topbar.
 - Twelve languages (English plus eleven machine-seeded catalogs marked beta), right-to-left support, and two pseudo-locales.
 
 ### SDKs and tools
+
+- Live model smoke requests have explicit output/time limits and successful-final-answer checks; isolated local MCP client runners capture sanitized acceptance traces.
 
 - SDKs for C# (`Hugo.Sdk`), Python (`hugo-sdk`), and JavaScript and TypeScript (`@jchristn/hugo-sdk`), each with a live test harness.
 - The `hugo` command line (`dotnet tool install -g Hugo.Cli`): a stdio MCP relay for clients that only launch local servers, plus login, whoami, and profile listing.

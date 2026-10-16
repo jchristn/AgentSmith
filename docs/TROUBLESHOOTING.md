@@ -38,7 +38,7 @@ Startup stops with a message naming the setting when the configuration cannot wo
 
 ### Warnings that are not errors
 
-`Auth.SigningKey is the built-in default. Set HUGO_AUTH_SIGNING_KEY.` means anyone with the source can mint session tokens your server accepts. Compose generates a real key on first start; plain `docker compose up -d` without a `.env` uses development keys labeled `not-for-production`, and the server warns about those too. Fix it before anyone else can reach the port. Changing the signing key signs everyone out, which is harmless.
+The warning about `Auth.SigningKey` being the built-in legacy-token compatibility default means the old validation key remains publicly known. Set `HUGO_AUTH_SIGNING_KEY` to a private value. Compose generates one on first start. Changing it invalidates pre-upgrade CBC/HMAC tokens; new sessions use the master key and remain valid. Keep the existing private signing key during an upgrade if existing sessions must survive.
 
 ## The health check is failing
 

@@ -28,7 +28,7 @@ namespace Hugo.Server
         /// <summary>
         /// Logging.
         /// </summary>
-        public LoggingModule Logging { get; }
+        public HugoLog Logging { get; }
 
         /// <summary>
         /// Database.
@@ -146,7 +146,7 @@ namespace Hugo.Server
         /// <param name="telemetry">Telemetry.</param>
         /// <param name="scopes">Operation scope map.</param>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is null.</exception>
-        public ServerContext(HugoSettings settings, LoggingModule logging, DatabaseDriverBase database, SecretCipher cipher, TokenService tokens, AuditService audit, AuthenticationService authentication, AuthorizationService authorization, HugoTelemetry telemetry, OperationScopeMap scopes)
+        public ServerContext(HugoSettings settings, HugoLog logging, DatabaseDriverBase database, SecretCipher cipher, TokenService tokens, AuditService audit, AuthenticationService authentication, AuthorizationService authorization, HugoTelemetry telemetry, OperationScopeMap scopes)
         {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
             Logging = logging ?? throw new ArgumentNullException(nameof(logging));

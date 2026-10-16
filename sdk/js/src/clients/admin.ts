@@ -1,6 +1,7 @@
 import type {
   AuditFilter,
   AuditRecord,
+  AuditSummary,
   DeleteCountResponse,
   EnumerationResult,
 
@@ -44,6 +45,11 @@ export class AuditClient {
   /** List audit records (eventType, principalId, result, fromUtc, toUtc, pageNumber, pageSize). */
   list(filter?: AuditFilter): Promise<PagedResult<AuditRecord>> {
     return this.t.request("GET", this.base(), { query: toQuery(filter) });
+  }
+
+  /** Count matching records by event type, ignoring pagination. */
+  summary(filter?: AuditFilter): Promise<AuditSummary> {
+    return this.t.request("GET", `${this.base()}/summary`, { query: toQuery(filter) });
   }
 
   get(id: string): Promise<AuditRecord> {

@@ -1536,3 +1536,11 @@ class ModelHealthCheck(Model):
     latency_ms: Optional[int] = None
     message: Optional[str] = None
     checked_utc: Optional[datetime] = None
+
+
+@dataclasses.dataclass
+class AuditSummary(Model):
+    """Counts of all matching audit records, independent of pagination."""
+
+    total_count: int = 0
+    event_counts: Dict[str, int] = dataclasses.field(default_factory=dict)

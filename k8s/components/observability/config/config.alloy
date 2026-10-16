@@ -1,13 +1,13 @@
 // Grafana Alloy for Hugo on Kubernetes (k8s/components/observability and the Helm chart, which mirrors this file;
 // k8s/tests/check-render.sh diffs them).
 //
-// 1. OTLP receiver (gRPC 4317, HTTP 4318) for traces from the server, forwarded to Tempo. OTLP metrics and logs are
-//    accepted and dropped: Prometheus scrapes the metrics, and logs are read from the pods.
-// 2. Pod logs. The Hugo server and dashboard pods in this namespace are discovered through the Kubernetes API and
+// 1. OTLP receiver for Radiant traces and scrubbed server logs. Prometheus scrapes metrics.
+// 2. Dashboard pod logs are discovered through the Kubernetes API and
 //    their container logs are read through the API as well (no host paths, no DaemonSet), then shipped to Loki with
 //    the labels app="hugo", component (server, dashboard), node (the pod name, which is also the Hugo node name),
 //    level when the line has a Hugo severity, and tenant when the line names one. The labels match the Docker
-//    Compose configuration, so the dashboards and deep links work unchanged.
+//    Compose configuration, so the dashboards and deep links work unchanged. Server logs use OTLP once;
+//    pre-Radiant startup output remains in local console/file sinks.
 
 otelcol.receiver.otlp "default" {
   grpc {
@@ -20,7 +20,25 @@ otelcol.receiver.otlp "default" {
 
   output {
     traces = [otelcol.processor.filter.probes.input]
+    logs   = [otelcol.processor.attributes.hugo_logs.input]
   }
+}
+
+// Native server logs retain their trace/span metadata and use the same stable Loki labels as pod logs.
+otelcol.processor.attributes "hugo_logs" {
+  action {
+    key    = "loki.attribute.labels"
+    value  = "app,component,node,level,pipeline"
+    action = "insert"
+  }
+
+  output {
+    logs = [otelcol.exporter.loki.hugo.input]
+  }
+}
+
+otelcol.exporter.loki "hugo" {
+  forward_to = [loki.write.default.receiver]
 }
 
 // Health probes and Prometheus scrapes would otherwise produce several traces a second that nobody reads.
@@ -89,7 +107,7 @@ discovery.relabel "hugo" {
 
   rule {
     source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
-    regex         = "hugo-(server|dashboard)"
+    regex         = "hugo-dashboard"
     action        = "keep"
   }
 

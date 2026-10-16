@@ -7,6 +7,7 @@ namespace Hugo.Server.Services
     using Hugo.Core.Database;
     using Hugo.Core.Models;
     using Hugo.Core.Security;
+    using Hugo.Core.Telemetry;
     using SyslogLogging;
 
     /// <summary>
@@ -34,7 +35,7 @@ namespace Hugo.Server.Services
         #region Private-Members
 
         private readonly DatabaseDriverBase _Database;
-        private readonly LoggingModule _Logging;
+        private readonly HugoLog _Logging;
         private readonly Channel<ToolInvocation> _Channel;
         private readonly CancellationTokenSource _Stopping = new CancellationTokenSource();
         private Task? _Writer = null;
@@ -52,7 +53,7 @@ namespace Hugo.Server.Services
         /// <param name="logging">Logging.</param>
         /// <param name="capacity">Channel capacity. Minimum 16, maximum 1000000. Default 10000.</param>
         /// <exception cref="ArgumentNullException">Thrown when database or logging is null.</exception>
-        public ToolInvocationRecorder(DatabaseDriverBase database, LoggingModule logging, int capacity = 10000)
+        public ToolInvocationRecorder(DatabaseDriverBase database, HugoLog logging, int capacity = 10000)
         {
             _Database = database ?? throw new ArgumentNullException(nameof(database));
             _Logging = logging ?? throw new ArgumentNullException(nameof(logging));

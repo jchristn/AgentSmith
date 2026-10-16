@@ -259,6 +259,27 @@ namespace Hugo.Core.Database.Ado
         }
 
         /// <inheritdoc />
+        public async Task<AuditSummary> SummarizeAsync(AuditFilter filter, CancellationToken token = default)
+        {
+            if (filter == null) throw new ArgumentNullException(nameof(filter));
+            List<string> clauses = new List<string>();
+            Action<DbCommand> bind = BuildFilter(filter, clauses);
+            string where = clauses.Count > 0 ? " WHERE " + String.Join(" AND ", clauses) : String.Empty;
+            List<KeyValuePair<string, long>> counts = await _Driver.QueryAsync(
+                "SELECT event_type, COUNT(*) AS event_count FROM " + _Table + where + " GROUP BY event_type ORDER BY event_type;",
+                bind,
+                reader => new KeyValuePair<string, long>(reader.GetString(0), Convert.ToInt64(reader.GetValue(1))),
+                token).ConfigureAwait(false);
+            AuditSummary summary = new AuditSummary();
+            foreach (KeyValuePair<string, long> count in counts)
+            {
+                summary.EventCounts[count.Key] = count.Value;
+                summary.TotalCount += count.Value;
+            }
+            return summary;
+        }
+
+        /// <inheritdoc />
         public async Task<int> DeleteManyAsync(AuditFilter filter, CancellationToken token = default)
         {
             if (filter == null) throw new ArgumentNullException(nameof(filter));

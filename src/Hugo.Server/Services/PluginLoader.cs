@@ -16,6 +16,7 @@ namespace Hugo.Server.Services
     using Hugo.Core.Models;
     using Hugo.Core.Security;
     using Hugo.Core.Services;
+    using Hugo.Core.Telemetry;
     using SyslogLogging;
 
     /// <summary>
@@ -33,7 +34,7 @@ namespace Hugo.Server.Services
         private readonly DatabaseDriverBase _Database;
         private readonly ConnectorRegistry _Registry;
         private readonly AuditService _Audit;
-        private readonly LoggingModule _Logging;
+        private readonly HugoLog _Logging;
         private readonly ConcurrentDictionary<string, PluginLoadContext> _Contexts = new ConcurrentDictionary<string, PluginLoadContext>(StringComparer.Ordinal);
         private readonly ConcurrentDictionary<string, List<string>> _Types = new ConcurrentDictionary<string, List<string>>(StringComparer.Ordinal);
         private bool _Disposed = false;
@@ -50,7 +51,7 @@ namespace Hugo.Server.Services
         /// <param name="audit">Audit.</param>
         /// <param name="logging">Logging.</param>
         /// <exception cref="ArgumentNullException">Thrown when an argument is null.</exception>
-        public PluginLoader(DatabaseDriverBase database, ConnectorRegistry registry, AuditService audit, LoggingModule logging)
+        public PluginLoader(DatabaseDriverBase database, ConnectorRegistry registry, AuditService audit, HugoLog logging)
         {
             _Database = database ?? throw new ArgumentNullException(nameof(database));
             _Registry = registry ?? throw new ArgumentNullException(nameof(registry));

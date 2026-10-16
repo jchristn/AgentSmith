@@ -58,7 +58,7 @@ namespace Hugo.Server.Services
         private readonly DatabaseDriverBase _Database;
         private readonly RequestHistorySettings _Settings;
         private readonly ClusterSettingsService _Cluster;
-        private readonly LoggingModule _Logging;
+        private readonly HugoLog _Logging;
         private readonly Channel<RequestHistoryEntry> _Queue;
         private readonly CancellationTokenSource _Stopping = new CancellationTokenSource();
         private Task? _Writer = null;
@@ -78,7 +78,7 @@ namespace Hugo.Server.Services
         /// <param name="logging">Logging.</param>
         /// <param name="capacity">Queue capacity. Minimum 100, maximum 1000000, default 10000.</param>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is null.</exception>
-        public RequestHistoryCaptureService(DatabaseDriverBase database, RequestHistorySettings settings, ClusterSettingsService cluster, LoggingModule logging, int capacity = 10000)
+        public RequestHistoryCaptureService(DatabaseDriverBase database, RequestHistorySettings settings, ClusterSettingsService cluster, HugoLog logging, int capacity = 10000)
         {
             _Database = database ?? throw new ArgumentNullException(nameof(database));
             _Settings = settings ?? throw new ArgumentNullException(nameof(settings));

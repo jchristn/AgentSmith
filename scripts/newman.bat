@@ -3,7 +3,7 @@ rem Run the Hugo Postman collection with Newman against a running server.
 rem
 rem   scripts\newman.bat                      (http://127.0.0.1:8800, seeded passwords)
 rem   set HUGO_PASSWORD and HUGO_ADMIN_PASSWORD when you changed the seeded passwords
-rem   set HUGO_PORT=8810 and both passwords to HugoDemo2026! for the factory demo stack (docs\FACTORY.md)
+rem   set HUGO_PORT=8810, HUGO_PASSWORD=HugoDemo2026!, and HUGO_ADMIN_PASSWORD=password for the factory demo stack (docs\FACTORY.md)
 rem   set HUGO_MODEL_BASE_URL=http://127.0.0.1:11434 and HUGO_MODEL_NAME to also run model requests
 rem
 rem Extra arguments are passed to newman (for example --folder MCP). Uses newman from PATH when installed,

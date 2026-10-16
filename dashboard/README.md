@@ -141,6 +141,15 @@ pass: the topbar crowding at 1280 pixels (context chips now shrink before utilit
 dot), six KPI tiles fitting one row, tab strips scrolling on phones, 32 pixel topbar tap targets on phones, and
 sortable headers meeting the 24 pixel target size.
 
+The Build and test workflow runs this suite as part of `npm run test:e2e` and uploads
+`dashboard/test-results/` (including `visual/` screenshots and failure traces) as the
+`dashboard-visual` artifact even when tests fail. A local refresh on 2026-10-15 passed all seven visual
+tests: all nine required views in both themes at each width, plus unavailable-capability and approval
+states. Review found the request details modal was captured while its data was still loading; the suite now
+waits for that loading indicator to clear before capture. Shell captures are also named explicitly for each
+theme and width. The automated overflow and clipped-button checks found no new layout issues. GitHub execution remains
+subject to the account billing blocker recorded in P0.12.
+
 ## Internationalization
 
 See `I18N.md` in this directory.

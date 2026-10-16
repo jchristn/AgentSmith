@@ -43,6 +43,18 @@ namespace Hugo.Sdk.Clients
         }
 
         /// <summary>
+        /// Count matching records by event type, ignoring pagination.
+        /// </summary>
+        /// <param name="filter">Optional filters.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Total and per-event counts.</returns>
+        /// <exception cref="HugoException">Thrown on a non-success status.</exception>
+        public Task<AuditSummary> SummaryAsync(AuditFilter? filter = null, CancellationToken token = default)
+        {
+            return GetAsync<AuditSummary>(TenantPath("/audit/summary"), Query(filter), token);
+        }
+
+        /// <summary>
         /// Read an audit record.
         /// </summary>
         /// <param name="id">Record identifier.</param>

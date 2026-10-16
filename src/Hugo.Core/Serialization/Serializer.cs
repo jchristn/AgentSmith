@@ -110,6 +110,8 @@ namespace Hugo.Core.Serialization
         {
             JsonSerializerOptions options = new JsonSerializerOptions();
             options.PropertyNameCaseInsensitive = true;
+            // API-owned enums require names. Keep file settings and third-party enums compatible with numeric values.
+            if (!file) options.Converters.Add(new StrictEnumConverterFactory("Hugo."));
             options.Converters.Add(new JsonStringEnumConverter());
             if (file)
             {

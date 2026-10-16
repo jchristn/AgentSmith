@@ -17,7 +17,7 @@ import { STORAGE_KEYS, accessModeTone } from '../utils/constants';
 import { errorMessage, isMissingEndpoint } from '../utils/errors';
 import { downloadText } from '../utils/exporters';
 import { formatNumber, formatRelativeTime, formatDateTime } from '../i18n/formatters';
-import { initialChatState, beginTurn, applyChatEvent, endTurn, fromStoredMessages, pendingApprovals } from '../utils/chatStream';
+import { initialChatState, beginTurn, applyChatEvent, endTurn, fromStoredMessages, pendingApprovals, conversationUsage } from '../utils/chatStream';
 
 function chatReducer(state, action) {
   switch (action.type) {
@@ -260,10 +260,7 @@ export default function ChatView({ recordId }) {
   }
 
   const pending = pendingApprovals(state);
-  const totals = state.messages.reduce((acc, m) => ({ input: acc.input + (m.usage?.inputTokens || 0), output: acc.output + (m.usage?.outputTokens || 0) }), {
-    input: conversation?.totalInputTokens || 0,
-    output: conversation?.totalOutputTokens || 0
-  });
+  const totals = conversationUsage(conversation, state.messages);
 
   return (
     <div className="chat-view">

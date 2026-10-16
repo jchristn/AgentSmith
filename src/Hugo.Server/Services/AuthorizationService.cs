@@ -126,7 +126,7 @@ namespace Hugo.Server.Services
                 record.StatusCode = decision.Result == AuthorizationResultEnum.NotFound ? 404 : 403;
                 await _Audit.WriteAsync(record, token).ConfigureAwait(false);
             }
-            else if (decision.BypassReason != null && operation != OperationTypeEnum.Read)
+            else if (decision.BypassReason != null)
             {
                 AuditRecord record = new AuditRecord();
                 record.EventType = AuditEventTypeEnum.AuthorizationBypass;
@@ -140,6 +140,10 @@ namespace Hugo.Server.Services
                 record.Operation = operation.ToString();
                 record.AuthorizationResult = decision.Result;
                 record.BypassReason = decision.BypassReason;
+                record.AuthScheme = ctx.AuthScheme;
+                record.SessionId = ctx.SessionId;
+                record.SourceIp = ctx.SourceIp;
+                record.AuthResult = ctx.AuthResult;
                 await _Audit.WriteAsync(record, token).ConfigureAwait(false);
             }
 

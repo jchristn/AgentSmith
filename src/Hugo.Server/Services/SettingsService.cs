@@ -12,6 +12,7 @@ namespace Hugo.Server.Services
     using Hugo.Core.Responses;
     using Hugo.Core.Services;
     using Hugo.Server.Settings;
+    using Hugo.Core.Telemetry;
     using SyslogLogging;
 
     /// <summary>
@@ -46,7 +47,7 @@ namespace Hugo.Server.Services
 
         private readonly HugoSettings _Settings;
         private readonly ClusterSettingsService _Cluster;
-        private readonly LoggingModule _Logging;
+        private readonly HugoLog _Logging;
         private readonly List<FileSettingDescriptor> _Fields;
         private readonly SemaphoreSlim _UpdateLock = new SemaphoreSlim(1, 1);
         private bool _RestartPending = false;
@@ -63,7 +64,7 @@ namespace Hugo.Server.Services
         /// <param name="cluster">Cluster settings service.</param>
         /// <param name="logging">Logging.</param>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is null.</exception>
-        public SettingsService(HugoSettings settings, ClusterSettingsService cluster, LoggingModule logging)
+        public SettingsService(HugoSettings settings, ClusterSettingsService cluster, HugoLog logging)
         {
             _Settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _Cluster = cluster ?? throw new ArgumentNullException(nameof(cluster));
@@ -403,7 +404,7 @@ namespace Hugo.Server.Services
             list.Add(Field("Logging.LogFilename", "string", false, "Log file name.", s => s.Logging.LogFilename, (s, v) => s.Logging.LogFilename = v ?? "hugo.log", null, null, null));
             list.Add(Field("Logging.MinimumSeverity", "int", true, "Minimum severity, 0 (debug) to 7 (emergency).", s => s.Logging.MinimumSeverity.ToString(CultureInfo.InvariantCulture), (s, v) => s.Logging.MinimumSeverity = ParseInt(v), 0L, 7L, null));
             list.Add(Field("Auth.Issuer", "string", false, "Token issuer.", s => s.Auth.Issuer, (s, v) => s.Auth.Issuer = v ?? "hugo", null, null, null));
-            list.Add(Field("Auth.SigningKey", "secret", false, "Token signing key.", s => s.Auth.SigningKey, (s, v) => s.Auth.SigningKey = v ?? String.Empty, null, null, null));
+            list.Add(Field("Auth.SigningKey", "secret", false, "Legacy session token validation key; new tokens use the master key.", s => s.Auth.SigningKey, (s, v) => s.Auth.SigningKey = v ?? String.Empty, null, null, null));
             list.Add(Field("Auth.AdminApiKey", "secret", true, "System administrator API key.", s => s.Auth.AdminApiKey, (s, v) => s.Auth.AdminApiKey = v ?? String.Empty, null, null, null));
             list.Add(Field("Auth.SignedRequestSkewSeconds", "int", true, "Allowed clock skew for signed requests.", s => s.Auth.SignedRequestSkewSeconds.ToString(CultureInfo.InvariantCulture), (s, v) => s.Auth.SignedRequestSkewSeconds = ParseInt(v), 10L, 3600L, null));
             list.Add(Field("Auth.RateLimitPerMinute", "int", true, "Authentication attempts per source IP per minute, counted across all replicas.", s => s.Auth.RateLimitPerMinute.ToString(CultureInfo.InvariantCulture), (s, v) => s.Auth.RateLimitPerMinute = ParseInt(v), 1L, 100000L, null));
@@ -414,6 +415,16 @@ namespace Hugo.Server.Services
             list.Add(Field("RequestHistory.MaxRequestBodyBytes", "int", true, "Maximum captured request body bytes.", s => s.RequestHistory.MaxRequestBodyBytes.ToString(CultureInfo.InvariantCulture), (s, v) => s.RequestHistory.MaxRequestBodyBytes = ParseInt(v), 0L, 1048576L, null));
             list.Add(Field("RequestHistory.MaxResponseBodyBytes", "int", true, "Maximum captured response body bytes.", s => s.RequestHistory.MaxResponseBodyBytes.ToString(CultureInfo.InvariantCulture), (s, v) => s.RequestHistory.MaxResponseBodyBytes = ParseInt(v), 0L, 1048576L, null));
             list.Add(Field("Telemetry.Enabled", "bool", false, "Whether telemetry is enabled.", s => Bool(s.Telemetry.Enabled), (s, v) => s.Telemetry.Enabled = ParseBool(v), null, null, null));
+            list.Add(Field("Logging.MaximumKnownSecretCharacters", "int", false, "Maximum retained secret variant characters; overflow fails closed.", s => s.Logging.MaximumKnownSecretCharacters.ToString(CultureInfo.InvariantCulture), (s, v) => s.Logging.MaximumKnownSecretCharacters = ParseInt(v), 1024L, 33554432L, null));
+            list.Add(Field("Logging.MaximumKnownSecretValues", "int", false, "Maximum known secret variants retained; overflow fails closed instead of evicting secrets.", s => s.Logging.MaximumKnownSecretValues.ToString(CultureInfo.InvariantCulture), (s, v) => s.Logging.MaximumKnownSecretValues = ParseInt(v), 100L, 1000000L, null));
+            list.Add(Field("Telemetry.LogsEnable", "bool", false, "Whether scrubbed logs enter Radiant exporters.", s => Bool(s.Telemetry.LogsEnable), (s, v) => s.Telemetry.LogsEnable = ParseBool(v), null, null, null));
+            list.Add(Field("Telemetry.LokiEnable", "bool", false, "Whether scrubbed logs also export directly to Loki OTLP-HTTP.", s => Bool(s.Telemetry.LokiEnable), (s, v) => s.Telemetry.LokiEnable = ParseBool(v), null, null, null));
+            list.Add(Field("Telemetry.LokiEndpoint", "string", false, "Loki OTLP base endpoint; /v1/logs is appended.", s => s.Telemetry.LokiEndpoint, (s, v) => s.Telemetry.LokiEndpoint = v ?? String.Empty, null, null, null));
+            list.Add(Field("Telemetry.LokiTenantId", "string", false, "Optional Loki tenant header.", s => s.Telemetry.LokiTenantId, (s, v) => s.Telemetry.LokiTenantId = v ?? String.Empty, null, null, null));
+            list.Add(Field("Telemetry.LogQueueCapacity", "int", false, "Bounded nonblocking log bridge capacity; excess entries are dropped.", s => s.Telemetry.LogQueueCapacity.ToString(CultureInfo.InvariantCulture), (s, v) => s.Telemetry.LogQueueCapacity = ParseInt(v), 1L, 65536L, null));
+            list.Add(Field("Telemetry.LogMaxCharacters", "int", false, "Maximum exported characters in a message or structured details.", s => s.Telemetry.LogMaxCharacters.ToString(CultureInfo.InvariantCulture), (s, v) => s.Telemetry.LogMaxCharacters = ParseInt(v), 256L, 1048576L, null));
+            list.Add(Field("Telemetry.ExportTimeoutMs", "int", false, "Per-export timeout in milliseconds.", s => s.Telemetry.ExportTimeoutMs.ToString(CultureInfo.InvariantCulture), (s, v) => s.Telemetry.ExportTimeoutMs = ParseInt(v), 1000L, 30000L, null));
+            list.Add(Field("Telemetry.LogDrainTimeoutMs", "int", false, "Log bridge drain timeout at shutdown in milliseconds.", s => s.Telemetry.LogDrainTimeoutMs.ToString(CultureInfo.InvariantCulture), (s, v) => s.Telemetry.LogDrainTimeoutMs = ParseInt(v), 100L, 30000L, null));
             list.Add(Field("Telemetry.ServiceName", "string", false, "Telemetry service name.", s => s.Telemetry.ServiceName, (s, v) => s.Telemetry.ServiceName = v ?? "hugo-server", null, null, null));
             list.Add(Field("Telemetry.PrometheusEnable", "bool", false, "Whether the Prometheus listener is enabled.", s => Bool(s.Telemetry.PrometheusEnable), (s, v) => s.Telemetry.PrometheusEnable = ParseBool(v), null, null, null));
             list.Add(Field("Telemetry.PrometheusPort", "int", false, "Prometheus listener port.", s => s.Telemetry.PrometheusPort.ToString(CultureInfo.InvariantCulture), (s, v) => s.Telemetry.PrometheusPort = ParseInt(v), 1L, 65535L, null));
@@ -438,6 +449,8 @@ namespace Hugo.Server.Services
             list.Add(Field("Connectors.PluginDirectory", "string", false, "Connector plugin directory.", s => s.Connectors.PluginDirectory, (s, v) => s.Connectors.PluginDirectory = v ?? "plugins", null, null, null));
             list.Add(Field("Connectors.DefaultToolTimeoutSeconds", "int", true, "Default tool timeout in seconds.", s => s.Connectors.DefaultToolTimeoutSeconds.ToString(CultureInfo.InvariantCulture), (s, v) => s.Connectors.DefaultToolTimeoutSeconds = ParseInt(v), 1L, 3600L, null));
             list.Add(Field("Connectors.McpAllowStdio", "bool", false, "Whether mcp resources may launch local MCP servers over stdio (each resource must also set allowStdio).", s => Bool(s.Connectors.McpAllowStdio), (s, v) => s.Connectors.McpAllowStdio = ParseBool(v), null, null, null));
+            list.Add(Field("Connectors.HealthIntervalSeconds", "int", false, "Seconds between resource health sweeps; 0 disables scheduled checks.", s => s.Connectors.HealthIntervalSeconds.ToString(CultureInfo.InvariantCulture), (s, v) => s.Connectors.HealthIntervalSeconds = ParseInt(v), 0L, 86400L, null));
+            list.Add(Field("Connectors.HealthConnectorTypes", "string", false, "Comma-separated connector types allowed for scheduled health probes. Empty disables every type.", s => s.Connectors.HealthConnectorTypes, (s, v) => s.Connectors.HealthConnectorTypes = v ?? String.Empty, null, null, null));
             list.Add(Field("Connectors.TestTimeoutSeconds", "int", true, "Seconds after which a connection test is cancelled.", s => s.Connectors.TestTimeoutSeconds.ToString(CultureInfo.InvariantCulture), (s, v) => s.Connectors.TestTimeoutSeconds = ParseInt(v), 1L, 600L, null));
             list.Add(Field("Connectors.ModelToolTimeoutSeconds", "int", true, "Timeout in seconds for tools that call the profile's model.", s => s.Connectors.ModelToolTimeoutSeconds.ToString(CultureInfo.InvariantCulture), (s, v) => s.Connectors.ModelToolTimeoutSeconds = ParseInt(v), 1L, 3600L, null));
             list.Add(Field("Connectors.MaxConcurrencyPerResource", "int", true, "Concurrent tool calls allowed per resource.", s => s.Connectors.MaxConcurrencyPerResource.ToString(CultureInfo.InvariantCulture), (s, v) => s.Connectors.MaxConcurrencyPerResource = ParseInt(v), 1L, 256L, null));

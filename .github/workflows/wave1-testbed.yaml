@@ -1,0 +1,95 @@
+name: Wave 1 connector testbed
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wave1-testbed-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  wave1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        provider: [sqlite, postgresql]
+    services:
+      postgres:
+        image: postgres:16.4-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: hugo_test
+        ports:
+          - 55432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-retries 10
+    env:
+      HUGO_TESTBED: '1'
+      HUGO_TEST_POSTGRES: 'Host=127.0.0.1;Port=55432;Username=postgres;Password=postgres;Database=hugo_test'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - name: Restore and build
+        run: |
+          dotnet restore src/Hugo.sln
+          dotnet build src/Hugo.sln --no-restore
+      - name: Start wave 1 targets from a clean checkout
+        run: docker compose -f docker/testbed/compose.yaml up -d --wait --wait-timeout 600
+      - name: Target health
+        if: always()
+        run: docker compose -f docker/testbed/compose.yaml ps -a
+      - name: Connector and provider contracts
+        run: >-
+          dotnet run --no-build --project src/Test.Automated -f net10.0 --
+          --providers ${{ matrix.provider }}
+          --results results-wave1-${{ matrix.provider }}.json
+          --suites testbed.ssh,testbed.storage,testbed.sql,connectors.ssh,connectors.storage,connectors.sql,db-
+      - name: Verify required suite coverage
+        env:
+          PROVIDER: ${{ matrix.provider }}
+        run: |
+          python3 - <<'PYTHON'
+          import json
+          import os
+          from pathlib import Path
+          provider = os.environ['PROVIDER']
+          rows = json.loads(Path(f'results-wave1-{provider}.json').read_text())
+          suites = {row['suiteId'] for row in rows}
+          required = {
+              'testbed.ssh', 'testbed.storage.s3', 'testbed.storage.azure-blob', 'testbed.storage.gcs',
+              'testbed.sql.postgresql', 'testbed.sql.mysql', 'testbed.sql.sqlserver', f'db-{provider}',
+          }
+          missing = required - suites
+          assert not missing, f'Required suites did not run: {sorted(missing)}'
+          for prefix in ('connectors.ssh', 'connectors.storage', 'connectors.sql'):
+              assert any(s.startswith(prefix) for s in suites), f'No suites matched {prefix}'
+          assert rows and all(row['success'] and not row['skipped'] for row in rows), 'Failed or skipped cases'
+          print(f'{len(rows)} cases passed; required live targets and {provider} persistence covered')
+          PYTHON
+      - name: Collect target logs
+        if: failure()
+        run: docker compose -f docker/testbed/compose.yaml logs --no-color > wave1-testbed.log 2>&1
+      - name: Stop wave 1 targets
+        if: always()
+        run: docker compose -f docker/testbed/compose.yaml down -v --remove-orphans
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wave1-testbed-${{ matrix.provider }}
+          path: |
+            results-wave1-${{ matrix.provider }}.json
+            wave1-testbed.log
+          if-no-files-found: ignore

@@ -92,12 +92,40 @@ namespace Hugo.Core.Settings
         /// </summary>
         public bool Exemplars { get; set; } = true;
 
+        /// <summary>Whether scrubbed server/library entries enter Radiant log exporters. Default true.</summary>
+        public bool LogsEnable { get; set; } = true;
+
+        /// <summary>Whether logs also go directly to Loki over OTLP-HTTP. Default false.</summary>
+        public bool LokiEnable { get; set; } = false;
+
+        /// <summary>Loki OTLP base endpoint; /v1/logs is appended. Default http://127.0.0.1:3100/otlp.</summary>
+        public string LokiEndpoint { get; set; } = "http://127.0.0.1:3100/otlp";
+
+        /// <summary>Loki X-Scope-OrgID header, or empty for single-tenant Loki. Default empty.</summary>
+        public string LokiTenantId { get; set; } = String.Empty;
+
+        /// <summary>Bounded log bridge queue size. Default 1024, minimum 1, maximum 65536. Full queues drop new entries.</summary>
+        public int LogQueueCapacity { get { return _LogQueueCapacity; } set { _LogQueueCapacity = Math.Clamp(value, 1, 65536); } }
+
+        /// <summary>Maximum exported message/details characters per entry. Default 32768, minimum 256, maximum 1048576.</summary>
+        public int LogMaxCharacters { get { return _LogMaxCharacters; } set { _LogMaxCharacters = Math.Clamp(value, 256, 1048576); } }
+
+        /// <summary>Per-export network timeout. Default 3000 milliseconds, minimum 1000, maximum 30000.</summary>
+        public int ExportTimeoutMs { get { return _ExportTimeoutMs; } set { _ExportTimeoutMs = Math.Clamp(value, 1000, 30000); } }
+
+        /// <summary>Log bridge shutdown drain timeout. Default 5000 milliseconds, minimum 100, maximum 30000.</summary>
+        public int LogDrainTimeoutMs { get { return _LogDrainTimeoutMs; } set { _LogDrainTimeoutMs = Math.Clamp(value, 100, 30000); } }
+
         #endregion
 
         #region Private-Members
 
         private int _PrometheusPort = 9464;
         private int _MaxLabelValues = 200;
+        private int _LogQueueCapacity = 1024;
+        private int _LogMaxCharacters = 32768;
+        private int _ExportTimeoutMs = 3000;
+        private int _LogDrainTimeoutMs = 5000;
 
         #endregion
     }

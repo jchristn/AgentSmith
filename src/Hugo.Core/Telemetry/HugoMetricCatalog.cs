@@ -88,6 +88,9 @@ namespace Hugo.Core.Telemetry
         /// <summary>Request history captures.</summary>
         public static readonly MetricDescriptor RequestHistoryCaptured = new MetricDescriptor("hugo.request_history.captured", MetricKindEnum.Counter, "{request}", "result", "Request history entries written or dropped", "server", "Database", "hugo-database");
 
+        /// <summary>Active resources grouped by their last scheduled probe outcome.</summary>
+        public static readonly MetricDescriptor ResourceHealth = new MetricDescriptor("hugo.resource.health", MetricKindEnum.ObservableGauge, "{resource}", "connector, status", "Active resources checked by the last completed scheduled sweep, grouped by connector and healthy/unhealthy status", "server", "Integrations", "hugo-tools");
+
         /// <summary>Outbound requests.</summary>
         public static readonly MetricDescriptor OutboundRequests = new MetricDescriptor("hugo.outbound.requests", MetricKindEnum.Counter, "{request}", "service, operation, result", "Outbound calls (observability probes, metrics relay, and later connectors) by result (ok, error, status class)", "server, worker", "Integrations", "hugo-integrations");
 
@@ -205,6 +208,7 @@ namespace Hugo.Core.Telemetry
             DbRetries,
             RetentionDeleted,
             RequestHistoryCaptured,
+            ResourceHealth,
             OutboundRequests,
             OutboundDuration,
             ObservabilityReachable,

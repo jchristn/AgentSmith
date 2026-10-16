@@ -86,7 +86,7 @@ The tables list every setting the server reads. "Apply" is `Live` when the runni
 | Setting | Default | Range | Apply | Environment | Notes |
 |---|---|---|---|---|---|
 | `Auth.Issuer` | `hugo` | | Restart | | Token issuer. |
-| `Auth.SigningKey` | built-in placeholder | 16 characters or more | Restart | `HUGO_AUTH_SIGNING_KEY` | Keys the session token cipher. Startup warns while the placeholder is in use. Changing it invalidates every session. |
+| `Auth.SigningKey` | built-in placeholder | 16 characters or more | Restart | `HUGO_AUTH_SIGNING_KEY` | Validates pre-upgrade session tokens only. New sessions use the master-key `hugo-sessions-v1` HKDF subkey. Startup warns while the placeholder is in use. Changing it invalidates legacy tokens. |
 | `Auth.UserSessionMinutes` | `60` | 1 to 10080 | Live | | Session lifetime for tenant users and credentials. |
 | `Auth.AdminSessionMinutes` | `30` | 1 to 10080 | Live | | Session lifetime for system administrators. |
 | `Auth.SessionAbsoluteMaxHours` | `12` | 1 to 720 | Live | | Refresh is refused past this many hours after sign-in. |
@@ -95,6 +95,10 @@ The tables list every setting the server reads. "Apply" is `Live` when the runni
 | `Auth.RateLimitPerMinute` | `10` | 1 to 100000 | Live | | Attempts per source IP and per identity per minute on `POST /v1.0/token`, `POST /v1.0/tenants/lookup`, and `POST /v1.0/token/reauthenticate`. |
 | `Auth.PasswordHashIterations` | `600000` | 600000 to 10000000 | Live | | PBKDF2-HMAC-SHA256 iterations for new hashes; older hashes are upgraded at sign-in. The settings API advertises a minimum of 10000, but the settings class clamps anything lower to 600000. |
 | `Auth.CacheSeconds` | `5` | 0 to 60 | Live | | Database-backed. How long authentication lookups are cached. Changes made through the API drop the cached entry at once; 0 turns the cache off. |
+
+### Logging redaction
+
+`Logging.MaximumKnownSecretValues` (default 100000, range 100 to 1000000) and `Logging.MaximumKnownSecretCharacters` (default 4194304, range 1024 to 33554432) bound retained exact-match secret variants. Both require a restart. Reaching either budget makes shared scrubber output fail closed as `[redacted:capacity]`; it does not evict active secrets. The character default represents about 8 MiB of UTF-16 text, plus collection overhead. Raise the budget or restart after investigating excessive secret churn.
 
 ### Secrets
 
@@ -139,6 +143,25 @@ The order in which the master key is found is `HUGO_MASTER_KEY`, then `Secrets.M
 | `Telemetry.Exemplars` | `true` | | Restart | | Trace exemplars on duration histograms. File only. |
 
 Metric and trace details live in [TELEMETRY.md](TELEMETRY.md).
+
+Native log export is controlled by these restart settings:
+
+| Setting | Default | Range or meaning |
+|---|---|---|
+| `Telemetry.LogsEnable` | `true` | Enable scrubbed Radiant logs. Export still requires OTLP or Loki to be enabled. |
+| `Telemetry.LokiEnable` | `false` | Also send logs directly to Loki OTLP-HTTP. |
+| `Telemetry.LokiEndpoint` | `http://127.0.0.1:3100/otlp` | Absolute OTLP base URL; `/v1/logs` is appended. |
+| `Telemetry.LokiTenantId` | empty | Optional `X-Scope-OrgID` header. |
+| `Telemetry.LogQueueCapacity` | `1024` | 1 to 65536 entries. Full queues drop new entries. |
+| `Telemetry.LogMaxCharacters` | `32768` | 256 to 1048576 retained content characters in each exported message/details value, before the truncation suffix. |
+| `Telemetry.ExportTimeoutMs` | `3000` | 1000 to 30000 milliseconds per exporter network call. |
+| `Telemetry.LogDrainTimeoutMs` | `5000` | 100 to 30000 milliseconds to drain the bridge at shutdown. |
+
+Bundled Docker/Kubernetes observability sends native server logs through Alloy and keeps dashboard container/pod log collection. Server container logs are excluded to prevent duplicates; pre-Radiant startup lines remain in local console/file sinks. If native log export is disabled, restore server log discovery in Alloy. Invalid exporter configuration disables telemetry best-effort and leaves local logging available. Direct Loki export uses Loki's default resource labels; Alloy adds the existing Grafana `app`, `component`, `node`, and `level` labels. Avoid enabling both routes to the same Loki instance unless duplicated records are intentional.
+
+These switches are independent: `Logging.ConsoleLogging=false` disables console output, while file logging and native export can continue. `Telemetry.LogsEnable=false` disables native log export while leaving configured local sinks, metrics, and traces available. `Telemetry.Enabled=false` disables all telemetry exporters and the Prometheus listener, while local logging remains available. `Logging.MinimumSeverity` filters Hugo-managed entries before both local sinks and native export.
+
+Shutdown makes a best-effort bridge drain within `LogDrainTimeoutMs`, then disposes the exporters; exporter shutdown can add its own bounded network waits. Queued records may be lost on overflow, timeout, or remote failure. `HugoTelemetry.LogsDropped` counts bridge drops rather than downstream delivery failures. Logs emitted with active trace context retain trace/span metadata; request completion lines can also carry a `trace=...` value in their message when intrinsic log trace/span fields are absent.
 
 ### Observability links
 
@@ -186,8 +209,14 @@ All default to empty, which means "not configured".
 | `Connectors.ModelCallBudgetPerInvocation` | `60` | 0 to 10000 | Live | | Model calls one tool invocation may make before further calls fail with `rate_limited`. |
 | `Connectors.MaxConcurrencyPerResource` | `4` | 1 to 256 | Live | | Concurrent tool calls per resource; extra calls wait. |
 | `Connectors.SessionIdleMinutes` | `10` | 1 to 1440 | Live | | Idle pooled connector sessions (SSH clients, database connections) are closed after this. The pool reads the value at startup. |
+| `Connectors.HealthIntervalSeconds` | `300` | 0 to 86400 | Restart | | Seconds between scheduled resource checks; 0 disables them. |
+| `Connectors.HealthConnectorTypes` | `http,redis` | comma-separated types | Restart | | Types eligible for scheduled checks. Empty disables all types. Other connectors require explicit inclusion; wildcards are unsupported. |
 | `Connectors.TestTimeoutSeconds` | `30` | 1 to 600 | Live | | Connection tests are cancelled after this (D-036). |
 | `Connectors.McpAllowStdio` | `false` | | Restart | | Lets `mcp` resources launch local MCP servers over stdio (each resource must also opt in). File only. |
+
+Scheduled resource health checks run sequentially across active resources in active tenants. Each check uses `Connectors.TestTimeoutSeconds`, updates the resource's last-test fields, and contributes to `hugo_resource_health` with `connector` and `status` (`healthy` or `unhealthy`) labels. Expensive connectors, including cloud, SSH, model-backed, and external agent connectors, are excluded unless their exact types appear in `HealthConnectorTypes`. SSH probes require previously pinned target and jump-host keys; run an explicit connection test first. Scheduled checks cannot learn settings or persist knowledge.
+
+The gauge retains the last completed sweep while another runs. Resource changes and identity invalidations (including tenant removal) clear observations until the next completed sweep; disabled sweeps or changed eligibility settings also suppress observations immediately. Startup publishes no resource health samples until the first sweep. A connector that ignores cancellation cannot block the sweep past the timeout or receive another scheduled probe for that resource while its prior call remains active. Its context stays alive until that call completes. Connector implementations must still honor cancellation so shutdown can release their remote work.
 
 ### Instructions
 
@@ -246,7 +275,7 @@ A variable holding the wrong type (a word where a port belongs) stops startup wi
 
 ## The Docker stack's `.env`
 
-`docker/compose.yaml` takes its values from `docker/.env`, which `docker/start.sh` creates from `docker/.env.example` on first run and fills with a fresh master key and signing key. The file is git-ignored. Back it up: losing `HUGO_MASTER_KEY` makes every stored secret unreadable.
+`docker/compose.yaml` takes its values from `docker/.env`, which `docker/start.sh` creates from `docker/.env.example` on first run and fills with a fresh master key and legacy token validation key. The file is git-ignored. Back it up: losing `HUGO_MASTER_KEY` makes every stored secret unreadable.
 
 | Variable | Default | Used for |
 |---|---|---|

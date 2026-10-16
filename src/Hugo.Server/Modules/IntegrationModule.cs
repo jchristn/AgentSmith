@@ -55,6 +55,7 @@ namespace Hugo.Server.Modules
         private PluginLoader? _Plugins = null;
         private ModelClientFactory? _ModelFactory = null;
         private ToolInvocationRecorder? _Recorder = null;
+        private ResourceHealthService? _ResourceHealth = null;
         private CancellationTokenSource? _Stopping = null;
         private readonly List<Task> _Loops = new List<Task>();
 
@@ -113,6 +114,8 @@ namespace Hugo.Server.Modules
             ResourceService resources = new ResourceService(context.Database, _Registry, secrets, contexts, _Pool, context.Audit, events);
             resources.TestTimeoutSeconds = () => settings.Connectors.TestTimeoutSeconds;
             context.Register(resources);
+            _ResourceHealth = new ResourceHealthService(context.Database, resources, context.Authorization, settings.Connectors, message => context.Logging.Warn("[Resources] health probe failed: " + message));
+            context.Register(_ResourceHealth);
 
             AgentProfileService profiles = new AgentProfileService(context.Database, context.Audit, events, () => settings.Agent.DefaultMaxIterations, () => settings.Agent.DefaultMaxToolCallsPerTurn);
             context.Register(profiles);
@@ -197,6 +200,7 @@ namespace Hugo.Server.Modules
             ModelEndpointService models = context.Get<ModelEndpointService>();
             _Loops.Add(Task.Run(() => approvals.RunAsync(stopping)));
             _Loops.Add(Task.Run(() => ModelHealthLoopAsync(context, models, stopping)));
+            _Loops.Add(Task.Run(() => ResourceHealthLoopAsync(context, _ResourceHealth!, stopping)));
             _Loops.Add(Task.Run(() => SessionSweepLoopAsync(stopping)));
             return Task.CompletedTask;
         }
@@ -226,6 +230,8 @@ namespace Hugo.Server.Modules
                 await _Recorder.StopAsync(token).ConfigureAwait(false);
                 _Recorder.Dispose();
             }
+            _ResourceHealth?.Dispose();
+            _ResourceHealth = null;
             _Pool?.Dispose();
             _Plugins?.Dispose();
             _ModelFactory?.Dispose();
@@ -277,6 +283,28 @@ namespace Hugo.Server.Modules
                 catch (Exception e)
                 {
                     context.Logging.Warn("[Models] health sweep failed: " + SecretScrubber.Shared.Scrub(e.Message));
+                }
+            }
+        }
+
+        private static async Task ResourceHealthLoopAsync(ServerContext context, ResourceHealthService health, CancellationToken token)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                try
+                {
+                    int interval = context.Settings.Connectors.HealthIntervalSeconds;
+                    await Task.Delay(TimeSpan.FromSeconds(interval <= 0 ? 60 : interval), token).ConfigureAwait(false);
+                    if (context.Settings.Connectors.HealthIntervalSeconds <= 0) continue;
+                    await HugoTracing.BackgroundAsync("resources", "health", async ct => await health.SweepAsync(ct).ConfigureAwait(false) > 0, token).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (token.IsCancellationRequested)
+                {
+                    return;
+                }
+                catch (Exception e)
+                {
+                    context.Logging.Warn("[Resources] health sweep failed: " + SecretScrubber.Shared.Scrub(e.Message));
                 }
             }
         }

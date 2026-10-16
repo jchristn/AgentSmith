@@ -41,6 +41,30 @@ namespace Test.Shared.Suites
             payload.ExpiresUtc = DateTime.UtcNow.AddMinutes(-1);
             Assert.True(tokens.Validate(tokens.Issue(payload)) == null, "Expired token accepted.");
             Assert.True(tokens.Validate("not-a-token") == null, "Garbage accepted.");
+            byte[] firstKey = RandomNumberGenerator.GetBytes(32);
+            byte[] secondKey = RandomNumberGenerator.GetBytes(32);
+            SecretCipher firstCipher = new SecretCipher(firstKey, 1);
+            TokenService master = new TokenService(firstCipher, "hugo", 60, "signing-key");
+            payload.ExpiresUtc = DateTime.UtcNow.AddMinutes(5);
+            string masterToken = master.Issue(payload);
+            Assert.True(masterToken != master.Issue(payload), "Session nonces must be random.");
+            Assert.True(master.Validate(masterToken) != null, "Master-key token rejected.");
+            Assert.True(master.Validate(issued) != null, "Pre-upgrade token rejected.");
+            Assert.True(new TokenService(firstCipher, "other-issuer", 60).Validate(masterToken) == null, "Wrong issuer accepted.");
+            Assert.True(new TokenService(new SecretCipher(secondKey, 1), "hugo", 60).Validate(masterToken) == null, "Wrong master key accepted.");
+            TokenService rotated = new TokenService(new SecretCipher(secondKey, 2, firstKey, 1), "hugo", 60);
+            Assert.True(rotated.Validate(masterToken) != null, "Previous master key token rejected during rotation.");
+            string rotatedToken = rotated.Issue(payload);
+            Assert.Equal(2, SecretCipher.ReadKeyVersion(rotatedToken.Substring(6)), "New sessions use current version");
+            Assert.True(master.Validate(rotatedToken) == null, "Unknown master key version accepted.");
+            char[] frame = masterToken.ToCharArray();
+            frame[frame.Length / 2] = frame[frame.Length / 2] == 'A' ? 'B' : 'A';
+            Assert.True(master.Validate(new string(frame)) == null, "Tampered master-key token accepted.");
+            string wrongPurpose = "hugo1." + firstCipher.Encrypt(Hugo.Core.Constants.KeyPurposeSecrets, "{}", "hugo");
+            Assert.True(master.Validate(wrongPurpose) == null, "Secret ciphertext accepted as a session.");
+            payload.ExpiresUtc = DateTime.UtcNow.AddMinutes(-1);
+            Assert.True(master.Validate(master.Issue(payload)) == null, "Expired master-key token accepted.");
+            Assert.True(new TokenService(firstCipher, "hugo", 60).Validate(issued) == null, "Legacy fallback accepted when disabled.");
             return Task.CompletedTask;
         }
 

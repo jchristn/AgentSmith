@@ -67,6 +67,25 @@ The seed container exits with code 0 when every step succeeded. When a resource'
 
 The seed replaces the first-boot password (`password`) with the demo password, so you are not asked to change it. Set `HUGO_FACTORY_DEMO_PASSWORD` before a reset to use a different one. The system administrator `admin@hugo.local` keeps its first-boot password `password`; the dashboard prompts it to change the password, and the prompt can be skipped.
 
+## Run the Postman collection
+
+Wait for `hugo-seed` to exit successfully before running Newman. The factory changes Thomas Anderson's password to `HugoDemo2026!`; the system administrator keeps `password`. From the repository root:
+
+```bash
+docker compose -f docker/factory/compose.yaml wait hugo-seed
+HUGO_PORT=8810 HUGO_PASSWORD='HugoDemo2026!' HUGO_ADMIN_PASSWORD='password' scripts/newman.sh
+```
+
+`newman.sh` uses Newman from PATH or downloads Newman 6 through `npx`. The collection creates its own examples and removes them at the end. Requests that need a model skip when `HUGO_MODEL_BASE_URL` is empty; no paid model or API key is needed for the remaining API acceptance run. To keep the factory from detecting a developer's local Ollama during an isolated run, set `HUGO_FACTORY_OLLAMA_URL=http://127.0.0.1:1` before starting it. Model inference and a real-client journey remain separate checks.
+
+### Verified 2026-10-15
+
+The full collection passed against an isolated factory stack with both Hugo images built from the current checkout, including the final log-scrubbing changes. The server container used the rebuilt image (SHA-256 `f3a56071ac8d26c9a18102dde64903f91208bba6f129937dde24dc009df40e40`), and `hugo-seed` exited 0 without discovering or creating a model endpoint.
+
+Newman 6.2.3 traversed all 342 collection items: 323 collection requests and two sign-in requests executed, producing **325 HTTP requests, 408 assertions, and zero failures** in 12.6 seconds. The 19 documented skips were 14 model-dependent requests, three unbounded event streams, and two server restart requests. No real inference provider or model key was used; this run does not complete the separate real-model or Claude Code journeys. After collection cleanup, the factory still held its ten seeded resources and ten Hugo profile bindings.
+
+The run used a unique Compose project, renamed every container, selected free host ports, copied settings into a temporary bind directory, and used unique local image tags. All created containers, volumes, networks, image tags, overrides, copied settings, and raw test logs were removed afterward. Existing services and their data were left running. Shell syntax, collection JSON, and `git diff --check` also passed; the Windows Newman wrapper was reviewed but not executed.
+
 ## What is seeded
 
 The seed talks only to the public REST API, the same calls the dashboard makes. Every object is looked up by name and created or updated, so running it twice changes nothing. The code is in `docker/factory/seed/seed.py`.

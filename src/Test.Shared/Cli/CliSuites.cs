@@ -4,9 +4,9 @@ namespace Test.Shared.Cli
     using Touchstone.Core;
 
     /// <summary>
-    /// Suites for the hugo command line (P7.20, P7.21). Every suite runs without external services: the relay and
-    /// command suites use an in-process fake Hugo server on 127.0.0.1, and the process suite launches the built
-    /// <c>hugo</c> tool and talks MCP to it over real stdio pipes.
+    /// Suites for the hugo command line (P7.20, P7.21). The relay and command suites use an in-process fake
+    /// Hugo server on 127.0.0.1. The process suite also uses Voltaic's MCP
+    /// client to launch the built <c>hugo</c> tool over stdio against a real isolated Hugo server and connector.
     /// </summary>
     public static class CliSuites
     {

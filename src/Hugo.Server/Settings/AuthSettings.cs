@@ -15,7 +15,8 @@ namespace Hugo.Server.Settings
         public string Issuer { get; set; } = "hugo";
 
         /// <summary>
-        /// Session token signing key. Override with HUGO_AUTH_SIGNING_KEY; never commit a real value. Startup warns while
+        /// Legacy pre-upgrade session token validation key. New sessions use the master key.
+        /// Override with HUGO_AUTH_SIGNING_KEY; never commit a real value. Startup warns while
         /// the built-in default is in use.
         /// </summary>
         public string SigningKey { get; set; } = "hugo-default-signing-key-override-me";

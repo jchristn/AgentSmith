@@ -2,14 +2,18 @@ namespace Hugo.Core.Telemetry
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Diagnostics.Metrics;
     using System.Net;
     using System.Net.Http;
     using System.Threading;
+    using System.Threading.Channels;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.Logging;
     using Hugo.Core;
     using Hugo.Core.Settings;
     using Radiant;
+    using SyslogLogging;
 
     /// <summary>
     /// Application telemetry over Radiant: Prometheus listener, optional OTLP export, subscriptions to the Hugo meter
@@ -71,6 +75,16 @@ namespace Hugo.Core.Telemetry
         private readonly List<GaugeRegistration> _Gauges = new List<GaugeRegistration>();
         private int _ScrapeTimeoutMs = 5000;
         private bool _Disposed = false;
+        private readonly CancellationTokenSource _LogStopping = new CancellationTokenSource();
+        private readonly TelemetrySettings _Settings;
+        private readonly string _Node;
+        private Channel<HugoLogRecord>? _LogQueue;
+        private Task? _LogPump;
+        private ILogger? _Logger;
+        private long _LogsDropped;
+
+        /// <summary>Entries dropped because the bounded log bridge was full or shutting down.</summary>
+        public long LogsDropped { get { return Interlocked.Read(ref _LogsDropped); } }
 
         #endregion
 
@@ -86,6 +100,8 @@ namespace Hugo.Core.Telemetry
         public HugoTelemetry(TelemetrySettings settings, string nodeId, Action<string>? diagnostic)
         {
             if (settings == null) throw new ArgumentNullException(nameof(settings));
+            _Settings = settings;
+            _Node = nodeId ?? String.Empty;
             HugoMetrics.Labels.MaxLabelValues = settings.MaxLabelValues;
             if (!settings.Enabled) return;
 
@@ -102,7 +118,8 @@ namespace Hugo.Core.Telemetry
             Action<string>? counted = original == null ? null : new Action<string>(message =>
             {
                 HugoMetrics.Count(HugoMetricCatalog.TelemetryDiagnostics, "severity", message.StartsWith("telemetry", StringComparison.Ordinal) ? "warning" : "info");
-                original(message);
+                try { original(message); }
+                    catch (Exception) { }
             });
             diagnostic = counted;
 
@@ -111,8 +128,14 @@ namespace Hugo.Core.Telemetry
             {
                 try
                 {
-                    _Host = RadiantHost.Start(Build(settings, nodeId, hosts[i], diagnostic));
+                    _Host = RadiantHost.Start(Build(settings, _Node, hosts[i], diagnostic));
                     _Client = _Host.Client;
+                    if (settings.LogsEnable && (settings.OtlpEnable || settings.LokiEnable))
+                    {
+                        _Logger = _Host.CreateLogger("Hugo");
+                        _LogQueue = Channel.CreateBounded<HugoLogRecord>(new BoundedChannelOptions(settings.LogQueueCapacity) { FullMode = BoundedChannelFullMode.Wait, SingleReader = true, SingleWriter = false });
+                        _LogPump = Task.Run(() => LogLoopAsync(_LogStopping.Token));
+                    }
                     PrometheusHostname = settings.PrometheusEnable ? hosts[i] : null;
                     PrometheusUrl = settings.PrometheusEnable ? "http://" + hosts[i] + ":" + settings.PrometheusPort + settings.PrometheusPath : null;
                     if (i > 0) diagnostic?.Invoke("telemetry: Prometheus listener bound to " + hosts[i] + " after " + hosts[i - 1] + " failed");
@@ -138,6 +161,37 @@ namespace Hugo.Core.Telemetry
         #endregion
 
         #region Public-Methods
+
+        /// <summary>
+        /// Queue an already scrubbed entry for Radiant. Never waits for network or queue capacity. Ambient scopes
+        /// are excluded; trace context is captured now and restored only around this entry's export.
+        /// </summary>
+        /// <param name="entry">Scrubbed entry from HugoLog.</param>
+        public void Log(LogEntry entry)
+        {
+            if (_Disposed || _LogQueue == null || entry == null) return;
+            try
+            {
+                HugoLogRecord record = new HugoLogRecord();
+                record.Message = Limit(entry.Message);
+                record.Details = Limit(entry.ToJson());
+                record.Level = entry.Severity.ToString();
+                record.Severity = entry.Severity switch
+                {
+                    Severity.Debug => LogLevel.Debug,
+                    Severity.Info => LogLevel.Information,
+                    Severity.Warn => LogLevel.Warning,
+                    Severity.Error => LogLevel.Error,
+                    _ => LogLevel.Critical
+                };
+                record.TraceId = entry.TraceId ?? String.Empty;
+                record.SpanId = entry.SpanId ?? String.Empty;
+                record.Node = _Node;
+                record.Activity = Activity.Current;
+                if (!_LogQueue.Writer.TryWrite(record)) Interlocked.Increment(ref _LogsDropped);
+            }
+            catch (Exception) { Interlocked.Increment(ref _LogsDropped); }
+        }
 
         /// <summary>
         /// Increment a counter.
@@ -301,7 +355,19 @@ namespace Hugo.Core.Telemetry
             {
                 foreach (GaugeRegistration gauge in _Gauges) gauge.Dispose();
                 _Gauges.Clear();
-                _Host?.Dispose();
+                _LogQueue?.Writer.TryComplete();
+                if (_LogPump != null)
+                {
+                    try
+                    {
+                        if (!_LogPump.Wait(_Settings.LogDrainTimeoutMs)) _LogStopping.Cancel();
+                    }
+                    catch (AggregateException) { }
+                }
+                try { _Host?.Dispose(); }
+                catch (Exception) { }
+                _LogStopping.Cancel();
+                _LogStopping.Dispose();
                 _Http.Dispose();
             }
             _Disposed = true;
@@ -310,6 +376,41 @@ namespace Hugo.Core.Telemetry
         #endregion
 
         #region Private-Methods
+
+        private string Limit(string? text)
+        {
+            string safe = Hugo.Core.Security.SecretScrubber.Shared.Scrub(text) ?? String.Empty;
+            return safe.Length <= _Settings.LogMaxCharacters ? safe : safe.Substring(0, _Settings.LogMaxCharacters) + " [truncated]";
+        }
+
+        private async Task LogLoopAsync(CancellationToken token)
+        {
+            try
+            {
+                while (await _LogQueue!.Reader.WaitToReadAsync(token).ConfigureAwait(false))
+                {
+                    while (_LogQueue.Reader.TryRead(out HugoLogRecord? record))
+                    {
+                        token.ThrowIfCancellationRequested();
+                        Activity? previous = Activity.Current;
+                        try
+                        {
+                            Activity.Current = record.Activity;
+                            Dictionary<string, object> state = new Dictionary<string, object>
+                            {
+                                { "message", record.Message }, { "details", record.Details },
+                                { "app", "hugo" }, { "component", "server" }, { "node", record.Node }, { "pipeline", "otlp" },
+                                { "level", record.Level }, { "trace_id", record.TraceId }, { "span_id", record.SpanId }
+                            };
+                            _Logger!.Log(record.Severity, new EventId(0), state, null, (values, exception) => (string)values["message"]);
+                        }
+                        catch (Exception) { Interlocked.Increment(ref _LogsDropped); }
+                        finally { Activity.Current = previous; }
+                    }
+                }
+            }
+            catch (OperationCanceledException) when (token.IsCancellationRequested) { }
+        }
 
         private static List<string> PrometheusHosts(TelemetrySettings settings)
         {
@@ -341,6 +442,13 @@ namespace Hugo.Core.Telemetry
             radiant.Prometheus.Hostname = host;
             radiant.Prometheus.Port = settings.PrometheusPort;
             radiant.Prometheus.Path = settings.PrometheusPath;
+            radiant.Logs.Enable = settings.LogsEnable;
+            radiant.Logs.IncludeScopes = false;
+            radiant.Logs.MinimumSeverity = 1;
+            radiant.Loki.Enable = settings.LokiEnable;
+            radiant.Loki.Endpoint = settings.LokiEndpoint;
+            radiant.Loki.TenantId = String.IsNullOrEmpty(settings.LokiTenantId) ? null : settings.LokiTenantId;
+            radiant.Otlp.TimeoutMs = settings.ExportTimeoutMs;
             radiant.Otlp.Enable = settings.OtlpEnable;
             if (!String.IsNullOrEmpty(settings.OtlpEndpoint)) radiant.Otlp.Endpoint = settings.OtlpEndpoint;
             radiant.Metrics.LabelPolicy = LabelPolicyEnum.Lenient;

@@ -81,12 +81,14 @@ namespace Hugo.Core.Security
             if (currentVersion < 1 || currentVersion > 255) throw new ArgumentOutOfRangeException(nameof(currentVersion), "Key versions must be between 1 and 255.");
             _CurrentVersion = currentVersion;
             _Keys[currentVersion] = (byte[])currentKey.Clone();
+            SecretScrubber.Shared.AddKnownValue(Convert.ToBase64String(currentKey));
             if (previousKey != null)
             {
                 if (previousKey.Length < MinimumKeyBytes) throw new ArgumentException("The previous master key must be at least " + MinimumKeyBytes + " bytes.", nameof(previousKey));
                 if (previousVersion < 1 || previousVersion > 255) throw new ArgumentOutOfRangeException(nameof(previousVersion), "Key versions must be between 1 and 255.");
                 if (previousVersion == currentVersion) throw new ArgumentException("The previous key version must differ from the current key version.", nameof(previousVersion));
                 _Keys[previousVersion] = (byte[])previousKey.Clone();
+                SecretScrubber.Shared.AddKnownValue(Convert.ToBase64String(previousKey));
             }
         }
 
@@ -139,6 +141,7 @@ namespace Hugo.Core.Security
             if (String.IsNullOrEmpty(purpose)) throw new ArgumentNullException(nameof(purpose));
             if (plaintext == null) throw new ArgumentNullException(nameof(plaintext));
 
+            if (purpose == Constants.KeyPurposeSecrets || purpose == Constants.KeyPurposeCredentials) SecretScrubber.Shared.AddKnownValue(plaintext);
             byte[] key = DeriveKey(_Keys[_CurrentVersion], purpose);
             byte[] data = Encoding.UTF8.GetBytes(plaintext);
             byte[] nonce = RandomNumberGenerator.GetBytes(12);
@@ -175,6 +178,7 @@ namespace Hugo.Core.Security
             try
             {
                 string plaintext = DecryptCore(purpose, encoded, associatedData);
+                if (purpose == Constants.KeyPurposeSecrets || purpose == Constants.KeyPurposeCredentials) SecretScrubber.Shared.AddKnownValue(plaintext);
                 HugoMetrics.Count(HugoMetricCatalog.SecretOperations, "operation", "decrypt", "outcome", "ok");
                 return plaintext;
             }

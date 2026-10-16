@@ -30,6 +30,9 @@ namespace Test.Shared.Suites
             cases.Add(Case("analysis", "Static analysis finds variables, includes, unknown roots, misplaced loop variables, and secrets", Analysis));
             cases.Add(Case("raw", "Raw blocks render literally", Raw));
             cases.Add(Case("scope", "Rendering with a starting scope resolves this outside each", Scope));
+            cases.Add(Case("builtin-personas", "Shipped personas preserve configured identity and safety guidance", BuiltInPromptCases.Personas));
+            cases.Add(Case("builtin-composition", "Shipped safety, tool usage, surface preambles, and A2A skill composition", BuiltInPromptCases.Composition));
+            cases.Add(Case("builtin-resource-sections", "Resource instructions describe all access and approval modes with notes and knowledge", BuiltInPromptCases.ResourceSections));
             return new List<TestSuiteDescriptor> { new TestSuiteDescriptor("templates", "Template engine", cases) };
         }
 

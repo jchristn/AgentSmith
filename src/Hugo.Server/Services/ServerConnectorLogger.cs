@@ -3,6 +3,7 @@ namespace Hugo.Server.Services
     using System;
     using Hugo.Connectors.Abstractions;
     using Hugo.Core.Security;
+    using Hugo.Core.Telemetry;
     using SyslogLogging;
 
     /// <summary>
@@ -13,7 +14,7 @@ namespace Hugo.Server.Services
     {
         #region Private-Members
 
-        private readonly LoggingModule _Logging;
+        private readonly HugoLog _Logging;
         private readonly string _Prefix;
         private readonly SecretScrubber _Scrubber;
 
@@ -29,7 +30,7 @@ namespace Hugo.Server.Services
         /// <param name="resourceName">Resource name.</param>
         /// <param name="scrubber">Scrubber holding the invocation's secret values.</param>
         /// <exception cref="ArgumentNullException">Thrown when logging or scrubber is null.</exception>
-        public ServerConnectorLogger(LoggingModule logging, string connectorType, string resourceName, SecretScrubber scrubber)
+        public ServerConnectorLogger(HugoLog logging, string connectorType, string resourceName, SecretScrubber scrubber)
         {
             _Logging = logging ?? throw new ArgumentNullException(nameof(logging));
             _Scrubber = scrubber ?? throw new ArgumentNullException(nameof(scrubber));

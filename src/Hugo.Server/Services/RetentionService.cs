@@ -63,7 +63,7 @@ namespace Hugo.Server.Services
 
         private readonly DatabaseDriverBase _Database;
         private readonly ClusterSettingsService _Cluster;
-        private readonly LoggingModule _Logging;
+        private readonly HugoLog _Logging;
         private int _IntervalMs = 3600000;
         private long _LastHeartbeatTicks = DateTime.UtcNow.Ticks;
 
@@ -78,7 +78,7 @@ namespace Hugo.Server.Services
         /// <param name="cluster">Cluster settings.</param>
         /// <param name="logging">Logging.</param>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is null.</exception>
-        public RetentionService(DatabaseDriverBase database, ClusterSettingsService cluster, LoggingModule logging)
+        public RetentionService(DatabaseDriverBase database, ClusterSettingsService cluster, HugoLog logging)
         {
             _Database = database ?? throw new ArgumentNullException(nameof(database));
             _Cluster = cluster ?? throw new ArgumentNullException(nameof(cluster));

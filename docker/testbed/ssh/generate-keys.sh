@@ -36,5 +36,11 @@ generate id_ed25519 ed25519 "" ""
 generate id_ed25519_passphrase ed25519 "" "hugo-testbed-passphrase"
 generate id_rsa rsa 3072 ""
 
+# Container initialization may run as root; make generated files readable by the checkout owner on Linux.
+# The mounted generator script retains the checkout owner's UID/GID, even if Compose created the output as root.
+if [ "$(id -u)" = "0" ]; then
+  owner="$(stat -c '%u:%g' "$0" 2>/dev/null || stat -f '%u:%g' "$0")"
+  chown -R "$owner" "$OUT"
+fi
 chmod 600 "$OUT"/id_ed25519 "$OUT"/id_ed25519_passphrase "$OUT"/id_rsa
 echo "SSH testbed keys are in $(cd "$OUT" && pwd)"

@@ -1378,3 +1378,9 @@ export interface ChatEvent {
   data: string;
   payload?: Json;
 }
+
+/** Counts of all matching audit records, independent of pagination. */
+export interface AuditSummary {
+  totalCount: number;
+  eventCounts: Record<string, number>;
+}

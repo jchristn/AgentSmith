@@ -11,12 +11,16 @@ namespace Test.Shared.Cli
     using System.Threading.Channels;
     using System.Threading.Tasks;
     using Hugo.Cli.Mcp;
+    using Hugo.Core.Enums;
     using Test.Shared.Infrastructure;
+    using Test.Shared.Integration.Mcp;
     using Touchstone.Core;
+    using Voltaic.Mcp;
 
     /// <summary>
     /// Launches the built <c>hugo</c> tool as a child process and acts as an MCP client over its real standard input
-    /// and output (P7.21): handshake, an event-stream tool call, a list, and a clean exit on end of input.
+    /// and output (P7.21): fake-server transport edge cases plus a real Voltaic client driving the real Hugo server,
+    /// connector discovery, tool execution, and access-mode enforcement through the CLI subprocess.
     /// </summary>
     public static class CliProcessCases
     {
@@ -39,6 +43,10 @@ namespace Test.Shared.Cli
         {
             List<TestCaseDescriptor> cases = new List<TestCaseDescriptor>();
             cases.Add(Case("stdio-round-trip", "An MCP client drives hugo mcp stdio over real stdio pipes and the tool exits 0 on EOF", StdioRoundTrip));
+            foreach (DatabaseTypeEnum provider in TestEnvironment.Providers())
+            {
+                cases.Add(Case("real-mcp-" + provider.ToString().ToLowerInvariant(), "Voltaic launches hugo over stdio against the real Hugo MCP server (" + provider + ")", ct => RealMcpAsync(provider, ct)));
+            }
             cases.Add(Case("exit-codes", "The tool process exits 0 for --version and 2 for an unknown command", ExitCodes));
             return cases;
         }
@@ -187,6 +195,37 @@ namespace Test.Shared.Cli
                         }
                     }
                 }
+            }
+        }
+
+        private static async Task RealMcpAsync(DatabaseTypeEnum provider, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            await using (McpFixture fixture = await McpFixture.StartAsync(provider, null, token).ConfigureAwait(false))
+            using (CliTestEnvironment env = new CliTestEnvironment())
+            using (CancellationTokenSource timeout = CancellationTokenSource.CreateLinkedTokenSource(token))
+            using (McpClient client = new McpClient())
+            {
+                timeout.CancelAfter(TimeSpan.FromSeconds(60));
+                client.ProtocolVersion = "2025-06-18";
+                client.ClientName = "Hugo.Cli.Acceptance";
+                client.PingIntervalMs = 0;
+                ProcessStartInfo info = StartInfo(env, "mcp", "stdio", "--server", fixture.BaseUrl,
+                    "--profile", "Hugo", "--tenant", fixture.Rig.TenantId,
+                    "--access-key", fixture.HugoCredential.AccessKey, "--secret-key", fixture.HugoCredential.SecretKey,
+                    "--credentials-file", Path.Combine(env.Root, "real-mcp-credentials.json"));
+                Assert.True(await client.LaunchServerAsync(info.FileName, info.ArgumentList.ToArray(), timeout.Token).ConfigureAwait(false), "Voltaic launched the CLI and initialized the real MCP endpoint");
+                Assert.True(client.InitializeResult != null, "initialize handshake completed");
+                Assert.Equal("2025-06-18", client.ProtocolVersion, "negotiated protocol version");
+                McpTestToolList tools = await client.CallAsync<McpTestToolList>("tools/list", null, 15000, timeout.Token).ConfigureAwait(false);
+                Assert.True(tools.Find("echo_read") != null, "real connector tool discovered through stdio");
+                McpTestToolResult result = await client.CallAsync<McpTestToolResult>("tools/call",
+                    new { name = "echo_read", arguments = new { resource = "echo-ro", text = "real CLI stdio round trip" } }, 15000, timeout.Token).ConfigureAwait(false);
+                Assert.True(result.IsError != true && result.Text.Contains("real CLI stdio round trip", StringComparison.Ordinal), "connector result returned through the actual CLI: " + result.Text);
+                McpTestToolResult denied = await client.CallAsync<McpTestToolResult>("tools/call",
+                    new { name = "echo_write", arguments = new { resource = "echo-ro", text = "must remain read-only" } }, 15000, timeout.Token).ConfigureAwait(false);
+                Assert.True(denied.IsError == true && denied.Text.StartsWith("readonly_binding:", StringComparison.Ordinal), "real pipeline enforces read-only binding over stdio: " + denied.Text);
+                await client.PingAsync(15000, timeout.Token).ConfigureAwait(false);
             }
         }
 

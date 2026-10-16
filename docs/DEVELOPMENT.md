@@ -28,12 +28,12 @@ docker rm -f hugo-test-pg
 Connector integration suites run against real targets in containers. They skip unless `HUGO_TESTBED=1` is set.
 
 ```bash
-docker compose -f docker/testbed/compose.yaml up -d --wait
+docker compose -f docker/testbed/compose.all.yaml up -d --wait
 HUGO_TESTBED=1 dotnet run --project src/Test.Automated -f net10.0 -- --suites testbed
-docker compose -f docker/testbed/compose.yaml down -v
+docker compose -f docker/testbed/compose.all.yaml down -v
 ```
 
-`docker/testbed/README.md` lists every target and port. Each connector family can be started on its own from its directory.
+`docker/testbed/README.md` lists every target and port. For wave 1 only, use `docker/testbed/compose.yaml` and select `--suites testbed.ssh,testbed.storage,testbed.sql`. Each connector family can be started on its own from its directory.
 
 ## Trying a change end to end
 
@@ -47,5 +47,11 @@ docker compose up -d --build
 The dashboard has a Vite development server for fast iteration on the UI (`cd dashboard && npm install && npm run dev`, which proxies API calls to the Hugo container on port 8800). It is a development aid only.
 
 ## Rules
+
+The product version is defined in `src/Directory.Build.props`. After an explicitly authorized version
+change, run `scripts/check-version-mirrors.sh --sync` to copy that value into the dashboard and SDK
+manifests, npm lockfiles, and Python runtime version. The helper never edits the authoritative version.
+Run `scripts/check-version-mirrors.sh` without flags for the read-only check used in CI. Both modes
+accept an optional repository root as the final argument.
 
 `CLAUDE.md` holds the code style and architecture rules, and `HUGO_PLAN.md` is the build plan and progress tracker. Never use em-dashes anywhere; `scripts/check-em-dash.sh` enforces it.

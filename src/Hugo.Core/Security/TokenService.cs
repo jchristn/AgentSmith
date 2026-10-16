@@ -8,7 +8,8 @@ namespace Hugo.Core.Security
 
     /// <summary>
     /// Issues and validates opaque session tokens: AES-256-CBC with a random IV per token, then HMAC-SHA256 over
-    /// IV and ciphertext (encrypt-then-MAC). Encryption and MAC keys are derived from the signing key. Thread-safe.
+    /// IV and ciphertext for legacy tokens. New tokens use versioned AES-256-GCM frames under the master-key
+    /// HKDF session subkey. Thread-safe.
     /// </summary>
     public class TokenService
     {
@@ -29,8 +30,10 @@ namespace Hugo.Core.Security
 
         #region Private-Members
 
-        private readonly byte[] _EncryptionKey;
-        private readonly byte[] _MacKey;
+        private readonly SecretCipher? _Cipher;
+        private readonly TokenService? _Legacy;
+        private readonly byte[] _EncryptionKey = Array.Empty<byte>();
+        private readonly byte[] _MacKey = Array.Empty<byte>();
         private readonly string _Issuer;
         private readonly int _LifetimeMinutes;
 
@@ -55,6 +58,24 @@ namespace Hugo.Core.Security
             _LifetimeMinutes = Math.Clamp(lifetimeMinutes, 1, 10080);
         }
 
+        /// <summary>
+        /// Instantiate a master-key-backed codec. New tokens use the current cipher key version;
+        /// configured previous keys validate older frames. Legacy signing-key tokens remain valid until expiry or revocation.
+        /// </summary>
+        /// <param name="cipher">Shared versioned master-key cipher.</param>
+        /// <param name="issuer">Issuer, bound as authenticated associated data.</param>
+        /// <param name="lifetimeMinutes">Default lifetime, clamped to 1 through 10080 minutes.</param>
+        /// <param name="legacySigningKey">Previous signing key for pre-upgrade tokens, or null to disable compatibility.</param>
+        /// <exception cref="ArgumentNullException">Thrown when cipher or issuer is null or empty.</exception>
+        public TokenService(SecretCipher cipher, string issuer, int lifetimeMinutes, string? legacySigningKey = null)
+        {
+            _Cipher = cipher ?? throw new ArgumentNullException(nameof(cipher));
+            if (String.IsNullOrEmpty(issuer)) throw new ArgumentNullException(nameof(issuer));
+            _Issuer = issuer;
+            _LifetimeMinutes = Math.Clamp(lifetimeMinutes, 1, 10080);
+            if (!String.IsNullOrEmpty(legacySigningKey)) _Legacy = new TokenService(legacySigningKey, issuer, lifetimeMinutes);
+        }
+
         #endregion
 
         #region Public-Methods
@@ -70,7 +91,9 @@ namespace Hugo.Core.Security
             if (payload == null) throw new ArgumentNullException(nameof(payload));
             payload.Issuer = _Issuer;
 
-            byte[] plaintext = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(payload, Serializer.Options));
+            string serialized = JsonSerializer.Serialize(payload, Serializer.Options);
+            if (_Cipher != null) return "hugo1." + _Cipher.Encrypt(Constants.KeyPurposeSessions, serialized, _Issuer);
+            byte[] plaintext = Encoding.UTF8.GetBytes(serialized);
             using (Aes aes = Aes.Create())
             {
                 aes.Key = _EncryptionKey;
@@ -97,6 +120,13 @@ namespace Hugo.Core.Security
             if (String.IsNullOrEmpty(token)) return null;
             try
             {
+                if (_Cipher != null)
+                {
+                    if (!token.StartsWith("hugo1.", StringComparison.Ordinal)) return _Legacy?.Validate(token);
+                    string plaintext = _Cipher.Decrypt(Constants.KeyPurposeSessions, token.Substring(6), _Issuer);
+                    TokenPayload? decoded = JsonSerializer.Deserialize<TokenPayload>(plaintext, Serializer.Options);
+                    return decoded != null && decoded.Issuer == _Issuer && decoded.ExpiresUtc >= DateTime.UtcNow ? decoded : null;
+                }
                 byte[] raw = FromBase64Url(token);
                 if (raw.Length < 16 + 16 + 32) return null;
 

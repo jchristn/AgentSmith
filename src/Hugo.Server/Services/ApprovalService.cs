@@ -98,7 +98,7 @@ namespace Hugo.Server.Services
         private readonly DatabaseDriverBase _Database;
         private readonly AuditService _Audit;
         private readonly EventHub? _Events;
-        private readonly LoggingModule _Logging;
+        private readonly HugoLog _Logging;
         private readonly ConcurrentDictionary<string, TaskCompletionSource<ApprovalStatusEnum>> _Waiters = new ConcurrentDictionary<string, TaskCompletionSource<ApprovalStatusEnum>>(StringComparer.Ordinal);
         private readonly ConcurrentDictionary<string, ConcurrentDictionary<TaskCompletionSource<ApprovalStatusEnum>, byte>> _Observers = new ConcurrentDictionary<string, ConcurrentDictionary<TaskCompletionSource<ApprovalStatusEnum>, byte>>(StringComparer.Ordinal);
         private Func<int> _ExpirySeconds = () => 900;
@@ -118,7 +118,7 @@ namespace Hugo.Server.Services
         /// <param name="events">Event hub, or null.</param>
         /// <param name="logging">Logging.</param>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is null.</exception>
-        public ApprovalService(DatabaseDriverBase database, AuditService audit, EventHub? events, LoggingModule logging)
+        public ApprovalService(DatabaseDriverBase database, AuditService audit, EventHub? events, HugoLog logging)
         {
             _Database = database ?? throw new ArgumentNullException(nameof(database));
             _Audit = audit ?? throw new ArgumentNullException(nameof(audit));

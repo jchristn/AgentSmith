@@ -3,7 +3,7 @@
 #
 #   scripts/newman.sh                                                 # docker/ stack on http://127.0.0.1:8800, seeded passwords
 #   HUGO_PASSWORD='Your-Password-1!' HUGO_ADMIN_PASSWORD='...' scripts/newman.sh   # accounts whose passwords you changed
-#   HUGO_PORT=8810 HUGO_PASSWORD='HugoDemo2026!' HUGO_ADMIN_PASSWORD='HugoDemo2026!' scripts/newman.sh
+#   HUGO_PORT=8810 HUGO_PASSWORD='HugoDemo2026!' HUGO_ADMIN_PASSWORD='password' scripts/newman.sh
 #                                                                     # factory demo stack (docs/FACTORY.md)
 #   HUGO_MODEL_BASE_URL=http://127.0.0.1:11434 HUGO_MODEL_NAME=llama3.1 scripts/newman.sh
 #                                                                     # also run the requests that need a model

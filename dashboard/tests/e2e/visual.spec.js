@@ -13,6 +13,7 @@ const VIEWPORTS = [
 ];
 
 const SHOTS = [
+  { name: 'shell', path: pathFor('home') },
   { name: 'home', path: pathFor('home') },
   { name: 'chat', path: pathFor('chat', 'cnv_0001') },
   { name: 'profile', path: pathFor('profiles', 'prf_0001') },
@@ -38,6 +39,7 @@ for (const theme of ['light', 'dark']) {
         if (shot.open) {
           await shot.open(page);
           await expect(page.locator(shot.wait)).toBeVisible();
+          await expect(page.locator('.loading-spinner')).toHaveCount(0);
         }
         await page.screenshot({ path: `test-results/visual/${theme}-${vp.name}-${shot.name}.png`, fullPage: !shot.open });
         const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);

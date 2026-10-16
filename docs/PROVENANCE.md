@@ -42,6 +42,29 @@ The fork was a copy followed by a rename: `Garrison` became `Hugo`, `GARRISON_` 
 
 `Infrastructure/Assert.cs`, `HttpTestHelpers.cs`, `TestResponse.cs`, `TestAssertionException.cs`, `TestEnvironment.cs`, `TestServerHost.cs`, and `Suites/IdentitySuite.cs`, `IdentityHttpCases.cs`, `IdentityUnitCases.cs`, `TemplateSuite.cs`. The database contract suite was rewritten for Hugo's entities.
 
+## Foundation helper verification (P0.16)
+
+The recorded fork commit above was compared with Hugo again on 2026-10-15:
+
+- `Templates/TemplateRenderer.cs` retains Garrison's implementation in the Hugo namespace. The broader
+  template engine keeps Hugo's documented variable roots and removes the Codex-specific filter. All
+  eleven original `TemplateSuite` cases are present; the analyzer case uses Hugo profile/binding roots.
+- `Telemetry/LabelGuard.cs` matches Garrison after the namespace rename. Its original
+  `TelemetryCoverageSuite.LabelGuardAsync` case is ported into `helper-ports`, with additional reset,
+  empty-value, remembered-count, and throwing-callback checks.
+- `StrictEnumConverterFactory` was named in the original P0.16 scope but is absent from Garrison's recorded fork tree and
+  current tree. There is no original helper or test to port from those sources. Hugo now supplies its
+  own `Serialization/StrictEnumConverterFactory.cs` and `StrictEnumConverter.cs`, with explicit
+  acceptance coverage in `helper-ports`, tracked separately as P0.17.
+
+The strict factory is applied to Hugo-owned API enum types in `Serializer.Options` and its readable
+variant. It accepts declared names without case sensitivity, writes canonical names, and rejects
+numeric tokens, numeric strings, unknown names, and undefined output values. Nullable enums retain
+normal JSON null handling. File settings keep their existing converter, including historical numeric
+enum values, and third-party enum types retain their previous serializer behavior. Explicit
+property-level converters retain their own contracts. Compatibility coverage loads the shipped
+`src/Hugo.Server/hugo.json`, checks its numeric logging severity, and round-trips file settings.
+
 ## What was removed
 
 Everything that models Garrison's agent-harness runtime: runs, run events, nodes, node pools, workers, executors, harness profiles, deployments, pipelines and reviews, manifests, artifacts and artifact stores, the Codex credential refresh, approvals as Garrison models them, conversations, the MCP server registry and MCP sessions, coordination leases, leader election, the event backplane, control nodes, usage quotas, model prices, workspace templates, the A2A routes, the Garrison MCP server and cluster proxy, WebSockets, and the Garrison seed prompts and harness profiles. The approval, A2A, and MCP pieces return in later Hugo phases, built for Hugo's domain.

@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "201ef823-b318-5721-b39d-2c160ae749e0",
     "name": "Hugo",
-    "description": "Every Hugo REST route, plus MCP and A2A JSON-RPC examples, organized by area. Hugo is a multi-tenant super agent server: you give it access to the systems behind your production stack, group that access into agent profiles, and reach those profiles over MCP, A2A, REST, an OpenAI-compatible endpoint, or the dashboard. The full reference is REST_API.md, MCP_API.md, and A2A_API.md in the repository.\n\nHow to use it\n\n1. Import this collection and `Hugo.postman_environment.json`, and select the environment.\n2. Set `host` and `port` for your server. The Docker stack serves the API on 127.0.0.1:8800; the seeded demo stack in `docker/factory/` serves it on 127.0.0.1:8810.\n3. Set `password` and `adminPassword` to the accounts' passwords (`password` on a fresh stack). The collection never changes them: since D-048 `mustChangePassword` is advisory and blocks nothing. If you changed the seeded passwords to one value, you can leave `password` alone and put that value in `newPassword`; the collection tries it when `password` is refused. Against the factory demo stack, set both to that stack's demo password.\n4. Run the folders in order (Collection Runner or `scripts/newman.sh`). Later folders use IDs that earlier folders capture into collection variables.\n\nAuthentication\n\nThe collection uses a bearer token. Its pre-request script keeps `{{token}}` (the tenant administrator `{{email}}`) and `{{adminToken}}` (the system administrator `{{adminEmail}}`) valid and only calls the server when a token is missing or about to expire. Requests that show another scheme (credential keys, a signed request, anonymous routes) set their own authorization. Token routes are rate limited to 10 per minute per IP by default (`Auth.RateLimitPerMinute`); the run stays under that, and the sign-in script waits out a 429 (honoring `Retry-After`) and tries once more.\n\nCredentials do not inherit their owner's administrator bypass, so every credential the collection creates gets an explicit role (`roleName`).\n\nWhat runs where\n\nEverything runs against a fresh server with nothing else installed: the examples use `demo-db`, a SQLite resource on `:memory:`. Requests that need a model (chat, A2A tasks, the OpenAI-compatible completions, `ask_agent_smith`) are skipped unless `modelBaseUrl` is set to a reachable OpenAI-compatible endpoint. Requests that would restart the server or hold a stream open forever are documented but always skipped. The last folder deletes what the run created.",
+    "description": "Every Hugo REST route, plus MCP and A2A JSON-RPC examples, organized by area. Hugo is a multi-tenant super agent server: you give it access to the systems behind your production stack, group that access into agent profiles, and reach those profiles over MCP, A2A, REST, an OpenAI-compatible endpoint, or the dashboard. The full reference is REST_API.md, MCP_API.md, and A2A_API.md in the repository.\n\nHow to use it\n\n1. Import this collection and `Hugo.postman_environment.json`, and select the environment.\n2. Set `host` and `port` for your server. The Docker stack serves the API on 127.0.0.1:8800; the seeded demo stack in `docker/factory/` serves it on 127.0.0.1:8810.\n3. Set `password` and `adminPassword` to the accounts' passwords (`password` on a fresh stack). The collection never changes them: since D-048 `mustChangePassword` is advisory and blocks nothing. If you changed the seeded passwords to one value, you can leave `password` alone and put that value in `newPassword`; the collection tries it when `password` is refused. Against the factory demo stack, set `password` to `HugoDemo2026!` and leave `adminPassword` as `password`; the factory changes only the tenant administrator password.\n4. Run the folders in order (Collection Runner or `scripts/newman.sh`). Later folders use IDs that earlier folders capture into collection variables.\n\nAuthentication\n\nThe collection uses a bearer token. Its pre-request script keeps `{{token}}` (the tenant administrator `{{email}}`) and `{{adminToken}}` (the system administrator `{{adminEmail}}`) valid and only calls the server when a token is missing or about to expire. Requests that show another scheme (credential keys, a signed request, anonymous routes) set their own authorization. Token routes are rate limited to 10 per minute per IP by default (`Auth.RateLimitPerMinute`); the run stays under that, and the sign-in script waits out a 429 (honoring `Retry-After`) and tries once more.\n\nCredentials do not inherit their owner's administrator bypass, so every credential the collection creates gets an explicit role (`roleName`).\n\nWhat runs where\n\nEverything runs against a fresh server with nothing else installed: the examples use `demo-db`, a SQLite resource on `:memory:`. Requests that need a model (chat, A2A tasks, the OpenAI-compatible completions, `ask_agent_smith`) are skipped unless `modelBaseUrl` is set to a reachable OpenAI-compatible endpoint. Requests that would restart the server or hold a stream open forever are documented but always skipped. The last folder deletes what the run created.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -16704,6 +16704,60 @@
               ]
             },
             "description": "Audit records, newest first. Filters: `eventType`, `principalId`, `result`, `fromUtc`, `toUtc`; paging with `pageNumber` and `pageSize`.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Summarize audit records",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is one of [200]', function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "let j = null;",
+                  "try { j = pm.response.json(); } catch (e) { j = null; }",
+                  "const h = (name) => pm.response.headers.get(name);",
+                  "try { const v = (j.objects[0].id); if (v !== undefined && v !== null && v !== '') { pm.collectionVariables.set('auditId', v); } } catch (e) { }",
+                  "pm.test('counts match event totals', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(Object.values(body.eventCounts).reduce((sum, count) => sum + count, 0)).to.eql(body.totalCount);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/tenants/{{tenantId}}/audit/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "tenants",
+                "{{tenantId}}",
+                "audit",
+                "summary"
+              ]
+            },
+            "description": "Counts matching tenant audit records by event type. Optional eventType, principalId, result, fromUtc (inclusive), toUtc (exclusive) filters. Pagination is ignored.",
             "auth": {
               "type": "bearer",
               "bearer": [

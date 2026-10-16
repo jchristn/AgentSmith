@@ -15,6 +15,7 @@ namespace Hugo.Server.Services
     using Hugo.Core.Secrets;
     using Hugo.Core.Security;
     using Hugo.Core.Services;
+    using Hugo.Core.Telemetry;
     using SyslogLogging;
 
     /// <summary>
@@ -42,7 +43,7 @@ namespace Hugo.Server.Services
         private readonly ConnectorRegistry _Registry;
         private readonly ConnectorSessionPool _Pool;
         private readonly AuditService _Audit;
-        private readonly LoggingModule _Logging;
+        private readonly HugoLog _Logging;
 
         #endregion
 
@@ -58,7 +59,7 @@ namespace Hugo.Server.Services
         /// <param name="audit">Audit.</param>
         /// <param name="logging">Logging.</param>
         /// <exception cref="ArgumentNullException">Thrown when an argument is null.</exception>
-        public ConnectorContextBuilder(DatabaseDriverBase database, SecretService secrets, ConnectorRegistry registry, ConnectorSessionPool pool, AuditService audit, LoggingModule logging)
+        public ConnectorContextBuilder(DatabaseDriverBase database, SecretService secrets, ConnectorRegistry registry, ConnectorSessionPool pool, AuditService audit, HugoLog logging)
         {
             _Database = database ?? throw new ArgumentNullException(nameof(database));
             _Secrets = secrets ?? throw new ArgumentNullException(nameof(secrets));

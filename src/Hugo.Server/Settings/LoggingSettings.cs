@@ -45,11 +45,33 @@ namespace Hugo.Server.Settings
             }
         }
 
+        /// <summary>
+        /// Maximum process-wide known secret variants retained by the scrubber. Default 100000, minimum 100,
+        /// maximum 1000000. On overflow logs and shared scrubber outputs fail closed until restart.
+        /// </summary>
+        public int MaximumKnownSecretValues
+        {
+            get { return _MaximumKnownSecretValues; }
+            set { _MaximumKnownSecretValues = Math.Clamp(value, 100, 1000000); }
+        }
+
+        /// <summary>
+        /// Maximum retained known secret characters. Default 4194304, minimum 1024, maximum 33554432.
+        /// On overflow shared scrubber output fails closed until restart.
+        /// </summary>
+        public int MaximumKnownSecretCharacters
+        {
+            get { return _MaximumKnownSecretCharacters; }
+            set { _MaximumKnownSecretCharacters = Math.Clamp(value, 1024, 33554432); }
+        }
+
         #endregion
 
         #region Private-Members
 
         private int _MinimumSeverity = 1;
+        private int _MaximumKnownSecretValues = 100000;
+        private int _MaximumKnownSecretCharacters = 4194304;
 
         #endregion
     }

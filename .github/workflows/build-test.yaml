@@ -5,6 +5,20 @@ on:
   pull_request:
 
 jobs:
+  repository-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Product version mirrors
+        run: scripts/check-version-mirrors.sh
+      - name: Reviewed dependency pins
+        run: scripts/check-package-pins.sh
+      - name: Grafana dashboard mirrors
+        run: scripts/check-grafana-mirror.sh
+
   dotnet:
     runs-on: ubuntu-latest
     services:

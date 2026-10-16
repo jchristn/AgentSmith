@@ -35,7 +35,7 @@ cd AgentSmith/docker
 ./start.sh            # Windows: start.bat
 ```
 
-`start.sh` creates `docker/.env` on first run, generates the master key and the session signing key, and starts the stack. Back up `docker/.env`: losing `HUGO_MASTER_KEY` makes every stored secret unreadable. The stack is Hugo, its dashboard, and an observability stack (Prometheus, Tempo, Loki, Alloy, Grafana). It runs on SQLite by default; set `HUGO_DB_TYPE=Postgresql` in `docker/.env` and start with `docker compose --profile postgres up -d` to use PostgreSQL instead.
+`start.sh` creates `docker/.env` on first run, generates the master key and the legacy token validation key, and starts the stack. Back up `docker/.env`: losing `HUGO_MASTER_KEY` makes every stored secret unreadable. The stack is Hugo, its dashboard, and an observability stack (Prometheus, Tempo, Loki, Alloy, Grafana). It runs on SQLite by default; set `HUGO_DB_TYPE=Postgresql` in `docker/.env` and start with `docker compose --profile postgres up -d` to use PostgreSQL instead.
 
 | Service | URL |
 |---|---|

@@ -33,7 +33,7 @@ cd AgentSmith/docker
 ./start.sh            # Windows: start.bat
 ```
 
-`start.sh` creates `docker/.env`, generates the master key (`HUGO_MASTER_KEY`) and the session signing key (`HUGO_AUTH_SIGNING_KEY`), and starts the stack. Back up `docker/.env`: without the master key, every stored secret is unreadable.
+`start.sh` creates `docker/.env`, generates the master key (`HUGO_MASTER_KEY`) and the legacy token validation key (`HUGO_AUTH_SIGNING_KEY`), and starts the stack. Back up `docker/.env`: without the master key, every stored secret is unreadable.
 
 | Service | URL |
 |---|---|
@@ -43,6 +43,20 @@ cd AgentSmith/docker
 | Prometheus | http://127.0.0.1:9090 |
 
 Sign in as `anderson@hugo.local` with the password `password` (tenant `default`) and change the password when Hugo asks. `./update.sh` pulls new images and recreates the stack without touching data; `./reset.sh` deletes everything and starts fresh. The same images run on Kubernetes and minikube with the manifests in `k8s/` and `minikube/` ([KUBERNETES.md](https://github.com/jchristn/AgentSmith/blob/main/docs/KUBERNETES.md)). A seeded demo stack with real targets to talk to lives in `docker/factory/` ([FACTORY.md](https://github.com/jchristn/AgentSmith/blob/main/docs/FACTORY.md)).
+
+## Deployment paths
+
+Hugo supports three container deployment paths. Each runs one server replica; its event hub and approval signals currently live in that process. Running from source is for development.
+
+| Path | Start here | Variants and operations |
+|---|---|---|
+| Docker Compose | `docker/start.sh` (`start.bat` on Windows), as above; [Docker guide](https://github.com/jchristn/AgentSmith/blob/main/docs/DOCKER.md) | SQLite or the `postgres` profile, bundled observability, updates and resets; the isolated [factory demo](https://github.com/jchristn/AgentSmith/blob/main/docs/FACTORY.md) has its own stack and ports. Host Docker access is an opt-in socket override. |
+| Kubernetes | `k8s/scripts/deploy.sh k3s`; [Kubernetes guide](https://github.com/jchristn/AgentSmith/blob/main/docs/KUBERNETES.md) | Kustomize base, k3s and production overlays, PostgreSQL and observability components, or the equivalent `k8s/helm/hugo` Helm chart. Production needs database and TLS secrets first. |
+| minikube | `minikube/scripts/start.sh`, then `minikube/scripts/deploy.sh --with observability`; [minikube guide](https://github.com/jchristn/AgentSmith/blob/main/minikube/README.md) | A workstation profile with image pull, load, or build options; SQLite or PostgreSQL, port-forwarding, update, reset, and teardown scripts. |
+
+The Kubernetes and minikube scripts have Windows `.bat` versions. Back up their database volumes together with `hugo-secrets`; Compose needs its database volumes and `docker/.env`. The [deployment testing inventory](https://github.com/jchristn/AgentSmith/blob/main/user-testing/DEPLOYMENT_INVENTORY.md) records the installation paths to cover in simulated user testing.
+
+### Standalone server container
 
 Running the server image on its own is fine for a quick look:
 

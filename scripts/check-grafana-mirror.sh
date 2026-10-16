@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Validates the Grafana dashboard JSON in assets/grafana/ (the source of truth, mounted into Grafana by
-# docker/compose.yaml) and, when they exist, the mirrors in docker/grafana/ and docker/factory/grafana/:
+# docker/compose.yaml), the required mirror in docker/factory/grafana/, and the optional docker/grafana/:
 #
 #   - every file parses as JSON and has a non-empty uid and title;
 #   - uids are unique across the source directory and match the file name (<uid>.json);
@@ -94,7 +94,10 @@ for name in files:
 
 for mirror in mirrors:
     if not os.path.isdir(mirror):
-        print("skip %s (no mirror directory)" % mirror)
+        if os.path.basename(os.path.dirname(mirror)) == "factory":
+            errors.append("%s: required mirror directory missing" % mirror)
+        else:
+            print("skip %s (no mirror directory)" % mirror)
         continue
     mirrored = sorted(f for f in os.listdir(mirror) if f.endswith(".json"))
     for name in sorted(set(files) | set(mirrored)):

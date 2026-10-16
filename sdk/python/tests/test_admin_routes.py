@@ -43,6 +43,9 @@ def test_audit_list_get(client):
     assert record.id == page.objects[0].id and record.event_type
     issued = client.audit.list(event_type="SessionIssued", page_size=50)
     assert all(r.event_type == "SessionIssued" for r in issued.objects)
+    summary = client.audit.summary(event_type="SessionIssued")
+    assert summary.total_count == issued.total_count
+    assert summary.event_counts == {"SessionIssued": summary.total_count}
 
 
 def test_audit_delete(client):

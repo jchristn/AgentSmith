@@ -1,5 +1,7 @@
 # Hugo Python SDK
 
+Audit summaries return total and per-event counts for matching records: `client.audit.summary(event_type="AuthorizationDenied")`. They accept the audit list filters and ignore pagination.
+
 `hugo-sdk` is the Python client for the Hugo REST API. It ships a blocking `HugoClient` and an `AsyncHugoClient` with the same surface, both built on `httpx`. Responses are typed dataclasses that ignore unknown fields, errors are raised as `HugoError`, and server-sent events (the tenant event stream and chat streaming) come back as iterators.
 
 Version `0.1.0-alpha`, mirrored from `src/Directory.Build.props`. Python 3.9 or later.

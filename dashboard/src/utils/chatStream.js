@@ -35,6 +35,7 @@ export function fromStoredMessages(items = []) {
       return {
         id: m.id || `${role}-${m.sequence ?? Math.random()}`,
         role,
+        persisted: true,
         parts,
         thinking: m.thinkingContent || '',
         status: 'done',
@@ -48,6 +49,15 @@ export function fromStoredMessages(items = []) {
         createdUtc: m.createdUtc || null
       };
     });
+}
+
+/** Stored usage is already in the conversation counters; only live turns add to that snapshot. */
+export function conversationUsage(conversation, messages = []) {
+  return messages.reduce(
+    (total, message) =>
+      message.persisted ? total : { input: total.input + (message.usage?.inputTokens || 0), output: total.output + (message.usage?.outputTokens || 0) },
+    { input: conversation?.totalInputTokens || 0, output: conversation?.totalOutputTokens || 0 }
+  );
 }
 
 /** The call ID the server uses to tie tool and approval events together (callId), or an older alias. */
