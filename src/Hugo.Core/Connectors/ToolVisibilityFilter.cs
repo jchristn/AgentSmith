@@ -35,6 +35,7 @@ namespace Hugo.Core.Connectors
             BindingToolRule? rule = bound.Binding.ToolRules.FirstOrDefault(r => String.Equals(r.ToolName, tool.Name, StringComparison.Ordinal));
             if (rule != null && rule.Rule == ToolRuleEnum.Deny) return false;
             if (tool.RequiresModel && !profileHasModel) return false;
+            if (tool.UpdatesKnowledge && !bound.Binding.AllowKnowledgeUpdates) return false;
             if (tool.BaseEffect != EffectEnum.Read && !tool.ClassifiedPerCall && bound.EffectiveAccessMode == AccessModeEnum.ReadOnly) return false;
             return true;
         }

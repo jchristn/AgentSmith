@@ -187,3 +187,9 @@ Plugins run with the server's privileges, so only load code you would be willing
 8. Telemetry labels (the pipeline records `hugo_tool_*` metrics and a `<connector> <tool>` span automatically; add connector-specific spans only for long internal steps).
 9. A row in `docs/CONNECTORS.md`, a section in `MCP_API.md`, a Postman dry-run example, and a CHANGELOG entry.
 10. Registration in `ConnectorRegistrations.cs` or a plugin README.
+
+## Shared resource context
+
+Registration adds `resource_get_context` and `resource_update_context` to every connector, including plugins. Those names are reserved; connectors must not declare their own tools with those names. The wrapper preserves descriptors, connection validation, health checks, and optional `IRemoteInstructionsProvider` capability.
+
+The shared tools use the resource-bound knowledge store and normal invocation authorization. Embedded integrations supplying a custom store should implement `IVersionedResourceKnowledgeStore` for atomic writes; the generic update tool refuses a store that cannot check versions atomically. Existing SQL context tools retain compatibility with legacy nonversioned stores. See [resource context](RESOURCE_CONTEXT.md).

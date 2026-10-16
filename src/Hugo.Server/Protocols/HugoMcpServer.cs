@@ -421,7 +421,7 @@ namespace Hugo.Server.Protocols
                 definition.InputSchema = schema.RootElement.Clone();
             }
             McpAnnotations annotations = new McpAnnotations();
-            annotations.ReadOnlyHint = tool.KnownEffect == EffectEnum.Read;
+            annotations.ReadOnlyHint = tool.KnownEffect == EffectEnum.Read && !tool.UpdatesKnowledge;
             annotations.DestructiveHint = !tool.IsMetaTool && tool.BaseEffect == EffectEnum.Destructive;
             annotations.OpenWorldHint = !tool.IsMetaTool;
             definition.Annotations = annotations;

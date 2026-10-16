@@ -126,14 +126,18 @@ namespace Hugo.Connectors.Sql.Tools
                 if (mergedRefusal != null)
                     return ToolResult.Error(ConnectorErrorCodes.InvalidArgument, mergedRefusal + (mode == "append" ? " Use mode=replace with a curated version if the entry has grown too long." : String.Empty));
 
-                ResourceKnowledgeEntry stored = await store.PutAsync(new ResourceKnowledgeEntry
+                ResourceKnowledgeEntry update = new ResourceKnowledgeEntry
                 {
                     Scope = scope,
                     Key = key,
                     Content = merged,
                     Source = hasExisting && existing!.Source == KnowledgeSourceEnum.Operator ? KnowledgeSourceEnum.Operator : KnowledgeSourceEnum.Agent,
                     UpdatedBy = Actor(context, "agent")
-                }, ct).ConfigureAwait(false);
+                };
+                ResourceKnowledgeEntry? stored = store is IVersionedResourceKnowledgeStore versioned
+                    ? await versioned.TryPutAsync(update, existing?.Version ?? 0, ct).ConfigureAwait(false)
+                    : await store.PutAsync(update, ct).ConfigureAwait(false);
+                if (stored == null) return ToolResult.Error("version_conflict", "Context changed concurrently; read it again before updating.");
 
                 StringBuilder sb = new StringBuilder();
                 sb.Append(mode == "append" && hasExisting ? "Appended to " : "Saved ").Append(Describe(scope, key)).Append(" context (version ")

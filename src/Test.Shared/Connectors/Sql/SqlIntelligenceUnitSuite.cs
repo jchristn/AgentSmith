@@ -27,6 +27,27 @@ namespace Test.Shared.Connectors.Sql
             const string suite = "connectors.sql.intelligence-unit";
             List<TestCaseDescriptor> cases = new List<TestCaseDescriptor>();
 
+            cases.Add(new TestCaseDescriptor(suite, "knowledge-store-aba", "Deleted and recreated context rejects stale optimistic writes", async ct =>
+            {
+                InMemoryResourceKnowledgeStore store = new InMemoryResourceKnowledgeStore();
+                ResourceKnowledgeEntry first = await store.PutAsync(new ResourceKnowledgeEntry { Scope = "context", Key = "_root", Content = "Agent finding", Source = KnowledgeSourceEnum.Agent }, ct).ConfigureAwait(false);
+                SqlTestSupport.Check(first.Version == 1, "initial version");
+                SqlTestSupport.Check(await store.DeleteAsync("context", String.Empty, ct).ConfigureAwait(false), "root alias deletes the original entry");
+                ResourceKnowledgeEntry recreated = await store.PutAsync(new ResourceKnowledgeEntry { Scope = "context", Content = "Operator replacement", Source = KnowledgeSourceEnum.Operator }, ct).ConfigureAwait(false);
+                SqlTestSupport.Check(recreated.Version > first.Version, "unconditional recreation advances the version");
+                ResourceKnowledgeEntry? stale = await store.TryPutAsync(new ResourceKnowledgeEntry { Scope = "context", Key = "_root", Content = "Stale agent append", Source = KnowledgeSourceEnum.Agent }, first.Version, ct).ConfigureAwait(false);
+                SqlTestSupport.Check(stale == null, "stale version cannot overwrite the recreated operator entry");
+                ResourceKnowledgeEntry? current = await store.GetAsync("context", "_root", ct).ConfigureAwait(false);
+                SqlTestSupport.Check(current?.Content == "Operator replacement" && current.Source == KnowledgeSourceEnum.Operator && current.Version == recreated.Version, "operator content and provenance remain unchanged");
+                SqlTestSupport.Check(await store.DeleteAsync("context", "_root", ct).ConfigureAwait(false), "delete recreated entry");
+                ResourceKnowledgeEntry? conditional = await store.TryPutAsync(new ResourceKnowledgeEntry { Scope = "context", Content = "Second operator replacement", Source = KnowledgeSourceEnum.Operator }, 0, ct).ConfigureAwait(false);
+                SqlTestSupport.Check(conditional != null && conditional.Version > recreated.Version, "conditional recreation requires absence but retains monotonic versions");
+                stale = await store.TryPutAsync(new ResourceKnowledgeEntry { Scope = "context", Content = "Stale replacement" }, recreated.Version, ct).ConfigureAwait(false);
+                SqlTestSupport.Check(stale == null, "conditional recreation also rejects the old version");
+                current = await store.GetAsync("context", String.Empty, ct).ConfigureAwait(false);
+                SqlTestSupport.Check(current?.Content == "Second operator replacement" && current.Source == KnowledgeSourceEnum.Operator && current.Version == conditional!.Version, "second operator entry remains intact");
+            }));
+
             cases.Add(new TestCaseDescriptor(suite, "name-heuristics", "Key, metric, status, freshness, and type heuristics", ct =>
             {
                 foreach (string yes in new[] { "customer_id", "customerId", "CustomerID", "order_ID", "legacy_account_id" })

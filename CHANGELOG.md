@@ -74,6 +74,8 @@ Twenty connector types, each with its own settings schema, secret slots, tools, 
 
 ### Agent profiles and instructions
 
+- Every connector exposes resource_get_context and resource_update_context for versioned learnings in Hugo's resource knowledge store. Fresh bounded context informs each internal agent and connector-model call; permissions, audit, and operator-authored notes remain enforced.
+
 - Agent profiles bind resources with an alias, access mode, approval policy, and instruction override, and expose themselves over MCP, A2A, and the OpenAI-compatible API independently.
 - Layered prompt templates (Built-in, Global, Tenant) with versions, diffs, reset at each layer, and detection of built-in updates under customized text.
 - Compiled instructions per profile, caller, and surface, with a source map and token estimate. Profiles with more than three resources use compact connector instructions automatically, and `hugo_describe_resource` returns the full text on demand.

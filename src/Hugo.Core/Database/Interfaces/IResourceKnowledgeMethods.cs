@@ -42,6 +42,15 @@ namespace Hugo.Core.Database.Interfaces
         /// <exception cref="ArgumentNullException">Thrown when entry is null.</exception>
         Task<ResourceKnowledge> UpsertAsync(ResourceKnowledge entry, CancellationToken token = default);
 
+        /// <summary>Write an entry only when its current version matches; zero requires an absent entry.</summary>
+        /// <param name="entry">Entry to store.</param>
+        /// <param name="expectedVersion">Current version expected by the caller, or zero for a new entry.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>The written entry, or null when another writer changed it.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when entry is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when expectedVersion is negative.</exception>
+        Task<ResourceKnowledge?> TryUpsertAsync(ResourceKnowledge entry, int expectedVersion, CancellationToken token = default);
+
         /// <summary>
         /// Delete an entry and record a deletion version row.
         /// </summary>

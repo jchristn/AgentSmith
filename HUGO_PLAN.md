@@ -96,7 +96,7 @@ These rules keep the plan honest:
 | 11 | Documentation and Postman | M1 | Complete | 18 / 18 |
 | 12 | MVP verification (milestone M1) | M1 | Complete | 12 / 12 |
 | 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | In progress | 37 / 38 |
-| 14 | Knowledge, runbooks, and operator conveniences | M2 | Not started | 0 / 12 |
+| 14 | Knowledge, runbooks, and operator conveniences | M2 | In progress | 1 / 13 |
 | 15 | Benchmarking | M3 | Not started | 0 / 16 |
 | 17 | Kubernetes and minikube | M2 | Complete | 16 / 16 |
 | 16 | Hardening, simulated user testing, and 1.0 release | M4 | Not started | 0 / 18 |
@@ -111,6 +111,8 @@ Milestones:
 | **M4: 1.0** | Security review, simulated user testing, upgrade path, release process. | 16 |
 
 ### Current state and where to pick up (updated 2026-10-16)
+
+- Completed P14.13 (D-057): generalized agent-managed resource context, version-safe common tools, and fresh authorized model context. Full SQLite/PostgreSQL regression: 2030 passed, 309 expected testbed skips, zero failures; real SSH/Qwen learn-and-reuse acceptance passed. Embedding search and resource actions remain separate Phase 14 work.
 
 - Dashboard binding fix published 2026-10-16 (P8.55): required resource selection no longer falsely displays the first resource as selected; binding edit locks the immutable resource and omits it from PUT. Three full-form regressions and all 260 dashboard tests, lint/build pass. Dashboard v0.1.0/latest multi-architecture tags now resolve to sha256:e4dac99585bf7903ea93dddcc1e5db6aae4dcb2c4d443c1c88ff3be5245f5e11; pull/recreate the dashboard and refresh the browser to apply it.
 
@@ -155,7 +157,7 @@ Milestones:
   - Phase 13 wrap-up merged 2026-10-15 (P13.1, P13.28, P13.32 to P13.35, P13.37). Only P13.38 (user M2 connector sign-off) remains. Resolved 2026-10-15: P4.28 defines and emits `hugo_resource_health`. Open: Grafana still uses `hugo_connector_sessions_active`, which HugoMetricCatalog does not define (the panel falls back to 0); the nightly wave 2 workflow has not run on GitHub; wave 1 dashboard setting labels are untranslated.
   - SSH `jumpResourceName` (reuse another resource as bastion) needs a related-resource resolver; the jump settings cover the case today.
 - Next after the merges: Phase 3 pipeline (resources, invocation service, approvals), Phase 5 profiles and instructions, Phase 6 runtime, Phase 7 protocols.
-- Decisions D-001 through D-056 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
+- Decisions D-001 through D-057 are in force. The user settled four of them up front (D-010 safety model, D-011 secrets with admin reveal, D-012 dual runtime, D-013 v1 service families); everything else is recorded as the plan's recommendation and can be revisited.
 - Before P0.1, confirm the open questions in [section 23](#23-risks-and-open-questions) that are marked "before Phase 0".
 
 ---
@@ -298,6 +300,7 @@ This journey is the acceptance story for M1. Phase 12 replays it end to end.
 | D-054 | HugoLog is the redaction boundary before console, file, syslog, tracing, and telemetry sinks. Caller-supplied SyslogLogging modules are output sinks; library callbacks use a private sinkless ingress with raw tracing disabled. Radiant log export uses a bounded best-effort queue. | SyslogLogging 2.4.1 exposes only a post-write event, so post-write redaction cannot protect sinks. | 12, 21, P1.37, P2.9, P10.11 |
 | D-055 | Remove P0.12 and P9.13 from the execution plan at the user's direction (2026-10-16); retain their implemented CI workflows. External billing/capacity recovery is not product work or a milestone blocker. IDs are retired without renumbering other tasks. Live model verification uses operator-supplied endpoints through temporary runtime settings; private infrastructure addresses are excluded from repository artifacts. | The workflows will run when hosted capacity is available, and model acceptance can proceed against the supplied Ollama service. | 0, 6, 9, 12 |
 | D-056 | User waived P12.13 and the formal P12.14 step on 2026-10-16 and requested `build-all v0.1.0`. Preserve both waived IDs, exclude them from active task totals, and do not claim the testing or formal sign-off occurred. Build-all retains its existing multi-architecture push behavior for version and latest tags. | Explicit user direction to proceed with the build. | 12, build scripts |
+| D-057 | Generalized per-resource learnings reuse resource_knowledge and its history across every connector, including plugins. Normal pipeline tools resource_get_context/resource_update_context apply binding policy, version-checked writes, provenance, and secret guards. Hugo reloads authorized resource context before each model call; external clients receive read-before-operation guidance. Existing SQL context remains compatible. Generic semantic notes, embeddings, and runbook actions remain separate Phase 14 work. | User requested agent-manageable learnings for every connection point and consultation during operations. | P14.13, 8, 10, 13 |
 
 ---
 
@@ -2222,6 +2225,7 @@ Wrap-up
 - [ ] P14.10 Notification hooks for pending approvals (webhook URL per tenant; Slack-compatible payload).
 - [ ] P14.11 Suites for knowledge, actions, and notifications.
 - [ ] P14.12 Documentation and Postman updates.
+- [x] P14.13 Generalized resource context across all connector interfaces. *Accept:* agents read/update scoped persistent learnings for SSH, SQL, and other connectors; version-safe updates, operator preservation, audit/history, tenant isolation, binding permissions, restart persistence, and secret/output bounds pass tests; fresh bounded context is consulted before each internal model call and available to MCP clients; SQL tools and dashboard knowledge editor stay compatible. | codex 2026-10-16 common tools for all connectors/plugins; fresh planning and nested-model snapshots; atomic versions/history, policy rechecks, operator protection, secret guards, pagination, and persistence verified in 18 provider integration cases plus in-memory ABA regression. Full backend 2030 passed/309 expected testbed skips/0 failed; real SSH/Qwen cross-conversation acceptance in user-testing/RESOURCE_CONTEXT_REAL_OLLAMA_2026-10-16.md; docs/RESOURCE_CONTEXT.md.
 
 ### Phase 15: Benchmarking (M3)
 

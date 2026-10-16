@@ -1,5 +1,7 @@
 # Connectors
 
+Every registered connector also exposes the shared `resource_get_context` and `resource_update_context` tools for persistent, versioned learnings. See [resource context](RESOURCE_CONTEXT.md) for permissions, examples, and consultation behavior.
+
 A connector is how Hugo reaches a system you run: an SSH host, a bucket, a database, a log service, a cache, a cloud account, a cluster, a Docker daemon, an HTTP API, a metrics and logs backend, another MCP server, or another agent reachable over A2A. This page is the operator's reference for every connector that ships in Hugo today. It covers what each one connects to, every setting and secret slot, the tools it gives agents, how those tools are classified, the limits that bound them, and what to grant the upstream credential.
 
 Everything said here about a connector itself (settings, slots, tools, classification, limits, probes) comes from its code. Where the page describes what the server does around a connector, such as enforcing the access mode matrix, holding approvals, scrubbing output, or running the health sweep, it follows the design in `HUGO_PLAN.md`, because that part of the server is still being built.

@@ -87,6 +87,13 @@ namespace Hugo.Core.Agent
         public IAgentToolExecutor? ToolExecutor { get; set; } = null;
 
         /// <summary>
+        /// Optional fresh reference context provider. Consulted before each planning, forced-final, and compaction
+        /// model call so same-turn and concurrent resource knowledge changes are visible. Null preserves the
+        /// caller-supplied system prompt behavior. Snapshots are transient and never persisted as messages.
+        /// </summary>
+        public IAgentContextProvider? ContextProvider { get; set; } = null;
+
+        /// <summary>
         /// Event sink. Null discards events.
         /// </summary>
         public IAgentEventSink? EventSink { get; set; } = null;

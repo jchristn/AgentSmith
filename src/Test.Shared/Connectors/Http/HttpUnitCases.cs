@@ -152,10 +152,10 @@ namespace Test.Shared.Connectors.Http
             {
                 registry.Register(_Connector);
                 List<FamilyTool> tools = registry.FamilyTools("http");
-                HttpTestHelper.Assert(tools.Count == 2, "two family tools");
+                HttpTestHelper.Assert(tools.Count == 4, "two HTTP tools plus two shared resource context tools");
                 foreach (FamilyTool ft in tools)
                 {
-                    HttpTestHelper.Assert(ft.Descriptor.Name.StartsWith("http_", StringComparison.Ordinal), "family prefix " + ft.Descriptor.Name);
+                    HttpTestHelper.Assert((ft.Descriptor.Name.StartsWith("http_", StringComparison.Ordinal) || ft.Descriptor.Name == "resource_get_context" || ft.Descriptor.Name == "resource_update_context"), "family or shared resource tool " + ft.Descriptor.Name);
                     HttpTestHelper.Assert(ft.ConnectorTypes.SequenceEqual(new[] { "http" }), "connector types");
                 }
 

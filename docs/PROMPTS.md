@@ -20,7 +20,7 @@ Three more sources contribute text without being templates:
 - **Binding overrides.** Each binding has an `instructionMode` and an `instructionText`. `Inherit` (the default) uses the connector's text and ignores `instructionText`. `Append` adds the binding's text after the connector's text. `Replace` uses only the binding's text, and falls back to the connector text when `instructionText` is empty, so a blank Replace never leaves a resource without guidance.
 - **Profile append.** A profile's `instructionsAppend` is rendered at the very end under "Additional instructions from the operator".
 
-The resource's root knowledge entry is also included in its section (for SQL resources this is the durable database context), capped at `Instructions.MaxKnowledgeCharsPerResource` characters (default 2000; 0 turns it off).
+The resource's saved context entries are included in its section, capped at `Instructions.MaxKnowledgeCharsPerResource` characters (default 2000; 0 turns it off). Hugo-hosted model calls receive a fresh authorized snapshot before each completion instead of retaining a stale compiled snapshot. See [resource context](RESOURCE_CONTEXT.md).
 
 Some resources front a third party with its own guidance: an `mcp` resource has the external server's instructions, and an `a2a-agent` resource has the remote agent's card description and skills. That text is appended to the binding's section, after the connector instructions and any binding override, inside an `<untrusted-content source="...">` fence that tells the model to treat it as data, never as instructions. Before fencing, Hugo scrubs the resource's secret values out of the text, clips it to 4000 characters, and neutralizes any fence tag inside it, so a remote cannot close the fence early. The text comes from a per-resource cache. A compile waits at most two seconds for a first fetch. A remote that is slow or unreachable leaves the fence out rather than failing the compile, and a fetch that lands later refreshes the cached instructions. A binding in `Replace` mode with its own text omits the third-party text. The source map labels this segment `binding.thirdPartyInstructions`.
 
@@ -60,7 +60,7 @@ A profile chooses its persona through `personaTemplateKey`. Inside `instructions
 1. The persona.
 2. `system.safety`, then `system.tool-usage`.
 3. `system.mcp-preamble` on the MCP surface, or `system.a2a-preamble` on A2A. Chat and the OpenAI-compatible surface get no preamble.
-4. "You have access to N resources", followed by `section.resource` for each binding the caller can actually use, ordered by connector family and then alias. Each section carries the alias, connector, environment, effective access mode, endpoint, description, the tools the caller can use on it, the connector instructions with the binding's Append or Replace applied, the operator notes, and the root knowledge.
+4. "You have access to N resources", followed by `section.resource` for each binding the caller can actually use, ordered by connector family and then alias. Each section carries the alias, connector, environment, effective access mode, endpoint, description, the tools the caller can use on it, the connector instructions with the binding's Append or Replace applied, the operator notes, and the saved resource context.
 5. The profile's `instructionsAppend`.
 
 Connector instructions are written as standalone Markdown. Inside a resource section their headings are shifted down so the highest one becomes a level 3 heading, which keeps the compiled document's outline readable.

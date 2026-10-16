@@ -1,6 +1,8 @@
 # Connector tools reference
 
-Every tool an agent can call through Hugo comes from a connector, and this page lists all of them: 118 tools across fourteen families, generated from the descriptors the connectors ship today. It is written to be included in `MCP_API.md`, but nothing here is specific to MCP. Dashboard chat, A2A, and the OpenAI-compatible surface hand the model the same names, descriptions, and schemas.
+Every registered connector also exposes the shared `resource_get_context` and `resource_update_context` tools for persistent, versioned learnings. See [resource context](RESOURCE_CONTEXT.md) for permissions, examples, and consultation behavior.
+
+Every tool an agent can call through Hugo comes from a connector, and this page lists all of them: 118 connector-specific tools across fourteen families, generated from their descriptors, plus the two shared resource context tools described above. It is written to be included in `MCP_API.md`, but nothing here is specific to MCP. Dashboard chat, A2A, and the OpenAI-compatible surface hand the model the same names, descriptions, and schemas.
 
 The tool names, descriptions, schemas, effects, and outputs below are generated from the connector code. The protocol-level details (the meta tools, how approvals surface over MCP, sessions) are in `MCP_API.md`.
 

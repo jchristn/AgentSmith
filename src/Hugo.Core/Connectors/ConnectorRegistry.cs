@@ -36,6 +36,7 @@ namespace Hugo.Core.Connectors
         public void Register(IConnector connector)
         {
             ArgumentNullException.ThrowIfNull(connector);
+            connector = connector is IRemoteInstructionsProvider ? new ResourceContextRemoteConnector(connector) : new ResourceContextConnector(connector);
             ConnectorDescriptor d = connector.Descriptor ?? throw new InvalidOperationException("Connector " + connector.GetType().FullName + " has no descriptor.");
             if (!_TypeName.IsMatch(d.Type)) throw new InvalidOperationException("Connector type '" + d.Type + "' must be lowercase letters and digits separated by hyphens.");
 

@@ -99,6 +99,8 @@ Four ideas carry the design.
 
 **Resources and profiles are separate.** A resource is one configured system with its credentials attached by vault slot. A profile is a persona plus a set of bindings, and each binding gives one resource an alias and an access mode. The same `prod-db` can be ReadOnly for the Hugo profile and ReadWriteWithApproval for an on-call profile, and deleting a profile never touches a resource.
 
+**Resources remember.** Agents can read and update durable context for every connector, such as SSH paths and services or database schema relationships. Hugo reloads authorized context before each internal model call, and operators can curate it in the dashboard. See [`docs/RESOURCE_CONTEXT.md`](docs/RESOURCE_CONTEXT.md).
+
 **Instructions compose.** Every connector ships instructions that teach an agent how to use it well, and every bound resource contributes its section, its notes, and its durable knowledge to the profile's compiled instructions. An agent connected to a profile with eight resources is told about exactly those eight. All of the text is editable in layers (shipped, global, tenant), each with a reset to default. See [`docs/PROMPTS.md`](docs/PROMPTS.md).
 
 **Every surface is a client of the same profile.** Over MCP, the caller's model drives Hugo's tools. Over A2A, the dashboard, and the OpenAI-compatible endpoint, Hugo's own agent loop drives, on the profile's model endpoint. REST and the SDKs do either. Whatever the surface, every tool call goes through one pipeline.
@@ -111,7 +113,8 @@ One server process serves REST, MCP, A2A, and the OpenAI-compatible surface on o
 
 Twenty connector types in fourteen families ship in the image, with 118 tools between them.
 
-| Family | Connectors | A few of the tools |
+| Family | Persistent resource learnings | [`docs/RESOURCE_CONTEXT.md`](docs/RESOURCE_CONTEXT.md) |
+| Connectors | A few of the tools |
 |---|---|---|
 | Hosts | SSH | `ssh_system_info`, `ssh_exec`, `ssh_service_control`, `ssh_tail_file` |
 | Object storage | Amazon S3 (and S3-compatible), Azure Blob, Google Cloud Storage | `storage_list`, `storage_read`, `storage_presign_url`, `storage_delete` |
@@ -162,6 +165,7 @@ Treat Hugo's classifiers as a second line of defense. Give it read-only database
 | Security: tenancy, authentication, RBAC, the vault, the master key | [`docs/SECURITY.md`](docs/SECURITY.md) |
 | Safety model: effects, access modes, approvals, lockdown | [`docs/SAFETY_MODEL.md`](docs/SAFETY_MODEL.md) |
 | Prompt templates and instruction composition | [`docs/PROMPTS.md`](docs/PROMPTS.md) |
+| Persistent resource learnings | [`docs/RESOURCE_CONTEXT.md`](docs/RESOURCE_CONTEXT.md) |
 | Connectors | [`docs/CONNECTORS.md`](docs/CONNECTORS.md), [`docs/connectors/`](docs/connectors/) |
 | Telemetry and Grafana | [`docs/TELEMETRY.md`](docs/TELEMETRY.md), [`docs/GRAFANA.md`](docs/GRAFANA.md) |
 | Deployment: Docker, Kubernetes and minikube, the factory demo, upgrades | [`docs/DOCKER.md`](docs/DOCKER.md), [`docs/KUBERNETES.md`](docs/KUBERNETES.md), [`docs/FACTORY.md`](docs/FACTORY.md), [`docs/UPGRADING.md`](docs/UPGRADING.md) |

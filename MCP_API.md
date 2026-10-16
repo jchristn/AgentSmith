@@ -188,6 +188,10 @@ A call that policy refuses, or that fails, is still a successful JSON-RPC respon
 
 Calling a tool that does not exist at all is the one JSON-RPC error a tool call produces: -32602, "Tool 'nope_tool' was not found."
 
+## Shared resource context tools
+
+Every bound connector, including plugins, offers `resource_get_context` and, when the binding allows knowledge updates, `resource_update_context`. These use the normal required `resource` alias and invocation pipeline. They read and save tenant-scoped context in Hugo without contacting the target. Read before updating and pass `expectedVersion` to detect concurrent changes. The update tool is advertised as a writer even when the target access mode is ReadOnly. See [resource context](docs/RESOURCE_CONTEXT.md) for parameters, examples, and limits.
+
 ## Meta tools
 
 Seven tools exist on every profile. They are Hugo talking about itself, and they are what a model reaches for when it is unsure what it is connected to.

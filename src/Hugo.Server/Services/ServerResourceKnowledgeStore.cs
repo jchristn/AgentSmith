@@ -18,7 +18,7 @@ namespace Hugo.Server.Services
     /// patterns), every write is audited as KnowledgeChanged, and writes are refused when the binding does not allow
     /// knowledge updates. Thread-safe.
     /// </summary>
-    public class ServerResourceKnowledgeStore : IResourceKnowledgeStore
+    public class ServerResourceKnowledgeStore : IVersionedResourceKnowledgeStore
     {
         #region Public-Members
 
@@ -109,6 +109,28 @@ namespace Hugo.Server.Services
             record.Source = entry.Source;
             record.UpdatedBy = String.IsNullOrEmpty(entry.UpdatedBy) ? _Writer : _Writer + " (" + entry.UpdatedBy + ")";
             ResourceKnowledge stored = await _Database.ResourceKnowledge.UpsertAsync(record, token).ConfigureAwait(false);
+            await _Audit.WriteAsync(_Principal, AuditEventTypeEnum.KnowledgeChanged, "Resource", _ResourceId, "Knowledge " + Describe(record.Scope, record.Key) + " set to version " + stored.Version + " (" + stored.Source + ") by " + record.UpdatedBy + ".", _TenantId, token).ConfigureAwait(false);
+            RaiseChanged();
+            return ToEntry(stored);
+        }
+
+        /// <inheritdoc />
+        public async Task<ResourceKnowledgeEntry?> TryPutAsync(ResourceKnowledgeEntry entry, int expectedVersion, CancellationToken token = default)
+        {
+            if (entry == null) throw new ArgumentNullException(nameof(entry));
+            if (!_AllowWrites) throw new ConnectorException(ConnectorErrorCodes.PermissionDenied, "Knowledge updates are turned off for this resource on this profile (binding allowKnowledgeUpdates is false).");
+            string content = _Scrubber.Scrub(entry.Content ?? String.Empty) ?? String.Empty;
+            if (content.Length > MaxContentLength) throw new ConnectorException(ConnectorErrorCodes.TooLarge, "Knowledge content is longer than " + MaxContentLength + " characters.");
+            ResourceKnowledge record = new ResourceKnowledge();
+            record.TenantId = _TenantId;
+            record.ResourceId = _ResourceId;
+            record.Scope = entry.Scope ?? String.Empty;
+            record.Key = ResourceKnowledge.NormalizeKey(entry.Key);
+            record.Content = content;
+            record.Source = entry.Source;
+            record.UpdatedBy = String.IsNullOrEmpty(entry.UpdatedBy) ? _Writer : _Writer + " (" + entry.UpdatedBy + ")";
+            ResourceKnowledge? stored = await _Database.ResourceKnowledge.TryUpsertAsync(record, expectedVersion, token).ConfigureAwait(false);
+            if (stored == null) return null;
             await _Audit.WriteAsync(_Principal, AuditEventTypeEnum.KnowledgeChanged, "Resource", _ResourceId, "Knowledge " + Describe(record.Scope, record.Key) + " set to version " + stored.Version + " (" + stored.Source + ") by " + record.UpdatedBy + ".", _TenantId, token).ConfigureAwait(false);
             RaiseChanged();
             return ToEntry(stored);

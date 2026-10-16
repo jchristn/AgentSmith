@@ -106,7 +106,7 @@ Events flow out as Server-Sent Events with named types (`turn.started`, `assista
 
 ### Instructions
 
-The instruction compiler builds what a caller is told: persona, safety rules, tool usage, the surface preamble, one section per enabled binding (with connector instructions resolved through the Built-in, Global, and Tenant template layers, binding overrides, resource notes, and root knowledge), and the profile's appended text. Results are cached and invalidated by any change to the profile, its bindings, resources, or templates. [PROMPTS.md](PROMPTS.md) covers the layers and the template language.
+The instruction compiler builds what a caller is told: persona, safety rules, tool usage, the surface preamble, one section per enabled binding (with connector instructions resolved through the Built-in, Global, and Tenant template layers, binding overrides, resource notes, and saved resource context), and the profile's appended text. Results are cached and invalidated by any change to the profile, its bindings, resources, or templates. [PROMPTS.md](PROMPTS.md) covers the layers and the template language. Internal agent and connector model calls reload authorized resource context before each completion. Shared read/update tools give every connector versioned, durable learnings in the existing knowledge store; see [RESOURCE_CONTEXT.md](RESOURCE_CONTEXT.md).
 
 ## Data layer
 

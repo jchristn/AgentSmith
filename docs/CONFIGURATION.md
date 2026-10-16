@@ -223,7 +223,7 @@ The gauge retains the last completed sweep while another runs. Resource changes 
 | Setting | Default | Range | Apply | Notes |
 |---|---|---|---|---|
 | `Instructions.CompactBindingThreshold` | `3` | 0 to 1000 | Live | Profiles with `instructionDetail: Auto` switch to compact connector text above this many bindings (D-043). |
-| `Instructions.MaxKnowledgeCharsPerResource` | `2000` | 0 to 100000 | Live | Characters of each resource's root knowledge entry included in compiled instructions. |
+| `Instructions.MaxKnowledgeCharsPerResource` | `2000` | 0 to 100000 | Live | Characters of each resource's saved context included in compiled instructions and fresh internal model context; 0 disables automatic inclusion. See [resource context](RESOURCE_CONTEXT.md). |
 | `Instructions.CacheEntries` | `1024` | 0 to 100000 | Live | Compiled instruction cache size; 0 disables the cache. |
 | `Instructions.MaxThirdPartyChars` | `4000` | 0 to 100000 | Restart | Characters of third-party guidance (external MCP server instructions, remote agent cards) fenced into each binding's section; 0 leaves it out. |
 | `Instructions.ThirdPartyWaitMilliseconds` | `2000` | 0 to 60000 | Restart | How long a compile waits for a first fetch of third-party guidance. If the fetch is slower, it finishes in the background and the tenant's cached compilations are dropped. |

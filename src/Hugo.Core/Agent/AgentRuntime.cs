@@ -249,7 +249,9 @@ namespace Hugo.Core.Agent
         private async Task<List<AgentMessage>> CompactIfNeededAsync(AgentTurnState state, List<AgentMessage> history, List<AgentToolDefinition> offered, CancellationToken token)
         {
             AgentRuntimeSettings settings = state.Settings;
+            string referenceContext = await FreshContextAsync(state, token).ConfigureAwait(false);
             long estimate = TokenEstimator.Estimate(state.Request.SystemPrompt)
+                + TokenEstimator.Estimate(referenceContext)
                 + TokenEstimator.Estimate(settings.ToolOutputPosture)
                 + history.Sum(m => TokenEstimator.Estimate(m))
                 + TokenEstimator.Estimate(state.Request.UserMessage)
@@ -289,7 +291,7 @@ namespace Hugo.Core.Agent
                 {
                     Endpoint = state.Endpoint,
                     Fallback = state.Request.FallbackEndpoint,
-                    Messages = new List<ChatMessage> { ChatMessage.System(settings.CompactionPrompt), ChatMessage.User(transcript.ToString()) },
+                    Messages = await ModelMessagesAsync(state, new List<ChatMessage> { ChatMessage.System(settings.CompactionPrompt), ChatMessage.User(transcript.ToString()) }, token).ConfigureAwait(false),
                     Stream = false,
                     Kind = "chat"
                 };
@@ -402,7 +404,7 @@ namespace Hugo.Core.Agent
                 {
                     Endpoint = state.Endpoint,
                     Fallback = state.Request.FallbackEndpoint,
-                    Messages = messages,
+                    Messages = await ModelMessagesAsync(state, messages, token).ConfigureAwait(false),
                     Tools = toolDefs,
                     ToolChoice = toolDefs.Count == 0 ? null : (final ? "none" : "auto"),
                     Stream = settings.Streaming,
@@ -548,6 +550,22 @@ namespace Hugo.Core.Agent
                     return;
                 }
             }
+        }
+
+        private static async Task<string> FreshContextAsync(AgentTurnState state, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            if (state.Request.ContextProvider == null) return String.Empty;
+            return await state.Request.ContextProvider.GetContextAsync(state.Request, token).ConfigureAwait(false) ?? String.Empty;
+        }
+
+        private static async Task<List<ChatMessage>> ModelMessagesAsync(AgentTurnState state, List<ChatMessage> messages, CancellationToken token)
+        {
+            string referenceContext = await FreshContextAsync(state, token).ConfigureAwait(false);
+            if (String.IsNullOrWhiteSpace(referenceContext)) return messages;
+            List<ChatMessage> current = new List<ChatMessage>(messages);
+            current.Insert(current.Count > 0 && current[0].Role == "system" ? 1 : 0, ChatMessage.System(referenceContext));
+            return current;
         }
 
         private async Task OnChunkAsync(AgentTurnState state, ThinkBlockParser parser, int iteration, ToolChatStreamingChunk chunk, CancellationToken token)

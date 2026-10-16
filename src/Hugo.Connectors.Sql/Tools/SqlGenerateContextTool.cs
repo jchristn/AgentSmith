@@ -225,7 +225,7 @@ namespace Hugo.Connectors.Sql.Tools
                 else
                 {
                     string prompt = SqlPrompts.BuildDatabaseContextPrompt(Dialect, detail, intelligence, knowledge, instructions, _MaxPromptTables);
-                    ResourceKnowledgeEntry? stored = await GenerateAsync(context, model, item, SqlKnowledgeScopes.Database, String.Empty, SqlPrompts.PurposeDatabaseContext, SqlPrompts.DatabaseContextSystemPrompt, prompt, _DatabaseMaxOutputTokens, secrets, result, token).ConfigureAwait(false);
+                    ResourceKnowledgeEntry? stored = await GenerateAsync(context, model, item, SqlKnowledgeScopes.Database, String.Empty, knowledge.Database?.Version ?? 0, SqlPrompts.PurposeDatabaseContext, SqlPrompts.DatabaseContextSystemPrompt, prompt, _DatabaseMaxOutputTokens, secrets, result, token).ConfigureAwait(false);
                     if (stored != null) knowledge.Database = stored;
                 }
                 result.Items.Add(item);
@@ -259,7 +259,7 @@ namespace Hugo.Connectors.Sql.Tools
                             await gate.WaitAsync(token).ConfigureAwait(false);
                             try
                             {
-                                await GenerateAsync(context, model, item, SqlKnowledgeScopes.Table, key, SqlPrompts.PurposeTableContext, SqlPrompts.TableContextSystemPrompt, prompt, _TableMaxOutputTokens, secrets, result, token).ConfigureAwait(false);
+                                await GenerateAsync(context, model, item, SqlKnowledgeScopes.Table, key, existing?.Version ?? 0, SqlPrompts.PurposeTableContext, SqlPrompts.TableContextSystemPrompt, prompt, _TableMaxOutputTokens, secrets, result, token).ConfigureAwait(false);
                             }
                             finally
                             {
@@ -318,6 +318,7 @@ namespace Hugo.Connectors.Sql.Tools
             ContextGenerationItem item,
             string scope,
             string key,
+            int expectedVersion,
             string purpose,
             string systemPrompt,
             string prompt,
@@ -356,14 +357,24 @@ namespace Hugo.Connectors.Sql.Tools
                 {
                     lock (result) result.Model = response.Model;
                 }
-                ResourceKnowledgeEntry stored = await context.Resource.Knowledge.PutAsync(new ResourceKnowledgeEntry
+                ResourceKnowledgeEntry update = new ResourceKnowledgeEntry
                 {
                     Scope = scope,
                     Key = key,
                     Content = content,
                     Source = KnowledgeSourceEnum.Generated,
                     UpdatedBy = String.IsNullOrWhiteSpace(response.Model) ? Actor(context, "model") : "model " + response.Model
-                }, token).ConfigureAwait(false);
+                };
+                IResourceKnowledgeStore store = context.Resource.Knowledge;
+                ResourceKnowledgeEntry? stored = store is IVersionedResourceKnowledgeStore versioned
+                    ? await versioned.TryPutAsync(update, expectedVersion, token).ConfigureAwait(false)
+                    : await store.PutAsync(update, token).ConfigureAwait(false);
+                if (stored == null)
+                {
+                    item.Status = "failed";
+                    item.Reason = "version_conflict: Context changed during generation; read it again before retrying.";
+                    return null;
+                }
                 item.Status = "generated";
                 item.Chars = content.Length;
                 item.Version = stored.Version;

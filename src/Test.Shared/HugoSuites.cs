@@ -50,6 +50,7 @@ namespace Test.Shared
                 suites.AddRange(Test.Shared.Integration.ModelAgentSuite.Build());
                 suites.AddRange(Test.Shared.Integration.IntegrationUnitSuite.Build());
                 suites.AddRange(Test.Shared.Integration.ResourceHealthSuite.Build());
+                suites.AddRange(Test.Shared.Integration.ResourceContextSuite.Build());
                 suites.AddRange(Test.Shared.Integration.IntegrationDataSuite.Build());
                 suites.AddRange(Test.Shared.Integration.FollowUpSuite.Build());
                 suites.AddRange(Test.Shared.Integration.ThirdPartyInstructionsSuite.Build());

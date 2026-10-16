@@ -141,7 +141,7 @@ namespace Test.Shared.Connectors.Observability
                 List<FamilyTool> prom = registry.FamilyTools("prom");
                 List<FamilyTool> loki = registry.FamilyTools("loki");
                 List<FamilyTool> es = registry.FamilyTools("es");
-                ObsTestHelper.Assert(prom.Count == 7 && loki.Count == 4 && es.Count == 5, "family tool counts " + prom.Count + "/" + loki.Count + "/" + es.Count);
+                ObsTestHelper.Assert(prom.Count == 9 && loki.Count == 6 && es.Count == 7, "family tool counts " + prom.Count + "/" + loki.Count + "/" + es.Count);
                 ObsTestHelper.Assert(prom.All(t => t.ConnectorTypes.SequenceEqual(new[] { "prometheus" })), "prom tools owned by prometheus");
             }
             foreach (IConnector a in All())

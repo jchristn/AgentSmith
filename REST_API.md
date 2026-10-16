@@ -5483,7 +5483,7 @@ Response (200):
 
 ### PUT `/v1.0/api/resources/{id}/knowledge/{scope}`
 
-Write the root entry of a knowledge scope (operator edit). Knowledge is durable context the instruction compiler and the SQL tools read; the root entry of the `database` scope is the database context summary. Content is scrubbed for secrets and the change is audited.
+Write the root entry of a knowledge scope (operator edit). Knowledge is durable context shared by the instruction compiler, fresh internal model context, and generic resource and SQL context tools; the root entry of the `database` scope is the database context summary. Content is scrubbed for secrets and the change is audited.
 
 **Authentication:** Any REST scheme. Permission: Update on Knowledge.
 

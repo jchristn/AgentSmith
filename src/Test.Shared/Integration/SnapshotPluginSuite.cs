@@ -153,7 +153,7 @@ namespace Test.Shared.Integration
 
                             IConnector connector = registry.Get("plugin-echo") ?? throw new TestAssertionException("plugin connector not registered");
                             Assert.True(connector.GetType().Assembly != typeof(SnapshotPluginSuite).Assembly, "loaded from the plugin assembly");
-                            IConnectorTool tool = connector.Tools.Single();
+                            IConnectorTool tool = connector.Tools.Single(t => t.Descriptor.Name == "plugecho_read");
                             ConnectorInvocationContext context = new ConnectorInvocationContext();
                             context.Resource = new ConnectorResourceContext { Name = "p", ConnectorType = "plugin-echo" };
                             ToolResult result = await tool.ExecuteAsync(context, new ToolArguments("{\"text\":\"hi\"}"), token).ConfigureAwait(false);

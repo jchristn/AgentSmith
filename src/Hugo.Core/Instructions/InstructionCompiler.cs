@@ -14,6 +14,7 @@ namespace Hugo.Core.Instructions
     using Hugo.Core.Connectors;
     using Hugo.Core.Database;
     using Hugo.Core.Enums;
+    using Hugo.Core.Knowledge;
     using Hugo.Core.Models;
     using Hugo.Core.Profiles;
     using Hugo.Core.Prompts;
@@ -27,7 +28,7 @@ namespace Hugo.Core.Instructions
     /// (instructions.root) includes the persona ({{&gt; persona}} binds to the profile's persona template key), the
     /// safety and tool usage rules, the surface preamble, one section.resource per usable binding (ordered by family,
     /// then alias) carrying the resolved connector instructions with the binding's Append or Replace applied and any third-party guidance fenced as untrusted content (P13.28), the
-    /// operator notes, and the resource's root knowledge (P5.21), and finally the profile append. Every template comes
+    /// operator notes, and the resource's saved knowledge (P5.21), and finally the profile append. Every template comes
     /// from the most specific layer. The result carries a source map and a token estimate and is cached per profile,
     /// principal, and surface until <see cref="Invalidate"/> is called for the tenant. Thread-safe.
     /// </summary>
@@ -36,7 +37,7 @@ namespace Hugo.Core.Instructions
         #region Public-Members
 
         /// <summary>
-        /// Maximum characters of root knowledge included per resource (Instructions.MaxKnowledgeCharsPerResource).
+        /// Maximum characters of saved knowledge included per resource (Instructions.MaxKnowledgeCharsPerResource).
         /// Default 2000, minimum 0 (off), maximum 100000.
         /// </summary>
         public int MaxKnowledgeCharsPerResource
@@ -172,16 +173,17 @@ namespace Hugo.Core.Instructions
         /// <param name="principal">Caller (drives resource visibility and the user variables), or null for an internal caller.</param>
         /// <param name="surface">Surface (Rest compiles as Chat).</param>
         /// <param name="token">Cancellation token.</param>
+        /// <param name="includeKnowledge">Include the saved knowledge snapshot; false for internal loops that inject fresh context before each model call.</param>
         /// <returns>Compiled instructions.</returns>
         /// <exception cref="ArgumentNullException">Thrown when tenantId or profileId is null or empty.</exception>
         /// <exception cref="NotFoundException">Thrown when the profile does not exist in the tenant.</exception>
-        public async Task<CompiledInstructions> CompileAsync(string tenantId, string profileId, RequestContext? principal, InvocationSurfaceEnum surface, CancellationToken token = default)
+        public async Task<CompiledInstructions> CompileAsync(string tenantId, string profileId, RequestContext? principal, InvocationSurfaceEnum surface, CancellationToken token = default, bool includeKnowledge = true)
         {
             if (String.IsNullOrEmpty(tenantId)) throw new ArgumentNullException(nameof(tenantId));
             if (String.IsNullOrEmpty(profileId)) throw new ArgumentNullException(nameof(profileId));
             if (surface == InvocationSurfaceEnum.Rest) surface = InvocationSurfaceEnum.Chat;
             long started = Stopwatch.GetTimestamp();
-            string cacheKey = CacheKey(tenantId, profileId, principal, surface);
+            string cacheKey = CacheKey(tenantId, profileId, principal, surface) + (includeKnowledge ? ":knowledge" : ":dynamic-context");
             if (_MaxCacheEntries > 0 && _Cache.TryGetValue(cacheKey, out CompiledInstructions? cached))
             {
                 HugoMetrics.Observe(HugoMetricCatalog.InstructionsCompileDuration, HugoMetrics.SecondsSince(started), "cached", "true");
@@ -194,7 +196,7 @@ namespace Hugo.Core.Instructions
             {
                 activity?.SetTag("hugo.profile", profileId);
                 activity?.SetTag("hugo.surface", surface.ToString());
-                CompiledInstructions compiled = await CompileUncachedAsync(tenantId, profileId, principal, surface, token).ConfigureAwait(false);
+                CompiledInstructions compiled = await CompileUncachedAsync(tenantId, profileId, principal, surface, token, includeKnowledge).ConfigureAwait(false);
                 if (_MaxCacheEntries > 0)
                 {
                     if (_Cache.Count >= _MaxCacheEntries) _Cache.Clear();
@@ -210,7 +212,7 @@ namespace Hugo.Core.Instructions
         /// The full guidance for one bound resource of a profile, as a caller of a surface receives it: the connector's
         /// full instructions (never the compact form, whatever the profile's instruction detail), rendered through the
         /// prompt template layers exactly as <see cref="CompileAsync"/> renders them, with the binding's Append or
-        /// Replace applied, plus the operator notes, root knowledge, effective access mode, and usable tools. This is
+        /// Replace applied, plus the operator notes, saved knowledge, effective access mode, and usable tools. This is
         /// what hugo_describe_resource and hugo://resources/{alias} return, so a compact profile can fetch the detail.
         /// </summary>
         /// <param name="tenantId">Tenant identifier.</param>
@@ -268,7 +270,7 @@ namespace Hugo.Core.Instructions
 
         #region Private-Methods
 
-        private async Task<CompiledInstructions> CompileUncachedAsync(string tenantId, string profileId, RequestContext? principal, InvocationSurfaceEnum surface, CancellationToken token)
+        private async Task<CompiledInstructions> CompileUncachedAsync(string tenantId, string profileId, RequestContext? principal, InvocationSurfaceEnum surface, CancellationToken token, bool includeKnowledge)
         {
             AgentProfile profile = await _Database.AgentProfiles.ReadAsync(tenantId, profileId, token).ConfigureAwait(false) ?? throw new NotFoundException("Agent profile not found.");
             Tenant? tenant = await _Database.Tenants.ReadAsync(tenantId, token).ConfigureAwait(false);
@@ -282,7 +284,7 @@ namespace Hugo.Core.Instructions
             result.BindingCount = bound.Count;
 
             List<SegmentSource> sources = new List<SegmentSource>();
-            TemplateContext context = await BuildContextAsync(profile, tenant, principal, surface, bound, templates, sources, result.Warnings, token).ConfigureAwait(false);
+            TemplateContext context = await BuildContextAsync(profile, tenant, principal, surface, bound, templates, sources, result.Warnings, token, includeKnowledge: includeKnowledge).ConfigureAwait(false);
 
             string rendered;
             try
@@ -302,7 +304,7 @@ namespace Hugo.Core.Instructions
                 }
                 sources.Clear();
                 List<string> ignored = new List<string>();
-                context = await BuildContextAsync(profile, tenant, principal, surface, bound, builtIns, sources, ignored, token).ConfigureAwait(false);
+                context = await BuildContextAsync(profile, tenant, principal, surface, bound, builtIns, sources, ignored, token, includeKnowledge: includeKnowledge).ConfigureAwait(false);
                 rendered = Render(context, builtIns, profile, sources);
             }
 
@@ -335,7 +337,7 @@ namespace Hugo.Core.Instructions
             return Mark(sources, root.Key, root.Layer, root.Version, null, body);
         }
 
-        private async Task<TemplateContext> BuildContextAsync(AgentProfile profile, Tenant? tenant, RequestContext? principal, InvocationSurfaceEnum surface, List<BoundResource> bound, Dictionary<string, ResolvedPromptTemplate> templates, List<SegmentSource> sources, List<string> warnings, CancellationToken token, bool forceFull = false, bool includeThirdParty = true)
+        private async Task<TemplateContext> BuildContextAsync(AgentProfile profile, Tenant? tenant, RequestContext? principal, InvocationSurfaceEnum surface, List<BoundResource> bound, Dictionary<string, ResolvedPromptTemplate> templates, List<SegmentSource> sources, List<string> warnings, CancellationToken token, bool forceFull = false, bool includeThirdParty = true, bool includeKnowledge = true)
         {
             TemplateContext context = new TemplateContext();
             bool hasModel = !String.IsNullOrEmpty(profile.InferenceEndpointId);
@@ -404,7 +406,7 @@ namespace Hugo.Core.Instructions
                 }
                 map["tools"] = tools;
                 map["toolList"] = String.Join(", ", usable);
-                map["knowledge"] = await KnowledgeAsync(item, token).ConfigureAwait(false);
+                map["knowledge"] = includeKnowledge ? await KnowledgeAsync(item, token).ConfigureAwait(false) : String.Empty;
                 map["compact"] = compact;
                 string thirdParty = includeThirdParty ? await ThirdPartyAsync(item, warnings, token).ConfigureAwait(false) : String.Empty;
                 map["thirdPartyInstructions"] = thirdParty;
@@ -516,11 +518,7 @@ namespace Hugo.Core.Instructions
         {
             if (_MaxKnowledgeChars == 0) return String.Empty;
             List<ResourceKnowledge> entries = await _Database.ResourceKnowledge.ListAsync(item.Resource.TenantId, item.Resource.Id, null, token).ConfigureAwait(false);
-            List<string> roots = entries.Where(e => ResourceKnowledge.IsRootKey(e.Key) && !String.IsNullOrWhiteSpace(e.Content)).Select(e => Clean(e.Content).Trim()).ToList();
-            if (roots.Count == 0) return String.Empty;
-            string text = String.Join("\n\n", roots);
-            if (text.Length > _MaxKnowledgeChars) text = text.Substring(0, _MaxKnowledgeChars).TrimEnd() + "\n[context truncated; use the resource's knowledge tools for the rest]";
-            return text;
+            return Clean(ResourceContextFormatter.Format(entries, _MaxKnowledgeChars));
         }
 
         private static string DisplayName(BoundResource item)

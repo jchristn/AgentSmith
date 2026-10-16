@@ -14,11 +14,23 @@ namespace Hugo.Core.Database.Ado
     /// </summary>
     public class AdoResourceKnowledgeMethods : IResourceKnowledgeMethods
     {
+        #region Public-Members
+
+        /// <summary>Maximum optimistic retries for an unconditional operator write. Default 5, minimum 1, maximum 100.</summary>
+        public int MaximumWriteAttempts
+        {
+            get { return _MaximumWriteAttempts; }
+            set { _MaximumWriteAttempts = Math.Clamp(value, 1, 100); }
+        }
+
+        #endregion
+
         #region Private-Members
 
         private readonly AdoDatabaseDriver _Driver;
         private readonly string _Table;
         private readonly string _Versions;
+        private int _MaximumWriteAttempts = 5;
 
         #endregion
 
@@ -71,66 +83,20 @@ namespace Hugo.Core.Database.Ado
         public async Task<ResourceKnowledge> UpsertAsync(ResourceKnowledge entry, CancellationToken token = default)
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
-            ResourceKnowledge? stored = null;
-            await _Driver.ExecuteInTransactionAsync(async (connection, transaction, ct) =>
+            for (int attempt = 0; attempt < _MaximumWriteAttempts; attempt++)
             {
-                List<ResourceKnowledge> existing = await AdoDatabaseDriver.QueryAsync(connection, transaction, "SELECT * FROM " + _Table + " WHERE tenant_id = @tenant_id AND resource_id = @resource_id AND scope = @scope AND knowledge_key = @key;", command =>
-                {
-                    AdoDatabaseDriver.Add(command, "tenant_id", entry.TenantId);
-                    AdoDatabaseDriver.Add(command, "resource_id", entry.ResourceId);
-                    AdoDatabaseDriver.Add(command, "scope", entry.Scope);
-                    AdoDatabaseDriver.Add(command, "key", ResourceKnowledge.NormalizeKey(entry.Key));
-                }, Map, ct).ConfigureAwait(false);
-                DateTime now = DateTime.UtcNow;
-                if (existing.Count == 0)
-                {
-                    // A key that was deleted and written again continues its version history.
-                    List<int> previous = await AdoDatabaseDriver.QueryAsync(connection, transaction, "SELECT MAX(version) AS v FROM " + _Versions + " WHERE tenant_id = @tenant_id AND resource_id = @resource_id AND scope = @scope AND knowledge_key = @key;", command =>
-                    {
-                        AdoDatabaseDriver.Add(command, "tenant_id", entry.TenantId);
-                        AdoDatabaseDriver.Add(command, "resource_id", entry.ResourceId);
-                        AdoDatabaseDriver.Add(command, "scope", entry.Scope);
-                        AdoDatabaseDriver.Add(command, "key", ResourceKnowledge.NormalizeKey(entry.Key));
-                    }, reader => AdoConverters.Int(reader, "v"), ct).ConfigureAwait(false);
-                    entry.Version = (previous.Count > 0 ? previous[0] : 0) + 1;
-                    entry.CreatedUtc = now;
-                    entry.LastUpdateUtc = now;
-                    await AdoDatabaseDriver.ExecuteAsync(connection, transaction, "INSERT INTO " + _Table + " (id, tenant_id, resource_id, scope, knowledge_key, content, source, updated_by, version, created_utc, last_update_utc) VALUES (@id, @tenant_id, @resource_id, @scope, @key, @content, @source, @updated_by, @version, @created_utc, @last_update_utc);", command =>
-                    {
-                        AdoDatabaseDriver.Add(command, "id", entry.Id);
-                        AdoDatabaseDriver.Add(command, "tenant_id", entry.TenantId);
-                        AdoDatabaseDriver.Add(command, "resource_id", entry.ResourceId);
-                        AdoDatabaseDriver.Add(command, "scope", entry.Scope);
-                        AdoDatabaseDriver.Add(command, "key", ResourceKnowledge.NormalizeKey(entry.Key));
-                        AdoDatabaseDriver.Add(command, "content", entry.Content);
-                        AdoDatabaseDriver.Add(command, "source", entry.Source.ToString());
-                        AdoDatabaseDriver.Add(command, "updated_by", entry.UpdatedBy);
-                        AdoDatabaseDriver.Add(command, "version", entry.Version);
-                        AdoDatabaseDriver.Add(command, "created_utc", entry.CreatedUtc);
-                        AdoDatabaseDriver.Add(command, "last_update_utc", entry.LastUpdateUtc);
-                    }, ct).ConfigureAwait(false);
-                }
-                else
-                {
-                    ResourceKnowledge current = existing[0];
-                    entry.Id = current.Id;
-                    entry.CreatedUtc = current.CreatedUtc;
-                    entry.Version = current.Version + 1;
-                    entry.LastUpdateUtc = now;
-                    await AdoDatabaseDriver.ExecuteAsync(connection, transaction, "UPDATE " + _Table + " SET content = @content, source = @source, updated_by = @updated_by, version = @version, last_update_utc = @last_update_utc WHERE id = @id;", command =>
-                    {
-                        AdoDatabaseDriver.Add(command, "id", entry.Id);
-                        AdoDatabaseDriver.Add(command, "content", entry.Content);
-                        AdoDatabaseDriver.Add(command, "source", entry.Source.ToString());
-                        AdoDatabaseDriver.Add(command, "updated_by", entry.UpdatedBy);
-                        AdoDatabaseDriver.Add(command, "version", entry.Version);
-                        AdoDatabaseDriver.Add(command, "last_update_utc", entry.LastUpdateUtc);
-                    }, ct).ConfigureAwait(false);
-                }
-                await InsertVersionAsync(connection, transaction, entry, false, ct).ConfigureAwait(false);
-                stored = entry;
-            }, token).ConfigureAwait(false);
-            return stored ?? entry;
+                ResourceKnowledge? stored = await WriteAsync(entry, null, token).ConfigureAwait(false);
+                if (stored != null) return stored;
+            }
+            throw new InvalidOperationException("Resource knowledge changed repeatedly while saving; retry the operation.");
+        }
+
+        /// <inheritdoc />
+        public Task<ResourceKnowledge?> TryUpsertAsync(ResourceKnowledge entry, int expectedVersion, CancellationToken token = default)
+        {
+            if (entry == null) throw new ArgumentNullException(nameof(entry));
+            if (expectedVersion < 0) throw new ArgumentOutOfRangeException(nameof(expectedVersion));
+            return WriteAsync(entry, expectedVersion, token);
         }
 
         /// <inheritdoc />
@@ -138,26 +104,12 @@ namespace Hugo.Core.Database.Ado
         {
             if (String.IsNullOrEmpty(tenantId)) throw new ArgumentNullException(nameof(tenantId));
             if (String.IsNullOrEmpty(resourceId)) throw new ArgumentNullException(nameof(resourceId));
-            bool deleted = false;
-            await _Driver.ExecuteInTransactionAsync(async (connection, transaction, ct) =>
+            for (int attempt = 0; attempt < _MaximumWriteAttempts; attempt++)
             {
-                List<ResourceKnowledge> existing = await AdoDatabaseDriver.QueryAsync(connection, transaction, "SELECT * FROM " + _Table + " WHERE tenant_id = @tenant_id AND resource_id = @resource_id AND scope = @scope AND knowledge_key = @key;", command =>
-                {
-                    AdoDatabaseDriver.Add(command, "tenant_id", tenantId);
-                    AdoDatabaseDriver.Add(command, "resource_id", resourceId);
-                    AdoDatabaseDriver.Add(command, "scope", scope ?? String.Empty);
-                    AdoDatabaseDriver.Add(command, "key", ResourceKnowledge.NormalizeKey(key));
-                }, Map, ct).ConfigureAwait(false);
-                deleted = false;
-                if (existing.Count == 0) return;
-                ResourceKnowledge current = existing[0];
-                await AdoDatabaseDriver.ExecuteAsync(connection, transaction, "DELETE FROM " + _Table + " WHERE id = @id;", command => AdoDatabaseDriver.Add(command, "id", current.Id), ct).ConfigureAwait(false);
-                current.Version = current.Version + 1;
-                current.UpdatedBy = deletedBy;
-                await InsertVersionAsync(connection, transaction, current, true, ct).ConfigureAwait(false);
-                deleted = true;
-            }, token).ConfigureAwait(false);
-            return deleted;
+                bool? deleted = await DeleteVersionAsync(tenantId, resourceId, scope, key, deletedBy, token).ConfigureAwait(false);
+                if (deleted.HasValue) return deleted.Value;
+            }
+            throw new InvalidOperationException("Resource knowledge changed repeatedly while deleting; retry the operation.");
         }
 
         /// <inheritdoc />
@@ -215,6 +167,109 @@ namespace Hugo.Core.Database.Ado
         #endregion
 
         #region Private-Methods
+
+        private async Task<bool?> DeleteVersionAsync(string tenantId, string resourceId, string scope, string key, string? deletedBy, CancellationToken token = default)
+        {
+            if (String.IsNullOrEmpty(tenantId)) throw new ArgumentNullException(nameof(tenantId));
+            if (String.IsNullOrEmpty(resourceId)) throw new ArgumentNullException(nameof(resourceId));
+            bool? deleted = null;
+            await _Driver.ExecuteInTransactionAsync(async (connection, transaction, ct) =>
+            {
+                List<ResourceKnowledge> existing = await AdoDatabaseDriver.QueryAsync(connection, transaction, "SELECT * FROM " + _Table + " WHERE tenant_id = @tenant_id AND resource_id = @resource_id AND scope = @scope AND knowledge_key = @key;", command =>
+                {
+                    AdoDatabaseDriver.Add(command, "tenant_id", tenantId);
+                    AdoDatabaseDriver.Add(command, "resource_id", resourceId);
+                    AdoDatabaseDriver.Add(command, "scope", scope ?? String.Empty);
+                    AdoDatabaseDriver.Add(command, "key", ResourceKnowledge.NormalizeKey(key));
+                }, Map, ct).ConfigureAwait(false);
+                if (existing.Count == 0) { deleted = false; return; }
+                ResourceKnowledge current = existing[0];
+                int affected = await AdoDatabaseDriver.ExecuteAsync(connection, transaction, "DELETE FROM " + _Table + " WHERE id = @id AND version = @version;", command =>
+                {
+                    AdoDatabaseDriver.Add(command, "id", current.Id);
+                    AdoDatabaseDriver.Add(command, "version", current.Version);
+                }, ct).ConfigureAwait(false);
+                if (affected == 0) return;
+                current.Version = current.Version + 1;
+                current.UpdatedBy = deletedBy;
+                await InsertVersionAsync(connection, transaction, current, true, ct).ConfigureAwait(false);
+                deleted = true;
+            }, token).ConfigureAwait(false);
+            return deleted;
+        }
+
+
+
+        private async Task<ResourceKnowledge?> WriteAsync(ResourceKnowledge entry, int? expectedVersion, CancellationToken token)
+        {
+            if (entry == null) throw new ArgumentNullException(nameof(entry));
+            ResourceKnowledge? stored = null;
+            await _Driver.ExecuteInTransactionAsync(async (connection, transaction, ct) =>
+            {
+                List<ResourceKnowledge> existing = await AdoDatabaseDriver.QueryAsync(connection, transaction, "SELECT * FROM " + _Table + " WHERE tenant_id = @tenant_id AND resource_id = @resource_id AND scope = @scope AND knowledge_key = @key;", command =>
+                {
+                    AdoDatabaseDriver.Add(command, "tenant_id", entry.TenantId);
+                    AdoDatabaseDriver.Add(command, "resource_id", entry.ResourceId);
+                    AdoDatabaseDriver.Add(command, "scope", entry.Scope);
+                    AdoDatabaseDriver.Add(command, "key", ResourceKnowledge.NormalizeKey(entry.Key));
+                }, Map, ct).ConfigureAwait(false);
+                if (expectedVersion.HasValue && (existing.Count == 0 ? 0 : existing[0].Version) != expectedVersion.Value) return;
+                DateTime now = DateTime.UtcNow;
+                if (existing.Count == 0)
+                {
+                    // A key that was deleted and written again continues its version history.
+                    List<int> previous = await AdoDatabaseDriver.QueryAsync(connection, transaction, "SELECT MAX(version) AS v FROM " + _Versions + " WHERE tenant_id = @tenant_id AND resource_id = @resource_id AND scope = @scope AND knowledge_key = @key;", command =>
+                    {
+                        AdoDatabaseDriver.Add(command, "tenant_id", entry.TenantId);
+                        AdoDatabaseDriver.Add(command, "resource_id", entry.ResourceId);
+                        AdoDatabaseDriver.Add(command, "scope", entry.Scope);
+                        AdoDatabaseDriver.Add(command, "key", ResourceKnowledge.NormalizeKey(entry.Key));
+                    }, reader => AdoConverters.Int(reader, "v"), ct).ConfigureAwait(false);
+                    entry.Version = (previous.Count > 0 ? previous[0] : 0) + 1;
+                    entry.CreatedUtc = now;
+                    entry.LastUpdateUtc = now;
+                    int inserted = await AdoDatabaseDriver.ExecuteAsync(connection, transaction, "INSERT INTO " + _Table + " (id, tenant_id, resource_id, scope, knowledge_key, content, source, updated_by, version, created_utc, last_update_utc) VALUES (@id, @tenant_id, @resource_id, @scope, @key, @content, @source, @updated_by, @version, @created_utc, @last_update_utc) ON CONFLICT (resource_id, scope, knowledge_key) DO NOTHING;", command =>
+                    {
+                        AdoDatabaseDriver.Add(command, "id", entry.Id);
+                        AdoDatabaseDriver.Add(command, "tenant_id", entry.TenantId);
+                        AdoDatabaseDriver.Add(command, "resource_id", entry.ResourceId);
+                        AdoDatabaseDriver.Add(command, "scope", entry.Scope);
+                        AdoDatabaseDriver.Add(command, "key", ResourceKnowledge.NormalizeKey(entry.Key));
+                        AdoDatabaseDriver.Add(command, "content", entry.Content);
+                        AdoDatabaseDriver.Add(command, "source", entry.Source.ToString());
+                        AdoDatabaseDriver.Add(command, "updated_by", entry.UpdatedBy);
+                        AdoDatabaseDriver.Add(command, "version", entry.Version);
+                        AdoDatabaseDriver.Add(command, "created_utc", entry.CreatedUtc);
+                        AdoDatabaseDriver.Add(command, "last_update_utc", entry.LastUpdateUtc);
+                    }, ct).ConfigureAwait(false);
+                    if (inserted == 0) return;
+                }
+                else
+                {
+                    ResourceKnowledge current = existing[0];
+                    entry.Id = current.Id;
+                    entry.CreatedUtc = current.CreatedUtc;
+                    entry.Version = current.Version + 1;
+                    entry.LastUpdateUtc = now;
+                    int updated = await AdoDatabaseDriver.ExecuteAsync(connection, transaction, "UPDATE " + _Table + " SET content = @content, source = @source, updated_by = @updated_by, version = @version, last_update_utc = @last_update_utc WHERE id = @id AND version = @expected_version;", command =>
+                    {
+                        AdoDatabaseDriver.Add(command, "id", entry.Id);
+                        AdoDatabaseDriver.Add(command, "expected_version", current.Version);
+                        AdoDatabaseDriver.Add(command, "content", entry.Content);
+                        AdoDatabaseDriver.Add(command, "source", entry.Source.ToString());
+                        AdoDatabaseDriver.Add(command, "updated_by", entry.UpdatedBy);
+                        AdoDatabaseDriver.Add(command, "version", entry.Version);
+                        AdoDatabaseDriver.Add(command, "last_update_utc", entry.LastUpdateUtc);
+                    }, ct).ConfigureAwait(false);
+                    if (updated == 0) return;
+                }
+                await InsertVersionAsync(connection, transaction, entry, false, ct).ConfigureAwait(false);
+                stored = entry;
+            }, token).ConfigureAwait(false);
+            return stored;
+        }
+
+
 
         private async Task InsertVersionAsync(DbConnection connection, DbTransaction transaction, ResourceKnowledge entry, bool deleted, CancellationToken token)
         {

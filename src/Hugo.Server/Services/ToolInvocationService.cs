@@ -205,6 +205,20 @@ namespace Hugo.Server.Services
             state.Connector = connector;
             state.Tool = tool;
 
+            // Saved-context writes change Hugo state even when the target-side tool effect is Read.
+            // Apply this policy before classification and dry-run results, without changing target effects.
+            if (tool.Descriptor.UpdatesKnowledge)
+            {
+                state.Record.Effect = tool.Descriptor.BaseEffect;
+                state.Record.EffectReason = "Updates Hugo's saved resource context.";
+                state.Outcome.Effect = state.Record.Effect;
+                state.Outcome.EffectReason = state.Record.EffectReason;
+                if (tenant.Lockdown)
+                    return await DenyAsync(state, "tenant_lockdown", "The tenant is in lockdown; saved resource context updates are not allowed.", token).ConfigureAwait(false);
+                if (state.Binding?.AllowKnowledgeUpdates == false)
+                    return await DenyAsync(state, ConnectorErrorCodes.PermissionDenied, "Saved resource context updates are disabled for this resource binding.", token).ConfigureAwait(false);
+            }
+
             // 4. Validate arguments against the tool schema.
             List<string> errors = ToolArgumentValidator.Validate(tool.Descriptor.InputSchemaJson, state.ArgumentsJson);
             if (errors.Count > 0) return await DenyAsync(state, ConnectorErrorCodes.InvalidArgument, "Invalid arguments for " + tool.Descriptor.Name + ": " + String.Join(" ", errors), token).ConfigureAwait(false);
@@ -379,8 +393,17 @@ namespace Hugo.Server.Services
             record.Status = InvocationStatusEnum.NotExecuted;
             record.ErrorCode = code;
             record.ErrorMessage = Truncate(reason, 2000);
-            record.CreatedUtc = DateTime.UtcNow;
-            await _Database.ToolInvocations.CreateAsync(record, token).ConfigureAwait(false);
+            if (state.RecordPersisted)
+            {
+                await _Database.ToolInvocations.UpdateAsync(record, token).ConfigureAwait(false);
+            }
+            else
+            {
+                record.CreatedUtc = DateTime.UtcNow;
+                await _Database.ToolInvocations.CreateAsync(record, token).ConfigureAwait(false);
+                state.RecordPersisted = true;
+            }
+            if (!String.IsNullOrEmpty(record.ApprovalId)) _Completed[record.ApprovalId] = outcome;
             Observe(state, 0);
             return outcome;
         }
@@ -611,8 +634,28 @@ namespace Hugo.Server.Services
                 ConnectorContextLease? lease = null;
                 try
                 {
+                    // Approval and resource concurrency waits can outlive an operator's metadata policy change.
+                    if (tool.Descriptor.UpdatesKnowledge)
+                    {
+                        Tenant? currentTenant = await _Database.Tenants.ReadAsync(state.TenantId, token).ConfigureAwait(false);
+                        if (currentTenant == null)
+                            return await DenyAsync(state, "tenant_not_found", "Tenant not found.", token).ConfigureAwait(false);
+                        if (currentTenant.Lockdown)
+                            return await DenyAsync(state, "tenant_lockdown", "The tenant is in lockdown; saved resource context updates are not allowed.", token).ConfigureAwait(false);
+                        if (!String.IsNullOrEmpty(record.BindingId))
+                        {
+                            Binding? currentBinding = await _Database.Bindings.ReadAsync(state.TenantId, record.BindingId, token).ConfigureAwait(false);
+                            if (currentBinding == null || !currentBinding.Enabled || !currentBinding.AllowKnowledgeUpdates
+                                || !String.Equals(currentBinding.ResourceId, resource.Id, StringComparison.Ordinal)
+                                || !String.Equals(currentBinding.AgentProfileId, record.AgentProfileId, StringComparison.Ordinal))
+                                return await DenyAsync(state, ConnectorErrorCodes.PermissionDenied, "Saved resource context updates are disabled for this resource binding.", token).ConfigureAwait(false);
+                            state.Binding = currentBinding;
+                        }
+                    }
                     lease = await _Contexts.BuildAsync(resource, true, state.Principal, Writer(state), state.Binding?.AllowKnowledgeUpdates ?? true, token).ConfigureAwait(false);
                     IConnectorModel? model = await ModelAsync(state, token).ConfigureAwait(false);
+                    if (model != null)
+                        model = new ResourceContextConnectorModel(model, lease.Context.Knowledge, state.Binding?.Alias ?? resource.Name, () => _Settings.Instructions.MaxKnowledgeCharsPerResource);
                     ConnectorInvocationContext context = InvocationContext(state, lease.Context, model);
                     ToolArguments arguments = new ToolArguments(state.ArgumentsJson);
                     using (CancellationTokenSource timeout = CancellationTokenSource.CreateLinkedTokenSource(token))

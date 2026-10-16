@@ -161,7 +161,7 @@ namespace Test.Shared.Connectors.Redis
                 registry.Register(RedisTestHelper.Connector);
                 registry.Register(new RedisFamilyProbeConnector("redis-probe", "redis", new List<IConnectorTool> { RedisTestHelper.Tool("redis_get"), RedisTestHelper.Tool("redis_scan") }));
                 List<FamilyTool> family = registry.FamilyTools("redis");
-                RedisTestHelper.Assert(family.Count == _ToolNames.Length, "13 family tools");
+                RedisTestHelper.Assert(family.Count == _ToolNames.Length + 2, "connector tools plus two shared resource context tools");
                 FamilyTool get = family.First(f => f.Descriptor.Name == "redis_get");
                 RedisTestHelper.Assert(get.ConnectorTypes.Contains("redis") && get.ConnectorTypes.Contains("redis-probe"), "shared tool lists both connectors");
 
