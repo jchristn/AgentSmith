@@ -1,8 +1,8 @@
 // Every translation catalog, loaded eagerly. Used by tests and tooling (scripts/i18n-check.mjs); the running app
 // loads catalogs lazily through i18n/index.js so only the active locale is downloaded.
 //
-// English (en) is the source of truth. Every other real locale carries a complete, machine-seeded translation marked
-// for review in docs/I18N.md, and is deep-merged over English as a safety net. The pseudo-locales (en-XA expansion,
+// English (en) is the source of truth. Every other real locale carries a complete translated catalog,
+// checked for key and placeholder parity and deep-merged over English as a safety net. The pseudo-locales (en-XA expansion,
 // ar-XB bidi) are generated from English.
 
 import en from './locales/en.json';

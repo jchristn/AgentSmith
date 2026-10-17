@@ -61,11 +61,15 @@ describe('locale registry', () => {
     expect(toIntlLocale('ar-XB')).toBe('ar');
     expect(toIntlLocale('en-XA')).toBe('en');
     expect(getLocaleLabel('en')).toBe('English');
-    expect(getLocaleLabel('fr')).toBe('Français (bêta)');
-    expect(getLocaleLabel('ar')).toBe('العربية (تجريبي)');
+    expect(getLocaleLabel('fr')).toBe('Français');
+    expect(getLocaleLabel('ar')).toBe('العربية');
     expect(getLocaleMeta('hi').fontFamily).toContain('Devanagari');
     expect(getLocaleMeta('zh').fontFamily).toContain('PingFang SC');
-    for (const l of LOCALES) if (l.beta) expect(l.betaLabel, l.code).toBeTruthy();
+    for (const l of LOCALES) {
+      expect(getLocaleLabel(l.code)).toBe(l.nativeName);
+      expect(l).not.toHaveProperty('beta');
+      expect(l).not.toHaveProperty('betaLabel');
+    }
   });
   it('hides pseudo-locales from the selector unless one is active', () => {
     expect(selectableLocales('en').some((l) => l.pseudo)).toBe(false);

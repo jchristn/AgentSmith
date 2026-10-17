@@ -476,13 +476,15 @@
       "dismiss": "Dispensar",
       "codes": {
         "ValueClamped": "Valor limitado ao intervalo permitido"
-      }
+      },
+      "title_many": "Salvo com {{count}} valores ajustados"
     },
     "autoRefresh": {
       "label": "Atualização automática",
       "none": "Desativada",
       "seconds_one": "A cada {{count}} segundo",
-      "seconds_other": "A cada {{count}} segundos"
+      "seconds_other": "A cada {{count}} segundos",
+      "seconds_many": "A cada {{count}} segundos"
     },
     "chart": {
       "success": "Sucesso",
@@ -573,7 +575,7 @@
         "createdUtc": "Criado",
         "completedUtc": "Concluído",
         "sourceIp": "IP de origem",
-        "principal": "Principal",
+        "principal": "Identidade",
         "tenant": "Locatário",
         "user": "Usuário"
       }
@@ -610,7 +612,9 @@
       "selected_one": "{{count}} selecionado",
       "selected_other": "{{count}} selecionados",
       "selectRow": "Selecionar linha",
-      "showing": "Exibindo {{from}} a {{to}}"
+      "showing": "Exibindo {{from}} a {{to}}",
+      "records_many": "registros",
+      "selected_many": "{{count}} selecionados"
     },
     "approvalCard": {
       "title": "Aprovação necessária",
@@ -659,7 +663,8 @@
     "progress": {
       "count": "{{done}} de {{total}}",
       "deleting_one": "Excluindo {{count}} registro",
-      "deleting_other": "Excluindo {{count}} registros"
+      "deleting_other": "Excluindo {{count}} registros",
+      "deleting_many": "Excluindo {{count}} registros"
     },
     "promptEditor": {
       "content": "Texto do modelo",
@@ -1062,7 +1067,7 @@
       "columns": {
         "createdUtc": "Horário",
         "eventType": "Evento",
-        "principalName": "Principal",
+        "principalName": "Identidade",
         "resource": "Recurso",
         "reason": "Motivo",
         "sourceIp": "IP de origem",
@@ -1071,7 +1076,7 @@
       "fields": {
         "eventType": "Evento",
         "principalType": "Tipo de principal",
-        "principalName": "Principal",
+        "principalName": "Identidade",
         "principalId": "ID do principal",
         "resourceType": "Tipo de recurso",
         "resourceId": "ID do recurso",
@@ -1131,7 +1136,8 @@
         "cancel": "Cancelar solicitação"
       },
       "cancelled": "Aprovação cancelada.",
-      "selfApproval": "Este tenant exige que outra pessoa aprove suas próprias chamadas."
+      "selfApproval": "Este tenant exige que outra pessoa aprove suas próprias chamadas.",
+      "bulkRejected_many": "{{count}} aprovações rejeitadas ({{failed}} com falha)."
     },
     "resources": {
       "deleteReferenced_one": "{{name}} está vinculado a {{count}} perfil ou endpoint. Remova esses vínculos primeiro; o servidor recusa a exclusão enquanto houver referências.",
@@ -1189,7 +1195,8 @@
         "tryTool": "Experimentar uma ferramenta",
         "referrers": "Onde é usado",
         "referrersTitle": "Onde {{name}} é usado"
-      }
+      },
+      "deleteReferenced_many": "{{name}} está vinculado a {{count}} perfis ou endpoints. Remova esses vínculos primeiro; o servidor recusa a exclusão enquanto houver referências."
     },
     "secrets": {
       "deleteReferenced_one": "{{name}} é usado por {{count}} recurso ou endpoint de modelo. O servidor recusa excluí-lo enquanto houver referências.",
@@ -1236,7 +1243,8 @@
         "reveal": "Revelar",
         "referrers": "Onde é usado",
         "referrersTitle": "Onde {{name}} é usado"
-      }
+      },
+      "deleteReferenced_many": "{{name}} é usado por {{count}} recursos ou endpoints de modelo. O servidor recusa excluí-lo enquanto houver referências."
     },
     "toolInvocations": {
       "openTrace": "Abrir rastreamento no Grafana",
@@ -1261,7 +1269,7 @@
         "durationMs": "Duração",
         "surface": "Superfície",
         "agentProfileId": "Perfil",
-        "principalId": "Principal",
+        "principalId": "Identidade",
         "id": "ID"
       },
       "fields": {
@@ -1486,7 +1494,7 @@
       "emptyBody": "Nenhuma sessão está ativa. Entrar ou trocar uma chave de acesso cria uma.",
       "purpose": "Sessões são os tokens bearer emitidos na entrada ou na troca de uma chave de acesso. Revogar uma a encerra imediatamente.",
       "columns": {
-        "principalName": "Principal",
+        "principalName": "Identidade",
         "principalType": "Tipo",
         "authScheme": "Esquema",
         "sourceIp": "IP de origem",
@@ -1498,7 +1506,7 @@
         "id": "ID"
       },
       "fields": {
-        "principalName": "Principal",
+        "principalName": "Identidade",
         "authScheme": "Esquema",
         "sourceIp": "IP de origem",
         "userAgent": "Cliente",
@@ -1633,7 +1641,8 @@
       "failuresUnavailable": "Este servidor ainda não informa invocações de ferramentas.",
       "unhealthyTitle": "Recursos com problemas",
       "allHealthy": "Todos os recursos passaram na última verificação de integridade.",
-      "resourcesUnavailable": "Este servidor ainda não informa recursos."
+      "resourcesUnavailable": "Este servidor ainda não informa recursos.",
+      "partial_many": "{{count}} painéis não puderam ser carregados, então alguns números abaixo estão ausentes. O restante da página está atualizado."
     },
     "markdown": {
       "showRaw": "Mostrar texto bruto",
@@ -1651,7 +1660,8 @@
       "diffTitle": "Versão {{version}} comparada ao editor",
       "current": "Editor",
       "reset": "Redefinir para o padrão",
-      "layeredSubtitle": "Edite este modelo nas camadas Tenant e Global. Cada salvamento é uma versão e Redefinir volta uma camada."
+      "layeredSubtitle": "Edite este modelo nas camadas Tenant e Global. Cada salvamento é uma versão e Redefinir volta uma camada.",
+      "versions_many": "Versões ({{count}})"
     },
     "requests": {
       "grafana": "Dashboard HTTP no Grafana",
@@ -1669,7 +1679,7 @@
         "path": "Caminho",
         "status": "Status",
         "duration": "Duração",
-        "principal": "Principal"
+        "principal": "Identidade"
       },
       "bulkDeleteTitle": "Excluir histórico de requisições",
       "bulkDeleteMessage": "Excluir todas as {{count}} requisições que correspondem aos filtros atuais?",
@@ -1682,7 +1692,7 @@
       "emptyBodyNoMatch": "Nenhuma requisição corresponde aos filtros atuais."
     },
     "explorer": {
-      "title": "API Explorer",
+      "title": "Explorador de API",
       "subtitle": "Execute chamadas reais neste servidor, com base no documento OpenAPI dele.",
       "operations": "Operações",
       "selectOperation": "Selecione uma operação para montar uma requisição.",
@@ -1700,7 +1710,7 @@
       "execute": "Executar",
       "executing": "Executando...",
       "stop": "Parar",
-      "streaming": "Streaming",
+      "streaming": "Transmissão",
       "response": "Resposta",
       "responseHeaders": "Cabeçalhos da resposta",
       "responseBody": "Corpo da resposta",
@@ -1847,12 +1857,12 @@
       "routes": "Operações registradas",
       "serverTime": "Horário do servidor",
       "principal": "Conectado como",
-      "principalName": "Principal",
+      "principalName": "Identidade",
       "principalType": "Tipo de principal",
       "role": "Função",
       "tenant": "Locatário",
       "expires": "A sessão expira",
-      "features": "Feature flags",
+      "features": "Sinalizadores de funcionalidades",
       "connectors": "Conectores carregados",
       "openai": "Compatível com OpenAI"
     },
@@ -2014,7 +2024,9 @@
         "bindings_one": "{{count}} recursos",
         "bindings_other": "{{count}} recursos",
         "chunkTip": "De {{key}} ({{layer}}, versão {{version}})",
-        "forBinding": "para {{alias}}"
+        "forBinding": "para {{alias}}",
+        "tokens_many": "Cerca de {{value}} tokens",
+        "bindings_many": "{{count}} recursos"
       },
       "tools": {
         "body": "Ferramentas exatamente como quem chama este perfil as vê, após a aplicação dos modos de acesso e das regras de ferramenta.",
@@ -2029,7 +2041,8 @@
         "resourceCount_one": "{{count}} recursos vinculados",
         "resourceCount_other": "{{count}} recursos vinculados",
         "resources": "Recursos",
-        "meta": "Ferramenta do Hugo"
+        "meta": "Ferramenta do Hugo",
+        "resourceCount_many": "{{count}} recursos vinculados"
       },
       "connect": {
         "claudeCode": "Claude Code (MCP via HTTP)",
@@ -2137,10 +2150,12 @@
       "instructionsBody": "Cada recurso deste tipo adiciona estas instruções para o agente. Edite-as por locatário ou globalmente na chave de modelo {{key}}.",
       "editInstructions": "Editar em Modelos de prompt",
       "updatesKnowledge": "Grava conhecimento",
-      "requiresModel": "Requer um modelo"
+      "requiresModel": "Requer um modelo",
+      "count_many": "{{shown}} conectores",
+      "toolCount_many": "{{count}} ferramentas"
     },
     "mcpExplorer": {
-      "title": "MCP Explorer",
+      "title": "Explorador de MCP",
       "subtitle": "Conecte-se ao endpoint MCP do Hugo com sua identidade, leia as instruções, liste ferramentas e chame-as.",
       "purpose": "O MCP Explorer se comunica com /mcp exatamente como o Claude Code faria, para que você verifique as instruções e a lista de ferramentas que um perfil expõe antes de configurar um harness.",
       "profile": "Perfil",
@@ -2161,10 +2176,12 @@
       "toolError": "A ferramenta informou um erro.",
       "invalidJson": "O valor de {{field}} não é um JSON válido.",
       "log_one": "Log JSON-RPC ({{count}} mensagem)",
-      "log_other": "Log JSON-RPC ({{count}} mensagens)"
+      "log_other": "Log JSON-RPC ({{count}} mensagens)",
+      "toolsCount_many": "{{count}} ferramentas",
+      "log_many": "Log JSON-RPC ({{count}} mensagens)"
     },
     "a2aExplorer": {
-      "title": "A2A Explorer",
+      "title": "Explorador de A2A",
       "subtitle": "Busque o cartão de agente de um perfil, envie uma mensagem a ele, transmita a resposta e liste tarefas via A2A.",
       "purpose": "O A2A Explorer chama /v1.0/a2a/{tenant}/{profile} com os métodos JSON-RPC do A2A 1.0, como outro agente faria.",
       "profile": "Perfil",
@@ -2179,7 +2196,9 @@
       "events_other": "Eventos do stream ({{count}})",
       "tasks_one": "{{count}} tarefa",
       "tasks_other": "{{count}} tarefas",
-      "noTasks": "Ainda não há tarefas para este perfil."
+      "noTasks": "Ainda não há tarefas para este perfil.",
+      "events_many": "Eventos do stream ({{count}})",
+      "tasks_many": "{{count}} tarefas"
     },
     "resourceDetail": {
       "title": "Recurso",
@@ -2340,7 +2359,8 @@
       "lockdownOn": "O locatário está bloqueado. Clique para revisar e suspender o bloqueio.",
       "lockdownEngage": "Negar agora todas as chamadas que não sejam de leitura neste locatário e cancelar as aprovações pendentes.",
       "lockdownLift": "Permitir novamente chamadas de escrita e destrutivas, sujeitas aos modos de acesso e às aprovações.",
-      "discord": "Participe da comunidade Hugo no Discord (abre em uma nova aba)."
+      "discord": "Participe da comunidade Hugo no Discord (abre em uma nova aba).",
+      "approvals_many": "{{count}} aprovações aguardam uma pessoa. Abrir a caixa de entrada de Aprovações."
     },
     "login": {
       "passwordTab": "Entrar como pessoa com locatário, email e senha.",
@@ -3412,7 +3432,8 @@
         "sessions": "Ver todas as sessões e tokens ativos no locatário e revogar qualquer um deles.",
         "plugins": "Habilitar ou desabilitar plugins de conector e ver erros de carregamento. Somente administradores do sistema veem esta página.",
         "promptTemplates": "Editar modelos de instrução por camada (integrado, global, locatário), com pré-visualização, versões e redefinição."
-      }
+      },
+      "approvalsBadge_many": "{{count}} chamadas de ferramenta aguardam que uma pessoa as aprove ou rejeite. Abra Aprovações para decidir."
     },
     "passwordChange": {
       "current": "A senha com que você entrou: a pré-criada ou a que um administrador definiu para você.",
@@ -3707,15 +3728,15 @@
         "tip": "Eventos de segurança: logins, negações, revelações de segredos, alterações de configuração."
       },
       "explorer": {
-        "label": "API Explorer",
+        "label": "Explorador de API",
         "tip": "Testar qualquer rota REST do documento OpenAPI ao vivo."
       },
       "mcpExplorer": {
-        "label": "MCP Explorer",
+        "label": "Explorador de MCP",
         "tip": "Conectar-se como cliente MCP, listar ferramentas e chamá-las."
       },
       "a2aExplorer": {
-        "label": "A2A Explorer",
+        "label": "Explorador de A2A",
         "tip": "Buscar cartões de agente e conversar com perfis via A2A."
       },
       "tenants": {
@@ -3837,15 +3858,15 @@
         "tip": "Eventos de segurança."
       },
       "explorer": {
-        "label": "API Explorer",
+        "label": "Explorador de API",
         "tip": "Testar rotas REST ao vivo."
       },
       "mcpExplorer": {
-        "label": "MCP Explorer",
+        "label": "Explorador de MCP",
         "tip": "Testar o MCP como cliente."
       },
       "a2aExplorer": {
-        "label": "A2A Explorer",
+        "label": "Explorador de A2A",
         "tip": "Testar o A2A como agente."
       },
       "tenants": {
@@ -3884,7 +3905,8 @@
         "label": "Plugins",
         "tip": "Plugins de conector."
       }
-    }
+    },
+    "approvalsPending_many": "{{count}} aprovações aguardando uma pessoa"
   },
   "tour": {
     "title": "Tour guiado",
@@ -4497,8 +4519,6 @@
   },
   "standaloneChat": {
     "title": "Chat",
-    "theme": "Tema",
-    "themeTip": "Alternar entre a aparência clara e escura.",
     "new": "Novo chat",
     "newTip": "Iniciar outra conversa e limpar esta sessão.",
     "unavailable": "Este link de chat está indisponível ou foi desativado.",
@@ -4527,6 +4547,9 @@
       "rotate": "Renovar link",
       "rotateTip": "Substituir este endereço e revogar o link anterior.",
       "rotateNotice": "Salvar o acesso ou renovar o link invalida as sessões existentes. A renovação também substitui o endereço."
-    }
+    },
+    "accessDenied": "Este link de conversa está habilitado, mas suas permissões não permitem conversar. Entre em contato com quem publicou o link.",
+    "connectionFailed": "Não foi possível conectar a esta conversa. Tente novamente.",
+    "failed": "Não foi possível carregar esta conversa. Tente novamente ou entre em contato com quem publicou o link."
   }
 }

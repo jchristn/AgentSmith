@@ -350,6 +350,17 @@ namespace Hugo.Server.Services
                 User? owner = await _Database.Users.ReadAsync(profile.TenantId, credential.UserId, token).ConfigureAwait(false);
                 if (owner == null || !owner.Active) throw Invalid("chatCredentialId", "The publishing credential's owner must be active.");
                 if (credential.LockToProfile && credential.AgentProfileId != profile.Id) throw Invalid("chatCredentialId", "The credential is locked to a different agent profile.");
+                // Validate the prospective publication before it exists in storage. The runtime's public
+                // capability clamp requires the saved revision; normal grants and owner ceilings still apply here.
+                RequestContext principal = StandaloneChatPrincipal.Create(profile, credential, owner, false);
+                AuthorizationService authorization = new AuthorizationService(_Database, _Audit);
+                AuthorizationDecision execute = await authorization.EvaluateAsync(principal, profile.TenantId, ResourceTypeEnum.AgentProfile, OperationTypeEnum.Execute, profile.Id, token).ConfigureAwait(false);
+                if (!execute.Permitted) throw Invalid("chatCredentialId", "The publishing credential needs Execute permission on this agent profile, within its owner's permissions.");
+                foreach (OperationTypeEnum operation in new[] { OperationTypeEnum.Create, OperationTypeEnum.Read, OperationTypeEnum.Update })
+                {
+                    AuthorizationDecision conversation = await authorization.EvaluateAsync(principal, profile.TenantId, ResourceTypeEnum.Conversation, operation, null, token).ConfigureAwait(false);
+                    if (!conversation.Permitted) throw Invalid("chatCredentialId", "The publishing credential needs Create, Read, and Update permissions on Conversation, within its owner's permissions.");
+                }
             }
             if (String.IsNullOrEmpty(profile.ChatLinkId) || request.RotateChatLink)
                 profile.ChatLinkId = Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(24)).ToLowerInvariant();

@@ -1,5 +1,5 @@
 // Central locale registry for the Hugo dashboard.
-// Canonical BCP 47 identifiers with direction, display, review, and font metadata.
+// Canonical BCP 47 identifiers with direction, display and font metadata.
 // Adding a locale, including a right-to-left one, is an entry here plus a catalog (see docs/I18N.md).
 
 import { STORAGE_KEYS } from '../utils/constants';
@@ -24,13 +24,12 @@ const FONT_AR = `${FONT_BASE}, 'Noto Sans Arabic', 'Geeza Pro', 'Segoe UI', Taho
  *  - intl: BCP 47 tag handed to Intl formatters (defaults to code).
  *  - aliases: lower-case tags and words that resolve to this locale.
  *  - variant: the regional variant the catalog is written in (zh is Simplified Chinese, pt is Brazilian Portuguese).
- *  - beta / betaLabel: true until a native speaker has reviewed the machine-seeded catalog; the selector appends betaLabel.
  *  - pseudo: generated from English for layout testing; hidden from the selector unless ?lang= selects it.
  *  - fontFamily: optional font stack applied to <html> as --locale-font.
  */
 export const LOCALES = [
   { code: 'en', englishName: 'English', nativeName: 'English', dir: 'ltr', aliases: ['en-us', 'en-gb', 'en-ca', 'en-au', 'english'] },
-  { code: 'es', englishName: 'Spanish', nativeName: 'Español', dir: 'ltr', aliases: ['es-es', 'es-mx', 'es-419', 'spanish'], beta: true, betaLabel: 'beta' },
+  { code: 'es', englishName: 'Spanish', nativeName: 'Español', dir: 'ltr', aliases: ['es-es', 'es-mx', 'es-419', 'spanish'] },
   {
     code: 'pt',
     englishName: 'Portuguese',
@@ -38,21 +37,17 @@ export const LOCALES = [
     dir: 'ltr',
     intl: 'pt-BR',
     variant: 'pt-BR',
-    aliases: ['pt-br', 'pt-pt', 'portuguese'],
-    beta: true,
-    betaLabel: 'beta'
+    aliases: ['pt-br', 'pt-pt', 'portuguese']
   },
   {
     code: 'fr',
     englishName: 'French',
     nativeName: 'Français',
     dir: 'ltr',
-    aliases: ['fr-fr', 'fr-ca', 'fr-be', 'fr-ch', 'french'],
-    beta: true,
-    betaLabel: 'bêta'
+    aliases: ['fr-fr', 'fr-ca', 'fr-be', 'fr-ch', 'french']
   },
-  { code: 'it', englishName: 'Italian', nativeName: 'Italiano', dir: 'ltr', aliases: ['it-it', 'it-ch', 'italian'], beta: true, betaLabel: 'beta' },
-  { code: 'de', englishName: 'German', nativeName: 'Deutsch', dir: 'ltr', aliases: ['de-de', 'de-at', 'de-ch', 'german'], beta: true, betaLabel: 'Beta' },
+  { code: 'it', englishName: 'Italian', nativeName: 'Italiano', dir: 'ltr', aliases: ['it-it', 'it-ch', 'italian'] },
+  { code: 'de', englishName: 'German', nativeName: 'Deutsch', dir: 'ltr', aliases: ['de-de', 'de-at', 'de-ch', 'german'] },
   {
     code: 'zh',
     englishName: 'Mandarin Chinese',
@@ -61,8 +56,6 @@ export const LOCALES = [
     intl: 'zh-Hans',
     variant: 'zh-Hans',
     aliases: ['zh-hans', 'zh-cn', 'zh-sg', 'zh-hans-cn', 'cmn', 'cmn-hans', 'chinese', 'mandarin'],
-    beta: true,
-    betaLabel: '测试版',
     fontFamily: FONT_ZH
   },
   {
@@ -71,21 +64,17 @@ export const LOCALES = [
     nativeName: 'العربية',
     dir: 'rtl',
     aliases: ['ar-sa', 'ar-eg', 'ar-ae', 'arabic'],
-    beta: true,
-    betaLabel: 'تجريبي',
     fontFamily: FONT_AR
   },
-  { code: 'ru', englishName: 'Russian', nativeName: 'Русский', dir: 'ltr', aliases: ['ru-ru', 'russian'], beta: true, betaLabel: 'бета' },
-  { code: 'ms', englishName: 'Malay', nativeName: 'Bahasa Melayu', dir: 'ltr', aliases: ['ms-my', 'malay'], beta: true, betaLabel: 'beta' },
-  { code: 'hi', englishName: 'Hindi', nativeName: 'हिन्दी', dir: 'ltr', aliases: ['hi-in', 'hindi'], beta: true, betaLabel: 'बीटा', fontFamily: FONT_HI },
+  { code: 'ru', englishName: 'Russian', nativeName: 'Русский', dir: 'ltr', aliases: ['ru-ru', 'russian'] },
+  { code: 'ms', englishName: 'Malay', nativeName: 'Bahasa Melayu', dir: 'ltr', aliases: ['ms-my', 'malay'] },
+  { code: 'hi', englishName: 'Hindi', nativeName: 'हिन्दी', dir: 'ltr', aliases: ['hi-in', 'hindi'], fontFamily: FONT_HI },
   {
     code: 'ja',
     englishName: 'Japanese',
     nativeName: '日本語',
     dir: 'ltr',
     aliases: ['ja-jp', 'kanji', 'japanese'],
-    beta: true,
-    betaLabel: 'ベータ版',
     fontFamily: FONT_JA
   },
   {
@@ -148,10 +137,10 @@ export function getDirection(code) {
   return getLocaleMeta(code).dir;
 }
 
-/** Selector text: the autonym, plus the localized beta label while the catalog awaits native review. */
+/** Selector text is the language autonym. */
 export function getLocaleLabel(code) {
   const meta = getLocaleMeta(code);
-  return meta.beta && meta.betaLabel ? `${meta.nativeName} (${meta.betaLabel})` : meta.nativeName;
+  return meta.nativeName;
 }
 
 /**

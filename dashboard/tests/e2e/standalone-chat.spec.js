@@ -156,3 +156,31 @@ test('disabled links show a safe unavailable page', async ({ page }) => {
   await expect(page.locator('body')).not.toContainText('Internal identifier');
   await expect(page.getByRole('textbox')).toHaveCount(0);
 });
+
+for (const status of [403, 500]) {
+  test(`chat metadata failure ${status} is not presented as a disabled link`, async ({ page }) => {
+    await installMocks(page);
+    await page.route('**/v1.0/chat/**', (route) =>
+      route.fulfill({ status, contentType: 'application/json', body: JSON.stringify({ code: 'permission_denied', message: 'Internal diagnostic' }) })
+    );
+    await page.goto('/chat/test-link');
+    await expect(page.getByRole('alert')).toContainText(status === 403 ? 'permissions' : 'Unable to load');
+    await expect(page.getByRole('alert')).not.toContainText('disabled');
+    await expect(page.locator('body')).not.toContainText('Internal diagnostic');
+    await expect(page.getByRole('textbox')).toHaveCount(0);
+  });
+}
+
+test('standalone theme uses accessible sun and moon icons', async ({ page }) => {
+  await chatMocks(page);
+  await page.goto('/chat/test-link');
+  const dark = page.getByRole('button', { name: 'Switch to dark theme', exact: true });
+  await expect(dark.locator('svg')).toBeVisible();
+  await expect(dark).toHaveText('');
+  await dark.click();
+  const light = page.getByRole('button', { name: 'Switch to light theme', exact: true });
+  await expect(light.locator('svg')).toBeVisible();
+  await expect(page.locator('body')).toHaveAttribute('data-theme', 'dark');
+  await light.click();
+  await expect(dark).toBeVisible();
+});

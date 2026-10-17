@@ -476,13 +476,15 @@
       "dismiss": "Chiudi",
       "codes": {
         "ValueClamped": "Valore limitato all'intervallo consentito"
-      }
+      },
+      "title_many": "Salvato con {{count}} valori modificati"
     },
     "autoRefresh": {
       "label": "Aggiornamento automatico",
       "none": "Disattivato",
       "seconds_one": "Ogni {{count}} secondo",
-      "seconds_other": "Ogni {{count}} secondi"
+      "seconds_other": "Ogni {{count}} secondi",
+      "seconds_many": "Ogni {{count}} secondi"
     },
     "chart": {
       "success": "Riuscite",
@@ -573,7 +575,7 @@
         "createdUtc": "Creata",
         "completedUtc": "Completata",
         "sourceIp": "IP di origine",
-        "principal": "Principal",
+        "principal": "Identità",
         "tenant": "Tenant",
         "user": "Utente"
       }
@@ -610,7 +612,9 @@
       "selected_one": "{{count}} selezionato",
       "selected_other": "{{count}} selezionati",
       "selectRow": "Seleziona riga",
-      "showing": "Visualizzati da {{from}} a {{to}}"
+      "showing": "Visualizzati da {{from}} a {{to}}",
+      "records_many": "record",
+      "selected_many": "{{count}} selezionati"
     },
     "approvalCard": {
       "title": "Approvazione richiesta",
@@ -659,7 +663,8 @@
     "progress": {
       "count": "{{done}} di {{total}}",
       "deleting_one": "Eliminazione di {{count}} record",
-      "deleting_other": "Eliminazione di {{count}} record"
+      "deleting_other": "Eliminazione di {{count}} record",
+      "deleting_many": "Eliminazione di {{count}} record"
     },
     "promptEditor": {
       "content": "Testo del modello",
@@ -1062,7 +1067,7 @@
       "columns": {
         "createdUtc": "Ora",
         "eventType": "Evento",
-        "principalName": "Principal",
+        "principalName": "Identità",
         "resource": "Risorsa",
         "reason": "Motivo",
         "sourceIp": "IP di origine",
@@ -1071,7 +1076,7 @@
       "fields": {
         "eventType": "Evento",
         "principalType": "Tipo di principal",
-        "principalName": "Principal",
+        "principalName": "Identità",
         "principalId": "ID principal",
         "resourceType": "Tipo di risorsa",
         "resourceId": "ID risorsa",
@@ -1131,7 +1136,8 @@
         "cancel": "Annulla richiesta"
       },
       "cancelled": "Approvazione annullata.",
-      "selfApproval": "Questo tenant richiede che un'altra persona approvi le tue chiamate."
+      "selfApproval": "Questo tenant richiede che un'altra persona approvi le tue chiamate.",
+      "bulkRejected_many": "{{count}} approvazioni rifiutate ({{failed}} non riuscite)."
     },
     "resources": {
       "deleteReferenced_one": "{{name}} è associata a {{count}} profilo o endpoint. Rimuovi prima queste associazioni; il server rifiuta l'eliminazione finché è referenziata.",
@@ -1189,7 +1195,8 @@
         "tryTool": "Prova uno strumento",
         "referrers": "Dove viene usata",
         "referrersTitle": "Dove viene usata {{name}}"
-      }
+      },
+      "deleteReferenced_many": "{{name}} è associata a {{count}} profili o endpoint. Rimuovi prima queste associazioni; il server rifiuta l'eliminazione finché è referenziata."
     },
     "secrets": {
       "deleteReferenced_one": "{{name}} è usato da {{count}} risorsa o endpoint di modello. Il server rifiuta di eliminarlo finché è referenziato.",
@@ -1236,7 +1243,8 @@
         "reveal": "Mostra",
         "referrers": "Dove viene usato",
         "referrersTitle": "Dove viene usato {{name}}"
-      }
+      },
+      "deleteReferenced_many": "{{name}} è usato da {{count}} risorse o endpoint di modello. Il server rifiuta di eliminarlo finché è referenziato."
     },
     "toolInvocations": {
       "openTrace": "Apri la traccia in Grafana",
@@ -1261,7 +1269,7 @@
         "durationMs": "Durata",
         "surface": "Superficie",
         "agentProfileId": "Profilo",
-        "principalId": "Principal",
+        "principalId": "Identità",
         "id": "ID"
       },
       "fields": {
@@ -1486,7 +1494,7 @@
       "emptyBody": "Nessuna sessione attiva. Accedere o scambiare una chiave di accesso ne crea una.",
       "purpose": "Le sessioni sono i token bearer emessi all'accesso o scambiando una chiave di accesso. Revocarne una la termina immediatamente.",
       "columns": {
-        "principalName": "Principal",
+        "principalName": "Identità",
         "principalType": "Tipo",
         "authScheme": "Schema",
         "sourceIp": "IP di origine",
@@ -1498,7 +1506,7 @@
         "id": "ID"
       },
       "fields": {
-        "principalName": "Principal",
+        "principalName": "Identità",
         "authScheme": "Schema",
         "sourceIp": "IP di origine",
         "userAgent": "Client",
@@ -1594,7 +1602,7 @@
       "observabilitySetup": "Configura l'osservabilità",
       "observabilityNone": "Nessun servizio di osservabilità (Grafana, Prometheus, Tempo o Loki) è configurato per questo server Hugo.",
       "observability": "Osservabilità",
-      "title": "Home",
+      "title": "Pagina iniziale",
       "subtitle": "Cosa sta facendo Hugo in questo momento, cosa richiede la tua attenzione e dove andare dopo.",
       "lastLoaded": "Aggiornato {{time}}",
       "getStartedTitle": "Metti al lavoro Agent Smith",
@@ -1633,7 +1641,8 @@
       "failuresUnavailable": "Questo server non riporta ancora le invocazioni di strumenti.",
       "unhealthyTitle": "Risorse non integre",
       "allHealthy": "Ogni risorsa ha superato l'ultimo controllo di integrità.",
-      "resourcesUnavailable": "Questo server non riporta ancora le risorse."
+      "resourcesUnavailable": "Questo server non riporta ancora le risorse.",
+      "partial_many": "{{count}} pannelli non sono stati caricati, quindi mancano alcuni numeri qui sotto. Il resto della pagina è aggiornato."
     },
     "markdown": {
       "showRaw": "Mostra testo grezzo",
@@ -1651,7 +1660,8 @@
       "diffTitle": "Versione {{version}} a confronto con l'editor",
       "current": "Editor",
       "reset": "Ripristina predefinito",
-      "layeredSubtitle": "Modifica questo modello ai livelli Tenant e Globale. Ogni salvataggio è una versione e Ripristina torna indietro di un livello."
+      "layeredSubtitle": "Modifica questo modello ai livelli Tenant e Globale. Ogni salvataggio è una versione e Ripristina torna indietro di un livello.",
+      "versions_many": "Versioni ({{count}})"
     },
     "requests": {
       "grafana": "Dashboard HTTP in Grafana",
@@ -1669,7 +1679,7 @@
         "path": "Percorso",
         "status": "Stato",
         "duration": "Durata",
-        "principal": "Principal"
+        "principal": "Identità"
       },
       "bulkDeleteTitle": "Elimina cronologia richieste",
       "bulkDeleteMessage": "Eliminare tutte le {{count}} richieste che corrispondono ai filtri attuali?",
@@ -1847,7 +1857,7 @@
       "routes": "Operazioni registrate",
       "serverTime": "Ora del server",
       "principal": "Accesso effettuato come",
-      "principalName": "Principal",
+      "principalName": "Identità",
       "principalType": "Tipo di principal",
       "role": "Ruolo",
       "tenant": "Tenant",
@@ -2014,7 +2024,9 @@
         "bindings_one": "{{count}} risorse",
         "bindings_other": "{{count}} risorse",
         "chunkTip": "Da {{key}} ({{layer}}, versione {{version}})",
-        "forBinding": "per {{alias}}"
+        "forBinding": "per {{alias}}",
+        "tokens_many": "Circa {{value}} token",
+        "bindings_many": "{{count}} risorse"
       },
       "tools": {
         "body": "Gli strumenti esattamente come li vede un chiamante di questo profilo, dopo l'applicazione delle modalità di accesso e delle regole degli strumenti.",
@@ -2029,7 +2041,8 @@
         "resourceCount_one": "{{count}} risorse collegate",
         "resourceCount_other": "{{count}} risorse collegate",
         "resources": "Risorse",
-        "meta": "Strumento Hugo"
+        "meta": "Strumento Hugo",
+        "resourceCount_many": "{{count}} risorse collegate"
       },
       "connect": {
         "claudeCode": "Claude Code (MCP su HTTP)",
@@ -2137,7 +2150,9 @@
       "instructionsBody": "Ogni risorsa di questo tipo aggiunge queste istruzioni per l'agente. Modificale per tenant o globalmente con la chiave di modello {{key}}.",
       "editInstructions": "Modifica in Modelli di prompt",
       "updatesKnowledge": "Scrive conoscenza",
-      "requiresModel": "Richiede un modello"
+      "requiresModel": "Richiede un modello",
+      "count_many": "{{shown}} connettori",
+      "toolCount_many": "{{count}} strumenti"
     },
     "mcpExplorer": {
       "title": "Esplora MCP",
@@ -2161,7 +2176,9 @@
       "toolError": "Lo strumento ha segnalato un errore.",
       "invalidJson": "Il valore di {{field}} non è un JSON valido.",
       "log_one": "Log JSON-RPC ({{count}} messaggio)",
-      "log_other": "Log JSON-RPC ({{count}} messaggi)"
+      "log_other": "Log JSON-RPC ({{count}} messaggi)",
+      "toolsCount_many": "{{count}} strumenti",
+      "log_many": "Log JSON-RPC ({{count}} messaggi)"
     },
     "a2aExplorer": {
       "title": "Esplora A2A",
@@ -2179,7 +2196,9 @@
       "events_other": "Eventi dello stream ({{count}})",
       "tasks_one": "{{count}} attività",
       "tasks_other": "{{count}} attività",
-      "noTasks": "Ancora nessuna attività per questo profilo."
+      "noTasks": "Ancora nessuna attività per questo profilo.",
+      "events_many": "Eventi dello stream ({{count}})",
+      "tasks_many": "{{count}} attività"
     },
     "resourceDetail": {
       "title": "Risorsa",
@@ -2200,7 +2219,7 @@
       "sqlBody": "Ciò che gli agenti sanno di questo database: contesto di database e tabelle (scritto da operatori, generato o da agenti), l'intelligence della scansione e le relazioni tra tabelle.",
       "views": {
         "context": "Contesto",
-        "intelligence": "Intelligence",
+        "intelligence": "Analisi",
         "relationships": "Relazioni"
       },
       "entries": "Voci",
@@ -2340,7 +2359,8 @@
       "lockdownOn": "Il tenant è in blocco. Fai clic per esaminare e revocare il blocco.",
       "lockdownEngage": "Nega subito ogni chiamata non di lettura in questo tenant e annulla le approvazioni in sospeso.",
       "lockdownLift": "Consenti di nuovo le chiamate di scrittura e distruttive, nel rispetto delle modalità di accesso e delle approvazioni.",
-      "discord": "Unisciti alla community di Hugo su Discord (si apre in una nuova scheda)."
+      "discord": "Unisciti alla community di Hugo su Discord (si apre in una nuova scheda).",
+      "approvals_many": "{{count}} approvazioni sono in attesa di una persona. Apri la casella delle approvazioni."
     },
     "login": {
       "passwordTab": "Accedi come persona con tenant, email e password.",
@@ -3412,7 +3432,8 @@
         "sessions": "Visualizza ogni sessione e token attivo nel tenant e revoca quelli che vuoi.",
         "plugins": "Attiva o disattiva i plugin dei connettori e visualizza gli errori di caricamento. Solo gli amministratori di sistema vedono questa pagina.",
         "promptTemplates": "Modifica i modelli di istruzioni per livello (integrato, globale, tenant), con anteprima, versioni e ripristino."
-      }
+      },
+      "approvalsBadge_many": "{{count}} chiamate di strumento sono in attesa che una persona le approvi o le rifiuti. Apri Approvazioni per decidere."
     },
     "passwordChange": {
       "current": "La password con cui hai effettuato l'accesso: quella predefinita o quella impostata per te da un amministratore.",
@@ -3647,7 +3668,7 @@
     },
     "hubs": {
       "home": {
-        "label": "Home",
+        "label": "Pagina iniziale",
         "tip": "Cosa sta facendo Hugo, cosa richiede attenzione e i prossimi passi più comuni."
       },
       "chat": {
@@ -3777,7 +3798,7 @@
     },
     "items": {
       "home": {
-        "label": "Home",
+        "label": "Pagina iniziale",
         "tip": "Cosa sta facendo Hugo, cosa richiede attenzione e i prossimi passi più comuni."
       },
       "chat": {
@@ -3884,7 +3905,8 @@
         "label": "Plugin",
         "tip": "Plugin dei connettori."
       }
-    }
+    },
+    "approvalsPending_many": "{{count}} approvazioni in attesa di una persona"
   },
   "tour": {
     "title": "Tour guidato",
@@ -4497,8 +4519,6 @@
   },
   "standaloneChat": {
     "title": "Chat",
-    "theme": "Tema",
-    "themeTip": "Passa tra aspetto chiaro e scuro.",
     "new": "Nuova chat",
     "newTip": "Avvia una nuova conversazione e cancella questa sessione.",
     "unavailable": "Questo link di chat non è disponibile o è disabilitato.",
@@ -4527,6 +4547,9 @@
       "rotate": "Rinnova link",
       "rotateTip": "Sostituisci questo indirizzo e revoca il link precedente.",
       "rotateNotice": "Salvare l’accesso o rinnovare il link invalida le sessioni esistenti. Il rinnovo cambia anche l’indirizzo."
-    }
+    },
+    "accessDenied": "Questo link di chat è abilitato, ma le autorizzazioni configurate non consentono di chattare. Contatta chi ha pubblicato il link.",
+    "connectionFailed": "Impossibile connettersi a questa chat. Riprova.",
+    "failed": "Impossibile caricare questa chat. Riprova o contatta chi ha pubblicato il link."
   }
 }

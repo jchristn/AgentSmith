@@ -90,7 +90,7 @@ These rules keep the plan honest:
 | 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | Complete | 23 / 23 |
 | 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | Complete | 24 / 24 |
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Complete | 23 / 23 |
-| 8 | Dashboard | M1 | Complete | 60 / 60 |
+| 8 | Dashboard | M1 | Complete | 61 / 61 |
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | Complete | 14 / 14 |
 | 10 | Docker, testbed, and observability stack | M1 | Complete | 24 / 24 |
 | 11 | Documentation and Postman | M1 | Complete | 18 / 18 |
@@ -2102,7 +2102,9 @@ Quality
 
 - [x] P8.59 Put Secrets first in Connections and make it the default tab so credential creation precedes resources. *Accept:* tab order Secrets, Resources, Connectors, Models; explicit resource links and legacy bookmarks continue opening Resources. | codex 2026-10-17 verified 317 dashboard unit tests, 70 browser tests and lint; fixed locale test query composition for the new explicit Resources tab URL
 
-- [x] P8.60 Add standalone /chat/{linkId} page and profile publication controls, following AssistantHub. *Accept:* user can enable/disable, choose Public/Authenticated, select public execution credential, copy/open/rotate URL, sign in and return to authenticated chat, start/resume/stop isolated conversations without dashboard chrome; responsive/localization and browser tests pass. | codex 2026-10-17 AssistantHub-style standalone page and profile Connect controls complete; 319 unit tests, 80 browser tests, lint, 12-locale check and production build pass. Ten focused standalone/browser cases pass after visual refinements; eight desktop/tablet/mobile and management screenshots reviewed. Follow-up: keep chat-link grid content aligned to the top so Sign-in required does not stretch Save; lint and all ten standalone browser tests pass, including equal button dimensions across access modes
+- [x] P8.60 Add standalone /chat/{linkId} page and profile publication controls, following AssistantHub. *Accept:* user can enable/disable, choose Public/Authenticated, select public execution credential, copy/open/rotate URL, sign in and return to authenticated chat, start/resume/stop isolated conversations without dashboard chrome; responsive/localization and browser tests pass. | codex 2026-10-17 AssistantHub-style standalone page and profile Connect controls complete; 319 unit tests, 80 browser tests, lint, 12-locale check and production build pass. Ten focused standalone/browser cases pass after visual refinements; eight desktop/tablet/mobile and management screenshots reviewed. Follow-up: keep chat-link grid content aligned to the top so Sign-in required does not stretch Save; lint and all ten standalone browser tests pass, including equal button dimensions across access modes. Public publication now validates explicit profile Execute and Conversation Create/Read/Update grants before saving, sharing the runtime credential principal; all nine SQLite standalone backend cases and a zero-warning solution build pass
+- [x] P8.61 Remove language beta labels and verify complete locale coverage. *Accept:* every supported catalog has all keys, placeholders, nonempty translated labels, and all locale-specific plural forms; selectors show autonyms without status suffixes. | codex 2026-10-17 Removed beta metadata and labels, corrected untranslated short labels, filled 88 missing plural forms, and replaced the short-label test exemption with reviewed shared vocabulary. All 12 languages pass catalog coverage, 330 dashboard unit tests, 83 browser tests, and lint; standalone chat uses accessible sun/moon icons and distinguishes missing links from permission, server, and network errors
+
 
 ### Phase 9: SDKs (M1)
 

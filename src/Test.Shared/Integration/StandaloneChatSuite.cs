@@ -42,6 +42,7 @@ namespace Test.Shared.Integration
                 {
                     new TestCaseDescriptor(id, "migration-upgrade", "Version 9 profiles upgrade with disabled authenticated chat while preserving existing profile data", ct => MigrationAsync(provider, ct)),
                     new TestCaseDescriptor(id, "disabled-management", "Standalone chat defaults disabled and only profile editors can publish or rotate links", ct => ManagementAsync(provider, ct)),
+                    new TestCaseDescriptor(id, "publication-permissions", "Public publication requires explicit profile execution and conversation grants even for administrator-owned credentials", ct => PublicationPermissionsAsync(provider, ct)),
                     new TestCaseDescriptor(id, "public-runtime", "Public visitors execute through the configured credential and normal binding permissions without exposing traces", ct => PublicRuntimeAsync(provider, ct)),
                     new TestCaseDescriptor(id, "visitor-isolation", "Conversation capabilities isolate anonymous visitors, profiles, and tampered session tokens", ct => IsolationAsync(provider, ct)),
                     new TestCaseDescriptor(id, "public-approval-revocation", "Deferred public approvals revalidate publication authority before executing", ct => ApprovalRevocationAsync(provider, ct)),
@@ -160,6 +161,50 @@ namespace Test.Shared.Integration
                 JsonElement metadata = await JsonAsync(visitor, HttpMethod.Get, Chat(published), null, 200, token).ConfigureAwait(false);
                 Assert.True(metadata.EnumerateObject().All(property => new[] { "accessMode", "authenticationRequired", "displayName", "name" }.Contains(property.Name)) && metadata.TryGetProperty("name", out JsonElement _) && metadata.TryGetProperty("accessMode", out JsonElement _), "metadata exposes only safe presentation fields (nullable displayName may be omitted)");
                 Assert.True(!metadata.GetProperty("authenticationRequired").GetBoolean(), "public page needs no Hugo login");
+            }
+        }
+
+        private static async Task PublicationPermissionsAsync(DatabaseTypeEnum provider, CancellationToken token)
+        {
+            await using (IntegrationRig rig = await IntegrationRig.StartAsync(provider, null, token).ConfigureAwait(false))
+            using (HttpClient visitor = Anonymous(rig))
+            {
+                CredentialCreateResponse empty = await McpFixture.CredentialAsync(rig, "unscoped-publisher", rig.Hugo.Id, null, token).ConfigureAwait(false);
+                Credential stored = empty.Credential;
+                stored.InheritOwnerBypass = true;
+                await rig.Context.Database.Credentials.UpdateAsync(stored, token).ConfigureAwait(false);
+                string path = "/v1.0/api/agent-profiles/" + rig.Hugo.Id;
+                TestResponse missingExecute = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Put, path, new { chatEnabled = true, chatAccessMode = "Public", chatCredentialId = stored.Id }, token).ConfigureAwait(false);
+                Assert.Equal(400, missingExecute.StatusCode, "administrator-owned credential cannot publish using inherited bypass");
+                Assert.True(missingExecute.Body.Contains("chatCredentialId") && missingExecute.Body.Contains("Execute"), "publisher receives a field-specific missing execution permission");
+                AgentProfile unchanged = (await rig.Context.Database.AgentProfiles.ReadAsync(rig.TenantId, rig.Hugo.Id, token).ConfigureAwait(false))!;
+                Assert.True(!unchanged.ChatEnabled, "rejected publication does not persist an enabled link");
+
+                Role role = new Role { TenantId = rig.TenantId, Name = "StandalonePublisher" };
+                await rig.Context.Database.Roles.CreateAsync(role, token).ConfigureAwait(false);
+                Permission execute = new Permission { TenantId = rig.TenantId, Name = "StandaloneExecute", ResourceTypes = new List<string> { "AgentProfile" }, OperationTypes = new List<string> { "Execute" } };
+                await rig.Context.Database.Permissions.CreateAsync(execute, token).ConfigureAwait(false);
+                await rig.Context.Database.RolePermissionMaps.CreateAsync(new RolePermissionMap { TenantId = rig.TenantId, RoleId = role.Id, PermissionId = execute.Id }, token).ConfigureAwait(false);
+                CredentialCreateResponse scoped = await McpFixture.CredentialAsync(rig, "scoped-publisher", rig.Hugo.Id, role.Name, token).ConfigureAwait(false);
+                Permission conversations = new Permission { TenantId = rig.TenantId, Name = "StandaloneConversations", ResourceTypes = new List<string> { "Conversation" }, OperationTypes = new List<string> { "Create", "Read" } };
+                await rig.Context.Database.Permissions.CreateAsync(conversations, token).ConfigureAwait(false);
+                await rig.Context.Database.RolePermissionMaps.CreateAsync(new RolePermissionMap { TenantId = rig.TenantId, RoleId = role.Id, PermissionId = conversations.Id }, token).ConfigureAwait(false);
+                TestResponse missingUpdate = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Put, path, new { chatEnabled = true, chatAccessMode = "Public", chatCredentialId = scoped.Credential.Id }, token).ConfigureAwait(false);
+                Assert.Equal(400, missingUpdate.StatusCode, "profile Execute and partial conversation grants are insufficient");
+                Assert.True(missingUpdate.Body.Contains("chatCredentialId") && missingUpdate.Body.Contains("Conversation"), "publisher receives conversation permission guidance");
+                conversations.OperationTypes.Add("Update");
+                await rig.Context.Database.Permissions.UpdateAsync(conversations, token).ConfigureAwait(false);
+                rig.Context.Authorization.Invalidate();
+                AgentProfile published = await HttpTestHelpers.SendAsync<AgentProfile>(rig.Anderson, HttpMethod.Put, path, new { chatEnabled = true, chatAccessMode = "Public", chatCredentialId = scoped.Credential.Id }, 200, token).ConfigureAwait(false);
+                await JsonAsync(visitor, HttpMethod.Get, Chat(published), null, 200, token).ConfigureAwait(false);
+                (string id, string sessionToken) = await SessionAsync(visitor, published, token).ConfigureAwait(false);
+                Session(visitor, sessionToken);
+                await JsonAsync(visitor, HttpMethod.Get, Chat(published) + "/conversations/" + id + "/messages", null, 200, token).ConfigureAwait(false);
+                stored = (await rig.Context.Database.Credentials.ReadAsync(rig.TenantId, scoped.Credential.Id, token).ConfigureAwait(false))!;
+                stored.Active = false;
+                await rig.Context.Database.Credentials.UpdateAsync(stored, token).ConfigureAwait(false);
+                AgentProfile disabled = await HttpTestHelpers.SendAsync<AgentProfile>(rig.Anderson, HttpMethod.Put, path, new { chatEnabled = false }, 200, token).ConfigureAwait(false);
+                Assert.True(!disabled.ChatEnabled, "broken publications can still be disabled after credential revocation");
             }
         }
 

@@ -476,13 +476,15 @@
       "dismiss": "Masquer",
       "codes": {
         "ValueClamped": "Valeur ramenée dans la plage autorisée"
-      }
+      },
+      "title_many": "Enregistré avec {{count}} valeurs ajustées"
     },
     "autoRefresh": {
       "label": "Actualisation automatique",
       "none": "Désactivée",
       "seconds_one": "Toutes les {{count}} seconde",
-      "seconds_other": "Toutes les {{count}} secondes"
+      "seconds_other": "Toutes les {{count}} secondes",
+      "seconds_many": "Toutes les {{count}} secondes"
     },
     "chart": {
       "success": "Réussite",
@@ -610,7 +612,9 @@
       "selected_one": "{{count}} sélectionné",
       "selected_other": "{{count}} sélectionnés",
       "selectRow": "Sélectionner la ligne",
-      "showing": "Affichage de {{from}} à {{to}}"
+      "showing": "Affichage de {{from}} à {{to}}",
+      "records_many": "enregistrements",
+      "selected_many": "{{count}} sélectionnés"
     },
     "approvalCard": {
       "title": "Approbation requise",
@@ -659,7 +663,8 @@
     "progress": {
       "count": "{{done}} sur {{total}}",
       "deleting_one": "Suppression de {{count}} enregistrement",
-      "deleting_other": "Suppression de {{count}} enregistrements"
+      "deleting_other": "Suppression de {{count}} enregistrements",
+      "deleting_many": "Suppression de {{count}} enregistrements"
     },
     "promptEditor": {
       "content": "Texte du modèle",
@@ -1131,7 +1136,8 @@
         "cancel": "Annuler la demande"
       },
       "cancelled": "Approbation annulée.",
-      "selfApproval": "Ce tenant exige qu'une autre personne approuve vos propres appels."
+      "selfApproval": "Ce tenant exige qu'une autre personne approuve vos propres appels.",
+      "bulkRejected_many": "{{count}} approbations rejetées ({{failed}} en échec)."
     },
     "resources": {
       "deleteReferenced_one": "{{name}} est lié à {{count}} profil ou point de terminaison. Supprimez d'abord ces liaisons ; le serveur refuse la suppression tant qu'il est référencé.",
@@ -1189,7 +1195,8 @@
         "tryTool": "Essayer un outil",
         "referrers": "Où il est utilisé",
         "referrersTitle": "Où {{name}} est utilisé"
-      }
+      },
+      "deleteReferenced_many": "{{name}} est lié à {{count}} profils ou points de terminaison. Supprimez d'abord ces liaisons ; le serveur refuse la suppression tant qu'il est référencé."
     },
     "secrets": {
       "deleteReferenced_one": "{{name}} est utilisé par {{count}} ressource ou point de terminaison de modèle. Le serveur refuse de le supprimer tant qu'il est référencé.",
@@ -1236,7 +1243,8 @@
         "reveal": "Afficher",
         "referrers": "Où il est utilisé",
         "referrersTitle": "Où {{name}} est utilisé"
-      }
+      },
+      "deleteReferenced_many": "{{name}} est utilisé par {{count}} ressources ou points de terminaison de modèle. Le serveur refuse de le supprimer tant qu'il est référencé."
     },
     "toolInvocations": {
       "openTrace": "Ouvrir la trace dans Grafana",
@@ -1633,7 +1641,8 @@
       "failuresUnavailable": "Ce serveur ne signale pas encore les invocations d'outil.",
       "unhealthyTitle": "Ressources défaillantes",
       "allHealthy": "Toutes les ressources ont réussi leur dernière vérification de santé.",
-      "resourcesUnavailable": "Ce serveur ne signale pas encore les ressources."
+      "resourcesUnavailable": "Ce serveur ne signale pas encore les ressources.",
+      "partial_many": "{{count}} panneaux n'ont pas pu être chargés ; certains chiffres ci-dessous sont donc manquants. Le reste de la page est à jour."
     },
     "markdown": {
       "showRaw": "Afficher le texte brut",
@@ -1651,7 +1660,8 @@
       "diffTitle": "Version {{version}} comparée à l'éditeur",
       "current": "Éditeur",
       "reset": "Rétablir la valeur par défaut",
-      "layeredSubtitle": "Modifiez ce modèle aux couches Tenant et Global. Chaque enregistrement est une version et Réinitialiser revient d'une couche."
+      "layeredSubtitle": "Modifiez ce modèle aux couches Tenant et Global. Chaque enregistrement est une version et Réinitialiser revient d'une couche.",
+      "versions_many": "Versions ({{count}})"
     },
     "requests": {
       "grafana": "Tableau de bord HTTP dans Grafana",
@@ -2014,7 +2024,9 @@
         "bindings_one": "{{count}} ressources",
         "bindings_other": "{{count}} ressources",
         "chunkTip": "De {{key}} ({{layer}}, version {{version}})",
-        "forBinding": "pour {{alias}}"
+        "forBinding": "pour {{alias}}",
+        "tokens_many": "Environ {{value}} jetons",
+        "bindings_many": "{{count}} ressources"
       },
       "tools": {
         "body": "Les outils tels qu'un appelant de ce profil les voit, après application des modes d'accès et des règles d'outil.",
@@ -2029,7 +2041,8 @@
         "resourceCount_one": "{{count}} ressources liées",
         "resourceCount_other": "{{count}} ressources liées",
         "resources": "Ressources",
-        "meta": "Outil Hugo"
+        "meta": "Outil Hugo",
+        "resourceCount_many": "{{count}} ressources liées"
       },
       "connect": {
         "claudeCode": "Claude Code (MCP via HTTP)",
@@ -2137,7 +2150,9 @@
       "instructionsBody": "Chaque ressource de ce type ajoute ces instructions pour l'agent. Modifiez-les par locataire ou globalement sous la clé de modèle {{key}}.",
       "editInstructions": "Modifier dans les modèles de prompt",
       "updatesKnowledge": "Écrit des connaissances",
-      "requiresModel": "Nécessite un modèle"
+      "requiresModel": "Nécessite un modèle",
+      "count_many": "{{shown}} connecteurs",
+      "toolCount_many": "{{count}} outils"
     },
     "mcpExplorer": {
       "title": "Explorateur MCP",
@@ -2161,7 +2176,9 @@
       "toolError": "L'outil a signalé une erreur.",
       "invalidJson": "La valeur de {{field}} n'est pas un JSON valide.",
       "log_one": "Journal JSON-RPC ({{count}} message)",
-      "log_other": "Journal JSON-RPC ({{count}} messages)"
+      "log_other": "Journal JSON-RPC ({{count}} messages)",
+      "toolsCount_many": "{{count}} outils",
+      "log_many": "Journal JSON-RPC ({{count}} messages)"
     },
     "a2aExplorer": {
       "title": "Explorateur A2A",
@@ -2179,7 +2196,9 @@
       "events_other": "Événements du flux ({{count}})",
       "tasks_one": "{{count}} tâche",
       "tasks_other": "{{count}} tâches",
-      "noTasks": "Aucune tâche pour ce profil pour le moment."
+      "noTasks": "Aucune tâche pour ce profil pour le moment.",
+      "events_many": "Événements du flux ({{count}})",
+      "tasks_many": "{{count}} tâches"
     },
     "resourceDetail": {
       "title": "Ressource",
@@ -2340,7 +2359,8 @@
       "lockdownOn": "Le locataire est verrouillé. Cliquez pour examiner et lever le verrouillage.",
       "lockdownEngage": "Refuser dès maintenant tout appel autre qu'une lecture dans ce locataire et annuler les approbations en attente.",
       "lockdownLift": "Autoriser de nouveau les appels en écriture et destructifs, sous réserve des modes d'accès et des approbations.",
-      "discord": "Rejoindre la communauté Hugo sur Discord (s’ouvre dans un nouvel onglet)."
+      "discord": "Rejoindre la communauté Hugo sur Discord (s’ouvre dans un nouvel onglet).",
+      "approvals_many": "{{count}} approbations attendent une personne. Ouvrez la boîte de réception des approbations."
     },
     "login": {
       "passwordTab": "Se connecter en tant que personne avec un locataire, une adresse e-mail et un mot de passe.",
@@ -3412,7 +3432,8 @@
         "sessions": "Voir chaque session et jeton actifs dans le locataire, et révoquer n'importe lequel.",
         "plugins": "Activer ou désactiver les plugins de connecteur et voir les erreurs de chargement. Seuls les administrateurs système voient cette page.",
         "promptTemplates": "Modifier les modèles d'instructions par couche (intégrée, globale, locataire), avec aperçu, versions et réinitialisation."
-      }
+      },
+      "approvalsBadge_many": "{{count}} appels d'outil attendent qu'une personne les approuve ou les rejette. Ouvrez Approbations pour décider."
     },
     "passwordChange": {
       "current": "Le mot de passe avec lequel vous vous êtes connecté : celui pré-créé ou celui qu'un administrateur a défini pour vous.",
@@ -3884,7 +3905,8 @@
         "label": "Plugins",
         "tip": "Plugins de connecteur."
       }
-    }
+    },
+    "approvalsPending_many": "{{count}} approbations attendent une personne"
   },
   "tour": {
     "title": "Visite guidée",
@@ -4497,8 +4519,6 @@
   },
   "standaloneChat": {
     "title": "Discussion",
-    "theme": "Thème",
-    "themeTip": "Basculer entre les apparences claire et sombre.",
     "new": "Nouvelle discussion",
     "newTip": "Commencer une autre conversation et effacer cette session.",
     "unavailable": "Ce lien de discussion est indisponible ou désactivé.",
@@ -4527,6 +4547,9 @@
       "rotate": "Renouveler le lien",
       "rotateTip": "Remplacer cette adresse et révoquer l’ancien lien.",
       "rotateNotice": "Enregistrer l’accès ou renouveler le lien invalide les sessions existantes. Le renouvellement remplace aussi l’adresse."
-    }
+    },
+    "accessDenied": "Ce lien de discussion est activé, mais ses autorisations ne permettent pas de discuter. Contactez la personne qui a publié le lien.",
+    "connectionFailed": "Impossible de se connecter à cette discussion. Réessayez.",
+    "failed": "Impossible de charger cette discussion. Réessayez ou contactez la personne qui a publié le lien."
   }
 }

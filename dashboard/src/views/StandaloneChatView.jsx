@@ -9,6 +9,7 @@ import { safeChatMessages, standaloneChatReducer } from '../utils/standaloneChat
 import { errorMessage } from '../utils/errors';
 import ChatPanel from '../components/ChatPanel';
 import LanguageSelector from '../components/LanguageSelector';
+import { SunIcon, MoonIcon } from '../components/Icons';
 import { tip } from '../components/Tooltip';
 import './StandaloneChatView.css';
 
@@ -16,7 +17,7 @@ import './StandaloneChatView.css';
 export default function StandaloneChatView() {
   const { linkId } = useParams();
   const { t } = useTranslation();
-  const { isAuthenticated, isLoading, token, principal, toggleTheme } = useAuth();
+  const { isAuthenticated, isLoading, token, principal, theme, toggleTheme } = useAuth();
   // The link belongs to this deployment, independently of a previously saved dashboard server URL.
   const client = useMemo(() => new ApiClient(defaultServerUrl(), isAuthenticated ? token : null), [isAuthenticated, token]);
   const [metadata, setMetadata] = useState(null);
@@ -142,8 +143,14 @@ export default function StandaloneChatView() {
         </div>
         <div className="standalone-chat-actions">
           <LanguageSelector />
-          <button type="button" className="button-secondary" onClick={toggleTheme} {...tip(t('standaloneChat.themeTip'))}>
-            {t('standaloneChat.theme')}
+          <button
+            type="button"
+            className="icon-button"
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? t('common.theme.switchToLight') : t('common.theme.switchToDark')}
+            {...tip(t(theme === 'dark' ? 'tips.topbar.themeLight' : 'tips.topbar.themeDark'))}
+          >
+            {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
           </button>
           {!requiresLogin && metadata && (
             <button type="button" className="button-secondary" onClick={newChat} disabled={starting} {...tip(t('standaloneChat.newTip'))}>
@@ -158,7 +165,13 @@ export default function StandaloneChatView() {
         </div>
       ) : error && !metadata ? (
         <div role="alert" className="standalone-chat-notice error-banner">
-          {t('standaloneChat.unavailable')}
+          {error.status === 404
+            ? t('standaloneChat.unavailable')
+            : error.status === 403
+              ? t('standaloneChat.accessDenied')
+              : error.status === 0
+                ? t('standaloneChat.connectionFailed')
+                : t('standaloneChat.failed')}
         </div>
       ) : requiresLogin ? (
         <section className="standalone-chat-notice">

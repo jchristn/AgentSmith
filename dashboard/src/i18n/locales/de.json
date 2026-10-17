@@ -290,14 +290,14 @@
       "ReadWrite": "Lesen und Schreiben"
     },
     "connectorCategory": {
-      "Compute": "Compute",
+      "Compute": "Rechenleistung",
       "Storage": "Speicher",
       "Database": "Datenbanken",
       "Logging": "Protokollierung",
       "Cache": "Caches",
       "Cloud": "Cloud",
       "Orchestration": "Orchestrierung",
-      "Observability": "Observability",
+      "Observability": "Beobachtbarkeit",
       "Http": "HTTP-APIs",
       "Agent": "Agenten",
       "Other": "Sonstiges"
@@ -690,7 +690,7 @@
         "General": "Allgemein",
         "Connection": "Verbindung",
         "Authentication": "Authentifizierung",
-        "Limits": "Limits",
+        "Limits": "Grenzen",
         "Advanced": "Erweitert",
         "TLS": "TLS",
         "Safety": "Sicherheit",
@@ -1278,7 +1278,7 @@
         "accessMode": "Zugriffsmodus",
         "outputBytes": "Ausgabegröße",
         "approvalId": "Freigabe",
-        "traceId": "Trace",
+        "traceId": "Ablaufverfolgung",
         "argumentsRedacted": "Argumente (Secrets geschwärzt)",
         "outputPreview": "Ausgabevorschau"
       }
@@ -1298,7 +1298,7 @@
       "sections": {
         "endpoint": "Endpunkt",
         "capabilities": "Fähigkeiten",
-        "limits": "Limits",
+        "limits": "Grenzen",
         "validation": "Prüfung"
       },
       "columns": {
@@ -1429,7 +1429,7 @@
       "sections": {
         "identity": "Identität",
         "models": "Modelle",
-        "limits": "Limits",
+        "limits": "Grenzen",
         "exposure": "Bereitstellung"
       },
       "columns": {
@@ -2054,7 +2054,7 @@
         "chooseConnector": "Konnektor wählen",
         "connectorsUnavailable": "Der Server hat seine Konnektoren nicht aufgelistet, daher können die Einstellungen noch nicht erzeugt werden.",
         "settings": "Einstellungen",
-        "secrets": "Secrets",
+        "secrets": "Geheimnisse",
         "test": "Verbindung testen",
         "testing": "Wird getestet..."
       },
@@ -3543,7 +3543,7 @@
     "diagram": {
       "label": "Wie Secrets, Ressourcen, Bindungen, Profile und Schnittstellen zusammenhängen",
       "secret": {
-        "title": "Secrets",
+        "title": "Geheimnisse",
         "body": "Verschlüsselte Zugangsdaten",
         "tip": "Passwörter, Schlüssel und Token, verschlüsselt in Hugo. Ressourcen nutzen sie über Slots; Agenten sehen sie nie."
       },
@@ -3632,7 +3632,7 @@
     "approvalsPending_other": "{{count}} Freigaben warten auf eine Person",
     "environment": {
       "local": "Lokal",
-      "remote": "Remote"
+      "remote": "Entfernt"
     },
     "sections": {
       "start": "Start",
@@ -3671,7 +3671,7 @@
         "tip": "Konfigurierte Verbindungen zu Ihren Systemen: Hosts, Buckets, Datenbanken, Protokolldienste."
       },
       "secrets": {
-        "label": "Secrets",
+        "label": "Geheimnisse",
         "tip": "Verschlüsselte Zugangsdaten, die Ressourcen und Modellendpunkte verwenden."
       },
       "connectors": {
@@ -4497,8 +4497,6 @@
   },
   "standaloneChat": {
     "title": "Chat",
-    "theme": "Design",
-    "themeTip": "Zwischen hellem und dunklem Design wechseln.",
     "new": "Neuer Chat",
     "newTip": "Eine neue Unterhaltung beginnen und diese Sitzung leeren.",
     "unavailable": "Dieser Chat-Link ist nicht verfügbar oder wurde deaktiviert.",
@@ -4527,6 +4525,9 @@
       "rotate": "Link erneuern",
       "rotateTip": "Diese Adresse ersetzen und den bisherigen Chat-Link widerrufen.",
       "rotateNotice": "Das Speichern der Zugriffseinstellungen oder Erneuern des Links macht bestehende Chat-Sitzungen ungültig. Beim Erneuern ändert sich auch die Adresse."
-    }
+    },
+    "accessDenied": "Dieser Chat-Link ist aktiviert, aber die konfigurierten Berechtigungen erlauben keinen Chat. Wenden Sie sich an den Herausgeber des Links.",
+    "connectionFailed": "Die Verbindung zu diesem Chat konnte nicht hergestellt werden. Versuchen Sie es erneut.",
+    "failed": "Dieser Chat konnte nicht geladen werden. Versuchen Sie es erneut oder wenden Sie sich an den Herausgeber des Links."
   }
 }

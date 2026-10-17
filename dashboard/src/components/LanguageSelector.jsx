@@ -4,8 +4,8 @@ import { setActiveLocale } from '../i18n';
 import { tip } from './Tooltip';
 
 /**
- * Locale <select>, rendering autonyms. Locales awaiting native-speaker review carry their localized beta label,
- * for example "Français (bêta)". Pseudo-locales appear only while one is active (?lang=en-XA or ?lang=ar-XB).
+ * Locale <select>, rendering autonyms. Pseudo-locales appear only while one is active
+ * (?lang=en-XA or ?lang=ar-XB).
  * Used in login, topbar, and settings.
  */
 export default function LanguageSelector({ compact = false, className = '' }) {
@@ -23,7 +23,7 @@ export default function LanguageSelector({ compact = false, className = '' }) {
         data-testid="language-select"
       >
         {selectableLocales(current).map((l) => (
-          <option key={l.code} value={l.code} lang={l.code} dir={l.dir} data-beta={l.beta ? 'true' : undefined}>
+          <option key={l.code} value={l.code} lang={l.code} dir={l.dir}>
             {getLocaleLabel(l.code)}
           </option>
         ))}

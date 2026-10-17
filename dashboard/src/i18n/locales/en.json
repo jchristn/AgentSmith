@@ -4483,8 +4483,6 @@
   },
   "standaloneChat": {
     "title": "Chat",
-    "theme": "Theme",
-    "themeTip": "Switch between light and dark appearance.",
     "new": "New chat",
     "newTip": "Start a separate conversation and clear this session.",
     "unavailable": "This chat link is unavailable or has been disabled.",
@@ -4513,6 +4511,9 @@
       "rotate": "Rotate link",
       "rotateTip": "Replace this address and revoke the previous chat link.",
       "rotateNotice": "Saving access settings or rotating the link invalidates existing chat sessions. Rotation also replaces the address."
-    }
+    },
+    "accessDenied": "This chat link is enabled, but its configured permissions do not allow chat. Contact the link publisher.",
+    "connectionFailed": "Unable to connect to this chat. Please try again.",
+    "failed": "Unable to load this chat. Please try again or contact the link publisher."
   }
 }

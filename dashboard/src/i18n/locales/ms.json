@@ -32,7 +32,7 @@
       "copy": "Salin",
       "delete": "Padam",
       "duplicate": "Pendua",
-      "edit": "Edit",
+      "edit": "Sunting",
       "hide": "Sembunyikan nilai",
       "logout": "Log keluar",
       "next": "Seterusnya",
@@ -4497,8 +4497,6 @@
   },
   "standaloneChat": {
     "title": "Sembang",
-    "theme": "Tema",
-    "themeTip": "Tukar antara paparan cerah dan gelap.",
     "new": "Sembang baharu",
     "newTip": "Mulakan perbualan berasingan dan kosongkan sesi ini.",
     "unavailable": "Pautan sembang ini tidak tersedia atau telah dinyahdayakan.",
@@ -4527,6 +4525,9 @@
       "rotate": "Perbaharui pautan",
       "rotateTip": "Gantikan alamat ini dan batalkan pautan sembang sebelumnya.",
       "rotateNotice": "Menyimpan tetapan akses atau memperbaharui pautan membatalkan sesi sembang sedia ada. Pembaharuan juga menggantikan alamat."
-    }
+    },
+    "accessDenied": "Pautan sembang ini diaktifkan, tetapi kebenaran yang ditetapkan tidak membenarkan sembang. Hubungi penerbit pautan.",
+    "connectionFailed": "Tidak dapat menyambung ke sembang ini. Sila cuba lagi.",
+    "failed": "Tidak dapat memuatkan sembang ini. Sila cuba lagi atau hubungi penerbit pautan."
   }
 }

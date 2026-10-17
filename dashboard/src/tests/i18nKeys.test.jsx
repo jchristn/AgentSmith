@@ -173,6 +173,18 @@ describe('locale parity', () => {
     expect(mismatched).toEqual([]);
   });
 
+  it.each(locales)('%s supplies every plural category used by its Intl rules', (code, catalog) => {
+    const categories = new Intl.PluralRules(code === 'pt' ? 'pt-BR' : code).resolvedOptions().pluralCategories;
+    const groups = [...leafKeys(en)].filter((key) => key.endsWith('_other')).map((key) => key.replace(/_other$/, ''));
+    const missing = [];
+    for (const group of groups) {
+      for (const category of categories) {
+        if (typeof lookup(catalog, `${group}_${category}`) !== 'string') missing.push(`${group}_${category}`);
+      }
+    }
+    expect(missing).toEqual([]);
+  });
+
   it.each(locales)('%s has no empty or non-string values', (_code, catalog) => {
     const bad = [...leafKeys(catalog)].filter((k) => {
       const v = lookup(catalog, k);
@@ -181,7 +193,7 @@ describe('locale parity', () => {
     expect(bad).toEqual([]);
   });
 
-  it.each(locales)('%s leaves little English copy behind beyond product terms and the allowlist', (code, catalog) => {
+  it.each(locales)('%s translates every label and sentence beyond product terms and reviewed shared words', (code, catalog) => {
     const allowed = new Set([...(UNTRANSLATED_ALLOWLIST['*'] || []), ...(UNTRANSLATED_ALLOWLIST[code] || [])]);
     const leftovers = [];
     for (const key of leafKeys(catalog)) {
@@ -189,8 +201,6 @@ describe('locale parity', () => {
       const source = lookup(en, key) ?? lookup(en, key.replace(PLURAL, '_other'));
       if (target !== source) continue;
       if (isProductTerm(target) || allowed.has(target)) continue;
-      // Short labels are often spelled the same (Status, Name); longer sentences are not.
-      if (target.split(/\s+/).length <= 3) continue;
       leftovers.push(`${key}: ${target}`);
     }
     expect(leftovers).toEqual([]);

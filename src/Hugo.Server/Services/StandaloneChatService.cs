@@ -13,7 +13,6 @@ namespace Hugo.Server.Services
     using Hugo.Core.Profiles;
     using Hugo.Core.Responses;
     using Hugo.Core.Security;
-    using Hugo.Core.Serialization;
     using Hugo.Core.Services;
 
     /// <summary>
@@ -60,18 +59,7 @@ namespace Hugo.Server.Services
                 if (stored == null || !stored.Active || stored.ExpiresUtc <= DateTime.UtcNow || stored.AuthMode == CredentialAuthModeEnum.SessionExchange || (stored.LockToProfile && stored.AgentProfileId != profile.Id)) throw Missing();
                 User? owner = await _Server.Database.Users.ReadAsync(profile.TenantId, stored.UserId, token).ConfigureAwait(false);
                 if (owner == null || !owner.Active) throw Missing();
-                Credential credential = Serializer.Copy(stored) ?? throw Missing();
-                credential.InheritOwnerBypass = false;
-                credential.AgentProfileId = profile.Id;
-                credential.LockToProfile = true;
-                principal = new RequestContext
-                {
-                    IsAuthenticated = true, AuthResult = AuthResultEnum.Success, AuthScheme = AuthSchemeEnum.AccessKeySecret,
-                    PrincipalType = PrincipalTypeEnum.Credential, PrincipalName = "Standalone chat visitor", TenantId = profile.TenantId,
-                    UserId = owner.Id, CredentialId = credential.Id, User = owner, Credential = credential,
-                    IsAdmin = false, IsTenantAdmin = false, IsPublicChat = true, PublicChatProfileId = profile.Id,
-                    PublicChatRevision = profile.ChatRevision, SuppressHistoryBodies = true
-                };
+                principal = StandaloneChatPrincipal.Create(profile, stored, owner, true);
             }
             else
             {
