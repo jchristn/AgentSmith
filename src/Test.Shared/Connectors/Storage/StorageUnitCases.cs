@@ -79,6 +79,8 @@ namespace Test.Shared.Connectors.Storage
             cases.Add(Case("validate-gcs", "GCS validation: service account key shape", ValidateGcs));
             cases.Add(Case("validate-prefix-restriction", "A malformed prefix restriction fails validation", ValidatePrefixRestriction));
             cases.Add(Case("factory-s3-settings", "S3 settings map endpoint scheme to TLS and credentials", FactoryS3Settings));
+            cases.Add(Case("s3-authentication-errors", "Typed AWS errors distinguish credentials, region and policy failures without leaking signing material", S3AuthenticationErrors));
+            cases.Add(Case("s3-regional-signing", "AWS us-east-2 uses regional virtual-hosted addressing and SigV4 credentials without a custom endpoint", S3RegionalSigning));
             cases.Add(Case("factory-endpoints", "Azure and GCS endpoints are normalized", FactoryEndpoints));
             cases.Add(Case("factory-sessions", "Sessions build offline for all providers, with presigners", FactorySessions));
             cases.Add(Case("options-clamp", "Options apply defaults and clamp to ranges", OptionsClamp));
@@ -588,6 +590,53 @@ namespace Test.Shared.Connectors.Storage
             ConnectorResourceContext anonymous = WithSecrets(Offline(StorageProviderEnum.AmazonS3), new Dictionary<string, Dictionary<string, string>>());
             StorageTestAssert.True(!StorageClientFactory.BuildS3Settings(anonymous).HasCredentials, "anonymous");
             return Task.CompletedTask;
+        }
+
+        private static Task S3AuthenticationErrors(CancellationToken token)
+        {
+            string sensitive = "AKIDPRIVATEEXAMPLE secretAccessKey=private-signing-material canonical-request-private";
+            foreach ((string awsCode, HttpStatusCode status, string expectedCode, string guidance) in new[]
+            {
+                ("InvalidAccessKeyId", HttpStatusCode.Forbidden, "invalid_credentials", "access key ID"),
+                ("SignatureDoesNotMatch", HttpStatusCode.Forbidden, "invalid_credentials", "signature"),
+                ("ExpiredToken", HttpStatusCode.Forbidden, "invalid_credentials", "token"),
+                ("RequestTimeTooSkewed", HttpStatusCode.Forbidden, "invalid_credentials", "clock"),
+                ("AuthorizationHeaderMalformed", HttpStatusCode.BadRequest, "invalid_setting", "region"),
+                ("PermanentRedirect", HttpStatusCode.MovedPermanently, "invalid_setting", "endpoint"),
+                ("AccessDenied", HttpStatusCode.Forbidden, "permission_denied", "policies"),
+                ("NoSuchBucket", HttpStatusCode.NotFound, "not_found", "Not found"),
+                ("UnrecognizedUpstreamFailure", HttpStatusCode.InternalServerError, "upstream_error", "configuration")
+            })
+            {
+                Amazon.S3.AmazonS3Exception aws = new Amazon.S3.AmazonS3Exception(sensitive) { ErrorCode = awsCode, StatusCode = status };
+                Exception wrapped = new InvalidOperationException("SDK operation failed", aws);
+                ConnectorException mapped = StorageErrors.Map(wrapped, "acme-assets", null);
+                StorageTestAssert.Equal(expectedCode, mapped.Code, awsCode + " retains the specific AWS failure category through a wrapper");
+                StorageTestAssert.True(mapped.Message.Contains(guidance, StringComparison.OrdinalIgnoreCase), awsCode + " gives actionable fixed guidance");
+                StorageTestAssert.True(!mapped.Message.Contains("AKIDPRIVATEEXAMPLE", StringComparison.Ordinal) && !mapped.Message.Contains("private-signing-material", StringComparison.Ordinal) && !mapped.Message.Contains("canonical-request-private", StringComparison.Ordinal), awsCode + " does not expose SDK request/signing material");
+            }
+            return Task.CompletedTask;
+        }
+
+        private static async Task S3RegionalSigning(CancellationToken token)
+        {
+            ConnectorResourceContext resource = Offline(StorageProviderEnum.AmazonS3, new Dictionary<string, string> { { "endpoint", "" }, { "region", "us-east-2" } });
+            Blobject.AmazonS3.AwsSettings settings = StorageClientFactory.BuildS3Settings(resource);
+            StorageTestAssert.True(settings.Endpoint == null && settings.Ssl, "Amazon S3 uses its regional HTTPS endpoint");
+            StorageTestAssert.Equal("us-east-2", settings.AwsRegion.SystemName, "configured region reaches AWS SDK region resolution");
+            StorageTestAssert.Equal("AKIDEXAMPLE", settings.AccessKey, "configured access key reaches the S3 client");
+            StorageTestAssert.Equal("secret-example", settings.SecretKey, "configured secret reaches the S3 client");
+            using (S3Presigner signer = new S3Presigner(settings))
+            {
+                Uri signed = new Uri(await signer.PresignAsync("folder/report.txt", StoragePresignMethodEnum.Get, TimeSpan.FromMinutes(5), token).ConfigureAwait(false));
+                string query = Uri.UnescapeDataString(signed.Query);
+                StorageTestAssert.Equal("https", signed.Scheme, "TLS without a custom endpoint");
+                StorageTestAssert.Equal("acme-assets.s3.us-east-2.amazonaws.com", signed.Host, "bucket regional AWS host");
+                StorageTestAssert.Equal("/folder/report.txt", signed.AbsolutePath, "virtual hosted addressing keeps the bucket out of the object path");
+                StorageTestAssert.True(query.Contains("X-Amz-Algorithm=AWS4-HMAC-SHA256", StringComparison.Ordinal), "SigV4 signing");
+                StorageTestAssert.True(query.Contains("X-Amz-Credential=AKIDEXAMPLE/", StringComparison.Ordinal) && query.Contains("/us-east-2/s3/aws4_request", StringComparison.Ordinal), "credential scope uses the requested bucket region");
+                StorageTestAssert.True(!query.Contains("secret-example", StringComparison.Ordinal), "signing never publishes the secret key");
+            }
         }
 
         private static Task FactoryEndpoints(CancellationToken token)

@@ -26,7 +26,7 @@ namespace Test.Shared.Connectors.Logging
         public string Host { get; set; } = String.Empty;
 
         /// <summary>
-        /// Papertrail system ID.
+        /// Source system ID.
         /// </summary>
         public long SystemId { get; set; } = 0;
 

@@ -15,7 +15,7 @@ namespace Hugo.Connectors.Logging
         public string Id { get; set; } = String.Empty;
 
         /// <summary>
-        /// Event time, UTC (Papertrail: received time; SolarWinds Observability: event time).
+        /// SolarWinds Observability event time, UTC.
         /// </summary>
         [JsonPropertyName("timestamp")]
         public DateTime Timestamp { get; set; } = DateTime.MinValue;

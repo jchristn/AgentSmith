@@ -59,13 +59,14 @@ namespace Test.Shared.Integration
             await using (IntegrationRig rig = await IntegrationRig.StartAsync(provider, null, token).ConfigureAwait(false))
             {
                 List<ConnectorView> connectors = await HttpTestHelpers.SendAsync<List<ConnectorView>>(rig.Anderson, HttpMethod.Get, "/v1.0/api/connectors", null, 200, token).ConfigureAwait(false);
-                foreach (string type in new[] { "ssh", "s3", "azure-blob", "gcs", "sqlite", "mysql", "sqlserver", "postgresql", "papertrail", "solarwinds-observability", "echo" })
+                foreach (string type in new[] { "ssh", "s3", "azure-blob", "gcs", "sqlite", "mysql", "sqlserver", "postgresql", "solarwinds-observability", "echo" })
                 {
                     ConnectorView? view = connectors.FirstOrDefault(c => c.Type == type);
                     Assert.True(view != null, "connector " + type + " is registered");
                     Assert.True(view!.Tools.Count > 0, type + " lists tools");
                     Assert.True(view.Settings.Count > 0, type + " lists settings");
                 }
+                Assert.True(!connectors.Any(c => c.Type == "papertrail"), "retired Papertrail is absent from API connector discovery");
                 ConnectorView sqlite = await HttpTestHelpers.SendAsync<ConnectorView>(rig.Anderson, HttpMethod.Get, "/v1.0/api/connectors/sqlite", null, 200, token).ConfigureAwait(false);
                 Assert.Equal("sql", sqlite.Family, "family");
                 Assert.True(sqlite.SecretSlots.Any(s => s.Name == "connectionString"), "secret slots");
@@ -87,6 +88,8 @@ namespace Test.Shared.Integration
                 Assert.Equal(400, own.StatusCode, "connector ValidateAsync error");
                 TestResponse unknownType = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Post, "/v1.0/api/resources", new { name = "bad", connectorType = "nope" }, token).ConfigureAwait(false);
                 Assert.Equal(400, unknownType.StatusCode, "unknown connector type");
+                TestResponse retiredType = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Post, "/v1.0/api/resources", new { name = "retired-logs", connectorType = "papertrail" }, token).ConfigureAwait(false);
+                Assert.Equal(400, retiredType.StatusCode, "retired Papertrail resource creation is rejected");
                 TestResponse unknownKey = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Post, "/v1.0/api/resources", new { name = "bad", connectorType = "echo", settings = new { surprise = "x" } }, token).ConfigureAwait(false);
                 Assert.Equal(400, unknownKey.StatusCode, "unknown setting");
                 TestResponse badName = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Post, "/v1.0/api/resources", new { name = "has space", connectorType = "echo" }, token).ConfigureAwait(false);
@@ -145,7 +148,18 @@ namespace Test.Shared.Integration
                 Assert.Equal(0, (await rig.Context.Database.Bindings.ListByProfileAsync(rig.TenantId, rig.Hugo.Id, token).ConfigureAwait(false)).Count, "bindings cascade");
                 Assert.Equal(0, (await rig.Context.Database.ResourceKnowledge.ListAsync(rig.TenantId, a.Id, null, token).ConfigureAwait(false)).Count, "knowledge cascades");
                 Assert.True((await rig.AuditAsync(AuditEventTypeEnum.ResourceChanged, token).ConfigureAwait(false)).Count >= 4, "resource changes audited");
-                await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Delete, "/v1.0/api/resources/" + copy.Id, null, token).ConfigureAwait(false);
+                // Simulate a saved resource from an installation predating connector retirement.
+                copy.ConnectorType = "papertrail";
+                await rig.Context.Database.Resources.UpdateAsync(copy, token).ConfigureAwait(false);
+                Resource retired = await HttpTestHelpers.SendAsync<Resource>(rig.Anderson, HttpMethod.Get, "/v1.0/api/resources/" + copy.Id, null, 200, token).ConfigureAwait(false);
+                Assert.Equal("papertrail", retired.ConnectorType, "saved retired resources remain readable without conversion");
+                EnumerationResult<Resource> listed = await HttpTestHelpers.SendAsync<EnumerationResult<Resource>>(rig.Anderson, HttpMethod.Get, "/v1.0/api/resources", null, 200, token).ConfigureAwait(false);
+                Assert.True(listed.Objects.Any(r => r.Id == copy.Id), "saved retired resources remain visible for cleanup");
+                TestResponse retiredDuplicate = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Post, "/v1.0/api/resources/" + copy.Id + "/duplicate", new { name = "retired-copy" }, token).ConfigureAwait(false);
+                Assert.Equal(400, retiredDuplicate.StatusCode, "duplication cannot create a retired connector resource");
+                Assert.True(await rig.Context.Database.Resources.ReadByNameAsync(rig.TenantId, "retired-copy", token).ConfigureAwait(false) == null, "rejected duplicate stores no resource");
+                TestResponse retiredDeleted = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Delete, "/v1.0/api/resources/" + copy.Id, null, token).ConfigureAwait(false);
+                Assert.Equal(204, retiredDeleted.StatusCode, "saved retired resources can be deleted");
                 TestResponse free = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Delete, "/v1.0/api/secrets/" + apiToken.Id, null, token).ConfigureAwait(false);
                 Assert.Equal(204, free.StatusCode, "a secret no longer in use can be deleted");
             }

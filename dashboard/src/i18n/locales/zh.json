@@ -1152,7 +1152,7 @@
       "deleteTitle": "删除资源",
       "emptyTitle": "暂无资源",
       "emptyBody": "添加 SSH 主机、存储桶、数据库或日志服务。每个表单都根据连接器的架构生成，并可在保存前进行测试。",
-      "purpose": "资源是已配置的真实系统连接：SSH 主机、S3 存储桶、PostgreSQL 数据库、Papertrail 账号。其密钥在 Hugo 中始终加密保存。",
+      "purpose": "资源是已配置的真实系统连接：SSH 主机、S3 存储桶、PostgreSQL 数据库、SolarWinds Observability 账号。其密钥在 Hugo 中始终加密保存。",
       "sections": {
         "general": "常规",
         "connector": "连接器"
@@ -2568,7 +2568,7 @@
         "Compute": "通过 SSH 或类似方式访问的主机和机器。",
         "Storage": "对象存储，例如 S3、Azure Blob 和 Google Cloud Storage。",
         "Database": "SQL 及其他数据库。",
-        "Logging": "日志服务，例如 Papertrail 和 Loki。",
+        "Logging": "日志服务，例如 SolarWinds Observability 和 Loki。",
         "Cache": "缓存，例如 Redis。",
         "Cloud": "云控制平面，例如 AWS。",
         "Orchestration": "容器编排，例如 Kubernetes 和 Docker。",

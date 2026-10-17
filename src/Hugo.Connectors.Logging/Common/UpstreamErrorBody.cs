@@ -3,7 +3,7 @@ namespace Hugo.Connectors.Logging
     using System.Text.Json.Serialization;
 
     /// <summary>
-    /// Error body returned by Papertrail (<c>{"message": "..."}</c>) and SolarWinds Observability
+    /// Error body returned by SolarWinds Observability
     /// (<c>{"message": "...", "code": "...", "target": "..."}</c>).
     /// </summary>
     public class UpstreamErrorBody

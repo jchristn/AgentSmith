@@ -1152,7 +1152,7 @@
       "deleteTitle": "Padam sumber",
       "emptyTitle": "Belum ada sumber",
       "emptyBody": "Tambah hos SSH, baldi, pangkalan data atau perkhidmatan log. Setiap borang datang daripada skema penyambung dan boleh diuji sebelum disimpan.",
-      "purpose": "Sumber ialah sambungan yang dikonfigurasikan ke sistem sebenar: hos SSH, baldi S3, pangkalan data PostgreSQL, akaun Papertrail. Rahsianya kekal tersulit dalam Hugo.",
+      "purpose": "Sumber ialah sambungan yang dikonfigurasikan ke sistem sebenar: hos SSH, baldi S3, pangkalan data PostgreSQL, akaun SolarWinds Observability. Rahsianya kekal tersulit dalam Hugo.",
       "sections": {
         "general": "Umum",
         "connector": "Penyambung"
@@ -2568,7 +2568,7 @@
         "Compute": "Hos dan mesin yang dicapai melalui SSH atau yang serupa.",
         "Storage": "Storan objek seperti S3, Azure Blob dan Google Cloud Storage.",
         "Database": "SQL dan pangkalan data lain.",
-        "Logging": "Perkhidmatan log seperti Papertrail dan Loki.",
+        "Logging": "Perkhidmatan log seperti SolarWinds Observability dan Loki.",
         "Cache": "Cache seperti Redis.",
         "Cloud": "Satah kawalan awan seperti AWS.",
         "Orchestration": "Orkestrasi kontena seperti Kubernetes dan Docker.",

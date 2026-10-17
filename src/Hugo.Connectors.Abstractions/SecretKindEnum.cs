@@ -17,7 +17,7 @@ namespace Hugo.Connectors.Abstractions
 
         /// <summary>
         /// Fields: <c>token</c>. An API token or key whose transport depends on the service (it may be a bearer token,
-        /// a custom header such as <c>X-Papertrail-Token</c>, or something else). See <see cref="BearerToken"/>.
+        /// a custom header such as <c>X-API-Key</c>, or something else). See <see cref="BearerToken"/>.
         /// </summary>
         ApiToken = 2,
 

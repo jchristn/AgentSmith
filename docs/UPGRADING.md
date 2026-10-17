@@ -4,6 +4,10 @@ Upgrading Hugo means running a newer server image against the data you already h
 
 Hugo is pre-1.0 (`0.1.0-alpha`). Until 1.0, a release may change an API shape, a setting, or a default, and [`CHANGELOG.md`](../CHANGELOG.md) says so when it does. Read the entries between your version and the target before upgrading, especially if you call the REST API from scripts or SDKs.
 
+## Retired Papertrail connector
+
+The legacy `papertrail` connector is removed. Existing resources and secrets remain stored, and retired resources can still be listed, read, and deleted; their bindings are omitted from agent tools. New resources and duplication cannot use the retired type. For SolarWinds Cloud logs, create a **SolarWinds Observability** resource with the correct data center and API Access token, then replace the old profile binding. Connector types are fixed on saved resources.
+
 ## Before you upgrade: back up both halves
 
 A Hugo backup has two parts, and one without the other is useless. The database holds every resource, profile, secret, and audit record, with secret values encrypted. `HUGO_MASTER_KEY` decrypts them. Lose the key and the database's secrets are gone; restore an old key against a newer database and the server refuses to start.

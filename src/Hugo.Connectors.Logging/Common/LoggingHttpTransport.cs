@@ -21,12 +21,12 @@ namespace Hugo.Connectors.Logging
         #region Public-Members
 
         /// <summary>
-        /// Base URL without a trailing slash (for example <c>https://papertrailapp.com/api/v1</c>).
+        /// Base URL without a trailing slash (for example <c>https://api.na-01.cloud.solarwinds.com</c>).
         /// </summary>
         public string BaseUrl { get; }
 
         /// <summary>
-        /// Provider display name used in error messages (for example <c>Papertrail</c>).
+        /// Provider display name used in error messages (for example <c>SolarWinds Observability</c>).
         /// </summary>
         public string Provider { get; }
 

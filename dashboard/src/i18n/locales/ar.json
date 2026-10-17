@@ -1180,7 +1180,7 @@
       "deleteTitle": "حذف المورد",
       "emptyTitle": "لا توجد موارد بعد",
       "emptyBody": "أضف مضيف SSH أو حاوية تخزين أو قاعدة بيانات أو خدمة سجلات. يأتي كل نموذج من مخطط الموصّل ويمكن اختباره قبل الحفظ.",
-      "purpose": "الموارد هي اتصالات مهيأة بأنظمة حقيقية: مضيف SSH، أو حاوية S3، أو قاعدة بيانات PostgreSQL، أو حساب Papertrail. تبقى أسرارها مشفّرة في Hugo.",
+      "purpose": "الموارد هي اتصالات مهيأة بأنظمة حقيقية: مضيف SSH، أو حاوية S3، أو قاعدة بيانات PostgreSQL، أو حساب SolarWinds Observability. تبقى أسرارها مشفّرة في Hugo.",
       "sections": {
         "general": "عام",
         "connector": "الموصّل"
@@ -2648,7 +2648,7 @@
         "Compute": "مضيفات وأجهزة يُوصل إليها عبر SSH أو ما شابه.",
         "Storage": "تخزين الكائنات مثل S3 وAzure Blob وGoogle Cloud Storage.",
         "Database": "قواعد بيانات SQL وغيرها.",
-        "Logging": "خدمات السجلات مثل Papertrail وLoki.",
+        "Logging": "خدمات السجلات مثل SolarWinds Observability وLoki.",
         "Cache": "ذاكرات التخزين المؤقت مثل Redis.",
         "Cloud": "مستويات التحكم السحابية مثل AWS.",
         "Orchestration": "تنسيق الحاويات مثل Kubernetes وDocker.",

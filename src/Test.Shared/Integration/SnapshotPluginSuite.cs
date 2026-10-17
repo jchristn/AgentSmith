@@ -77,7 +77,7 @@ namespace Test.Shared.Integration
                     new Scenario("prod-db", "postgresql", "prod", "db.acme.internal:5432", AccessModeEnum.ReadOnly, "Primary in us-east-1. The orders table is partitioned by month.", "Shop OLTP database: customers, orders (partitioned by month), order_items, products. Revenue means sum(order_items.quantity * unit_price) excluding refunds."),
                     new Scenario("web-01", "ssh", "prod", "web-01.acme.internal:22", AccessModeEnum.ReadWriteWithApproval, "nginx and the checkout service run here.", null),
                     new Scenario("assets", "s3", "prod", "acme-assets", AccessModeEnum.ReadOnly, null, null),
-                    new Scenario("papertrail", "papertrail", "prod", "papertrailapp.com", AccessModeEnum.ReadOnly, null, null),
+                    new Scenario("checkout-logs", "solarwinds-observability", "prod", "eu-01", AccessModeEnum.ReadOnly, null, null),
                     new Scenario("legacy-db", "mysql", "prod", "legacy.acme.internal:3306", AccessModeEnum.ReadOnly, "Read-only replica of the old billing system.", null),
                     new Scenario("reports", "sqlite", "dev", "/data/reports.db", AccessModeEnum.ReadWrite, null, null),
                     new Scenario("swo", "solarwinds-observability", "prod", "na-01", AccessModeEnum.ReadOnly, null, null),

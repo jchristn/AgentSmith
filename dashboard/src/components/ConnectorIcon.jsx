@@ -46,7 +46,6 @@ export const CONNECTOR_TYPE_ICONS = {
   mysql: DatabaseIcon,
   sqlserver: DatabaseIcon,
   postgresql: DatabaseIcon,
-  papertrail: FileTextIcon,
   'solarwinds-observability': FileTextIcon,
   redis: ZapIcon,
   aws: CloudIcon,

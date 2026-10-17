@@ -34,9 +34,9 @@ You are reaching Hugo over MCP, so your own model is driving these tools. Hugo s
 You have access to 8 resources:
 The guidance for each resource below is abbreviated. Before anything beyond simple reads on a resource, call hugo_describe_resource with that resource to get its full instructions and limits.
 
-## papertrail (Papertrail, environment: prod, access: ReadOnly)
-Endpoint: papertrailapp.com
-Tools: logs_search, logs_tail, logs_volume, logs_list_systems, logs_list_groups, logs_list_saved_searches, resource_get_context, resource_update_context
+## checkout-logs (SolarWinds Observability, environment: prod, access: ReadOnly)
+Endpoint: eu-01
+Tools: logs_search, logs_tail, swo_list_entities, swo_get_entity, swo_query_metric, resource_get_context, resource_update_context
 This resource is read-only for you. Write and Destructive calls will be rejected.
 
 Use the logs_* tools with the resource argument set to this resource. Call hugo_describe_resource for full guidance before anything beyond simple reads.

@@ -3888,7 +3888,7 @@
                 "secrets"
               ]
             },
-            "description": "An ApiToken secret for the Papertrail and Kubernetes placeholders.",
+            "description": "An ApiToken secret for the SolarWinds Observability and Kubernetes placeholders.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"dryrun-token\",\n  \"kind\": \"ApiToken\",\n  \"values\": {\n    \"token\": \"not-a-real-token\"\n  }\n}",
@@ -4449,7 +4449,7 @@
           "response": []
         },
         {
-          "name": "Create placeholder resource (papertrail)",
+          "name": "Create placeholder resource (solarwinds-observability)",
           "event": [
             {
               "listen": "test",
@@ -4486,10 +4486,10 @@
                 "resources"
               ]
             },
-            "description": "A `papertrail` resource that points at a placeholder address. Creating it does not connect.",
+            "description": "A `solarwinds-observability` resource that points at a placeholder address. Creating it does not connect.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"papertrail-dryrun\",\n  \"connectorType\": \"papertrail\",\n  \"environment\": \"example\",\n  \"settings\": {},\n  \"secretBindings\": [\n    {\n      \"slotName\": \"apiToken\",\n      \"secretId\": \"{{dryTokenSecretId}}\"\n    }\n  ]\n}",
+              "raw": "{\n  \"name\": \"solarwinds-dryrun\",\n  \"connectorType\": \"solarwinds-observability\",\n  \"environment\": \"example\",\n  \"settings\": {\n    \"baseUrl\": \"https://solarwinds.invalid/v1\"\n  },\n  \"secretBindings\": [\n    {\n      \"slotName\": \"apiToken\",\n      \"secretId\": \"{{dryTokenSecretId}}\"\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4510,7 +4510,7 @@
           "response": []
         },
         {
-          "name": "Bind placeholder (papertrail)",
+          "name": "Bind placeholder (solarwinds-observability)",
           "event": [
             {
               "listen": "test",
@@ -4545,10 +4545,10 @@
                 "bindings"
               ]
             },
-            "description": "Bind the placeholder to `Oncall` as `papertrail`.",
+            "description": "Bind the placeholder to `Oncall` as `checkout-logs`.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"resourceId\": \"{{dry_logs_ResourceId}}\",\n  \"alias\": \"papertrail\",\n  \"accessMode\": \"ReadWriteWithApproval\"\n}",
+              "raw": "{\n  \"resourceId\": \"{{dry_logs_ResourceId}}\",\n  \"alias\": \"checkout-logs\",\n  \"accessMode\": \"ReadWriteWithApproval\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4604,10 +4604,10 @@
                 "dry-run"
               ]
             },
-            "description": "What Hugo would decide for `logs_search` on `papertrail` under ReadWriteWithApproval. The response carries the decision, the classified effect and why, the access mode, and the decision code; nothing runs.",
+            "description": "What Hugo would decide for `logs_search` on `checkout-logs` under ReadWriteWithApproval. The response carries the decision, the classified effect and why, the access mode, and the decision code; nothing runs.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"profile\": \"Oncall\",\n  \"toolName\": \"logs_search\",\n  \"arguments\": {\n    \"query\": \"checkout error\",\n    \"resource\": \"papertrail\"\n  }\n}",
+              "raw": "{\n  \"profile\": \"Oncall\",\n  \"toolName\": \"logs_search\",\n  \"arguments\": {\n    \"query\": \"checkout error\",\n    \"resource\": \"checkout-logs\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -11961,7 +11961,7 @@
             "description": "Create a tenant template. `kind` is System, Task, Fragment, ToolDescription, ConfigFile, or Other.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"runbook.checkout\",\n  \"description\": \"Checkout triage steps\",\n  \"kind\": \"Fragment\",\n  \"content\": \"Check papertrail for checkout errors, then pg_stat_activity on prod-db.\",\n  \"changeNote\": \"first version\"\n}",
+              "raw": "{\n  \"name\": \"runbook.checkout\",\n  \"description\": \"Checkout triage steps\",\n  \"kind\": \"Fragment\",\n  \"content\": \"Check checkout-logs for checkout errors, then pg_stat_activity on prod-db.\",\n  \"changeNote\": \"first version\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -12067,7 +12067,7 @@
             "description": "Update it; content changes create a version.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"runbook.checkout\",\n  \"description\": \"Checkout triage steps\",\n  \"kind\": \"Fragment\",\n  \"content\": \"Check papertrail for checkout errors, then sql_activity on prod-db, then uptime on web-01.\",\n  \"changeNote\": \"add host check\"\n}",
+              "raw": "{\n  \"name\": \"runbook.checkout\",\n  \"description\": \"Checkout triage steps\",\n  \"kind\": \"Fragment\",\n  \"content\": \"Check checkout-logs for checkout errors, then sql_activity on prod-db, then uptime on web-01.\",\n  \"changeNote\": \"add host check\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -18500,7 +18500,7 @@
           "response": []
         },
         {
-          "name": "Delete placeholder (papertrail)",
+          "name": "Delete placeholder (solarwinds-observability)",
           "event": [
             {
               "listen": "test",

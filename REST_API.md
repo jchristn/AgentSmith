@@ -4633,7 +4633,7 @@ Response (202):
 
 ## Connectors
 
-A connector is compiled code for one service family; there are 20 connector types in this release. The descriptor is everything a client needs to build a resource form and to know what an agent can do: the settings schema (keys, kinds, defaults, ranges, allowed values, grouping), the secret slots with the secret kinds each accepts, and the tools with their input schemas and base effects. [docs/CONNECTORS.md](docs/CONNECTORS.md) explains each connector in prose, and [docs/MCP_CONNECTOR_TOOLS.md](docs/MCP_CONNECTOR_TOOLS.md) documents every tool.
+A connector is compiled code for one service family; there are 19 connector types in this release. The descriptor is everything a client needs to build a resource form and to know what an agent can do: the settings schema (keys, kinds, defaults, ranges, allowed values, grouping), the secret slots with the secret kinds each accepts, and the tools with their input schemas and base effects. [docs/CONNECTORS.md](docs/CONNECTORS.md) explains each connector in prose, and [docs/MCP_CONNECTOR_TOOLS.md](docs/MCP_CONNECTOR_TOOLS.md) documents every tool.
 
 | Method | Path | Summary |
 |---|---|---|
@@ -6938,7 +6938,7 @@ Example:
 curl -s -X POST "$HUGO/v1.0/api/tenants/default/prompt-templates" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"name": "runbook.checkout", "description": "Checkout triage steps", "kind": "Fragment", "content": "Check papertrail for checkout errors, then pg_stat_activity on prod-db.", "changeNote": "first version"}'
+  -d '{"name": "runbook.checkout", "description": "Checkout triage steps", "kind": "Fragment", "content": "Check checkout-logs for checkout errors, then pg_stat_activity on prod-db.", "changeNote": "first version"}'
 ```
 
 Response (201):
@@ -6950,7 +6950,7 @@ Response (201):
   "name": "runbook.checkout",
   "description": "Checkout triage steps",
   "kind": "Fragment",
-  "content": "Check papertrail for checkout errors, then pg_stat_activity on prod-db.",
+  "content": "Check checkout-logs for checkout errors, then pg_stat_activity on prod-db.",
   "currentVersion": 1,
   "isBuiltIn": false,
   "active": true,
@@ -7037,7 +7037,7 @@ Response (200):
   "name": "runbook.checkout",
   "description": "Checkout triage steps",
   "kind": "Fragment",
-  "content": "Check papertrail for checkout errors, then pg_stat_activity on prod-db.",
+  "content": "Check checkout-logs for checkout errors, then pg_stat_activity on prod-db.",
   "currentVersion": 1,
   "isBuiltIn": false,
   "active": true,
@@ -7086,7 +7086,7 @@ Example:
 curl -s -X PUT "$HUGO/v1.0/api/tenants/default/prompt-templates/tpl_mv93ipgv_sgbaHUlguTpQ4d5alSs" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"name": "runbook.checkout", "description": "Checkout triage steps", "kind": "Fragment", "content": "Check papertrail for checkout errors, then sql_activity on prod-db, then uptime on web-01.", "changeNote": "add host check"}'
+  -d '{"name": "runbook.checkout", "description": "Checkout triage steps", "kind": "Fragment", "content": "Check checkout-logs for checkout errors, then sql_activity on prod-db, then uptime on web-01.", "changeNote": "add host check"}'
 ```
 
 Response (200):
@@ -7098,7 +7098,7 @@ Response (200):
   "name": "runbook.checkout",
   "description": "Checkout triage steps",
   "kind": "Fragment",
-  "content": "Check papertrail for checkout errors, then sql_activity on prod-db, then uptime on web-01.",
+  "content": "Check checkout-logs for checkout errors, then sql_activity on prod-db, then uptime on web-01.",
   "currentVersion": 2,
   "isBuiltIn": false,
   "active": true,
@@ -7162,7 +7162,7 @@ Response (200):
     "tenantId": "default",
     "templateId": "tpl_mv93ipgv_sgbaHUlguTpQ4d5alSs",
     "version": 2,
-    "content": "Check papertrail for checkout errors, then sql_activity on prod-db, then uptime on web-01.",
+    "content": "Check checkout-logs for checkout errors, then sql_activity on prod-db, then uptime on web-01.",
     "changeNote": "add host check",
     "createdBy": "anderson@hugo.local",
     "active": true,
@@ -7175,7 +7175,7 @@ Response (200):
     "tenantId": "default",
     "templateId": "tpl_mv93ipgv_sgbaHUlguTpQ4d5alSs",
     "version": 1,
-    "content": "Check papertrail for checkout errors, then pg_stat_activity on prod-db.",
+    "content": "Check checkout-logs for checkout errors, then pg_stat_activity on prod-db.",
     "changeNote": "first version",
     "createdBy": "anderson@hugo.local",
     "active": true,
@@ -7217,7 +7217,7 @@ Response (200):
   "tenantId": "default",
   "templateId": "tpl_mv93ipgv_sgbaHUlguTpQ4d5alSs",
   "version": 1,
-  "content": "Check papertrail for checkout errors, then pg_stat_activity on prod-db.",
+  "content": "Check checkout-logs for checkout errors, then pg_stat_activity on prod-db.",
   "changeNote": "first version",
   "createdBy": "anderson@hugo.local",
   "active": true,
@@ -7259,7 +7259,7 @@ Response (200):
   "name": "runbook.checkout",
   "description": "Checkout triage steps",
   "kind": "Fragment",
-  "content": "Check papertrail for checkout errors, then pg_stat_activity on prod-db.",
+  "content": "Check checkout-logs for checkout errors, then pg_stat_activity on prod-db.",
   "currentVersion": 3,
   "isBuiltIn": false,
   "active": true,
@@ -7400,7 +7400,7 @@ Response (200):
 
 ```json
 {
-  "rendered": "Check papertrail for checkout errors, then pg_stat_activity on prod-db.",
+  "rendered": "Check checkout-logs for checkout errors, then pg_stat_activity on prod-db.",
   "success": true,
   "variables": [],
   "includes": [],

@@ -39,7 +39,7 @@ namespace Test.Shared.Agent
                     rig.Stub.Script.Then(
                         StubLlmResponse.ToolCallList(
                             new StubToolCall("sql_query", "{\"resource\":\"prod-db\",\"query\":\"select count(*) from pg_stat_activity\"}"),
-                            new StubToolCall("logs_search", "{\"resource\":\"papertrail\",\"query\":\"checkout\"}")),
+                            new StubToolCall("logs_search", "{\"resource\":\"checkout-logs\",\"query\":\"checkout\"}")),
                         StubLlmResponse.ToolCall("ssh_exec", "{\"resource\":\"web-01\",\"command\":\"uptime\"}"),
                         StubLlmResponse.Message("Mr. Anderson, checkout is slow because web-01 is overloaded."));
 
@@ -422,7 +422,7 @@ namespace Test.Shared.Agent
         private static void StandardCatalog(AgentTestRig rig)
         {
             rig.Catalog.Add("sql_query", "Run a read-only SQL query against a database.", EffectEnum.Read, "prod-db");
-            rig.Catalog.Add("logs_search", "Search logs.", EffectEnum.Read, "papertrail");
+            rig.Catalog.Add("logs_search", "Search SolarWinds checkout logs.", EffectEnum.Read, "checkout-logs");
             rig.Catalog.Add("ssh_exec", "Run a shell command on a host over SSH.", null, "web-01");
             rig.Catalog.AddMeta("hugo_list_resources", "List the resources bound to this profile.");
         }

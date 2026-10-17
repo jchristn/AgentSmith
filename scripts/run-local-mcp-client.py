@@ -40,7 +40,7 @@ def verify_protocol(work, root):
     tools = next(responses[key]["result"]["tools"] for key, message in requests.items() if message.get("method") == "tools/list")
     by_name = {tool["name"]: tool for tool in tools}
     for name, aliases in {"sql_query": ["legacy-db", "prod-db", "reports"], "ssh_exec": ["web-01"],
-                          "logs_search": ["papertrail", "swo"], "storage_list": ["archive", "assets"]}.items():
+                          "logs_search": ["checkout-logs", "swo"], "storage_list": ["archive", "assets"]}.items():
         if by_name[name]["inputSchema"]["properties"]["resource"]["enum"] != aliases:
             raise ValueError("Unexpected resource enum for " + name)
     if any(name.startswith(("http_", "hugo_admin_")) for name in by_name):

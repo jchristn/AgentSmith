@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Local Papertrail API target for the real-model primary journey; never an inference stub."""
+"""Local SolarWinds Observability API target for the real-model primary journey."""
 import argparse
 import datetime
 import http.server
@@ -9,25 +9,23 @@ import urllib.parse
 
 class Handler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.headers.get('X-Papertrail-Token') != 'journey-papertrail-test-token':
+        if self.headers.get('Authorization') != 'Bearer journey-solarwinds-test-token':
             self.send_error(401)
             return
         path = urllib.parse.urlsplit(self.path).path
         now = datetime.datetime.now(datetime.timezone.utc).isoformat()
-        if path.endswith('events/search.json'):
+        page_info = {'prevPage': '', 'nextPage': ''}
+        if path == '/v1/logs':
             messages = [
                 'checkout request duration=1250ms database_wait=900ms upstream=prod-db',
                 'checkout slow query waiting; inspect prod-db pg_stat_activity before changing anything',
                 'checkout nginx upstream response duration=1210ms on web-01',
             ]
-            events = [dict(id=str(1000+i), generated_at=now, received_at=now, source_name='web-01',
-                           source_id=101, hostname='web-01', source_ip='127.0.0.1', facility='Local7',
-                           severity='Warning', program='nginx', message=message) for i, message in enumerate(messages)]
-            body = dict(events=events, min_id='1000', max_id='1002', reached_beginning=True, reached_record_limit=False)
-        elif path.endswith('systems.json'):
-            body = [dict(id=101, name='web-01', hostname='web-01', ip_address='127.0.0.1')]
-        elif path.endswith('groups.json') or path.endswith('searches.json'):
-            body = []
+            body = {'logs': [dict(id=str(1000+i), time=now, hostname='web-01',
+                                  severity='Warning', program='nginx', message=message)
+                             for i, message in enumerate(messages)], 'pageInfo': page_info}
+        elif path == '/v1/entities':
+            body = {'entities': [dict(id='web-01', name='web-01', type='Host')], 'pageInfo': page_info}
         else:
             self.send_error(404)
             return

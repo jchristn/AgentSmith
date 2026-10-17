@@ -96,3 +96,61 @@ for (const theme of ['light', 'dark']) {
     });
   }
 }
+
+const PICKER_CONNECTORS = [
+  ['ssh', 'SSH host', 'Compute'],
+  ['s3', 'Amazon S3', 'Storage'],
+  ['azure-blob', 'Azure Blob Storage', 'Storage'],
+  ['gcs', 'Google Cloud Storage', 'Storage'],
+  ['sqlite', 'SQLite', 'Database'],
+  ['mysql', 'MySQL', 'Database'],
+  ['sqlserver', 'SQL Server', 'Database'],
+  ['postgresql', 'PostgreSQL', 'Database'],
+  ['solarwinds-observability', 'SolarWinds Observability', 'Logging'],
+  ['redis', 'Redis', 'Database'],
+  ['http', 'HTTP API', 'Network'],
+  ['prometheus', 'Prometheus', 'Monitoring'],
+  ['loki', 'Grafana Loki', 'Logging'],
+  ['elasticsearch', 'Elasticsearch', 'Database'],
+  ['aws', 'Amazon Web Services', 'Cloud'],
+  ['kubernetes', 'Kubernetes', 'Compute'],
+  ['docker', 'Docker', 'Compute'],
+  ['mcp', 'MCP server', 'Integration'],
+  ['a2a-agent', 'A2A agent', 'Integration']
+].map(([type, displayName, category]) => ({ type, displayName, category, settings: [], secretSlots: [], tools: [] }));
+
+for (const theme of ['light', 'dark']) {
+  for (const vp of VIEWPORTS.filter((viewport) => viewport.name !== 'tablet')) {
+    test(`captures all connector choices at ${vp.name} in ${theme} theme`, async ({ page }) => {
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+      await installMocks(page);
+      await page.route('**/v1.0/api/connectors?*', (route) => route.fulfill({ json: PICKER_CONNECTORS }));
+      await page.addInitScript((value) => localStorage.setItem('hugo_theme', value), theme);
+      await login(page, { expect });
+      await page.goto(pathFor('resources'));
+      await page.getByTestId('add-button').click();
+      const picker = page.getByTestId('connector-picker');
+      await expect(picker.getByRole('radio')).toHaveCount(19);
+      await expect(picker.getByRole('radio', { name: 'SSH host', exact: true })).toBeInViewport();
+      const order = await page.evaluate(() => {
+        const picker = document.querySelector('[data-testid="connector-picker"]');
+        const metadata = document.querySelector('#resources-name');
+        return !!(picker.compareDocumentPosition(metadata) & Node.DOCUMENT_POSITION_FOLLOWING);
+      });
+      expect(order).toBe(true);
+      await page.screenshot({ path: `test-results/visual/${theme}-${vp.name}-connector-picker.png` });
+      const overflow = await picker.evaluate((element) => ({
+        horizontal: element.scrollWidth - element.clientWidth,
+        innerScroll: [...element.querySelectorAll('*')].some(
+          (node) => ['auto', 'scroll'].includes(getComputedStyle(node).overflowY) && node.scrollHeight > node.clientHeight + 1
+        )
+      }));
+      expect(overflow).toEqual({ horizontal: 0, innerScroll: false });
+      const ssh = picker.getByRole('radio', { name: 'SSH host', exact: true });
+      await ssh.focus();
+      await page.keyboard.press('Space');
+      await expect(ssh).toBeChecked();
+      await expect(picker.getByRole('radio', { checked: true })).toHaveCount(1);
+    });
+  }
+}

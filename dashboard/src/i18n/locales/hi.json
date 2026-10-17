@@ -1152,7 +1152,7 @@
       "deleteTitle": "संसाधन हटाएँ",
       "emptyTitle": "अभी कोई संसाधन नहीं",
       "emptyBody": "एक SSH होस्ट, बकेट, डेटाबेस या लॉग सेवा जोड़ें। हर फ़ॉर्म कनेक्टर के स्कीमा से बनता है और सहेजने से पहले उसका परीक्षण किया जा सकता है।",
-      "purpose": "संसाधन वास्तविक सिस्टम से कॉन्फ़िगर किए गए कनेक्शन हैं: एक SSH होस्ट, एक S3 बकेट, एक PostgreSQL डेटाबेस, एक Papertrail खाता। उनके सीक्रेट Hugo में एन्क्रिप्टेड रहते हैं।",
+      "purpose": "संसाधन वास्तविक सिस्टम से कॉन्फ़िगर किए गए कनेक्शन हैं: एक SSH होस्ट, एक S3 बकेट, एक PostgreSQL डेटाबेस, एक SolarWinds Observability खाता। उनके सीक्रेट Hugo में एन्क्रिप्टेड रहते हैं।",
       "sections": {
         "general": "सामान्य",
         "connector": "कनेक्टर"
@@ -2568,7 +2568,7 @@
         "Compute": "SSH या समान तरीकों से पहुँचे जाने वाले होस्ट और मशीनें।",
         "Storage": "ऑब्जेक्ट स्टोरेज जैसे S3, Azure Blob और Google Cloud Storage।",
         "Database": "SQL और अन्य डेटाबेस।",
-        "Logging": "लॉग सेवाएँ जैसे Papertrail और Loki।",
+        "Logging": "लॉग सेवाएँ जैसे SolarWinds Observability और Loki।",
         "Cache": "कैश जैसे Redis।",
         "Cloud": "क्लाउड कंट्रोल प्लेन जैसे AWS।",
         "Orchestration": "कंटेनर ऑर्केस्ट्रेशन जैसे Kubernetes और Docker।",

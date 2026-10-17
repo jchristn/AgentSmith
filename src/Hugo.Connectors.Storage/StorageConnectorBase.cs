@@ -154,7 +154,16 @@ namespace Hugo.Connectors.Storage
                 catch (Exception e) when (!(e is OperationCanceledException))
                 {
                     ConnectorException mapped = StorageErrors.Map(e, container, null);
-                    return ConnectorHealthResult.Fail(mapped.Code, mapped.Message, stopwatch.Elapsed.TotalMilliseconds);
+                    string message = mapped.Message;
+                    if (Provider == StorageProviderEnum.AmazonS3 && mapped.Code == "permission_denied")
+                        message += " Test connection lists objects using ListObjectsV2; AWS requires s3:ListBucket on the bucket and permission for the configured prefixRestriction. Object-only s3:GetObject permission does not authorize this probe.";
+                    ConnectorHealthResult failure = ConnectorHealthResult.Fail(mapped.Code, message, stopwatch.Elapsed.TotalMilliseconds);
+                    if (Provider == StorageProviderEnum.AmazonS3)
+                    {
+                        failure.Details["operation"] = "ListObjectsV2";
+                        failure.Details["requiredPermission"] = "s3:ListBucket";
+                    }
+                    return failure;
                 }
                 finally
                 {

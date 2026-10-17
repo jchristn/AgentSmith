@@ -198,9 +198,9 @@ const CONNECTORS = [
   },
   {
     ...SSH_CONNECTOR,
-    type: 'papertrail',
+    type: 'solarwinds-observability',
     family: 'logs',
-    displayName: 'Papertrail',
+    displayName: 'SolarWinds Observability',
     description: 'Search logs.',
     category: 'Logging',
     tools: [{ name: 'logs_search', description: 'Search logs.', baseEffect: 'Read' }]
@@ -295,11 +295,11 @@ const FACTORIES = {
   resources: (i) =>
     record('res', i, {
       tenantId: TENANT,
-      name: ['web-01', 'prod-db', 'assets', 'papertrail'][(i - 1) % 4] + (i > 4 ? `-${i}` : ''),
-      connectorType: ['ssh', 'postgresql', 's3', 'papertrail'][(i - 1) % 4],
+      name: ['web-01', 'prod-db', 'assets', 'checkout-logs'][(i - 1) % 4] + (i > 4 ? `-${i}` : ''),
+      connectorType: ['ssh', 'postgresql', 's3', 'solarwinds-observability'][(i - 1) % 4],
       environment: 'prod',
       visibility: 'Tenant',
-      endpoint: ['web-01.example.com:22', 'db.example.com:5432', 's3://acme-assets', 'papertrailapp.com'][(i - 1) % 4],
+      endpoint: ['web-01.example.com:22', 'db.example.com:5432', 's3://acme-assets', 'api.na-01.cloud.solarwinds.com'][(i - 1) % 4],
       notes: 'Checkout runs here.',
       lastTestResult: i !== 2,
       lastTestUtc: iso(i * 10),
@@ -314,7 +314,7 @@ const FACTORIES = {
   secrets: (i) =>
     record('sec', i, {
       tenantId: TENANT,
-      name: ['prod-db-password', 'web-01-ssh-key', 'aws-prod', 'papertrail-token'][(i - 1) % 4],
+      name: ['prod-db-password', 'web-01-ssh-key', 'aws-prod', 'solarwinds-token'][(i - 1) % 4],
       kind: ['Password', 'PrivateKey', 'AccessKeyPair', 'ApiToken'][(i - 1) % 4],
       description: 'Managed by ops',
       fingerprint: ['****wd42', 'SHA256:abc', 'AKIA****', '****tk'][(i - 1) % 4],

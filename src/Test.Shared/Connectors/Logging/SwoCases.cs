@@ -276,6 +276,55 @@ namespace Test.Shared.Connectors.Logging
                 }
             }));
 
+            cases.Add(new TestCaseDescriptor(suite, "search-output-limits", "Output limits bound text, report omitted events, and preserve upstream paging", async ct =>
+            {
+                using (SwoStub stub = new SwoStub())
+                {
+                    List<StubLogEvent> ev = stub.Events;
+                    SolarWindsObservabilityConnector c = new SolarWindsObservabilityConnector();
+                    OutputLimits limits = new OutputLimits { MaxLines = 14 };
+                    List<string> all = new List<string>();
+                    string args = Window(ev[100].Time, ev[199].Time, "\"limit\":30");
+                    bool sawTruncation = false;
+                    bool sawCursor = false;
+                    long totalOmitted = 0;
+                    for (int i = 0; i < 20; i++)
+                    {
+                        ToolResult r = await LoggingTestHelper.RunAsync(c, "logs_search", args, Context(stub, 30, limits), ct).ConfigureAwait(false);
+                        LoggingTestHelper.AssertOk(r, "page");
+                        sawTruncation = sawTruncation || r.Truncated;
+                        totalOmitted += LoggingTestHelper.StructuredLong(r, "omitted");
+                        LoggingTestHelper.Assert(r.Text.Split('\n').Length <= 15, "text within MaxLines");
+                        all.AddRange(LoggingTestHelper.EventIds(r));
+                        string? cursor = LoggingTestHelper.StructuredString(r, "nextCursor");
+                        if (cursor == null) break;
+                        sawCursor = true;
+                        args = "{\"cursor\":\"" + cursor + "\",\"limit\":30}";
+                    }
+                    LoggingTestHelper.Assert(sawCursor, "upstream continuation remains available");
+                    LoggingTestHelper.Assert(totalOmitted > 0 && all.Count + totalOmitted == 100, "all dropped events are explicitly accounted for");
+                    LoggingTestHelper.Assert(sawTruncation, "truncation reported");
+                    LoggingTestHelper.Assert(all.Count > 0 && all.Count < 100 && all.Distinct().Count() == all.Count, "bounded pages contain distinct displayed events");
+                }
+            }));
+
+            cases.Add(new TestCaseDescriptor(suite, "unreachable", "An unreachable base URL is connection_failed", async ct =>
+            {
+                ConnectorResourceContext res = LoggingTestHelper.Resource("solarwinds-observability", new Dictionary<string, string> { { "baseUrl", "http://127.0.0.1:1/api/v1" } }, "t");
+                ToolResult r = await LoggingTestHelper.RunAsync(new SolarWindsObservabilityConnector(), "swo_list_entities", "{}", LoggingTestHelper.Context(res), ct).ConfigureAwait(false);
+                LoggingTestHelper.AssertError(r, "connection_failed", "unreachable");
+            }));
+
+            cases.Add(new TestCaseDescriptor(suite, "missing-secret", "A missing API token returns secret_missing before making a request", async ct =>
+            {
+                using (SwoStub stub = new SwoStub())
+                {
+                    ConnectorResourceContext resource = LoggingTestHelper.Resource("solarwinds-observability", new Dictionary<string, string> { { "baseUrl", stub.ApiBaseUrl } }, null);
+                    ToolResult result = await LoggingTestHelper.RunAsync(new SolarWindsObservabilityConnector(), "logs_search", "{}", LoggingTestHelper.Context(resource), ct).ConfigureAwait(false);
+                    LoggingTestHelper.AssertError(result, "secret_missing", "missing API token");
+                }
+            }));
+
             return cases;
         }
 

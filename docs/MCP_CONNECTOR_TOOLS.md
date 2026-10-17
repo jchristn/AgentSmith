@@ -2,7 +2,7 @@
 
 Every registered connector also exposes the shared `resource_get_context` and `resource_update_context` tools for persistent, versioned learnings. See [resource context](RESOURCE_CONTEXT.md) for permissions, examples, and consultation behavior.
 
-Every tool an agent can call through Hugo comes from a connector, and this page lists all of them: 118 connector-specific tools across fourteen families, generated from their descriptors, plus the two shared resource context tools described above. It is written to be included in `MCP_API.md`, but nothing here is specific to MCP. Dashboard chat, A2A, and the OpenAI-compatible surface hand the model the same names, descriptions, and schemas.
+Every tool an agent can call through Hugo comes from a connector, and this page lists all of them: 114 connector-specific tools across fourteen families, generated from their descriptors, plus the two shared resource context tools described above. It is written to be included in `MCP_API.md`, but nothing here is specific to MCP. Dashboard chat, A2A, and the OpenAI-compatible surface hand the model the same names, descriptions, and schemas.
 
 The tool names, descriptions, schemas, effects, and outputs below are generated from the connector code. The protocol-level details (the meta tools, how approvals surface over MCP, sessions) are in `MCP_API.md`.
 
@@ -100,10 +100,6 @@ The effect column shows the base effect; "per call" means the effect rule under 
 | `sql` | [`sql_ask`](#sql_ask) | Read, model | Ask a question |
 | `logs` | [`logs_search`](#logs_search) | Read | Search logs |
 | `logs` | [`logs_tail`](#logs_tail) | Read | Tail logs |
-| `logs` | [`logs_volume`](#logs_volume) | Read | Log volume over time |
-| `logs` | [`logs_list_systems`](#logs_list_systems) | Read | List log systems |
-| `logs` | [`logs_list_groups`](#logs_list_groups) | Read | List log groups |
-| `logs` | [`logs_list_saved_searches`](#logs_list_saved_searches) | Read | List saved log searches |
 | `logs` | [`swo_list_entities`](#swo_list_entities) | Read | List SolarWinds Observability entities |
 | `logs` | [`swo_get_entity`](#swo_get_entity) | Read | Get SolarWinds Observability entity |
 | `logs` | [`swo_query_metric`](#swo_query_metric) | Read | Query SolarWinds Observability metric |
@@ -1380,15 +1376,15 @@ evidence: count=3120
 
 ## Log services (`logs_*`, `swo_*`)
 
-`logs_search` and `logs_tail` are shared by the `papertrail` and `solarwinds-observability` connectors and route by the `resource` argument. Provider-specific filters go in `providerOptions`, and a key the provider does not support returns `invalid_argument`. `logs_volume` and the three `logs_list_*` tools exist only on Papertrail resources. The `swo_*` tools exist only on SolarWinds Observability resources, and they carry the `logs` family even though their names do not.
+The `solarwinds-observability` connector exposes five tools: `logs_search`, `logs_tail`, `swo_list_entities`, `swo_get_entity`, and `swo_query_metric`. They route by the `resource` argument and use the `logs` family. `providerOptions` accepts `group`, `entityId`, and `direction`; unsupported keys return `invalid_argument`. The two shared resource context tools are additional.
 
 Connector reference: [CONNECTORS.md](CONNECTORS.md#log-services).
 
 ### `logs_search`
 
-*Search logs.* Base effect **Read**. Connectors: `papertrail`, `solarwinds-observability`.
+*Search logs.* Base effect **Read**. Connectors: `solarwinds-observability`.
 
-Search log events in a bounded time window and return them as compact lines (timestamp host program: message), plus a nextCursor when more events match. Papertrail pages backward from the end of the window: each page holds the newest events not yet returned, listed oldest first, and the cursor fetches older ones. SolarWinds Observability lists events in the order the API uses for providerOptions.direction (backward by default, starting from the newest), and the cursor fetches the next page in that direction. Always bound the window: start with 15m to 1h around the incident and widen only if needed. Windows longer than the resource's maxTimeRangeHours are rejected with time_range_exceeded. Summarize patterns instead of pasting many lines.
+Search log events in a bounded time window and return them as compact lines (timestamp host program: message), plus a nextCursor when more events match. SolarWinds Observability lists events in the order the API uses for providerOptions.direction (backward by default, starting from the newest), and the cursor fetches the next page in that direction. Always bound the window: start with 15m to 1h around the incident and widen only if needed. Windows longer than the resource's maxTimeRangeHours are rejected with time_range_exceeded. Summarize patterns instead of pasting many lines.
 
 **Note.** A call with `cursor` replays the original window, query, and `providerOptions`. Sending `query`, `startTime`, `endTime`, or `providerOptions` with a cursor returns `invalid_argument` rather than being ignored; only `limit` may change.
 
@@ -1399,10 +1395,9 @@ Search log events in a bounded time window and return them as compact lines (tim
 | `startTime` | string | no | Window start: ISO-8601 timestamp (UTC when no offset) or a duration before now such as 15m, 2h, 1d. Default 1h. |
 | `endTime` | string | no | Window end: ISO-8601 timestamp, 'now', or a duration before now. Default now. |
 | `limit` | integer | no | Maximum events to return. Capped by the resource's maxEvents. Default 100. Range: min 1, max 10000. |
-| `cursor` | string | no | nextCursor from a previous logs_search call on the same resource. Fetches the next page with the original window, query, and filters: older events on Papertrail, the next page in the search direction on SolarWinds Observability. Only limit may be sent with it; query, startTime, endTime, or providerOptions alongside a cursor return invalid_argument. |
-| `providerOptions` | object | no | Provider-specific filters. Papertrail accepts system and group. SolarWinds Observability accepts group, entityId, and direction. Unsupported keys return invalid_argument. |
-| `providerOptions.system` | string | no | Papertrail only: system ID or name. Defaults to the resource's defaultSystem. |
-| `providerOptions.group` | string | no | Papertrail: group ID or name. SolarWinds Observability: log group name. Defaults to the resource's defaultGroup. |
+| `cursor` | string | no | nextCursor from a previous logs_search call on the same resource. Fetches the next page with the original window, query, and filters: the next page in the search direction. Only limit may be sent with it; query, startTime, endTime, or providerOptions alongside a cursor return invalid_argument. |
+| `providerOptions` | object | no | Log filters: group, entityId, and direction. Unsupported keys return invalid_argument. |
+| `providerOptions.group` | string | no | Log group name. Defaults to the resource's defaultGroup. |
 | `providerOptions.entityId` | string | no | SolarWinds Observability only: ID of the entity whose logs to search. |
 | `providerOptions.direction` | string | no | SolarWinds Observability only: search direction. Default backward. One of `backward`, `forward`, `tail`. |
 
@@ -1412,7 +1407,7 @@ Example arguments:
 
 ```json
 {
-  "resource": "papertrail",
+  "resource": "checkout-logs",
   "query": "\"upstream timed out\"",
   "startTime": "1h",
   "limit": 100,
@@ -1428,12 +1423,12 @@ Abbreviated result:
 2026-10-14T13:57:40Z web-01 nginx: [error] upstream timed out (110) while reading response header
 2026-10-14T13:58:02Z web-02 nginx: [error] upstream timed out (110) while reading response header
 ...
-nextCursor: eyJtYXhJZCI6...  (older events exist)
+nextCursor: <opaque cursor>  (more events exist)
 ```
 
 ### `logs_tail`
 
-*Tail logs.* Base effect **Read**. Connectors: `papertrail`, `solarwinds-observability`.
+*Tail logs.* Base effect **Read**. Connectors: `solarwinds-observability`.
 
 Return the newest log events for an optional query, newest last, plus a nextCursor. Call again with the cursor to get only events that arrived since. Use it to watch live behavior; use logs_search for history.
 
@@ -1443,9 +1438,8 @@ Return the newest log events for an optional query, newest last, plus a nextCurs
 | `query` | string | no | Search expression in the provider's syntax. Omit for every event. |
 | `limit` | integer | no | Maximum events to return. Capped by the resource's maxEvents. Default 50. Range: min 1, max 10000. |
 | `cursor` | string | no | nextCursor from a previous logs_tail call. Returns only events newer than that call, with the original query and filters. Only limit may be sent with it; query or providerOptions alongside a cursor return invalid_argument. |
-| `providerOptions` | object | no | Provider-specific filters. Papertrail accepts system and group. SolarWinds Observability accepts group, entityId, and direction. Unsupported keys return invalid_argument. |
-| `providerOptions.system` | string | no | Papertrail only: system ID or name. Defaults to the resource's defaultSystem. |
-| `providerOptions.group` | string | no | Papertrail: group ID or name. SolarWinds Observability: log group name. Defaults to the resource's defaultGroup. |
+| `providerOptions` | object | no | Log filters: group, entityId, and direction. Unsupported keys return invalid_argument. |
+| `providerOptions.group` | string | no | Log group name. Defaults to the resource's defaultGroup. |
 | `providerOptions.entityId` | string | no | SolarWinds Observability only: ID of the entity whose logs to search. |
 | `providerOptions.direction` | string | no | SolarWinds Observability only: search direction. Default backward. One of `backward`, `forward`, `tail`. |
 
@@ -1455,7 +1449,7 @@ Example arguments:
 
 ```json
 {
-  "resource": "papertrail",
+  "resource": "checkout-logs",
   "query": "checkout",
   "limit": 20
 }
@@ -1466,148 +1460,7 @@ Abbreviated result:
 ```text
 2026-10-14T14:01:58Z web-01 checkout: POST /cart/checkout 200 412ms
 ...
-nextCursor: eyJtaW5JZCI6...
-```
-
-### `logs_volume`
-
-*Log volume over time.* Base effect **Read**. Connectors: `papertrail`.
-
-Count matching log events in equal time buckets across a window, to find when a problem started or spiked. Counting pages through events up to maxScanEvents; if the cap is reached, the oldest buckets are marked incomplete. Use a specific query (for example an error string) to keep the scan small.
-
-**Note.** Papertrail resources only.
-
-| Parameter | Type | Required | Description |
-|---|---|---|---|
-| `resource` | string | yes | Alias of the bound resource. Added by Hugo; the allowed values are the caller's bindings for this family. |
-| `query` | string | no | Search expression. Omit to count every event. |
-| `startTime` | string | no | Window start: ISO-8601 timestamp or a duration before now such as 6h. Default 1h. |
-| `endTime` | string | no | Window end: ISO-8601 timestamp, 'now', or a duration before now. Default now. |
-| `buckets` | integer | no | Number of equal time buckets. Default 12. Range: min 1, max 120. |
-| `maxScanEvents` | integer | no | Maximum events scanned while counting. When reached, counts before the scanned range are reported as incomplete. Default 10000. Range: min 100, max 100000. |
-| `providerOptions` | object | no | Provider-specific filters. Papertrail accepts system and group. SolarWinds Observability accepts group, entityId, and direction. Unsupported keys return invalid_argument. |
-| `providerOptions.system` | string | no | Papertrail only: system ID or name. Defaults to the resource's defaultSystem. |
-| `providerOptions.group` | string | no | Papertrail: group ID or name. SolarWinds Observability: log group name. Defaults to the resource's defaultGroup. |
-| `providerOptions.entityId` | string | no | SolarWinds Observability only: ID of the entity whose logs to search. |
-| `providerOptions.direction` | string | no | SolarWinds Observability only: search direction. Default backward. One of `backward`, `forward`, `tail`. |
-
-**Output.** Table of bucketStart, bucketEnd, count, complete plus structured JSON {provider, query, startTime, endTime, bucketSeconds, total, pages, complete, scannedFrom, buckets[{start, end, count, complete}]}.
-
-Example arguments:
-
-```json
-{
-  "resource": "papertrail",
-  "query": "\"upstream timed out\"",
-  "startTime": "6h",
-  "buckets": 12
-}
-```
-
-Abbreviated result:
-
-```text
-| bucketStart | bucketEnd | count | complete |
-| --- | --- | --- | --- |
-| 2026-10-14T08:00:00Z | 2026-10-14T08:30:00Z | 0 | true |
-...
-| 2026-10-14T13:30:00Z | 2026-10-14T14:00:00Z | 412 | true |
-```
-
-### `logs_list_systems`
-
-*List log systems.* Base effect **Read**. Connectors: `papertrail`.
-
-List Papertrail systems (hosts and apps that send logs) with ID, name, IP, and last event time. Use a system name or ID in logs_search providerOptions.system to search one sender. A stale lastEventAt means the sender stopped logging.
-
-**Note.** Papertrail resources only.
-
-| Parameter | Type | Required | Description |
-|---|---|---|---|
-| `resource` | string | yes | Alias of the bound resource. Added by Hugo; the allowed values are the caller's bindings for this family. |
-| `nameContains` | string | no | Only items whose name contains this text (case-insensitive). |
-
-**Output.** Table id, name, ipAddress, lastEventAt plus structured JSON {systems[]}.
-
-Example arguments:
-
-```json
-{
-  "resource": "papertrail",
-  "nameContains": "web"
-}
-```
-
-Abbreviated result:
-
-```text
-| id | name | ipAddress | lastEventAt |
-| --- | --- | --- | --- |
-| 31124 | web-01 | 10.0.1.11 | 2026-10-14T14:02:01Z |
-| 31125 | web-02 | 10.0.1.12 | 2026-10-14T14:02:00Z |
-```
-
-### `logs_list_groups`
-
-*List log groups.* Base effect **Read**. Connectors: `papertrail`.
-
-List Papertrail groups (named sets of systems) with ID, name, wildcard, and member systems. Pass a group name or ID in logs_search providerOptions.group to search a whole tier, such as all web servers.
-
-**Note.** Papertrail resources only.
-
-| Parameter | Type | Required | Description |
-|---|---|---|---|
-| `resource` | string | yes | Alias of the bound resource. Added by Hugo; the allowed values are the caller's bindings for this family. |
-| `nameContains` | string | no | Only items whose name contains this text (case-insensitive). |
-
-**Output.** Table id, name, systemWildcard, systems plus structured JSON {groups[]}.
-
-Example arguments:
-
-```json
-{
-  "resource": "papertrail"
-}
-```
-
-Abbreviated result:
-
-```text
-| id | name | systemWildcard | systems |
-| --- | --- | --- | --- |
-| 812 | web | web-* | web-01, web-02 |
-```
-
-### `logs_list_saved_searches`
-
-*List saved log searches.* Base effect **Read**. Connectors: `papertrail`.
-
-List Papertrail saved searches with name, query, and group. Saved searches show what the team already watches; reuse their query and group in logs_search or logs_volume.
-
-**Note.** Papertrail resources only.
-
-| Parameter | Type | Required | Description |
-|---|---|---|---|
-| `resource` | string | yes | Alias of the bound resource. Added by Hugo; the allowed values are the caller's bindings for this family. |
-| `nameContains` | string | no | Only items whose name contains this text (case-insensitive). |
-
-**Output.** Table id, name, query, groupId, groupName plus structured JSON {searches[]}.
-
-Example arguments:
-
-```json
-{
-  "resource": "papertrail",
-  "nameContains": "error"
-}
-```
-
-Abbreviated result:
-
-```text
-| id | name | query | groupId | groupName |
-| --- | --- | --- | --- | --- |
-| 5521 | 5xx errors | status=5* | 812 | web |
+nextCursor: <opaque cursor>
 ```
 
 ### `swo_list_entities`

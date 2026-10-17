@@ -7,7 +7,7 @@ namespace Hugo.Connectors.Logging
     using Hugo.Connectors.Abstractions;
 
     /// <summary>
-    /// Opaque paging cursor handed to the calling LLM. It carries the provider position (event IDs or a skip token)
+    /// Opaque paging cursor handed to the calling LLM. It carries the SolarWinds Observability position (a skip token or tail timestamp and event ID)
     /// plus the original window and filters, so a follow-up call continues the same search. Encoded as base64url JSON.
     /// </summary>
     public class LogCursor
@@ -15,7 +15,7 @@ namespace Hugo.Connectors.Logging
         #region Public-Members
 
         /// <summary>
-        /// Connector type that issued the cursor (for example <c>papertrail</c>).
+        /// Connector type that issued the cursor (<c>solarwinds-observability</c>).
         /// </summary>
         [JsonPropertyName("p")]
         public string Provider { get; set; } = String.Empty;
@@ -25,18 +25,6 @@ namespace Hugo.Connectors.Logging
         /// </summary>
         [JsonPropertyName("k")]
         public string Kind { get; set; } = String.Empty;
-
-        /// <summary>
-        /// Papertrail: return events older than this ID (backward paging).
-        /// </summary>
-        [JsonPropertyName("maxId")]
-        public string? MaxId { get; set; } = null;
-
-        /// <summary>
-        /// Papertrail: return events newer than this ID (tail).
-        /// </summary>
-        [JsonPropertyName("minId")]
-        public string? MinId { get; set; } = null;
 
         /// <summary>
         /// SolarWinds Observability skip token for the next page.
@@ -63,13 +51,7 @@ namespace Hugo.Connectors.Logging
         public string? Query { get; set; } = null;
 
         /// <summary>
-        /// Papertrail system filter of the original call.
-        /// </summary>
-        [JsonPropertyName("system")]
-        public string? System { get; set; } = null;
-
-        /// <summary>
-        /// Group filter of the original call (Papertrail group ID, SolarWinds Observability group name).
+        /// SolarWinds Observability log group filter of the original call.
         /// </summary>
         [JsonPropertyName("group")]
         public string? Group { get; set; } = null;

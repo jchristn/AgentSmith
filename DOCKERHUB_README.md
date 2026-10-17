@@ -95,7 +95,7 @@ Details: [ARCHITECTURE.md](https://github.com/jchristn/AgentSmith/blob/main/docs
 
 ## Connectors
 
-Twenty connector types and 118 tools ship in the server image: SSH; Amazon S3 (and S3-compatible), Azure Blob, and Google Cloud Storage; SQLite, MySQL, PostgreSQL, and SQL Server, with schema crawling, relationship inference, and durable database context; Papertrail and SolarWinds Observability; Redis; AWS; Kubernetes; Docker; generic HTTP; Prometheus, Loki, and Elasticsearch or OpenSearch; external MCP servers; and remote A2A agents. See [CONNECTORS.md](https://github.com/jchristn/AgentSmith/blob/main/docs/CONNECTORS.md) and [MCP_CONNECTOR_TOOLS.md](https://github.com/jchristn/AgentSmith/blob/main/docs/MCP_CONNECTOR_TOOLS.md).
+Nineteen connector types and 114 connector-specific tools plus two shared resource context tools ship in the server image: SSH; Amazon S3 (and S3-compatible), Azure Blob, and Google Cloud Storage; SQLite, MySQL, PostgreSQL, and SQL Server, with schema crawling, relationship inference, and durable database context; SolarWinds Observability; Redis; AWS; Kubernetes; Docker; generic HTTP; Prometheus, Loki, and Elasticsearch or OpenSearch; external MCP servers; and remote A2A agents. See [CONNECTORS.md](https://github.com/jchristn/AgentSmith/blob/main/docs/CONNECTORS.md) and [MCP_CONNECTOR_TOOLS.md](https://github.com/jchristn/AgentSmith/blob/main/docs/MCP_CONNECTOR_TOOLS.md).
 
 ## Safety model
 

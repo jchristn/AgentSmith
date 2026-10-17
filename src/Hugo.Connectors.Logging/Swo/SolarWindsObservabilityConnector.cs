@@ -23,6 +23,11 @@ namespace Hugo.Connectors.Logging
         /// </summary>
         public static readonly string TypeName = "solarwinds-observability";
 
+        /// <summary>
+        /// Log tool family.
+        /// </summary>
+        public static readonly string FamilyName = "logs";
+
         /// <inheritdoc />
         public ConnectorDescriptor Descriptor { get; }
 
@@ -169,7 +174,7 @@ namespace Hugo.Connectors.Logging
             return new ConnectorDescriptor
             {
                 Type = TypeName,
-                Family = PapertrailConnector.FamilyName,
+                Family = FamilyName,
                 DisplayName = "SolarWinds Observability",
                 Description = "Search and tail logs, inspect entities, and query metrics in SolarWinds Observability SaaS through its public REST API.",
                 Category = ConnectorCategoryEnum.Logging,

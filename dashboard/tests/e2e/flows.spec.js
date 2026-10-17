@@ -60,7 +60,7 @@ test('adds a resource from the connector schema, tests the connection, and creat
   await expect(page.locator('.data-table')).toContainText('web-01');
   await page.getByTestId('add-button').click();
   await page.locator('#resources-name').fill('web-02');
-  await page.locator('#resource-connectorType').selectOption('ssh');
+  await page.getByRole('radio', { name: /SSH/ }).check();
   const form = page.getByTestId('schema-form');
   await expect(form.locator('legend')).toHaveText(['Connection', 'Authentication', 'Limits', 'Advanced']);
   await expect(form.locator('#resource-setting-port')).toHaveValue('22');

@@ -10,7 +10,7 @@ namespace Test.Shared.Connectors.Logging
     using Touchstone.Core;
 
     /// <summary>
-    /// Family-level cases: descriptors, schema parity across connectors, time range parsing and caps, cursors, and
+    /// Logging cases: descriptors, supported schemas, time range parsing and caps, cursors, and
     /// rendering limits.
     /// </summary>
     public static class LoggingCommonCases
@@ -26,38 +26,33 @@ namespace Test.Shared.Connectors.Logging
             string suite = "connectors.logging.common";
             List<TestCaseDescriptor> cases = new List<TestCaseDescriptor>();
 
-            cases.Add(new TestCaseDescriptor(suite, "descriptors", "Both connectors declare type, family logs, Logging category, logs icon, apiToken slot", ct =>
+            cases.Add(new TestCaseDescriptor(suite, "descriptors", "SolarWinds declares type, family logs, Logging category, logs icon, apiToken slot", ct =>
             {
-                PapertrailConnector pt = new PapertrailConnector();
                 SolarWindsObservabilityConnector swo = new SolarWindsObservabilityConnector();
-                LoggingTestHelper.Assert(pt.Descriptor.Type == "papertrail" && swo.Descriptor.Type == "solarwinds-observability", "types");
-                foreach (IConnector c in new IConnector[] { pt, swo })
+                LoggingTestHelper.Assert(swo.Descriptor.Type == "solarwinds-observability", "types");
+                foreach (IConnector c in new IConnector[] { swo })
                 {
                     LoggingTestHelper.Assert(c.Descriptor.Family == "logs", c.Descriptor.Type + " family");
                     LoggingTestHelper.Assert(c.Descriptor.Category == ConnectorCategoryEnum.Logging, c.Descriptor.Type + " category");
                     LoggingTestHelper.Assert(c.Descriptor.IconKey == "logs", c.Descriptor.Type + " icon");
                     SecretSlotDescriptor? slot = c.Descriptor.SecretSlots.FirstOrDefault(s => s.Name == "apiToken");
-                    SecretKindEnum[] expectedKinds = c.Descriptor.Type == "papertrail" ? new[] { SecretKindEnum.ApiToken } : new[] { SecretKindEnum.ApiToken, SecretKindEnum.BearerToken };
-                    LoggingTestHelper.Assert(slot != null && slot.Required && slot.AcceptedKinds.SequenceEqual(expectedKinds), c.Descriptor.Type + " apiToken slot (Papertrail uses its own header; SolarWinds sends Bearer)");
+                    SecretKindEnum[] expectedKinds = new[] { SecretKindEnum.ApiToken, SecretKindEnum.BearerToken };
+                    LoggingTestHelper.Assert(slot != null && slot.Required && slot.AcceptedKinds.SequenceEqual(expectedKinds), c.Descriptor.Type + " apiToken slot (SolarWinds sends Bearer)");
                     LoggingTestHelper.Assert(c.Descriptor.DefaultInstructionsKey == "connector." + c.Descriptor.Type + ".instructions", c.Descriptor.Type + " instructions key");
                     LoggingTestHelper.Assert(c.Descriptor.DefaultInstructions.Contains("bound", StringComparison.OrdinalIgnoreCase), c.Descriptor.Type + " instructions loaded");
                     LoggingTestHelper.Assert(c.Descriptor.SettingsSchema.Find("maxEvents")!.DefaultValue == "500", c.Descriptor.Type + " maxEvents default");
                     LoggingTestHelper.Assert(c.Descriptor.SettingsSchema.Find("maxTimeRangeHours")!.DefaultValue == "168", c.Descriptor.Type + " maxTimeRangeHours default");
                 }
-                LoggingTestHelper.Assert(pt.Descriptor.SettingsSchema.Find("baseUrl")!.DefaultValue == "https://papertrailapp.com/api/v1", "papertrail baseUrl default");
                 LoggingTestHelper.Assert(swo.Descriptor.SettingsSchema.Find("dataCenter")!.AllowedValues.SequenceEqual(new[] { "na-01", "na-02", "eu-01", "ap-01" }), "swo data centers");
                 return Task.CompletedTask;
             }));
 
-            cases.Add(new TestCaseDescriptor(suite, "tool-sets", "Each connector exposes the planned tools, all Read", ct =>
+            cases.Add(new TestCaseDescriptor(suite, "tool-sets", "SolarWinds exposes the planned tools, all Read", ct =>
             {
-                PapertrailConnector pt = new PapertrailConnector();
                 SolarWindsObservabilityConnector swo = new SolarWindsObservabilityConnector();
-                string[] ptTools = new[] { "logs_search", "logs_tail", "logs_volume", "logs_list_systems", "logs_list_groups", "logs_list_saved_searches" };
                 string[] swoTools = new[] { "logs_search", "logs_tail", "swo_list_entities", "swo_get_entity", "swo_query_metric" };
-                LoggingTestHelper.Assert(pt.Tools.Select(t => t.Descriptor.Name).OrderBy(n => n).SequenceEqual(ptTools.OrderBy(n => n)), "papertrail tools");
                 LoggingTestHelper.Assert(swo.Tools.Select(t => t.Descriptor.Name).OrderBy(n => n).SequenceEqual(swoTools.OrderBy(n => n)), "swo tools");
-                foreach (IConnector c in new IConnector[] { pt, swo })
+                foreach (IConnector c in new IConnector[] { swo })
                 {
                     ConnectorInvocationContext ctx = LoggingTestHelper.Context(LoggingTestHelper.Resource(c.Descriptor.Type, new Dictionary<string, string>(), "t"));
                     foreach (IConnectorTool t in c.Tools)
@@ -75,37 +70,26 @@ namespace Test.Shared.Connectors.Logging
                 return Task.CompletedTask;
             }));
 
-            cases.Add(new TestCaseDescriptor(suite, "schema-parity", "Tools with the same name have identical input schemas across the family", ct =>
+            cases.Add(new TestCaseDescriptor(suite, "log-schema", "SolarWinds search exposes the common bounded log search arguments", ct =>
             {
-                List<IConnector> family = new List<IConnector> { new PapertrailConnector(), new SolarWindsObservabilityConnector() };
-                Dictionary<string, string> seen = new Dictionary<string, string>(StringComparer.Ordinal);
-                int shared = 0;
-                foreach (IConnector c in family)
-                {
-                    foreach (IConnectorTool t in c.Tools)
-                    {
-                        if (seen.TryGetValue(t.Descriptor.Name, out string? schema))
-                        {
-                            shared++;
-                            LoggingTestHelper.Assert(schema == t.Descriptor.InputSchemaJson, t.Descriptor.Name + " schema differs between connectors");
-                        }
-                        else
-                        {
-                            seen[t.Descriptor.Name] = t.Descriptor.InputSchemaJson;
-                        }
-                    }
-                }
-                LoggingTestHelper.Assert(shared == 2, "logs_search and logs_tail are shared (found " + shared + ")");
                 using (JsonDocument doc = JsonDocument.Parse(LogsToolSchemas.SearchInputSchema))
                 {
                     JsonElement props = doc.RootElement.GetProperty("properties");
                     foreach (string p in new[] { "query", "startTime", "endTime", "limit", "cursor", "providerOptions" })
                         LoggingTestHelper.Assert(props.TryGetProperty(p, out JsonElement _), "logs_search has " + p);
                 }
+                using (JsonDocument options = JsonDocument.Parse(LogsToolSchemas.ProviderOptionsSchema))
+                {
+                    JsonElement properties = options.RootElement.GetProperty("properties");
+                    foreach (string key in new[] { "group", "entityId", "direction" })
+                        LoggingTestHelper.Assert(properties.TryGetProperty(key, out JsonElement _), "SolarWinds provider option " + key);
+                    LoggingTestHelper.Assert(!properties.TryGetProperty("system", out JsonElement _), "retired provider option is absent");
+                    LoggingTestHelper.Assert(!options.RootElement.GetProperty("additionalProperties").GetBoolean(), "unknown provider options remain rejected");
+                }
                 return Task.CompletedTask;
             }));
 
-            cases.Add(new TestCaseDescriptor(suite, "shared-text-accuracy", "Shared tool text is true for both providers and names no single-provider tool", ct =>
+            cases.Add(new TestCaseDescriptor(suite, "shared-text-accuracy", "Log search text describes SolarWinds and names no unrelated tool", ct =>
             {
                 List<string> shared = new List<string>
                 {
@@ -119,18 +103,8 @@ namespace Test.Shared.Connectors.Logging
                         LoggingTestHelper.Assert(!text.Contains(tool, StringComparison.Ordinal), "shared text names the single-provider tool " + tool);
                 }
                 string search = LogsToolSchemas.Search().Description;
-                LoggingTestHelper.Assert(!search.Contains("oldest first, plus a nextCursor for older events", StringComparison.Ordinal), "search no longer claims one order for both providers");
-                LoggingTestHelper.Assert(search.Contains("Papertrail", StringComparison.Ordinal) && search.Contains("SolarWinds Observability", StringComparison.Ordinal), "search explains the order of each provider");
-                using (JsonDocument doc = JsonDocument.Parse(JsonSerializer.Serialize(new LogVolumePayload())))
-                {
-                    string output = LogsToolSchemas.Volume().OutputDescription;
-                    foreach (string field in new[] { "scanned", "total", "pages", "complete", "scannedFrom", "bucketSeconds" })
-                    {
-                        bool inPayload = doc.RootElement.TryGetProperty(field, out JsonElement _);
-                        bool listed = System.Text.RegularExpressions.Regex.IsMatch(output, @"[{ ,]" + field + @"[,}\[]");
-                        LoggingTestHelper.Assert(inPayload == listed, "logs_volume output field " + field + (inPayload ? " is missing from" : " is listed in") + " the output description");
-                    }
-                }
+                LoggingTestHelper.Assert(!search.Contains("oldest first, plus a nextCursor for older events", StringComparison.Ordinal), "search describes the current provider ordering");
+                LoggingTestHelper.Assert(!search.Contains("Papertrail", StringComparison.Ordinal) && search.Contains("SolarWinds", StringComparison.Ordinal), "search identifies SolarWinds");
                 return Task.CompletedTask;
             }));
 
@@ -169,16 +143,16 @@ namespace Test.Shared.Connectors.Logging
 
             cases.Add(new TestCaseDescriptor(suite, "cursor-roundtrip", "Cursors round-trip and reject foreign or garbage values", ct =>
             {
-                LogCursor c = new LogCursor { Provider = "papertrail", Kind = "search", MaxId = "123", Start = DateTime.UtcNow.AddHours(-1), End = DateTime.UtcNow, Query = "a b", Group = "31" };
+                LogCursor c = new LogCursor { Provider = "solarwinds-observability", Kind = "search", SkipToken = "123", Start = DateTime.UtcNow.AddHours(-1), End = DateTime.UtcNow, Query = "a b", Group = "31" };
                 string encoded = c.Encode();
                 LoggingTestHelper.Assert(!encoded.Contains('=') && !encoded.Contains('+') && !encoded.Contains('/'), "base64url");
-                LogCursor back = LogCursor.Decode(encoded, "papertrail", "search");
-                LoggingTestHelper.Assert(back.MaxId == "123" && back.Query == "a b" && back.Group == "31", "fields");
+                LogCursor back = LogCursor.Decode(encoded, "solarwinds-observability", "search");
+                LoggingTestHelper.Assert(back.SkipToken == "123" && back.Query == "a b" && back.Group == "31", "fields");
                 string code = String.Empty;
-                try { LogCursor.Decode(encoded, "solarwinds-observability", "search"); } catch (ConnectorException e) { code = e.Code; }
+                try { LogCursor.Decode(encoded, "foreign-provider", "search"); } catch (ConnectorException e) { code = e.Code; }
                 LoggingTestHelper.Assert(code == "invalid_argument", "foreign provider");
                 code = String.Empty;
-                try { LogCursor.Decode("not a cursor!!", "papertrail", "search"); } catch (ConnectorException e) { code = e.Code; }
+                try { LogCursor.Decode("not a cursor!!", "solarwinds-observability", "search"); } catch (ConnectorException e) { code = e.Code; }
                 LoggingTestHelper.Assert(code == "invalid_argument", "garbage");
                 return Task.CompletedTask;
             }));
@@ -218,7 +192,7 @@ namespace Test.Shared.Connectors.Logging
                 LoggingTestHelper.Assert(newest.Count == 10 && newest.Last().Id == "49" && newest.First().Id == "40", "keeps newest 10");
                 List<LogEvent> oldest = LogEventRenderer.Fit(events, limits, false);
                 LoggingTestHelper.Assert(oldest.Count == 10 && oldest.First().Id == "0", "keeps oldest 10");
-                LogSearchPayload payload = new LogSearchPayload { Provider = "papertrail", Kind = "search", Events = newest, Omitted = 40, NextCursor = "abc" };
+                LogSearchPayload payload = new LogSearchPayload { Provider = "solarwinds-observability", Kind = "search", Events = newest, Omitted = 40, NextCursor = "abc" };
                 ToolResult r = LogEventRenderer.Render(payload, "logs_search", "More older events are available", limits);
                 LoggingTestHelper.Assert(r.Truncated && r.Text.Split('\n').Length <= 15, "bounded text");
                 LoggingTestHelper.Assert(r.Text.Contains("cursor \"abc\"", StringComparison.Ordinal), "cursor hint");

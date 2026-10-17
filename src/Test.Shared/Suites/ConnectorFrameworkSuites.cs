@@ -129,15 +129,14 @@ namespace Test.Shared.Suites
                 Check(codes.Contains("password:kind_not_accepted"), "slot kind");
                 return Task.CompletedTask;
             }));
-            cases.Add(new TestCaseDescriptor(ValidatorSuite, "bearer-token-kind", "BearerToken secrets bind to bearer slots but not to custom-header API token slots", ct =>
+            cases.Add(new TestCaseDescriptor(ValidatorSuite, "bearer-token-kind", "BearerToken secrets bind to SolarWinds slots while incompatible kinds are rejected", ct =>
             {
                 SolarWindsObservabilityConnector swo = new SolarWindsObservabilityConnector();
-                PapertrailConnector papertrail = new PapertrailConnector();
                 Dictionary<string, string> swoValues = new Dictionary<string, string>();
                 ConnectorValidationResult swoResult = ConnectorSettingsValidator.Validate(swo.Descriptor, swoValues, new Dictionary<string, SecretKindEnum> { { "apiToken", SecretKindEnum.BearerToken } });
                 Check(!swoResult.Errors.Exists(e => e.Field == "apiToken"), "SolarWinds accepts a BearerToken");
-                ConnectorValidationResult ptResult = ConnectorSettingsValidator.Validate(papertrail.Descriptor, new Dictionary<string, string>(), new Dictionary<string, SecretKindEnum> { { "apiToken", SecretKindEnum.BearerToken } });
-                Check(ptResult.Errors.Exists(e => e.Field == "apiToken" && e.Code == "kind_not_accepted"), "Papertrail (X-Papertrail-Token header) refuses a BearerToken");
+                ConnectorValidationResult incompatible = ConnectorSettingsValidator.Validate(swo.Descriptor, new Dictionary<string, string>(), new Dictionary<string, SecretKindEnum> { { "apiToken", SecretKindEnum.Password } });
+                Check(incompatible.Errors.Exists(e => e.Field == "apiToken" && e.Code == "kind_not_accepted"), "SolarWinds refuses a Password");
                 Check(Hugo.Core.Secrets.SecretFieldRules.Required(SecretKindEnum.BearerToken).Contains("token"), "BearerToken requires the token field");
                 return Task.CompletedTask;
             }));
@@ -147,18 +146,17 @@ namespace Test.Shared.Suites
         private static List<TestCaseDescriptor> RegistryCases()
         {
             List<TestCaseDescriptor> cases = new List<TestCaseDescriptor>();
-            cases.Add(new TestCaseDescriptor(RegistrySuite, "logs-family-parity", "Papertrail and SolarWinds share the logs family with identical shared schemas", ct =>
+            cases.Add(new TestCaseDescriptor(RegistrySuite, "logs-family-registration", "SolarWinds exposes the logs family and duplicate registrations are refused", ct =>
             {
                 using (ConnectorRegistry registry = new ConnectorRegistry())
                 {
-                    registry.Register(new PapertrailConnector());
                     registry.Register(new SolarWindsObservabilityConnector());
                     List<FamilyTool> tools = registry.FamilyTools("logs");
                     FamilyTool? search = tools.Find(t => t.Descriptor.Name == "logs_search");
-                    Check(search != null && search.ConnectorTypes.Count == 2, "logs_search offered by both");
-                    Check(registry.FindTool("papertrail", "logs_list_systems") != null, "find tool");
+                    Check(search != null && search.ConnectorTypes.Count == 1 && search.ConnectorTypes[0] == "solarwinds-observability", "logs_search offered by SolarWinds");
+                    Check(registry.FindTool("solarwinds-observability", "swo_list_entities") != null, "find tool");
                     bool threw = false;
-                    try { registry.Register(new PapertrailConnector()); } catch (InvalidOperationException) { threw = true; }
+                    try { registry.Register(new SolarWindsObservabilityConnector()); } catch (InvalidOperationException) { threw = true; }
                     Check(threw, "duplicate type rejected");
                 }
                 return Task.CompletedTask;

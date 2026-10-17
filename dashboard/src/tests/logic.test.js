@@ -158,7 +158,7 @@ describe('chat stream reducer (D-022 events)', () => {
     s = applyChatEvent(s, ev('assistant.thinking', { text: 'Check logs.' }), 1100);
     s = applyChatEvent(
       s,
-      ev('tool.proposed', { invocationId: 't1', toolName: 'papertrail_search', resourceAlias: 'papertrail', effect: 'Read', arguments: { q: 'checkout' } })
+      ev('tool.proposed', { invocationId: 't1', toolName: 'logs_search', resourceAlias: 'checkout-logs', effect: 'Read', arguments: { q: 'checkout' } })
     );
     s = applyChatEvent(s, ev('tool.started', { invocationId: 't1' }));
     s = applyChatEvent(s, ev('tool.completed', { invocationId: 't1', status: 'Succeeded', durationMs: 120, outputPreview: '3 errors' }));

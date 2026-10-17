@@ -1152,7 +1152,7 @@
       "deleteTitle": "リソースを削除",
       "emptyTitle": "リソースはまだありません",
       "emptyBody": "SSH ホスト、バケット、データベース、またはログサービスを追加してください。各フォームはコネクタのスキーマから生成され、保存前にテストできます。",
-      "purpose": "リソースは実際のシステムへの設定済み接続です (SSH ホスト、S3 バケット、PostgreSQL データベース、Papertrail アカウントなど)。シークレットは Hugo 内で暗号化されたまま保持されます。",
+      "purpose": "リソースは実際のシステムへの設定済み接続です (SSH ホスト、S3 バケット、PostgreSQL データベース、SolarWinds Observability アカウントなど)。シークレットは Hugo 内で暗号化されたまま保持されます。",
       "sections": {
         "general": "一般",
         "connector": "コネクタ"
@@ -2568,7 +2568,7 @@
         "Compute": "SSH などで接続するホストやマシン。",
         "Storage": "S3、Azure Blob、Google Cloud Storage などのオブジェクトストレージ。",
         "Database": "SQL やその他のデータベース。",
-        "Logging": "Papertrail や Loki などのログサービス。",
+        "Logging": "SolarWinds Observability や Loki などのログサービス。",
         "Cache": "Redis などのキャッシュ。",
         "Cloud": "AWS などのクラウドコントロールプレーン。",
         "Orchestration": "Kubernetes や Docker などのコンテナオーケストレーション。",

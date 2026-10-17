@@ -137,7 +137,7 @@ test('the primary journey through the dashboard against a live server', async ({
   await page.getByTestId('add-button').click();
   await page.locator('#resources-name').fill(RESOURCE);
   await page.locator('#resources-environment').fill('dev');
-  await page.locator('#resource-connectorType').selectOption('sqlite');
+  await page.getByRole('radio', { name: /SQLite/ }).check();
   await page.locator('#resource-setting-filename').fill(DB_FILE);
   await page.getByTestId('test-connection').click();
   await expect(page.getByTestId('test-result')).toHaveClass(/success-banner/);

@@ -47,7 +47,6 @@ namespace Hugo.Connectors.Logging
             else
             {
                 LogsProviderOptions options = LogsProviderOptions.FromArguments(arguments);
-                options.Require(SwoClient.ProviderName, false, true, true);
                 TimeRange range = TimeRangeResolver.Resolve(arguments.GetString("startTime"), arguments.GetString("endTime"), Options.DefaultWindow, settings.MaxTimeRangeHours, DateTime.UtcNow);
                 string? query = arguments.GetString("query");
                 state = new LogCursor

@@ -1,6 +1,6 @@
 # Writing a Hugo connector
 
-A connector teaches Hugo how to talk to one family of systems. SSH, S3, PostgreSQL, and Papertrail are all connectors, and none of them is special: the server only knows the contract in `src/Hugo.Connectors.Abstractions`. If you can implement two interfaces, you can add a new service to every agent profile, every MCP client, and the dashboard without touching the core.
+A connector teaches Hugo how to talk to one family of systems. SSH, S3, PostgreSQL, and SolarWinds Observability are all connectors, and none of them is special: the server only knows the contract in `src/Hugo.Connectors.Abstractions`. If you can implement two interfaces, you can add a new service to every agent profile, every MCP client, and the dashboard without touching the core.
 
 This guide walks through the contract, then builds a small connector end to end.
 

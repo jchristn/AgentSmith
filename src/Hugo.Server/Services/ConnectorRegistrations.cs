@@ -27,7 +27,7 @@ namespace Hugo.Server.Services
 
         /// <summary>
         /// New instances of every built-in connector. Wave 1: ssh, s3, azure-blob, gcs, sqlite, mysql, sqlserver,
-        /// postgresql, papertrail, solarwinds-observability. Wave 2: redis, http, prometheus, loki, elasticsearch, aws,
+        /// postgresql, solarwinds-observability. Wave 2: redis, http, prometheus, loki, elasticsearch, aws,
         /// kubernetes, docker, mcp, a2a-agent.
         /// </summary>
         /// <param name="allowMcpStdio">Server gate for external MCP servers over stdio (Connectors.McpAllowStdio). Default false.</param>
@@ -44,7 +44,6 @@ namespace Hugo.Server.Services
                 new MysqlConnector(),
                 new SqlServerConnector(),
                 new PostgresqlConnector(),
-                new PapertrailConnector(),
                 new SolarWindsObservabilityConnector(),
                 new RedisConnector(),
                 new HttpConnector(),

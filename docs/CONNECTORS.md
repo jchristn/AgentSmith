@@ -16,7 +16,7 @@ A **connector** is code. It knows how to speak to one family of systems and publ
 
 A **resource** is one concrete target configured by an operator: `prod-db` is a PostgreSQL resource with a host, a database, and a row cap. Its settings are validated against the connector's schema before it is saved, and the dashboard renders the form from the same schema, so the tables below are exactly the fields you will see.
 
-A **secret** lives in Hugo's encrypted vault and has a kind (Password, PrivateKey, ApiToken, BearerToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, or Generic) with named fields. BearerToken is for tokens sent exactly as `Authorization: Bearer`; ApiToken is for tokens whose header or format depends on the service (Papertrail's `X-Papertrail-Token`, for example). Slots that send a bearer header accept both. A resource does not hold credentials; it binds secrets to the connector's **slots**. One AWS key pair can back several resources, and rotating it is one edit. Connectors read secret fields only for the duration of a call, and Hugo scrubs every bound secret value from tool output as a backstop.
+A **secret** lives in Hugo's encrypted vault and has a kind (Password, PrivateKey, ApiToken, BearerToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, or Generic) with named fields. BearerToken is for tokens sent exactly as `Authorization: Bearer`; ApiToken is for tokens whose header or format depends on the service. Slots that send a bearer header accept both. A resource does not hold credentials; it binds secrets to the connector's **slots**. One AWS key pair can back several resources, and rotating it is one edit. Connectors read secret fields only for the duration of a call, and Hugo scrubs every bound secret value from tool output as a backstop.
 
 A **binding** attaches a resource to an agent profile under an alias and an **access mode**: ReadOnly, ReadWriteWithApproval, or ReadWrite. The alias is what the model sees. Every tool takes a `resource` argument whose allowed values are the profile's aliases for that family, so `sql_query` with `resource: "prod-db"` goes to PostgreSQL and the same tool with `resource: "legacy-db"` goes to MySQL.
 
@@ -64,7 +64,6 @@ Every call runs under limits the pipeline passes to the connector: output bytes 
 | `postgresql` | PostgreSQL | `sql` | Database | 16 |
 | `sqlite` | SQLite | `sql` | Database | 16 |
 | `sqlserver` | SQL Server | `sql` | Database | 16 |
-| `papertrail` | Papertrail | `logs` | Logging | 6 |
 | `solarwinds-observability` | SolarWinds Observability | `logs` | Logging | 5 |
 | `redis` | Redis | `redis` | Cache | 13 |
 | `aws` | AWS | `aws` | Cloud | 17 |
@@ -79,7 +78,7 @@ Every call runs under limits the pipeline passes to the connector: output bytes 
 
 The `mcp` and `a2a-agent` connectors attach other agents' systems rather than infrastructure: another MCP server, or another agent reached over A2A. Both live in `Hugo.Connectors.Agents` and are described in [Agents: external MCP servers and remote A2A agents](#agents-external-mcp-servers-and-remote-a2a-agents).
 
-The testbed in `docker/testbed` runs a real target for every connector that has a self-hostable equivalent, all bound to `127.0.0.1` in the `28xxx` port range. Papertrail, SolarWinds Observability, the HTTP connector, and the `mcp` and `a2a-agent` connectors are tested against in-process stubs in `src/Test.Shared/Connectors`. See `docker/testbed/README.md` for the commands.
+The testbed in `docker/testbed` runs a real target for every connector that has a self-hostable equivalent, all bound to `127.0.0.1` in the `28xxx` port range. SolarWinds Observability, the HTTP connector, and the `mcp` and `a2a-agent` connectors are tested against in-process stubs in `src/Test.Shared/Connectors`. See `docker/testbed/README.md` for the commands.
 
 ## SSH
 
@@ -213,7 +212,7 @@ An S3 resource without `accessKeyPair` makes anonymous requests, which only work
 
 **Limits.** `storage_read` returns at most `maxObjectReadBytes` per call and gives `nextOffset` to continue. `storage_list` pages with a continuation token (see below for how deep it can go), and `storage_stats` scans at most `maxScanObjects` objects before reporting lower bounds. `storage_write` accepts up to 16 MiB of content, and `storage_copy`, which reads the object through Hugo rather than copying server-side, up to 256 MiB.
 
-**Test connection** lists the first key under `prefixRestriction` and reports either that key or that the prefix is empty.
+**Test connection** lists the first key under `prefixRestriction` and reports either that key or that the prefix is empty. On S3 this is a `ListObjectsV2` request and requires `s3:ListBucket` on the bucket ARN, even when the same credentials can read or write known object keys. If the policy restricts listing with an `s3:prefix` condition, set `prefixRestriction` to an allowed prefix. For AWS S3, leave `endpoint` empty and use the bucket's actual `region`. Connection failures distinguish recognized AWS credential, signature, and region errors from access-policy denial without exposing credentials or raw provider responses.
 
 **Least privilege.** For S3, `s3:ListBucket` and `s3:GetObject` on the bucket (with an `s3:prefix` condition matching `prefixRestriction`) cover every Read tool; add `s3:PutObject` for writes, copies, and PUT URLs, and `s3:DeleteObject` for deletes. For GCS, `roles/storage.objectViewer` on the bucket is the read-only role. Azure account keys grant the whole account, so give agents a dedicated storage account, or a connection string carrying a narrowly scoped SAS if you do not need presigned URLs.
 
@@ -329,42 +328,11 @@ Every envelope carries the SQL, the classification, the tables, the row count, a
 
 ## Log services
 
-Two connectors share the `logs` family, so `logs_search` and `logs_tail` work the same way on either and route by the `resource` argument. Provider-specific filters go in `providerOptions`; a key the provider does not support returns `invalid_argument` rather than being silently ignored. Both connectors use one shared `HttpClient` and read rate-limit headers directly.
+The SolarWinds Observability connector uses the `logs` family. `logs_search` and `logs_tail` route by the `resource` argument. Filters go in `providerOptions`, which accepts `group`, `entityId`, and `direction`; unsupported keys return `invalid_argument`. The connector uses a shared `HttpClient` and reads rate-limit headers directly. The two common resource context tools are available in addition to its five logging tools.
 
 The common rules: every search is bounded in time. `startTime` and `endTime` accept ISO-8601, `now`, or a duration before now (`15m`, `2h`, `1d`), the default window is the last hour, and a window longer than `maxTimeRangeHours` fails with `time_range_exceeded` before any request is sent. `limit` is capped by `maxEvents` and the call's row limit. A 429 returns `rate_limited` with the upstream's `Retry-After`, and Hugo does not retry on its own. Messages longer than 2000 characters are cut.
 
 The upstream API details, with sources and the open questions, are in [Logging connector API notes](connectors/logging-api-notes.md).
-
-### Papertrail
-
-The `papertrail` connector searches, tails, and counts events through the Papertrail HTTP API (`X-Papertrail-Token`), and lists systems, groups, and saved searches.
-
-| Key | Kind | Default | Range or values | Meaning |
-|---|---|---|---|---|
-| `baseUrl` | String | `https://papertrailapp.com/api/v1` | pattern `^https?://` | Papertrail API base URL. Change it only for a proxy or a test stub. |
-| `defaultGroup` | String |  |  | Group ID or name searched when a call names no group or system. Empty searches every system. |
-| `defaultSystem` | String |  |  | System ID or name searched when a call names no system. Empty searches every system. |
-| `maxEvents` | Integer | `500` | 1 to 10000 | Upper bound on events returned by one logs_search or logs_tail call. Papertrail allows at most 10000. |
-| `maxTimeRangeHours` | Integer | `168` | 1 to 8760 | Longest window one search or volume call may cover. Default 168 (one week). |
-
-| Slot | Accepts | Required | Fields read | Meaning |
-|---|---|---|---|---|
-| `apiToken` | ApiToken | yes | `token` | Papertrail API token from Settings, Profile. The token has the permissions of its user; a read-only member account is recommended. |
-
-| Tool | Effect | Purpose |
-|---|---|---|
-| [`logs_search`](MCP_CONNECTOR_TOOLS.md#logs_search) | Read | Search logs |
-| [`logs_tail`](MCP_CONNECTOR_TOOLS.md#logs_tail) | Read | Tail logs |
-| [`logs_volume`](MCP_CONNECTOR_TOOLS.md#logs_volume) | Read | Log volume over time |
-| [`logs_list_systems`](MCP_CONNECTOR_TOOLS.md#logs_list_systems) | Read | List log systems |
-| [`logs_list_groups`](MCP_CONNECTOR_TOOLS.md#logs_list_groups) | Read | List log groups |
-| [`logs_list_saved_searches`](MCP_CONNECTOR_TOOLS.md#logs_list_saved_searches) | Read | List saved log searches |
-
-Every Papertrail tool is Read. `logs_search` calls `events/search.json` and pages backward with `max_id`; each page holds the newest events not yet returned, listed oldest first. Its cursor carries the original window, query, and filters, and a cursor call that also sends `query`, `startTime`, `endTime`, or `providerOptions` fails with `invalid_argument` instead of quietly ignoring them; only `limit` may change. A group name (rather than a numeric ID) costs one extra `groups.json` lookup. `logs_volume` pages through matching events (up to `maxScanEvents`, at most 100,000) and counts them into equal buckets; when it runs out of budget, the oldest buckets are marked incomplete. Use a specific query to keep the scan small.
-
-**Test connection** calls `systems.json` and reports how many systems the token can see. **Testbed:** an in-process stub (`PapertrailStub`) replays the recorded response shapes, including paging flags and 429 responses.
-
-**Least privilege.** The API token carries its user's permissions. Create a member account without admin rights for Hugo and use its token.
 
 ### SolarWinds Observability
 
@@ -390,14 +358,13 @@ The `solarwinds-observability` connector searches and tails logs, lists and read
 | [`swo_get_entity`](MCP_CONNECTOR_TOOLS.md#swo_get_entity) | Read | Get SolarWinds Observability entity |
 | [`swo_query_metric`](MCP_CONNECTOR_TOOLS.md#swo_query_metric) | Read | Query SolarWinds Observability metric |
 
-Every tool is Read. `logs_search` calls `/v1/logs` and follows the API's `nextPage` token; as with Papertrail, a cursor call refuses new values for the query, window, or filters. `providerOptions` accepts `group`, `entityId`, and `direction`. `logs_tail` tracks the newest timestamp it has returned and asks for events since then. `swo_query_metric` calls `/v1/metrics/{name}/measurements`, scoped by `entityId` or a SolarWinds filter expression, and shows at most the last 60 points per grouping in text.
+Every tool is Read. `logs_search` calls `/v1/logs` and follows the API's `nextPage` token; a cursor call refuses new values for the query, window, or filters. `providerOptions` accepts `group`, `entityId`, and `direction`. `logs_tail` tracks the newest timestamp it has returned and asks for events since then. `swo_query_metric` calls `/v1/metrics/{name}/measurements`, scoped by `entityId` or a SolarWinds filter expression, and shows at most the last 60 points per grouping in text.
 
 **Test connection** calls `/v1/entities?pageSize=1` and reports the base URL and whether any entity is visible. **Testbed:** an in-process stub (`SwoStub`).
 
 **Known limitations.** These come from the API itself as much as from the connector, and the API notes have the detail.
 
 - There is no `swo_list_alerts`. The public API (OpenAPI 1.0.19) has no alert listing; alerts appear to be reachable only through GraphQL, which is out of scope.
-- `logs_volume` and the `logs_list_*` tools are Papertrail only.
 - The API documents `direction` inconsistently, so the connector passes it through and otherwise relies on the API default (backward). Events come back in the API's order for that direction, and a cursor fetches the next page in the same direction.
 - Rate limits, 429 behavior, and the maximum `pageSize` are undocumented. The connector caps pages with `maxEvents`.
 - The tail has no server-side "newer than" token. Events that share the last timestamp can repeat, and when more than `limit` events arrive between calls, the tail skips some.

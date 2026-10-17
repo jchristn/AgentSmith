@@ -52,13 +52,13 @@ if args.phase == 'seed':
     model = call('POST', '/v1.0/api/model-endpoints', {'name': 'journey-private-ollama', 'provider': 'Ollama', 'baseUrl': state['model_url'], 'model': os.environ.get('HUGO_REAL_MODEL_NAME', 'qwen3.8:27b'), 'maxOutputTokens': 1800, 'contextWindowTokens': 32768, 'timeoutSeconds': 240, 'maxRetries': 0})
     profile = next(x for x in call('GET', '/v1.0/api/agent-profiles')['objects'] if x['name'] == 'Hugo')
     state['profile'] = profile['id']
-    call('PUT', '/v1.0/api/agent-profiles/' + state['profile'], {'inferenceEndpointId': model['id'], 'instructionDetail': 'Full', 'temperature': 0.1, 'maxIterations': 8, 'maxToolCallsPerTurn': 12, 'instructionsAppend': 'This is a disposable acceptance fixture. For checkout investigations use logs_search on papertrail, sql_query on prod-db to inspect pg_stat_activity, and separate ssh_exec calls for uptime and df -h on web-01. Read assets with storage_list when useful. Keep answers brief, evidence-based, address Mr. Anderson, and never claim unavailable data. For requested nginx service restarts use ssh_service_control with unit nginx, action restart, useSudo true; wait for human approval. Do not replace a requested real operation with a mock.'})
+    call('PUT', '/v1.0/api/agent-profiles/' + state['profile'], {'inferenceEndpointId': model['id'], 'instructionDetail': 'Full', 'temperature': 0.1, 'maxIterations': 8, 'maxToolCallsPerTurn': 12, 'instructionsAppend': 'This is a disposable acceptance fixture. For checkout investigations use logs_search on checkout-logs, sql_query on prod-db to inspect pg_stat_activity, and separate ssh_exec calls for uptime and df -h on web-01. Read assets with storage_list when useful. Keep answers brief, evidence-based, address Mr. Anderson, and never claim unavailable data. For requested nginx service restarts use ssh_service_control with unit nginx, action restart, useSudo true; wait for human approval. Do not replace a requested real operation with a mock.'})
     keys = pathlib.Path(state['work']) / 'sshkeys/id_ed25519'
     definitions = [
         ('journey-ssh-key', 'PrivateKey', {'privateKey': keys.read_text()}),
         ('journey-postgres-password', 'Password', {'username': 'hugo', 'password': 'journey-postgres-password'}),
         ('journey-assets-key', 'AccessKeyPair', {'accessKeyId': 'journey-access-key', 'secretAccessKey': 'journey-secret-access-key'}),
-        ('journey-papertrail-token', 'ApiToken', {'token': 'journey-papertrail-test-token'}),
+        ('journey-solarwinds-token', 'ApiToken', {'token': 'journey-solarwinds-test-token'}),
     ]
     secret_ids = {name: call('POST', '/v1.0/api/secrets', {'name': name, 'kind': kind, 'values': values})['id'] for name, kind, values in definitions}
     p = state['ports']
@@ -66,7 +66,7 @@ if args.phase == 'seed':
         ('web-01', 'ssh', 'ReadWriteWithApproval', {'host': '127.0.0.1', 'port': p['ssh'], 'username': 'hugo', 'authMethod': 'PrivateKey', 'allowSudo': True}, 'privateKey', 'journey-ssh-key'),
         ('prod-db', 'postgresql', 'ReadOnly', {'host': '127.0.0.1', 'port': p['postgres'], 'database': 'shop', 'sslMode': 'Disable'}, 'password', 'journey-postgres-password'),
         ('assets', 's3', 'ReadOnly', {'bucket': 'hugo-testbed', 'region': 'us-east-1', 'endpoint': 'http://127.0.0.1:' + str(p['s3']), 'useSsl': False}, 'accessKeyPair', 'journey-assets-key'),
-        ('papertrail', 'papertrail', 'ReadOnly', {'baseUrl': 'http://127.0.0.1:' + str(p['papertrail']) + '/api/v1'}, 'apiToken', 'journey-papertrail-token'),
+        ('checkout-logs', 'solarwinds-observability', 'ReadOnly', {'baseUrl': 'http://127.0.0.1:' + str(p['solarwinds']) + '/v1'}, 'apiToken', 'journey-solarwinds-token'),
     ]
     state['resources'] = {}
     checks = {}
@@ -78,7 +78,7 @@ if args.phase == 'seed':
     compiled_path = '/v1.0/api/agent-profiles/' + state['profile'] + '/compiled-instructions?surface=Chat'
     compiled = call('GET', compiled_path)
     assert compiled['bindingCount'] == 4
-    for text in ['Agent Smith', 'Mr. Anderson', 'web-01', 'prod-db', 'assets', 'papertrail']:
+    for text in ['Agent Smith', 'Mr. Anderson', 'web-01', 'prod-db', 'assets', 'checkout-logs']:
         assert text in compiled['text'], text
     template_path = '/v1.0/api/prompt-templates/connector.ssh.instructions'
     original = call('GET', template_path)['effectiveContent']

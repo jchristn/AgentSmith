@@ -3,7 +3,7 @@
   <PropertyGroup>
     <RootNamespace>Hugo.Connectors.Logging</RootNamespace>
     <AssemblyName>Hugo.Connectors.Logging</AssemblyName>
-    <Description>Hugo connectors for Papertrail and SolarWinds Observability log search.</Description>
+    <Description>Hugo connector for SolarWinds Observability log search, entities, and metrics.</Description>
   </PropertyGroup>
 
   <ItemGroup>

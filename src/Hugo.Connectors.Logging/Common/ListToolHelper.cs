@@ -40,7 +40,7 @@ namespace Hugo.Connectors.Logging
         /// <summary>
         /// Render a table of rows, capped by the call's row, line, and byte limits.
         /// </summary>
-        /// <param name="title">Headline (for example <c>Papertrail systems</c>).</param>
+        /// <param name="title">Headline (for example <c>SolarWinds Observability entities</c>).</param>
         /// <param name="columns">Columns.</param>
         /// <param name="rows">Rows.</param>
         /// <param name="structured">Structured payload to serialize.</param>

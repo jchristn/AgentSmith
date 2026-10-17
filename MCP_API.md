@@ -320,14 +320,14 @@ Management tools let an MCP client administer Hugo itself: look at profiles and 
 
 ## Connector tools
 
-Connector tools are named `<family>_<operation>` and take a required `resource` argument. There are 118 of them in this release. The table summarizes each family; [docs/MCP_CONNECTOR_TOOLS.md](docs/MCP_CONNECTOR_TOOLS.md) documents every one of them, the `mcp_*` and `a2a_*` tools included, with its input schema, effect classification, output shape, and an example, and [docs/CONNECTORS.md](docs/CONNECTORS.md) explains how to configure each connector.
+Connector tools are named `<family>_<operation>` and take a required `resource` argument. There are 114 connector-specific tools in this release. The table summarizes each family; [docs/MCP_CONNECTOR_TOOLS.md](docs/MCP_CONNECTOR_TOOLS.md) documents every one of them, the `mcp_*` and `a2a_*` tools included, with its input schema, effect classification, output shape, and an example, and [docs/CONNECTORS.md](docs/CONNECTORS.md) explains how to configure each connector.
 
 | Family | Connector types | Tools | What they cover |
 |---|---|---|---|
 | `ssh` | ssh | 8 | System overview, shell commands (classified per call), service status and control, reading, tailing, listing, and writing files |
 | `storage` | s3, azure-blob, gcs | 8 | List, metadata, read, stats, presigned URLs, write, copy, delete |
 | `sql` | sqlite, mysql, postgresql, sqlserver | 16 | Schemas, tables, relationships, schema crawl, guarded queries, explain, activity, locks, sizes, the agent pack, database intelligence, durable context, and question answering (`sql_ask` and `sql_generate_context` need a model) |
-| `logs`, `swo` | papertrail, solarwinds-observability | 9 | Search, tail, volume, groups, systems, saved searches; SolarWinds entities and metrics |
+| `logs` | solarwinds-observability | 5 | Search and tail logs; list and inspect entities; query metrics |
 | `redis` | redis | 13 | Info, scan, get, TTLs, memory, big keys, clients, slow log, latency, set, expire, delete, classified commands |
 | `aws` | aws | 17 | Caller identity, EC2, Auto Scaling, ECS, ELB, RDS, Lambda, CloudWatch metrics and alarms, Logs Insights and tail, Route 53, SNS, SQS |
 | `k8s` | kubernetes | 14 | List, get, describe, events, logs, top, rollout status, history, and restart, scale, cordon, exec, apply, delete |

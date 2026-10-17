@@ -3,13 +3,13 @@ import { useTranslation } from 'react-i18next';
 import SchemaForm, { schemaErrorMessages } from './SchemaForm';
 import SecretSlotPicker from './SecretField';
 import CodeBlock from './CodeBlock';
-import { FormField } from './FormFields';
+import FormFields from './FormFields';
+import ConnectorPicker from './ConnectorPicker';
 import { tip } from './Tooltip';
 import ConnectorIcon from './ConnectorIcon';
 import { useAuth } from '../context/AuthContext';
 import { normalizeSchema, initialValues, validateSchemaValues, toSubmitValues } from '../utils/schemaForm';
 import { errorMessage } from '../utils/errors';
-import { enumLabel } from '../utils/enums';
 import { slotBindingsToMap } from '../utils/resources';
 import { connectorSlotLabel } from '../utils/tips';
 
@@ -67,7 +67,7 @@ export function slotBindingsToForm(bindings) {
  * from the connector's schema, a secret picker per slot (choose an existing secret of an accepted kind or create one
  * inline), and Test Connection, which tests the unsaved settings before anything is stored.
  */
-export default function ResourceSettingsPanel({ data, onChange, errors = {}, disabled = false, mode = 'create' }) {
+export default function ResourceSettingsPanel({ data, onChange, errors = {}, disabled = false, mode = 'create', generalFields = [] }) {
   const { t } = useTranslation();
   const { apiClient } = useAuth();
   const [connectors, setConnectors] = useState(null);
@@ -101,6 +101,7 @@ export default function ResourceSettingsPanel({ data, onChange, errors = {}, dis
   }, [connector]);
 
   const choose = (type) => {
+    if (type === data.connectorType) return;
     const next = (connectors || []).find((c) => c.type === type);
     onChange({
       ...data,
@@ -132,48 +133,31 @@ export default function ResourceSettingsPanel({ data, onChange, errors = {}, dis
     }
   };
 
-  const grouped = connectorsByCategory(connectors);
-
   return (
     <div className="resource-settings" data-testid="resource-settings">
       {connectorsError && <div className="warning-banner">{t('views.resources.form.connectorsUnavailable')}</div>}
-      <FormField
-        id="resource-connectorType"
-        field={{
-          name: 'connectorType',
-          type: 'custom-select',
-          label: t('resources.resources.fields.connectorType'),
-          required: true,
-          tip: t('tips.resources.resources.connectorType')
-        }}
-        value={data.connectorType}
-        error={errors.connectorType}
-        disabled
-        renderControl={() => (
-          <select
-            id="resource-connectorType"
-            value={data.connectorType || ''}
-            disabled={disabled || mode === 'edit'}
-            onChange={(e) => choose(e.target.value)}
-            {...tip(t('tips.resources.resources.connectorType'))}
-          >
-            <option value="">{t('views.resources.form.chooseConnector')}</option>
-            {Object.entries(grouped).map(([cat, list]) => (
-              <optgroup key={cat} label={enumLabel(t, 'connectorCategory', cat)}>
-                {list.map((c) => (
-                  <option key={c.type} value={c.type}>
-                    {c.displayName || c.type}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
-        )}
-      />
+      {mode === 'create' ? (
+        <ConnectorPicker
+          connectors={connectors || []}
+          value={data.connectorType}
+          onChange={choose}
+          disabled={disabled}
+          error={errors.connectorType}
+          loading={connectors === null}
+        />
+      ) : (
+        <div className="field">
+          <label htmlFor="resource-connectorType">{t('resources.resources.fields.connectorType')}</label>
+          <input id="resource-connectorType" value={connector?.displayName || data.connectorType || ''} disabled readOnly />
+        </div>
+      )}
       {connector?.description && (
         <p className="field-hint">
           <ConnectorIcon type={connector.type} iconKey={connector.iconKey} size={12} /> {connector.description}
         </p>
+      )}
+      {generalFields.length > 0 && (
+        <FormFields fields={generalFields} data={data} onChange={onChange} errors={errors} disabled={disabled} idPrefix="resources" />
       )}
       {connector && (
         <>

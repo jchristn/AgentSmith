@@ -131,7 +131,7 @@ namespace Test.Shared.Integration
             Assert.True(catalog.Get("instructions.root")!.Content.Contains("{{> persona}}", StringComparison.Ordinal), "root includes the persona");
             Assert.True(catalog.Get("persona.agent-smith")!.Content.Contains("{{profile.personaName}}", StringComparison.Ordinal), "persona variables");
             catalog.RegisterConnectors(ConnectorRegistrations.BuiltIns());
-            foreach (string type in new[] { "ssh", "s3", "azure-blob", "gcs", "sqlite", "mysql", "sqlserver", "postgresql", "papertrail", "solarwinds-observability" })
+            foreach (string type in new[] { "ssh", "s3", "azure-blob", "gcs", "sqlite", "mysql", "sqlserver", "postgresql", "solarwinds-observability" })
             {
                 BuiltInTemplate? template = catalog.Get("connector." + type + ".instructions");
                 Assert.True(template != null && template.Source == type && template.Content.Length > 200, "connector instructions for " + type);
@@ -185,7 +185,8 @@ namespace Test.Shared.Integration
             {
                 ConnectorRegistrations.RegisterBuiltIns(registry);
                 List<string> types = registry.All().Select(c => c.Descriptor.Type).OrderBy(t => t, StringComparer.Ordinal).ToList();
-                foreach (string type in new[] { "azure-blob", "gcs", "mysql", "papertrail", "postgresql", "s3", "solarwinds-observability", "sqlite", "sqlserver", "ssh" }) Assert.True(types.Contains(type), "wave 1 connector " + type);
+                foreach (string type in new[] { "azure-blob", "gcs", "mysql", "postgresql", "s3", "solarwinds-observability", "sqlite", "sqlserver", "ssh" }) Assert.True(types.Contains(type), "wave 1 connector " + type);
+                Assert.True(!types.Contains("papertrail"), "retired Papertrail connector is absent");
                 Assert.Equal(types.Count, types.Distinct(StringComparer.Ordinal).Count(), "unique types");
                 Assert.True(registry.FamilyTools("sql").Any(t => t.Descriptor.Name == "sql_query"), "family tools");
                 bool duplicate = false;

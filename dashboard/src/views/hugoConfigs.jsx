@@ -446,21 +446,28 @@ export const resourcesConfig = {
     createdCol('resources', t, i18n)
   ],
   fields: (_d, { t, mode }) => [
-    section('resources', t, 'general'),
-    field('resources', t, 'name', 'text', { required: true }),
-    field('resources', t, 'displayName', 'text'),
-    field('resources', t, 'environment', 'text', { placeholder: 'prod' }),
-    field('resources', t, 'visibility', 'select', { required: true, options: enumOptions(t, 'visibility') }),
-    field('resources', t, 'defaultAccessModeCeiling', 'select', { options: enumOptions(t, 'accessMode') }),
-    field('resources', t, 'endpoint', 'text'),
-    field('resources', t, 'description', 'textarea', { rows: 2 }),
-    field('resources', t, 'notes', 'textarea', { rows: 3 }),
-    section('resources', t, 'connector'),
     {
       name: 'connector',
       type: 'custom',
       render: (data, { disabled, onChange, errors }) => (
-        <ResourceSettingsPanel data={data} onChange={onChange} errors={errors} disabled={disabled} mode={mode} />
+        <ResourceSettingsPanel
+          data={data}
+          onChange={onChange}
+          errors={errors}
+          disabled={disabled}
+          mode={mode}
+          generalFields={[
+            section('resources', t, 'general'),
+            field('resources', t, 'name', 'text', { required: true }),
+            field('resources', t, 'displayName', 'text'),
+            field('resources', t, 'environment', 'text', { placeholder: 'prod' }),
+            field('resources', t, 'visibility', 'select', { required: true, options: enumOptions(t, 'visibility') }),
+            field('resources', t, 'defaultAccessModeCeiling', 'select', { options: enumOptions(t, 'accessMode') }),
+            field('resources', t, 'endpoint', 'text'),
+            field('resources', t, 'description', 'textarea', { rows: 2 }),
+            field('resources', t, 'notes', 'textarea', { rows: 3 })
+          ]}
+        />
       )
     }
   ],

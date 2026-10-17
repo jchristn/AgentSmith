@@ -1152,7 +1152,7 @@
       "deleteTitle": "Eliminar recurso",
       "emptyTitle": "Todavía no hay recursos",
       "emptyBody": "Añada un host SSH, un bucket, una base de datos o un servicio de registros. Cada formulario se genera a partir del esquema del conector y se puede probar antes de guardar.",
-      "purpose": "Los recursos son conexiones configuradas a sistemas reales: un host SSH, un bucket S3, una base de datos PostgreSQL, una cuenta de Papertrail. Sus secretos permanecen cifrados en Hugo.",
+      "purpose": "Los recursos son conexiones configuradas a sistemas reales: un host SSH, un bucket S3, una base de datos PostgreSQL, una cuenta de SolarWinds Observability. Sus secretos permanecen cifrados en Hugo.",
       "sections": {
         "general": "General",
         "connector": "Conector"
@@ -2568,7 +2568,7 @@
         "Compute": "Hosts y máquinas a los que se accede por SSH o similar.",
         "Storage": "Almacenamiento de objetos como S3, Azure Blob y Google Cloud Storage.",
         "Database": "Bases de datos SQL y de otros tipos.",
-        "Logging": "Servicios de registros como Papertrail y Loki.",
+        "Logging": "Servicios de registros como SolarWinds Observability y Loki.",
         "Cache": "Cachés como Redis.",
         "Cloud": "Planos de control en la nube como AWS.",
         "Orchestration": "Orquestación de contenedores como Kubernetes y Docker.",

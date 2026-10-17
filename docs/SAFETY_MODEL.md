@@ -116,7 +116,7 @@ Hugo's classifiers are a second line of defense. The first is the account Hugo u
 - Scope AWS IAM policies to the services and resources the agent should see; prefer read-only managed policies for investigation profiles.
 - Use a namespace-scoped Kubernetes service account rather than a cluster-admin kubeconfig.
 - Use a restricted SSH user with only the `sudo -n` rules it needs. Note that repeated authentication failures from Hugo's single address can trip OpenSSH `PerSourcePenalties` and lock it out for a while.
-- Use read-only API tokens for log services such as Papertrail and SolarWinds Observability.
+- Use a dedicated API token for SolarWinds Observability. Its public API requires a full-access token; Hugo's ReadOnly bindings restrict the operations exposed through Hugo.
 
 If a classifier ever misjudges a call, the upstream account is what stands between that mistake and your data. Make it boring.
 

@@ -10,6 +10,8 @@ Everything below is new in this release. The images are `jchristn77/hugo-server:
 
 ### Dashboard
 
+- Create resource starts with a searchable connector card grid instead of a dropdown near the bottom of the form.
+
 - Model endpoint editing and health inspection use separate modals. The health view presents summary cards, a chronological health histogram, timestamps, latest failure, and expandable check details.
 
 - Nine sidebar entries replace the previous 25, with related pages on URL-addressable tabs. Legacy bookmarks and detail routes remain usable, role restrictions apply per tab, and pending approvals remain visible on Agents and the topbar.
@@ -56,14 +58,17 @@ Everything below is new in this release. The images are `jchristn77/hugo-server:
 
 ### Connectors
 
+- S3 connection failures distinguish AWS credential, signature, region, and access-policy errors safely and explain the bucket-list permission required by the probe.
+- Removed the legacy Papertrail connector. SolarWinds Observability remains available for SolarWinds Cloud API tokens and log queries.
+
 - Scheduled resource health checks default to HTTP and Redis every five minutes, with explicit connector opt-in, bounded probes, and aggregate health metrics. Scheduled checks cannot learn SSH host keys.
 
-Twenty connector types, each with its own settings schema, secret slots, tools, effect classifier, default instructions, and test-connection check:
+Nineteen connector types, each with its own settings schema, secret slots, tools, effect classifier, default instructions, and test-connection check:
 
 - **SSH**: commands, files, services, and system overview, with host key pinning on first use and a shell command classifier.
 - **Object storage**: Amazon S3, Azure Blob Storage, and Google Cloud Storage, including signed presigned URLs.
 - **SQL databases**: SQLite, MySQL, SQL Server, and PostgreSQL, with guarded queries, activity and lock views, and database intelligence: schema crawling, inferred relationships, durable database and table context, and question answering with verified SQL.
-- **Logs**: Papertrail and SolarWinds Observability.
+- **Logs**: SolarWinds Observability.
 - **Redis**, the **AWS** control plane (EC2, ECS, RDS, Lambda, CloudWatch, Logs Insights, Route 53, SNS, SQS, ELB, Auto Scaling), **Kubernetes**, **Docker** hosts, and generic **HTTP** APIs.
 - **Prometheus**, **Grafana Loki**, and **Elasticsearch or OpenSearch**.
 - **External MCP servers** and **remote A2A agents**, reached through fixed tools (`mcp_call_tool`, `a2a_delegate`, and friends).

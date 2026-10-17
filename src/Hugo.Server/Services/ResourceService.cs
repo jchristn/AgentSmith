@@ -294,6 +294,7 @@ namespace Hugo.Server.Services
         public async Task<Resource> DuplicateAsync(RequestContext ctx, string tenantId, string id, string name, CancellationToken token = default)
         {
             Resource source = await LoadAsync(ctx, tenantId, id, token).ConfigureAwait(false);
+            Connector(source.ConnectorType);
             if (!IsValidName(name)) throw Invalid("name", "A name of 1 to 64 letters, digits, dots, hyphens, or underscores is required.");
             if (await _Database.Resources.ReadByNameAsync(tenantId, name, token).ConfigureAwait(false) != null) throw new ConflictException("Duplicate", "A resource named '" + name + "' already exists.");
             Resource copy = new Resource();

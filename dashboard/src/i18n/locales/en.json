@@ -1153,7 +1153,7 @@
       "deleteTitle": "Delete resource",
       "emptyTitle": "No resources yet",
       "emptyBody": "Add an SSH host, bucket, database, or log service. Each form comes from the connector's schema and can be tested before saving.",
-      "purpose": "Resources are configured connections to real systems: an SSH host, an S3 bucket, a PostgreSQL database, a Papertrail account. Their secrets stay encrypted in Hugo.",
+      "purpose": "Resources are configured connections to real systems: an SSH host, an S3 bucket, a PostgreSQL database, a SolarWinds Observability account. Their secrets stay encrypted in Hugo.",
       "sections": {
         "general": "General",
         "connector": "Connector"
@@ -2553,7 +2553,7 @@
         "Compute": "Hosts and machines reached over SSH or similar.",
         "Storage": "Object storage such as S3, Azure Blob, and Google Cloud Storage.",
         "Database": "SQL and other databases.",
-        "Logging": "Log services such as Papertrail and Loki.",
+        "Logging": "Log services such as SolarWinds Observability and Loki.",
         "Cache": "Caches such as Redis.",
         "Cloud": "Cloud control planes such as AWS.",
         "Orchestration": "Container orchestration such as Kubernetes and Docker.",

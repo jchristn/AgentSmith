@@ -33,7 +33,7 @@ preambles, A2A skill descriptions, and resource sections for every approval mode
 `dotnet run --project src/Test.Automated -f net10.0 -- --suites templates`. The configuration integration
 suite also checks layer edits, resets, compiled output, and cache invalidation against each database provider.
 
-A fresh server lists the keys below at `GET /v1.0/api/prompt-templates`. Connector keys come in pairs, one full and one compact, for each of the twenty connector types.
+A fresh server lists the keys below at `GET /v1.0/api/prompt-templates`. Connector keys come in pairs, one full and one compact, for each of the nineteen connector types.
 
 | Key | Purpose |
 |---|---|
@@ -49,7 +49,7 @@ A fresh server lists the keys below at `GET /v1.0/api/prompt-templates`. Connect
 | `connector.<type>.instructions` | Full guidance for one connector type. |
 | `connector.<type>.compact` | Short guidance used when a profile has many resources. |
 
-The connector types are `a2a-agent`, `aws`, `azure-blob`, `docker`, `elasticsearch`, `gcs`, `http`, `kubernetes`, `loki`, `mcp`, `mysql`, `papertrail`, `postgresql`, `prometheus`, `redis`, `s3`, `solarwinds-observability`, `sqlite`, `sqlserver`, and `ssh`. A plugin connector registers its own pair the same way. You can also create a key that has no Built-in (any lowercase dotted name up to 128 characters) and include it from another template.
+The connector types are `a2a-agent`, `aws`, `azure-blob`, `docker`, `elasticsearch`, `gcs`, `http`, `kubernetes`, `loki`, `mcp`, `mysql`, `postgresql`, `prometheus`, `redis`, `s3`, `solarwinds-observability`, `sqlite`, `sqlserver`, and `ssh`. A plugin connector registers its own pair the same way. You can also create a key that has no Built-in (any lowercase dotted name up to 128 characters) and include it from another template.
 
 A profile chooses its persona through `personaTemplateKey`. Inside `instructions.root`, `{{> persona}}` resolves to that key, or to `persona.agent-smith` when the profile names none.
 

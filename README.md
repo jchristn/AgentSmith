@@ -18,9 +18,9 @@ Hugo holds the access and the judgment about using it. Credentials live encrypte
 
 1. Mr. Anderson starts the Docker stack, opens the dashboard, signs in with the seeded account, and picks a new password when Hugo asks.
 2. The setup wizard asks for one model endpoint (a local Ollama, or Anthropic, OpenAI, and others with an API key).
-3. He stores an SSH key, a PostgreSQL password, and a Papertrail token in the vault, and adds the resources that use them: `web-01`, `prod-db`, `papertrail`. Each form comes from the connector's schema and has a Test Connection button.
-4. He binds them to the Hugo profile: `prod-db` ReadOnly, `web-01` ReadWriteWithApproval, `papertrail` ReadOnly. The instructions preview shows Agent Smith's persona followed by one section per resource.
-5. He asks, "Agent Smith, why is checkout slow?" Hugo searches Papertrail, looks at `pg_stat_activity` on `prod-db`, runs `uptime` and `df -h` on `web-01`, and answers with evidence, addressing him as Mr. Anderson. Every tool call shows inline with its effect and duration.
+3. He stores an SSH key, a PostgreSQL password, and a SolarWinds Observability token in the vault, and adds the resources that use them: `web-01`, `prod-db`, `checkout-logs`. Each form comes from the connector's schema and has a Test Connection button.
+4. He binds them to the Hugo profile: `prod-db` ReadOnly, `web-01` ReadWriteWithApproval, `checkout-logs` ReadOnly. The instructions preview shows Agent Smith's persona followed by one section per resource.
+5. He asks, "Agent Smith, why is checkout slow?" Hugo searches SolarWinds Observability logs, looks at `pg_stat_activity` on `prod-db`, runs `uptime` and `df -h` on `web-01`, and answers with evidence, addressing him as Mr. Anderson. Every tool call shows inline with its effect and duration.
 6. He asks Hugo to restart nginx. The call is Destructive, an approval card appears, he approves, Hugo runs it and reports back.
 7. He creates a credential bound to the Hugo profile and adds Hugo to Claude Code. Claude Code receives the same instructions and a tool list limited to those three resources.
 8. Request history, tool invocations, the audit log, and Grafana show everything that happened.
@@ -91,7 +91,7 @@ Claude Code receives the profile's compiled instructions in the MCP handshake, s
   +---------------------------------------------------|----------------------------------+
                                                       v
                 connectors: SSH, S3/Azure/GCS, SQLite/MySQL/PostgreSQL/SQL Server,
-                Papertrail, SolarWinds, Redis, AWS, Kubernetes, Docker, HTTP,
+                SolarWinds, Redis, AWS, Kubernetes, Docker, HTTP,
                 Prometheus, Loki, Elasticsearch, external MCP servers, remote A2A agents
 ```
 
@@ -111,15 +111,14 @@ One server process serves REST, MCP, A2A, and the OpenAI-compatible surface on o
 
 ## Connectors
 
-Twenty connector types in fourteen families ship in the image, with 118 tools between them.
+Nineteen connector types in fourteen families ship in the image, with 114 connector-specific tools plus two shared resource context tools.
 
-| Family | Persistent resource learnings | [`docs/RESOURCE_CONTEXT.md`](docs/RESOURCE_CONTEXT.md) |
-| Connectors | A few of the tools |
+| Family | Connectors | A few of the tools |
 |---|---|---|
 | Hosts | SSH | `ssh_system_info`, `ssh_exec`, `ssh_service_control`, `ssh_tail_file` |
 | Object storage | Amazon S3 (and S3-compatible), Azure Blob, Google Cloud Storage | `storage_list`, `storage_read`, `storage_presign_url`, `storage_delete` |
 | Databases | SQLite, MySQL, PostgreSQL, SQL Server | `sql_get_agent_pack`, `sql_query`, `sql_activity`, `sql_ask` |
-| Logs | Papertrail, SolarWinds Observability | `logs_search`, `logs_tail`, `swo_query_metric` |
+| Logs | SolarWinds Observability | `logs_search`, `logs_tail`, `swo_query_metric` |
 | Cache | Redis | `redis_info`, `redis_scan`, `redis_slowlog`, `redis_delete` |
 | Cloud | AWS | `aws_ec2_describe_instances`, `aws_logs_insights_query`, `aws_ecs_update_service` |
 | Orchestration | Kubernetes, Docker | `k8s_logs`, `k8s_rollout_restart`, `docker_ps`, `docker_container_action` |

@@ -45,7 +45,6 @@ namespace Hugo.Connectors.Logging
             else
             {
                 LogsProviderOptions options = LogsProviderOptions.FromArguments(arguments);
-                options.Require(SwoClient.ProviderName, false, true, true);
                 string? query = arguments.GetString("query");
                 state = new LogCursor
                 {

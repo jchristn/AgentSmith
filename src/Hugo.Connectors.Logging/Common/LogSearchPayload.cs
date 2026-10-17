@@ -10,7 +10,7 @@ namespace Hugo.Connectors.Logging
     public class LogSearchPayload
     {
         /// <summary>
-        /// Connector type (for example <c>papertrail</c>).
+        /// Connector type (for example <c>solarwinds-observability</c>).
         /// </summary>
         [JsonPropertyName("provider")]
         public string Provider { get; set; } = String.Empty;
@@ -58,7 +58,7 @@ namespace Hugo.Connectors.Logging
         public string? NextCursor { get; set; } = null;
 
         /// <summary>
-        /// Events, oldest first for Papertrail; in provider order for SolarWinds Observability search.
+        /// Events in SolarWinds Observability search order, or oldest first for tail.
         /// </summary>
         [JsonPropertyName("events")]
         public List<LogEvent> Events { get; set; } = new List<LogEvent>();

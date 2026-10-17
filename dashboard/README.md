@@ -126,6 +126,10 @@ Every Hugo page shows `UnavailableState` when its route answers 404 (or 405 or 5
 server does not expose it yet, and the route the dashboard called. It is not a "coming soon" placeholder: the page
 works as soon as the server provides the route.
 
+## Creating resources
+
+Create resource starts with a visible connector grid, with icons and names. Search filters the registered connectors without opening a dropdown. Choose a connector, enter the resource details, then configure its settings and secret slots. Selecting the same connector preserves the draft; selecting another resets incompatible settings and secret bindings. Saved resources keep their connector type fixed.
+
 ## Model endpoint health
 
 Editing a model endpoint opens only its definition and draft validation controls. Use **Health** in the row menu or click the status badge to open a separate read-only health modal. It summarizes the latest recorded checks with status, successful-check percentage, consecutive outcomes, a chronological histogram, timestamps, and the latest failure. Individual records are available under **Check details**. Refresh rereads saved health records without invoking the model. The percentage describes the checks shown, rather than time-based uptime.

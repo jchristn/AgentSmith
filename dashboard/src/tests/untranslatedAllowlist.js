@@ -33,7 +33,6 @@ const PRODUCT_WORDS = new Set([
   'Grafana',
   'Tempo',
   'Loki',
-  'Papertrail',
   'SolarWinds',
   'Redis',
   'PostgreSQL',
