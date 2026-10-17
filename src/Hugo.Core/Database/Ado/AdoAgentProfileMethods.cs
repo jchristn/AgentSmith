@@ -21,7 +21,7 @@ namespace Hugo.Core.Database.Ado
 
         private readonly AdoDatabaseDriver _Driver;
         private readonly string _Table;
-        private static readonly string _Columns = "id, tenant_id, owner_user_id, visibility, name, display_name, persona_name, user_address, description, persona_template_key, inference_endpoint_id, fallback_inference_endpoint_id, embedding_endpoint_id, max_iterations, max_tool_calls_per_turn, tool_timeout_seconds, temperature, expose_a2a, expose_mcp, expose_openai, expose_management_tools, instructions_append, instruction_detail, is_default, active, created_utc, last_update_utc, chat_enabled, chat_access_mode, chat_link_id, chat_credential_id, chat_revision";
+        private static readonly string _Columns = "id, tenant_id, owner_user_id, visibility, name, display_name, persona_name, user_address, description, persona_template_key, inference_endpoint_id, fallback_inference_endpoint_id, embedding_endpoint_id, max_iterations, max_tool_calls_per_turn, tool_timeout_seconds, temperature, expose_a2a, expose_mcp, expose_openai, expose_management_tools, instructions_append, instruction_detail, is_default, active, created_utc, last_update_utc, chat_enabled, chat_access_mode, chat_link_id, chat_credential_id, chat_revision, chat_title, chat_logo_url, chat_page_title";
 
         #endregion
 
@@ -256,6 +256,9 @@ namespace Hugo.Core.Database.Ado
             obj.ChatAccessMode = AdoConverters.Enum(reader, "chat_access_mode", ChatAccessModeEnum.Authenticated);
             obj.ChatLinkId = AdoConverters.NullableStr(reader, "chat_link_id");
             obj.ChatCredentialId = AdoConverters.NullableStr(reader, "chat_credential_id");
+            obj.ChatTitle = AdoConverters.NullableStr(reader, "chat_title");
+            obj.ChatLogoUrl = AdoConverters.NullableStr(reader, "chat_logo_url");
+            obj.ChatPageTitle = AdoConverters.NullableStr(reader, "chat_page_title");
             obj.ChatRevision = AdoConverters.Int(reader, "chat_revision");
             obj.InstructionsAppend = AdoConverters.NullableStr(reader, "instructions_append");
             obj.InstructionDetail = AdoConverters.Enum(reader, "instruction_detail", InstructionDetailEnum.Auto);
@@ -298,6 +301,9 @@ namespace Hugo.Core.Database.Ado
             AdoDatabaseDriver.Add(command, "chat_link_id", obj.ChatLinkId);
             AdoDatabaseDriver.Add(command, "chat_credential_id", obj.ChatCredentialId);
             AdoDatabaseDriver.Add(command, "chat_revision", obj.ChatRevision);
+            AdoDatabaseDriver.Add(command, "chat_title", obj.ChatTitle);
+            AdoDatabaseDriver.Add(command, "chat_logo_url", obj.ChatLogoUrl);
+            AdoDatabaseDriver.Add(command, "chat_page_title", obj.ChatPageTitle);
             AdoDatabaseDriver.Add(command, "instructions_append", obj.InstructionsAppend);
             AdoDatabaseDriver.Add(command, "instruction_detail", obj.InstructionDetail.ToString());
             AdoDatabaseDriver.Add(command, "is_default", obj.IsDefault);

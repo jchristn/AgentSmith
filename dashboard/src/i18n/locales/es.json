@@ -645,7 +645,22 @@
       "message": "Mensaje",
       "placeholder": "Pregunte a Agent Smith. Intro envía, Mayús+Intro añade una línea.",
       "send": "Enviar",
-      "stop": "Detener"
+      "stop": "Detener",
+      "feedback": {
+        "title": "Comentarios sobre la respuesta",
+        "helpful": "Respuesta útil",
+        "unhelpful": "Respuesta poco útil",
+        "comment": "Añadir un comentario",
+        "commentLabel": "Tus comentarios",
+        "commentPlaceholder": "Cuéntanos qué funcionó, qué estuvo mal o qué debería mejorar.",
+        "save": "Guardar comentarios",
+        "saved": "Comentarios guardados",
+        "failed": "No se pudieron guardar los comentarios. Inténtalo de nuevo.",
+        "rating": "Valoración (opcional)",
+        "positive": "Útil",
+        "negative": "Poco útil",
+        "noRating": "Sin valoración"
+      }
     },
     "passwordChange": {
       "title": "Elija una contraseña nueva",
@@ -4546,10 +4561,17 @@
       "openTip": "Abrir el chat de este perfil en una pestaña nueva.",
       "rotate": "Renovar enlace",
       "rotateTip": "Reemplazar esta dirección y revocar el enlace anterior.",
-      "rotateNotice": "Guardar el acceso o renovar el enlace invalida las sesiones existentes. La renovación también cambia la dirección."
+      "rotateNotice": "Guardar el acceso o renovar el enlace invalida las sesiones existentes. La renovación también cambia la dirección.",
+      "chatTitle": "Título del chat",
+      "chatTitleTip": "El encabezado de la esquina superior izquierda. Déjalo vacío para usar el nombre del agente.",
+      "logoUrl": "URL del logotipo",
+      "logoUrlTip": "Una URL HTTP(S) de imagen o una ruta local que empiece por /. Déjala vacía para usar el icono de chat predeterminado.",
+      "pageTitle": "Título de la página",
+      "pageTitleTip": "El título de la pestaña del navegador. Déjalo vacío para usar el título del chat."
     },
     "accessDenied": "Este enlace de chat está habilitado, pero sus permisos no permiten chatear. Contacta con quien publicó el enlace.",
     "connectionFailed": "No se puede conectar con este chat. Inténtalo de nuevo.",
-    "failed": "No se puede cargar este chat. Inténtalo de nuevo o contacta con quien publicó el enlace."
+    "failed": "No se puede cargar este chat. Inténtalo de nuevo o contacta con quien publicó el enlace.",
+    "disclaimer": "La IA puede cometer errores. Verifica la información importante."
   }
 }

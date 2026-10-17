@@ -641,7 +641,22 @@
       "message": "Message",
       "placeholder": "Ask Agent Smith. Enter sends, Shift+Enter adds a line.",
       "send": "Send",
-      "stop": "Stop"
+      "stop": "Stop",
+      "feedback": {
+        "title": "Response feedback",
+        "helpful": "Helpful response",
+        "unhelpful": "Unhelpful response",
+        "comment": "Add a comment",
+        "commentLabel": "Your feedback",
+        "commentPlaceholder": "Tell us what worked, what was wrong, or what should improve.",
+        "save": "Save feedback",
+        "saved": "Feedback saved",
+        "failed": "Could not save feedback. Please try again.",
+        "rating": "Rating (optional)",
+        "positive": "Helpful",
+        "negative": "Not helpful",
+        "noRating": "No rating"
+      }
     },
     "passwordChange": {
       "title": "Choose a new password",
@@ -4510,10 +4525,17 @@
       "openTip": "Open this profile’s standalone chat in a new tab.",
       "rotate": "Rotate link",
       "rotateTip": "Replace this address and revoke the previous chat link.",
-      "rotateNotice": "Saving access settings or rotating the link invalidates existing chat sessions. Rotation also replaces the address."
+      "rotateNotice": "Saving access settings or rotating the link invalidates existing chat sessions. Rotation also replaces the address.",
+      "chatTitle": "Chat title",
+      "chatTitleTip": "The heading shown in the upper left. Leave blank to use the agent name.",
+      "logoUrl": "Logo URL",
+      "logoUrlTip": "An HTTP(S) image URL or local path beginning with /. Leave blank to use the default chat icon.",
+      "pageTitle": "Page title",
+      "pageTitleTip": "The browser tab title. Leave blank to use the chat title."
     },
     "accessDenied": "This chat link is enabled, but its configured permissions do not allow chat. Contact the link publisher.",
     "connectionFailed": "Unable to connect to this chat. Please try again.",
-    "failed": "Unable to load this chat. Please try again or contact the link publisher."
+    "failed": "Unable to load this chat. Please try again or contact the link publisher.",
+    "disclaimer": "AI can make mistakes. Check important information."
   }
 }

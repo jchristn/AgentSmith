@@ -641,7 +641,22 @@
       "message": "Nachricht",
       "placeholder": "Fragen Sie Agent Smith. Enter sendet, Umschalt+Enter fügt eine Zeile ein.",
       "send": "Senden",
-      "stop": "Stoppen"
+      "stop": "Stoppen",
+      "feedback": {
+        "title": "Feedback zur Antwort",
+        "helpful": "Hilfreiche Antwort",
+        "unhelpful": "Nicht hilfreiche Antwort",
+        "comment": "Kommentar hinzufügen",
+        "commentLabel": "Ihr Feedback",
+        "commentPlaceholder": "Beschreiben Sie, was gut war, was falsch war oder was verbessert werden sollte.",
+        "save": "Feedback speichern",
+        "saved": "Feedback gespeichert",
+        "failed": "Feedback konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.",
+        "rating": "Bewertung (optional)",
+        "positive": "Hilfreich",
+        "negative": "Nicht hilfreich",
+        "noRating": "Keine Bewertung"
+      }
     },
     "passwordChange": {
       "title": "Neues Passwort wählen",
@@ -4524,10 +4539,17 @@
       "openTip": "Den eigenständigen Chat dieses Profils in einem neuen Tab öffnen.",
       "rotate": "Link erneuern",
       "rotateTip": "Diese Adresse ersetzen und den bisherigen Chat-Link widerrufen.",
-      "rotateNotice": "Das Speichern der Zugriffseinstellungen oder Erneuern des Links macht bestehende Chat-Sitzungen ungültig. Beim Erneuern ändert sich auch die Adresse."
+      "rotateNotice": "Das Speichern der Zugriffseinstellungen oder Erneuern des Links macht bestehende Chat-Sitzungen ungültig. Beim Erneuern ändert sich auch die Adresse.",
+      "chatTitle": "Chat-Titel",
+      "chatTitleTip": "Die Überschrift oben links. Leer lassen, um den Agentennamen zu verwenden.",
+      "logoUrl": "Logo-URL",
+      "logoUrlTip": "Eine HTTP(S)-Bildadresse oder ein lokaler Pfad, der mit / beginnt. Leer lassen, um das Standardsymbol für den Chat zu verwenden.",
+      "pageTitle": "Seitentitel",
+      "pageTitleTip": "Der Titel des Browser-Tabs. Leer lassen, um den Chat-Titel zu verwenden."
     },
     "accessDenied": "Dieser Chat-Link ist aktiviert, aber die konfigurierten Berechtigungen erlauben keinen Chat. Wenden Sie sich an den Herausgeber des Links.",
     "connectionFailed": "Die Verbindung zu diesem Chat konnte nicht hergestellt werden. Versuchen Sie es erneut.",
-    "failed": "Dieser Chat konnte nicht geladen werden. Versuchen Sie es erneut oder wenden Sie sich an den Herausgeber des Links."
+    "failed": "Dieser Chat konnte nicht geladen werden. Versuchen Sie es erneut oder wenden Sie sich an den Herausgeber des Links.",
+    "disclaimer": "KI kann Fehler machen. Prüfen Sie wichtige Informationen."
   }
 }

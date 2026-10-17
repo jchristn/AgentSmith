@@ -645,7 +645,22 @@
       "message": "Mensagem",
       "placeholder": "Pergunte ao Agent Smith. Enter envia, Shift+Enter adiciona uma linha.",
       "send": "Enviar",
-      "stop": "Parar"
+      "stop": "Parar",
+      "feedback": {
+        "title": "Opinião sobre a resposta",
+        "helpful": "Resposta útil",
+        "unhelpful": "Resposta pouco útil",
+        "comment": "Adicionar um comentário",
+        "commentLabel": "Sua opinião",
+        "commentPlaceholder": "Conte o que funcionou, o que estava errado ou o que deve melhorar.",
+        "save": "Salvar opinião",
+        "saved": "Opinião salva",
+        "failed": "Não foi possível salvar a opinião. Tente novamente.",
+        "rating": "Avaliação (opcional)",
+        "positive": "Útil",
+        "negative": "Pouco útil",
+        "noRating": "Sem avaliação"
+      }
     },
     "passwordChange": {
       "title": "Escolha uma nova senha",
@@ -4546,10 +4561,17 @@
       "openTip": "Abrir o chat deste perfil em uma nova aba.",
       "rotate": "Renovar link",
       "rotateTip": "Substituir este endereço e revogar o link anterior.",
-      "rotateNotice": "Salvar o acesso ou renovar o link invalida as sessões existentes. A renovação também substitui o endereço."
+      "rotateNotice": "Salvar o acesso ou renovar o link invalida as sessões existentes. A renovação também substitui o endereço.",
+      "chatTitle": "Título do chat",
+      "chatTitleTip": "O título exibido no canto superior esquerdo. Deixe em branco para usar o nome do agente.",
+      "logoUrl": "URL do logotipo",
+      "logoUrlTip": "Uma URL HTTP(S) de imagem ou um caminho local que comece com /. Deixe em branco para usar o ícone padrão do chat.",
+      "pageTitle": "Título da página",
+      "pageTitleTip": "O título da aba do navegador. Deixe em branco para usar o título do chat."
     },
     "accessDenied": "Este link de conversa está habilitado, mas suas permissões não permitem conversar. Entre em contato com quem publicou o link.",
     "connectionFailed": "Não foi possível conectar a esta conversa. Tente novamente.",
-    "failed": "Não foi possível carregar esta conversa. Tente novamente ou entre em contato com quem publicou o link."
+    "failed": "Não foi possível carregar esta conversa. Tente novamente ou entre em contato com quem publicou o link.",
+    "disclaimer": "A IA pode cometer erros. Confira as informações importantes."
   }
 }

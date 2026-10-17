@@ -109,13 +109,13 @@ namespace Test.Shared.Integration
                     await database.Tenants.CreateAsync(tenant, token).ConfigureAwait(false);
                     AgentProfile profile = new AgentProfile { TenantId = tenant.Id, Name = "legacy-chat-agent", InstructionsAppend = "Preserved operator guidance." };
                     await database.AgentProfiles.CreateAsync(profile, token).ConfigureAwait(false);
-                    SchemaMigration migration = SchemaBuilder.Build(driver.Catalog, driver.Dialect).Single(item => item.Version == 10);
+                    List<SchemaMigration> migrations = SchemaBuilder.Build(driver.Catalog, driver.Dialect).Where(item => item.Version >= 10).ToList();
                     string schema = String.IsNullOrEmpty(driver.Catalog.Schema) ? String.Empty : driver.Dialect.Quote(driver.Catalog.Schema!) + ".";
                     string index = schema + driver.Dialect.Quote("idx_" + driver.Catalog.RawName("agent_profiles") + "_chat_link");
                     await driver.NonQueryAsync("DROP INDEX " + index + ";", null, token).ConfigureAwait(false);
-                    foreach (SchemaColumnAddition column in migration.Columns)
+                    foreach (SchemaColumnAddition column in migrations.SelectMany(item => item.Columns))
                         await driver.NonQueryAsync("ALTER TABLE " + driver.Catalog.Reference(column.Table) + " DROP COLUMN " + driver.Dialect.Quote(column.Column) + ";", null, token).ConfigureAwait(false);
-                    await driver.NonQueryAsync("DELETE FROM " + driver.Catalog.Reference("schema_migrations") + " WHERE version = 10;", null, token).ConfigureAwait(false);
+                    await driver.NonQueryAsync("DELETE FROM " + driver.Catalog.Reference("schema_migrations") + " WHERE version >= 10;", null, token).ConfigureAwait(false);
                     Assert.Equal(9, await driver.ReadSchemaVersionAsync(token).ConfigureAwait(false), "fixture is at the pre-chat schema version before migration");
                     await driver.InitializeAsync(token).ConfigureAwait(false);
                     AgentProfile upgraded = (await database.AgentProfiles.ReadAsync(tenant.Id, profile.Id, token).ConfigureAwait(false))!;
@@ -123,7 +123,7 @@ namespace Test.Shared.Integration
                     Assert.True(String.IsNullOrEmpty(upgraded.ChatCredentialId) && String.IsNullOrEmpty(upgraded.ChatLinkId), "migration does not bind credentials or mint share links for existing profiles");
                     Assert.Equal("Preserved operator guidance.", upgraded.InstructionsAppend, "upgrade preserves operator instructions");
                     Assert.Equal(profile.Name, upgraded.Name, "upgrade preserves existing profile identity");
-                    Assert.Equal(10, await driver.ReadSchemaVersionAsync(token).ConfigureAwait(false), "migration is recorded durably");
+                    Assert.Equal(11, await driver.ReadSchemaVersionAsync(token).ConfigureAwait(false), "migration is recorded durably");
                 }
                 finally
                 {
@@ -159,8 +159,18 @@ namespace Test.Shared.Integration
                 AgentProfile original = (await rig.Context.Database.AgentProfiles.ReadAsync(rig.TenantId, published.Id, token).ConfigureAwait(false))!;
                 Assert.True(original.ChatEnabled && original.ChatLinkId == published.ChatLinkId, "the original published agent remains available after duplication");
                 JsonElement metadata = await JsonAsync(visitor, HttpMethod.Get, Chat(published), null, 200, token).ConfigureAwait(false);
-                Assert.True(metadata.EnumerateObject().All(property => new[] { "accessMode", "authenticationRequired", "displayName", "name" }.Contains(property.Name)) && metadata.TryGetProperty("name", out JsonElement _) && metadata.TryGetProperty("accessMode", out JsonElement _), "metadata exposes only safe presentation fields (nullable displayName may be omitted)");
+                Assert.True(metadata.EnumerateObject().All(property => new[] { "accessMode", "authenticationRequired", "displayName", "name", "title", "logoUrl", "pageTitle" }.Contains(property.Name)) && metadata.TryGetProperty("name", out JsonElement _) && metadata.TryGetProperty("accessMode", out JsonElement _), "metadata exposes only safe presentation fields (nullable displayName may be omitted)");
                 Assert.True(!metadata.GetProperty("authenticationRequired").GetBoolean(), "public page needs no Hugo login");
+                published = await HttpTestHelpers.SendAsync<AgentProfile>(rig.Anderson, HttpMethod.Put, "/v1.0/api/agent-profiles/" + published.Id, new { chatTitle = "Visitor heading", chatLogoUrl = "/brand/logo.svg", chatPageTitle = "Visitor browser title" }, 200, token).ConfigureAwait(false);
+                metadata = await JsonAsync(visitor, HttpMethod.Get, Chat(published), null, 200, token).ConfigureAwait(false);
+                Assert.Equal("Visitor heading", metadata.GetProperty("title").GetString(), "configured heading persists and is safely exposed");
+                Assert.Equal("/brand/logo.svg", metadata.GetProperty("logoUrl").GetString(), "configured logo persists");
+                Assert.Equal("Visitor browser title", metadata.GetProperty("pageTitle").GetString(), "configured browser title persists");
+                foreach (string unsafeLogo in new[] { "javascript:alert(1)", "//foreign.invalid/logo", "/\\foreign.invalid/logo", "data:image/svg+xml,unsafe" })
+                    Assert.Equal(400, (await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Put, "/v1.0/api/agent-profiles/" + published.Id, new { chatLogoUrl = unsafeLogo }, token).ConfigureAwait(false)).StatusCode, "unsafe logo schemes and network paths are rejected");
+                published = await HttpTestHelpers.SendAsync<AgentProfile>(rig.Anderson, HttpMethod.Put, "/v1.0/api/agent-profiles/" + published.Id, new { chatTitle = "", chatLogoUrl = "", chatPageTitle = "" }, 200, token).ConfigureAwait(false);
+                metadata = await JsonAsync(visitor, HttpMethod.Get, Chat(published), null, 200, token).ConfigureAwait(false);
+                Assert.Equal(published.DisplayName ?? published.Name, metadata.GetProperty("title").GetString(), "empty settings restore default heading");
             }
         }
 
@@ -237,11 +247,34 @@ namespace Test.Shared.Integration
                 Session(visitor, sessionToken);
                 JsonElement response = await JsonAsync(visitor, HttpMethod.Post, Chat(profile) + "/conversations/" + id + "/messages", new { message = "Read the bound resource." }, 200, token).ConfigureAwait(false);
                 Assert.True(response.GetProperty("text").GetString()!.Contains("requested read completed", StringComparison.Ordinal), "public execution reaches the normal internal runtime");
+                string messageId = response.GetProperty("messageId").GetString()!;
+                string feedbackPath = Chat(profile) + "/conversations/" + id + "/messages/" + messageId + "/feedback";
+                JsonElement feedback = await JsonAsync(visitor, HttpMethod.Post, feedbackPath, new { rating = "Positive", comment = "Useful answer" }, 200, token).ConfigureAwait(false);
+                Assert.Equal("Positive", feedback.GetProperty("rating").GetString(), "thumbs up is saved");
+                await JsonAsync(visitor, HttpMethod.Post, feedbackPath, new { rating = "Negative", comment = "Please explain more" }, 200, token).ConfigureAwait(false);
+                ConversationMessage savedFeedback = (await rig.Context.Database.Messages.ReadAsync(rig.TenantId, messageId, token).ConfigureAwait(false))!;
+                Assert.True(savedFeedback.FeedbackRating == "Negative" && savedFeedback.FeedbackComment == "Please explain more" && savedFeedback.FeedbackUpdatedUtc.HasValue, "feedback updates are persisted as structured columns");
+                await JsonAsync(visitor, HttpMethod.Post, feedbackPath, new { comment = "Comment without rating" }, 200, token).ConfigureAwait(false);
+                Assert.Equal(400, (await HttpTestHelpers.SendAsync(visitor, HttpMethod.Post, feedbackPath, new { rating = "Invalid", comment = "" }, token).ConfigureAwait(false)).StatusCode, "unknown rating is rejected");
+                Assert.Equal(400, (await HttpTestHelpers.SendAsync(visitor, HttpMethod.Post, feedbackPath, new { comment = new string('x', 4001) }, token).ConfigureAwait(false)).StatusCode, "oversized comment is rejected");
+                using (HttpClient stranger = Anonymous(rig))
+                {
+                    (string otherId, string otherCapability) = await SessionAsync(stranger, profile, token).ConfigureAwait(false);
+                    Session(stranger, otherCapability);
+                    Assert.Equal(404, (await HttpTestHelpers.SendAsync(stranger, HttpMethod.Post, feedbackPath, new { rating = "Negative" }, token).ConfigureAwait(false)).StatusCode, "another visitor cannot rate or inspect this conversation");
+                    Assert.Equal(404, (await HttpTestHelpers.SendAsync(stranger, HttpMethod.Post, Chat(profile) + "/conversations/" + otherId + "/messages/" + messageId + "/feedback", new { rating = "Negative" }, token).ConfigureAwait(false)).StatusCode, "a foreign message cannot be attached to the caller's conversation");
+                }
                 JsonElement history = await JsonAsync(visitor, HttpMethod.Get, Chat(profile) + "/conversations/" + id + "/messages", null, 200, token).ConfigureAwait(false);
                 Assert.True(history.GetProperty("messages").EnumerateArray().All(message => new[] { "user", "assistant" }.Contains(message.GetProperty("role").GetString())), "visitor history contains only user and assistant messages");
+                JsonElement rated = history.GetProperty("messages").EnumerateArray().Single(message => message.GetProperty("id").GetString() == messageId);
+                Assert.Equal("Comment without rating", rated.GetProperty("feedback").GetProperty("comment").GetString(), "visitor feedback survives history reload");
+                Hugo.Core.Enumeration.EnumerationResult<ConversationMessage> review = await HttpTestHelpers.SendAsync<Hugo.Core.Enumeration.EnumerationResult<ConversationMessage>>(rig.Anderson, HttpMethod.Get, "/v1.0/api/conversations/" + id + "/messages", null, 200, token).ConfigureAwait(false);
+                Assert.Equal("Comment without rating", review.Objects.Single(message => message.Id == messageId).FeedbackComment, "authorized operators can review feedback through paginated message API");
+                string userMessageId = history.GetProperty("messages").EnumerateArray().First(message => message.GetProperty("role").GetString() == "user").GetProperty("id").GetString()!;
+                Assert.Equal(404, (await HttpTestHelpers.SendAsync(visitor, HttpMethod.Post, Chat(profile) + "/conversations/" + id + "/messages/" + userMessageId + "/feedback", new { rating = "Positive" }, token).ConfigureAwait(false)).StatusCode, "feedback only accepts visible assistant responses");
                 Assert.True(!history.GetRawText().Contains("<tool_output", StringComparison.Ordinal) && !history.GetRawText().Contains("visitor-read-marker", StringComparison.Ordinal), "tool traces and raw outputs are not exposed to visitors");
                 foreach (JsonElement message in history.GetProperty("messages").EnumerateArray())
-                    Assert.True(message.EnumerateObject().All(property => new[] { "role", "content", "createdUtc", "inputTokens", "outputTokens" }.Contains(property.Name)), "history does not expose model prompts, tool arguments, credential identifiers, or internal message metadata");
+                    Assert.True(message.EnumerateObject().All(property => new[] { "id", "feedback", "role", "content", "createdUtc", "inputTokens", "outputTokens" }.Contains(property.Name)), "history does not expose model prompts, tool arguments, credential identifiers, or internal message metadata");
                 await rig.Context.Get<Hugo.Server.Services.ToolInvocationRecorder>().FlushAsync(token).ConfigureAwait(false);
                 Hugo.Core.Enumeration.EnumerationResult<ToolInvocation> invocations = await rig.Context.Database.ToolInvocations.EnumerateAsync(rig.TenantId, new Hugo.Core.Enumeration.EnumerationQuery(), null, token).ConfigureAwait(false);
                 List<ConversationMessage> internalMessages = await rig.Context.Database.Messages.ListAsync(rig.TenantId, id, false, token).ConfigureAwait(false);

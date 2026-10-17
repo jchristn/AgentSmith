@@ -117,6 +117,10 @@ namespace Hugo.Core.Database.Ado
             v10.BuildVersion10();
             migrations.Add(new SchemaMigration(10, "Standalone profile chat links and visitor capability revocation", v10._Statements, v10._Columns));
 
+            SchemaBuilder v11 = new SchemaBuilder(catalog, dialect);
+            v11.BuildVersion11();
+            migrations.Add(new SchemaMigration(11, "Standalone chat branding and message feedback", v11._Statements, v11._Columns));
+
             return migrations;
         }
 
@@ -904,6 +908,16 @@ namespace Hugo.Core.Database.Ado
         private void BuildVersion8()
         {
             _Columns.Add(new SchemaColumnAddition("agent_profiles", "instruction_detail", "VARCHAR(16)"));
+        }
+
+        private void BuildVersion11()
+        {
+            _Columns.Add(new SchemaColumnAddition("agent_profiles", "chat_title", "VARCHAR(120)"));
+            _Columns.Add(new SchemaColumnAddition("agent_profiles", "chat_logo_url", "VARCHAR(2048)"));
+            _Columns.Add(new SchemaColumnAddition("agent_profiles", "chat_page_title", "VARCHAR(200)"));
+            _Columns.Add(new SchemaColumnAddition("messages", "feedback_rating", "VARCHAR(16)"));
+            _Columns.Add(new SchemaColumnAddition("messages", "feedback_comment", _Dialect.TypeText));
+            _Columns.Add(new SchemaColumnAddition("messages", "feedback_updated_utc", _Dialect.TypeTimestamp));
         }
 
         private void BuildVersion10()

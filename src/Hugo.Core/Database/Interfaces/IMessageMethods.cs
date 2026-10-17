@@ -13,6 +13,16 @@ namespace Hugo.Core.Database.Interfaces
     /// </summary>
     public interface IMessageMethods
     {
+        /// <summary>Update an assistant message's visitor feedback in a tenant and conversation.</summary>
+        /// <param name="tenantId">Tenant.</param>
+        /// <param name="conversationId">Conversation.</param>
+        /// <param name="id">Assistant message.</param>
+        /// <param name="rating">Positive, Negative, or null.</param>
+        /// <param name="comment">Optional comment.</param>
+        /// <param name="token">Cancellation.</param>
+        /// <returns>Whether a matching assistant message was updated.</returns>
+        Task<bool> UpdateFeedbackAsync(string tenantId, string conversationId, string id, string? rating, string? comment, CancellationToken token = default);
+
         /// <summary>
         /// Append messages in order, assigning sequence numbers after the conversation's last message, and update the
         /// conversation's message count and last message time, in one transaction.

@@ -5,6 +5,9 @@ namespace Hugo.Core.Responses
     /// <summary>Standalone chat StandaloneChatTurn contract. Contains no credential or tool details.</summary>
     public class StandaloneChatTurn
     {
+        /// <summary>Stable final assistant message identifier, null when no visible message was persisted.</summary>
+        public string? MessageId { get; set; } = null;
+
         /// <summary>Conversation identifier.</summary>
         public string ConversationId { get; set; } = String.Empty;
 

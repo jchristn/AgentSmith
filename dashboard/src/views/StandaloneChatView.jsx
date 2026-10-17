@@ -9,7 +9,7 @@ import { safeChatMessages, standaloneChatReducer } from '../utils/standaloneChat
 import { errorMessage } from '../utils/errors';
 import ChatPanel from '../components/ChatPanel';
 import LanguageSelector from '../components/LanguageSelector';
-import { SunIcon, MoonIcon } from '../components/Icons';
+import { SunIcon, MoonIcon, ChatIcon } from '../components/Icons';
 import { tip } from '../components/Tooltip';
 import './StandaloneChatView.css';
 
@@ -20,6 +20,7 @@ export default function StandaloneChatView() {
   const { isAuthenticated, isLoading, token, principal, theme, toggleTheme } = useAuth();
   // The link belongs to this deployment, independently of a previously saved dashboard server URL.
   const client = useMemo(() => new ApiClient(defaultServerUrl(), isAuthenticated ? token : null), [isAuthenticated, token]);
+  const [logoFailed, setLogoFailed] = useState(false);
   const [metadata, setMetadata] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -73,6 +74,23 @@ export default function StandaloneChatView() {
     };
   }, [client, linkId, storageKey, isAuthenticated, isLoading]);
 
+  useEffect(() => {
+    const original = document.title;
+    document.title = metadata?.pageTitle || metadata?.title || metadata?.displayName || metadata?.name || t('standaloneChat.title');
+    return () => {
+      document.title = original;
+    };
+  }, [metadata, t]);
+
+  useEffect(() => {
+    setLogoFailed(false);
+  }, [metadata?.logoUrl]);
+
+  const submitFeedback = async (messageId, body) => {
+    if (!session) return;
+    return client.saveChatFeedback(linkId, session.id, session.sessionToken, messageId, body);
+  };
+
   const stop = () => {
     controller.current?.abort();
     controller.current = null;
@@ -118,7 +136,10 @@ export default function StandaloneChatView() {
         const result = await client.sendChatMessage(linkId, active.id, active.sessionToken, { message: text }, abort.signal);
         if (current !== generation.current) return;
         dispatch({ type: 'event', evt: { event: 'assistant.delta', data: { text: result.text || '' } } });
-        dispatch({ type: 'event', evt: { event: 'turn.completed', data: { tokensIn: result.tokensIn, tokensOut: result.tokensOut } } });
+        dispatch({
+          type: 'event',
+          evt: { event: 'turn.completed', data: { messageId: result.messageId, tokensIn: result.tokensIn, tokensOut: result.tokensOut } }
+        });
         dispatch({ type: 'end' });
       } catch (e) {
         if (current === generation.current)
@@ -137,9 +158,15 @@ export default function StandaloneChatView() {
   return (
     <main className="standalone-chat" data-testid="standalone-chat">
       <header className="standalone-chat-header">
-        <div>
-          <span className="standalone-chat-brand">{t('common.appName')}</span>
-          <h1>{metadata?.displayName || metadata?.name || t('standaloneChat.title')}</h1>
+        <div className="standalone-chat-identity">
+          {metadata?.logoUrl && !logoFailed ? (
+            <img className="standalone-chat-logo" src={metadata.logoUrl} alt="" referrerPolicy="no-referrer" onError={() => setLogoFailed(true)} />
+          ) : (
+            <span className="standalone-chat-logo standalone-chat-logo-fallback" aria-hidden="true">
+              <ChatIcon size={28} />
+            </span>
+          )}
+          <h1>{metadata?.title || metadata?.displayName || metadata?.name || t('standaloneChat.title')}</h1>
         </div>
         <div className="standalone-chat-actions">
           <LanguageSelector />
@@ -197,7 +224,10 @@ export default function StandaloneChatView() {
             onStop={stop}
             disabled={starting}
             emptyHint={t('standaloneChat.empty')}
+            compactComposer
+            onFeedback={session ? submitFeedback : undefined}
           />
+          <p className="standalone-chat-disclaimer">{t('standaloneChat.disclaimer')}</p>
         </>
       )}
     </main>

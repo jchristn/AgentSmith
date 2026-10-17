@@ -121,6 +121,15 @@ namespace Hugo.Core.Requests
         /// </summary>
         public bool? Active { get; set; } = null;
 
+        /// <summary>Standalone heading, or null to use display name. Maximum 120 characters.</summary>
+        public string? ChatTitle { get; set; } = null;
+
+        /// <summary>Standalone logo HTTP(S) URL or absolute local path. Null uses the Hugo logo.</summary>
+        public string? ChatLogoUrl { get; set; } = null;
+
+        /// <summary>Browser page title, or null to use the standalone heading. Maximum 200 characters.</summary>
+        public string? ChatPageTitle { get; set; } = null;
+
         /// <summary>Enable or disable the standalone chat link.</summary>
         public bool? ChatEnabled { get; set; } = null;
 

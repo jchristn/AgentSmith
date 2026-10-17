@@ -14,6 +14,17 @@ namespace Hugo.Core.Models
     {
         #region Public-Members
 
+        /// <summary>Visitor rating: Positive, Negative, or null. Updated only through the scoped feedback API.</summary>
+        public string? FeedbackRating { get; set; } = null;
+
+        /// <summary>Visitor comment, at most 4000 characters, or null.</summary>
+        public string? FeedbackComment { get; set; } = null;
+
+        /// <summary>Most recent feedback timestamp UTC, or null when never submitted.</summary>
+        public DateTime? FeedbackUpdatedUtc { get; set; } = null;
+
+
+
         /// <summary>
         /// Identifier (prefix msg_).
         /// </summary>

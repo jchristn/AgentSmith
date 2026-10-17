@@ -645,7 +645,22 @@
       "message": "Messaggio",
       "placeholder": "Chiedi ad Agent Smith. Invio invia, Maiusc+Invio aggiunge una riga.",
       "send": "Invia",
-      "stop": "Interrompi"
+      "stop": "Interrompi",
+      "feedback": {
+        "title": "Feedback sulla risposta",
+        "helpful": "Risposta utile",
+        "unhelpful": "Risposta non utile",
+        "comment": "Aggiungi un commento",
+        "commentLabel": "Il tuo feedback",
+        "commentPlaceholder": "Descrivi cosa ha funzionato, cosa era sbagliato o cosa dovrebbe migliorare.",
+        "save": "Salva feedback",
+        "saved": "Feedback salvato",
+        "failed": "Impossibile salvare il feedback. Riprova.",
+        "rating": "Valutazione (facoltativa)",
+        "positive": "Utile",
+        "negative": "Non utile",
+        "noRating": "Nessuna valutazione"
+      }
     },
     "passwordChange": {
       "title": "Scegli una nuova password",
@@ -4546,10 +4561,17 @@
       "openTip": "Apri la chat di questo profilo in una nuova scheda.",
       "rotate": "Rinnova link",
       "rotateTip": "Sostituisci questo indirizzo e revoca il link precedente.",
-      "rotateNotice": "Salvare l’accesso o rinnovare il link invalida le sessioni esistenti. Il rinnovo cambia anche l’indirizzo."
+      "rotateNotice": "Salvare l’accesso o rinnovare il link invalida le sessioni esistenti. Il rinnovo cambia anche l’indirizzo.",
+      "chatTitle": "Titolo della chat",
+      "chatTitleTip": "Il titolo mostrato in alto a sinistra. Lascia vuoto per usare il nome dell’agente.",
+      "logoUrl": "URL del logo",
+      "logoUrlTip": "Un URL HTTP(S) di immagine o un percorso locale che inizia con /. Lascia vuoto per usare l’icona predefinita della chat.",
+      "pageTitle": "Titolo della pagina",
+      "pageTitleTip": "Il titolo della scheda del browser. Lascia vuoto per usare il titolo della chat."
     },
     "accessDenied": "Questo link di chat è abilitato, ma le autorizzazioni configurate non consentono di chattare. Contatta chi ha pubblicato il link.",
     "connectionFailed": "Impossibile connettersi a questa chat. Riprova.",
-    "failed": "Impossibile caricare questa chat. Riprova o contatta chi ha pubblicato il link."
+    "failed": "Impossibile caricare questa chat. Riprova o contatta chi ha pubblicato il link.",
+    "disclaimer": "L’IA può commettere errori. Verifica le informazioni importanti."
   }
 }

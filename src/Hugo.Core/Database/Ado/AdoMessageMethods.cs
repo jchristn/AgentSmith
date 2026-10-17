@@ -48,6 +48,22 @@ namespace Hugo.Core.Database.Ado
         #region Public-Methods
 
         /// <inheritdoc />
+        public async Task<bool> UpdateFeedbackAsync(string tenantId, string conversationId, string id, string? rating, string? comment, CancellationToken token = default)
+        {
+            int changed = await _Driver.NonQueryAsync("UPDATE " + _Table + " SET feedback_rating = @rating, feedback_comment = @comment, feedback_updated_utc = @updated WHERE tenant_id = @tenant AND conversation_id = @conversation AND id = @id AND role = 'Assistant';", command =>
+            {
+                AdoDatabaseDriver.Add(command, "tenant", tenantId);
+                AdoDatabaseDriver.Add(command, "conversation", conversationId);
+                AdoDatabaseDriver.Add(command, "id", id);
+                AdoDatabaseDriver.Add(command, "rating", rating);
+                AdoDatabaseDriver.Add(command, "comment", comment);
+                AdoDatabaseDriver.Add(command, "updated", DateTime.UtcNow);
+            }, token).ConfigureAwait(false);
+            return changed == 1;
+        }
+
+
+        /// <inheritdoc />
         public async Task AppendAsync(string tenantId, string conversationId, List<ConversationMessage> messages, CancellationToken token = default)
         {
             if (String.IsNullOrEmpty(tenantId)) throw new ArgumentNullException(nameof(tenantId));
@@ -198,6 +214,9 @@ namespace Hugo.Core.Database.Ado
         {
             ConversationMessage obj = new ConversationMessage();
             obj.Id = AdoConverters.Str(reader, "id");
+            obj.FeedbackRating = AdoConverters.NullableStr(reader, "feedback_rating");
+            obj.FeedbackComment = AdoConverters.NullableStr(reader, "feedback_comment");
+            obj.FeedbackUpdatedUtc = AdoConverters.NullableDate(reader, "feedback_updated_utc");
             obj.TenantId = AdoConverters.Str(reader, "tenant_id");
             obj.ConversationId = AdoConverters.Str(reader, "conversation_id");
             obj.TurnId = AdoConverters.NullableStr(reader, "turn_id");

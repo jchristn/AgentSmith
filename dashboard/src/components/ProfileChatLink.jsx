@@ -16,6 +16,9 @@ export default function ProfileChatLink({ profile, onSaved }) {
   const { addToast } = useToast();
   const [enabled, setEnabled] = useState(!!profile.chatEnabled);
   const [mode, setMode] = useState(profile.chatAccessMode || 'Authenticated');
+  const [chatTitle, setChatTitle] = useState(profile.chatTitle || '');
+  const [logoUrl, setLogoUrl] = useState(profile.chatLogoUrl || '');
+  const [pageTitle, setPageTitle] = useState(profile.chatPageTitle || '');
   const [credential, setCredential] = useState(profile.chatCredentialId || '');
   const [credentials, setCredentials] = useState([]);
   const [busy, setBusy] = useState(false);
@@ -49,12 +52,23 @@ export default function ProfileChatLink({ profile, onSaved }) {
     setEnabled(!!profile.chatEnabled);
     setMode(profile.chatAccessMode || 'Authenticated');
     setCredential(profile.chatCredentialId || '');
+    setChatTitle(profile.chatTitle || '');
+    setLogoUrl(profile.chatLogoUrl || '');
+    setPageTitle(profile.chatPageTitle || '');
   }, [profile]);
   const url = profile.chatLinkId ? `${window.location.origin}/chat/${encodeURIComponent(profile.chatLinkId)}` : '';
   const save = async (rotate = false) => {
     setBusy(true);
     try {
-      await apiClient.updateProfile(profile.id, { chatEnabled: enabled, chatAccessMode: mode, chatCredentialId: credential || '', rotateChatLink: rotate });
+      await apiClient.updateProfile(profile.id, {
+        chatEnabled: enabled,
+        chatAccessMode: mode,
+        chatCredentialId: credential || '',
+        rotateChatLink: rotate,
+        chatTitle,
+        chatLogoUrl: logoUrl,
+        chatPageTitle: pageTitle
+      });
       addToast({ type: 'success', message: t('common.toasts.saved') });
       onSaved();
     } catch (e) {
@@ -117,6 +131,39 @@ export default function ProfileChatLink({ profile, onSaved }) {
           )}
         </>
       )}
+      <label>
+        {t('standaloneChat.manage.chatTitle')}
+        <input
+          type="text"
+          value={chatTitle}
+          maxLength={120}
+          onChange={(e) => setChatTitle(e.target.value)}
+          disabled={busy}
+          {...tip(t('standaloneChat.manage.chatTitleTip'))}
+        />
+      </label>
+      <label>
+        {t('standaloneChat.manage.logoUrl')}
+        <input
+          type="text"
+          value={logoUrl}
+          maxLength={2048}
+          onChange={(e) => setLogoUrl(e.target.value)}
+          disabled={busy}
+          {...tip(t('standaloneChat.manage.logoUrlTip'))}
+        />
+      </label>
+      <label>
+        {t('standaloneChat.manage.pageTitle')}
+        <input
+          type="text"
+          value={pageTitle}
+          maxLength={200}
+          onChange={(e) => setPageTitle(e.target.value)}
+          disabled={busy}
+          {...tip(t('standaloneChat.manage.pageTitleTip'))}
+        />
+      </label>
       <div className="form-actions">
         <button
           type="button"

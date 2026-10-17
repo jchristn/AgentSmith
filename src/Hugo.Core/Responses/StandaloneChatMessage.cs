@@ -5,6 +5,12 @@ namespace Hugo.Core.Responses
     /// <summary>Standalone chat StandaloneChatMessage contract. Contains no credential or tool details.</summary>
     public class StandaloneChatMessage
     {
+        /// <summary>Stable message identifier.</summary>
+        public string Id { get; set; } = String.Empty;
+
+        /// <summary>This visitor's feedback on assistant messages, otherwise null.</summary>
+        public StandaloneChatFeedback? Feedback { get; set; } = null;
+
         /// <summary>user or assistant only.</summary>
         public string Role { get; set; } = String.Empty;
 

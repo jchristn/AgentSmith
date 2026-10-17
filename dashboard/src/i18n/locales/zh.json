@@ -641,7 +641,22 @@
       "message": "消息",
       "placeholder": "向 Agent Smith 提问。按 Enter 发送，Shift+Enter 换行。",
       "send": "发送",
-      "stop": "停止"
+      "stop": "停止",
+      "feedback": {
+        "title": "回答反馈",
+        "helpful": "有帮助的回答",
+        "unhelpful": "没有帮助的回答",
+        "comment": "添加评论",
+        "commentLabel": "你的反馈",
+        "commentPlaceholder": "请告诉我们哪些内容有用、哪里有误或需要改进。",
+        "save": "保存反馈",
+        "saved": "反馈已保存",
+        "failed": "无法保存反馈。请重试。",
+        "rating": "评分（可选）",
+        "positive": "有帮助",
+        "negative": "没有帮助",
+        "noRating": "未评分"
+      }
     },
     "passwordChange": {
       "title": "设置新密码",
@@ -4524,10 +4539,17 @@
       "openTip": "在新标签页中打开此配置的独立聊天。",
       "rotate": "更换链接",
       "rotateTip": "更换此地址并撤销原聊天链接。",
-      "rotateNotice": "保存访问设置或更换链接会使现有聊天会话失效。更换链接还会替换地址。"
+      "rotateNotice": "保存访问设置或更换链接会使现有聊天会话失效。更换链接还会替换地址。",
+      "chatTitle": "聊天标题",
+      "chatTitleTip": "显示在左上角的标题。留空则使用智能体名称。",
+      "logoUrl": "标志URL",
+      "logoUrlTip": "图片的HTTP(S)地址，或以 / 开头的本地路径。留空则使用默认聊天图标。",
+      "pageTitle": "页面标题",
+      "pageTitleTip": "浏览器标签页的标题。留空则使用聊天标题。"
     },
     "accessDenied": "此聊天链接已启用，但其配置的权限不允许聊天。请联系链接发布者。",
     "connectionFailed": "无法连接到此聊天。请重试。",
-    "failed": "无法加载此聊天。请重试或联系链接发布者。"
+    "failed": "无法加载此聊天。请重试或联系链接发布者。",
+    "disclaimer": "AI可能会出错。请核实重要信息。"
   }
 }

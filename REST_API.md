@@ -11020,3 +11020,5 @@ The OpenAPI document is generated from route metadata and is right about paths, 
 ## Standalone chat publications
 
 Profiles can publish opt-in standalone chat links with Public or Authenticated access. These endpoints use isolated visitor tokens rather than exposing dashboard management access. See [Standalone agent chat](docs/STANDALONE_CHAT.md) for the route table, profile settings, access rules, revocation, and response behavior.
+
+Standalone profile branding accepts `chatTitle`, `chatLogoUrl`, and `chatPageTitle`. Visitor feedback uses `POST /v1.0/chat/{linkId}/conversations/{id}/messages/{messageId}/feedback` with the same bearer and session capability requirements as the transcript. Management message enumeration returns structured feedback fields to authorized operators. See [Standalone agent chat](docs/STANDALONE_CHAT.md).

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import MarkdownView from './MarkdownView';
+import ChatMessageFeedback from './ChatMessageFeedback';
 import ToolActivityRow from './ToolActivityRow';
 import ApprovalCard from './ApprovalCard';
 import { tip } from './Tooltip';
@@ -8,7 +9,7 @@ import { SendIcon, StopIcon, ChatIcon } from './Icons';
 import { formatDuration, formatNumber } from '../i18n/formatters';
 
 /** One transcript message: thinking (collapsed), then text, tool rows, and approval cards in stream order. */
-function ChatMessage({ message, onApprove, onReject, approvalBusy }) {
+function ChatMessage({ message, onApprove, onReject, approvalBusy, onFeedback }) {
   const { t, i18n } = useTranslation();
   const isUser = message.role === 'user';
   const usage = message.usage || {};
@@ -23,14 +24,7 @@ function ChatMessage({ message, onApprove, onReject, approvalBusy }) {
       )}
       <div className="chat-message-body">
         {message.parts.map((part, i) => {
-          if (part.kind === 'text')
-            return isUser ? (
-              <p key={i} className="chat-user-text">
-                {part.text}
-              </p>
-            ) : (
-              <MarkdownView key={i} text={part.text} />
-            );
+          if (part.kind === 'text') return <MarkdownView key={i} text={part.text} className={isUser ? 'chat-user-markdown' : ''} />;
           if (part.kind === 'tool') return <ToolActivityRow key={part.tool.id || i} tool={part.tool} />;
           if (part.kind === 'approval')
             return (
@@ -71,6 +65,7 @@ function ChatMessage({ message, onApprove, onReject, approvalBusy }) {
           )}
         </div>
       )}
+      {!isUser && message.status === 'done' && <ChatMessageFeedback messageId={message.id} feedback={message.feedback} onFeedback={onFeedback} />}
     </article>
   );
 }
@@ -80,7 +75,8 @@ function ChatMessage({ message, onApprove, onReject, approvalBusy }) {
  * it streams. The draft is owned by the parent so it can be remembered per conversation.
  *
  * Props: messages (from utils/chatStream), streaming, draft, onDraftChange, onSend(text), onStop(), onApprove(id,
- * note), onReject(id, note), approvalBusy (approval id being decided), disabled, disabledReason, emptyHint.
+ * note), onReject(id, note), approvalBusy (approval id being decided), disabled, disabledReason, emptyHint, onFeedback(messageId, value),
+ * compactComposer (single-line auto-growing input).
  */
 export default function ChatPanel({
   messages = [],
@@ -94,10 +90,23 @@ export default function ChatPanel({
   approvalBusy = null,
   disabled = false,
   disabledReason,
-  emptyHint
+  emptyHint,
+  onFeedback,
+  compactComposer = false
 }) {
   const { t } = useTranslation();
   const endRef = useRef(null);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (!compactComposer || !inputRef.current) return;
+    const input = inputRef.current;
+    input.style.height = 'auto';
+    const placeholder = input.placeholder;
+    input.placeholder = '';
+    input.style.height = `${Math.min(160, Math.max(44, input.scrollHeight))}px`;
+    input.placeholder = placeholder;
+  }, [draft, compactComposer]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView?.({ block: 'end' });
@@ -118,7 +127,9 @@ export default function ChatPanel({
             <p>{emptyHint || t('components.chat.empty')}</p>
           </div>
         ) : (
-          messages.map((m) => <ChatMessage key={m.id} message={m} onApprove={onApprove} onReject={onReject} approvalBusy={approvalBusy} />)
+          messages.map((m) => (
+            <ChatMessage key={m.id} message={m} onApprove={onApprove} onReject={onReject} approvalBusy={approvalBusy} onFeedback={onFeedback} />
+          ))
         )}
         <div ref={endRef} />
       </div>
@@ -135,10 +146,11 @@ export default function ChatPanel({
         </label>
         <textarea
           id="chat-input"
-          rows={3}
+          ref={inputRef}
+          rows={compactComposer ? 1 : 3}
           value={draft}
           disabled={disabled}
-          placeholder={t('components.chat.placeholder')}
+          placeholder={t(compactComposer ? 'components.chat.message' : 'components.chat.placeholder')}
           onChange={(e) => onDraftChange?.(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {

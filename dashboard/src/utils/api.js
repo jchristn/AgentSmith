@@ -1012,6 +1012,14 @@ class ApiClient {
     });
   }
 
+  saveChatFeedback(linkId, id, sessionToken, messageId, body) {
+    return this._request('POST', `/v1.0/chat/${enc(linkId)}/conversations/${enc(id)}/messages/${enc(messageId)}/feedback`, {
+      body,
+      headers: { 'x-hugo-chat-session': sessionToken },
+      keepSessionOn401: true
+    });
+  }
+
   cancelChatMessage(linkId, id, sessionToken) {
     return this._request('POST', `/v1.0/chat/${enc(linkId)}/conversations/${enc(id)}/cancel`, {
       headers: sessionToken ? { 'x-hugo-chat-session': sessionToken } : {},

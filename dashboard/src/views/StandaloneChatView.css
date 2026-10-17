@@ -2,7 +2,9 @@
   max-width: 960px;
   margin: 0 auto;
   padding: 24px;
-  min-height: 100dvh;
+  height: 100dvh;
+  min-height: 360px;
+  gap: 16px;
   display: flex;
   flex-direction: column;
 }
@@ -11,18 +13,29 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--color-border);
+  flex: none;
 }
 .standalone-chat-header h1 {
-  margin: 4px 0 0;
+  margin: 0;
   font-size: 1.5rem;
   overflow-wrap: anywhere;
 }
-.standalone-chat-brand {
-  color: var(--color-text-secondary);
-  font-size: 0.8rem;
-  font-weight: 600;
+.standalone-chat-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.standalone-chat-logo {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  flex: none;
+}
+.standalone-chat-logo-fallback {
+  display: grid;
+  place-items: center;
+  color: var(--color-primary);
 }
 .standalone-chat-actions {
   display: flex;
@@ -36,11 +49,12 @@
 }
 .standalone-chat-description {
   color: var(--color-text-secondary);
-  margin: 16px 0 0;
+  margin: 0;
 }
 .standalone-chat > .chat-panel {
   flex: 1;
   min-height: 0;
+  overflow: hidden;
 }
 .chat-link-controls {
   display: grid;
@@ -67,8 +81,8 @@
   .standalone-chat-actions {
     width: 100%;
   }
-  .standalone-chat-actions button {
-    flex: 1;
+  .standalone-chat-actions {
+    justify-content: space-between;
   }
 }
 
@@ -84,5 +98,52 @@
 }
 .chat-link-controls select {
   min-width: 0;
+  max-width: 100%;
+}
+
+.standalone-chat .chat-transcript {
+  min-height: 0;
+  max-height: none;
+  overscroll-behavior: contain;
+}
+.standalone-chat .chat-composer {
+  flex: none;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  border-top: 0;
+  margin: 0;
+  padding: 12px;
+}
+.standalone-chat .chat-composer textarea {
+  min-height: 44px;
+  max-height: 160px;
+  margin: 0;
+  resize: none;
+  line-height: 22px;
+  padding: 10px 12px;
+}
+.standalone-chat .chat-composer > button {
+  height: 44px;
+  min-width: 44px;
+}
+.standalone-chat-disclaimer {
+  flex: none;
+  margin: -6px 0 0;
+  text-align: center;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+.standalone-chat .chat-message {
+  min-width: 0;
+  max-width: 100%;
+}
+.standalone-chat .chat-message-body {
+  overflow-wrap: anywhere;
+}
+.standalone-chat .markdown-view {
+  min-width: 0;
+  max-width: 100%;
+}
+.standalone-chat .markdown-table {
   max-width: 100%;
 }

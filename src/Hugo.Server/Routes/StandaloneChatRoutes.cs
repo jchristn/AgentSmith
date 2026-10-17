@@ -37,6 +37,7 @@ namespace Hugo.Server.Routes
             routes.Anonymous(HttpMethod.POST, _Base + "/conversations", CreateAsync, "Start an isolated standalone chat conversation", "Standalone chat", response: typeof(StandaloneChatSession), statuses: new[] { 201 });
             routes.Anonymous(HttpMethod.GET, _Base + "/conversations/{id}/messages", MessagesAsync, "Read this visitor's safe chat messages", "Standalone chat", response: typeof(StandaloneChatMessages));
             routes.Anonymous(HttpMethod.POST, _Base + "/conversations/{id}/messages", SendAsync, "Run a standalone chat turn and return safe final text", "Standalone chat", typeof(StandaloneChatMessageRequest), typeof(StandaloneChatTurn));
+            routes.Anonymous(HttpMethod.POST, _Base + "/conversations/{id}/messages/{messageId}/feedback", FeedbackAsync, "Update feedback on this visitor's assistant message", "Standalone chat", typeof(StandaloneChatFeedbackRequest), typeof(StandaloneChatFeedback));
             routes.Anonymous(HttpMethod.POST, _Base + "/conversations/{id}/cancel", CancelAsync, "Cancel this visitor's own running turn", "Standalone chat", response: typeof(StandaloneChatCancel));
         }
 
@@ -69,6 +70,17 @@ namespace Hugo.Server.Routes
                 await RateAsync(http).ConfigureAwait(false);
                 StandaloneChatMessageRequest request = RouteHelpers.RequiredBody<StandaloneChatMessageRequest>(http);
                 return await _Chat.SendAsync(access, Id(http), Capability(http), request.Message, http.Token).ConfigureAwait(false);
+            });
+        }
+
+        private Task FeedbackAsync(HttpContextBase http)
+        {
+            return RespondAsync(http, async () =>
+            {
+                StandaloneChatAccess access = await AccessAsync(http).ConfigureAwait(false);
+                await RateAsync(http).ConfigureAwait(false);
+                StandaloneChatFeedbackRequest request = RouteHelpers.RequiredBody<StandaloneChatFeedbackRequest>(http);
+                return await _Chat.FeedbackAsync(access, Id(http), Capability(http), RouteHelpers.Param(http, "messageId") ?? String.Empty, request, http.Token).ConfigureAwait(false);
             });
         }
 

@@ -179,7 +179,7 @@ namespace Hugo.Server.Services
             if (request.Active == false && profile.IsDefault) throw new ConflictException("DefaultProfile", "The tenant's default profile cannot be deactivated; make another profile the default first.");
             await ApplyAsync(profile, request, token).ConfigureAwait(false);
             await ApplyChatAsync(ctx, profile, request, token).ConfigureAwait(false);
-            await _Database.AgentProfiles.UpdateAsync(profile, request.InstructionsAppend != null, request.ChatEnabled.HasValue || request.ChatAccessMode.HasValue || request.ChatCredentialId != null || request.RotateChatLink, token).ConfigureAwait(false);
+            await _Database.AgentProfiles.UpdateAsync(profile, request.InstructionsAppend != null, request.ChatEnabled.HasValue || request.ChatAccessMode.HasValue || request.ChatCredentialId != null || request.ChatTitle != null || request.ChatLogoUrl != null || request.ChatPageTitle != null || request.RotateChatLink, token).ConfigureAwait(false);
             if (request.IsDefault == true && !profile.IsDefault) await _Database.AgentProfiles.SetDefaultAsync(tenantId, profile.Id, token).ConfigureAwait(false);
             await AfterChangeAsync(ctx, profile, "profile.updated", "Updated agent profile " + profile.Name + ".", token).ConfigureAwait(false);
             return await ReadAsync(ctx, tenantId, profile.Id, token).ConfigureAwait(false);
@@ -330,9 +330,26 @@ namespace Hugo.Server.Services
             return endpoint.Id;
         }
 
+        private static string? PresentationText(string value, int max, string field)
+        {
+            string text = value.Trim();
+            if (text.Length > max || text.Any(Char.IsControl)) throw Invalid(field, "The value is too long or contains control characters.");
+            return text.Length == 0 ? null : text;
+        }
+
         private async Task ApplyChatAsync(RequestContext ctx, AgentProfile profile, AgentProfileRequest request, CancellationToken token)
         {
-            if (!request.ChatEnabled.HasValue && !request.ChatAccessMode.HasValue && request.ChatCredentialId == null && !request.RotateChatLink) return;
+            if (!request.ChatEnabled.HasValue && !request.ChatAccessMode.HasValue && request.ChatCredentialId == null && request.ChatTitle == null && request.ChatLogoUrl == null && request.ChatPageTitle == null && !request.RotateChatLink) return;
+            if (request.ChatTitle != null) profile.ChatTitle = PresentationText(request.ChatTitle, 120, "chatTitle");
+            if (request.ChatPageTitle != null) profile.ChatPageTitle = PresentationText(request.ChatPageTitle, 200, "chatPageTitle");
+            if (request.ChatLogoUrl != null)
+            {
+                string? logo = PresentationText(request.ChatLogoUrl, 2048, "chatLogoUrl");
+                if (logo != null && !(logo.StartsWith("/", StringComparison.Ordinal) && !logo.StartsWith("//", StringComparison.Ordinal) && !logo.Contains('\\'))
+                    && !(Uri.TryCreate(logo, UriKind.Absolute, out Uri? uri) && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps) && String.IsNullOrEmpty(uri.UserInfo)))
+                    throw Invalid("chatLogoUrl", "Use an HTTP(S) URL or a local absolute path.");
+                profile.ChatLogoUrl = logo;
+            }
             bool wasPublic = profile.ChatEnabled && profile.ChatAccessMode == ChatAccessModeEnum.Public;
             string? previousCredential = profile.ChatCredentialId;
             if (request.ChatEnabled.HasValue) profile.ChatEnabled = request.ChatEnabled.Value;

@@ -19,6 +19,9 @@ The existing profile create/update API accepts these publication fields:
 | `chatEnabled` | Enable or disable publication; defaults to false |
 | `chatAccessMode` | `Authenticated` (default) or `Public` |
 | `chatCredentialId` | Owned public execution credential; an empty string clears the selection |
+| `chatTitle` | Heading in the upper left; empty restores the agent display name or name |
+| `chatLogoUrl` | HTTP(S) URL or local absolute path for the logo; empty restores the Hugo logo |
+| `chatPageTitle` | Browser tab title; empty uses the chat heading |
 | `rotateChatLink` | Request a new URL; update-only action, not stored as a profile setting |
 
 Profile responses include the opaque `chatLinkId` for constructing the standalone URL. Saving publication settings invalidates existing visitor sessions. Concurrent publication edits are rejected rather than silently restoring a disabled or rotated link. Unrelated profile saves preserve the current publication settings. Duplicating a profile does not copy its publication or visitor sessions.
@@ -29,7 +32,7 @@ Each new conversation receives a separate random session token. The browser keep
 
 Hugo persists only the token hash in the conversation's external key, bound to the link and publication revision. Every request checks the current publication. Public operations also recheck the active profile, selected credential, credential expiry, active owner, and active tenant before normal authorization. Disabling a link, rotating it, changing its mode or execution credential, or revoking its credential stops access to existing public sessions.
 
-The page provides a chat transcript, message composer, new-conversation action, and cancellation. Responses use safe JSON rather than forwarding the dashboard's internal tool and reasoning event stream. POST session creation and message requests are rate limited.
+The page provides a Markdown chat transcript, message composer, new-conversation action, cancellation, and per-answer feedback. The chat-link controls under Agents → profile → Connect also manage the heading, logo, and browser tab title. Responses use safe JSON rather than forwarding the dashboard's internal tool and reasoning event stream. POST session creation and message requests are rate limited.
 
 ## API
 
@@ -41,6 +44,15 @@ All paths start with `/v1.0/chat/{linkId}`. Requests use JSON. Conversation oper
 | POST | `/conversations` | Start an isolated conversation; returns its ID and visitor session token |
 | GET | `/conversations/{id}/messages` | Read that visitor's user/assistant transcript |
 | POST | `/conversations/{id}/messages` | Send `{ "message": "..." }` and return the final answer/status and usage |
+| POST | `/conversations/{id}/messages/{messageId}/feedback` | Save `{ "rating": "Positive", "comment": "Helpful explanation" }`; rating may be `Positive`, `Negative`, or null, comment may contain at most 4000 characters |
 | POST | `/conversations/{id}/cancel` | Cancel that conversation's active turn |
 
 Session-token headers and session-creation response bodies are redacted or suppressed in request history. No endpoint lists other visitors' conversations. Schema migration 10 adds the profile publication settings; it preserves existing profiles as unpublished.
+
+## Feedback
+
+Each persisted assistant answer has a stable `messageId` in the turn response and `id` in history. History includes that visitor's `feedback` object with `rating` and `comment`. Feedback can be changed, cleared, or submitted with only a free text comment. It is attached to the original message, so Hugo does not copy transcripts into feedback records. Secret scrubbing applies to comments before storage.
+
+Feedback requests require the conversation's session capability and the same fresh publication and identity checks as message submission. A visitor cannot rate another conversation's answer or a user/tool message. Disabling or rotating the link revokes feedback access too. Authorized operators can review `feedbackRating`, `feedbackComment`, and `feedbackUpdatedUtc` in the existing paginated management endpoint `GET /v1.0/api/conversations/{id}/messages`; normal tenant, visibility, and Conversation Read permissions still apply. There is no anonymous feedback enumeration API.
+
+Schema migration 11 adds nullable branding and feedback columns on SQLite and PostgreSQL. Existing chat links retain their presentation defaults and existing messages start without feedback.

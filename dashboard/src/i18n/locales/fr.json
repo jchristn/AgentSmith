@@ -645,7 +645,22 @@
       "message": "Message",
       "placeholder": "Interrogez Agent Smith. Entrée envoie, Maj+Entrée ajoute une ligne.",
       "send": "Envoyer",
-      "stop": "Arrêter"
+      "stop": "Arrêter",
+      "feedback": {
+        "title": "Avis sur la réponse",
+        "helpful": "Réponse utile",
+        "unhelpful": "Réponse peu utile",
+        "comment": "Ajouter un commentaire",
+        "commentLabel": "Votre avis",
+        "commentPlaceholder": "Indiquez ce qui a fonctionné, ce qui était incorrect ou ce qui devrait être amélioré.",
+        "save": "Enregistrer l’avis",
+        "saved": "Avis enregistré",
+        "failed": "Impossible d’enregistrer l’avis. Veuillez réessayer.",
+        "rating": "Évaluation (facultative)",
+        "positive": "Utile",
+        "negative": "Peu utile",
+        "noRating": "Aucune évaluation"
+      }
     },
     "passwordChange": {
       "title": "Choisissez un nouveau mot de passe",
@@ -4546,10 +4561,17 @@
       "openTip": "Ouvrir la discussion de ce profil dans un nouvel onglet.",
       "rotate": "Renouveler le lien",
       "rotateTip": "Remplacer cette adresse et révoquer l’ancien lien.",
-      "rotateNotice": "Enregistrer l’accès ou renouveler le lien invalide les sessions existantes. Le renouvellement remplace aussi l’adresse."
+      "rotateNotice": "Enregistrer l’accès ou renouveler le lien invalide les sessions existantes. Le renouvellement remplace aussi l’adresse.",
+      "chatTitle": "Titre du chat",
+      "chatTitleTip": "Le titre affiché en haut à gauche. Laissez ce champ vide pour utiliser le nom de l’agent.",
+      "logoUrl": "URL du logo",
+      "logoUrlTip": "Une URL d’image HTTP(S) ou un chemin local commençant par /. Laissez ce champ vide pour utiliser l’icône de chat par défaut.",
+      "pageTitle": "Titre de la page",
+      "pageTitleTip": "Le titre de l’onglet du navigateur. Laissez ce champ vide pour utiliser le titre du chat."
     },
     "accessDenied": "Ce lien de discussion est activé, mais ses autorisations ne permettent pas de discuter. Contactez la personne qui a publié le lien.",
     "connectionFailed": "Impossible de se connecter à cette discussion. Réessayez.",
-    "failed": "Impossible de charger cette discussion. Réessayez ou contactez la personne qui a publié le lien."
+    "failed": "Impossible de charger cette discussion. Réessayez ou contactez la personne qui a publié le lien.",
+    "disclaimer": "L’IA peut faire des erreurs. Vérifiez les informations importantes."
   }
 }

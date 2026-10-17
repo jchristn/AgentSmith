@@ -36,6 +36,7 @@ export function fromStoredMessages(items = []) {
         id: m.id || `${role}-${m.sequence ?? Math.random()}`,
         role,
         persisted: true,
+        feedback: m.feedback || (m.feedbackRating || m.feedbackComment ? { rating: m.feedbackRating || null, comment: m.feedbackComment || '' } : null),
         parts,
         thinking: m.thinkingContent || '',
         status: 'done',

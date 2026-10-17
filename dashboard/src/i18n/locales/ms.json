@@ -641,7 +641,22 @@
       "message": "Mesej",
       "placeholder": "Tanya Agent Smith. Enter untuk menghantar, Shift+Enter untuk menambah baris.",
       "send": "Hantar",
-      "stop": "Henti"
+      "stop": "Henti",
+      "feedback": {
+        "title": "Maklum balas jawapan",
+        "helpful": "Jawapan membantu",
+        "unhelpful": "Jawapan tidak membantu",
+        "comment": "Tambah komen",
+        "commentLabel": "Maklum balas anda",
+        "commentPlaceholder": "Beritahu kami perkara yang berkesan, yang salah atau yang perlu ditambah baik.",
+        "save": "Simpan maklum balas",
+        "saved": "Maklum balas disimpan",
+        "failed": "Maklum balas tidak dapat disimpan. Sila cuba lagi.",
+        "rating": "Penilaian (pilihan)",
+        "positive": "Membantu",
+        "negative": "Tidak membantu",
+        "noRating": "Tiada penilaian"
+      }
     },
     "passwordChange": {
       "title": "Pilih kata laluan baharu",
@@ -4524,10 +4539,17 @@
       "openTip": "Buka sembang profil ini dalam tab baharu.",
       "rotate": "Perbaharui pautan",
       "rotateTip": "Gantikan alamat ini dan batalkan pautan sembang sebelumnya.",
-      "rotateNotice": "Menyimpan tetapan akses atau memperbaharui pautan membatalkan sesi sembang sedia ada. Pembaharuan juga menggantikan alamat."
+      "rotateNotice": "Menyimpan tetapan akses atau memperbaharui pautan membatalkan sesi sembang sedia ada. Pembaharuan juga menggantikan alamat.",
+      "chatTitle": "Tajuk sembang",
+      "chatTitleTip": "Tajuk yang dipaparkan di penjuru kiri atas. Biarkan kosong untuk menggunakan nama ejen.",
+      "logoUrl": "URL logo",
+      "logoUrlTip": "URL HTTP(S) imej atau laluan setempat yang bermula dengan /. Biarkan kosong untuk menggunakan ikon sembang lalai.",
+      "pageTitle": "Tajuk halaman",
+      "pageTitleTip": "Tajuk tab pelayar. Biarkan kosong untuk menggunakan tajuk sembang."
     },
     "accessDenied": "Pautan sembang ini diaktifkan, tetapi kebenaran yang ditetapkan tidak membenarkan sembang. Hubungi penerbit pautan.",
     "connectionFailed": "Tidak dapat menyambung ke sembang ini. Sila cuba lagi.",
-    "failed": "Tidak dapat memuatkan sembang ini. Sila cuba lagi atau hubungi penerbit pautan."
+    "failed": "Tidak dapat memuatkan sembang ini. Sila cuba lagi atau hubungi penerbit pautan.",
+    "disclaimer": "AI boleh membuat kesilapan. Semak maklumat penting."
   }
 }

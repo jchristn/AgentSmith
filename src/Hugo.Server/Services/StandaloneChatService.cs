@@ -12,6 +12,7 @@ namespace Hugo.Server.Services
     using Hugo.Core.Models;
     using Hugo.Core.Profiles;
     using Hugo.Core.Responses;
+    using Hugo.Core.Requests;
     using Hugo.Core.Security;
     using Hugo.Core.Services;
 
@@ -41,7 +42,7 @@ namespace Hugo.Server.Services
         {
             AgentProfile profile = await ProfileAsync(linkId, token).ConfigureAwait(false);
             if (profile.ChatAccessMode == ChatAccessModeEnum.Public) await ResolveAsync(linkId, null, token).ConfigureAwait(false);
-            return new StandaloneChatInfo { Name = profile.Name, DisplayName = profile.DisplayName, AccessMode = profile.ChatAccessMode, AuthenticationRequired = profile.ChatAccessMode == ChatAccessModeEnum.Authenticated };
+            return new StandaloneChatInfo { Title = profile.ChatTitle ?? profile.DisplayName ?? profile.Name, LogoUrl = profile.ChatLogoUrl, PageTitle = profile.ChatPageTitle ?? profile.ChatTitle ?? profile.DisplayName ?? profile.Name, Name = profile.Name, DisplayName = profile.DisplayName, AccessMode = profile.ChatAccessMode, AuthenticationRequired = profile.ChatAccessMode == ChatAccessModeEnum.Authenticated };
         }
 
         /// <summary>Resolve fresh link permissions and visitor identity before any operation.</summary>
@@ -102,6 +103,7 @@ namespace Hugo.Server.Services
             List<ConversationMessage> messages = await _Server.Database.Messages.ListAsync(conversation.TenantId, conversation.Id, false, token).ConfigureAwait(false);
             return new StandaloneChatMessages { Messages = messages.Where(m => (m.Role == AgentMessageRoleEnum.User || (m.Role == AgentMessageRoleEnum.Assistant && m.ToolCalls.Count == 0)) && !String.IsNullOrEmpty(m.Content)).Select(m => new StandaloneChatMessage
             {
+                Id = m.Id, Feedback = m.Role == AgentMessageRoleEnum.Assistant ? new StandaloneChatFeedback { Rating = m.FeedbackRating, Comment = m.FeedbackComment ?? String.Empty } : null,
                 Role = m.Role == AgentMessageRoleEnum.User ? "user" : "assistant", Content = SafeText(m.Content, m.FinishReason),
                 CreatedUtc = m.CreatedUtc, InputTokens = m.InputTokens, OutputTokens = m.OutputTokens
             }).ToList() };
@@ -128,7 +130,9 @@ namespace Hugo.Server.Services
                 throw Missing();
             await DemandAsync(access.Principal, current, ResourceTypeEnum.AgentProfile, OperationTypeEnum.Execute, token).ConfigureAwait(false);
             // Do not surface internal error messages, tool records, arguments, or hidden reasoning.
-            return new StandaloneChatTurn { ConversationId = id, Text = SafeText(result.FinalText, result.FinishReason.ToString()), Status = result.FinishReason.ToString(), TokensIn = result.TokensIn, TokensOut = result.TokensOut };
+            List<ConversationMessage> persisted = await _Server.Database.Messages.ListAsync(conversation.TenantId, id, false, token).ConfigureAwait(false);
+            ConversationMessage? final = persisted.LastOrDefault(m => m.TurnId == result.TurnId && m.Role == AgentMessageRoleEnum.Assistant && m.ToolCalls.Count == 0 && !String.IsNullOrEmpty(m.Content));
+            return new StandaloneChatTurn { MessageId = final?.Id, ConversationId = id, Text = SafeText(result.FinalText, result.FinishReason.ToString()), Status = result.FinishReason.ToString(), TokensIn = result.TokensIn, TokensOut = result.TokensOut };
         }
 
         /// <summary>Cancel only the capability holder's own turn.</summary>
@@ -141,6 +145,26 @@ namespace Hugo.Server.Services
         {
             await ConversationAsync(access, id, capability, OperationTypeEnum.Update, token).ConfigureAwait(false);
             return new StandaloneChatCancel { Cancelled = _Host.Turns.Cancel(id) };
+        }
+
+        /// <summary>Record or replace feedback on this visitor's visible assistant response.</summary>
+        /// <param name="access">Fresh access.</param>
+        /// <param name="id">Conversation.</param>
+        /// <param name="capability">Visitor capability.</param>
+        /// <param name="messageId">Visible assistant message.</param>
+        /// <param name="request">Rating and optional comment.</param>
+        /// <param name="token">Cancellation.</param>
+        /// <returns>Saved feedback only.</returns>
+        public async Task<StandaloneChatFeedback> FeedbackAsync(StandaloneChatAccess access, string id, string? capability, string messageId, StandaloneChatFeedbackRequest request, CancellationToken token = default)
+        {
+            Conversation conversation = await ConversationAsync(access, id, capability, OperationTypeEnum.Update, token).ConfigureAwait(false);
+            if ((request.Rating != null && request.Rating != "Positive" && request.Rating != "Negative") || (request.Comment?.Length ?? 0) > 4000)
+                throw new ValidationException("Use Positive, Negative, or null and a comment of at most 4000 characters.");
+            ConversationMessage? message = await _Server.Database.Messages.ReadAsync(conversation.TenantId, messageId, token).ConfigureAwait(false);
+            if (message == null || message.ConversationId != id || message.Role != AgentMessageRoleEnum.Assistant || message.ToolCalls.Count > 0 || String.IsNullOrEmpty(message.Content)) throw Missing();
+            string comment = SecretScrubber.Shared.Scrub(request.Comment?.Trim() ?? String.Empty) ?? String.Empty;
+            if (!await _Server.Database.Messages.UpdateFeedbackAsync(conversation.TenantId, id, messageId, request.Rating, comment, token).ConfigureAwait(false)) throw Missing();
+            return new StandaloneChatFeedback { Rating = request.Rating, Comment = comment };
         }
 
         private async Task<AgentProfile> ProfileAsync(string linkId, CancellationToken token)

@@ -1,0 +1,36 @@
+.chat-feedback {
+  margin-top: 8px;
+}
+.chat-feedback-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.chat-feedback-actions .icon-button {
+  width: 32px;
+  height: 32px;
+}
+.chat-feedback-actions .selected {
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+.chat-feedback-comment {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 4px 0 0;
+}
+.chat-feedback-form {
+  display: grid;
+  gap: 16px;
+}
+.chat-feedback-form label {
+  display: grid;
+  gap: 6px;
+}
+.chat-feedback-form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
