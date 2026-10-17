@@ -4494,5 +4494,39 @@
         }
       }
     }
+  },
+  "standaloneChat": {
+    "title": "Chat",
+    "theme": "Tema",
+    "themeTip": "Passa tra aspetto chiaro e scuro.",
+    "new": "Nuova chat",
+    "newTip": "Avvia una nuova conversazione e cancella questa sessione.",
+    "unavailable": "Questo link di chat non è disponibile o è disabilitato.",
+    "loginRequired": "Accedi per chattare con le tue autorizzazioni.",
+    "login": "Accedi",
+    "loginTip": "Accedi e torna direttamente a questa chat.",
+    "empty": "Come posso aiutarti oggi?",
+    "manage": {
+      "title": "Link di chat",
+      "description": "Condividi una pagina di chat senza la navigazione della dashboard.",
+      "enabled": "Abilita link di chat",
+      "enableTip": "Abilita o disabilita il link di chat di questo profilo.",
+      "mode": "Accesso",
+      "modeTip": "Scegli se i visitatori devono accedere o possono chattare pubblicamente.",
+      "authenticated": "Accesso richiesto",
+      "public": "Pubblico",
+      "publicNotice": "Chiunque abbia il link può usare le autorizzazioni della credenziale scelta. Selezionale con cura.",
+      "credential": "Credenziale della chat pubblica",
+      "credentialTip": "Scegli una credenziale attiva esistente di tua proprietà.",
+      "selectCredential": "Seleziona credenziale",
+      "credentialsUnavailable": "Impossibile caricare le credenziali.",
+      "saveTip": "Salva l’accesso alla chat e genera un link quando abilitato.",
+      "copyTip": "Copia l’indirizzo della chat negli appunti.",
+      "open": "Apri chat",
+      "openTip": "Apri la chat di questo profilo in una nuova scheda.",
+      "rotate": "Rinnova link",
+      "rotateTip": "Sostituisci questo indirizzo e revoca il link precedente.",
+      "rotateNotice": "Salvare l’accesso o rinnovare il link invalida le sessioni esistenti. Il rinnovo cambia anche l’indirizzo."
+    }
   }
 }

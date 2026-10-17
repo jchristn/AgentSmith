@@ -121,6 +121,18 @@ namespace Hugo.Core.Requests
         /// </summary>
         public bool? Active { get; set; } = null;
 
+        /// <summary>Enable or disable the standalone chat link.</summary>
+        public bool? ChatEnabled { get; set; } = null;
+
+        /// <summary>Authenticated or Public access policy.</summary>
+        public ChatAccessModeEnum? ChatAccessMode { get; set; } = null;
+
+        /// <summary>Credential owned by the publishing user, required for enabled public chat.</summary>
+        public string? ChatCredentialId { get; set; } = null;
+
+        /// <summary>Generate a new opaque link, immediately revoking the old URL and its conversations.</summary>
+        public bool RotateChatLink { get; set; } = false;
+
         #endregion
     }
 }

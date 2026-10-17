@@ -113,6 +113,10 @@ namespace Hugo.Core.Database.Ado
             v9.BuildVersion9();
             migrations.Add(new SchemaMigration(9, "Credential owner bypass opt-in, model endpoint health history, and the _root knowledge key", v9._Statements, v9._Columns));
 
+            SchemaBuilder v10 = new SchemaBuilder(catalog, dialect);
+            v10.BuildVersion10();
+            migrations.Add(new SchemaMigration(10, "Standalone profile chat links and visitor capability revocation", v10._Statements, v10._Columns));
+
             return migrations;
         }
 
@@ -900,6 +904,16 @@ namespace Hugo.Core.Database.Ado
         private void BuildVersion8()
         {
             _Columns.Add(new SchemaColumnAddition("agent_profiles", "instruction_detail", "VARCHAR(16)"));
+        }
+
+        private void BuildVersion10()
+        {
+            _Columns.Add(new SchemaColumnAddition("agent_profiles", "chat_enabled", _Dialect.TypeBool + " NOT NULL DEFAULT " + _Dialect.BooleanLiteral(false)));
+            _Columns.Add(new SchemaColumnAddition("agent_profiles", "chat_access_mode", "VARCHAR(32) NOT NULL DEFAULT 'Authenticated'"));
+            _Columns.Add(new SchemaColumnAddition("agent_profiles", "chat_link_id", "VARCHAR(64)"));
+            _Columns.Add(new SchemaColumnAddition("agent_profiles", "chat_credential_id", "VARCHAR(64)"));
+            _Columns.Add(new SchemaColumnAddition("agent_profiles", "chat_revision", _Dialect.TypeInt + " NOT NULL DEFAULT 1"));
+            Index("agent_profiles", "chat_link", true, "chat_link_id");
         }
 
         private void BuildVersion9()

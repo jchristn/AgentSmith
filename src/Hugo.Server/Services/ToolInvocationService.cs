@@ -209,6 +209,8 @@ namespace Hugo.Server.Services
             // Apply this policy before classification and dry-run results, without changing target effects.
             if (tool.Descriptor.UpdatesKnowledge)
             {
+                if (request.Principal.IsPublicChat)
+                    return await DenyAsync(state, ConnectorErrorCodes.PermissionDenied, "Public chat cannot modify saved resource context.", token).ConfigureAwait(false);
                 state.Record.Effect = tool.Descriptor.BaseEffect;
                 state.Record.EffectReason = "Updates Hugo's saved resource context.";
                 state.Outcome.Effect = state.Record.Effect;
@@ -239,7 +241,7 @@ namespace Hugo.Server.Services
 
             // 5. Classify (settings only; secrets are resolved after any approval).
             EffectClassification classification;
-            using (ConnectorContextLease settingsOnly = await _Contexts.BuildAsync(state.Resource, true, request.Principal, Writer(state), state.Binding?.AllowKnowledgeUpdates ?? true, token, false).ConfigureAwait(false))
+            using (ConnectorContextLease settingsOnly = await _Contexts.BuildAsync(state.Resource, true, request.Principal, Writer(state), !request.Principal.IsPublicChat && (state.Binding?.AllowKnowledgeUpdates ?? true), token, false).ConfigureAwait(false))
             {
                 ConnectorInvocationContext classifyContext = InvocationContext(state, settingsOnly.Context, null);
                 try
@@ -569,9 +571,86 @@ namespace Hugo.Server.Services
                 await FailResumeAsync(state, "binding_not_found", "The resource or binding was removed before the approved call could run.", token).ConfigureAwait(false);
                 return;
             }
+            if (!await RestoreStandaloneApprovalAsync(state, token).ConfigureAwait(false)) return;
             ToolInvocationOutcome outcome = await ExecuteAsync(state, token).ConfigureAwait(false);
             _Completed[approval.Id] = outcome;
             PruneCompleted();
+        }
+
+        private async Task<bool> RestoreStandaloneApprovalAsync(InvocationState state, CancellationToken token)
+        {
+            ToolInvocation record = state.Record;
+            if (String.IsNullOrEmpty(record.ConversationId)) return true;
+            Conversation? conversation = await _Database.Conversations.ReadAsync(state.TenantId, record.ConversationId, token).ConfigureAwait(false);
+            if (conversation == null)
+            {
+                await FailResumeAsync(state, "approval_context_lost", "The originating conversation no longer exists.", token).ConfigureAwait(false);
+                return false;
+            }
+            if (conversation.Source != ConversationSourceEnum.Rest || conversation.ExternalKey?.StartsWith("standalone:", StringComparison.Ordinal) != true) return true;
+            string[] capability = conversation.ExternalKey.Split(':');
+            AgentProfile? profile = state.Profile;
+            Tenant? tenant = await _Database.Tenants.ReadAsync(state.TenantId, token).ConfigureAwait(false);
+            if (tenant == null || !tenant.Active || capability.Length != 5 || !Int32.TryParse(capability[3], out int revision)
+                || profile == null || !profile.Active || !profile.ChatEnabled || profile.Id != conversation.AgentProfileId
+                || profile.ChatLinkId != capability[2] || profile.ChatRevision != revision || profile.ChatAccessMode.ToString() != capability[1])
+            {
+                await FailResumeAsync(state, "chat_link_revoked", "The standalone chat publication changed before this approved action could run.", token).ConfigureAwait(false);
+                return false;
+            }
+            RequestContext principal = state.Principal;
+            if (principal.PrincipalType == PrincipalTypeEnum.Credential)
+            {
+                Credential? credential = await _Database.Credentials.ReadAsync(state.TenantId, principal.CredentialId!, token).ConfigureAwait(false);
+                User? owner = credential == null ? null : await _Database.Users.ReadAsync(state.TenantId, credential.UserId, token).ConfigureAwait(false);
+                if (credential == null || !credential.Active || (credential.ExpiresUtc.HasValue && credential.ExpiresUtc.Value <= DateTime.UtcNow)
+                    || owner == null || !owner.Active || (credential.LockToProfile && credential.AgentProfileId != profile.Id))
+                {
+                    await FailResumeAsync(state, "chat_link_revoked", "The standalone chat execution identity is no longer available.", token).ConfigureAwait(false);
+                    return false;
+                }
+                principal.UserId = owner.Id;
+                principal.User = owner;
+                principal.Credential = credential;
+                if (capability[1] == "Public")
+                {
+                    credential.InheritOwnerBypass = false;
+                    credential.AgentProfileId = profile.Id;
+                    credential.LockToProfile = true;
+                    principal.IsPublicChat = true;
+                    principal.PublicChatProfileId = profile.Id;
+                    principal.PublicChatRevision = revision;
+                }
+                else if (credential.InheritOwnerBypass)
+                {
+                    principal.IsAdmin = owner.IsAdmin;
+                    principal.IsTenantAdmin = owner.IsTenantAdmin;
+                }
+            }
+            else if (capability[1] == "Authenticated")
+            {
+                User? user = String.IsNullOrEmpty(principal.UserId) ? null : await _Database.Users.ReadAsync(state.TenantId, principal.UserId, token).ConfigureAwait(false);
+                if (user == null || !user.Active)
+                {
+                    await FailResumeAsync(state, "chat_link_revoked", "The standalone chat visitor is no longer active.", token).ConfigureAwait(false);
+                    return false;
+                }
+                principal.User = user;
+                principal.IsAdmin = user.IsAdmin;
+                principal.IsTenantAdmin = user.IsTenantAdmin;
+            }
+            else
+            {
+                await FailResumeAsync(state, "approval_context_lost", "The standalone chat execution identity could not be restored.", token).ConfigureAwait(false);
+                return false;
+            }
+            AuthorizationDecision decision = await _Authorization.AuthorizeAsync(principal, state.TenantId, ResourceTypeEnum.AgentProfile, OperationTypeEnum.Execute, profile.Id, token).ConfigureAwait(false);
+            if (!decision.Permitted || !ResourceVisibility.CanSee(profile, principal))
+            {
+                await FailResumeAsync(state, "chat_link_revoked", "The standalone chat identity may no longer execute this profile.", token).ConfigureAwait(false);
+                return false;
+            }
+            return true;
         }
 
         private async Task FailResumeAsync(InvocationState state, string code, string message, CancellationToken token)
@@ -637,6 +716,8 @@ namespace Hugo.Server.Services
                     // Approval and resource concurrency waits can outlive an operator's metadata policy change.
                     if (tool.Descriptor.UpdatesKnowledge)
                     {
+                        if (state.Principal.IsPublicChat)
+                            return await DenyAsync(state, ConnectorErrorCodes.PermissionDenied, "Public chat cannot modify saved resource context.", token).ConfigureAwait(false);
                         Tenant? currentTenant = await _Database.Tenants.ReadAsync(state.TenantId, token).ConfigureAwait(false);
                         if (currentTenant == null)
                             return await DenyAsync(state, "tenant_not_found", "Tenant not found.", token).ConfigureAwait(false);
@@ -652,7 +733,7 @@ namespace Hugo.Server.Services
                             state.Binding = currentBinding;
                         }
                     }
-                    lease = await _Contexts.BuildAsync(resource, true, state.Principal, Writer(state), state.Binding?.AllowKnowledgeUpdates ?? true, token).ConfigureAwait(false);
+                    lease = await _Contexts.BuildAsync(resource, true, state.Principal, Writer(state), !state.Principal.IsPublicChat && (state.Binding?.AllowKnowledgeUpdates ?? true), token).ConfigureAwait(false);
                     IConnectorModel? model = await ModelAsync(state, token).ConfigureAwait(false);
                     if (model != null)
                         model = new ResourceContextConnectorModel(model, lease.Context.Knowledge, state.Binding?.Alias ?? resource.Name, () => _Settings.Instructions.MaxKnowledgeCharsPerResource);
@@ -767,7 +848,7 @@ namespace Hugo.Server.Services
             }
             context.Timeout = TimeSpan.FromSeconds(Math.Max(1, seconds));
             context.Model = model;
-            context.AllowKnowledgeUpdates = state.Binding?.AllowKnowledgeUpdates ?? true;
+            context.AllowKnowledgeUpdates = !state.Principal.IsPublicChat && (state.Binding?.AllowKnowledgeUpdates ?? true);
             context.PrincipalSummary = state.Principal.PrincipalType + " " + (state.Principal.PrincipalName ?? state.Principal.PrincipalId ?? "unknown");
             context.CorrelationId = state.Record.CorrelationId ?? state.Record.Id;
             return context;

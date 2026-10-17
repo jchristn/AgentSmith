@@ -14,6 +14,21 @@ namespace Hugo.Core.Security
         #region Public-Members
 
         /// <summary>
+        /// Server-issued public standalone-chat capability. Never populated from client request fields.
+        /// </summary>
+        public bool IsPublicChat { get; set; } = false;
+
+        /// <summary>
+        /// The only profile a public chat capability may execute, or null outside public chat.
+        /// </summary>
+        public string? PublicChatProfileId { get; set; } = null;
+
+        /// <summary>
+        /// Publication revision checked before each authorized operation. Zero outside public chat.
+        /// </summary>
+        public int PublicChatRevision { get; set; } = 0;
+
+        /// <summary>
         /// Request identifier.
         /// </summary>
         public string RequestId { get; set; } = Guid.NewGuid().ToString("N");

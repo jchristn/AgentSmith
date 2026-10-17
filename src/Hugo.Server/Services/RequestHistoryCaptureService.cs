@@ -49,7 +49,7 @@ namespace Hugo.Server.Services
 
         private static readonly HashSet<string> _RedactedHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            "authorization", "proxy-authorization", "cookie", "set-cookie", "x-token", "x-secret-key", "x-api-key", "x-signature", "x-password", "x-access-key", "x-nonce"
+            "authorization", "proxy-authorization", "cookie", "set-cookie", "x-token", "x-secret-key", "x-api-key", "x-signature", "x-password", "x-access-key", "x-nonce", "x-hugo-chat-session"
         };
 
         private static readonly string _HistoryPathPrefix = "/v1.0/api/request-history";

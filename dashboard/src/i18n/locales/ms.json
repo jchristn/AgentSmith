@@ -4494,5 +4494,39 @@
         }
       }
     }
+  },
+  "standaloneChat": {
+    "title": "Sembang",
+    "theme": "Tema",
+    "themeTip": "Tukar antara paparan cerah dan gelap.",
+    "new": "Sembang baharu",
+    "newTip": "Mulakan perbualan berasingan dan kosongkan sesi ini.",
+    "unavailable": "Pautan sembang ini tidak tersedia atau telah dinyahdayakan.",
+    "loginRequired": "Log masuk untuk bersembang dengan kebenaran anda sendiri.",
+    "login": "Log masuk",
+    "loginTip": "Log masuk dan kembali terus ke sembang ini.",
+    "empty": "Bagaimanakah saya boleh membantu anda hari ini?",
+    "manage": {
+      "title": "Pautan sembang",
+      "description": "Kongsi halaman sembang tanpa navigasi papan pemuka.",
+      "enabled": "Dayakan pautan sembang",
+      "enableTip": "Dayakan atau nyahdayakan pautan sembang profil ini.",
+      "mode": "Akses",
+      "modeTip": "Pilih sama ada pelawat perlu log masuk atau boleh bersembang secara awam.",
+      "authenticated": "Log masuk diperlukan",
+      "public": "Awam",
+      "publicNotice": "Sesiapa yang mempunyai pautan ini boleh menggunakan kebenaran kelayakan terpilih. Pilih dengan teliti.",
+      "credential": "Kelayakan sembang awam",
+      "credentialTip": "Pilih kelayakan aktif sedia ada yang dimiliki oleh anda.",
+      "selectCredential": "Pilih kelayakan",
+      "credentialsUnavailable": "Kelayakan tidak dapat dimuatkan.",
+      "saveTip": "Simpan akses sembang dan jana pautan apabila didayakan.",
+      "copyTip": "Salin alamat sembang ke papan klip anda.",
+      "open": "Buka sembang",
+      "openTip": "Buka sembang profil ini dalam tab baharu.",
+      "rotate": "Perbaharui pautan",
+      "rotateTip": "Gantikan alamat ini dan batalkan pautan sembang sebelumnya.",
+      "rotateNotice": "Menyimpan tetapan akses atau memperbaharui pautan membatalkan sesi sembang sedia ada. Pembaharuan juga menggantikan alamat."
+    }
   }
 }

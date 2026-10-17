@@ -4494,5 +4494,39 @@
         }
       }
     }
+  },
+  "standaloneChat": {
+    "title": "Chat",
+    "theme": "Tema",
+    "themeTip": "Cambiar entre la apariencia clara y oscura.",
+    "new": "Nuevo chat",
+    "newTip": "Iniciar otra conversación y borrar esta sesión.",
+    "unavailable": "Este enlace de chat no está disponible o se ha desactivado.",
+    "loginRequired": "Inicia sesión para chatear con tus propios permisos.",
+    "login": "Iniciar sesión",
+    "loginTip": "Iniciar sesión y volver directamente a este chat.",
+    "empty": "¿Cómo puedo ayudarte hoy?",
+    "manage": {
+      "title": "Enlace de chat",
+      "description": "Comparte una página de chat sin la navegación del panel.",
+      "enabled": "Activar enlace de chat",
+      "enableTip": "Activar o desactivar el enlace de chat de este perfil.",
+      "mode": "Acceso",
+      "modeTip": "Elegir si los visitantes deben iniciar sesión o pueden chatear públicamente.",
+      "authenticated": "Inicio de sesión obligatorio",
+      "public": "Público",
+      "publicNotice": "Cualquiera con este enlace puede usar los permisos de la credencial seleccionada. Elígelos con cuidado.",
+      "credential": "Credencial del chat público",
+      "credentialTip": "Elegir una credencial activa existente de tu propiedad.",
+      "selectCredential": "Seleccionar credencial",
+      "credentialsUnavailable": "No se pudieron cargar las credenciales.",
+      "saveTip": "Guardar el acceso al chat y generar el enlace al activarlo.",
+      "copyTip": "Copiar la dirección del chat al portapapeles.",
+      "open": "Abrir chat",
+      "openTip": "Abrir el chat de este perfil en una pestaña nueva.",
+      "rotate": "Renovar enlace",
+      "rotateTip": "Reemplazar esta dirección y revocar el enlace anterior.",
+      "rotateNotice": "Guardar el acceso o renovar el enlace invalida las sesiones existentes. La renovación también cambia la dirección."
+    }
   }
 }

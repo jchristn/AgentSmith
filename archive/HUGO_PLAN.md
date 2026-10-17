@@ -87,10 +87,10 @@ These rules keep the plan honest:
 | 2 | Secrets vault | M1 | Complete | 12 / 12 |
 | 3 | Connector framework and tool invocation pipeline | M1 | Complete | 26 / 26 |
 | 4 | Connectors wave 1: SSH, object storage, SQL databases, SolarWinds Observability | M1 | Complete | 41 / 41 |
-| 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | Complete | 22 / 22 |
+| 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | Complete | 23 / 23 |
 | 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | Complete | 24 / 24 |
-| 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Complete | 22 / 22 |
-| 8 | Dashboard | M1 | Complete | 59 / 59 |
+| 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Complete | 23 / 23 |
+| 8 | Dashboard | M1 | Complete | 60 / 60 |
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | Complete | 14 / 14 |
 | 10 | Docker, testbed, and observability stack | M1 | Complete | 24 / 24 |
 | 11 | Documentation and Postman | M1 | Complete | 18 / 18 |
@@ -114,6 +114,7 @@ Milestones:
 
 - Completed P14.13 (D-057): generalized agent-managed resource context, version-safe common tools, and fresh authorized model context. Full SQLite/PostgreSQL regression: 2030 passed, 309 expected testbed skips, zero failures; real SSH/Qwen learn-and-reuse acceptance passed. Embedding search and resource actions remain separate Phase 14 work.
 
+- Standalone Public/Authenticated agent chat completed and published 2026-10-17 (D-061, P5.41, P8.60). Manage the opt-in link on Agents > profile > Connect. Migration 10 preserves existing profiles as unpublished. Visitor capabilities, credential grants, publication revisions, pending approvals, and public persistent-context restrictions are tested. Both images `v0.1.0`/`latest` registry-verified for AMD64/ARM64: server `sha256:33cdb702082d02098fcf31e8e58d104066001b710ec6305118fc2c98cbed6731`, dashboard `sha256:4169db43d0131fea8fd2fca1164b3d6ec2f55593c948358f2657beee39500b78`. Pull/recreate containers to apply.
 - Persistent chat-editable agent instructions completed and published 2026-10-17 (D-060, P5.40). Agent get/update tools reuse the profile Extra instructions field, with authorization, atomic versions, consolidation guidance, fresh hosted context, and dashboard editing. Server and dashboard `v0.1.0`/`latest` verified for AMD64/ARM64. Server `sha256:6dc8aecf332fec22b232f29f8af862a368fc004bf5bbf5b70c6fc4ffbf667ee3`; dashboard `sha256:c7953b09c19c989b07e708b9fd09014d4c1e66f51eef201a899d097c44c3bd58`. Pull/recreate containers to apply.
 - Escaped S3 credential fix and Secrets-first Connections published 2026-10-17 (source `631a259`). Both images `v0.1.0`/`latest` registry-verified for AMD64/ARM64. Server `sha256:286fbebe258425135bc47b3e9fa5d00563d50b58080e39bf8574f1b5cc2103cb`; dashboard `sha256:f8c9d91c7c15881888f3ab8deb7acd08ab3c5df4e6d52896be36396575a50390`. User confirmed decoding the copied JSON escape resolves the credential failure.
 - S3 signature follow-up published 2026-10-17 (source `7144d33`): AWS credential whitespace validation and accurate ListObjects probe label. Server `v0.1.0`/`latest` registry-verified for AMD64/ARM64 at `sha256:6f8fe12a1a8995020a3b3e30dd723667dad48b000c76cc7b7c213be5425d0d24`. Independent synthetic request HMAC verification and all 32 storage cases pass; customer deployment signature failure remains unconfirmed.
@@ -308,6 +309,7 @@ This journey is the acceptance story for M1. Phase 12 replays it end to end.
 | D-058 | Consolidate dashboard navigation from 25 sidebar entries into nine hubs in Workspace and Administration, with URL-synced tabs and legacy redirects. Preserve standalone Home and Chat, detail links, per-tab role gates, and pending approval visibility. | User requested peer-project navigation review and the same consolidation in Hugo. | P8.56, 18.2, 18.3 |
 | D-059 | Retire the legacy Papertrail connector and its provider-specific tools, instructions, options, fixtures, and active examples. Keep SolarWinds Observability as the supported SolarWinds Cloud logging connector. Existing saved resources and secrets are not deleted or automatically converted. Supersedes the Papertrail portion of D-013. | User requested removal after identifying incompatible Papertrail and SolarWinds Cloud API tokens. | P4.38, 9 |
 | D-060 | Chat-managed agent workflow instructions reuse AgentProfile.InstructionsAppend and its dashboard editor. Current-profile tools read/update it with caller Read/Update authorization, atomic content comparison, and fresh hosted-loop snapshots. Resource context remains untrusted system facts. | Users can teach an agent natural-language working rules without managing storage keys or versions; no duplicate store or schema migration. | P5.40, 10 |
+| D-061 | Standalone chat is an opt-in profile publication at /chat/{opaque link id}. Authenticated mode uses visitor identity; Public mode requires an explicitly selected owned credential and retains its grants plus profile binding policy. Visitor capability tokens isolate conversations, publication revisions revoke sessions, and public chat cannot manage agent/resource context. | AssistantHub-style shareable chat needs user-controlled access without distributing API credentials or granting owner bypass to anonymous visitors. | P5.41, P8.60 |
 
 ---
 
@@ -1971,6 +1973,8 @@ Database intelligence (D-038)
 
 - [x] P5.40 Add persistent chat-editable current-agent instructions using the existing profile InstructionsAppend field. *Accept:* model reads/updates/consolidates instructions without user-supplied version bookkeeping; atomic conflict handling, profile Update authorization, tenant/profile isolation, secret protection, audit/cache invalidation, fresh same-turn context, dashboard visibility, hosted chat and MCP tools, and regression coverage. | codex 2026-10-17 implemented and verified: existing text field reused, no schema migration; 10 SQLite/PostgreSQL feature cases and full regression 2029 passed/0 failed/309 expected testbed skips; 317 dashboard unit tests, 70 browser tests, lint, and zero-warning build pass. Hosted prompts include fresh profile text without stale duplication; dashboard saves omit unchanged instruction text
 
+- [x] P5.41 Add user-managed standalone agent chat publications with migration 10: enabled flag, Public/Authenticated mode, opaque rotatable URL, scoped public execution credential, revision-based revocation and visitor-isolated sessions. *Accept:* normal authorization/tool/approval policy remains enforced; public visitors cannot manage profiles or saved context; authenticated callers retain own rights; HTTP integration and migration upgrade tests pass on SQLite/PostgreSQL. | codex 2026-10-17 16 standalone cases pass across both providers, including v9 upgrade, clone safety, scoped execution, public prompt privacy, isolated sessions, revocation and deferred approvals. Full baseline 2043 passed/0 failed/309 expected testbed skips; final 72-case pipeline/chat/MCP/agent-instruction/standalone regression pass after deferred-approval hardening; zero-warning build. Publication state uses CAS and monotonic revisions; no credentials or visitor tokens are exposed in links or request history
+
 ### Phase 6: Model endpoints and agent runtime (M1)
 
 - [x] P6.1 Migration 6: `model_endpoints`, `conversations`, `messages`, `a2a_tasks`, `a2a_task_artifacts`.  | claude 2026-10-14 migrations 6 (model_endpoints) and 7 (conversations, messages, message_tool_calls, a2a_tasks, a2a_task_artifacts)
@@ -2097,6 +2101,8 @@ Quality
 - [x] P8.52 Accessibility and responsive pass (landmarks, labels, focus, reduced motion, tap targets, no body horizontal scroll), and the dashboard Docker image (nginx, proxy, SSE buffering off, `/health`).  | claude 2026-10-14 accessibility checks, responsive pass, nginx image proxying /v1.0, /mcp, /openapi.json with buffering off
 
 - [x] P8.59 Put Secrets first in Connections and make it the default tab so credential creation precedes resources. *Accept:* tab order Secrets, Resources, Connectors, Models; explicit resource links and legacy bookmarks continue opening Resources. | codex 2026-10-17 verified 317 dashboard unit tests, 70 browser tests and lint; fixed locale test query composition for the new explicit Resources tab URL
+
+- [x] P8.60 Add standalone /chat/{linkId} page and profile publication controls, following AssistantHub. *Accept:* user can enable/disable, choose Public/Authenticated, select public execution credential, copy/open/rotate URL, sign in and return to authenticated chat, start/resume/stop isolated conversations without dashboard chrome; responsive/localization and browser tests pass. | codex 2026-10-17 AssistantHub-style standalone page and profile Connect controls complete; 319 unit tests, 80 browser tests, lint, 12-locale check and production build pass. Ten focused standalone/browser cases pass after visual refinements; eight desktop/tablet/mobile and management screenshots reviewed
 
 ### Phase 9: SDKs (M1)
 

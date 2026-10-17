@@ -96,3 +96,7 @@ New session tokens use the versioned master key with the `hugo-sessions-v1` HKDF
 Check three things. `GET /v1.0/api/health` answers 200 with `schemaVersion` equal to `expectedSchemaVersion`. `GET /v1.0/api/info` reports the version you meant to install. And one real round trip works: open a profile's compiled instructions in the dashboard, or have your MCP client list its tools. MCP clients connected before the upgrade will see "Session not found" once and reconnect; that is expected, because MCP sessions live in memory.
 
 Settings added by a release take their defaults until you change them, and [`CONFIGURATION.md`](CONFIGURATION.md) lists every one.
+
+## Standalone agent chat publications
+
+Schema migration 10 adds per-profile standalone chat publication settings and a unique opaque-link index. Startup applies it automatically on SQLite and PostgreSQL. Existing profiles remain unpublished. To publish a link, open the profile's **Connect** tab, enable **Chat link**, select Public or Authenticated access, and save. Public access requires an explicitly selected owned credential; authenticated visitors use their own login. See [Standalone agent chat](STANDALONE_CHAT.md).

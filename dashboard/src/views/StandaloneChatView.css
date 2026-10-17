@@ -1,0 +1,87 @@
+.standalone-chat {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+.standalone-chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--color-border);
+}
+.standalone-chat-header h1 {
+  margin: 4px 0 0;
+  font-size: 1.5rem;
+  overflow-wrap: anywhere;
+}
+.standalone-chat-brand {
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.standalone-chat-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.standalone-chat-notice {
+  padding: 48px 12px;
+  text-align: center;
+}
+.standalone-chat-description {
+  color: var(--color-text-secondary);
+  margin: 16px 0 0;
+}
+.standalone-chat > .chat-panel {
+  flex: 1;
+  min-height: 0;
+}
+.chat-link-controls {
+  display: grid;
+  gap: 16px;
+}
+.chat-link-controls label {
+  display: grid;
+  gap: 6px;
+}
+.chat-link-controls .checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+@media (max-width: 640px) {
+  .standalone-chat {
+    padding: 16px 12px;
+  }
+  .standalone-chat-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .standalone-chat-actions {
+    width: 100%;
+  }
+  .standalone-chat-actions button {
+    flex: 1;
+  }
+}
+
+.chat-link-controls input[type='checkbox'] {
+  width: auto;
+  margin: 0;
+  flex: none;
+}
+.chat-link-controls .form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chat-link-controls select {
+  min-width: 0;
+  max-width: 100%;
+}

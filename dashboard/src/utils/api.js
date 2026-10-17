@@ -987,6 +987,38 @@ class ApiClient {
     return fetch(this._url(path, query), { method, headers: finalHeaders, body: hasBody ? body : undefined, signal });
   }
 
+  // Standalone profile chat uses link-scoped session tokens, never a public credential in the browser.
+  getChatLink(linkId) {
+    return this._request('GET', `/v1.0/chat/${enc(linkId)}`, { keepSessionOn401: true });
+  }
+
+  createChatSession(linkId) {
+    return this._request('POST', `/v1.0/chat/${enc(linkId)}/conversations`, { body: {}, keepSessionOn401: true });
+  }
+
+  getChatMessages(linkId, id, sessionToken) {
+    return this._request('GET', `/v1.0/chat/${enc(linkId)}/conversations/${enc(id)}/messages`, {
+      headers: sessionToken ? { 'x-hugo-chat-session': sessionToken } : {},
+      keepSessionOn401: true
+    });
+  }
+
+  sendChatMessage(linkId, id, sessionToken, body, signal) {
+    return this._request('POST', `/v1.0/chat/${enc(linkId)}/conversations/${enc(id)}/messages`, {
+      body,
+      signal,
+      headers: { 'x-hugo-chat-session': sessionToken },
+      keepSessionOn401: true
+    });
+  }
+
+  cancelChatMessage(linkId, id, sessionToken) {
+    return this._request('POST', `/v1.0/chat/${enc(linkId)}/conversations/${enc(id)}/cancel`, {
+      headers: sessionToken ? { 'x-hugo-chat-session': sessionToken } : {},
+      keepSessionOn401: true
+    });
+  }
+
   // ------------------------------------------------------------------ streaming
 
   /**

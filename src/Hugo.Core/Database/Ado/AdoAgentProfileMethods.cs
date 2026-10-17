@@ -10,6 +10,7 @@ namespace Hugo.Core.Database.Ado
     using Hugo.Core.Enumeration;
     using Hugo.Core.Enums;
     using Hugo.Core.Models;
+    using Hugo.Core.Services;
 
     /// <summary>
     /// Provider-neutral agent profile data access. Thread-safe.
@@ -20,7 +21,7 @@ namespace Hugo.Core.Database.Ado
 
         private readonly AdoDatabaseDriver _Driver;
         private readonly string _Table;
-        private static readonly string _Columns = "id, tenant_id, owner_user_id, visibility, name, display_name, persona_name, user_address, description, persona_template_key, inference_endpoint_id, fallback_inference_endpoint_id, embedding_endpoint_id, max_iterations, max_tool_calls_per_turn, tool_timeout_seconds, temperature, expose_a2a, expose_mcp, expose_openai, expose_management_tools, instructions_append, instruction_detail, is_default, active, created_utc, last_update_utc";
+        private static readonly string _Columns = "id, tenant_id, owner_user_id, visibility, name, display_name, persona_name, user_address, description, persona_template_key, inference_endpoint_id, fallback_inference_endpoint_id, embedding_endpoint_id, max_iterations, max_tool_calls_per_turn, tool_timeout_seconds, temperature, expose_a2a, expose_mcp, expose_openai, expose_management_tools, instructions_append, instruction_detail, is_default, active, created_utc, last_update_utc, chat_enabled, chat_access_mode, chat_link_id, chat_credential_id, chat_revision";
 
         #endregion
 
@@ -45,6 +46,7 @@ namespace Hugo.Core.Database.Ado
         public async Task<AgentProfile> CreateAsync(AgentProfile obj, CancellationToken token = default)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
+            obj.ChatLinkId ??= Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(24)).ToLowerInvariant();
             obj.CreatedUtc = DateTime.UtcNow;
             obj.LastUpdateUtc = obj.CreatedUtc;
             string values = "@" + _Columns.Replace(", ", ", @");
@@ -62,6 +64,13 @@ namespace Hugo.Core.Database.Ado
                 AdoDatabaseDriver.Add(command, "tenant_id", tenantId);
                 AdoDatabaseDriver.Add(command, "id", id);
             }, Map, token).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc />
+        public async Task<AgentProfile?> ReadByChatLinkAsync(string linkId, CancellationToken token = default)
+        {
+            if (String.IsNullOrEmpty(linkId)) return null;
+            return await _Driver.QuerySingleAsync("SELECT * FROM " + _Table + " WHERE chat_link_id = @link AND chat_enabled = " + _Driver.Dialect.BooleanLiteral(true) + ";", command => AdoDatabaseDriver.Add(command, "link", linkId), Map, token).ConfigureAwait(false);
         }
 
         /// <inheritdoc />
@@ -83,7 +92,13 @@ namespace Hugo.Core.Database.Ado
         }
 
         /// <inheritdoc />
-        public async Task<AgentProfile> UpdateAsync(AgentProfile obj, bool includeInstructions, CancellationToken token = default)
+        public Task<AgentProfile> UpdateAsync(AgentProfile obj, bool includeInstructions, CancellationToken token = default)
+        {
+            return UpdateAsync(obj, includeInstructions, true, token);
+        }
+
+        /// <inheritdoc />
+        public async Task<AgentProfile> UpdateAsync(AgentProfile obj, bool includeInstructions, bool includeChatSettings, CancellationToken token = default)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
             obj.LastUpdateUtc = DateTime.UtcNow;
@@ -91,9 +106,12 @@ namespace Hugo.Core.Database.Ado
             foreach (string column in _Columns.Split(", "))
             {
                 if (column == "id" || column == "tenant_id" || column == "created_utc" || (!includeInstructions && column == "instructions_append")) continue;
-                sets.Add(column + " = @" + column);
+                if (!includeChatSettings && column.StartsWith("chat_", StringComparison.Ordinal)) continue;
+                sets.Add(column == "chat_revision" ? "chat_revision = chat_revision + 1" : column + " = @" + column);
             }
-            await _Driver.NonQueryAsync("UPDATE " + _Table + " SET " + String.Join(", ", sets) + " WHERE tenant_id = @tenant_id AND id = @id;", command => Bind(command, obj, false), token).ConfigureAwait(false);
+            int affected = await _Driver.NonQueryAsync("UPDATE " + _Table + " SET " + String.Join(", ", sets) + " WHERE tenant_id = @tenant_id AND id = @id" + (includeChatSettings ? " AND chat_revision = @chat_revision" : String.Empty) + ";", command => Bind(command, obj, false), token).ConfigureAwait(false);
+            if (affected == 0 && includeChatSettings) throw new ConflictException("ChatSettingsChanged", "The profile publication settings changed concurrently. Reload before saving.");
+            if (includeChatSettings) obj.ChatRevision = checked(obj.ChatRevision + 1);
             return obj;
         }
 
@@ -234,6 +252,11 @@ namespace Hugo.Core.Database.Ado
             obj.ExposeMcp = AdoConverters.Bool(reader, "expose_mcp");
             obj.ExposeOpenAI = AdoConverters.Bool(reader, "expose_openai");
             obj.ExposeManagementTools = AdoConverters.Bool(reader, "expose_management_tools");
+            obj.ChatEnabled = AdoConverters.Bool(reader, "chat_enabled");
+            obj.ChatAccessMode = AdoConverters.Enum(reader, "chat_access_mode", ChatAccessModeEnum.Authenticated);
+            obj.ChatLinkId = AdoConverters.NullableStr(reader, "chat_link_id");
+            obj.ChatCredentialId = AdoConverters.NullableStr(reader, "chat_credential_id");
+            obj.ChatRevision = AdoConverters.Int(reader, "chat_revision");
             obj.InstructionsAppend = AdoConverters.NullableStr(reader, "instructions_append");
             obj.InstructionDetail = AdoConverters.Enum(reader, "instruction_detail", InstructionDetailEnum.Auto);
             obj.IsDefault = AdoConverters.Bool(reader, "is_default");
@@ -270,6 +293,11 @@ namespace Hugo.Core.Database.Ado
             AdoDatabaseDriver.Add(command, "expose_mcp", obj.ExposeMcp);
             AdoDatabaseDriver.Add(command, "expose_openai", obj.ExposeOpenAI);
             AdoDatabaseDriver.Add(command, "expose_management_tools", obj.ExposeManagementTools);
+            AdoDatabaseDriver.Add(command, "chat_enabled", obj.ChatEnabled);
+            AdoDatabaseDriver.Add(command, "chat_access_mode", obj.ChatAccessMode.ToString());
+            AdoDatabaseDriver.Add(command, "chat_link_id", obj.ChatLinkId);
+            AdoDatabaseDriver.Add(command, "chat_credential_id", obj.ChatCredentialId);
+            AdoDatabaseDriver.Add(command, "chat_revision", obj.ChatRevision);
             AdoDatabaseDriver.Add(command, "instructions_append", obj.InstructionsAppend);
             AdoDatabaseDriver.Add(command, "instruction_detail", obj.InstructionDetail.ToString());
             AdoDatabaseDriver.Add(command, "is_default", obj.IsDefault);

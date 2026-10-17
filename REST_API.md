@@ -11016,3 +11016,7 @@ The OpenAPI document is generated from route metadata and is right about paths, 
 
 - List filters (for example `effect`, `fromUtc`, and `toUtc` on approvals) are read from the query string but not declared as OpenAPI parameters. Each list route in this document names its filters.
 - `PUT /v1.0/api/tenants/{tenantId}/prompt-templates/{id}` requires `name` even though other updates are partial.
+
+## Standalone chat publications
+
+Profiles can publish opt-in standalone chat links with Public or Authenticated access. These endpoints use isolated visitor tokens rather than exposing dashboard management access. See [Standalone agent chat](docs/STANDALONE_CHAT.md) for the route table, profile settings, access rules, revocation, and response behavior.

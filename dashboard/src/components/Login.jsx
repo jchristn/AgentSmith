@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
+import { chatReturnPath } from '../utils/standaloneChat';
 import { useAuth } from '../context/AuthContext';
 import ApiClient from '../utils/api';
 import { DEV_DEFAULTS, STORAGE_KEYS, defaultServerUrl } from '../utils/constants';
@@ -25,9 +27,11 @@ export function isLocalServer(url) {
  */
 export default function Login() {
   const { t } = useTranslation();
+  const [params] = useSearchParams();
+  const standaloneLogin = !!chatReturnPath(params.get('returnTo'));
   const { login, theme, toggleTheme } = useAuth();
   const [tab, setTab] = useState('password');
-  const [serverUrl, setServerUrl] = useState(() => localStorage.getItem(STORAGE_KEYS.serverUrl) || defaultServerUrl());
+  const [serverUrl, setServerUrl] = useState(() => (standaloneLogin ? defaultServerUrl() : localStorage.getItem(STORAGE_KEYS.serverUrl) || defaultServerUrl()));
   const [tenantId, setTenantId] = useState(() => localStorage.getItem(STORAGE_KEYS.tenant) || DEV_DEFAULTS.tenantId);
   const [tenants, setTenants] = useState(null);
   const [email, setEmail] = useState('');
@@ -146,6 +150,7 @@ export default function Login() {
             </label>
             <input
               id="serverUrl"
+              readOnly={standaloneLogin}
               {...tip(t('tips.login.serverUrl'))}
               type="url"
               value={serverUrl}

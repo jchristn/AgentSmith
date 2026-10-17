@@ -149,6 +149,7 @@ namespace Hugo.Server.Services
             if (_DefaultMaxIterations != null) profile.MaxIterations = _DefaultMaxIterations();
             if (_DefaultMaxToolCallsPerTurn != null) profile.MaxToolCallsPerTurn = _DefaultMaxToolCallsPerTurn();
             await ApplyAsync(profile, request, token).ConfigureAwait(false);
+            await ApplyChatAsync(ctx, profile, request, token).ConfigureAwait(false);
             profile.IsDefault = false;
             await _Database.AgentProfiles.CreateAsync(profile, token).ConfigureAwait(false);
             if (request.IsDefault == true) await _Database.AgentProfiles.SetDefaultAsync(tenantId, profile.Id, token).ConfigureAwait(false);
@@ -177,7 +178,8 @@ namespace Hugo.Server.Services
             }
             if (request.Active == false && profile.IsDefault) throw new ConflictException("DefaultProfile", "The tenant's default profile cannot be deactivated; make another profile the default first.");
             await ApplyAsync(profile, request, token).ConfigureAwait(false);
-            await _Database.AgentProfiles.UpdateAsync(profile, request.InstructionsAppend != null, token).ConfigureAwait(false);
+            await ApplyChatAsync(ctx, profile, request, token).ConfigureAwait(false);
+            await _Database.AgentProfiles.UpdateAsync(profile, request.InstructionsAppend != null, request.ChatEnabled.HasValue || request.ChatAccessMode.HasValue || request.ChatCredentialId != null || request.RotateChatLink, token).ConfigureAwait(false);
             if (request.IsDefault == true && !profile.IsDefault) await _Database.AgentProfiles.SetDefaultAsync(tenantId, profile.Id, token).ConfigureAwait(false);
             await AfterChangeAsync(ctx, profile, "profile.updated", "Updated agent profile " + profile.Name + ".", token).ConfigureAwait(false);
             return await ReadAsync(ctx, tenantId, profile.Id, token).ConfigureAwait(false);
@@ -255,6 +257,11 @@ namespace Hugo.Server.Services
             copy.Name = name;
             copy.DisplayName = name;
             copy.IsDefault = false;
+            copy.ChatEnabled = false;
+            copy.ChatAccessMode = ChatAccessModeEnum.Authenticated;
+            copy.ChatLinkId = null;
+            copy.ChatCredentialId = null;
+            copy.ChatRevision = 1;
             copy.OwnerUserId = ctx.UserId ?? source.OwnerUserId;
             await _Database.AgentProfiles.CreateAsync(copy, token).ConfigureAwait(false);
             foreach (Binding binding in await _Database.Bindings.ListByProfileAsync(tenantId, source.Id, token).ConfigureAwait(false))
@@ -321,6 +328,31 @@ namespace Hugo.Server.Services
             if (endpoint == null) throw Invalid(field, "Model endpoint " + id + " does not exist in this tenant.");
             if (endpoint.Kind != kind) throw Invalid(field, "Model endpoint " + endpoint.Name + " is an " + endpoint.Kind + " endpoint, not " + kind + ".");
             return endpoint.Id;
+        }
+
+        private async Task ApplyChatAsync(RequestContext ctx, AgentProfile profile, AgentProfileRequest request, CancellationToken token)
+        {
+            if (!request.ChatEnabled.HasValue && !request.ChatAccessMode.HasValue && request.ChatCredentialId == null && !request.RotateChatLink) return;
+            bool wasPublic = profile.ChatEnabled && profile.ChatAccessMode == ChatAccessModeEnum.Public;
+            string? previousCredential = profile.ChatCredentialId;
+            if (request.ChatEnabled.HasValue) profile.ChatEnabled = request.ChatEnabled.Value;
+            if (request.ChatAccessMode.HasValue) profile.ChatAccessMode = request.ChatAccessMode.Value;
+            if (request.ChatCredentialId != null) profile.ChatCredentialId = String.IsNullOrWhiteSpace(request.ChatCredentialId) ? null : request.ChatCredentialId.Trim();
+            if (!Enum.IsDefined(profile.ChatAccessMode)) throw Invalid("chatAccessMode", "Use Authenticated or Public.");
+            if (profile.ChatEnabled && profile.ChatAccessMode == ChatAccessModeEnum.Public)
+            {
+                if (String.IsNullOrEmpty(profile.ChatCredentialId)) throw Invalid("chatCredentialId", "Public chat requires a publishing credential owned by your user.");
+                Credential? credential = await _Database.Credentials.ReadAsync(profile.TenantId, profile.ChatCredentialId, token).ConfigureAwait(false);
+                if (credential == null || !credential.Active || credential.ExpiresUtc <= DateTime.UtcNow || credential.AuthMode == CredentialAuthModeEnum.SessionExchange)
+                    throw Invalid("chatCredentialId", "Select an active, unexpired credential that supports direct or signed requests.");
+                if ((!wasPublic || previousCredential != profile.ChatCredentialId) && (String.IsNullOrEmpty(ctx.UserId) || credential.UserId != ctx.UserId))
+                    throw Invalid("chatCredentialId", "The public chat credential must be owned by the publishing user.");
+                User? owner = await _Database.Users.ReadAsync(profile.TenantId, credential.UserId, token).ConfigureAwait(false);
+                if (owner == null || !owner.Active) throw Invalid("chatCredentialId", "The publishing credential's owner must be active.");
+                if (credential.LockToProfile && credential.AgentProfileId != profile.Id) throw Invalid("chatCredentialId", "The credential is locked to a different agent profile.");
+            }
+            if (String.IsNullOrEmpty(profile.ChatLinkId) || request.RotateChatLink)
+                profile.ChatLinkId = Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(24)).ToLowerInvariant();
         }
 
         private async Task AfterChangeAsync(RequestContext ctx, AgentProfile profile, string eventType, string description, CancellationToken token)

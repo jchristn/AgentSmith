@@ -14,6 +14,8 @@ Everything below is new in this release. The images are `jchristn77/hugo-server:
 
 ### Dashboard
 
+- User-managed standalone agent chat links support Public and Authenticated access, isolated visitor sessions, URL rotation and revocation, profile Connect controls, and a responsive chat page without dashboard navigation. Migration 10 preserves existing profiles as unpublished.
+
 - Create resource starts with a searchable connector card grid instead of a dropdown near the bottom of the form.
 
 - Model endpoint editing and health inspection use separate modals. The health view presents summary cards, a chronological health histogram, timestamps, latest failure, and expandable check details.

@@ -356,7 +356,7 @@ namespace Hugo.Core.Instructions
             context.Set("profile.familySummary", String.Join(", ", bound.Select(b => DisplayName(b) + " (" + b.Binding.Alias + ")")));
             context.Set("tenant.id", tenant?.Id ?? profile.TenantId);
             context.Set("tenant.name", tenant?.Name ?? profile.TenantId);
-            User? user = principal?.User;
+            User? user = principal?.IsPublicChat == true ? null : principal?.User;
             context.Set("user.firstName", user?.FirstName ?? String.Empty);
             context.Set("user.lastName", user?.LastName ?? String.Empty);
             context.Set("user.email", user?.Email ?? String.Empty);
@@ -616,6 +616,7 @@ namespace Hugo.Core.Instructions
         {
             long generation = _Generations.TryGetValue(tenantId, out long g) ? g : 0;
             string who = principal == null ? "internal" : (principal.UserId ?? principal.PrincipalId ?? "anonymous") + (principal.IsTenantAdmin || principal.IsAdmin ? ":admin" : String.Empty);
+            if (principal?.IsPublicChat == true) who += ":public-chat:" + principal.CredentialId + ":" + principal.PublicChatRevision;
             return tenantId + "|" + profileId + "|" + who + "|" + surface + "|" + generation + "|" + Interlocked.Read(ref _GlobalGeneration);
         }
 

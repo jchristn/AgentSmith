@@ -4494,5 +4494,39 @@
         }
       }
     }
+  },
+  "standaloneChat": {
+    "title": "聊天",
+    "theme": "主题",
+    "themeTip": "切换浅色和深色外观。",
+    "new": "新聊天",
+    "newTip": "开始独立对话并清除此会话。",
+    "unavailable": "此聊天链接不可用或已停用。",
+    "loginRequired": "登录后使用您自己的权限与此代理聊天。",
+    "login": "登录",
+    "loginTip": "登录并直接返回此聊天。",
+    "empty": "今天有什么可以帮您？",
+    "manage": {
+      "title": "聊天链接",
+      "description": "分享不含控制台导航的独立聊天页面。",
+      "enabled": "启用聊天链接",
+      "enableTip": "启用或停用此配置的独立聊天链接。",
+      "mode": "访问方式",
+      "modeTip": "选择访客必须登录还是可以公开聊天。",
+      "authenticated": "需要登录",
+      "public": "公开",
+      "publicNotice": "任何持有此链接的人均可使用所选凭据的权限聊天。请谨慎选择权限。",
+      "credential": "公开聊天凭据",
+      "credentialTip": "选择属于您的现有有效凭据。",
+      "selectCredential": "选择凭据",
+      "credentialsUnavailable": "无法加载凭据。",
+      "saveTip": "保存聊天访问设置，并在启用时生成链接。",
+      "copyTip": "将独立聊天地址复制到剪贴板。",
+      "open": "打开聊天",
+      "openTip": "在新标签页中打开此配置的独立聊天。",
+      "rotate": "更换链接",
+      "rotateTip": "更换此地址并撤销原聊天链接。",
+      "rotateNotice": "保存访问设置或更换链接会使现有聊天会话失效。更换链接还会替换地址。"
+    }
   }
 }

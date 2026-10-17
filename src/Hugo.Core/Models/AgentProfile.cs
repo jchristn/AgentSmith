@@ -264,6 +264,22 @@ namespace Hugo.Core.Models
             }
         }
 
+        /// <summary>Whether this profile's standalone chat link accepts visitors. Default false.</summary>
+        public bool ChatEnabled { get; set; } = false;
+
+        /// <summary>Visitor access policy. Default Authenticated.</summary>
+        public ChatAccessModeEnum ChatAccessMode { get; set; } = ChatAccessModeEnum.Authenticated;
+
+        /// <summary>Opaque server-generated standalone URL identifier.</summary>
+        public string? ChatLinkId { get; set; } = null;
+
+        /// <summary>Publishing credential used for public visitors; never sent to visitors.</summary>
+        public string? ChatCredentialId { get; set; } = null;
+
+        /// <summary>Revocation generation for visitor capabilities. Not a user-editable setting.</summary>
+        [System.Text.Json.Serialization.JsonIgnore]
+        public int ChatRevision { get; set; } = 1;
+
         #endregion
 
         #region Private-Members

@@ -30,6 +30,12 @@ namespace Hugo.Core.Database.Interfaces
         /// <returns>Profile or null.</returns>
         Task<AgentProfile?> ReadAsync(string tenantId, string id, CancellationToken token = default);
 
+        /// <summary>Find an enabled standalone chat link without a caller-supplied tenant.</summary>
+        /// <param name="linkId">Opaque link identifier.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>The profile or null. The service must validate all visitor access.</returns>
+        Task<AgentProfile?> ReadByChatLinkAsync(string linkId, CancellationToken token = default);
+
         /// <summary>
         /// Read a profile by name (case-insensitive).
         /// </summary>
@@ -55,6 +61,14 @@ namespace Hugo.Core.Database.Interfaces
         /// <param name="token">Cancellation token.</param>
         /// <returns>The updated profile.</returns>
         Task<AgentProfile> UpdateAsync(AgentProfile obj, bool includeInstructions, CancellationToken token = default);
+
+        /// <summary>Update a profile while preserving omitted instruction and publication settings.</summary>
+        /// <param name="obj">Profile snapshot.</param>
+        /// <param name="includeInstructions">Whether to write instructions.</param>
+        /// <param name="includeChatSettings">Whether to atomically compare and update publication settings.</param>
+        /// <param name="token">Cancellation.</param>
+        /// <returns>Updated profile.</returns>
+        Task<AgentProfile> UpdateAsync(AgentProfile obj, bool includeInstructions, bool includeChatSettings, CancellationToken token = default);
 
         /// <summary>
         /// Atomically change only appended instructions and the update timestamp when the persisted content matches.

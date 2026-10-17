@@ -130,6 +130,7 @@ namespace Hugo.Server.Services
             if (String.IsNullOrWhiteSpace(tenantId)) throw new ArgumentNullException(nameof(tenantId));
             if (String.IsNullOrWhiteSpace(profileId)) throw new ArgumentNullException(nameof(profileId));
             token.ThrowIfCancellationRequested();
+            if (ctx.IsPublicChat) throw new ForbiddenException("permission_denied", "Public chat cannot read or update persistent agent instructions.");
             if (!ctx.IsAuthenticated) throw new ForbiddenException("permission_denied", "Authentication is required.");
             bool systemAdmin = ctx.IsAdmin || ctx.PrincipalType == PrincipalTypeEnum.Administrator;
             if (!systemAdmin && !String.Equals(ctx.TenantId, tenantId, StringComparison.Ordinal)) throw new NotFoundException("Agent profile not found.");

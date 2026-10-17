@@ -1,9 +1,11 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppProvider } from './context/AppContext';
 import { ToastProvider } from './context/ToastContext';
 import Login from './components/Login';
+import StandaloneChatView from './views/StandaloneChatView';
+import { chatReturnPath } from './utils/standaloneChat';
 import Dashboard from './components/Dashboard';
 import LegacyRedirect from './components/LegacyRedirect';
 import { TooltipLayer } from './components/Tooltip';
@@ -26,9 +28,11 @@ function PrivateRoute({ children }) {
 }
 
 function PublicRoute({ children }) {
+  const [params] = useSearchParams();
+  const returnTo = chatReturnPath(params.get('returnTo'));
   const { isAuthenticated, isLoading } = useAuth();
   if (isLoading) return <AppLoading />;
-  return !isAuthenticated ? children : <Navigate to="/dashboard/home" replace />;
+  return !isAuthenticated ? children : <Navigate to={returnTo || '/dashboard/home'} replace />;
 }
 
 function AppRoutes() {
@@ -42,6 +46,7 @@ function AppRoutes() {
           </PublicRoute>
         }
       />
+      <Route path="/chat/:linkId" element={<StandaloneChatView />} />
       <Route path="/dashboard" element={<Navigate to="/dashboard/home" replace />} />
       {/* Pre-hub URLs replace-redirect to their hub and tab, keeping the query string. */}
       {LEGACY_REDIRECTS.map((r) => (

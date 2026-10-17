@@ -9,6 +9,7 @@ import ConfirmModal from '../components/ConfirmModal';
 import JsonViewerModal from '../components/JsonViewerModal';
 import CodeBlock from '../components/CodeBlock';
 import CopyButton from '../components/CopyButton';
+import ProfileChatLink from '../components/ProfileChatLink';
 import RowActions from '../components/RowActions';
 import { LoadingState, ErrorPresenter, UnavailableState, EmptyState } from '../components/States';
 import { Badge, EffectBadge, EnumBadge } from '../components/StatusBadge';
@@ -630,6 +631,7 @@ export default function ProfileDetailView({ recordId }) {
 
       {tab === 'connect' && (
         <div className="connect-grid" data-testid="profile-connect">
+          <ProfileChatLink profile={profile} onSaved={load} />
           <Snippet
             title={t('views.profile.connect.claudeCode')}
             body={t('views.profile.connect.claudeCodeBody')}

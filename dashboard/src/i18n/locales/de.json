@@ -4494,5 +4494,39 @@
         }
       }
     }
+  },
+  "standaloneChat": {
+    "title": "Chat",
+    "theme": "Design",
+    "themeTip": "Zwischen hellem und dunklem Design wechseln.",
+    "new": "Neuer Chat",
+    "newTip": "Eine neue Unterhaltung beginnen und diese Sitzung leeren.",
+    "unavailable": "Dieser Chat-Link ist nicht verfügbar oder wurde deaktiviert.",
+    "loginRequired": "Melden Sie sich an, um mit Ihren eigenen Berechtigungen zu chatten.",
+    "login": "Anmelden",
+    "loginTip": "Anmelden und direkt zu diesem Chat zurückkehren.",
+    "empty": "Wie kann ich Ihnen heute helfen?",
+    "manage": {
+      "title": "Chat-Link",
+      "description": "Eine eigene Chat-Seite ohne Dashboard-Navigation teilen.",
+      "enabled": "Chat-Link aktivieren",
+      "enableTip": "Den eigenständigen Chat-Link dieses Profils aktivieren oder deaktivieren.",
+      "mode": "Zugriff",
+      "modeTip": "Festlegen, ob Besucher sich anmelden müssen oder öffentlich chatten dürfen.",
+      "authenticated": "Anmeldung erforderlich",
+      "public": "Öffentlich",
+      "publicNotice": "Jeder mit diesem Link kann mit den Berechtigungen des gewählten Zugangsschlüssels chatten. Wählen Sie diese sorgfältig.",
+      "credential": "Zugangsschlüssel für öffentlichen Chat",
+      "credentialTip": "Einen vorhandenen aktiven Zugangsschlüssel auswählen, der Ihnen gehört.",
+      "selectCredential": "Zugangsschlüssel auswählen",
+      "credentialsUnavailable": "Zugangsschlüssel konnten nicht geladen werden.",
+      "saveTip": "Chat-Zugriff speichern und bei Aktivierung einen Link erstellen.",
+      "copyTip": "Die Adresse des eigenständigen Chats in die Zwischenablage kopieren.",
+      "open": "Chat öffnen",
+      "openTip": "Den eigenständigen Chat dieses Profils in einem neuen Tab öffnen.",
+      "rotate": "Link erneuern",
+      "rotateTip": "Diese Adresse ersetzen und den bisherigen Chat-Link widerrufen.",
+      "rotateNotice": "Das Speichern der Zugriffseinstellungen oder Erneuern des Links macht bestehende Chat-Sitzungen ungültig. Beim Erneuern ändert sich auch die Adresse."
+    }
   }
 }

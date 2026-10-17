@@ -57,6 +57,7 @@ namespace Hugo.Server.Modules
             context.Register(_Host);
             ConversationService conversations = new ConversationService(context.Database, _Host.Turns);
             context.Register(conversations);
+            context.Register(new StandaloneChatService(context, _Host));
             AgentDelegationService delegation = new AgentDelegationService(context, _Host, context.Get<ProfileResolver>(), conversations);
             context.Register(delegation);
             context.Register<IAgentDelegationService>(delegation);
@@ -81,6 +82,7 @@ namespace Hugo.Server.Modules
             ProfileResolver resolver = context.Get<ProfileResolver>();
             ConversationService conversations = context.Get<ConversationService>();
             new ConversationRoutes(context, conversations, _Host!, resolver).Register(routes);
+            new StandaloneChatRoutes(context, context.Get<StandaloneChatService>()).Register(routes);
             new AnalyticsRoutes(context.Get<AnalyticsService>()).Register(routes);
             new AgentDelegationRoutes(context.Get<AgentDelegationService>()).Register(routes);
             new A2ARoutes(context, _Tasks!, context.Get<AgentCardService>()).Register(routes);

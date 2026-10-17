@@ -52,6 +52,7 @@ namespace Test.Shared
                 suites.AddRange(Test.Shared.Integration.ResourceHealthSuite.Build());
                 suites.AddRange(Test.Shared.Integration.ResourceContextSuite.Build());
                 suites.AddRange(Test.Shared.Integration.AgentInstructionsSuite.Build());
+                suites.AddRange(Test.Shared.Integration.StandaloneChatSuite.Build());
                 suites.AddRange(Test.Shared.Integration.IntegrationDataSuite.Build());
                 suites.AddRange(Test.Shared.Integration.FollowUpSuite.Build());
                 suites.AddRange(Test.Shared.Integration.ThirdPartyInstructionsSuite.Build());

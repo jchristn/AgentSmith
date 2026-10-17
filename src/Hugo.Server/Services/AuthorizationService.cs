@@ -166,6 +166,12 @@ namespace Hugo.Server.Services
             if (ctx == null) throw new ArgumentNullException(nameof(ctx));
             if (!ctx.IsAuthenticated) return AuthorizationDecision.Deny(AuthorizationResultEnum.DeniedImplicit, "Not authenticated.");
 
+            if (ctx.IsPublicChat)
+            {
+                AuthorizationDecision? capability = await PublicChatCapabilityAsync(ctx, tenantId, resourceType, operation, resourceId, token).ConfigureAwait(false);
+                if (capability != null) return capability;
+            }
+
             if (ctx.PrincipalType == PrincipalTypeEnum.Administrator || ctx.IsAdmin)
             {
                 AuthorizationDecision admin = AuthorizationDecision.Permit("System administrator.");
@@ -302,6 +308,39 @@ namespace Hugo.Server.Services
         #endregion
 
         #region Private-Methods
+
+        private async Task<AuthorizationDecision?> PublicChatCapabilityAsync(RequestContext ctx, string? tenantId, ResourceTypeEnum resourceType, OperationTypeEnum operation, string? resourceId, CancellationToken token)
+        {
+            if (ctx.PrincipalType != PrincipalTypeEnum.Credential || ctx.IsAdmin || ctx.IsTenantAdmin
+                || String.IsNullOrEmpty(ctx.CredentialId) || String.IsNullOrEmpty(ctx.TenantId)
+                || String.IsNullOrEmpty(ctx.PublicChatProfileId)
+                || (!String.IsNullOrEmpty(tenantId) && tenantId != ctx.TenantId))
+                return AuthorizationDecision.Deny(AuthorizationResultEnum.DeniedImplicit, "Invalid public chat capability.");
+
+            AgentProfile? profile = await _Database.AgentProfiles.ReadAsync(ctx.TenantId, ctx.PublicChatProfileId, token).ConfigureAwait(false);
+            Credential? credential = await _Database.Credentials.ReadAsync(ctx.TenantId, ctx.CredentialId, token).ConfigureAwait(false);
+            User? owner = credential == null ? null : await _Database.Users.ReadAsync(ctx.TenantId, credential.UserId, token).ConfigureAwait(false);
+            Tenant? tenant = await _Database.Tenants.ReadAsync(ctx.TenantId, token).ConfigureAwait(false);
+            if (profile == null || !profile.Active || !profile.ChatEnabled || profile.ChatAccessMode != ChatAccessModeEnum.Public
+                || profile.ChatRevision != ctx.PublicChatRevision || profile.ChatCredentialId != ctx.CredentialId
+                || credential == null || !credential.Active || (credential.ExpiresUtc.HasValue && credential.ExpiresUtc.Value <= DateTime.UtcNow)
+                || owner == null || !owner.Active || owner.Id != ctx.UserId || tenant == null || !tenant.Active)
+                return AuthorizationDecision.Deny(AuthorizationResultEnum.DeniedImplicit, "The public chat publication is no longer available.");
+            if (credential.LockToProfile && credential.AgentProfileId != profile.Id)
+                return AuthorizationDecision.Deny(AuthorizationResultEnum.DeniedImplicit, "The credential is locked to another profile.");
+            ctx.User = owner;
+            bool allowed = resourceType == ResourceTypeEnum.AgentProfile
+                ? resourceId == profile.Id && (operation == OperationTypeEnum.Read || operation == OperationTypeEnum.Execute)
+                : resourceType == ResourceTypeEnum.Resource
+                    ? operation == OperationTypeEnum.Read || operation == OperationTypeEnum.Execute
+                    : resourceType == ResourceTypeEnum.Conversation
+                        && (operation == OperationTypeEnum.Create || operation == OperationTypeEnum.Read || operation == OperationTypeEnum.Update);
+            if (!allowed)
+                return AuthorizationDecision.Deny(AuthorizationResultEnum.DeniedImplicit, "Public chat cannot perform this management operation.");
+            // Continue through normal credential grants and the freshly loaded owner's permission ceiling.
+            return null;
+        }
+
 
         private void RaiseInvalidated()
         {

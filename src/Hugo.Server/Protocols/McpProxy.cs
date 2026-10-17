@@ -71,7 +71,7 @@ namespace Hugo.Server.Protocols
 
         private static readonly HashSet<string> _CredentialHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            "Authorization", "x-token", "x-api-key", "x-access-key", "x-secret-key", "x-signature", "x-nonce", "x-date", "x-email", "x-password"
+            "Authorization", "x-token", "x-api-key", "x-access-key", "x-secret-key", "x-signature", "x-nonce", "x-date", "x-email", "x-password", "x-hugo-chat-session"
         };
 
         private static readonly HashSet<string> _KnownMethods = new HashSet<string>(StringComparer.Ordinal)

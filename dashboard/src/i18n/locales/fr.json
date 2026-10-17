@@ -4494,5 +4494,39 @@
         }
       }
     }
+  },
+  "standaloneChat": {
+    "title": "Discussion",
+    "theme": "Thème",
+    "themeTip": "Basculer entre les apparences claire et sombre.",
+    "new": "Nouvelle discussion",
+    "newTip": "Commencer une autre conversation et effacer cette session.",
+    "unavailable": "Ce lien de discussion est indisponible ou désactivé.",
+    "loginRequired": "Connectez-vous pour discuter avec vos propres autorisations.",
+    "login": "Se connecter",
+    "loginTip": "Se connecter et revenir directement à cette discussion.",
+    "empty": "Comment puis-je vous aider aujourd’hui ?",
+    "manage": {
+      "title": "Lien de discussion",
+      "description": "Partagez une page de discussion sans la navigation du tableau de bord.",
+      "enabled": "Activer le lien",
+      "enableTip": "Activer ou désactiver le lien de discussion de ce profil.",
+      "mode": "Accès",
+      "modeTip": "Choisir si les visiteurs doivent se connecter ou peuvent discuter publiquement.",
+      "authenticated": "Connexion requise",
+      "public": "Public",
+      "publicNotice": "Toute personne disposant du lien utilise les autorisations de l’identifiant choisi. Choisissez-les avec soin.",
+      "credential": "Identifiant de discussion publique",
+      "credentialTip": "Choisir un identifiant actif existant qui vous appartient.",
+      "selectCredential": "Sélectionner un identifiant",
+      "credentialsUnavailable": "Impossible de charger les identifiants.",
+      "saveTip": "Enregistrer l’accès et générer un lien lors de l’activation.",
+      "copyTip": "Copier l’adresse de discussion dans le presse-papiers.",
+      "open": "Ouvrir la discussion",
+      "openTip": "Ouvrir la discussion de ce profil dans un nouvel onglet.",
+      "rotate": "Renouveler le lien",
+      "rotateTip": "Remplacer cette adresse et révoquer l’ancien lien.",
+      "rotateNotice": "Enregistrer l’accès ou renouveler le lien invalide les sessions existantes. Le renouvellement remplace aussi l’adresse."
+    }
   }
 }

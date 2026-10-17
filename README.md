@@ -8,6 +8,8 @@ The default profile is named Hugo. It calls itself Agent Smith, and it calls you
 
 > Hugo is an alpha (`0.1.0-alpha`). It works end to end and is tested against real targets, and it will still change in ways that break things before 1.0. The build plan and progress tracker is [`archive/HUGO_PLAN.md`](archive/HUGO_PLAN.md); what shipped is in [`CHANGELOG.md`](CHANGELOG.md).
 
+Standalone chat links can be published per agent as Public or Authenticated, following AssistantHub's separate chat-page pattern. See [Standalone agent chat](docs/STANDALONE_CHAT.md) for management, execution permissions, and visitor isolation.
+
 ## Why it exists
 
 A production stack is a dozen systems with a dozen consoles. When something breaks at 2 AM, the operator becomes the integration layer, hopping between terminals and dashboards and pasting fragments into a chat window. Coding agents such as Claude Code can already reason about all of it. What they lack is safe, consistent, credentialed access: every harness would need its own SSH keys, database passwords, and cloud credentials, and its own idea of which actions are safe. Today that access is scattered across laptops, nobody audits it, and nothing stops the destructive actions.

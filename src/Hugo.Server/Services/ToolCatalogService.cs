@@ -78,6 +78,11 @@ namespace Hugo.Server.Services
             catalog.HasModel = !String.IsNullOrEmpty(profile.InferenceEndpointId);
             catalog.ResourceCount = bound.Count;
             catalog.Tools = ToolVisibilityFilter.Build(bound, catalog.HasModel);
+            if (principal.IsPublicChat)
+            {
+                catalog.Tools.RemoveAll(tool => tool.UpdatesKnowledge);
+                return catalog;
+            }
             foreach (IMetaToolProvider provider in _MetaProviders)
             {
                 List<CallerTool> meta = await provider.GetToolsAsync(principal, profile, surface, token).ConfigureAwait(false) ?? new List<CallerTool>();
