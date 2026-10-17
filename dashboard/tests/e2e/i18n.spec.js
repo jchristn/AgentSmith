@@ -44,7 +44,7 @@ test('switches language from the topbar without a reload, including RTL Arabic',
 test('every locale translates the navigation and page chrome', async ({ page }) => {
   await login(page, { expect });
   for (const locale of LOCALES.filter((l) => !l.pseudo && l.code !== 'en')) {
-    await page.goto(`${pathFor('resources')}?lang=${locale.code}`);
+    await page.goto(pathFor('resources', null, { lang: locale.code }));
     await expect(page.locator('html'), locale.code).toHaveAttribute('lang', locale.code);
     await expect(page.locator('html'), locale.code).toHaveAttribute('dir', locale.dir);
     await expect(page.locator('.sidebar-item[data-nav="connections"]'), locale.code).not.toHaveText(en.nav.hubs.connections.label);
@@ -59,12 +59,12 @@ for (const code of ['en-XA', 'ar-XB']) {
       await page.setViewportSize({ width, height: 900 });
       await login(page, { expect });
       for (const id of ['home', 'resources', 'secrets', 'requests', 'explorer', 'settings', 'chat', 'approvals']) {
-        await page.goto(`${pathFor(id)}?lang=${code}`);
+        await page.goto(pathFor(id, null, { lang: code }));
         await expect(page.locator('.page-header-title').first(), id).toContainText('⟦');
         const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
         expect(overflow, `${id} ${code} ${width}`).toBeLessThanOrEqual(1);
       }
-      await page.goto(`${pathFor('resources')}?lang=${code}`);
+      await page.goto(pathFor('resources', null, { lang: code }));
       await page.getByTestId('add-button').click();
       await expect(page.locator('.modal-footer .button-primary')).toBeInViewport();
     });

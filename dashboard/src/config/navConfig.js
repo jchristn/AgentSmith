@@ -41,8 +41,8 @@ export const NAV_SECTIONS = [
         slug: 'connections',
         icon: 'ServerIcon',
         tabs: [
-          { id: 'resources', slug: 'resources', detail: true },
           { id: 'secrets', slug: 'secrets' },
+          { id: 'resources', slug: 'resources', detail: true },
           { id: 'connectors', slug: 'connectors', detail: true },
           { id: 'models', slug: 'models' }
         ]

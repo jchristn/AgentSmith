@@ -155,6 +155,8 @@ namespace Hugo.Connectors.Storage
             {
                 string? accessKeyId = resource.Secrets.Get(StorageSettingKeys.SlotAccessKeyPair, StorageSettingKeys.FieldAccessKeyId);
                 string? secretAccessKey = resource.Secrets.Get(StorageSettingKeys.SlotAccessKeyPair, StorageSettingKeys.FieldSecretAccessKey);
+                accessKeyId = S3CredentialNormalizer.Normalize(accessKeyId, endpoint == null);
+                secretAccessKey = S3CredentialNormalizer.Normalize(secretAccessKey, endpoint == null);
                 if (String.IsNullOrEmpty(accessKeyId) || String.IsNullOrEmpty(secretAccessKey))
                     throw new ConnectorException("invalid_credentials", "The accessKeyPair secret must have both accessKeyId and secretAccessKey.");
                 if (!String.IsNullOrEmpty(resource.Secrets.Get(StorageSettingKeys.SlotAccessKeyPair, StorageSettingKeys.FieldSessionToken)))

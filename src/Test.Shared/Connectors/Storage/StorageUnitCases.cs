@@ -512,6 +512,32 @@ namespace Test.Shared.Connectors.Storage
             StorageTestAssert.True((await connector.ValidateAsync(specialCharacters, token).ConfigureAwait(false)).IsValid, "AWS secret punctuation accepted");
             StorageTestAssert.Equal("secret+/=example", StorageClientFactory.BuildS3Settings(specialCharacters).SecretKey, "AWS secret punctuation preserved exactly");
 
+            foreach (string escaped in new string[] { @"secret\u002B\/\u003Dexample", @"secret\u002b/\u003dexample" })
+            {
+                ConnectorResourceContext encoded = WithSecrets(Offline(StorageProviderEnum.AmazonS3, new Dictionary<string, string> { { "endpoint", "" } }), new Dictionary<string, Dictionary<string, string>>
+                {
+                    { "accessKeyPair", new Dictionary<string, string> { { "accessKeyId", @"AKID\u0045XAMPLE" }, { "secretAccessKey", escaped } } }
+                });
+                StorageTestAssert.True((await connector.ValidateAsync(encoded, token).ConfigureAwait(false)).IsValid, "escaped AWS keys validate");
+                Blobject.AmazonS3.AwsSettings normalized = StorageClientFactory.BuildS3Settings(encoded);
+                StorageTestAssert.Equal("AKIDEXAMPLE", normalized.AccessKey, "escaped access key decoded");
+                StorageTestAssert.Equal("secret+/=example", normalized.SecretKey, "JSON escapes decoded once for AWS signing");
+                StorageTestAssert.Equal(escaped, encoded.Secrets.Get("accessKeyPair", "secretAccessKey"), "stored value stays unchanged");
+            }
+            foreach (string literal in new string[] { @"secret\uZZZZ", @"secret\nvalue", @"secret\\u002B", @"secret\u005Cvalue" })
+            {
+                ConnectorResourceContext unchanged = WithSecrets(Offline(StorageProviderEnum.AmazonS3, new Dictionary<string, string> { { "endpoint", "" } }), new Dictionary<string, Dictionary<string, string>>
+                {
+                    { "accessKeyPair", new Dictionary<string, string> { { "accessKeyId", "AKIDEXAMPLE" }, { "secretAccessKey", literal } } }
+                });
+                StorageTestAssert.Equal(literal, StorageClientFactory.BuildS3Settings(unchanged).SecretKey, "malformed or non-key escape stays literal");
+            }
+            ConnectorResourceContext compatible = WithSecrets(Offline(StorageProviderEnum.AmazonS3, new Dictionary<string, string> { { "endpoint", "https://storage.example.invalid" } }), new Dictionary<string, Dictionary<string, string>>
+            {
+                { "accessKeyPair", new Dictionary<string, string> { { "accessKeyId", "custom" }, { "secretAccessKey", @"literal\u002B" } } }
+            });
+            StorageTestAssert.Equal(@"literal\u002B", StorageClientFactory.BuildS3Settings(compatible).SecretKey, "custom storage credentials retain literal backslashes");
+
             foreach (string credentialField in new string[] { "accessKeyId", "secretAccessKey" })
             {
                 ConnectorResourceContext whitespace = WithSecrets(Offline(StorageProviderEnum.AmazonS3, new Dictionary<string, string> { { "endpoint", "" } }), new Dictionary<string, Dictionary<string, string>>

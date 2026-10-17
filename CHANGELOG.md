@@ -58,6 +58,7 @@ Everything below is new in this release. The images are `jchristn77/hugo-server:
 
 ### Connectors
 
+- AWS S3 decodes copied JSON escapes such as `\u002B` in credentials before signing, while preserving stored secrets and literal custom-endpoint credentials.
 - S3 connection failures distinguish AWS credential, signature, region, and access-policy errors safely and explain the bucket-list permission required by the probe.
 - Removed the legacy Papertrail connector. SolarWinds Observability remains available for SolarWinds Cloud API tokens and log queries.
 

@@ -86,11 +86,11 @@ These rules keep the plan honest:
 | 1 | Core foundation: settings, data layer, identity, RBAC, sessions, audit, history, telemetry base | M1 | Complete | 44 / 44 |
 | 2 | Secrets vault | M1 | Complete | 12 / 12 |
 | 3 | Connector framework and tool invocation pipeline | M1 | Complete | 26 / 26 |
-| 4 | Connectors wave 1: SSH, object storage, SQL databases, SolarWinds Observability | M1 | Complete | 40 / 40 |
+| 4 | Connectors wave 1: SSH, object storage, SQL databases, SolarWinds Observability | M1 | Complete | 41 / 41 |
 | 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | Complete | 21 / 21 |
 | 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | Complete | 24 / 24 |
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Complete | 22 / 22 |
-| 8 | Dashboard | M1 | Complete | 58 / 58 |
+| 8 | Dashboard | M1 | Complete | 59 / 59 |
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | Complete | 14 / 14 |
 | 10 | Docker, testbed, and observability stack | M1 | Complete | 24 / 24 |
 | 11 | Documentation and Postman | M1 | Complete | 18 / 18 |
@@ -1940,6 +1940,8 @@ Database intelligence (D-038)
 
 - [x] P4.40 Investigate S3 SignatureDoesNotMatch follow-up. *Accept:* credential copy path inspected, AWS key whitespace rejected without exposing values, secret punctuation preserved, and probe operation label matches installed Blobject. | codex 2026-10-17 dashboard/encryption/resolver preserve exact values; no confirmed signing defect; AWS whitespace validation and ListObjects label correction verified by storage regressions and zero-warning build. Independent HMAC verification of the actual bundled library ListObjects HTTP request passed for juratblobs.s3.us-east-2.amazonaws.com using synthetic credentials, including +/= in the secret. User confirms same production key pair; actual deployment rejection remains unresolved and requires comparing same-host behavior.
 
+- [x] P4.41 Decode copied JSON escapes in AWS S3 credentials safely and assess other connector types. *Accept:* AWS key values decode once for validation/signing; plaintext, malformed and non-key escapes, custom endpoint secrets and stored values retain exact semantics; regressions pass; cross-connector review documented. | codex 2026-10-17 user confirmed literal JSON Unicode escape caused signature mismatch; scoped normalization verified with 32 passing storage cases, zero-warning build, once-only/malformed/custom-endpoint and punctuation coverage. Reviewed AWS cloud explicit keys (same paste risk), Azure base64 validation, shared JSON transport and exact-value secret storage; documented why arbitrary credentials remain unchanged
+
 ### Phase 5: Agent profiles, bindings, prompt templates, instruction composition (M1)
 
 - [x] P5.1 Migration 5: `agent_profiles`, `bindings`, `binding_tool_rules`, `prompt_templates`, `prompt_template_versions`.  | claude 2026-10-14 migration 5: profiles, bindings, tool rules, deny patterns, prompt_templates.base_hash
@@ -2088,6 +2090,8 @@ Quality
 - [x] P8.57 Separate model endpoint definition editing from health inspection. *Accept:* edit/create/view definition forms contain no health-history panel; dedicated read-only health modal opens from row action or status badge and presents sample-based summary cards, chronological histogram, timestamps, latest failure, and optional check details; empty/error/refresh states, accessibility, localization, mobile layouts, and definition saving pass tests; images rebuilt with existing tags. | codex 2026-10-16 definition/health separation, status-badge and row actions, sample-based summary, histogram, timestamps, failure details, bounded records, refresh/retry, stale-request protection, and twelve locales implemented following Conductor and AssistantHub. All 312 unit/component tests and 66 browser tests, lint, i18n check, production build, and light/dark desktop/mobile captures pass. Server and dashboard v0.1.0/latest rebuilt, pushed, and registry-verified for AMD64/ARM64. Dashboard index sha256:f7d430fef95f7e7853266b4c060d2af78032f0ceeb5883e559933ebaa5977e1c includes the separate health modal; server index sha256:ecfba6ef385a6aa007267023848a4450513b43293598375806742adc6f69fbd6.
 - [x] P8.58 Show connector selection at the top of Create resource as a searchable, responsive card grid. *Accept:* all registered connectors are rendered in normal modal flow without a scrolling dropdown; names/icons/selection and keyboard access work; metadata precedes settings after selection; same selection retains settings/secrets and changing connector resets incompatible values; edit/view connector remains fixed; create/test/save and desktop/mobile visuals pass. | codex 2026-10-17 verified 317 unit tests, 70 browser tests including four picker visual cases; lint and all 12 locales pass
 - [x] P8.52 Accessibility and responsive pass (landmarks, labels, focus, reduced motion, tap targets, no body horizontal scroll), and the dashboard Docker image (nginx, proxy, SSE buffering off, `/health`).  | claude 2026-10-14 accessibility checks, responsive pass, nginx image proxying /v1.0, /mcp, /openapi.json with buffering off
+
+- [x] P8.59 Put Secrets first in Connections and make it the default tab so credential creation precedes resources. *Accept:* tab order Secrets, Resources, Connectors, Models; explicit resource links and legacy bookmarks continue opening Resources. | codex 2026-10-17 verified 317 dashboard unit tests, 70 browser tests and lint; fixed locale test query composition for the new explicit Resources tab URL
 
 ### Phase 9: SDKs (M1)
 

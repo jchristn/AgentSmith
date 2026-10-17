@@ -50,6 +50,9 @@ namespace Hugo.Connectors.Storage
             {
                 string? id = resource.Secrets.Get(StorageSettingKeys.SlotAccessKeyPair, StorageSettingKeys.FieldAccessKeyId);
                 string? secret = resource.Secrets.Get(StorageSettingKeys.SlotAccessKeyPair, StorageSettingKeys.FieldSecretAccessKey);
+                bool amazonS3 = String.IsNullOrWhiteSpace(resource.Settings.GetString(StorageSettingKeys.Endpoint));
+                id = S3CredentialNormalizer.Normalize(id, amazonS3);
+                secret = S3CredentialNormalizer.Normalize(secret, amazonS3);
                 if (String.IsNullOrEmpty(id) || String.IsNullOrEmpty(secret))
                     result.Add(StorageSettingKeys.SlotAccessKeyPair, "invalid_secret", "The access key pair must have both accessKeyId and secretAccessKey.");
                 if (String.IsNullOrWhiteSpace(resource.Settings.GetString(StorageSettingKeys.Endpoint))

@@ -181,7 +181,7 @@ describe('consolidated dashboard navigation', () => {
   });
 
   it('defines all required tab groups in their intended order', () => {
-    expect(findHub('connections').tabs.map((page) => page.slug)).toEqual(['resources', 'secrets', 'connectors', 'models']);
+    expect(findHub('connections').tabs.map((page) => page.slug)).toEqual(['secrets', 'resources', 'connectors', 'models']);
     expect(findHub('instructions').tabs.map((page) => page.slug)).toEqual(['prompts', 'knowledge']);
     expect(findHub('developerTools').tabs.map((page) => page.slug)).toEqual(['explorer', 'mcp-explorer', 'a2a-explorer']);
   });
