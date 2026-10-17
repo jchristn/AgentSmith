@@ -117,6 +117,15 @@ test('profile link controls save, copy, rotate and disable without creating cred
   await page.goto('/dashboard/profiles/prf_0001?tab=connect');
   const panel = page.getByTestId('profile-chat-link');
   await panel.getByLabel('Enable chat link', { exact: true }).check();
+  const saveButton = panel.getByRole('button', { name: 'Save', exact: true });
+  const authenticatedSize = await saveButton.boundingBox();
+  expect(authenticatedSize.height).toBeLessThan(40);
+  await panel.getByLabel('Access', { exact: true }).selectOption('Public');
+  const publicSize = await saveButton.boundingBox();
+  expect(publicSize.height).toBe(authenticatedSize.height);
+  expect(publicSize.width).toBe(authenticatedSize.width);
+  await panel.getByLabel('Access', { exact: true }).selectOption('Authenticated');
+  expect((await saveButton.boundingBox()).height).toBe(authenticatedSize.height);
   await panel.getByLabel('Access', { exact: true }).selectOption('Public');
   await expect(panel.getByRole('option', { name: 'Other owner' })).toHaveCount(0);
   await expect(panel.getByRole('option', { name: 'Inactive key' })).toHaveCount(0);

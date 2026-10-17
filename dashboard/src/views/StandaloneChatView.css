@@ -44,6 +44,7 @@
 }
 .chat-link-controls {
   display: grid;
+  align-content: start;
   gap: 16px;
 }
 .chat-link-controls label {
