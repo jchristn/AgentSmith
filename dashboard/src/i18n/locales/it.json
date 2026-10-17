@@ -1338,7 +1338,9 @@
         "validate": "Convalida",
         "validateTitle": "Convalida: {{name}}",
         "listModels": "Elenca i modelli del provider",
-        "listModelsTitle": "Modelli offerti da {{name}}"
+        "listModelsTitle": "Modelli offerti da {{name}}",
+        "health": "Stato",
+        "healthTitle": "Stato: {{name}}"
       },
       "noProviderModels": "Il provider non ha elencato alcun modello.",
       "history": {
@@ -1362,6 +1364,28 @@
         "problems": "Problemi",
         "hint": "Controlla l’URL di base, il nome del modello e il segreto della chiave API, poi convalida di nuovo.",
         "needsModel": "Scegli prima un provider e un modello."
+      },
+      "health": {
+        "title": "Stato: {{name}}",
+        "status": "Stato attuale",
+        "successRate": "Controlli riusciti",
+        "checks": "Controlli visualizzati",
+        "consecutiveHealthy": "Successi consecutivi",
+        "consecutiveUnhealthy": "Errori consecutivi",
+        "lastError": "Ultimo errore",
+        "firstCheck": "Primo controllo",
+        "lastCheck": "Ultimo controllo",
+        "lastHealthy": "Ultimo stato regolare",
+        "lastUnhealthy": "Ultimo stato anomalo",
+        "details": "Dettagli dei controlli",
+        "refresh": "Aggiorna",
+        "legendHealthy": "Regolare",
+        "legendUnhealthy": "Anomalo",
+        "legendUnknown": "Sconosciuto",
+        "chartLabel": "Controlli recenti, dal meno al più recente",
+        "chartCheck": "{{time}}: {{status}} · {{latency}}",
+        "observedNote": "Riepilogo degli ultimi {{count}} controlli; la percentuale di successo non misura la disponibilità nel tempo.",
+        "historySpan": "Periodo della cronologia"
       }
     },
     "knowledge": {
@@ -2775,7 +2799,8 @@
         },
         "actions": {
           "validate": "Invia un prompt minimo (o calcola l'embedding di un testo breve) e registra latenza e risultato.",
-          "listModels": "Chiedi al provider quali modelli offre, se il provider supporta l'elenco."
+          "listModels": "Chiedi al provider quali modelli offre, se il provider supporta l'elenco.",
+          "health": "Esamina controlli recenti, tempi di risposta, percentuali di successo ed errori di questo endpoint."
         },
         "validateDraft": "Invia un breve prompt (o un breve testo da vettorizzare) con queste impostazioni prima di salvare. Non viene memorizzato nulla."
       },
@@ -3470,6 +3495,10 @@
         "Global": "Salva il testo come nuova versione del predefinito globale per tutti i tenant."
       },
       "load": "Inserisce il testo di questa versione nell'editor. Salva per renderlo attuale."
+    },
+    "modelHealth": {
+      "refresh": "Ricarica i controlli registrati e il riepilogo senza inviare una nuova richiesta al fornitore del modello.",
+      "details": "Mostra o nascondi i singoli controlli registrati, con orari, latenza e dettagli degli errori."
     }
   },
   "explainers": {

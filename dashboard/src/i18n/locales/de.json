@@ -1338,7 +1338,9 @@
         "validate": "Validieren",
         "validateTitle": "Validierung: {{name}}",
         "listModels": "Modelle des Anbieters auflisten",
-        "listModelsTitle": "Von {{name}} angebotene Modelle"
+        "listModelsTitle": "Von {{name}} angebotene Modelle",
+        "health": "Zustand",
+        "healthTitle": "Zustand: {{name}}"
       },
       "noProviderModels": "Der Anbieter hat keine Modelle aufgeführt.",
       "history": {
@@ -1362,6 +1364,28 @@
         "problems": "Probleme",
         "hint": "Prüfen Sie Basis-URL, Modellname und das Geheimnis des API-Schlüssels und prüfen Sie erneut.",
         "needsModel": "Wählen Sie zuerst einen Anbieter und ein Modell."
+      },
+      "health": {
+        "title": "Zustand: {{name}}",
+        "status": "Aktueller Status",
+        "successRate": "Erfolgreiche Prüfungen",
+        "checks": "Angezeigte Prüfungen",
+        "consecutiveHealthy": "Erfolgreich in Folge",
+        "consecutiveUnhealthy": "Fehlgeschlagen in Folge",
+        "lastError": "Letzter Fehler",
+        "firstCheck": "Erste Prüfung",
+        "lastCheck": "Letzte Prüfung",
+        "lastHealthy": "Zuletzt fehlerfrei",
+        "lastUnhealthy": "Zuletzt fehlerhaft",
+        "details": "Prüfdetails",
+        "refresh": "Aktualisieren",
+        "legendHealthy": "Fehlerfrei",
+        "legendUnhealthy": "Fehlerhaft",
+        "legendUnknown": "Unbekannt",
+        "chartLabel": "Letzte Zustandsprüfungen, von alt nach neu",
+        "chartCheck": "{{time}}: {{status}} · {{latency}}",
+        "observedNote": "Zusammenfassung der letzten {{count}} Prüfungen; der Erfolgsanteil ist keine zeitbasierte Verfügbarkeit.",
+        "historySpan": "Zeitraum des Verlaufs"
       }
     },
     "knowledge": {
@@ -2775,7 +2799,8 @@
         },
         "actions": {
           "validate": "Einen kleinen Prompt senden (oder einen kurzen Text einbetten) und Latenz und Ergebnis erfassen.",
-          "listModels": "Den Anbieter fragen, welche Modelle er anbietet, sofern der Anbieter das Auflisten unterstützt."
+          "listModels": "Den Anbieter fragen, welche Modelle er anbietet, sofern der Anbieter das Auflisten unterstützt.",
+          "health": "Letzte Zustandsprüfungen, Antwortzeiten, Erfolgsanteile und Fehler dieses Modellendpunkts ansehen."
         },
         "validateDraft": "Sendet vor dem Speichern einen kurzen Prompt (oder einen kurzen Text für ein Embedding) mit diesen Einstellungen. Es wird nichts gespeichert."
       },
@@ -3470,6 +3495,10 @@
         "Global": "Speichert den Text als neue Version des globalen Standards für alle Mandanten."
       },
       "load": "Übernimmt den Text dieser Version in den Editor. Speichern macht ihn aktuell."
+    },
+    "modelHealth": {
+      "refresh": "Gespeicherte Prüfungen und Zusammenfassung neu laden, ohne eine neue Anfrage an den Modellanbieter zu senden.",
+      "details": "Einzelne gespeicherte Prüfungen mit Zeitstempel, Latenz und Fehlerdetails ein- oder ausblenden."
     }
   },
   "explainers": {

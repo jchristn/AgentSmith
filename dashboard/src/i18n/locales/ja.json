@@ -1338,7 +1338,9 @@
         "validate": "検証",
         "validateTitle": "検証: {{name}}",
         "listModels": "プロバイダーのモデルを一覧表示",
-        "listModelsTitle": "{{name}} が提供するモデル"
+        "listModelsTitle": "{{name}} が提供するモデル",
+        "health": "稼働状況",
+        "healthTitle": "{{name}} の稼働状況"
       },
       "noProviderModels": "プロバイダーはモデルを返しませんでした。",
       "history": {
@@ -1362,6 +1364,28 @@
         "problems": "問題",
         "hint": "ベース URL、モデル名、API キーのシークレットを確認してから、もう一度検証してください。",
         "needsModel": "先にプロバイダーとモデルを選択してください。"
+      },
+      "health": {
+        "title": "{{name}} の稼働状況",
+        "status": "現在の状態",
+        "successRate": "成功したチェック",
+        "checks": "表示中のチェック数",
+        "consecutiveHealthy": "連続正常回数",
+        "consecutiveUnhealthy": "連続異常回数",
+        "lastError": "直近のエラー",
+        "firstCheck": "最初のチェック",
+        "lastCheck": "最新のチェック",
+        "lastHealthy": "最後の正常時刻",
+        "lastUnhealthy": "最後の異常時刻",
+        "details": "チェックの詳細",
+        "refresh": "更新",
+        "legendHealthy": "正常",
+        "legendUnhealthy": "異常",
+        "legendUnknown": "不明",
+        "chartLabel": "最近の稼働状況チェック（古い順）",
+        "chartCheck": "{{time}}: {{status}} · {{latency}}",
+        "observedNote": "直近{{count}}件のチェックの集計です。成功率は稼働時間に基づく稼働率ではありません。",
+        "historySpan": "履歴の期間"
       }
     },
     "knowledge": {
@@ -2775,7 +2799,8 @@
         },
         "actions": {
           "validate": "短いプロンプトを送信 (または短いテキストを埋め込み) し、レイテンシと結果を記録します。",
-          "listModels": "プロバイダーが一覧表示に対応している場合、提供されるモデルを問い合わせます。"
+          "listModels": "プロバイダーが一覧表示に対応している場合、提供されるモデルを問い合わせます。",
+          "health": "このモデルエンドポイントの最近のチェック、応答時間、成功率、エラーの詳細を確認します。"
         },
         "validateDraft": "保存する前に、この設定で短いプロンプト（または埋め込み用の短いテキスト）を送信します。何も保存されません。"
       },
@@ -3470,6 +3495,10 @@
         "Global": "エディターの文面を全テナントのグローバル既定値の新しいバージョンとして保存します。"
       },
       "load": "このバージョンの文面をエディターに入れます。保存すると現在の版になります。"
+    },
+    "modelHealth": {
+      "refresh": "モデルの提供元に新しいリクエストを送らず、保存済みのチェックと集計を再読み込みします。",
+      "details": "記録された各チェックの日時、遅延、エラーの詳細を表示または非表示にします。"
     }
   },
   "explainers": {

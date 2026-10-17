@@ -1338,7 +1338,9 @@
         "validate": "Validar",
         "validateTitle": "Validación: {{name}}",
         "listModels": "Listar modelos del proveedor",
-        "listModelsTitle": "Modelos que ofrece {{name}}"
+        "listModelsTitle": "Modelos que ofrece {{name}}",
+        "health": "Estado",
+        "healthTitle": "Estado: {{name}}"
       },
       "noProviderModels": "El proveedor no listó ningún modelo.",
       "history": {
@@ -1362,6 +1364,28 @@
         "problems": "Problemas",
         "hint": "Revise la URL base, el nombre del modelo y el secreto de la clave de API, y valide de nuevo.",
         "needsModel": "Elija primero un proveedor y un modelo."
+      },
+      "health": {
+        "title": "Estado: {{name}}",
+        "status": "Estado actual",
+        "successRate": "Comprobaciones correctas",
+        "checks": "Comprobaciones mostradas",
+        "consecutiveHealthy": "Correctas consecutivas",
+        "consecutiveUnhealthy": "Fallidas consecutivas",
+        "lastError": "Último fallo",
+        "firstCheck": "Primera comprobación",
+        "lastCheck": "Última comprobación",
+        "lastHealthy": "Último estado correcto",
+        "lastUnhealthy": "Último estado fallido",
+        "details": "Detalles de comprobaciones",
+        "refresh": "Actualizar",
+        "legendHealthy": "Correcto",
+        "legendUnhealthy": "Con fallos",
+        "legendUnknown": "Desconocido",
+        "chartLabel": "Comprobaciones recientes, de la más antigua a la más reciente",
+        "chartCheck": "{{time}}: {{status}} · {{latency}}",
+        "observedNote": "Resumen de las últimas {{count}} comprobaciones; el porcentaje de éxito no mide la disponibilidad a lo largo del tiempo.",
+        "historySpan": "Período del historial"
       }
     },
     "knowledge": {
@@ -2775,7 +2799,8 @@
         },
         "actions": {
           "validate": "Envía un prompt mínimo (o genera el embedding de un texto corto) y registra la latencia y el resultado.",
-          "listModels": "Pregunta al proveedor qué modelos ofrece, cuando el proveedor admite enumerarlos."
+          "listModels": "Pregunta al proveedor qué modelos ofrece, cuando el proveedor admite enumerarlos.",
+          "health": "Revise comprobaciones recientes, tiempos de respuesta, porcentajes de éxito y fallos de este modelo."
         },
         "validateDraft": "Envía un mensaje breve (o un texto corto para embedding) con esta configuración antes de guardar. No se guarda nada."
       },
@@ -3470,6 +3495,10 @@
         "Global": "Guarda el texto como nueva versión del valor global para todos los tenants."
       },
       "load": "Pone el texto de esta versión en el editor. Guarda para hacerlo actual."
+    },
+    "modelHealth": {
+      "refresh": "Recargue las comprobaciones guardadas y el resumen sin enviar otra solicitud al proveedor del modelo.",
+      "details": "Muestre u oculte cada comprobación registrada, con su fecha, latencia y detalles del fallo."
     }
   },
   "explainers": {

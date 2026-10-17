@@ -1338,7 +1338,9 @@
         "validate": "Valider",
         "validateTitle": "Validation : {{name}}",
         "listModels": "Lister les modèles du fournisseur",
-        "listModelsTitle": "Modèles proposés par {{name}}"
+        "listModelsTitle": "Modèles proposés par {{name}}",
+        "health": "État",
+        "healthTitle": "État : {{name}}"
       },
       "noProviderModels": "Le fournisseur n'a listé aucun modèle.",
       "history": {
@@ -1362,6 +1364,28 @@
         "problems": "Problèmes",
         "hint": "Vérifiez l’URL de base, le nom du modèle et le secret de la clé API, puis validez à nouveau.",
         "needsModel": "Choisissez d’abord un fournisseur et un modèle."
+      },
+      "health": {
+        "title": "État : {{name}}",
+        "status": "État actuel",
+        "successRate": "Contrôles réussis",
+        "checks": "Contrôles affichés",
+        "consecutiveHealthy": "Réussites consécutives",
+        "consecutiveUnhealthy": "Échecs consécutifs",
+        "lastError": "Dernier échec",
+        "firstCheck": "Premier contrôle",
+        "lastCheck": "Dernier contrôle",
+        "lastHealthy": "Dernier état sain",
+        "lastUnhealthy": "Dernier état défaillant",
+        "details": "Détails des contrôles",
+        "refresh": "Actualiser",
+        "legendHealthy": "Sain",
+        "legendUnhealthy": "Défaillant",
+        "legendUnknown": "Inconnu",
+        "chartLabel": "Contrôles récents, du plus ancien au plus récent",
+        "chartCheck": "{{time}} : {{status}} · {{latency}}",
+        "observedNote": "Résumé des {{count}} derniers contrôles ; le taux de réussite ne mesure pas la disponibilité dans le temps.",
+        "historySpan": "Période couverte"
       }
     },
     "knowledge": {
@@ -2775,7 +2799,8 @@
         },
         "actions": {
           "validate": "Envoyer un très court prompt (ou vectoriser un court texte) et enregistrer la latence et le résultat.",
-          "listModels": "Demander au fournisseur quels modèles il propose, lorsque le fournisseur prend en charge le listage."
+          "listModels": "Demander au fournisseur quels modèles il propose, lorsque le fournisseur prend en charge le listage.",
+          "health": "Consultez les contrôles récents, les temps de réponse, le taux de réussite et les échecs de ce modèle."
         },
         "validateDraft": "Envoie une courte requête (ou un court texte à vectoriser) avec ces réglages avant l’enregistrement. Rien n’est enregistré."
       },
@@ -3470,6 +3495,10 @@
         "Global": "Enregistre le texte comme nouvelle version de la valeur globale pour tous les tenants."
       },
       "load": "Place le texte de cette version dans l'éditeur. Enregistrez pour le rendre actuel."
+    },
+    "modelHealth": {
+      "refresh": "Rechargez les contrôles enregistrés et le résumé sans envoyer de nouvelle requête au fournisseur du modèle.",
+      "details": "Affichez ou masquez les contrôles enregistrés, avec leur date, leur latence et les détails des échecs."
     }
   },
   "explainers": {

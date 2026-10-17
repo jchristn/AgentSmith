@@ -269,7 +269,7 @@ export default function ResourceView({ config }) {
   };
 
   const columns = [
-    ...config.columns({ ...ctx, lookups }),
+    ...config.columns({ ...ctx, lookups, setExtraModal }),
     {
       key: 'actions',
       label: t('common.generic.actions'),

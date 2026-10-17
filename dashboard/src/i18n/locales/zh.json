@@ -1338,7 +1338,9 @@
         "validate": "验证",
         "validateTitle": "验证：{{name}}",
         "listModels": "列出服务商模型",
-        "listModelsTitle": "{{name}} 提供的模型"
+        "listModelsTitle": "{{name}} 提供的模型",
+        "health": "健康状态",
+        "healthTitle": "健康状态：{{name}}"
       },
       "noProviderModels": "提供商未列出任何模型。",
       "history": {
@@ -1362,6 +1364,28 @@
         "problems": "问题",
         "hint": "请检查基础 URL、模型名称和 API 密钥机密，然后重新验证。",
         "needsModel": "请先选择提供方和模型。"
+      },
+      "health": {
+        "title": "健康状态：{{name}}",
+        "status": "当前状态",
+        "successRate": "成功的检查",
+        "checks": "当前检查数",
+        "consecutiveHealthy": "连续正常次数",
+        "consecutiveUnhealthy": "连续异常次数",
+        "lastError": "最近一次失败",
+        "firstCheck": "首次检查",
+        "lastCheck": "最近一次检查",
+        "lastHealthy": "上次正常时间",
+        "lastUnhealthy": "上次异常时间",
+        "details": "检查详情",
+        "refresh": "刷新",
+        "legendHealthy": "正常",
+        "legendUnhealthy": "异常",
+        "legendUnknown": "未知",
+        "chartLabel": "最近的健康检查，按时间从旧到新排列",
+        "chartCheck": "{{time}}：{{status}} · {{latency}}",
+        "observedNote": "汇总最近 {{count}} 次已记录的检查；检查成功率不等同于按时间计算的可用率。",
+        "historySpan": "历史时间跨度"
       }
     },
     "knowledge": {
@@ -2775,7 +2799,8 @@
         },
         "actions": {
           "validate": "发送一个简短提示（或嵌入一段短文本），并记录延迟和结果。",
-          "listModels": "向服务商查询其提供的模型（如果服务商支持列出）。"
+          "listModels": "向服务商查询其提供的模型（如果服务商支持列出）。",
+          "health": "查看此模型端点近期记录的健康检查、响应延迟、成功率及最新失败详情。"
         },
         "validateDraft": "在保存前用这些设置发送一个简短提示（或嵌入一段短文本）。不会存储任何内容。"
       },
@@ -3470,6 +3495,10 @@
         "Global": "将编辑器文本保存为所有租户全局默认值的新版本。"
       },
       "load": "将此版本的文本放入编辑器。保存后成为当前版本。"
+    },
+    "modelHealth": {
+      "refresh": "重新加载已记录的检查和汇总信息，不会向模型提供方发送新的检查请求。",
+      "details": "显示或隐藏每次已记录检查的详细信息，包括检查时间、响应延迟和失败原因。"
     }
   },
   "explainers": {

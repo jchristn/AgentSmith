@@ -13,14 +13,15 @@ import TryToolModal from '../components/TryToolModal';
 import ApprovalDecideModal from '../components/ApprovalDecideModal';
 import ResourceSettingsPanel, { validateResourceConnector, resourceConnectorBody } from '../components/ResourceSettingsPanel';
 import { resourceHealth, resourceToForm, resourceFieldErrors, referrerRows } from '../utils/resources';
-import { notifyValidated, ModelHealthHistory } from '../components/ModelHealthHistory';
+import { notifyValidated } from '../components/ModelHealthHistory';
+import ModelHealthModal from '../components/ModelHealthModal';
 import SecretSlotPicker, { SecretValuesForm } from '../components/SecretField';
 import ValuesModal from '../components/ValuesModal';
 import { tip } from '../components/Tooltip';
 import { ProfileRelationDiagram } from '../components/Explainer';
 import { ENUMS, approvalStatusTone, toolStatusTone, toolDecisionTone, healthTone, accessModeTone } from '../utils/constants';
 import { pathFor } from '../config/navConfig';
-import { formatDuration, formatNumber, formatBytes, formatDateTime } from '../i18n/formatters';
+import { formatDuration, formatNumber, formatBytes } from '../i18n/formatters';
 import { errorMessage } from '../utils/errors';
 import { enumOptions } from '../utils/enums';
 import { validateSecretValues, secretValuesBody } from '../utils/secrets';
@@ -725,6 +726,15 @@ function modelEndpointBody(d) {
   };
 }
 
+/** Open a read-only health view separately from the model endpoint definition form. */
+function modelHealthAction(endpoint, ctx) {
+  return {
+    label: ctx.t('resources.models.actions.health'),
+    tip: actionTip(ctx.t, 'models', 'health'),
+    onClick: () => ctx.setExtraModal(<ModelHealthModal endpoint={endpoint} onClose={() => ctx.setExtraModal(null)} />)
+  };
+}
+
 export const modelsConfig = {
   id: 'models',
   explainer: 'models',
@@ -762,18 +772,39 @@ export const modelsConfig = {
     timeoutSeconds: 120,
     maxRetries: 2
   }),
-  columns: ({ t, i18n }) => [
-    nameCol('models', t),
-    col('models', t, 'kind', (r) => <EnumBadge group="modelKind" value={r.kind} tone="info" />, { csv: (r) => r.kind }),
-    col('models', t, 'provider', (r) => <EnumBadge group="modelProvider" value={r.provider} />, { csv: (r) => r.provider }),
-    col('models', t, 'model', (r) => <code>{r.model || '-'}</code>),
-    col('models', t, 'baseUrl', (r) => (r.baseUrl ? <CopyableId value={r.baseUrl} max={36} /> : '-'), { defaultHidden: true }),
-    col('models', t, 'healthStatus', (r) => <EnumBadge group="healthStatus" value={r.healthStatus || 'Unknown'} tone={healthTone(r.healthStatus)} />, {
-      csv: (r) => r.healthStatus
-    }),
-    col('models', t, 'lastHealthUtc', (r) => timeCell(r.lastHealthUtc, i18n, t('common.generic.never'))),
-    idCol('models', t)
-  ],
+  columns: (ctx) => {
+    const { t, i18n } = ctx;
+    return [
+      nameCol('models', t),
+      col('models', t, 'kind', (r) => <EnumBadge group="modelKind" value={r.kind} tone="info" />, { csv: (r) => r.kind }),
+      col('models', t, 'provider', (r) => <EnumBadge group="modelProvider" value={r.provider} />, { csv: (r) => r.provider }),
+      col('models', t, 'model', (r) => <code>{r.model || '-'}</code>),
+      col('models', t, 'baseUrl', (r) => (r.baseUrl ? <CopyableId value={r.baseUrl} max={36} /> : '-'), { defaultHidden: true }),
+      col(
+        'models',
+        t,
+        'healthStatus',
+        (r) => (
+          <button
+            type="button"
+            className="button-ghost button-sm"
+            aria-label={t('resources.models.actions.healthTitle', { name: r.name })}
+            aria-haspopup="dialog"
+            {...tip(actionTip(t, 'models', 'health'))}
+            onClick={(event) => {
+              event.stopPropagation();
+              modelHealthAction(r, ctx).onClick();
+            }}
+          >
+            <EnumBadge group="healthStatus" value={r.healthStatus || 'Unknown'} tone={healthTone(r.healthStatus)} />
+          </button>
+        ),
+        { csv: (r) => r.healthStatus }
+      ),
+      col('models', t, 'lastHealthUtc', (r) => timeCell(r.lastHealthUtc, i18n, t('common.generic.never'))),
+      idCol('models', t)
+    ];
+  },
   fields: (d, { t, options, apiClient }) => [
     section('models', t, 'endpoint'),
     field('models', t, 'name', 'text', { required: true }),
@@ -817,9 +848,7 @@ export const modelsConfig = {
     {
       name: 'validateDraft',
       type: 'custom',
-      render: (data, { disabled }) => (
-        <ModelDraftValidator apiClient={apiClient} data={data} toBody={modelEndpointBody} disabled={disabled} />
-      )
+      render: (data, { disabled }) => <ModelDraftValidator apiClient={apiClient} data={data} toBody={modelEndpointBody} disabled={disabled} />
     }
   ],
   toForm: (r) => ({
@@ -839,6 +868,7 @@ export const modelsConfig = {
     return e;
   },
   rowActions: (r, ctx) => [
+    modelHealthAction(r, ctx),
     {
       label: ctx.t('resources.models.actions.validate'),
       tip: actionTip(ctx.t, 'models', 'validate'),
@@ -877,18 +907,7 @@ export const modelsConfig = {
           />
         )
     }
-  ],
-  // Shown in view and edit mode: the last check, then the server's health history (sweeps and validations, P8.34).
-  formNotice: (r, { t, i18n }) => (
-    <>
-      {r.lastHealthUtc && (
-        <div className={r.healthStatus === 'Healthy' ? 'success-banner' : 'warning-banner'} data-testid="model-health">
-          {t('resources.models.lastHealth', { time: formatDateTime(r.lastHealthUtc, i18n.language), message: r.lastHealthMessage || r.healthStatus })}
-        </div>
-      )}
-      <ModelHealthHistory endpointId={r.id} />
-    </>
-  )
+  ]
 };
 
 /** The provider's model names (a bare array, or { models } from older servers). */

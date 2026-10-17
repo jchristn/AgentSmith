@@ -8,7 +8,9 @@ The first release of Hugo: a multi-tenant super agent server that holds credenti
 
 Everything below is new in this release. The images are `jchristn77/hugo-server:v0.1.0` and `jchristn77/hugo-dashboard:v0.1.0`, built for `linux/amd64` and `linux/arm64`.
 
-### Dashboard navigation
+### Dashboard
+
+- Model endpoint editing and health inspection use separate modals. The health view presents summary cards, a chronological health histogram, timestamps, latest failure, and expandable check details.
 
 - Nine sidebar entries replace the previous 25, with related pages on URL-addressable tabs. Legacy bookmarks and detail routes remain usable, role restrictions apply per tab, and pending approvals remain visible on Agents and the topbar.
 

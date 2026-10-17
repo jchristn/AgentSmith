@@ -1338,7 +1338,9 @@
         "validate": "Sahkan",
         "validateTitle": "Pengesahan: {{name}}",
         "listModels": "Senaraikan model penyedia",
-        "listModelsTitle": "Model yang ditawarkan oleh {{name}}"
+        "listModelsTitle": "Model yang ditawarkan oleh {{name}}",
+        "health": "Kesihatan",
+        "healthTitle": "Kesihatan: {{name}}"
       },
       "noProviderModels": "Penyedia tidak menyenaraikan sebarang model.",
       "history": {
@@ -1362,6 +1364,28 @@
         "problems": "Masalah",
         "hint": "Semak URL asas, nama model dan rahsia kunci API, kemudian sahkan semula.",
         "needsModel": "Pilih pembekal dan model terlebih dahulu."
+      },
+      "health": {
+        "title": "Kesihatan: {{name}}",
+        "status": "Status semasa",
+        "successRate": "Semakan berjaya",
+        "checks": "Semakan dipaparkan",
+        "consecutiveHealthy": "Sihat berturut-turut",
+        "consecutiveUnhealthy": "Tidak sihat berturut-turut",
+        "lastError": "Kegagalan terkini",
+        "firstCheck": "Semakan pertama",
+        "lastCheck": "Semakan terkini",
+        "lastHealthy": "Kali terakhir sihat",
+        "lastUnhealthy": "Kali terakhir tidak sihat",
+        "details": "Butiran semakan",
+        "refresh": "Muat semula",
+        "legendHealthy": "Sihat",
+        "legendUnhealthy": "Tidak sihat",
+        "legendUnknown": "Tidak diketahui",
+        "chartLabel": "Semakan kesihatan terkini, dari paling lama ke paling baharu",
+        "chartCheck": "{{time}}: {{status}} · {{latency}}",
+        "observedNote": "Ringkasan {{count}} semakan terakhir yang direkodkan; peratus kejayaan bukan ukuran masa tersedia.",
+        "historySpan": "Tempoh sejarah"
       }
     },
     "knowledge": {
@@ -2775,7 +2799,8 @@
         },
         "actions": {
           "validate": "Hantar gesaan kecil (atau benamkan teks pendek) dan rekodkan kependaman serta hasilnya.",
-          "listModels": "Tanya pembekal model yang ditawarkannya, jika pembekal menyokong penyenaraian."
+          "listModels": "Tanya pembekal model yang ditawarkannya, jika pembekal menyokong penyenaraian.",
+          "health": "Semak pemeriksaan terkini, masa respons, kadar kejayaan dan kegagalan titik akhir model ini."
         },
         "validateDraft": "Menghantar gesaan pendek (atau teks pendek untuk embedding) dengan tetapan ini sebelum menyimpan. Tiada apa-apa disimpan."
       },
@@ -3470,6 +3495,10 @@
         "Global": "Simpan teks sebagai versi baharu lalai global untuk semua penyewa."
       },
       "load": "Letakkan teks versi ini dalam penyunting. Simpan untuk menjadikannya semasa."
+    },
+    "modelHealth": {
+      "refresh": "Muat semula semakan tersimpan dan ringkasan tanpa menghantar permintaan baharu kepada penyedia model.",
+      "details": "Papar atau sembunyikan setiap semakan tersimpan, termasuk masa, kependaman dan butiran kegagalan."
     }
   },
   "explainers": {

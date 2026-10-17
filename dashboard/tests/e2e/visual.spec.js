@@ -68,3 +68,31 @@ test('captures the unavailable-capability state and the chat approval card', asy
   await expect(page.getByTestId('approval-card').first()).toBeVisible();
   await page.screenshot({ path: 'test-results/visual/light-desktop-chat-approval.png' });
 });
+
+for (const theme of ['light', 'dark']) {
+  for (const vp of VIEWPORTS.filter((viewport) => viewport.name !== 'tablet')) {
+    test(`captures the separate model health modal at ${vp.name} in ${theme} theme`, async ({ page }) => {
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+      await installMocks(page);
+      await page.addInitScript((value) => localStorage.setItem('hugo_theme', value), theme);
+      await login(page, { expect });
+      await page.goto(pathFor('models'));
+      await page.locator('.data-table tbody tr').first().locator('[aria-haspopup="menu"]').first().click();
+      await page.getByRole('menuitem', { name: 'Health', exact: true }).click();
+      const modal = page.getByTestId('model-health-modal');
+      await expect(modal).toBeVisible();
+      await expect(modal.locator('.model-health-chart')).toBeVisible();
+      await expect(modal.locator('input, select, textarea')).toHaveCount(0);
+      await page.screenshot({ path: `test-results/visual/${theme}-${vp.name}-model-health.png` });
+      await modal.locator('summary').click();
+      await expect(modal.getByTestId('model-health-record')).toHaveCount(3);
+      await page.screenshot({ path: `test-results/visual/${theme}-${vp.name}-model-health-details.png` });
+      const horizontalOverflow = await modal.evaluate((element) => ({
+        page: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        dialog: element.scrollWidth - element.clientWidth
+      }));
+      expect(horizontalOverflow.page).toBeLessThanOrEqual(1);
+      expect(horizontalOverflow.dialog).toBeLessThanOrEqual(1);
+    });
+  }
+}

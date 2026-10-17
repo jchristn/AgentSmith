@@ -1339,7 +1339,9 @@
         "validate": "Validate",
         "validateTitle": "Validation: {{name}}",
         "listModels": "List provider models",
-        "listModelsTitle": "Models offered by {{name}}"
+        "listModelsTitle": "Models offered by {{name}}",
+        "health": "Health",
+        "healthTitle": "Health: {{name}}"
       },
       "noProviderModels": "The provider listed no models.",
       "history": {
@@ -1363,6 +1365,28 @@
         "problems": "Problems",
         "hint": "Check the base URL, the model name, and the API key secret, then validate again.",
         "needsModel": "Choose a provider and a model first."
+      },
+      "health": {
+        "title": "Health: {{name}}",
+        "status": "Current status",
+        "successRate": "Successful checks",
+        "checks": "Checks in view",
+        "consecutiveHealthy": "Consecutive healthy",
+        "consecutiveUnhealthy": "Consecutive unhealthy",
+        "lastError": "Latest failure",
+        "firstCheck": "First check",
+        "lastCheck": "Latest check",
+        "lastHealthy": "Last healthy",
+        "lastUnhealthy": "Last unhealthy",
+        "details": "Check details",
+        "refresh": "Refresh",
+        "legendHealthy": "Healthy",
+        "legendUnhealthy": "Unhealthy",
+        "legendUnknown": "Unknown",
+        "chartLabel": "Recent health checks, oldest to newest",
+        "chartCheck": "{{time}}: {{status}} · {{latency}}",
+        "observedNote": "Summary of the latest {{count}} recorded checks; successful-check percentage is not time-based uptime.",
+        "historySpan": "History span"
       }
     },
     "knowledge": {
@@ -2760,7 +2784,8 @@
         },
         "actions": {
           "validate": "Send a tiny prompt (or embed a short text) and record the latency and result.",
-          "listModels": "Ask the provider which models it offers, where the provider supports listing."
+          "listModels": "Ask the provider which models it offers, where the provider supports listing.",
+          "health": "Review recent health checks, response times, success rates, and failures for this model endpoint."
         },
         "validateDraft": "Send a tiny prompt (or embed a short string) with these settings before saving. Nothing is stored."
       },
@@ -3456,6 +3481,10 @@
         "Global": "Save the editor text as a new version of the Global default for every tenant."
       },
       "load": "Put this version's text in the editor. Save to make it current."
+    },
+    "modelHealth": {
+      "refresh": "Reload the recorded checks and summary without sending a new request to the model provider.",
+      "details": "Show or hide the individual recorded checks, including their timestamps, latency, and failure details."
     }
   },
   "explainers": {
