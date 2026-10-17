@@ -30,6 +30,8 @@ Call `resource_update_context` to save a concise, confirmed discovery:
 
 Agents may append to operator-authored entries, but cannot replace them. Other entries support `mode: "replace"`. Each contribution is limited to 4,000 characters and the merged entry to 16,000. Scope names allow up to 128 characters and keys up to 512. Credential material, obvious raw row dumps, and excessive personal data are refused. Store stable paths, capabilities, schema relationships, and verified operating guidance; avoid credentials, raw query results, transient metrics, and speculative facts presented as confirmed.
 
+The shipped system prompt and update-tool description direct agents to consolidate related facts, deduplicate existing knowledge, skip unchanged information, and keep memories short. For agent-authored entries, use version-checked replacement to reconcile facts and remove repetition and superseded details. Keep the root summary compact and put detail in focused entries. Operator-authored text remains protected: append only new concise facts and request operator curation when needed.
+
 Existing SQL context tools use the same store. Their database summary uses `database` / `_root`; table entries use `table` / the qualified table name. Generic tools can read those entries, and SQL updates use optimistic version checks as well.
 
 ## Consultation during operations
