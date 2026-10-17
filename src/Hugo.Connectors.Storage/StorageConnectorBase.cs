@@ -156,11 +156,11 @@ namespace Hugo.Connectors.Storage
                     ConnectorException mapped = StorageErrors.Map(e, container, null);
                     string message = mapped.Message;
                     if (Provider == StorageProviderEnum.AmazonS3 && mapped.Code == "permission_denied")
-                        message += " Test connection lists objects using ListObjectsV2; AWS requires s3:ListBucket on the bucket and permission for the configured prefixRestriction. Object-only s3:GetObject permission does not authorize this probe.";
+                        message += " Test connection lists objects using ListObjects; AWS requires s3:ListBucket on the bucket and permission for the configured prefixRestriction. Object-only s3:GetObject permission does not authorize this probe.";
                     ConnectorHealthResult failure = ConnectorHealthResult.Fail(mapped.Code, message, stopwatch.Elapsed.TotalMilliseconds);
                     if (Provider == StorageProviderEnum.AmazonS3)
                     {
-                        failure.Details["operation"] = "ListObjectsV2";
+                        failure.Details["operation"] = "ListObjects";
                         failure.Details["requiredPermission"] = "s3:ListBucket";
                     }
                     return failure;

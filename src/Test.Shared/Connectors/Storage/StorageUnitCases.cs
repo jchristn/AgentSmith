@@ -505,6 +505,35 @@ namespace Test.Shared.Connectors.Storage
             });
             StorageTestAssert.True((await connector.ValidateAsync(halfPair, token).ConfigureAwait(false)).Errors.Any(e => e.Field == "accessKeyPair"), "both halves required");
 
+            ConnectorResourceContext specialCharacters = WithSecrets(Offline(StorageProviderEnum.AmazonS3, new Dictionary<string, string> { { "endpoint", "" } }), new Dictionary<string, Dictionary<string, string>>
+            {
+                { "accessKeyPair", new Dictionary<string, string> { { "accessKeyId", "AKIDEXAMPLE" }, { "secretAccessKey", "secret+/=example" } } }
+            });
+            StorageTestAssert.True((await connector.ValidateAsync(specialCharacters, token).ConfigureAwait(false)).IsValid, "AWS secret punctuation accepted");
+            StorageTestAssert.Equal("secret+/=example", StorageClientFactory.BuildS3Settings(specialCharacters).SecretKey, "AWS secret punctuation preserved exactly");
+
+            foreach (string credentialField in new string[] { "accessKeyId", "secretAccessKey" })
+            {
+                ConnectorResourceContext whitespace = WithSecrets(Offline(StorageProviderEnum.AmazonS3, new Dictionary<string, string> { { "endpoint", "" } }), new Dictionary<string, Dictionary<string, string>>
+                {
+                    { "accessKeyPair", new Dictionary<string, string> { { "accessKeyId", "AKID+EXAMPLE" }, { "secretAccessKey", "secret+/=example" } } }
+                });
+                Dictionary<string, string> fields = new Dictionary<string, string> { { "accessKeyId", "AKID+EXAMPLE" }, { "secretAccessKey", "secret+/=example" } };
+                fields[credentialField] += " ";
+                whitespace = WithSecrets(whitespace, new Dictionary<string, Dictionary<string, string>> { { "accessKeyPair", fields } });
+                StorageTestAssert.True(!(await connector.ValidateAsync(whitespace, token).ConfigureAwait(false)).IsValid, "AWS whitespace rejected in " + credentialField);
+                try
+                {
+                    StorageClientFactory.BuildS3Settings(whitespace);
+                    throw new InvalidOperationException("Expected credential whitespace rejection.");
+                }
+                catch (ConnectorException error)
+                {
+                    StorageTestAssert.Equal("invalid_credentials", error.Code, "factory rejects whitespace before signing");
+                    StorageTestAssert.True(!error.Message.Contains(fields[credentialField], StringComparison.Ordinal), "error omits secret values");
+                }
+            }
+
             ConnectorResourceContext session = WithSecrets(Offline(StorageProviderEnum.AmazonS3), new Dictionary<string, Dictionary<string, string>>
             {
                 { "accessKeyPair", new Dictionary<string, string> { { "accessKeyId", "AKID" }, { "secretAccessKey", "s" }, { "sessionToken", "t" } } }

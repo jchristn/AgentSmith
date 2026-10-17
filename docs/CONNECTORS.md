@@ -195,6 +195,8 @@ Provider settings:
 | `connectionString` | ConnectionString | no | `connectionString` | Storage connection string. Use instead of accountName plus accessKey. Presigned URLs need a connection string that includes AccountKey. |
 | `serviceAccountJson` | ServiceAccountJson | yes | `json` (must have `type: service_account`, `client_email`, `private_key`) | Service account key JSON (the json field). Grant the account only the roles the bindings need, for example roles/storage.objectViewer for read-only. |
 
+For AWS S3, access key values containing whitespace are rejected before signing. Secret values are preserved exactly; replace both values together using the secret's **Replace values** action if a copied pair fails with `SignatureDoesNotMatch`. Characters such as `+`, `/`, and `=` in the secret key must remain unchanged.
+
 An S3 resource without `accessKeyPair` makes anonymous requests, which only work on public buckets and cannot presign. Azure takes either `accessKey` (with `accountName`) or `connectionString`, not both. GCS always needs a service account key, even against the emulator, because the key also signs URLs.
 
 | Tool | Effect | Purpose |
@@ -212,7 +214,7 @@ An S3 resource without `accessKeyPair` makes anonymous requests, which only work
 
 **Limits.** `storage_read` returns at most `maxObjectReadBytes` per call and gives `nextOffset` to continue. `storage_list` pages with a continuation token (see below for how deep it can go), and `storage_stats` scans at most `maxScanObjects` objects before reporting lower bounds. `storage_write` accepts up to 16 MiB of content, and `storage_copy`, which reads the object through Hugo rather than copying server-side, up to 256 MiB.
 
-**Test connection** lists the first key under `prefixRestriction` and reports either that key or that the prefix is empty. On S3 this is a `ListObjectsV2` request and requires `s3:ListBucket` on the bucket ARN, even when the same credentials can read or write known object keys. If the policy restricts listing with an `s3:prefix` condition, set `prefixRestriction` to an allowed prefix. For AWS S3, leave `endpoint` empty and use the bucket's actual `region`. Connection failures distinguish recognized AWS credential, signature, and region errors from access-policy denial without exposing credentials or raw provider responses.
+**Test connection** lists the first key under `prefixRestriction` and reports either that key or that the prefix is empty. On S3 this is a `ListObjects` request and requires `s3:ListBucket` on the bucket ARN, even when the same credentials can read or write known object keys. If the policy restricts listing with an `s3:prefix` condition, set `prefixRestriction` to an allowed prefix. For AWS S3, leave `endpoint` empty and use the bucket's actual `region`. Connection failures distinguish recognized AWS credential, signature, and region errors from access-policy denial without exposing credentials or raw provider responses.
 
 **Least privilege.** For S3, `s3:ListBucket` and `s3:GetObject` on the bucket (with an `s3:prefix` condition matching `prefixRestriction`) cover every Read tool; add `s3:PutObject` for writes, copies, and PUT URLs, and `s3:DeleteObject` for deletes. For GCS, `roles/storage.objectViewer` on the bucket is the read-only role. Azure account keys grant the whole account, so give agents a dedicated storage account, or a connection string carrying a narrowly scoped SAS if you do not need presigned URLs.
 

@@ -1,6 +1,7 @@
 namespace Hugo.Connectors.Storage
 {
     using System;
+    using System.Linq;
     using Hugo.Connectors.Abstractions;
 
     /// <summary>
@@ -51,6 +52,9 @@ namespace Hugo.Connectors.Storage
                 string? secret = resource.Secrets.Get(StorageSettingKeys.SlotAccessKeyPair, StorageSettingKeys.FieldSecretAccessKey);
                 if (String.IsNullOrEmpty(id) || String.IsNullOrEmpty(secret))
                     result.Add(StorageSettingKeys.SlotAccessKeyPair, "invalid_secret", "The access key pair must have both accessKeyId and secretAccessKey.");
+                if (String.IsNullOrWhiteSpace(resource.Settings.GetString(StorageSettingKeys.Endpoint))
+                    && ((id != null && id.Any(Char.IsWhiteSpace)) || (secret != null && secret.Any(Char.IsWhiteSpace))))
+                    result.Add(StorageSettingKeys.SlotAccessKeyPair, "invalid_secret", "AWS access keys must not contain whitespace. Replace the bound secret values without spaces or line breaks; Hugo preserves secret values exactly.");
                 if (!String.IsNullOrEmpty(resource.Secrets.Get(StorageSettingKeys.SlotAccessKeyPair, StorageSettingKeys.FieldSessionToken)))
                     result.Add(StorageSettingKeys.SlotAccessKeyPair, "not_supported", "Temporary credentials (sessionToken) are not supported; bind a long-lived access key pair.");
             }

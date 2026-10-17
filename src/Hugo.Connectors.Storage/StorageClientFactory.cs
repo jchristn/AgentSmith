@@ -1,6 +1,7 @@
 namespace Hugo.Connectors.Storage
 {
     using System;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Azure.Storage;
@@ -158,6 +159,8 @@ namespace Hugo.Connectors.Storage
                     throw new ConnectorException("invalid_credentials", "The accessKeyPair secret must have both accessKeyId and secretAccessKey.");
                 if (!String.IsNullOrEmpty(resource.Secrets.Get(StorageSettingKeys.SlotAccessKeyPair, StorageSettingKeys.FieldSessionToken)))
                     throw new ConnectorException("invalid_credentials", "Temporary credentials (sessionToken) are not supported by the Blobject S3 client; bind a long-lived access key pair.");
+                if (endpoint == null && (accessKeyId.Any(Char.IsWhiteSpace) || secretAccessKey.Any(Char.IsWhiteSpace)))
+                    throw new ConnectorException("invalid_credentials", "AWS access keys must not contain whitespace. Replace the bound secret values without spaces or line breaks; Hugo preserves secret values exactly.");
                 aws.AccessKey = accessKeyId;
                 aws.SecretKey = secretAccessKey;
             }

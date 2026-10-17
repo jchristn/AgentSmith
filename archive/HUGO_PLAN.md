@@ -86,7 +86,7 @@ These rules keep the plan honest:
 | 1 | Core foundation: settings, data layer, identity, RBAC, sessions, audit, history, telemetry base | M1 | Complete | 44 / 44 |
 | 2 | Secrets vault | M1 | Complete | 12 / 12 |
 | 3 | Connector framework and tool invocation pipeline | M1 | Complete | 26 / 26 |
-| 4 | Connectors wave 1: SSH, object storage, SQL databases, SolarWinds Observability | M1 | Complete | 39 / 39 |
+| 4 | Connectors wave 1: SSH, object storage, SQL databases, SolarWinds Observability | M1 | Complete | 40 / 40 |
 | 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | Complete | 21 / 21 |
 | 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | Complete | 24 / 24 |
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Complete | 22 / 22 |
@@ -1935,7 +1935,9 @@ Database intelligence (D-038)
 - [x] P4.38 Retire Papertrail while preserving SolarWinds Observability. *Accept:* Papertrail is absent from registry and dashboard discovery, new resources reject its type, provider-specific tools/options/instructions and fixtures are removed, active examples use SolarWinds, and SWO/shared logging plus full regression suites pass; no existing resource or secret data is deleted. | codex 2026-10-17 retirement verified: 2017 backend passes, 309 expected testbed skips; 14 configuration cases pass after duplicate guard; dashboard 317 unit and 70 browser passes
 - [x] P4.30 CI starts the wave 1 testbed and runs the testbed suites on SQLite and PostgreSQL.  | codex 2026-10-15 dedicated wave1-testbed.yaml push/PR/manual matrix with provider DB, required-suite coverage guard, artifacts and always-cleanup; exact CI selection passes locally 963/963 across both providers; hosted execution unverified; external scheduling is no longer a plan task (D-055)
 
-- [x] P4.39 Diagnose AWS S3 connection failures without obscuring provider error codes. *Accept:* real AWS region configuration remains correct, recognized credential/signature/region errors have safe actionable messages, list-probe permission requirements are explicit, and storage regressions pass. | codex 2026-10-17 safe AWS diagnostics and explicit ListObjectsV2 permission details implemented; 32 storage regressions pass including us-east-2 signing and wrapped-error non-disclosure; solution builds with zero warnings/errors. Actual customer bucket access remains unverified without credentials
+- [x] P4.39 Diagnose AWS S3 connection failures without obscuring provider error codes. *Accept:* real AWS region configuration remains correct, recognized credential/signature/region errors have safe actionable messages, list-probe permission requirements are explicit, and storage regressions pass. | codex 2026-10-17 safe AWS diagnostics and explicit ListObjects permission details implemented; 32 storage regressions pass including us-east-2 signing and wrapped-error non-disclosure; solution builds with zero warnings/errors. Actual customer bucket access remains unverified without credentials
+
+- [x] P4.40 Investigate S3 SignatureDoesNotMatch follow-up. *Accept:* credential copy path inspected, AWS key whitespace rejected without exposing values, secret punctuation preserved, and probe operation label matches installed Blobject. | codex 2026-10-17 dashboard/encryption/resolver preserve exact values; no confirmed signing defect; AWS whitespace validation and ListObjects label correction verified by storage regressions and zero-warning build. Actual bucket failure requires comparing the bound credentials with the working pair.
 
 ### Phase 5: Agent profiles, bindings, prompt templates, instruction composition (M1)
 
