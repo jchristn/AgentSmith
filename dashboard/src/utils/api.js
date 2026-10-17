@@ -764,6 +764,15 @@ class ApiClient {
 
   // ------------------------------------------------------------------ conversations and chat
 
+  /** Feedback and persisted request/response telemetry for one agent profile. */
+  listFeedback(params) {
+    return this._list('/v1.0/api/feedback', params);
+  }
+
+  getFeedback(messageId) {
+    return this._request('GET', `/v1.0/api/feedback/${enc(messageId)}`);
+  }
+
   /** filters: agentProfileId, userId, source, search, fromUtc, toUtc, pageNumber, pageSize. */
   listConversations(params) {
     return this._pagedList('/v1.0/api/conversations', params);

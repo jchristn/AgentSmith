@@ -2315,6 +2315,45 @@
         "warning": "Avertissement",
         "error": "Erreur"
       }
+    },
+    "feedback": {
+      "title": "Retours",
+      "subtitle": "Consultez les avis avec les requêtes, réponses et données de télémétrie associées.",
+      "agent": "Agent",
+      "agentTip": "Filtrer les avis par profil d’agent.",
+      "rating": "Évaluation",
+      "positive": "Favorable",
+      "negative": "Défavorable",
+      "comment": "Commentaire",
+      "updated": "Mis à jour",
+      "request": "Requête",
+      "response": "Réponse",
+      "details": "Détails de l’avis",
+      "empty": "Aucun avis n’a été envoyé pour cette sélection.",
+      "noComment": "Aucun commentaire écrit",
+      "requestUnavailable": "La requête d’origine n’est plus disponible.",
+      "responseUnavailable": "La réponse n’est plus disponible.",
+      "telemetry": "Télémétrie de la requête et de la réponse",
+      "conversation": "Discussion",
+      "turn": "Tour",
+      "inputTokens": "Jetons d’entrée",
+      "outputTokens": "Jetons de sortie",
+      "firstToken": "Délai avant le premier jeton",
+      "duration": "Durée",
+      "model": "Modèle actuel du point de terminaison",
+      "endpoint": "Point de terminaison du modèle",
+      "source": "Source",
+      "toolCalls": "Appels d’outils",
+      "finishReason": "Motif de fin",
+      "unavailable": "Non enregistré",
+      "loading": "Chargement des détails de l’avis...",
+      "viewTip": "Afficher l’avis avec sa requête, sa réponse et sa télémétrie.",
+      "refreshTip": "Actualiser les avis de l’agent sélectionné.",
+      "retryTip": "Réessayer de charger les avis.",
+      "agentLoadError": "Impossible de charger les agents.",
+      "detailLoadError": "Impossible de charger les détails de l’avis.",
+      "selectAgent": "Sélectionner un agent",
+      "selectAgentHint": "Sélectionnez un agent pour consulter les avis sur ses discussions."
     }
   },
   "tips": {
@@ -3446,7 +3485,8 @@
         "credentials": "Créer des clés d'accès pour les harnais et les SDK, les lier à un profil et les renouveler.",
         "sessions": "Voir chaque session et jeton actifs dans le locataire, et révoquer n'importe lequel.",
         "plugins": "Activer ou désactiver les plugins de connecteur et voir les erreurs de chargement. Seuls les administrateurs système voient cette page.",
-        "promptTemplates": "Modifier les modèles d'instructions par couche (intégrée, globale, locataire), avec aperçu, versions et réinitialisation."
+        "promptTemplates": "Modifier les modèles d'instructions par couche (intégrée, globale, locataire), avec aperçu, versions et réinitialisation.",
+        "feedback": "Consultez les avis avec les requêtes, réponses et données de télémétrie associées."
       },
       "approvalsBadge_many": "{{count}} appels d'outil attendent qu'une personne les approuve ou les rejette. Ouvrez Approbations pour décider."
     },
@@ -3919,6 +3959,10 @@
       "plugins": {
         "label": "Plugins",
         "tip": "Plugins de connecteur."
+      },
+      "feedback": {
+        "label": "Retours",
+        "tip": "Consultez les avis avec les requêtes, réponses et données de télémétrie associées."
       }
     },
     "approvalsPending_many": "{{count}} approbations attendent une personne"

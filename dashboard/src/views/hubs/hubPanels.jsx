@@ -8,6 +8,7 @@ import ResourceDetailView from '../ResourceDetailView';
 import PromptTemplateEditorView from '../PromptTemplateEditorView';
 import RequestHistoryView from '../RequestHistoryView';
 import AnalyticsView from '../AnalyticsView';
+import FeedbackView from '../FeedbackView';
 import ApiExplorerView from '../ApiExplorerView';
 import McpExplorerView from '../McpExplorerView';
 import A2aExplorerView from '../A2aExplorerView';
@@ -56,6 +57,7 @@ export const PAGE_VIEWS = {
   knowledge: recordView(knowledgeConfig, 'KnowledgeView'),
   toolInvocations: recordView(toolInvocationsConfig, 'ToolInvocationsView'),
   requests: RequestHistoryView,
+  feedback: FeedbackView,
   analytics: AnalyticsView,
   audit: recordView(auditConfig, 'AuditView'),
   explorer: ApiExplorerView,

@@ -62,6 +62,7 @@ export const NAV_SECTIONS = [
         icon: 'ChartIcon',
         tabs: [
           { id: 'toolInvocations', slug: 'tool-invocations' },
+          { id: 'feedback', slug: 'feedback' },
           { id: 'requests', slug: 'requests' },
           { id: 'analytics', slug: 'analytics' },
           { id: 'audit', slug: 'audit' }

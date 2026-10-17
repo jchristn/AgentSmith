@@ -27,6 +27,7 @@ The fastest way to try any of this is the collection: import it with `Hugo.postm
 - [Model endpoints](#model-endpoints)
 - [Tool invocations](#tool-invocations)
 - [Approvals](#approvals)
+- [Feedback review](#feedback-review)
 - [Conversations and chat](#conversations-and-chat)
 - [Events](#events)
 - [Analytics](#analytics)
@@ -8939,6 +8940,21 @@ Response (200):
   "lastUpdateUtc": "2026-10-15T05:26:08.497135Z"
 }
 ```
+
+## Feedback review
+
+The dashboard's **Activity → Feedback** tab uses these read-only management endpoints. Select a specific agent before listing feedback. Both routes require Conversation Read and AgentProfile Read on the selected agent, with the normal profile visibility and conversation ownership rules. Tenant administrators can review their tenant's conversations. Regular users see their own conversations; credentials see only conversations started with that credential. Cross-tenant and inaccessible details return 404. Public visitor chat capabilities do not grant access to management feedback.
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/v1.0/api/feedback?agentProfileId={id}&maxResults=25&skip=0` | Page submitted feedback for one agent, newest feedback first |
+| GET | `/v1.0/api/feedback/{messageId}` | Read one feedback item and its associated request, response and persisted turn telemetry |
+
+`agentProfileId` is required for the list. Pagination uses the standard enumeration envelope with `objects`, `totalRecords`, and `recordsRemaining`. Ordering is fixed to `feedbackUpdatedUtc` descending and message ID descending. Unrated messages and feedback cleared of both rating and comment are excluded. Comment-only feedback is included.
+
+Each item is a flat object with `id` and `messageId` (the rated assistant message ID), `agentProfileId`, `agentName`, `conversationId`, `turnId`, `feedbackRating`, `feedbackComment`, `feedbackUpdatedUtc`, `requestText`, `responseText`, `inputTokens`, `outputTokens`, `timeToFirstTokenMs`, `durationMs`, `finishReason`, `modelEndpointId`, `modelName`, `source`, `toolCallCount`, and `createdUtc`. The detail endpoint returns the same object shape.
+
+The request is the preceding user message in the rated response's turn, falling back to the nearest preceding user message for legacy histories. The response is the exact assistant message that received feedback. Token counts and timings are the metrics persisted on that message, not estimates. Tool call count covers the associated turn, or just the rated message when no turn ID exists. `modelName` is the producing endpoint's current model identifier and is null if that endpoint no longer exists. Missing telemetry remains null. These endpoints do not return internal reasoning, visitor capabilities, compiled prompts, raw tool arguments, or guessed HTTP request correlations.
 
 ## Conversations and chat
 

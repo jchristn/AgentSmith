@@ -13,6 +13,17 @@ namespace Hugo.Core.Database.Interfaces
     /// </summary>
     public interface IMessageMethods
     {
+        /// <summary>Page submitted feedback newest first, restricted by tenant, profile and optional conversation owner. Cleared feedback is excluded.</summary>
+        /// <param name="tenantId">Tenant identifier.</param>
+        /// <param name="agentProfileId">Profile identifier.</param>
+        /// <param name="userId">Restrict conversation owner, or null for no user filter.</param>
+        /// <param name="credentialId">Restrict owning credential, or null for no credential filter.</param>
+        /// <param name="messageId">Restrict rated message for a detail read, or null.</param>
+        /// <param name="query">Paging; sorting is always latest feedback first.</param>
+        /// <param name="token">Cancellation.</param>
+        /// <returns>Feedback page with associated persisted telemetry.</returns>
+        Task<EnumerationResult<FeedbackReview>> EnumerateFeedbackAsync(string tenantId, string agentProfileId, string? userId, string? credentialId, string? messageId, EnumerationQuery query, CancellationToken token = default);
+
         /// <summary>Update an assistant message's visitor feedback in a tenant and conversation.</summary>
         /// <param name="tenantId">Tenant.</param>
         /// <param name="conversationId">Conversation.</param>

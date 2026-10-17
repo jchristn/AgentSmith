@@ -2315,6 +2315,45 @@
         "warning": "Advertencia",
         "error": "Error"
       }
+    },
+    "feedback": {
+      "title": "Comentarios",
+      "subtitle": "Revise los comentarios y sus solicitudes, respuestas y telemetría.",
+      "agent": "Agente",
+      "agentTip": "Filtrar comentarios por perfil de agente.",
+      "rating": "Valoración",
+      "positive": "Positiva",
+      "negative": "Negativa",
+      "comment": "Comentario",
+      "updated": "Actualizado",
+      "request": "Solicitud",
+      "response": "Respuesta",
+      "details": "Detalles del comentario",
+      "empty": "No se han enviado comentarios para esta selección.",
+      "noComment": "Sin comentario escrito",
+      "requestUnavailable": "La solicitud original ya no está disponible.",
+      "responseUnavailable": "La respuesta ya no está disponible.",
+      "telemetry": "Telemetría de la solicitud y la respuesta",
+      "conversation": "Conversación",
+      "turn": "Turno",
+      "inputTokens": "Tokens de entrada",
+      "outputTokens": "Tokens de salida",
+      "firstToken": "Tiempo hasta el primer token",
+      "duration": "Duración",
+      "model": "Modelo actual del punto de conexión",
+      "endpoint": "Punto de conexión del modelo",
+      "source": "Origen",
+      "toolCalls": "Llamadas a herramientas",
+      "finishReason": "Motivo de finalización",
+      "unavailable": "No registrado",
+      "loading": "Cargando detalles del comentario...",
+      "viewTip": "Ver el comentario con su solicitud, respuesta y telemetría.",
+      "refreshTip": "Actualizar comentarios del agente seleccionado.",
+      "retryTip": "Reintentar la carga de comentarios.",
+      "agentLoadError": "No se pudieron cargar los agentes.",
+      "detailLoadError": "No se pudieron cargar los detalles del comentario.",
+      "selectAgent": "Seleccionar un agente",
+      "selectAgentHint": "Seleccione un agente para revisar los comentarios de sus chats."
     }
   },
   "tips": {
@@ -3446,7 +3485,8 @@
         "credentials": "Cree claves de acceso para entornos de ejecución y SDK, vincúlelas a un perfil y rótelas.",
         "sessions": "Consulte todas las sesiones y tokens activos en el inquilino y revoque cualquiera de ellos.",
         "plugins": "Habilite o deshabilite plugins de conectores y consulte los errores de carga. Solo los administradores del sistema ven esta página.",
-        "promptTemplates": "Edite las plantillas de instrucciones por capa (integrada, global, inquilino), con vista previa, versiones y restablecimiento."
+        "promptTemplates": "Edite las plantillas de instrucciones por capa (integrada, global, inquilino), con vista previa, versiones y restablecimiento.",
+        "feedback": "Revise los comentarios y sus solicitudes, respuestas y telemetría."
       },
       "approvalsBadge_many": "{{count}} llamadas a herramientas están esperando a que una persona las apruebe o las rechace. Abra Aprobaciones para decidir."
     },
@@ -3919,6 +3959,10 @@
       "plugins": {
         "label": "Plugins",
         "tip": "Plugins de conectores."
+      },
+      "feedback": {
+        "label": "Comentarios",
+        "tip": "Revise los comentarios y sus solicitudes, respuestas y telemetría."
       }
     },
     "approvalsPending_many": "{{count}} aprobaciones esperando a una persona"

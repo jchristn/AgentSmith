@@ -2315,6 +2315,45 @@
         "warning": "Aviso",
         "error": "Erro"
       }
+    },
+    "feedback": {
+      "title": "Avaliações",
+      "subtitle": "Consulte o feedback com as solicitações, respostas e telemetria associadas.",
+      "agent": "Agente",
+      "agentTip": "Filtrar feedback por perfil de agente.",
+      "rating": "Avaliação",
+      "positive": "Positiva",
+      "negative": "Negativa",
+      "comment": "Comentário",
+      "updated": "Atualizado",
+      "request": "Solicitação",
+      "response": "Resposta",
+      "details": "Detalhes do feedback",
+      "empty": "Nenhum feedback foi enviado para esta seleção.",
+      "noComment": "Sem comentário escrito",
+      "requestUnavailable": "A solicitação original não está mais disponível.",
+      "responseUnavailable": "A resposta não está mais disponível.",
+      "telemetry": "Telemetria de solicitação e resposta",
+      "conversation": "Conversa",
+      "turn": "Turno",
+      "inputTokens": "Tokens de entrada",
+      "outputTokens": "Tokens de saída",
+      "firstToken": "Tempo até o primeiro token",
+      "duration": "Duração",
+      "model": "Modelo atual do endpoint",
+      "endpoint": "Endpoint do modelo",
+      "source": "Origem",
+      "toolCalls": "Chamadas de ferramentas",
+      "finishReason": "Motivo da conclusão",
+      "unavailable": "Não registrado",
+      "loading": "Carregando detalhes do feedback...",
+      "viewTip": "Ver o feedback com sua solicitação, resposta e telemetria.",
+      "refreshTip": "Atualizar feedback do agente selecionado.",
+      "retryTip": "Tentar carregar o feedback novamente.",
+      "agentLoadError": "Não foi possível carregar os agentes.",
+      "detailLoadError": "Não foi possível carregar os detalhes do feedback.",
+      "selectAgent": "Selecionar um agente",
+      "selectAgentHint": "Selecione um agente para consultar o feedback dos seus chats."
     }
   },
   "tips": {
@@ -3446,7 +3485,8 @@
         "credentials": "Criar chaves de acesso para harnesses e SDKs, vinculá-las a um perfil e rotacioná-las.",
         "sessions": "Ver todas as sessões e tokens ativos no locatário e revogar qualquer um deles.",
         "plugins": "Habilitar ou desabilitar plugins de conector e ver erros de carregamento. Somente administradores do sistema veem esta página.",
-        "promptTemplates": "Editar modelos de instrução por camada (integrado, global, locatário), com pré-visualização, versões e redefinição."
+        "promptTemplates": "Editar modelos de instrução por camada (integrado, global, locatário), com pré-visualização, versões e redefinição.",
+        "feedback": "Consulte o feedback com as solicitações, respostas e telemetria associadas."
       },
       "approvalsBadge_many": "{{count}} chamadas de ferramenta aguardam que uma pessoa as aprove ou rejeite. Abra Aprovações para decidir."
     },
@@ -3919,6 +3959,10 @@
       "plugins": {
         "label": "Plugins",
         "tip": "Plugins de conector."
+      },
+      "feedback": {
+        "label": "Avaliações",
+        "tip": "Consulte o feedback com as solicitações, respostas e telemetria associadas."
       }
     },
     "approvalsPending_many": "{{count}} aprovações aguardando uma pessoa"

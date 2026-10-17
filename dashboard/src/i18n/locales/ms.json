@@ -2296,6 +2296,45 @@
         "warning": "Amaran",
         "error": "Ralat"
       }
+    },
+    "feedback": {
+      "title": "Maklum balas",
+      "subtitle": "Semak maklum balas serta permintaan, respons dan telemetri yang berkaitan.",
+      "agent": "Ejen",
+      "agentTip": "Tapis maklum balas mengikut profil ejen.",
+      "rating": "Penilaian",
+      "positive": "Positif",
+      "negative": "Negatif",
+      "comment": "Ulasan",
+      "updated": "Dikemas kini",
+      "request": "Permintaan",
+      "response": "Respons",
+      "details": "Butiran maklum balas",
+      "empty": "Tiada maklum balas dihantar untuk pilihan ini.",
+      "noComment": "Tiada ulasan bertulis",
+      "requestUnavailable": "Permintaan asal tidak lagi tersedia.",
+      "responseUnavailable": "Respons tidak lagi tersedia.",
+      "telemetry": "Telemetri permintaan dan respons",
+      "conversation": "Perbualan",
+      "turn": "Giliran",
+      "inputTokens": "Token input",
+      "outputTokens": "Token output",
+      "firstToken": "Masa hingga token pertama",
+      "duration": "Tempoh",
+      "model": "Model semasa titik akhir",
+      "endpoint": "Titik akhir model",
+      "source": "Sumber",
+      "toolCalls": "Panggilan alat",
+      "finishReason": "Sebab tamat",
+      "unavailable": "Tidak direkodkan",
+      "loading": "Memuatkan butiran maklum balas...",
+      "viewTip": "Lihat maklum balas bersama permintaan, respons dan telemetrinya.",
+      "refreshTip": "Muat semula maklum balas untuk ejen yang dipilih.",
+      "retryTip": "Cuba muatkan maklum balas semula.",
+      "agentLoadError": "Tidak dapat memuatkan ejen.",
+      "detailLoadError": "Tidak dapat memuatkan butiran maklum balas.",
+      "selectAgent": "Pilih ejen",
+      "selectAgentHint": "Pilih ejen untuk menyemak maklum balas sembangnya."
     }
   },
   "tips": {
@@ -3426,7 +3465,8 @@
         "credentials": "Cipta kunci akses untuk abah-abah dan SDK, ikatnya pada profil dan putarkannya.",
         "sessions": "Lihat setiap sesi dan token aktif dalam penyewa, dan batalkan mana-mana daripadanya.",
         "plugins": "Dayakan atau nyahdayakan pemalam penyambung dan lihat ralat pemuatan. Hanya pentadbir sistem melihat halaman ini.",
-        "promptTemplates": "Edit templat arahan mengikut lapisan (terbina dalam, global, penyewa), dengan pratonton, versi dan tetapan semula."
+        "promptTemplates": "Edit templat arahan mengikut lapisan (terbina dalam, global, penyewa), dengan pratonton, versi dan tetapan semula.",
+        "feedback": "Semak maklum balas serta permintaan, respons dan telemetri yang berkaitan."
       }
     },
     "passwordChange": {
@@ -3898,6 +3938,10 @@
       "plugins": {
         "label": "Pemalam",
         "tip": "Pemalam penyambung."
+      },
+      "feedback": {
+        "label": "Maklum balas",
+        "tip": "Semak maklum balas serta permintaan, respons dan telemetri yang berkaitan."
       }
     }
   },

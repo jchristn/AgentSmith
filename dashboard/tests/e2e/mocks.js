@@ -1148,6 +1148,7 @@ export const CAPABILITY_PREFIXES = {
   models: '/v1.0/api/model-endpoints',
   conversations: '/v1.0/api/conversations',
   toolInvocations: '/v1.0/api/tool-invocations',
+  feedback: '/v1.0/api/feedback',
   approvals: '/v1.0/api/approvals',
   sessions: '/v1.0/api/sessions',
   prompts: '/v1.0/api/prompt-templates',
@@ -1164,6 +1165,7 @@ export const CAPABILITY_PREFIXES = {
 export function respond(method, url, body) {
   const p = url.pathname;
   if (p === '/openapi.json') return OPENAPI;
+  if (p === '/v1.0/api/feedback') return { objects: [], totalRecords: 0, maxResults: 25, skip: 0 };
   if (p === '/v1.0/token' && method === 'POST')
     return { token: 'tok_e2e', expiresUtc: iso(-60), tenantId: TENANT, sessionId: 'ses_e2e', principalType: 'User', mustChangePassword: false };
   if (p === '/v1.0/token/details') return PRINCIPAL;

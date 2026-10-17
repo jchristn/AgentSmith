@@ -90,7 +90,7 @@ These rules keep the plan honest:
 | 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | Complete | 23 / 23 |
 | 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | Complete | 24 / 24 |
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Complete | 23 / 23 |
-| 8 | Dashboard | M1 | Complete | 63 / 63 |
+| 8 | Dashboard | M1 | Complete | 64 / 64 |
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | Complete | 14 / 14 |
 | 10 | Docker, testbed, and observability stack | M1 | Complete | 24 / 24 |
 | 11 | Documentation and Postman | M1 | Complete | 18 / 18 |
@@ -1598,7 +1598,7 @@ First boot runs idempotently in `InitializeAsync`:
 | Workspace | Agents | Agent Profiles, Approvals, Conversations |
 | Workspace | Connections | Resources, Secrets, Connectors, Model Endpoints |
 | Workspace | Instructions | Prompt Templates, Knowledge |
-| Workspace | Activity | Tool Invocations, Request History, Analytics, Audit |
+| Workspace | Activity | Tool Invocations, Feedback, Request History, Analytics, Audit |
 | Workspace | Developer Tools | API Explorer, MCP Explorer, A2A Explorer |
 | Administration | Access | Tenants, Users, Credentials, Roles, Assignments, Sessions |
 | Administration | System | Settings, Server Info, Plugins |
@@ -1636,6 +1636,7 @@ The topbar holds:
 | `/dashboard/instructions?tab=knowledge` (M2) | Teach Hugo about the stack | Builder | knowledge | Profile, resource scope | `+ Add`, edit, delete, test retrieval | |
 | `/dashboard/activity` | See every action taken | Operator, Auditor | tool-invocations | Surface, profile, resource, tool, effect, decision, status, time, principal | View detail (redacted args, output preview, approval, trace link to Tempo) | |
 | `/dashboard/activity?tab=requests` | Inspect API traffic | All (tenant scoped) | request-history | Per FRONTEND_ARCHITECTURE.md | Request details modal, bulk delete with plain-English confirm | Three distinct empty states |
+| `/dashboard/activity?tab=feedback` | Review agent response feedback | Conversation readers | feedback | Agent profile, paging | Rating, comments, associated user request and assistant response, tokens, latency, model and turn identifiers | |
 | `/dashboard/activity?tab=analytics` | Understand usage and cost | TenantAdmin, Operator | analytics | Range, profile, model | Token usage over time, tool calls by connector and effect, model latency and errors, approval turnaround | |
 | `/dashboard/activity?tab=audit` | Review security events | Auditor, SecurityAdmin | audit | Event type, principal, result, time | View detail, bulk delete (admin) | |
 | `/dashboard/developer-tools` | Try the REST API | All | `/openapi.json` | Tag grouping, search | Per FRONTEND_ARCHITECTURE.md, including SSE streaming and Stop | OpenAPI missing error naming `/openapi.json` |
@@ -2106,6 +2107,8 @@ Quality
 - [x] P8.61 Remove language beta labels and verify complete locale coverage. *Accept:* every supported catalog has all keys, placeholders, nonempty translated labels, and all locale-specific plural forms; selectors show autonyms without status suffixes. | codex 2026-10-17 Removed beta metadata and labels, corrected untranslated short labels, filled 88 missing plural forms, and replaced the short-label test exemption with reviewed shared vocabulary. All 12 languages pass catalog coverage, 330 dashboard unit tests, 83 browser tests, and lint; standalone chat uses accessible sun/moon icons and distinguishes missing links from permission, server, and network errors
 - [x] P8.62 Complete standalone chat presentation, branding, and feedback. *Accept:* rounded panel without header rule, composer anchored below scrolling transcript with compact auto-growing input and aligned send control, AI accuracy disclaimer, icon-only theme control, sanitized Markdown for both roles, editable heading/logo/browser title, and persistent thumbs-up/down/free-text feedback scoped to the visitor. | codex 2026-10-17 Followed AssistantHub and Pneuma feedback patterns; Connect > Chat link exposes branding settings. Migration 11 stores presentation fields and message feedback on SQLite/PostgreSQL; capability checks isolate feedback and the authorized operator transcript shows saved feedback. Verified 18 standalone backend cases across both providers, solution build with zero warnings/errors, 334 dashboard unit tests, 86 browser tests, localization/lint checks, and phone/desktop visual review
 - [x] P8.63 Restore incremental standalone chat streaming. *Accept:* safe text renders before model completion, Stop cancels the link-scoped turn, final text/message ID supports feedback, and private events and split secrets remain hidden. | codex 2026-10-17 Standalone endpoint negotiates safe SSE while retaining JSON compatibility; the page consumes real deltas and reconciles final text. Verified 10 SQLite integration cases including delayed early text, split-secret redaction and midstream revocation; 336 dashboard unit tests including deferred-stream visibility/cancellation, 16 standalone browser tests, clean solution build, lint and localization checks
+- [x] P8.64 Add Activity > Feedback with agent selection and correlated request/response telemetry. *Accept:* select an agent, page through saved ratings/comments, inspect the associated request, response, identifiers, token counts and timing, while enforcing tenant and conversation visibility. | codex 2026-10-17 Implemented paged tenant/owner-scoped feedback list and detail API, agent selection with URL persistence, responsive Markdown request/response details and saved telemetry. Verified four backend cases across SQLite/PostgreSQL, solution build with zero warnings/errors, 341 dashboard unit tests, 88 browser tests, all 12 catalogs, lint, and phone/desktop visual review
+
 
 
 

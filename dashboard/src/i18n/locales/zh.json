@@ -2296,6 +2296,45 @@
         "warning": "警告",
         "error": "错误"
       }
+    },
+    "feedback": {
+      "title": "反馈",
+      "subtitle": "查看反馈及其关联的请求、响应和遥测数据。",
+      "agent": "智能体",
+      "agentTip": "按智能体配置筛选反馈。",
+      "rating": "评价",
+      "positive": "好评",
+      "negative": "差评",
+      "comment": "评论",
+      "updated": "更新时间",
+      "request": "请求",
+      "response": "响应",
+      "details": "反馈详情",
+      "empty": "当前选择下尚未提交任何反馈。",
+      "noComment": "无文字评论",
+      "requestUnavailable": "原始请求已不可用。",
+      "responseUnavailable": "响应已不可用。",
+      "telemetry": "请求和响应遥测数据",
+      "conversation": "对话",
+      "turn": "轮次",
+      "inputTokens": "输入令牌",
+      "outputTokens": "输出令牌",
+      "firstToken": "首个令牌耗时",
+      "duration": "持续时间",
+      "model": "端点当前模型",
+      "endpoint": "模型端点",
+      "source": "来源",
+      "toolCalls": "工具调用",
+      "finishReason": "结束原因",
+      "unavailable": "未记录",
+      "loading": "正在加载反馈详情...",
+      "viewTip": "查看反馈及其请求、响应和遥测数据。",
+      "refreshTip": "刷新所选智能体的反馈。",
+      "retryTip": "重试加载反馈。",
+      "agentLoadError": "无法加载智能体。",
+      "detailLoadError": "无法加载反馈详情。",
+      "selectAgent": "选择智能体",
+      "selectAgentHint": "选择智能体以查看其聊天反馈。"
     }
   },
   "tips": {
@@ -3426,7 +3465,8 @@
         "credentials": "为调用框架和 SDK 创建访问密钥，将其绑定到配置文件并进行轮换。",
         "sessions": "查看租户中所有活动的会话和令牌，并可撤销其中任何一个。",
         "plugins": "启用或禁用连接器插件并查看加载错误。只有系统管理员可以看到此页面。",
-        "promptTemplates": "按层级（内置、全局、租户）编辑指令模板，支持预览、版本和重置。"
+        "promptTemplates": "按层级（内置、全局、租户）编辑指令模板，支持预览、版本和重置。",
+        "feedback": "查看反馈及其关联的请求、响应和遥测数据。"
       }
     },
     "passwordChange": {
@@ -3898,6 +3938,10 @@
       "plugins": {
         "label": "插件",
         "tip": "连接器插件。"
+      },
+      "feedback": {
+        "label": "反馈",
+        "tip": "查看反馈及其关联的请求、响应和遥测数据。"
       }
     }
   },

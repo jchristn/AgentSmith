@@ -48,6 +48,54 @@ namespace Hugo.Core.Database.Ado
         #region Public-Methods
 
         /// <inheritdoc />
+        public async Task<EnumerationResult<FeedbackReview>> EnumerateFeedbackAsync(string tenantId, string agentProfileId, string? userId, string? credentialId, string? messageId, EnumerationQuery query, CancellationToken token = default)
+        {
+            if (String.IsNullOrEmpty(tenantId)) throw new ArgumentNullException(nameof(tenantId));
+            if (String.IsNullOrEmpty(agentProfileId)) throw new ArgumentNullException(nameof(agentProfileId));
+            if (query == null) throw new ArgumentNullException(nameof(query));
+            token.ThrowIfCancellationRequested();
+            string from = " FROM " + _Table + " m JOIN " + _Conversations + " c ON c.tenant_id = m.tenant_id AND c.id = m.conversation_id JOIN " + _Driver.Table("agent_profiles") + " p ON p.tenant_id = c.tenant_id AND p.id = c.agent_profile_id";
+            string where = " WHERE m.tenant_id = @tenant AND c.agent_profile_id = @profile AND m.role = 'Assistant' AND (m.feedback_rating IS NOT NULL OR LENGTH(TRIM(COALESCE(m.feedback_comment, ''))) > 0)";
+            if (userId != null) where += " AND c.user_id = @user";
+            if (credentialId != null) where += " AND c.credential_id = @credential";
+            if (messageId != null) where += " AND m.id = @message";
+            Action<DbCommand> bind = command =>
+            {
+                AdoDatabaseDriver.Add(command, "tenant", tenantId);
+                AdoDatabaseDriver.Add(command, "profile", agentProfileId);
+                if (userId != null) AdoDatabaseDriver.Add(command, "user", userId);
+                if (credentialId != null) AdoDatabaseDriver.Add(command, "credential", credentialId);
+                if (messageId != null) AdoDatabaseDriver.Add(command, "message", messageId);
+            };
+            object? count = await _Driver.ScalarAsync("SELECT COUNT(*)" + from + where, bind, token).ConfigureAwait(false);
+            // Prefer the user message with the same turn. Older imported histories may have no turn IDs.
+            string userWhere = " FROM " + _Table + " u WHERE u.tenant_id = m.tenant_id AND u.conversation_id = m.conversation_id AND u.role = 'User' AND u.sequence < m.sequence";
+            string request = "COALESCE((SELECT u.content" + userWhere + " AND m.turn_id IS NOT NULL AND u.turn_id = m.turn_id ORDER BY u.sequence DESC LIMIT 1), (SELECT u.content" + userWhere + " ORDER BY u.sequence DESC LIMIT 1))";
+            string calls = "(SELECT COUNT(*) FROM " + _Calls + " tc JOIN " + _Table + " tm ON tm.tenant_id = tc.tenant_id AND tm.id = tc.message_id WHERE tm.tenant_id = m.tenant_id AND tm.conversation_id = m.conversation_id AND ((m.turn_id IS NOT NULL AND tm.turn_id = m.turn_id) OR (m.turn_id IS NULL AND tm.id = m.id)))";
+            string sql = "SELECT m.*, c.agent_profile_id, c.source AS conversation_source, COALESCE(p.display_name, p.name) AS agent_name, " + request + " AS request_text, " + calls + " AS tool_call_count, (SELECT e.model FROM " + _Driver.Table("model_endpoints") + " e WHERE e.tenant_id = m.tenant_id AND e.id = m.model_endpoint_id) AS model_name" + from + where + " ORDER BY m.feedback_updated_utc DESC, m.id DESC" + _Driver.Dialect.LimitOffsetClause();
+            List<FeedbackReview> rows = await _Driver.QueryAsync(sql, command =>
+            {
+                bind(command);
+                AdoDatabaseDriver.Add(command, "max", query.MaxResults);
+                AdoDatabaseDriver.Add(command, "skip", query.Skip);
+            }, reader => new FeedbackReview
+            {
+                Id = AdoConverters.Str(reader, "id"), MessageId = AdoConverters.Str(reader, "id"),
+                AgentProfileId = AdoConverters.Str(reader, "agent_profile_id"), AgentName = AdoConverters.Str(reader, "agent_name"),
+                ConversationId = AdoConverters.Str(reader, "conversation_id"), TurnId = AdoConverters.NullableStr(reader, "turn_id"),
+                FeedbackRating = AdoConverters.NullableStr(reader, "feedback_rating"), FeedbackComment = AdoConverters.NullableStr(reader, "feedback_comment"),
+                FeedbackUpdatedUtc = AdoConverters.NullableDate(reader, "feedback_updated_utc"),
+                RequestText = AdoConverters.NullableStr(reader, "request_text"), ResponseText = AdoConverters.Str(reader, "content"),
+                InputTokens = AdoConverters.Long(reader, "input_tokens"), OutputTokens = AdoConverters.Long(reader, "output_tokens"),
+                TimeToFirstTokenMs = AdoConverters.NullableLong(reader, "time_to_first_token_ms"), DurationMs = AdoConverters.NullableLong(reader, "duration_ms"),
+                FinishReason = AdoConverters.NullableStr(reader, "finish_reason"), ModelEndpointId = AdoConverters.NullableStr(reader, "model_endpoint_id"),
+                ModelName = AdoConverters.NullableStr(reader, "model_name"), Source = AdoConverters.Str(reader, "conversation_source"),
+                ToolCallCount = AdoConverters.Long(reader, "tool_call_count"), CreatedUtc = AdoConverters.Date(reader, "created_utc")
+            }, token).ConfigureAwait(false);
+            return EnumerationResult<FeedbackReview>.Build(query, count == null ? 0 : Convert.ToInt64(count, CultureInfo.InvariantCulture), rows);
+        }
+
+        /// <inheritdoc />
         public async Task<bool> UpdateFeedbackAsync(string tenantId, string conversationId, string id, string? rating, string? comment, CancellationToken token = default)
         {
             int changed = await _Driver.NonQueryAsync("UPDATE " + _Table + " SET feedback_rating = @rating, feedback_comment = @comment, feedback_updated_utc = @updated WHERE tenant_id = @tenant AND conversation_id = @conversation AND id = @id AND role = 'Assistant';", command =>

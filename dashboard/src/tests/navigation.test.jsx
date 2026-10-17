@@ -51,7 +51,7 @@ function renderNavigation(ui, path, principal = {}) {
 }
 
 describe('consolidated dashboard navigation', () => {
-  it('retains all 27 unique pages in nine hubs', () => {
+  it('retains all 28 unique pages in nine hubs', () => {
     const ids = [
       'home',
       'chat',
@@ -65,6 +65,7 @@ describe('consolidated dashboard navigation', () => {
       'promptTemplates',
       'knowledge',
       'toolInvocations',
+      'feedback',
       'requests',
       'analytics',
       'audit',
@@ -82,7 +83,7 @@ describe('consolidated dashboard navigation', () => {
       'plugins'
     ];
     expect(PAGES.map((page) => page.id).sort()).toEqual(ids.sort());
-    expect(new Set(PAGES.map((page) => page.slug)).size).toBe(27);
+    expect(new Set(PAGES.map((page) => page.slug)).size).toBe(28);
     expect(HUBS).toHaveLength(9);
   });
 
@@ -132,6 +133,13 @@ describe('consolidated dashboard navigation', () => {
     fireEvent.click(screen.getAllByRole('tab').find((tab) => tab.getAttribute('data-tab-key') === 'audit'));
     expect(screen.getByTestId('page-panel').textContent).toBe('audit');
     expect(screen.getByTestId('location').textContent).toBe('/dashboard/activity?tab=audit');
+  });
+
+  it('opens Feedback as an Activity tab and retains its agent filter', () => {
+    renderNavigation(<HubView hubKey="activity" />, '/dashboard/activity?tab=feedback&agentProfileId=agp_one');
+    expect(screen.getByTestId('page-panel').textContent).toBe('feedback');
+    expect(screen.getByTestId('location').textContent).toContain('agentProfileId=agp_one');
+    expect(pathFor('feedback')).toBe('/dashboard/activity?tab=feedback');
   });
 
   it('falls back to the first visible tab for an unknown tab', () => {

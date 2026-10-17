@@ -2315,6 +2315,45 @@
         "warning": "Avviso",
         "error": "Errore"
       }
+    },
+    "feedback": {
+      "title": "Commenti",
+      "subtitle": "Esamina i feedback con le richieste, le risposte e i dati di telemetria associati.",
+      "agent": "Agente",
+      "agentTip": "Filtra i feedback per profilo agente.",
+      "rating": "Valutazione",
+      "positive": "Positiva",
+      "negative": "Negativa",
+      "comment": "Commento",
+      "updated": "Aggiornato",
+      "request": "Richiesta",
+      "response": "Risposta",
+      "details": "Dettagli del feedback",
+      "empty": "Nessun feedback inviato per questa selezione.",
+      "noComment": "Nessun commento scritto",
+      "requestUnavailable": "La richiesta originale non è più disponibile.",
+      "responseUnavailable": "La risposta non è più disponibile.",
+      "telemetry": "Telemetria di richiesta e risposta",
+      "conversation": "Conversazione",
+      "turn": "Turno",
+      "inputTokens": "Token di input",
+      "outputTokens": "Token di output",
+      "firstToken": "Tempo al primo token",
+      "duration": "Durata",
+      "model": "Modello attuale dell’endpoint",
+      "endpoint": "Endpoint del modello",
+      "source": "Origine",
+      "toolCalls": "Chiamate agli strumenti",
+      "finishReason": "Motivo di conclusione",
+      "unavailable": "Non registrato",
+      "loading": "Caricamento dei dettagli del feedback...",
+      "viewTip": "Visualizza il feedback con richiesta, risposta e telemetria.",
+      "refreshTip": "Aggiorna i feedback dell’agente selezionato.",
+      "retryTip": "Riprova a caricare i feedback.",
+      "agentLoadError": "Impossibile caricare gli agenti.",
+      "detailLoadError": "Impossibile caricare i dettagli del feedback.",
+      "selectAgent": "Seleziona un agente",
+      "selectAgentHint": "Seleziona un agente per esaminare i feedback delle sue chat."
     }
   },
   "tips": {
@@ -3446,7 +3485,8 @@
         "credentials": "Crea chiavi di accesso per harness e SDK, associale a un profilo e ruotale.",
         "sessions": "Visualizza ogni sessione e token attivo nel tenant e revoca quelli che vuoi.",
         "plugins": "Attiva o disattiva i plugin dei connettori e visualizza gli errori di caricamento. Solo gli amministratori di sistema vedono questa pagina.",
-        "promptTemplates": "Modifica i modelli di istruzioni per livello (integrato, globale, tenant), con anteprima, versioni e ripristino."
+        "promptTemplates": "Modifica i modelli di istruzioni per livello (integrato, globale, tenant), con anteprima, versioni e ripristino.",
+        "feedback": "Esamina i feedback con le richieste, le risposte e i dati di telemetria associati."
       },
       "approvalsBadge_many": "{{count}} chiamate di strumento sono in attesa che una persona le approvi o le rifiuti. Apri Approvazioni per decidere."
     },
@@ -3919,6 +3959,10 @@
       "plugins": {
         "label": "Plugin",
         "tip": "Plugin dei connettori."
+      },
+      "feedback": {
+        "label": "Commenti",
+        "tip": "Esamina i feedback con le richieste, le risposte e i dati di telemetria associati."
       }
     },
     "approvalsPending_many": "{{count}} approvazioni in attesa di una persona"

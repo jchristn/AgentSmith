@@ -82,6 +82,7 @@ namespace Hugo.Server.Modules
             ProfileResolver resolver = context.Get<ProfileResolver>();
             ConversationService conversations = context.Get<ConversationService>();
             new ConversationRoutes(context, conversations, _Host!, resolver).Register(routes);
+            new FeedbackRoutes(context, conversations).Register(routes);
             new StandaloneChatRoutes(context, context.Get<StandaloneChatService>()).Register(routes);
             new AnalyticsRoutes(context.Get<AnalyticsService>()).Register(routes);
             new AgentDelegationRoutes(context.Get<AgentDelegationService>()).Register(routes);

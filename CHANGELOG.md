@@ -14,6 +14,8 @@ Everything below is new in this release. The images are `jchristn77/hugo-server:
 
 ### Dashboard
 
+- Activity includes Feedback review: select an agent, page through ratings and comments, and inspect the associated request, response, token counts, timing, model endpoint, conversation, and turn. Access follows normal tenant and conversation visibility.
+
 - Standalone chat has configurable heading, logo, and browser title, a compact composer anchored below the scrolling transcript, an AI accuracy notice, and per-answer thumbs-up/down with optional written feedback. Markdown renders in both user and assistant messages. Migration 11 stores branding and visitor feedback on SQLite and PostgreSQL.
 
 - User-managed standalone agent chat links support Public and Authenticated access, isolated visitor sessions, URL rotation and revocation, profile Connect controls, and a responsive chat page without dashboard navigation. Migration 10 preserves existing profiles as unpublished.

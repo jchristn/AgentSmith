@@ -2281,6 +2281,45 @@
         "warning": "Warning",
         "error": "Error"
       }
+    },
+    "feedback": {
+      "title": "Feedback",
+      "subtitle": "Review feedback and the requests, responses, and telemetry behind it.",
+      "agent": "Agent",
+      "agentTip": "Filter feedback by agent profile.",
+      "rating": "Rating",
+      "positive": "Positive",
+      "negative": "Negative",
+      "comment": "Comment",
+      "updated": "Updated",
+      "request": "Request",
+      "response": "Response",
+      "details": "Feedback details",
+      "empty": "No feedback has been submitted for this selection.",
+      "noComment": "No written comment",
+      "requestUnavailable": "The original request is no longer available.",
+      "responseUnavailable": "The response is no longer available.",
+      "telemetry": "Request and response telemetry",
+      "conversation": "Conversation",
+      "turn": "Turn",
+      "inputTokens": "Input tokens",
+      "outputTokens": "Output tokens",
+      "firstToken": "Time to first token",
+      "duration": "Duration",
+      "model": "Current endpoint model",
+      "endpoint": "Model endpoint",
+      "source": "Source",
+      "toolCalls": "Tool calls",
+      "finishReason": "Finish reason",
+      "unavailable": "Not recorded",
+      "loading": "Loading feedback details...",
+      "viewTip": "View feedback with its request, response, and telemetry.",
+      "refreshTip": "Refresh feedback for the selected agent.",
+      "retryTip": "Retry loading feedback.",
+      "agentLoadError": "Unable to load agents.",
+      "detailLoadError": "Unable to load feedback details.",
+      "selectAgent": "Select an agent",
+      "selectAgentHint": "Select an agent to review its chat feedback."
     }
   },
   "tips": {
@@ -3412,7 +3451,8 @@
         "credentials": "Create access keys for harnesses and SDKs, bind them to a profile, and rotate them.",
         "sessions": "See every active session and token in the tenant, and revoke any of them.",
         "plugins": "Enable or disable connector plugins and see load errors. Only system administrators see this page.",
-        "promptTemplates": "Edit instruction templates per layer (built-in, global, tenant), with preview, versions, and reset."
+        "promptTemplates": "Edit instruction templates per layer (built-in, global, tenant), with preview, versions, and reset.",
+        "feedback": "Review feedback and the requests, responses, and telemetry behind it."
       }
     },
     "passwordChange": {
@@ -3884,6 +3924,10 @@
       "plugins": {
         "label": "Plugins",
         "tip": "Connector plugins."
+      },
+      "feedback": {
+        "label": "Feedback",
+        "tip": "Review feedback and the requests, responses, and telemetry behind it."
       }
     }
   },

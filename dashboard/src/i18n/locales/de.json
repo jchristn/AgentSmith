@@ -2296,6 +2296,45 @@
         "warning": "Warnung",
         "error": "Fehler"
       }
+    },
+    "feedback": {
+      "title": "Rückmeldungen",
+      "subtitle": "Feedback mit den zugehörigen Anfragen, Antworten und Telemetriedaten prüfen.",
+      "agent": "Agent",
+      "agentTip": "Feedback nach Agentenprofil filtern.",
+      "rating": "Bewertung",
+      "positive": "Positiv",
+      "negative": "Negativ",
+      "comment": "Kommentar",
+      "updated": "Aktualisiert",
+      "request": "Anfrage",
+      "response": "Antwort",
+      "details": "Feedbackdetails",
+      "empty": "Für diese Auswahl wurde noch kein Feedback abgegeben.",
+      "noComment": "Kein schriftlicher Kommentar",
+      "requestUnavailable": "Die ursprüngliche Anfrage ist nicht mehr verfügbar.",
+      "responseUnavailable": "Die Antwort ist nicht mehr verfügbar.",
+      "telemetry": "Telemetrie zu Anfrage und Antwort",
+      "conversation": "Unterhaltung",
+      "turn": "Dialogschritt",
+      "inputTokens": "Eingabetokens",
+      "outputTokens": "Ausgabetokens",
+      "firstToken": "Zeit bis zum ersten Token",
+      "duration": "Dauer",
+      "model": "Aktuelles Modell des Endpunkts",
+      "endpoint": "Modellendpunkt",
+      "source": "Quelle",
+      "toolCalls": "Werkzeugaufrufe",
+      "finishReason": "Abschlussgrund",
+      "unavailable": "Nicht erfasst",
+      "loading": "Feedbackdetails werden geladen...",
+      "viewTip": "Feedback mit Anfrage, Antwort und Telemetriedaten anzeigen.",
+      "refreshTip": "Feedback für den ausgewählten Agenten aktualisieren.",
+      "retryTip": "Feedback erneut laden.",
+      "agentLoadError": "Agenten konnten nicht geladen werden.",
+      "detailLoadError": "Feedbackdetails konnten nicht geladen werden.",
+      "selectAgent": "Agenten auswählen",
+      "selectAgentHint": "Wählen Sie einen Agenten aus, um sein Chat-Feedback zu prüfen."
     }
   },
   "tips": {
@@ -3426,7 +3465,8 @@
         "credentials": "Zugangsschlüssel für Harnesses und SDKs erstellen, an ein Profil binden und rotieren.",
         "sessions": "Jede aktive Sitzung und jedes Token im Mandanten sehen und beliebige davon widerrufen.",
         "plugins": "Konnektor-Plugins aktivieren oder deaktivieren und Ladefehler einsehen. Nur Systemadministratoren sehen diese Seite.",
-        "promptTemplates": "Anweisungsvorlagen pro Ebene (integriert, global, Mandant) bearbeiten, mit Vorschau, Versionen und Zurücksetzen."
+        "promptTemplates": "Anweisungsvorlagen pro Ebene (integriert, global, Mandant) bearbeiten, mit Vorschau, Versionen und Zurücksetzen.",
+        "feedback": "Feedback mit den zugehörigen Anfragen, Antworten und Telemetriedaten prüfen."
       }
     },
     "passwordChange": {
@@ -3898,6 +3938,10 @@
       "plugins": {
         "label": "Plugins",
         "tip": "Konnektor-Plugins."
+      },
+      "feedback": {
+        "label": "Rückmeldungen",
+        "tip": "Feedback mit den zugehörigen Anfragen, Antworten und Telemetriedaten prüfen."
       }
     }
   },
