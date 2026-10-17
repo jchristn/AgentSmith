@@ -174,16 +174,17 @@ namespace Hugo.Core.Instructions
         /// <param name="surface">Surface (Rest compiles as Chat).</param>
         /// <param name="token">Cancellation token.</param>
         /// <param name="includeKnowledge">Include the saved knowledge snapshot; false for internal loops that inject fresh context before each model call.</param>
+        /// <param name="includeProfileInstructions">Include profile workflow instructions; false when the hosted loop injects their fresh version before each model call.</param>
         /// <returns>Compiled instructions.</returns>
         /// <exception cref="ArgumentNullException">Thrown when tenantId or profileId is null or empty.</exception>
         /// <exception cref="NotFoundException">Thrown when the profile does not exist in the tenant.</exception>
-        public async Task<CompiledInstructions> CompileAsync(string tenantId, string profileId, RequestContext? principal, InvocationSurfaceEnum surface, CancellationToken token = default, bool includeKnowledge = true)
+        public async Task<CompiledInstructions> CompileAsync(string tenantId, string profileId, RequestContext? principal, InvocationSurfaceEnum surface, CancellationToken token = default, bool includeKnowledge = true, bool includeProfileInstructions = true)
         {
             if (String.IsNullOrEmpty(tenantId)) throw new ArgumentNullException(nameof(tenantId));
             if (String.IsNullOrEmpty(profileId)) throw new ArgumentNullException(nameof(profileId));
             if (surface == InvocationSurfaceEnum.Rest) surface = InvocationSurfaceEnum.Chat;
             long started = Stopwatch.GetTimestamp();
-            string cacheKey = CacheKey(tenantId, profileId, principal, surface) + (includeKnowledge ? ":knowledge" : ":dynamic-context");
+            string cacheKey = CacheKey(tenantId, profileId, principal, surface) + (includeKnowledge ? ":knowledge" : ":dynamic-context") + (includeProfileInstructions ? ":profile" : ":dynamic-profile");
             if (_MaxCacheEntries > 0 && _Cache.TryGetValue(cacheKey, out CompiledInstructions? cached))
             {
                 HugoMetrics.Observe(HugoMetricCatalog.InstructionsCompileDuration, HugoMetrics.SecondsSince(started), "cached", "true");
@@ -196,7 +197,7 @@ namespace Hugo.Core.Instructions
             {
                 activity?.SetTag("hugo.profile", profileId);
                 activity?.SetTag("hugo.surface", surface.ToString());
-                CompiledInstructions compiled = await CompileUncachedAsync(tenantId, profileId, principal, surface, token, includeKnowledge).ConfigureAwait(false);
+                CompiledInstructions compiled = await CompileUncachedAsync(tenantId, profileId, principal, surface, token, includeKnowledge, includeProfileInstructions).ConfigureAwait(false);
                 if (_MaxCacheEntries > 0)
                 {
                     if (_Cache.Count >= _MaxCacheEntries) _Cache.Clear();
@@ -270,7 +271,7 @@ namespace Hugo.Core.Instructions
 
         #region Private-Methods
 
-        private async Task<CompiledInstructions> CompileUncachedAsync(string tenantId, string profileId, RequestContext? principal, InvocationSurfaceEnum surface, CancellationToken token, bool includeKnowledge)
+        private async Task<CompiledInstructions> CompileUncachedAsync(string tenantId, string profileId, RequestContext? principal, InvocationSurfaceEnum surface, CancellationToken token, bool includeKnowledge, bool includeProfileInstructions)
         {
             AgentProfile profile = await _Database.AgentProfiles.ReadAsync(tenantId, profileId, token).ConfigureAwait(false) ?? throw new NotFoundException("Agent profile not found.");
             Tenant? tenant = await _Database.Tenants.ReadAsync(tenantId, token).ConfigureAwait(false);
@@ -285,6 +286,8 @@ namespace Hugo.Core.Instructions
 
             List<SegmentSource> sources = new List<SegmentSource>();
             TemplateContext context = await BuildContextAsync(profile, tenant, principal, surface, bound, templates, sources, result.Warnings, token, includeKnowledge: includeKnowledge).ConfigureAwait(false);
+
+            if (!includeProfileInstructions) context.Set("profile.instructionsAppend", String.Empty);
 
             string rendered;
             try

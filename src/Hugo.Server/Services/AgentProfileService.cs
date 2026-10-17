@@ -177,7 +177,7 @@ namespace Hugo.Server.Services
             }
             if (request.Active == false && profile.IsDefault) throw new ConflictException("DefaultProfile", "The tenant's default profile cannot be deactivated; make another profile the default first.");
             await ApplyAsync(profile, request, token).ConfigureAwait(false);
-            await _Database.AgentProfiles.UpdateAsync(profile, token).ConfigureAwait(false);
+            await _Database.AgentProfiles.UpdateAsync(profile, request.InstructionsAppend != null, token).ConfigureAwait(false);
             if (request.IsDefault == true && !profile.IsDefault) await _Database.AgentProfiles.SetDefaultAsync(tenantId, profile.Id, token).ConfigureAwait(false);
             await AfterChangeAsync(ctx, profile, "profile.updated", "Updated agent profile " + profile.Name + ".", token).ConfigureAwait(false);
             return await ReadAsync(ctx, tenantId, profile.Id, token).ConfigureAwait(false);

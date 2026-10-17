@@ -77,18 +77,44 @@ namespace Hugo.Core.Database.Ado
         }
 
         /// <inheritdoc />
-        public async Task<AgentProfile> UpdateAsync(AgentProfile obj, CancellationToken token = default)
+        public Task<AgentProfile> UpdateAsync(AgentProfile obj, CancellationToken token = default)
+        {
+            return UpdateAsync(obj, true, token);
+        }
+
+        /// <inheritdoc />
+        public async Task<AgentProfile> UpdateAsync(AgentProfile obj, bool includeInstructions, CancellationToken token = default)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
             obj.LastUpdateUtc = DateTime.UtcNow;
             List<string> sets = new List<string>();
             foreach (string column in _Columns.Split(", "))
             {
-                if (column == "id" || column == "tenant_id" || column == "created_utc") continue;
+                if (column == "id" || column == "tenant_id" || column == "created_utc" || (!includeInstructions && column == "instructions_append")) continue;
                 sets.Add(column + " = @" + column);
             }
             await _Driver.NonQueryAsync("UPDATE " + _Table + " SET " + String.Join(", ", sets) + " WHERE tenant_id = @tenant_id AND id = @id;", command => Bind(command, obj, false), token).ConfigureAwait(false);
             return obj;
+        }
+
+        /// <inheritdoc />
+        public async Task<bool> TryUpdateInstructionsAsync(string tenantId, string id, string expectedContent, string content, CancellationToken token = default)
+        {
+            if (String.IsNullOrEmpty(tenantId)) throw new ArgumentNullException(nameof(tenantId));
+            if (String.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
+            ArgumentNullException.ThrowIfNull(expectedContent);
+            ArgumentNullException.ThrowIfNull(content);
+            if (content.Length > 65536) throw new ArgumentOutOfRangeException(nameof(content), "Instructions may not exceed 65536 characters.");
+            token.ThrowIfCancellationRequested();
+            int affected = await _Driver.NonQueryAsync("UPDATE " + _Table + " SET instructions_append = @content, last_update_utc = @updated WHERE tenant_id = @tenant_id AND id = @id AND COALESCE(instructions_append, '') = @expected;", command =>
+            {
+                AdoDatabaseDriver.Add(command, "tenant_id", tenantId);
+                AdoDatabaseDriver.Add(command, "id", id);
+                AdoDatabaseDriver.Add(command, "expected", expectedContent);
+                AdoDatabaseDriver.Add(command, "content", content.Length == 0 ? null : content);
+                AdoDatabaseDriver.Add(command, "updated", DateTime.UtcNow);
+            }, token).ConfigureAwait(false);
+            return affected == 1;
         }
 
         /// <inheritdoc />

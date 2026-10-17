@@ -103,6 +103,8 @@ Four ideas carry the design.
 
 **Instructions compose.** Every connector ships instructions that teach an agent how to use it well, and every bound resource contributes its section, its notes, and its durable knowledge to the profile's compiled instructions. An agent connected to a profile with eight resources is told about exactly those eight. All of the text is editable in layers (shipped, global, tenant), each with a reset to default. See [`docs/PROMPTS.md`](docs/PROMPTS.md).
 
+**Teach an agent through chat.** Ask it to remember a workflow or preference for future conversations. The agent reads its current profile instructions with `agent_get_instructions`, consolidates the requested change, and saves it with `agent_update_instructions` when you have Update permission on that profile. These instructions persist across conversations. Resource discoveries belong in [resource context](docs/RESOURCE_CONTEXT.md), which remains untrusted reference data.
+
 **Every surface is a client of the same profile.** Over MCP, the caller's model drives Hugo's tools. Over A2A, the dashboard, and the OpenAI-compatible endpoint, Hugo's own agent loop drives, on the profile's model endpoint. REST and the SDKs do either. Whatever the surface, every tool call goes through one pipeline.
 
 **The server enforces.** Instructions tell the model the rules; the pipeline enforces them. A model that ignores its instructions gets a tool error, not access.

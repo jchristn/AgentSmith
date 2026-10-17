@@ -241,3 +241,11 @@ Start with the profile and binding fields before touching templates. A note on t
 Whatever you edit, check the compiled output for the surface you care about afterwards. The source map tells you which layer each paragraph came from, which is the fastest way to answer "why is it still saying that".
 
 Related reading: [`docs/SAFETY_MODEL.md`](SAFETY_MODEL.md) for what the safety text describes, [`docs/CONFIGURATION.md`](CONFIGURATION.md) for the `Instructions.*` settings, and [`docs/UPGRADING.md`](UPGRADING.md) for what happens to customized templates when you upgrade.
+
+## Teaching a profile through chat
+
+An authorized profile editor can say, "When finding a user GUID, search the usermaster table by email." The agent uses `agent_get_instructions` and `agent_update_instructions` to reconcile that rule with the current profile's **Extra instructions** (`InstructionsAppend`). The same text is editable in the profile dashboard and persists across conversations. The model reads the concurrency version itself, consolidates related rules, preserves unrelated instructions, and retries conflicts after rereading. The user does not need to provide keys, Markdown, or a version.
+
+Reading requires Read on the current profile; saving requires Update. The tools cannot select another profile, edit global safety or persona templates, grant permissions, or bypass approvals. Total profile instructions are limited to 65,536 characters. Secret-shaped content and known bound credentials are refused. Resource facts remain in resource context rather than becoming agent policy.
+
+Hugo-hosted loops inject the current profile instructions freshly before each model call, including after same-turn updates. The static compiled prompt omits that field for these loops to avoid stale duplicate instructions. External MCP clients can read the current instructions using the tool; Hugo cannot control when an external model refreshes its prompt.

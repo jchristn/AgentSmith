@@ -340,6 +340,10 @@ namespace Hugo.Server.Protocols
 
         private async Task<McpToolCallResult> MetaAsync(McpCaller caller, string name, string raw, CancellationToken token)
         {
+            if (name == AgentInstructionTools.GetInstructions)
+                return Structured(await _Context.Get<AgentInstructionService>().ReadAsync(caller.Principal, caller.TenantId, caller.Profile.Id, token).ConfigureAwait(false));
+            if (name == AgentInstructionTools.UpdateInstructions)
+                return Structured(await _Context.Get<AgentInstructionService>().UpdateAsync(caller.Principal, caller.TenantId, caller.Profile.Id, Arguments<AgentInstructionRequest>(raw), token).ConfigureAwait(false));
             if (name == McpToolCatalog.Whoami) return Structured(await WhoamiAsync(caller, token).ConfigureAwait(false));
             if (name == McpToolCatalog.GetInstructions)
             {

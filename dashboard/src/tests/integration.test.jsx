@@ -19,7 +19,7 @@ import { ModelHealthHistory, notifyValidated } from '../components/ModelHealthHi
 import AnalyticsView from '../views/AnalyticsView';
 import { reportSeries, analyticsQuery } from '../utils/analytics';
 import { listLayeredTemplates } from '../views/resourceConfigs';
-import { profileToForm, approvalsConfig, toolInvocationsConfig, resourcesConfig, secretsConfig, modelsConfig, sessionsConfig } from '../views/hugoConfigs';
+import { profileToForm, profilesConfig, approvalsConfig, toolInvocationsConfig, resourcesConfig, secretsConfig, modelsConfig, sessionsConfig } from '../views/hugoConfigs';
 import { credentialsConfig } from '../views/resourceConfigs';
 import { buildListParams } from '../utils/query';
 import { errorMessage } from '../utils/errors';
@@ -208,6 +208,11 @@ describe('resource shapes', () => {
 
   it('maps the profile exposure flags both ways', () => {
     expect(profileToForm({ exposeA2A: false, exposeOpenAI: true })).toMatchObject({ exposeA2a: false, exposeOpenai: true, inferenceEndpointId: '' });
+    const existing = profileToForm({ id: 'agp_1', instructionsAppend: 'Saved workflow rule.' });
+    expect(profilesConfig.toBody({ ...existing, displayName: 'Updated name' })).not.toHaveProperty('instructionsAppend');
+    expect(profilesConfig.toBody({ ...existing, instructionsAppend: '' }).instructionsAppend).toBe('');
+    expect(profilesConfig.toBody({ ...existing, instructionsAppend: 'Revised rule.' }).instructionsAppend).toBe('Revised rule.');
+    expect(profilesConfig.toBody(profilesConfig.blank())).toHaveProperty('instructionsAppend', '');
   });
 });
 

@@ -8,6 +8,10 @@ The first release of Hugo: a multi-tenant super agent server that holds credenti
 
 Everything below is new in this release. The images are `jchristn77/hugo-server:v0.1.0` and `jchristn77/hugo-dashboard:v0.1.0`, built for `linux/amd64` and `linux/arm64`.
 
+### Agent instructions
+
+- Agents can read and update their current profile's persistent Extra instructions through hosted chat and MCP. The model handles version checks and concise consolidation, with profile permissions, atomic updates, secret guards, auditing, and fresh instructions before each hosted model call. No database migration is needed.
+
 ### Dashboard
 
 - Create resource starts with a searchable connector card grid instead of a dropdown near the bottom of the form.

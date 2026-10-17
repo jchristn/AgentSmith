@@ -145,6 +145,11 @@ namespace Hugo.Server.Modules
             context.Register(thirdParty);
             ToolCatalogService catalog = new ToolCatalogService(context.Database, bindingResolver);
             context.Register(catalog);
+            AgentInstructionService agentInstructions = new AgentInstructionService(context.Database, context.Authorization, context.Audit, compiler, events, context.Get<SecretService>());
+            context.Register(agentInstructions);
+            AgentInstructionTools instructionTools = new AgentInstructionTools(agentInstructions, context.Authorization);
+            context.Register(instructionTools);
+            catalog.AddMetaToolProvider(instructionTools);
 
             ApprovalService approvals = new ApprovalService(context.Database, context.Audit, events, context.Logging);
             approvals.ExpirySeconds = () => settings.Approvals.ExpirySeconds;

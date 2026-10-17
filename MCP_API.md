@@ -192,6 +192,19 @@ Calling a tool that does not exist at all is the one JSON-RPC error a tool call 
 
 Every bound connector, including plugins, offers `resource_get_context` and, when the binding allows knowledge updates, `resource_update_context`. These use the normal required `resource` alias and invocation pipeline. They read and save tenant-scoped context in Hugo without contacting the target. Read before updating and pass `expectedVersion` to detect concurrent changes. The update tool is advertised as a writer even when the target access mode is ReadOnly. See [resource context](docs/RESOURCE_CONTEXT.md) for parameters, examples, and limits.
 
+## Persistent agent instructions
+
+`agent_get_instructions` reads the current profile's saved additional instructions; `agent_update_instructions` updates them. These tools operate only on the active profile. Reading requires Read permission; saving requires Update permission on that profile. They reuse `AgentProfile.InstructionsAppend` (maximum 65,536 characters), rather than creating resource knowledge or a separate prompt store.
+
+| Tool | Arguments | Result |
+|---|---|---|
+| `agent_get_instructions` | None | `profileId`, `content`, opaque `version`, `lastUpdateUtc` |
+| `agent_update_instructions` | `content`, `mode` (`append` default or `replace`), `expectedVersion` (required for replace) | Persisted content and new version; `version_conflict` requires rereading |
+
+Neither tool accepts a profile or resource identifier. They are available to hosted chat, A2A, OpenAI-compatible agent loops, and external MCP clients without enabling general management tools. Append without a version uses bounded atomic retries; replace requires the version read by the agent. An empty versioned replacement clears the additional instructions.
+
+Users can ask for a lasting workflow or preference in natural chat. The model reads the current text, consolidates the request with existing guidance, and handles version checks and conflicts before saving. Instructions persist across conversations, but cannot grant permissions or override approvals. Keep resource-specific discoveries in the [resource context tools](docs/RESOURCE_CONTEXT.md).
+
 ## Meta tools
 
 Seven tools exist on every profile. They are Hugo talking about itself, and they are what a model reaches for when it is unsure what it is connected to.

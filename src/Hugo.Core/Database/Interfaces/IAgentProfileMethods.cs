@@ -48,6 +48,27 @@ namespace Hugo.Core.Database.Interfaces
         Task<AgentProfile> UpdateAsync(AgentProfile obj, CancellationToken token = default);
 
         /// <summary>
+        /// Update profile fields, optionally preserving persisted instructions when the request omitted that field.
+        /// </summary>
+        /// <param name="obj">Profile.</param>
+        /// <param name="includeInstructions">Whether to update instructions_append; false preserves concurrent instruction edits.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>The updated profile.</returns>
+        Task<AgentProfile> UpdateAsync(AgentProfile obj, bool includeInstructions, CancellationToken token = default);
+
+        /// <summary>
+        /// Atomically change only appended instructions and the update timestamp when the persisted content matches.
+        /// Null and empty instructions compare as empty. Other profile settings are never rewritten.
+        /// </summary>
+        /// <param name="tenantId">Tenant identifier.</param>
+        /// <param name="id">Profile identifier.</param>
+        /// <param name="expectedContent">Previously read content, or empty for absent instructions.</param>
+        /// <param name="content">Replacement content.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>True when exactly one profile was updated; false for missing profiles or conflicting content.</returns>
+        Task<bool> TryUpdateInstructionsAsync(string tenantId, string id, string expectedContent, string content, CancellationToken token = default);
+
+        /// <summary>
         /// Delete a profile with its bindings (and their tool rules and deny patterns), and clear references to it from
         /// credentials, users, and the tenant, in one transaction. Resources are never deleted.
         /// </summary>

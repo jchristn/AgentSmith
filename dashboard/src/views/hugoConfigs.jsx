@@ -49,7 +49,8 @@ export function profileToForm(p) {
     inferenceEndpointId: p?.inferenceEndpointId || '',
     fallbackInferenceEndpointId: p?.fallbackInferenceEndpointId || '',
     embeddingEndpointId: p?.embeddingEndpointId || '',
-    instructionsAppend: p?.instructionsAppend || ''
+    instructionsAppend: p?.instructionsAppend || '',
+    _originalInstructionsAppend: p?.instructionsAppend || ''
   };
 }
 /** Health states the resource and model endpoint list filters accept (the server answers 400 for others). */
@@ -194,7 +195,7 @@ export const profilesConfig = {
     exposeA2A: !!d.exposeA2a,
     exposeOpenAI: !!d.exposeOpenai,
     exposeManagementTools: !!d.exposeManagementTools,
-    instructionsAppend: d.instructionsAppend ?? ''
+    ...(d.id && d.instructionsAppend === d._originalInstructionsAppend ? {} : { instructionsAppend: d.instructionsAppend ?? '' })
   }),
   rowActions: (r, ctx) => [
     { label: ctx.t('resources.profiles.actions.chat'), tip: actionTip(ctx.t, 'profiles', 'chat'), onClick: () => ctx.navigate(pathFor('chat')) },

@@ -87,7 +87,7 @@ These rules keep the plan honest:
 | 2 | Secrets vault | M1 | Complete | 12 / 12 |
 | 3 | Connector framework and tool invocation pipeline | M1 | Complete | 26 / 26 |
 | 4 | Connectors wave 1: SSH, object storage, SQL databases, SolarWinds Observability | M1 | Complete | 41 / 41 |
-| 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | Complete | 21 / 21 |
+| 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | Complete | 22 / 22 |
 | 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | Complete | 24 / 24 |
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Complete | 22 / 22 |
 | 8 | Dashboard | M1 | Complete | 59 / 59 |
@@ -114,6 +114,7 @@ Milestones:
 
 - Completed P14.13 (D-057): generalized agent-managed resource context, version-safe common tools, and fresh authorized model context. Full SQLite/PostgreSQL regression: 2030 passed, 309 expected testbed skips, zero failures; real SSH/Qwen learn-and-reuse acceptance passed. Embedding search and resource actions remain separate Phase 14 work.
 
+- Persistent chat-editable agent instructions completed and published 2026-10-17 (D-060, P5.40). Agent get/update tools reuse the profile Extra instructions field, with authorization, atomic versions, consolidation guidance, fresh hosted context, and dashboard editing. Server and dashboard `v0.1.0`/`latest` verified for AMD64/ARM64. Server `sha256:6dc8aecf332fec22b232f29f8af862a368fc004bf5bbf5b70c6fc4ffbf667ee3`; dashboard `sha256:c7953b09c19c989b07e708b9fd09014d4c1e66f51eef201a899d097c44c3bd58`. Pull/recreate containers to apply.
 - Escaped S3 credential fix and Secrets-first Connections published 2026-10-17 (source `631a259`). Both images `v0.1.0`/`latest` registry-verified for AMD64/ARM64. Server `sha256:286fbebe258425135bc47b3e9fa5d00563d50b58080e39bf8574f1b5cc2103cb`; dashboard `sha256:f8c9d91c7c15881888f3ab8deb7acd08ab3c5df4e6d52896be36396575a50390`. User confirmed decoding the copied JSON escape resolves the credential failure.
 - S3 signature follow-up published 2026-10-17 (source `7144d33`): AWS credential whitespace validation and accurate ListObjects probe label. Server `v0.1.0`/`latest` registry-verified for AMD64/ARM64 at `sha256:6f8fe12a1a8995020a3b3e30dd723667dad48b000c76cc7b7c213be5425d0d24`. Independent synthetic request HMAC verification and all 32 storage cases pass; customer deployment signature failure remains unconfirmed.
 - Connector updates published 2026-10-17 (source `08f47ba`): Papertrail retired, visible resource connector picker, and safe AWS S3 connection diagnostics. Server and dashboard `v0.1.0`/`latest` verified in Docker Hub for AMD64/ARM64. Server digest `sha256:45fa3c8420d7234e1267ee14b4f0f1713c08c5eb0664ef530b47383d0a65f65e`; dashboard digest `sha256:79680a114e90b45c132b4548ecffc54f4f2dc9761ffae2d439869325421b0608`. Pull/recreate containers to apply.
@@ -306,6 +307,7 @@ This journey is the acceptance story for M1. Phase 12 replays it end to end.
 | D-057 | Generalized per-resource learnings reuse resource_knowledge and its history across every connector, including plugins. Normal pipeline tools resource_get_context/resource_update_context apply binding policy, version-checked writes, provenance, and secret guards. Hugo reloads authorized resource context before each model call; external clients receive read-before-operation guidance. Existing SQL context remains compatible. Generic semantic notes, embeddings, and runbook actions remain separate Phase 14 work. | User requested agent-manageable learnings for every connection point and consultation during operations. | P14.13, 8, 10, 13 |
 | D-058 | Consolidate dashboard navigation from 25 sidebar entries into nine hubs in Workspace and Administration, with URL-synced tabs and legacy redirects. Preserve standalone Home and Chat, detail links, per-tab role gates, and pending approval visibility. | User requested peer-project navigation review and the same consolidation in Hugo. | P8.56, 18.2, 18.3 |
 | D-059 | Retire the legacy Papertrail connector and its provider-specific tools, instructions, options, fixtures, and active examples. Keep SolarWinds Observability as the supported SolarWinds Cloud logging connector. Existing saved resources and secrets are not deleted or automatically converted. Supersedes the Papertrail portion of D-013. | User requested removal after identifying incompatible Papertrail and SolarWinds Cloud API tokens. | P4.38, 9 |
+| D-060 | Chat-managed agent workflow instructions reuse AgentProfile.InstructionsAppend and its dashboard editor. Current-profile tools read/update it with caller Read/Update authorization, atomic content comparison, and fresh hosted-loop snapshots. Resource context remains untrusted system facts. | Users can teach an agent natural-language working rules without managing storage keys or versions; no duplicate store or schema migration. | P5.40, 10 |
 
 ---
 
@@ -1966,6 +1968,8 @@ Database intelligence (D-038)
 - [x] P5.19 Profile, binding, and template audit events.  | claude 2026-10-14 profile, binding, template audit events
 - [x] P5.21 The instruction compiler includes each bound resource's root knowledge entry (for SQL, the database context summary) in its resource section, bounded by `Instructions.MaxKnowledgeCharsPerResource` (default 2000).  | claude 2026-10-14 root knowledge entry per binding, bounded by Instructions.MaxKnowledgeCharsPerResource
 - [x] P5.20 `docs/PROMPTS.md`: layers, variables, how to customize defaults, reset semantics.  | claude 2026-10-14 docs/PROMPTS.md: layers, variable roots, {{> key}} includes, compact instructions, reset semantics
+
+- [x] P5.40 Add persistent chat-editable current-agent instructions using the existing profile InstructionsAppend field. *Accept:* model reads/updates/consolidates instructions without user-supplied version bookkeeping; atomic conflict handling, profile Update authorization, tenant/profile isolation, secret protection, audit/cache invalidation, fresh same-turn context, dashboard visibility, hosted chat and MCP tools, and regression coverage. | codex 2026-10-17 implemented and verified: existing text field reused, no schema migration; 10 SQLite/PostgreSQL feature cases and full regression 2029 passed/0 failed/309 expected testbed skips; 317 dashboard unit tests, 70 browser tests, lint, and zero-warning build pass. Hosted prompts include fresh profile text without stale duplication; dashboard saves omit unchanged instruction text
 
 ### Phase 6: Model endpoints and agent runtime (M1)
 

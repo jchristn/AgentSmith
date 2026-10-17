@@ -4,6 +4,12 @@ Hugo gives every registered connector, including plugins, two shared tools: `res
 
 Context belongs to a tenant and resource ID. Profiles and aliases bound to the same resource share it; separate resources have separate context. It survives server restarts and new conversations. Operators can inspect and curate it in the resource's **Knowledge** dashboard tab.
 
+## Profile instructions and resource facts
+
+Use `agent_get_instructions` and `agent_update_instructions` for lasting workflow guidance and preferences for the current agent profile. A user can request changes in ordinary chat, for example, "For future incident investigations, summarize the evidence before proposing changes." The model reads the existing instructions, consolidates the new guidance without duplication, and manages the version check when saving. Reading requires Read permission and saving requires Update permission on that profile; these tools cannot select another profile.
+
+The saved text uses the profile's existing `InstructionsAppend` field, limited to 65,536 characters, and survives new conversations and server restarts. It supplements profile instructions without granting permissions or bypassing approvals. Verified facts about a connected system belong in `resource_get_context` / `resource_update_context` instead. Resource context remains fenced, untrusted reference data; it is not a way to install agent policy.
+
 ## Reading and recording discoveries
 
 The normal tool invocation envelope selects the resource by its binding alias. For example:

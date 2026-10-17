@@ -9,7 +9,7 @@ namespace Hugo.Server.Services
 
     /// <summary>
     /// The tool set Hugo's own loop offers its model: the profile's connector tools without the <c>hugo_*</c> meta tools
-    /// and <c>ask_agent_smith</c>. Meta tools serve an MCP caller's model; inside the loop they would recurse
+    /// and <c>ask_agent_smith</c>. Current-profile instruction tools remain available. Other meta tools serve an MCP caller's model; inside the loop they would recurse
     /// (<c>ask_agent_smith</c>) or duplicate what the loop already knows. Thread-safe when the inner catalog is.
     /// </summary>
     public class LoopToolCatalog : IAgentToolCatalog
@@ -41,7 +41,7 @@ namespace Hugo.Server.Services
         {
             if (turn == null) throw new ArgumentNullException(nameof(turn));
             List<AgentToolDefinition> tools = await _Inner.GetToolsAsync(turn, token).ConfigureAwait(false) ?? new List<AgentToolDefinition>();
-            return tools.Where(t => !t.IsMetaTool && !String.Equals(t.Name, "ask_agent_smith", StringComparison.Ordinal)).ToList();
+            return tools.Where(t => (!t.IsMetaTool || AgentInstructionTools.IsInstructionTool(t.Name)) && !String.Equals(t.Name, "ask_agent_smith", StringComparison.Ordinal)).ToList();
         }
 
         #endregion
