@@ -11,10 +11,10 @@ export const TOUR_STEPS = [
   { id: 'topbar', selector: '[data-tour="topbar"]' },
   { id: 'kpis', selector: '[data-tour="kpis"]' },
   { id: 'chat', selector: '[data-nav="chat"]' },
-  { id: 'connect', selector: '[data-nav="resources"]' },
-  { id: 'profiles', selector: '[data-nav="profiles"]' },
-  { id: 'approvals', selector: '[data-nav="approvals"]' },
-  { id: 'observe', selector: '[data-nav="toolInvocations"]' }
+  { id: 'connect', selector: '[data-nav="connections"]' },
+  { id: 'profiles', selector: '[data-nav="agents"]' },
+  { id: 'approvals', selector: '[data-testid="topbar-approvals"]' },
+  { id: 'observe', selector: '[data-nav="activity"]' }
 ];
 const STEPS = TOUR_STEPS;
 

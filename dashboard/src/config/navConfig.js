@@ -1,5 +1,4 @@
-// Single source of truth for dashboard navigation (plan section 18.2 groups: Start, Agents, Connect, Configure,
-// Observe, Develop, Administer).
+// Single source of truth for dashboard navigation: nine hubs grouped into Workspace and Administration.
 //
 // The sidebar renders NAV_SECTIONS. Each section holds hubs (sidebar items). A hub is either a
 // standalone page (`page`) or a tabbed page (`tabs`), where the active tab lives in `?tab=`.
@@ -23,79 +22,89 @@ export const TAB_PARAM = 'tab';
 
 export const NAV_SECTIONS = [
   {
-    key: 'start',
+    key: 'workspace',
     items: [
       { key: 'home', slug: 'home', icon: 'HomeIcon', page: { id: 'home', slug: 'home' } },
-      { key: 'chat', slug: 'chat', icon: 'ChatIcon', page: { id: 'chat', slug: 'chat', detail: true } }
-    ]
-  },
-  {
-    key: 'agents',
-    items: [
-      { key: 'profiles', slug: 'profiles', icon: 'BotIcon', page: { id: 'profiles', slug: 'profiles', detail: true } },
-      { key: 'approvals', slug: 'approvals', icon: 'ShieldCheckIcon', page: { id: 'approvals', slug: 'approvals' } },
-      { key: 'conversations', slug: 'conversations', icon: 'MessagesIcon', page: { id: 'conversations', slug: 'conversations' } }
-    ]
-  },
-  {
-    key: 'connect',
-    items: [
-      { key: 'resources', slug: 'resources', icon: 'ServerIcon', page: { id: 'resources', slug: 'resources', detail: true } },
-      { key: 'secrets', slug: 'secrets', icon: 'VaultIcon', page: { id: 'secrets', slug: 'secrets' } },
-      { key: 'connectors', slug: 'connectors', icon: 'PlugIcon', page: { id: 'connectors', slug: 'connectors', detail: true } },
-      { key: 'models', slug: 'models', icon: 'CpuIcon', page: { id: 'models', slug: 'models' } }
-    ]
-  },
-  {
-    key: 'configure',
-    items: [
-      { key: 'prompts', slug: 'prompts', icon: 'FileCodeIcon', page: { id: 'promptTemplates', slug: 'prompts', detail: true } },
-      { key: 'knowledge', slug: 'knowledge', icon: 'BookIcon', page: { id: 'knowledge', slug: 'knowledge' } }
-    ]
-  },
-  {
-    key: 'observe',
-    items: [
-      { key: 'toolInvocations', slug: 'tool-invocations', icon: 'TerminalIcon', page: { id: 'toolInvocations', slug: 'tool-invocations' } },
-      { key: 'requests', slug: 'requests', icon: 'ListIcon', page: { id: 'requests', slug: 'requests' } },
-      { key: 'analytics', slug: 'analytics', icon: 'ChartIcon', page: { id: 'analytics', slug: 'analytics' } },
-      { key: 'audit', slug: 'audit', icon: 'ShieldIcon', page: { id: 'audit', slug: 'audit' } }
-    ]
-  },
-  {
-    key: 'develop',
-    items: [
-      { key: 'explorer', slug: 'explorer', icon: 'PlayIcon', page: { id: 'explorer', slug: 'explorer' } },
-      { key: 'mcpExplorer', slug: 'mcp-explorer', icon: 'LinkIcon', page: { id: 'mcpExplorer', slug: 'mcp-explorer' } },
-      { key: 'a2aExplorer', slug: 'a2a-explorer', icon: 'SendIcon', page: { id: 'a2aExplorer', slug: 'a2a-explorer' } }
-    ]
-  },
-  {
-    key: 'administer',
-    items: [
-      { key: 'tenants', slug: 'tenants', icon: 'BuildingIcon', page: { id: 'tenants', slug: 'tenants', requires: 'systemAdmin' } },
-      { key: 'users', slug: 'users', icon: 'UsersIcon', page: { id: 'users', slug: 'users', requires: 'admin' } },
-      { key: 'credentials', slug: 'credentials', icon: 'KeyIcon', page: { id: 'credentials', slug: 'credentials' } },
+      { key: 'chat', slug: 'chat', icon: 'ChatIcon', page: { id: 'chat', slug: 'chat', detail: true } },
       {
-        key: 'rbac',
-        slug: 'rbac',
+        key: 'agents',
+        slug: 'agents',
+        icon: 'BotIcon',
+        tabs: [
+          { id: 'profiles', slug: 'profiles', detail: true },
+          { id: 'approvals', slug: 'approvals' },
+          { id: 'conversations', slug: 'conversations' }
+        ]
+      },
+      {
+        key: 'connections',
+        slug: 'connections',
+        icon: 'ServerIcon',
+        tabs: [
+          { id: 'resources', slug: 'resources', detail: true },
+          { id: 'secrets', slug: 'secrets' },
+          { id: 'connectors', slug: 'connectors', detail: true },
+          { id: 'models', slug: 'models' }
+        ]
+      },
+      {
+        key: 'instructions',
+        slug: 'instructions',
+        icon: 'BookIcon',
+        tabs: [
+          { id: 'promptTemplates', slug: 'prompts', detail: true },
+          { id: 'knowledge', slug: 'knowledge' }
+        ]
+      },
+      {
+        key: 'activity',
+        slug: 'activity',
+        icon: 'ChartIcon',
+        tabs: [
+          { id: 'toolInvocations', slug: 'tool-invocations' },
+          { id: 'requests', slug: 'requests' },
+          { id: 'analytics', slug: 'analytics' },
+          { id: 'audit', slug: 'audit' }
+        ]
+      },
+      {
+        key: 'developerTools',
+        slug: 'developer-tools',
+        icon: 'PlayIcon',
+        tabs: [
+          { id: 'explorer', slug: 'explorer' },
+          { id: 'mcpExplorer', slug: 'mcp-explorer' },
+          { id: 'a2aExplorer', slug: 'a2a-explorer' }
+        ]
+      }
+    ]
+  },
+  {
+    key: 'administration',
+    items: [
+      {
+        key: 'access',
+        slug: 'access',
         icon: 'LockIcon',
         tabs: [
+          { id: 'tenants', slug: 'tenants', requires: 'systemAdmin' },
+          { id: 'users', slug: 'users', requires: 'admin' },
+          { id: 'credentials', slug: 'credentials' },
           { id: 'roles', slug: 'roles', requires: 'admin' },
-          { id: 'assignments', slug: 'assignments', requires: 'admin' }
+          { id: 'assignments', slug: 'assignments', requires: 'admin' },
+          { id: 'sessions', slug: 'sessions', requires: 'admin' }
         ]
       },
-      { key: 'sessions', slug: 'sessions', icon: 'ActivityIcon', page: { id: 'sessions', slug: 'sessions', requires: 'admin' } },
       {
-        key: 'settings',
-        slug: 'settings',
+        key: 'system',
+        slug: 'system',
         icon: 'SettingsIcon',
         tabs: [
-          { id: 'settings', slug: 'settings', requires: 'admin' },
-          { id: 'serverInfo', slug: 'server-info' }
+          { id: 'settings', slug: 'settings', requires: 'admin', legacyTabs: ['settings', 'server-info'] },
+          { id: 'serverInfo', slug: 'server-info' },
+          { id: 'plugins', slug: 'plugins', requires: 'systemAdmin' }
         ]
-      },
-      { key: 'plugins', slug: 'plugins', icon: 'BoxIcon', page: { id: 'plugins', slug: 'plugins', requires: 'systemAdmin' } }
+      }
     ]
   }
 ];
@@ -159,11 +168,15 @@ export function pathFor(id, recordId, query) {
 }
 
 /** Pre-hub routes that redirect to a hub and tab. A tab whose slug is its hub's slug needs none. */
-export const LEGACY_REDIRECTS = PAGES.filter((page) => page.tab && page.slug !== findHub(page.hub).slug).map((page) => ({
-  from: page.slug,
-  to: `${DASHBOARD_BASE}/${findHub(page.hub).slug}`,
-  tab: page.tab
-}));
+export const LEGACY_REDIRECTS = [
+  ...PAGES.filter((page) => page.tab && page.slug !== findHub(page.hub).slug).map((page) => ({
+    from: page.slug,
+    to: `${DASHBOARD_BASE}/${findHub(page.hub).slug}`,
+    tab: page.tab,
+    ...(page.legacyTabs ? { tabs: page.legacyTabs } : {})
+  })),
+  { from: 'rbac', to: `${DASHBOARD_BASE}/access`, tab: 'roles', tabs: ['roles', 'assignments'] }
+];
 
 /** True when a hub owns the current pathname (its own URL, or a detail route of one of its tabs). */
 export function hubIsActive(hub, pathname) {

@@ -8,6 +8,10 @@ The first release of Hugo: a multi-tenant super agent server that holds credenti
 
 Everything below is new in this release. The images are `jchristn77/hugo-server:v0.1.0` and `jchristn77/hugo-dashboard:v0.1.0`, built for `linux/amd64` and `linux/arm64`.
 
+### Dashboard navigation
+
+- Nine sidebar entries replace the previous 25, with related pages on URL-addressable tabs. Legacy bookmarks and detail routes remain usable, role restrictions apply per tab, and pending approvals remain visible on Agents and the topbar.
+
 ### Deployment
 
 - Wave 1 testbed starts SSH, storage, and SQL targets with automatic SSH key initialization; the full testbed remains available through `compose.all.yaml`. Dedicated CI validates live connector coverage for SQLite and PostgreSQL.

@@ -47,9 +47,9 @@ test('every locale translates the navigation and page chrome', async ({ page }) 
     await page.goto(`${pathFor('resources')}?lang=${locale.code}`);
     await expect(page.locator('html'), locale.code).toHaveAttribute('lang', locale.code);
     await expect(page.locator('html'), locale.code).toHaveAttribute('dir', locale.dir);
-    await expect(page.locator('.sidebar-item[data-nav="resources"]'), locale.code).not.toHaveText(en.nav.hubs.resources.label);
-    await expect(page.locator('.page-header-title'), locale.code).not.toHaveText(en.resources.resources.title);
-    await expect(page).not.toHaveTitle(/^Resources/);
+    await expect(page.locator('.sidebar-item[data-nav="connections"]'), locale.code).not.toHaveText(en.nav.hubs.connections.label);
+    await expect(page.locator('.page-header-title').first(), locale.code).not.toHaveText(en.nav.hubs.connections.label);
+    await expect(page).not.toHaveTitle(/^Resources.*Connections/);
   }
 });
 

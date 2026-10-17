@@ -122,7 +122,7 @@ test('groups the sidebar as plan section 18.2 and highlights every route', async
   page.on('pageerror', (e) => errors.push(e.message));
   await installMocks(page);
   await login(page, { expect });
-  await expect(page.locator('.sidebar-group-label')).toHaveText(['Start', 'Agents', 'Connect', 'Configure', 'Observe', 'Develop', 'Administer']);
+  await expect(page.locator('.sidebar-group-label')).toHaveText(['Workspace', 'Administration']);
   await expect(page.locator('.sidebar-item')).toHaveCount(HUBS.length);
   expect(NAV_SECTIONS.flatMap((s) => s.items)).toHaveLength(HUBS.length);
   for (const p of PAGES) {
@@ -175,11 +175,11 @@ test('detail routes highlight their hub', async ({ page }) => {
   await login(page, { expect });
   for (const [path, hub] of [
     ['/dashboard/chat/cnv_0001', 'chat'],
-    ['/dashboard/profiles/prf_0001', 'profiles'],
-    ['/dashboard/connectors/ssh', 'connectors'],
-    ['/dashboard/prompts/connector.ssh.instructions', 'prompts'],
-    ['/dashboard/resources/res_0002', 'resources'],
-    ['/dashboard/assignments', 'rbac']
+    ['/dashboard/profiles/prf_0001', 'agents'],
+    ['/dashboard/connectors/ssh', 'connections'],
+    ['/dashboard/prompts/connector.ssh.instructions', 'instructions'],
+    ['/dashboard/resources/res_0002', 'connections'],
+    ['/dashboard/assignments', 'access']
   ]) {
     await page.goto(path);
     await expect(page.locator(`.sidebar-item[data-nav="${hub}"]`), path).toHaveAttribute('aria-current', 'page');
@@ -199,7 +199,7 @@ test('topbar shows context, pending approvals, lockdown, theme, and GitHub', asy
   await expect(page.getByTestId('approvals-badge')).toHaveText('2');
   await expect(header.locator('a[href="https://github.com/jchristn/AgentSmith"]')).toHaveCount(1);
   await page.getByTestId('topbar-approvals').click();
-  await expect(page).toHaveURL(/\/dashboard\/approvals\?status=Pending$/);
+  await expect(page).toHaveURL(/\/dashboard\/agents\?tab=approvals&status=Pending$/);
   await page.getByTestId('lockdown-toggle').click();
   await page.locator('.modal .button-danger').click();
   await expect(page.getByTestId('lockdown-banner')).toBeVisible();
@@ -229,3 +229,36 @@ for (const vp of VIEWPORTS) {
     }
   });
 }
+
+test('legacy hub bookmarks preserve their selected tab, filters, and fragment', async ({ page }) => {
+  await installMocks(page);
+  await login(page, { expect });
+  for (const [oldPath, hub, tab] of [
+    ['rbac?tab=assignments', 'access', 'assignments'],
+    ['rbac?tab=roles', 'access', 'roles'],
+    ['settings?tab=server-info', 'system', 'server-info'],
+    ['resources?tab=wrong', 'connections', 'resources'],
+    ['approvals?tab=wrong', 'agents', 'approvals']
+  ]) {
+    await page.goto(`/dashboard/${oldPath}&status=Pending#saved`);
+    await expect(page.locator(`.hub-tab-strip [data-tab-key="${tab}"]`)).toHaveAttribute('aria-selected', 'true');
+    const url = new URL(page.url());
+    expect(url.pathname).toBe(`/dashboard/${hub}`);
+    expect(url.searchParams.get('status')).toBe('Pending');
+    expect(url.hash).toBe('#saved');
+  }
+});
+
+test('tab navigation survives reload and browser Back and Forward', async ({ page }) => {
+  await installMocks(page);
+  await login(page, { expect });
+  await page.goto(pathFor('toolInvocations'));
+  await page.locator('.hub-tab-strip [data-tab-key="analytics"]').click();
+  await expect(page.locator('.hub-tab-strip [data-tab-key="analytics"]')).toHaveAttribute('aria-selected', 'true');
+  await page.reload();
+  await expect(page.locator('.hub-tab-strip [data-tab-key="analytics"]')).toHaveAttribute('aria-selected', 'true');
+  await page.goBack();
+  await expect(page.locator('.hub-tab-strip [data-tab-key="tool-invocations"]')).toHaveAttribute('aria-selected', 'true');
+  await page.goForward();
+  await expect(page.locator('.hub-tab-strip [data-tab-key="analytics"]')).toHaveAttribute('aria-selected', 'true');
+});

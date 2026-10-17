@@ -45,7 +45,7 @@ function AppRoutes() {
       <Route path="/dashboard" element={<Navigate to="/dashboard/home" replace />} />
       {/* Pre-hub URLs replace-redirect to their hub and tab, keeping the query string. */}
       {LEGACY_REDIRECTS.map((r) => (
-        <Route key={r.from} path={`${DASHBOARD_BASE}/${r.from}`} element={<LegacyRedirect to={r.to} tab={r.tab} />} />
+        <Route key={r.from} path={`${DASHBOARD_BASE}/${r.from}`} element={<LegacyRedirect to={r.to} tab={r.tab} tabs={r.tabs} />} />
       ))}
       <Route
         path="/dashboard/:section"

@@ -29,7 +29,7 @@ function hubVisible(hub, principal) {
 /**
  * Grouped, role-aware sidebar rendered from config/navConfig.js (plan section 18.2), with a utility footer (setup
  * wizard, tour, version, environment). Each item is a hub; tabbed hubs show their pages as in-page tabs. The
- * Approvals item carries the pending count.
+ * Agents item carries the pending approval count.
  */
 export default function Sidebar({ onNavigateMobile }) {
   const { t, i18n } = useTranslation();
@@ -82,7 +82,7 @@ export default function Sidebar({ onNavigateMobile }) {
                   >
                     {Icon && <Icon size={18} />}
                     <span>{label}</span>
-                    {hub.key === 'approvals' && pending > 0 && (
+                    {(hub.page?.id === 'approvals' || hub.tabs?.some((tab) => tab.id === 'approvals')) && pending > 0 && (
                       <span
                         className="sidebar-badge"
                         data-testid="approvals-badge"

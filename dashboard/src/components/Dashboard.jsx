@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
-import { findHub, hubBySlug, detailPageBySlug, pageBySlug, DASHBOARD_BASE } from '../config/navConfig';
+import { findHub, LEGACY_REDIRECTS, hubBySlug, detailPageBySlug, pageBySlug, DASHBOARD_BASE } from '../config/navConfig';
 import { allowed } from '../utils/principal';
 import { STORAGE_KEYS, APPROVAL_POLL_MS } from '../utils/constants';
 import { createEventStream } from '../utils/eventStream';
@@ -36,6 +36,8 @@ export function resolveRoute(section, id) {
     return { kind: 'page', page: hub.page, View: PAGE_VIEWS[hub.page.id] };
   }
   // A tab URL (or a detail-style URL with an unknown record route) lands on its hub and tab.
+  const alias = LEGACY_REDIRECTS.find((redirect) => redirect.from === section && redirect.tabs);
+  if (alias) return { kind: 'redirect', to: alias.to, tab: alias.tab, tabs: alias.tabs };
   const legacy = pageBySlug(section);
   if (legacy) return { kind: 'redirect', to: `${DASHBOARD_BASE}/${findHub(legacy.hub).slug}`, tab: legacy.defaultTab ? null : legacy.tab };
   return { kind: 'redirect', to: `${DASHBOARD_BASE}/home` };
@@ -159,7 +161,7 @@ export default function Dashboard() {
       .catch(() => {});
   }, [apiClient, ready, tenantId, setWizardOpen]);
 
-  if (route.kind === 'redirect') return <LegacyRedirect to={route.to} tab={route.tab} />;
+  if (route.kind === 'redirect') return <LegacyRedirect to={route.to} tab={route.tab} tabs={route.tabs} />;
 
   const permitted = route.kind === 'hub' || allowed(route.page.requires, principal);
   let content;

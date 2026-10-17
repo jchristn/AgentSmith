@@ -3352,13 +3352,41 @@
         "rbac": "Gerenciar funções, as permissões que elas contêm e quem as possui neste locatário.",
         "sessions": "Ver todas as sessões e tokens ativos no locatário e revogar qualquer um deles.",
         "settings": "Editar o arquivo de configurações do servidor, reiniciar o servidor e ver informações do servidor.",
-        "plugins": "Habilitar ou desabilitar plugins de conector e ver erros de carregamento. Somente administradores do sistema veem esta página."
+        "plugins": "Habilitar ou desabilitar plugins de conector e ver erros de carregamento. Somente administradores do sistema veem esta página.",
+        "agents": "Criar perfis de agente e vincular recursos a eles com modos de acesso; todas as superfícies se comunicam com um perfil. Decidir chamadas de ferramenta de escrita e destrutivas que aguardam uma pessoa, vindas de qualquer superfície. Revisar conversas de todo o locatário vindas de chat, A2A, MCP e clientes compatíveis com OpenAI.",
+        "connections": "Adicionar e testar conexões com hosts SSH, buckets, bancos de dados, serviços de log e outros sistemas. Armazenar senhas, chaves e tokens criptografados. Recursos e endpoints de modelo os usam por slot. Navegar pelas famílias de serviço suportadas pelo Hugo, suas ferramentas e efeitos e suas instruções padrão. Adicionar os modelos de inferência e de embedding que o loop de agente próprio do Hugo usa para chat, A2A e clientes OpenAI.",
+        "instructions": "Editar modelos de instrução por camada (integrado, global, locatário), com pré-visualização, versões e redefinição. Ensinar o Hugo sobre sua stack com notas que ele recupera para o contexto durante as conversas.",
+        "activity": "Todas as chamadas de ferramenta de todas as superfícies, com efeito, decisão, resultado e link de trace. Inspecionar todas as requisições de API tratadas pelo servidor, com cabeçalhos, corpos, tempos e status. Entender o uso de tokens, as chamadas de ferramenta por efeito e conector, a latência dos modelos e o tempo de resposta das aprovações. Revisar eventos de segurança, como logins, negações, revelações de segredos e alterações de configuração.",
+        "developerTools": "Testar qualquer rota REST do documento OpenAPI ao vivo do servidor, com trechos de código gerados. Conectar-se ao endpoint MCP com sua identidade para ver instruções e ferramentas e chamar ferramentas. Buscar o cartão de agente de um perfil e enviar mensagens a ele via A2A JSON-RPC.",
+        "access": "Criar e gerenciar locatários isolados neste servidor. Somente administradores do sistema veem esta página. Gerenciar as pessoas que entram neste locatário, redefinir senhas e ver permissões efetivas. Criar chaves de acesso para harnesses e SDKs, vinculá-las a um perfil e rotacioná-las. Gerenciar funções, as permissões que elas contêm e quem as possui neste locatário. Ver todas as sessões e tokens ativos no locatário e revogar qualquer um deles.",
+        "system": "Editar o arquivo de configurações do servidor, reiniciar o servidor e ver informações do servidor. Habilitar ou desabilitar plugins de conector e ver erros de carregamento. Somente administradores do sistema veem esta página."
       },
       "tabs": {
         "roles": "Funções e as permissões que elas contêm. Clone uma função integrada para personalizá-la.",
         "assignments": "Quem possui qual função: usuários e credenciais, em todo o locatário ou em um recurso.",
         "settings": "Editar o arquivo de configurações do servidor com validação, indicadores de aplicação ao vivo ou após reinicialização, e Reiniciar servidor.",
-        "serverInfo": "Endpoints copiáveis, versões do servidor e do painel, recursos disponíveis e sua identidade."
+        "serverInfo": "Endpoints copiáveis, versões do servidor e do painel, recursos disponíveis e sua identidade.",
+        "profiles": "Criar perfis de agente e vincular recursos a eles com modos de acesso; todas as superfícies se comunicam com um perfil.",
+        "approvals": "Decidir chamadas de ferramenta de escrita e destrutivas que aguardam uma pessoa, vindas de qualquer superfície.",
+        "conversations": "Revisar conversas de todo o locatário vindas de chat, A2A, MCP e clientes compatíveis com OpenAI.",
+        "resources": "Adicionar e testar conexões com hosts SSH, buckets, bancos de dados, serviços de log e outros sistemas.",
+        "secrets": "Armazenar senhas, chaves e tokens criptografados. Recursos e endpoints de modelo os usam por slot.",
+        "connectors": "Navegar pelas famílias de serviço suportadas pelo Hugo, suas ferramentas e efeitos e suas instruções padrão.",
+        "models": "Adicionar os modelos de inferência e de embedding que o loop de agente próprio do Hugo usa para chat, A2A e clientes OpenAI.",
+        "knowledge": "Ensinar o Hugo sobre sua stack com notas que ele recupera para o contexto durante as conversas.",
+        "toolInvocations": "Todas as chamadas de ferramenta de todas as superfícies, com efeito, decisão, resultado e link de trace.",
+        "requests": "Inspecionar todas as requisições de API tratadas pelo servidor, com cabeçalhos, corpos, tempos e status.",
+        "analytics": "Entender o uso de tokens, as chamadas de ferramenta por efeito e conector, a latência dos modelos e o tempo de resposta das aprovações.",
+        "audit": "Revisar eventos de segurança, como logins, negações, revelações de segredos e alterações de configuração.",
+        "explorer": "Testar qualquer rota REST do documento OpenAPI ao vivo do servidor, com trechos de código gerados.",
+        "mcpExplorer": "Conectar-se ao endpoint MCP com sua identidade para ver instruções e ferramentas e chamar ferramentas.",
+        "a2aExplorer": "Buscar o cartão de agente de um perfil e enviar mensagens a ele via A2A JSON-RPC.",
+        "tenants": "Criar e gerenciar locatários isolados neste servidor. Somente administradores do sistema veem esta página.",
+        "users": "Gerenciar as pessoas que entram neste locatário, redefinir senhas e ver permissões efetivas.",
+        "credentials": "Criar chaves de acesso para harnesses e SDKs, vinculá-las a um perfil e rotacioná-las.",
+        "sessions": "Ver todas as sessões e tokens ativos no locatário e revogar qualquer um deles.",
+        "plugins": "Habilitar ou desabilitar plugins de conector e ver erros de carregamento. Somente administradores do sistema veem esta página.",
+        "promptTemplates": "Editar modelos de instrução por camada (integrado, global, locatário), com pré-visualização, versões e redefinição."
       }
     },
     "passwordChange": {
@@ -3584,7 +3612,9 @@
       "configure": "Configurar",
       "observe": "Observar",
       "develop": "Desenvolver",
-      "administer": "Administrar"
+      "administer": "Administrar",
+      "workspace": "Espaço de trabalho",
+      "administration": "Administração"
     },
     "hubs": {
       "home": {
@@ -3686,6 +3716,34 @@
       "plugins": {
         "label": "Plugins",
         "tip": "Plugins de conector carregados do diretório de plugins."
+      },
+      "agents": {
+        "label": "Agentes",
+        "tip": "Configure perfis, gerencie aprovações e revise conversas."
+      },
+      "connections": {
+        "label": "Conexões",
+        "tip": "Gerencie recursos, segredos, tipos de conectores e endpoints de modelos."
+      },
+      "instructions": {
+        "label": "Instruções",
+        "tip": "Gerencie modelos de instruções e conhecimentos reutilizáveis."
+      },
+      "activity": {
+        "label": "Atividade",
+        "tip": "Revise chamadas de ferramentas, solicitações de API, uso e eventos de segurança."
+      },
+      "developerTools": {
+        "label": "Ferramentas de desenvolvimento",
+        "tip": "Explore as interfaces REST, MCP e A2A."
+      },
+      "access": {
+        "label": "Acesso",
+        "tip": "Gerencie locatários, usuários, credenciais, funções, atribuições e sessões."
+      },
+      "system": {
+        "label": "Sistema",
+        "tip": "Configure o servidor, confira seu status e gerencie plugins."
       }
     },
     "items": {

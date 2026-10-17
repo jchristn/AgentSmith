@@ -3352,13 +3352,41 @@
         "rbac": "Gestione los roles, los permisos que contienen y quién los tiene en este inquilino.",
         "sessions": "Consulte todas las sesiones y tokens activos en el inquilino y revoque cualquiera de ellos.",
         "settings": "Edite el archivo de ajustes del servidor, reinicie el servidor y consulte la información del servidor.",
-        "plugins": "Habilite o deshabilite plugins de conectores y consulte los errores de carga. Solo los administradores del sistema ven esta página."
+        "plugins": "Habilite o deshabilite plugins de conectores y consulte los errores de carga. Solo los administradores del sistema ven esta página.",
+        "agents": "Cree perfiles de agente y vincúleles recursos con modos de acceso; cada superficie se comunica con un perfil. Decida sobre las llamadas a herramientas de escritura y destructivas que esperan a una persona, desde cualquier superficie. Revise las conversaciones de todo el inquilino procedentes del chat, A2A, MCP y clientes compatibles con OpenAI.",
+        "connections": "Añada y pruebe conexiones a hosts SSH, buckets, bases de datos, servicios de registros y otros sistemas. Almacene contraseñas, claves y tokens cifrados. Los recursos y endpoints de modelo los usan por ranura. Explore las familias de servicios que admite Hugo, sus herramientas y efectos, y sus instrucciones predeterminadas. Añada los modelos de inferencia y embedding que usa el bucle de agente propio de Hugo para el chat, A2A y los clientes OpenAI.",
+        "instructions": "Edite las plantillas de instrucciones por capa (integrada, global, inquilino), con vista previa, versiones y restablecimiento. Enseñe a Hugo sobre su infraestructura con notas que incorpora al contexto durante las conversaciones.",
+        "activity": "Cada llamada a herramienta desde cualquier superficie, con su efecto, la decisión, el resultado y un enlace a la traza. Inspeccione cada solicitud de API que gestionó el servidor, con cabeceras, cuerpos, tiempos y estado. Analice el uso de tokens, las llamadas a herramientas por efecto y conector, la latencia de los modelos y el tiempo de respuesta de las aprobaciones. Revise los eventos de seguridad, como inicios de sesión, denegaciones, revelaciones de secretos y cambios de configuración.",
+        "developerTools": "Pruebe cualquier ruta REST del documento OpenAPI en vivo del servidor, con fragmentos de código generados. Conéctese al endpoint MCP con su propia identidad para ver las instrucciones y herramientas, y llamar a herramientas. Obtenga la tarjeta de agente de un perfil y envíele mensajes mediante A2A JSON-RPC.",
+        "access": "Cree y gestione inquilinos aislados en este servidor. Solo los administradores del sistema ven esta página. Gestione las personas que inician sesión en este inquilino, restablezca contraseñas y consulte los permisos efectivos. Cree claves de acceso para entornos de ejecución y SDK, vincúlelas a un perfil y rótelas. Gestione los roles, los permisos que contienen y quién los tiene en este inquilino. Consulte todas las sesiones y tokens activos en el inquilino y revoque cualquiera de ellos.",
+        "system": "Edite el archivo de ajustes del servidor, reinicie el servidor y consulte la información del servidor. Habilite o deshabilite plugins de conectores y consulte los errores de carga. Solo los administradores del sistema ven esta página."
       },
       "tabs": {
         "roles": "Los roles y los permisos que contienen. Clone un rol integrado para personalizarlo.",
         "assignments": "Quién tiene cada rol: usuarios y credenciales, en todo el inquilino o en un recurso.",
         "settings": "Edite el archivo de ajustes del servidor con validación, indicadores de aplicación en caliente o tras reinicio, y Reiniciar servidor.",
-        "serverInfo": "Endpoints copiables, versiones del servidor y del panel, funciones y su identidad."
+        "serverInfo": "Endpoints copiables, versiones del servidor y del panel, funciones y su identidad.",
+        "profiles": "Cree perfiles de agente y vincúleles recursos con modos de acceso; cada superficie se comunica con un perfil.",
+        "approvals": "Decida sobre las llamadas a herramientas de escritura y destructivas que esperan a una persona, desde cualquier superficie.",
+        "conversations": "Revise las conversaciones de todo el inquilino procedentes del chat, A2A, MCP y clientes compatibles con OpenAI.",
+        "resources": "Añada y pruebe conexiones a hosts SSH, buckets, bases de datos, servicios de registros y otros sistemas.",
+        "secrets": "Almacene contraseñas, claves y tokens cifrados. Los recursos y endpoints de modelo los usan por ranura.",
+        "connectors": "Explore las familias de servicios que admite Hugo, sus herramientas y efectos, y sus instrucciones predeterminadas.",
+        "models": "Añada los modelos de inferencia y embedding que usa el bucle de agente propio de Hugo para el chat, A2A y los clientes OpenAI.",
+        "knowledge": "Enseñe a Hugo sobre su infraestructura con notas que incorpora al contexto durante las conversaciones.",
+        "toolInvocations": "Cada llamada a herramienta desde cualquier superficie, con su efecto, la decisión, el resultado y un enlace a la traza.",
+        "requests": "Inspeccione cada solicitud de API que gestionó el servidor, con cabeceras, cuerpos, tiempos y estado.",
+        "analytics": "Analice el uso de tokens, las llamadas a herramientas por efecto y conector, la latencia de los modelos y el tiempo de respuesta de las aprobaciones.",
+        "audit": "Revise los eventos de seguridad, como inicios de sesión, denegaciones, revelaciones de secretos y cambios de configuración.",
+        "explorer": "Pruebe cualquier ruta REST del documento OpenAPI en vivo del servidor, con fragmentos de código generados.",
+        "mcpExplorer": "Conéctese al endpoint MCP con su propia identidad para ver las instrucciones y herramientas, y llamar a herramientas.",
+        "a2aExplorer": "Obtenga la tarjeta de agente de un perfil y envíele mensajes mediante A2A JSON-RPC.",
+        "tenants": "Cree y gestione inquilinos aislados en este servidor. Solo los administradores del sistema ven esta página.",
+        "users": "Gestione las personas que inician sesión en este inquilino, restablezca contraseñas y consulte los permisos efectivos.",
+        "credentials": "Cree claves de acceso para entornos de ejecución y SDK, vincúlelas a un perfil y rótelas.",
+        "sessions": "Consulte todas las sesiones y tokens activos en el inquilino y revoque cualquiera de ellos.",
+        "plugins": "Habilite o deshabilite plugins de conectores y consulte los errores de carga. Solo los administradores del sistema ven esta página.",
+        "promptTemplates": "Edite las plantillas de instrucciones por capa (integrada, global, inquilino), con vista previa, versiones y restablecimiento."
       }
     },
     "passwordChange": {
@@ -3584,7 +3612,9 @@
       "configure": "Configurar",
       "observe": "Observar",
       "develop": "Desarrollar",
-      "administer": "Administrar"
+      "administer": "Administrar",
+      "workspace": "Espacio de trabajo",
+      "administration": "Administración"
     },
     "hubs": {
       "home": {
@@ -3686,6 +3716,34 @@
       "plugins": {
         "label": "Plugins",
         "tip": "Plugins de conectores cargados desde el directorio de plugins."
+      },
+      "agents": {
+        "label": "Agentes",
+        "tip": "Configure perfiles, gestione aprobaciones y revise conversaciones."
+      },
+      "connections": {
+        "label": "Conexiones",
+        "tip": "Gestione recursos, secretos, tipos de conectores y endpoints de modelos."
+      },
+      "instructions": {
+        "label": "Instrucciones",
+        "tip": "Gestione plantillas de instrucciones y conocimientos reutilizables."
+      },
+      "activity": {
+        "label": "Actividad",
+        "tip": "Revise llamadas a herramientas, solicitudes API, uso y eventos de seguridad."
+      },
+      "developerTools": {
+        "label": "Herramientas de desarrollo",
+        "tip": "Explore las interfaces REST, MCP y A2A."
+      },
+      "access": {
+        "label": "Acceso",
+        "tip": "Gestione inquilinos, usuarios, credenciales, roles, asignaciones y sesiones."
+      },
+      "system": {
+        "label": "Sistema",
+        "tip": "Configure el servidor, consulte su estado y gestione plugins."
       }
     },
     "items": {

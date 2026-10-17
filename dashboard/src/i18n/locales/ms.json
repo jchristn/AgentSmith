@@ -3352,13 +3352,41 @@
         "rbac": "Urus peranan, kebenaran yang terkandung di dalamnya, dan siapa yang memegangnya dalam penyewa ini.",
         "sessions": "Lihat setiap sesi dan token aktif dalam penyewa, dan batalkan mana-mana daripadanya.",
         "settings": "Edit fail tetapan pelayan, mulakan semula pelayan dan lihat maklumat pelayan.",
-        "plugins": "Dayakan atau nyahdayakan pemalam penyambung dan lihat ralat pemuatan. Hanya pentadbir sistem melihat halaman ini."
+        "plugins": "Dayakan atau nyahdayakan pemalam penyambung dan lihat ralat pemuatan. Hanya pentadbir sistem melihat halaman ini.",
+        "agents": "Cipta profil ejen dan ikat sumber padanya dengan mod akses; setiap permukaan berkomunikasi dengan profil. Putuskan panggilan alat tulis dan memusnahkan yang sedang menunggu seseorang, daripada mana-mana permukaan. Semak perbualan merentas penyewa daripada sembang, A2A, MCP dan klien serasi OpenAI.",
+        "connections": "Tambah dan uji sambungan ke hos SSH, baldi, pangkalan data, perkhidmatan log dan sistem lain. Simpan kata laluan, kunci dan token secara tersulit. Sumber dan titik akhir model menggunakannya mengikut slot. Semak imbas keluarga perkhidmatan yang disokong oleh Hugo, alat dan kesannya, serta arahan lalainya. Tambah model inferens dan pembenaman yang digunakan oleh gelung ejen Hugo sendiri untuk sembang, A2A dan klien OpenAI.",
+        "instructions": "Edit templat arahan mengikut lapisan (terbina dalam, global, penyewa), dengan pratonton, versi dan tetapan semula. Ajar Hugo tentang tindanan anda dengan nota yang diambilnya ke dalam konteks semasa perbualan.",
+        "activity": "Setiap panggilan alat daripada setiap permukaan, dengan kesannya, keputusan, hasil dan pautan jejak. Periksa setiap permintaan API yang dikendalikan oleh pelayan, dengan pengepala, badan, pemasaan dan status. Fahami penggunaan token, panggilan alat mengikut kesan dan penyambung, kependaman model dan tempoh pemprosesan kelulusan. Semak peristiwa keselamatan seperti log masuk, penolakan, pendedahan rahsia dan perubahan konfigurasi.",
+        "developerTools": "Cuba sebarang laluan REST daripada dokumen OpenAPI langsung pelayan, dengan coretan kod yang dijana. Sambung ke titik akhir MCP sebagai diri anda untuk melihat arahan dan alat, serta memanggil alat. Ambil kad ejen profil dan hantar mesej kepadanya melalui JSON-RPC A2A.",
+        "access": "Cipta dan urus penyewa terasing pada pelayan ini. Hanya pentadbir sistem melihat halaman ini. Urus orang yang log masuk ke penyewa ini, tetapkan semula kata laluan dan lihat kebenaran berkesan. Cipta kunci akses untuk abah-abah dan SDK, ikatnya pada profil dan putarkannya. Urus peranan, kebenaran yang terkandung di dalamnya, dan siapa yang memegangnya dalam penyewa ini. Lihat setiap sesi dan token aktif dalam penyewa, dan batalkan mana-mana daripadanya.",
+        "system": "Edit fail tetapan pelayan, mulakan semula pelayan dan lihat maklumat pelayan. Dayakan atau nyahdayakan pemalam penyambung dan lihat ralat pemuatan. Hanya pentadbir sistem melihat halaman ini."
       },
       "tabs": {
         "roles": "Peranan dan kebenaran yang terkandung di dalamnya. Klon peranan terbina dalam untuk menyesuaikannya.",
         "assignments": "Siapa memegang peranan mana: pengguna dan kelayakan, seluruh penyewa atau pada satu sumber.",
         "settings": "Edit fail tetapan pelayan dengan pengesahan, lencana langsung berbanding mula semula, dan Mulakan Semula Pelayan.",
-        "serverInfo": "Titik akhir yang boleh disalin, versi pelayan dan papan pemuka, ciri, dan identiti anda."
+        "serverInfo": "Titik akhir yang boleh disalin, versi pelayan dan papan pemuka, ciri, dan identiti anda.",
+        "profiles": "Cipta profil ejen dan ikat sumber padanya dengan mod akses; setiap permukaan berkomunikasi dengan profil.",
+        "approvals": "Putuskan panggilan alat tulis dan memusnahkan yang sedang menunggu seseorang, daripada mana-mana permukaan.",
+        "conversations": "Semak perbualan merentas penyewa daripada sembang, A2A, MCP dan klien serasi OpenAI.",
+        "resources": "Tambah dan uji sambungan ke hos SSH, baldi, pangkalan data, perkhidmatan log dan sistem lain.",
+        "secrets": "Simpan kata laluan, kunci dan token secara tersulit. Sumber dan titik akhir model menggunakannya mengikut slot.",
+        "connectors": "Semak imbas keluarga perkhidmatan yang disokong oleh Hugo, alat dan kesannya, serta arahan lalainya.",
+        "models": "Tambah model inferens dan pembenaman yang digunakan oleh gelung ejen Hugo sendiri untuk sembang, A2A dan klien OpenAI.",
+        "knowledge": "Ajar Hugo tentang tindanan anda dengan nota yang diambilnya ke dalam konteks semasa perbualan.",
+        "toolInvocations": "Setiap panggilan alat daripada setiap permukaan, dengan kesannya, keputusan, hasil dan pautan jejak.",
+        "requests": "Periksa setiap permintaan API yang dikendalikan oleh pelayan, dengan pengepala, badan, pemasaan dan status.",
+        "analytics": "Fahami penggunaan token, panggilan alat mengikut kesan dan penyambung, kependaman model dan tempoh pemprosesan kelulusan.",
+        "audit": "Semak peristiwa keselamatan seperti log masuk, penolakan, pendedahan rahsia dan perubahan konfigurasi.",
+        "explorer": "Cuba sebarang laluan REST daripada dokumen OpenAPI langsung pelayan, dengan coretan kod yang dijana.",
+        "mcpExplorer": "Sambung ke titik akhir MCP sebagai diri anda untuk melihat arahan dan alat, serta memanggil alat.",
+        "a2aExplorer": "Ambil kad ejen profil dan hantar mesej kepadanya melalui JSON-RPC A2A.",
+        "tenants": "Cipta dan urus penyewa terasing pada pelayan ini. Hanya pentadbir sistem melihat halaman ini.",
+        "users": "Urus orang yang log masuk ke penyewa ini, tetapkan semula kata laluan dan lihat kebenaran berkesan.",
+        "credentials": "Cipta kunci akses untuk abah-abah dan SDK, ikatnya pada profil dan putarkannya.",
+        "sessions": "Lihat setiap sesi dan token aktif dalam penyewa, dan batalkan mana-mana daripadanya.",
+        "plugins": "Dayakan atau nyahdayakan pemalam penyambung dan lihat ralat pemuatan. Hanya pentadbir sistem melihat halaman ini.",
+        "promptTemplates": "Edit templat arahan mengikut lapisan (terbina dalam, global, penyewa), dengan pratonton, versi dan tetapan semula."
       }
     },
     "passwordChange": {
@@ -3584,7 +3612,9 @@
       "configure": "Konfigurasi",
       "observe": "Pantau",
       "develop": "Bangunkan",
-      "administer": "Tadbir"
+      "administer": "Tadbir",
+      "workspace": "Ruang kerja",
+      "administration": "Pentadbiran"
     },
     "hubs": {
       "home": {
@@ -3686,6 +3716,34 @@
       "plugins": {
         "label": "Pemalam",
         "tip": "Pemalam penyambung yang dimuatkan daripada direktori pemalam."
+      },
+      "agents": {
+        "label": "Ejen",
+        "tip": "Konfigurasikan profil, urus kelulusan dan semak perbualan."
+      },
+      "connections": {
+        "label": "Sambungan",
+        "tip": "Urus sumber, rahsia, jenis penyambung dan titik akhir model."
+      },
+      "instructions": {
+        "label": "Arahan",
+        "tip": "Urus templat arahan dan pengetahuan yang boleh digunakan semula."
+      },
+      "activity": {
+        "label": "Aktiviti",
+        "tip": "Semak panggilan alat, permintaan API, penggunaan dan peristiwa keselamatan."
+      },
+      "developerTools": {
+        "label": "Alat pembangun",
+        "tip": "Terokai antara muka REST, MCP dan A2A."
+      },
+      "access": {
+        "label": "Akses",
+        "tip": "Urus penyewa, pengguna, kelayakan, peranan, penugasan dan sesi."
+      },
+      "system": {
+        "label": "Sistem",
+        "tip": "Konfigurasikan pelayan, semak statusnya dan urus pemalam."
       }
     },
     "items": {

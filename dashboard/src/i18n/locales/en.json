@@ -3338,13 +3338,41 @@
         "rbac": "Manage roles, the permissions they contain, and who holds them in this tenant.",
         "sessions": "See every active session and token in the tenant, and revoke any of them.",
         "settings": "Edit the server settings file, restart the server, and see server information.",
-        "plugins": "Enable or disable connector plugins and see load errors. Only system administrators see this page."
+        "plugins": "Enable or disable connector plugins and see load errors. Only system administrators see this page.",
+        "agents": "Create agent profiles and bind resources to them with access modes; every surface talks to a profile. Decide write and destructive tool calls that are waiting for a person, from any surface. Review conversations across the tenant from chat, A2A, MCP, and OpenAI-compatible clients.",
+        "connections": "Add and test connections to SSH hosts, buckets, databases, log services, and other systems. Store passwords, keys, and tokens encrypted. Resources and model endpoints use them by slot. Browse the service families Hugo supports, their tools and effects, and their default instructions. Add the inference and embedding models Hugo's own agent loop uses for chat, A2A, and OpenAI clients.",
+        "instructions": "Edit instruction templates per layer (built-in, global, tenant), with preview, versions, and reset. Teach Hugo about your stack with notes it retrieves into context during conversations.",
+        "activity": "Every tool call from every surface, with its effect, the decision, the outcome, and a trace link. Inspect every API request the server handled, with headers, bodies, timing, and status. Understand token usage, tool calls by effect and connector, model latency, and approval turnaround. Review security events such as sign-ins, denials, secret reveals, and configuration changes.",
+        "developerTools": "Try any REST route from the server's live OpenAPI document, with generated code snippets. Connect to the MCP endpoint as yourself to see instructions and tools, and call tools. Fetch a profile's agent card and send it messages over A2A JSON-RPC.",
+        "access": "Create and manage isolated tenants on this server. Only system administrators see this page. Manage the people who sign in to this tenant, reset passwords, and see effective permissions. Create access keys for harnesses and SDKs, bind them to a profile, and rotate them. Manage roles, the permissions they contain, and who holds them in this tenant. See every active session and token in the tenant, and revoke any of them.",
+        "system": "Edit the server settings file, restart the server, and see server information. Enable or disable connector plugins and see load errors. Only system administrators see this page."
       },
       "tabs": {
         "roles": "Roles and the permissions they contain. Clone a built-in role to customize it.",
         "assignments": "Who holds which role: users and credentials, tenant wide or on one resource.",
         "settings": "Edit the server settings file with validation, live versus restart badges, and Restart Server.",
-        "serverInfo": "Copyable endpoints, server and dashboard versions, features, and your identity."
+        "serverInfo": "Copyable endpoints, server and dashboard versions, features, and your identity.",
+        "profiles": "Create agent profiles and bind resources to them with access modes; every surface talks to a profile.",
+        "approvals": "Decide write and destructive tool calls that are waiting for a person, from any surface.",
+        "conversations": "Review conversations across the tenant from chat, A2A, MCP, and OpenAI-compatible clients.",
+        "resources": "Add and test connections to SSH hosts, buckets, databases, log services, and other systems.",
+        "secrets": "Store passwords, keys, and tokens encrypted. Resources and model endpoints use them by slot.",
+        "connectors": "Browse the service families Hugo supports, their tools and effects, and their default instructions.",
+        "models": "Add the inference and embedding models Hugo's own agent loop uses for chat, A2A, and OpenAI clients.",
+        "knowledge": "Teach Hugo about your stack with notes it retrieves into context during conversations.",
+        "toolInvocations": "Every tool call from every surface, with its effect, the decision, the outcome, and a trace link.",
+        "requests": "Inspect every API request the server handled, with headers, bodies, timing, and status.",
+        "analytics": "Understand token usage, tool calls by effect and connector, model latency, and approval turnaround.",
+        "audit": "Review security events such as sign-ins, denials, secret reveals, and configuration changes.",
+        "explorer": "Try any REST route from the server's live OpenAPI document, with generated code snippets.",
+        "mcpExplorer": "Connect to the MCP endpoint as yourself to see instructions and tools, and call tools.",
+        "a2aExplorer": "Fetch a profile's agent card and send it messages over A2A JSON-RPC.",
+        "tenants": "Create and manage isolated tenants on this server. Only system administrators see this page.",
+        "users": "Manage the people who sign in to this tenant, reset passwords, and see effective permissions.",
+        "credentials": "Create access keys for harnesses and SDKs, bind them to a profile, and rotate them.",
+        "sessions": "See every active session and token in the tenant, and revoke any of them.",
+        "plugins": "Enable or disable connector plugins and see load errors. Only system administrators see this page.",
+        "promptTemplates": "Edit instruction templates per layer (built-in, global, tenant), with preview, versions, and reset."
       }
     },
     "passwordChange": {
@@ -3570,7 +3598,9 @@
       "configure": "Configure",
       "observe": "Observe",
       "develop": "Develop",
-      "administer": "Administer"
+      "administer": "Administer",
+      "workspace": "Workspace",
+      "administration": "Administration"
     },
     "hubs": {
       "home": {
@@ -3672,6 +3702,34 @@
       "plugins": {
         "label": "Plugins",
         "tip": "Connector plugins loaded from the plugins directory."
+      },
+      "agents": {
+        "label": "Agents",
+        "tip": "Configure profiles, decide approvals, and review conversations."
+      },
+      "connections": {
+        "label": "Connections",
+        "tip": "Manage resources, secrets, connector types, and model endpoints."
+      },
+      "instructions": {
+        "label": "Instructions",
+        "tip": "Manage prompt templates and reusable knowledge."
+      },
+      "activity": {
+        "label": "Activity",
+        "tip": "Review tool calls, API requests, usage, and security events."
+      },
+      "developerTools": {
+        "label": "Developer Tools",
+        "tip": "Explore REST, MCP, and A2A interfaces."
+      },
+      "access": {
+        "label": "Access",
+        "tip": "Manage tenants, users, credentials, roles, assignments, and sessions."
+      },
+      "system": {
+        "label": "System",
+        "tip": "Configure the server, inspect its status, and manage plugins."
       }
     },
     "items": {

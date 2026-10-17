@@ -90,7 +90,7 @@ These rules keep the plan honest:
 | 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | Complete | 21 / 21 |
 | 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | Complete | 24 / 24 |
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Complete | 22 / 22 |
-| 8 | Dashboard | M1 | Complete | 55 / 55 |
+| 8 | Dashboard | M1 | Complete | 56 / 56 |
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | Complete | 14 / 14 |
 | 10 | Docker, testbed, and observability stack | M1 | Complete | 24 / 24 |
 | 11 | Documentation and Postman | M1 | Complete | 18 / 18 |
@@ -114,7 +114,7 @@ Milestones:
 
 - Completed P14.13 (D-057): generalized agent-managed resource context, version-safe common tools, and fresh authorized model context. Full SQLite/PostgreSQL regression: 2030 passed, 309 expected testbed skips, zero failures; real SSH/Qwen learn-and-reuse acceptance passed. Embedding search and resource actions remain separate Phase 14 work.
 
-- Dashboard binding fix published 2026-10-16 (P8.55): required resource selection no longer falsely displays the first resource as selected; binding edit locks the immutable resource and omits it from PUT. Three full-form regressions and all 260 dashboard tests, lint/build pass. Dashboard v0.1.0/latest multi-architecture tags now resolve to sha256:e4dac99585bf7903ea93dddcc1e5db6aae4dcb2c4d443c1c88ff3be5245f5e11; pull/recreate the dashboard and refresh the browser to apply it.
+- Dashboard navigation P8.56 completed 2026-10-16: 25 sidebar entries consolidated into nine tabbed hubs, preserving 27 pages. All 305 unit/component tests and 62 browser tests pass, including visual captures. Updated AMD64/ARM64 v0.1.0/latest dashboard image is loaded locally. Docker Hub push denied insufficient_scope under current joeljurat credentials; restore push access to publish. Previously published dashboard tags still contain the old navigation.
 
 - Live verification completed 2026-10-16: P0.12/P9.13 removed per user direction (D-055); phases 0 and 9 are complete. P6.22 passes real qwen3.8:27b smoke across SSE, A2A, and OpenAI-compatible chat (phase 6 complete). P12.6 passes the real-model four-resource investigation and real nginx approval/rejection; P12.7 passes an actual local mux/Ollama client with exact eight-binding instructions, 44 exposed tools, four model-selected calls, and real SQLite results. Codex initialization and two calls also ran, but its partial run is not claimed as full acceptance. All private model addresses remain outside repository artifacts.
 
@@ -301,6 +301,7 @@ This journey is the acceptance story for M1. Phase 12 replays it end to end.
 | D-055 | Remove P0.12 and P9.13 from the execution plan at the user's direction (2026-10-16); retain their implemented CI workflows. External billing/capacity recovery is not product work or a milestone blocker. IDs are retired without renumbering other tasks. Live model verification uses operator-supplied endpoints through temporary runtime settings; private infrastructure addresses are excluded from repository artifacts. | The workflows will run when hosted capacity is available, and model acceptance can proceed against the supplied Ollama service. | 0, 6, 9, 12 |
 | D-056 | User waived P12.13 and the formal P12.14 step on 2026-10-16 and requested `build-all v0.1.0`. Preserve both waived IDs, exclude them from active task totals, and do not claim the testing or formal sign-off occurred. Build-all retains its existing multi-architecture push behavior for version and latest tags. | Explicit user direction to proceed with the build. | 12, build scripts |
 | D-057 | Generalized per-resource learnings reuse resource_knowledge and its history across every connector, including plugins. Normal pipeline tools resource_get_context/resource_update_context apply binding policy, version-checked writes, provenance, and secret guards. Hugo reloads authorized resource context before each model call; external clients receive read-before-operation guidance. Existing SQL context remains compatible. Generic semantic notes, embeddings, and runbook actions remain separate Phase 14 work. | User requested agent-manageable learnings for every connection point and consultation during operations. | P14.13, 8, 10, 13 |
+| D-058 | Consolidate dashboard navigation from 25 sidebar entries into nine hubs in Workspace and Administration, with URL-synced tabs and legacy redirects. Preserve standalone Home and Chat, detail links, per-tab role gates, and pending approval visibility. | User requested peer-project navigation review and the same consolidation in Hugo. | P8.56, 18.2, 18.3 |
 
 ---
 
@@ -1582,15 +1583,21 @@ First boot runs idempotently in `InitializeAsync`:
 
 ### 18.2 Navigation groups
 
-| Group | Entries |
-|---|---|
-| Start | Home, Chat |
-| Agents | Agent Profiles, Approvals, Conversations |
-| Connect | Resources, Secrets, Connectors, Model Endpoints |
-| Configure | Prompt Templates, Knowledge (M2) |
-| Observe | Tool Invocations, Request History, Analytics, Audit |
-| Develop | API Explorer, MCP Explorer, A2A Explorer |
-| Administer | Tenants (system admin), Users, Credentials, Roles and Permissions, Sessions, Settings, Plugins (system admin) |
+| Group | Sidebar entry | Pages as tabs |
+|---|---|---|
+| Workspace | Home | Overview |
+| Workspace | Chat | Standalone chat and conversation detail |
+| Workspace | Agents | Agent Profiles, Approvals, Conversations |
+| Workspace | Connections | Resources, Secrets, Connectors, Model Endpoints |
+| Workspace | Instructions | Prompt Templates, Knowledge |
+| Workspace | Activity | Tool Invocations, Request History, Analytics, Audit |
+| Workspace | Developer Tools | API Explorer, MCP Explorer, A2A Explorer |
+| Administration | Access | Tenants, Users, Credentials, Roles, Assignments, Sessions |
+| Administration | System | Settings, Server Info, Plugins |
+
+Navigation has nine sidebar entries across Workspace and Administration. Tabs use `?tab=<page-slug>` so a specific page can be bookmarked; browser Back and Forward restore the selected tab. Only the active panel mounts. Switching tabs clears the previous tab's filters. Tabs are filtered by role, and an unavailable or unknown tab falls back to the first authorized tab.
+
+Old list URLs redirect to their new hub and tab while preserving filters and URL fragments. Existing detail routes, such as `/dashboard/resources/:id` and `/dashboard/profiles/:id`, remain valid and highlight their owning hub. Old `/dashboard/rbac?tab=assignments` and `/dashboard/settings?tab=server-info` links retain their selected page. Agents carries the pending approval count, and the topbar provides a direct Approvals link.
 
 The sidebar footer holds Setup Wizard, Guided Tour, version/build, and the environment indicator.
 
@@ -1609,30 +1616,30 @@ The topbar holds:
 | `/` | Log in | All | `/v1.0/tenants/lookup`, `/v1.0/token` | | Server URL, email, password with reveal, tenant select when several match, language selector, default local credentials hint | Bad credentials, server unreachable, forced password change |
 | `/dashboard/home` | See what Hugo is doing and what needs attention | All | analytics overview, request-history summary, approvals, model health, resource health | KPI tiles (requests, tool calls, failures, pending approvals, unhealthy resources, tokens today), activity chart with hour, day, week, month and refresh, recent failures | CTA cards (add resource, add model endpoint, chat, connect Claude Code), external-services card low on page | First run: setup wizard CTA. Partial failure per panel |
 | `/dashboard/chat` and `/dashboard/chat/:conversationId` | Talk to Agent Smith | Operator, ProfileUser | conversations, messages (SSE), approvals | Conversation list (search, profile filter) | Profile picker, model and endpoint shown, Stop, inline tool activity rows (effect badge, duration, expand for args and output), inline approval cards, time to first token, export, new conversation | No inference endpoint (link to Model Endpoints), no profiles, stream error with retry |
-| `/dashboard/profiles` | Manage agent profiles | Builder | agent-profiles | Name, visibility, owner, endpoint, binding count filters | `+ Add`, edit, duplicate, delete, view JSON | No profiles beyond default (explain bindings) |
+| `/dashboard/agents` | Manage agent profiles | Builder | agent-profiles | Name, visibility, owner, endpoint, binding count filters | `+ Add`, edit, duplicate, delete, view JSON | No profiles beyond default (explain bindings) |
 | `/dashboard/profiles/:id` | Compose a profile | Builder | profile, bindings, compiled-instructions, tools, card | Bindings table (alias, connector, environment, access mode, approval, enabled) | Tabs: General (persona, user address, endpoints, limits, exposure), Bindings (add binding modal with resource picker and access mode, tool rules editor), Instructions (live compiled preview with source map, append text), Tools (as the caller sees them), Connect (MCP config snippets for Claude Code and others, A2A card URL, credential binding shortcut) | No bindings: guide to Resources |
-| `/dashboard/approvals` | Decide pending actions | Operator, TenantAdmin | approvals | Status, effect, profile, requester, time filters | Approve and reject with note, view invocation, bulk reject | No pending approvals |
-| `/dashboard/conversations` | Review conversations across the tenant | TenantAdmin, Auditor | conversations | User, profile, source, time | Open, export, delete | None yet |
-| `/dashboard/resources` | Manage connections to systems | Builder | resources, connectors | Connector type, environment, health, owner | `+ Add` (connector picker, then schema-generated form with secret slot pickers, Test Connection before save), edit, duplicate, test, delete (referrers listed), view JSON, try a tool (dry run, then execute as a profile) | No resources: connector gallery CTA |
-| `/dashboard/secrets` | Manage credential material | Builder, TenantAdmin | secrets | Kind, referrers, expiry, last rotated | `+ Add` (kind-specific form, file drop), replace values, reveal (TenantAdmin: reason plus re-auth modal, auto-hide after 30 seconds, copy), delete (blocked while referenced) | None yet, expiring soon warning |
-| `/dashboard/connectors` | Browse connector types and edit default instructions | Builder, system admin | connectors, prompt-templates | Category filter | Descriptor detail, settings schema reference, tool list with effects, default instructions editor (tenant and global layers, reset, version history, diff, "built-in updated" notice) | Plugin load errors |
-| `/dashboard/models` | Manage inference and embedding endpoints | Builder | model-endpoints | Kind, provider, health | `+ Add`, edit, validate, delete, health history | None: explain chat needs one |
-| `/dashboard/prompts` | Edit every template | Builder (tenant), system admin (global) | prompt-templates | Key, layer, customized flag | Prompt editor (monospace, variables palette, render preview with sample context), reset to default, versions and diff | |
-| `/dashboard/knowledge` (M2) | Teach Hugo about the stack | Builder | knowledge | Profile, resource scope | `+ Add`, edit, delete, test retrieval | |
-| `/dashboard/tool-invocations` | See every action taken | Operator, Auditor | tool-invocations | Surface, profile, resource, tool, effect, decision, status, time, principal | View detail (redacted args, output preview, approval, trace link to Tempo) | |
-| `/dashboard/requests` | Inspect API traffic | All (tenant scoped) | request-history | Per FRONTEND_ARCHITECTURE.md | Request details modal, bulk delete with plain-English confirm | Three distinct empty states |
-| `/dashboard/analytics` | Understand usage and cost | TenantAdmin, Operator | analytics | Range, profile, model | Token usage over time, tool calls by connector and effect, model latency and errors, approval turnaround | |
-| `/dashboard/audit` | Review security events | Auditor, SecurityAdmin | audit | Event type, principal, result, time | View detail, bulk delete (admin) | |
-| `/dashboard/explorer` | Try the REST API | All | `/openapi.json` | Tag grouping, search | Per FRONTEND_ARCHITECTURE.md, including SSE streaming and Stop | OpenAPI missing error naming `/openapi.json` |
-| `/dashboard/mcp-explorer` | Try MCP as a profile | Builder, Operator | `/mcp` | Tool list by family | Choose profile, view `initialize` instructions, call tools with schema-generated forms, see raw JSON-RPC | No MCP exposure on profile |
-| `/dashboard/a2a-explorer` | Try A2A against a profile | Builder | `/v1.0/a2a/...` | | Fetch card, send message, stream, list tasks | Profile not exposed |
-| `/dashboard/tenants` | Manage tenants | System admin | tenants | Name, active | CRUD, view JSON | |
-| `/dashboard/users` | Manage users | SecurityAdmin, TenantAdmin | users | Email, admin flags, active | CRUD, reset password, assign roles, effective permissions view | |
-| `/dashboard/credentials` | Manage API credentials | All (own), SecurityAdmin (all) | credentials | Owner, profile binding, expiry, last used | Create (secret shown once with copy, MCP config snippet), rotate, bind to profile, lock to profile, scope assignments, delete | |
-| `/dashboard/rbac` | Roles, permissions, assignments | SecurityAdmin | roles, permissions, maps, assignments | Tabs per entity | Clone built-in, CRUD custom, assignment wizard (Tenant or Resource scope) | |
-| `/dashboard/sessions` | Revoke sessions | SecurityAdmin | sessions | Principal, scheme, expiry | Revoke | |
-| `/dashboard/settings` | Configure the server | TenantAdmin (view), system admin (edit) | settings, restart | Sections per settings model | Save with per-field errors, restart-required badges and banner, Restart Server confirm, health polling, server info with copyable URLs | Env-overridden fields read-only |
-| `/dashboard/plugins` | Manage connector plugins | System admin | plugins | | Enable, disable, view load errors | Plugins disabled in settings |
+| `/dashboard/agents?tab=approvals` | Decide pending actions | Operator, TenantAdmin | approvals | Status, effect, profile, requester, time filters | Approve and reject with note, view invocation, bulk reject | No pending approvals |
+| `/dashboard/agents?tab=conversations` | Review conversations across the tenant | TenantAdmin, Auditor | conversations | User, profile, source, time | Open, export, delete | None yet |
+| `/dashboard/connections` | Manage connections to systems | Builder | resources, connectors | Connector type, environment, health, owner | `+ Add` (connector picker, then schema-generated form with secret slot pickers, Test Connection before save), edit, duplicate, test, delete (referrers listed), view JSON, try a tool (dry run, then execute as a profile) | No resources: connector gallery CTA |
+| `/dashboard/connections?tab=secrets` | Manage credential material | Builder, TenantAdmin | secrets | Kind, referrers, expiry, last rotated | `+ Add` (kind-specific form, file drop), replace values, reveal (TenantAdmin: reason plus re-auth modal, auto-hide after 30 seconds, copy), delete (blocked while referenced) | None yet, expiring soon warning |
+| `/dashboard/connections?tab=connectors` | Browse connector types and edit default instructions | Builder, system admin | connectors, prompt-templates | Category filter | Descriptor detail, settings schema reference, tool list with effects, default instructions editor (tenant and global layers, reset, version history, diff, "built-in updated" notice) | Plugin load errors |
+| `/dashboard/connections?tab=models` | Manage inference and embedding endpoints | Builder | model-endpoints | Kind, provider, health | `+ Add`, edit, validate, delete, health history | None: explain chat needs one |
+| `/dashboard/instructions` | Edit every template | Builder (tenant), system admin (global) | prompt-templates | Key, layer, customized flag | Prompt editor (monospace, variables palette, render preview with sample context), reset to default, versions and diff | |
+| `/dashboard/instructions?tab=knowledge` (M2) | Teach Hugo about the stack | Builder | knowledge | Profile, resource scope | `+ Add`, edit, delete, test retrieval | |
+| `/dashboard/activity` | See every action taken | Operator, Auditor | tool-invocations | Surface, profile, resource, tool, effect, decision, status, time, principal | View detail (redacted args, output preview, approval, trace link to Tempo) | |
+| `/dashboard/activity?tab=requests` | Inspect API traffic | All (tenant scoped) | request-history | Per FRONTEND_ARCHITECTURE.md | Request details modal, bulk delete with plain-English confirm | Three distinct empty states |
+| `/dashboard/activity?tab=analytics` | Understand usage and cost | TenantAdmin, Operator | analytics | Range, profile, model | Token usage over time, tool calls by connector and effect, model latency and errors, approval turnaround | |
+| `/dashboard/activity?tab=audit` | Review security events | Auditor, SecurityAdmin | audit | Event type, principal, result, time | View detail, bulk delete (admin) | |
+| `/dashboard/developer-tools` | Try the REST API | All | `/openapi.json` | Tag grouping, search | Per FRONTEND_ARCHITECTURE.md, including SSE streaming and Stop | OpenAPI missing error naming `/openapi.json` |
+| `/dashboard/developer-tools?tab=mcp-explorer` | Try MCP as a profile | Builder, Operator | `/mcp` | Tool list by family | Choose profile, view `initialize` instructions, call tools with schema-generated forms, see raw JSON-RPC | No MCP exposure on profile |
+| `/dashboard/developer-tools?tab=a2a-explorer` | Try A2A against a profile | Builder | `/v1.0/a2a/...` | | Fetch card, send message, stream, list tasks | Profile not exposed |
+| `/dashboard/access` | Manage tenants | System admin | tenants | Name, active | CRUD, view JSON | |
+| `/dashboard/access?tab=users` | Manage users | SecurityAdmin, TenantAdmin | users | Email, admin flags, active | CRUD, reset password, assign roles, effective permissions view | |
+| `/dashboard/access?tab=credentials` | Manage API credentials | All (own), SecurityAdmin (all) | credentials | Owner, profile binding, expiry, last used | Create (secret shown once with copy, MCP config snippet), rotate, bind to profile, lock to profile, scope assignments, delete | |
+| `/dashboard/access?tab=roles` | Roles, permissions, assignments | SecurityAdmin | roles, permissions, maps, assignments | Tabs per entity | Clone built-in, CRUD custom, assignment wizard (Tenant or Resource scope) | |
+| `/dashboard/access?tab=sessions` | Revoke sessions | SecurityAdmin | sessions | Principal, scheme, expiry | Revoke | |
+| `/dashboard/system` | Configure the server | TenantAdmin (view), system admin (edit) | settings, restart | Sections per settings model | Save with per-field errors, restart-required badges and banner, Restart Server confirm, health polling, server info with copyable URLs | Env-overridden fields read-only |
+| `/dashboard/system?tab=plugins` | Manage connector plugins | System admin | plugins | | Enable, disable, view load errors | Plugins disabled in settings |
 
 ### 18.4 Chat experience details
 
@@ -2069,6 +2076,7 @@ Quality
 - [x] P8.53 Resource Knowledge tab: database and table context editor (Markdown, version history, source badges), Generate Context with progress, intelligence view (entities, metrics, filters, freshness, quality gaps), relationship list and graph (declared vs inferred, with confidence).  | claude 2026-10-14 resource page /dashboard/resources/:id with Overview, Try a Tool, Knowledge (context editor with source badges and versions, Generate Context, intelligence, relationships list and SVG graph)
 - [x] P8.54 Correct chat token totals when persisted conversation counters and loaded message usage overlap. *Accept:* loaded/paginated history retains server totals, streamed turns add usage once, and reloading does not double totals. | codex 2026-10-16 new finding from real-model P12.6 journey; stored baseline plus live-only usage fixes duplication; 257 dashboard tests, lint/build pass; reloaded browser totals 136452/1642 match persisted/SSE sums, before/after captures recorded
 - [x] P8.55 Fix dashboard binding creation and immutable resource editing. *Accept:* first existing resource can be explicitly selected and bound without changing away/back; unselected required dropdowns show an empty choice; binding edits lock the resource and omit resourceId from PUT, including resources absent from the options list. | codex 2026-10-16 reported dashboard defect; three full-form regressions, all 260 dashboard tests, lint and build pass; dashboard v0.1.0/latest rebuilt and pushed for amd64/arm64; matching index sha256:e4dac99585bf7903ea93dddcc1e5db6aae4dcb2c4d443c1c88ff3be5245f5e11 verified
+- [x] P8.56 Consolidate dashboard navigation into nine tabbed hubs, following Pneuma, AssistantHub, Armada, and NotDory patterns. *Accept:* all existing pages remain reachable; legacy list and detail links work; role-gated tabs, pending approvals, mobile/keyboard navigation, translations, and browser history are verified. | codex 2026-10-16 nine hubs retain all 27 pages; legacy bookmarks, detail links, role gates, approvals, keyboard/mobile/history, and twelve locales verified. All 305 unit/component and 62 browser tests, lint, i18n check, build, and visual captures pass. AMD64/ARM64 v0.1.0/latest dashboard built and loaded locally; Docker Hub publication denied insufficient_scope under current joeljurat credentials, so remote tags still serve the prior navigation.
 - [x] P8.52 Accessibility and responsive pass (landmarks, labels, focus, reduced motion, tap targets, no body horizontal scroll), and the dashboard Docker image (nginx, proxy, SSE buffering off, `/health`).  | claude 2026-10-14 accessibility checks, responsive pass, nginx image proxying /v1.0, /mcp, /openapi.json with buffering off
 
 ### Phase 9: SDKs (M1)

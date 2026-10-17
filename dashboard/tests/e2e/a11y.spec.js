@@ -140,6 +140,6 @@ test('phone layouts keep tap targets usable and the navigation reachable', async
     expect(small, id).toEqual([]);
   }
   await page.getByRole('button', { name: 'Toggle navigation' }).click();
-  await page.locator('.sidebar-item[data-nav="secrets"]').click();
-  await expect(page).toHaveURL(/\/dashboard\/secrets$/);
+  await page.locator('.sidebar-item[data-nav="connections"]').click();
+  await expect(page).toHaveURL(/\/dashboard\/connections$/);
 });

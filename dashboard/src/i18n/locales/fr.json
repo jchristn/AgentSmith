@@ -3352,13 +3352,41 @@
         "rbac": "Gérer les rôles, les autorisations qu'ils contiennent et qui les détient dans ce locataire.",
         "sessions": "Voir chaque session et jeton actifs dans le locataire, et révoquer n'importe lequel.",
         "settings": "Modifier le fichier de paramètres du serveur, redémarrer le serveur et voir les informations serveur.",
-        "plugins": "Activer ou désactiver les plugins de connecteur et voir les erreurs de chargement. Seuls les administrateurs système voient cette page."
+        "plugins": "Activer ou désactiver les plugins de connecteur et voir les erreurs de chargement. Seuls les administrateurs système voient cette page.",
+        "agents": "Créer des profils d'agent et y lier des ressources avec des modes d'accès ; chaque surface communique avec un profil. Traiter les appels d'outil en écriture et destructifs qui attendent une personne, depuis n'importe quelle surface. Examiner les conversations du locataire issues du chat, d'A2A, de MCP et des clients compatibles OpenAI.",
+        "connections": "Ajouter et tester des connexions vers des hôtes SSH, buckets, bases de données, services de journaux et autres systèmes. Stocker chiffrés les mots de passe, clés et jetons. Les ressources et points de terminaison de modèle les utilisent par emplacement. Parcourir les familles de services prises en charge par Hugo, leurs outils et effets, et leurs instructions par défaut. Ajouter les modèles d'inférence et d'embedding que la boucle d'agent propre à Hugo utilise pour le chat, A2A et les clients OpenAI.",
+        "instructions": "Modifier les modèles d'instructions par couche (intégrée, globale, locataire), avec aperçu, versions et réinitialisation. Faire connaître votre infrastructure à Hugo avec des notes qu'il récupère dans le contexte pendant les conversations.",
+        "activity": "Chaque appel d'outil de chaque surface, avec son effet, la décision, le résultat et un lien vers la trace. Inspecter chaque requête d'API traitée par le serveur, avec en-têtes, corps, durées et statut. Comprendre l'utilisation des jetons, les appels d'outil par effet et par connecteur, la latence des modèles et le délai de traitement des approbations. Examiner les événements de sécurité comme les connexions, les refus, les affichages de secrets et les modifications de configuration.",
+        "developerTools": "Essayer n'importe quelle route REST du document OpenAPI en direct du serveur, avec des extraits de code générés. Se connecter au point de terminaison MCP avec votre identité pour voir les instructions et les outils, et appeler des outils. Récupérer la carte d'agent d'un profil et lui envoyer des messages via JSON-RPC A2A.",
+        "access": "Créer et gérer des locataires isolés sur ce serveur. Seuls les administrateurs système voient cette page. Gérer les personnes qui se connectent à ce locataire, réinitialiser les mots de passe et voir les autorisations effectives. Créer des clés d'accès pour les harnais et les SDK, les lier à un profil et les renouveler. Gérer les rôles, les autorisations qu'ils contiennent et qui les détient dans ce locataire. Voir chaque session et jeton actifs dans le locataire, et révoquer n'importe lequel.",
+        "system": "Modifier le fichier de paramètres du serveur, redémarrer le serveur et voir les informations serveur. Activer ou désactiver les plugins de connecteur et voir les erreurs de chargement. Seuls les administrateurs système voient cette page."
       },
       "tabs": {
         "roles": "Les rôles et les autorisations qu'ils contiennent. Clonez un rôle intégré pour le personnaliser.",
         "assignments": "Qui détient quel rôle : utilisateurs et identifiants, sur tout le locataire ou sur une ressource.",
         "settings": "Modifier le fichier de paramètres du serveur avec validation, badges d'application immédiate ou après redémarrage, et Redémarrer le serveur.",
-        "serverInfo": "Points de terminaison copiables, versions du serveur et du tableau de bord, fonctionnalités et votre identité."
+        "serverInfo": "Points de terminaison copiables, versions du serveur et du tableau de bord, fonctionnalités et votre identité.",
+        "profiles": "Créer des profils d'agent et y lier des ressources avec des modes d'accès ; chaque surface communique avec un profil.",
+        "approvals": "Traiter les appels d'outil en écriture et destructifs qui attendent une personne, depuis n'importe quelle surface.",
+        "conversations": "Examiner les conversations du locataire issues du chat, d'A2A, de MCP et des clients compatibles OpenAI.",
+        "resources": "Ajouter et tester des connexions vers des hôtes SSH, buckets, bases de données, services de journaux et autres systèmes.",
+        "secrets": "Stocker chiffrés les mots de passe, clés et jetons. Les ressources et points de terminaison de modèle les utilisent par emplacement.",
+        "connectors": "Parcourir les familles de services prises en charge par Hugo, leurs outils et effets, et leurs instructions par défaut.",
+        "models": "Ajouter les modèles d'inférence et d'embedding que la boucle d'agent propre à Hugo utilise pour le chat, A2A et les clients OpenAI.",
+        "knowledge": "Faire connaître votre infrastructure à Hugo avec des notes qu'il récupère dans le contexte pendant les conversations.",
+        "toolInvocations": "Chaque appel d'outil de chaque surface, avec son effet, la décision, le résultat et un lien vers la trace.",
+        "requests": "Inspecter chaque requête d'API traitée par le serveur, avec en-têtes, corps, durées et statut.",
+        "analytics": "Comprendre l'utilisation des jetons, les appels d'outil par effet et par connecteur, la latence des modèles et le délai de traitement des approbations.",
+        "audit": "Examiner les événements de sécurité comme les connexions, les refus, les affichages de secrets et les modifications de configuration.",
+        "explorer": "Essayer n'importe quelle route REST du document OpenAPI en direct du serveur, avec des extraits de code générés.",
+        "mcpExplorer": "Se connecter au point de terminaison MCP avec votre identité pour voir les instructions et les outils, et appeler des outils.",
+        "a2aExplorer": "Récupérer la carte d'agent d'un profil et lui envoyer des messages via JSON-RPC A2A.",
+        "tenants": "Créer et gérer des locataires isolés sur ce serveur. Seuls les administrateurs système voient cette page.",
+        "users": "Gérer les personnes qui se connectent à ce locataire, réinitialiser les mots de passe et voir les autorisations effectives.",
+        "credentials": "Créer des clés d'accès pour les harnais et les SDK, les lier à un profil et les renouveler.",
+        "sessions": "Voir chaque session et jeton actifs dans le locataire, et révoquer n'importe lequel.",
+        "plugins": "Activer ou désactiver les plugins de connecteur et voir les erreurs de chargement. Seuls les administrateurs système voient cette page.",
+        "promptTemplates": "Modifier les modèles d'instructions par couche (intégrée, globale, locataire), avec aperçu, versions et réinitialisation."
       }
     },
     "passwordChange": {
@@ -3584,7 +3612,9 @@
       "configure": "Configurer",
       "observe": "Observer",
       "develop": "Développer",
-      "administer": "Administrer"
+      "administer": "Administrer",
+      "workspace": "Espace de travail",
+      "administration": "Administration"
     },
     "hubs": {
       "home": {
@@ -3686,6 +3716,34 @@
       "plugins": {
         "label": "Plugins",
         "tip": "Plugins de connecteur chargés depuis le répertoire des plugins."
+      },
+      "agents": {
+        "label": "Agents",
+        "tip": "Configurez les profils, gérez les approbations et consultez les conversations."
+      },
+      "connections": {
+        "label": "Connexions",
+        "tip": "Gérez les ressources, les secrets, les connecteurs et les points de terminaison des modèles."
+      },
+      "instructions": {
+        "label": "Instructions",
+        "tip": "Gérez les modèles d’instructions et les connaissances réutilisables."
+      },
+      "activity": {
+        "label": "Activité",
+        "tip": "Consultez les appels d’outils, les requêtes API, l’utilisation et les événements de sécurité."
+      },
+      "developerTools": {
+        "label": "Outils de développement",
+        "tip": "Explorez les interfaces REST, MCP et A2A."
+      },
+      "access": {
+        "label": "Accès",
+        "tip": "Gérez les locataires, utilisateurs, identifiants, rôles, attributions et sessions."
+      },
+      "system": {
+        "label": "Système",
+        "tip": "Configurez le serveur, consultez son état et gérez les plugins."
       }
     },
     "items": {

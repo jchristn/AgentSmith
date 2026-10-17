@@ -3352,13 +3352,41 @@
         "rbac": "Gestisci i ruoli, i permessi che contengono e chi li detiene in questo tenant.",
         "sessions": "Visualizza ogni sessione e token attivo nel tenant e revoca quelli che vuoi.",
         "settings": "Modifica il file delle impostazioni del server, riavvia il server e visualizza le informazioni sul server.",
-        "plugins": "Attiva o disattiva i plugin dei connettori e visualizza gli errori di caricamento. Solo gli amministratori di sistema vedono questa pagina."
+        "plugins": "Attiva o disattiva i plugin dei connettori e visualizza gli errori di caricamento. Solo gli amministratori di sistema vedono questa pagina.",
+        "agents": "Crea profili agente e associa loro risorse con modalità di accesso; ogni superficie comunica con un profilo. Decidi le chiamate di strumento di scrittura e distruttive in attesa di una persona, da qualsiasi superficie. Esamina le conversazioni del tenant provenienti da chat, A2A, MCP e client compatibili con OpenAI.",
+        "connections": "Aggiungi e testa connessioni a host SSH, bucket, database, servizi di log e altri sistemi. Memorizza in forma cifrata password, chiavi e token. Risorse ed endpoint di modello li usano tramite slot. Sfoglia le famiglie di servizi supportate da Hugo, i loro strumenti ed effetti e le istruzioni predefinite. Aggiungi i modelli di inferenza e di embedding che il ciclo agente di Hugo usa per chat, A2A e client OpenAI.",
+        "instructions": "Modifica i modelli di istruzioni per livello (integrato, globale, tenant), con anteprima, versioni e ripristino. Insegna a Hugo il tuo stack con note che recupera nel contesto durante le conversazioni.",
+        "activity": "Ogni chiamata di strumento da ogni superficie, con effetto, decisione, esito e link alla traccia. Esamina ogni richiesta API gestita dal server, con intestazioni, corpi, tempi e stato. Analizza l'utilizzo dei token, le chiamate di strumento per effetto e connettore, la latenza dei modelli e i tempi di risposta delle approvazioni. Esamina gli eventi di sicurezza come accessi, negazioni, visualizzazioni di segreti e modifiche alla configurazione.",
+        "developerTools": "Prova qualsiasi route REST dal documento OpenAPI attivo del server, con snippet di codice generati. Connettiti all'endpoint MCP con la tua identità per vedere istruzioni e strumenti, e chiamare gli strumenti. Recupera la scheda agente di un profilo e inviagli messaggi tramite A2A JSON-RPC.",
+        "access": "Crea e gestisci tenant isolati su questo server. Solo gli amministratori di sistema vedono questa pagina. Gestisci le persone che accedono a questo tenant, reimposta le password e visualizza i permessi effettivi. Crea chiavi di accesso per harness e SDK, associale a un profilo e ruotale. Gestisci i ruoli, i permessi che contengono e chi li detiene in questo tenant. Visualizza ogni sessione e token attivo nel tenant e revoca quelli che vuoi.",
+        "system": "Modifica il file delle impostazioni del server, riavvia il server e visualizza le informazioni sul server. Attiva o disattiva i plugin dei connettori e visualizza gli errori di caricamento. Solo gli amministratori di sistema vedono questa pagina."
       },
       "tabs": {
         "roles": "I ruoli e i permessi che contengono. Clona un ruolo integrato per personalizzarlo.",
         "assignments": "Chi detiene quale ruolo: utenti e credenziali, su tutto il tenant o su una singola risorsa.",
         "settings": "Modifica il file delle impostazioni del server con convalida, indicatori di applicazione immediata o al riavvio, e Riavvia server.",
-        "serverInfo": "Endpoint copiabili, versioni del server e della dashboard, funzionalità e la tua identità."
+        "serverInfo": "Endpoint copiabili, versioni del server e della dashboard, funzionalità e la tua identità.",
+        "profiles": "Crea profili agente e associa loro risorse con modalità di accesso; ogni superficie comunica con un profilo.",
+        "approvals": "Decidi le chiamate di strumento di scrittura e distruttive in attesa di una persona, da qualsiasi superficie.",
+        "conversations": "Esamina le conversazioni del tenant provenienti da chat, A2A, MCP e client compatibili con OpenAI.",
+        "resources": "Aggiungi e testa connessioni a host SSH, bucket, database, servizi di log e altri sistemi.",
+        "secrets": "Memorizza in forma cifrata password, chiavi e token. Risorse ed endpoint di modello li usano tramite slot.",
+        "connectors": "Sfoglia le famiglie di servizi supportate da Hugo, i loro strumenti ed effetti e le istruzioni predefinite.",
+        "models": "Aggiungi i modelli di inferenza e di embedding che il ciclo agente di Hugo usa per chat, A2A e client OpenAI.",
+        "knowledge": "Insegna a Hugo il tuo stack con note che recupera nel contesto durante le conversazioni.",
+        "toolInvocations": "Ogni chiamata di strumento da ogni superficie, con effetto, decisione, esito e link alla traccia.",
+        "requests": "Esamina ogni richiesta API gestita dal server, con intestazioni, corpi, tempi e stato.",
+        "analytics": "Analizza l'utilizzo dei token, le chiamate di strumento per effetto e connettore, la latenza dei modelli e i tempi di risposta delle approvazioni.",
+        "audit": "Esamina gli eventi di sicurezza come accessi, negazioni, visualizzazioni di segreti e modifiche alla configurazione.",
+        "explorer": "Prova qualsiasi route REST dal documento OpenAPI attivo del server, con snippet di codice generati.",
+        "mcpExplorer": "Connettiti all'endpoint MCP con la tua identità per vedere istruzioni e strumenti, e chiamare gli strumenti.",
+        "a2aExplorer": "Recupera la scheda agente di un profilo e inviagli messaggi tramite A2A JSON-RPC.",
+        "tenants": "Crea e gestisci tenant isolati su questo server. Solo gli amministratori di sistema vedono questa pagina.",
+        "users": "Gestisci le persone che accedono a questo tenant, reimposta le password e visualizza i permessi effettivi.",
+        "credentials": "Crea chiavi di accesso per harness e SDK, associale a un profilo e ruotale.",
+        "sessions": "Visualizza ogni sessione e token attivo nel tenant e revoca quelli che vuoi.",
+        "plugins": "Attiva o disattiva i plugin dei connettori e visualizza gli errori di caricamento. Solo gli amministratori di sistema vedono questa pagina.",
+        "promptTemplates": "Modifica i modelli di istruzioni per livello (integrato, globale, tenant), con anteprima, versioni e ripristino."
       }
     },
     "passwordChange": {
@@ -3584,7 +3612,9 @@
       "configure": "Configurazione",
       "observe": "Osservazione",
       "develop": "Sviluppo",
-      "administer": "Amministrazione"
+      "administer": "Amministrazione",
+      "workspace": "Area di lavoro",
+      "administration": "Amministrazione"
     },
     "hubs": {
       "home": {
@@ -3686,6 +3716,34 @@
       "plugins": {
         "label": "Plugin",
         "tip": "Plugin dei connettori caricati dalla directory dei plugin."
+      },
+      "agents": {
+        "label": "Agenti",
+        "tip": "Configura i profili, gestisci le approvazioni e consulta le conversazioni."
+      },
+      "connections": {
+        "label": "Connessioni",
+        "tip": "Gestisci risorse, segreti, tipi di connettori ed endpoint dei modelli."
+      },
+      "instructions": {
+        "label": "Istruzioni",
+        "tip": "Gestisci modelli di istruzioni e conoscenze riutilizzabili."
+      },
+      "activity": {
+        "label": "Attività",
+        "tip": "Esamina chiamate agli strumenti, richieste API, utilizzo ed eventi di sicurezza."
+      },
+      "developerTools": {
+        "label": "Strumenti di sviluppo",
+        "tip": "Esplora le interfacce REST, MCP e A2A."
+      },
+      "access": {
+        "label": "Accesso",
+        "tip": "Gestisci tenant, utenti, credenziali, ruoli, assegnazioni e sessioni."
+      },
+      "system": {
+        "label": "Sistema",
+        "tip": "Configura il server, verificane lo stato e gestisci i plugin."
       }
     },
     "items": {

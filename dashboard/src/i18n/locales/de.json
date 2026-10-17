@@ -3352,13 +3352,41 @@
         "rbac": "Rollen, die darin enthaltenen Berechtigungen und deren Inhaber in diesem Mandanten verwalten.",
         "sessions": "Jede aktive Sitzung und jedes Token im Mandanten sehen und beliebige davon widerrufen.",
         "settings": "Die Einstellungsdatei des Servers bearbeiten, den Server neu starten und Serverinformationen einsehen.",
-        "plugins": "Konnektor-Plugins aktivieren oder deaktivieren und Ladefehler einsehen. Nur Systemadministratoren sehen diese Seite."
+        "plugins": "Konnektor-Plugins aktivieren oder deaktivieren und Ladefehler einsehen. Nur Systemadministratoren sehen diese Seite.",
+        "agents": "Agentenprofile erstellen und Ressourcen mit Zugriffsmodi daran binden; jede Schnittstelle spricht mit einem Profil. Über schreibende und destruktive Toolaufrufe von jeder Schnittstelle entscheiden, die auf eine Person warten. Konversationen im gesamten Mandanten aus Chat, A2A, MCP und OpenAI-kompatiblen Clients prüfen.",
+        "connections": "Verbindungen zu SSH-Hosts, Buckets, Datenbanken, Protokolldiensten und anderen Systemen hinzufügen und testen. Passwörter, Schlüssel und Tokens verschlüsselt speichern. Ressourcen und Modellendpunkte verwenden sie über Slots. Die von Hugo unterstützten Dienstfamilien, ihre Tools und Wirkungen sowie ihre Standardanweisungen durchsuchen. Die Inferenz- und Embedding-Modelle hinzufügen, die Hugos eigene Agentenschleife für Chat, A2A und OpenAI-Clients verwendet.",
+        "instructions": "Anweisungsvorlagen pro Ebene (integriert, global, Mandant) bearbeiten, mit Vorschau, Versionen und Zurücksetzen. Hugo mit Notizen über Ihren Stack anlernen, die es während Konversationen in den Kontext abruft.",
+        "activity": "Jeder Toolaufruf von jeder Schnittstelle, mit Wirkung, Entscheidung, Ergebnis und Trace-Link. Jede vom Server verarbeitete API-Anfrage untersuchen, mit Headern, Inhalten, Zeitangaben und Status. Token-Verbrauch, Toolaufrufe nach Wirkung und Konnektor, Modelllatenz und Bearbeitungszeit von Freigaben verstehen. Sicherheitsereignisse wie Anmeldungen, Ablehnungen, Secret-Anzeigen und Konfigurationsänderungen prüfen.",
+        "developerTools": "Jede REST-Route aus dem aktuellen OpenAPI-Dokument des Servers ausprobieren, mit generierten Code-Snippets. Sich als Sie selbst mit dem MCP-Endpunkt verbinden, um Anweisungen und Tools zu sehen und Tools aufzurufen. Die Agentenkarte eines Profils abrufen und ihm Nachrichten über A2A JSON-RPC senden.",
+        "access": "Isolierte Mandanten auf diesem Server erstellen und verwalten. Nur Systemadministratoren sehen diese Seite. Die Personen verwalten, die sich bei diesem Mandanten anmelden, Passwörter zurücksetzen und effektive Berechtigungen einsehen. Zugangsschlüssel für Harnesses und SDKs erstellen, an ein Profil binden und rotieren. Rollen, die darin enthaltenen Berechtigungen und deren Inhaber in diesem Mandanten verwalten. Jede aktive Sitzung und jedes Token im Mandanten sehen und beliebige davon widerrufen.",
+        "system": "Die Einstellungsdatei des Servers bearbeiten, den Server neu starten und Serverinformationen einsehen. Konnektor-Plugins aktivieren oder deaktivieren und Ladefehler einsehen. Nur Systemadministratoren sehen diese Seite."
       },
       "tabs": {
         "roles": "Rollen und die darin enthaltenen Berechtigungen. Klonen Sie eine integrierte Rolle, um sie anzupassen.",
         "assignments": "Wer welche Rolle hat: Benutzer und Zugangsschlüssel, mandantenweit oder für eine Ressource.",
         "settings": "Die Einstellungsdatei des Servers mit Validierung, Kennzeichnung für sofort oder nach Neustart wirksam und Server neu starten bearbeiten.",
-        "serverInfo": "Kopierbare Endpunkte, Server- und Dashboard-Versionen, Funktionen und Ihre Identität."
+        "serverInfo": "Kopierbare Endpunkte, Server- und Dashboard-Versionen, Funktionen und Ihre Identität.",
+        "profiles": "Agentenprofile erstellen und Ressourcen mit Zugriffsmodi daran binden; jede Schnittstelle spricht mit einem Profil.",
+        "approvals": "Über schreibende und destruktive Toolaufrufe von jeder Schnittstelle entscheiden, die auf eine Person warten.",
+        "conversations": "Konversationen im gesamten Mandanten aus Chat, A2A, MCP und OpenAI-kompatiblen Clients prüfen.",
+        "resources": "Verbindungen zu SSH-Hosts, Buckets, Datenbanken, Protokolldiensten und anderen Systemen hinzufügen und testen.",
+        "secrets": "Passwörter, Schlüssel und Tokens verschlüsselt speichern. Ressourcen und Modellendpunkte verwenden sie über Slots.",
+        "connectors": "Die von Hugo unterstützten Dienstfamilien, ihre Tools und Wirkungen sowie ihre Standardanweisungen durchsuchen.",
+        "models": "Die Inferenz- und Embedding-Modelle hinzufügen, die Hugos eigene Agentenschleife für Chat, A2A und OpenAI-Clients verwendet.",
+        "knowledge": "Hugo mit Notizen über Ihren Stack anlernen, die es während Konversationen in den Kontext abruft.",
+        "toolInvocations": "Jeder Toolaufruf von jeder Schnittstelle, mit Wirkung, Entscheidung, Ergebnis und Trace-Link.",
+        "requests": "Jede vom Server verarbeitete API-Anfrage untersuchen, mit Headern, Inhalten, Zeitangaben und Status.",
+        "analytics": "Token-Verbrauch, Toolaufrufe nach Wirkung und Konnektor, Modelllatenz und Bearbeitungszeit von Freigaben verstehen.",
+        "audit": "Sicherheitsereignisse wie Anmeldungen, Ablehnungen, Secret-Anzeigen und Konfigurationsänderungen prüfen.",
+        "explorer": "Jede REST-Route aus dem aktuellen OpenAPI-Dokument des Servers ausprobieren, mit generierten Code-Snippets.",
+        "mcpExplorer": "Sich als Sie selbst mit dem MCP-Endpunkt verbinden, um Anweisungen und Tools zu sehen und Tools aufzurufen.",
+        "a2aExplorer": "Die Agentenkarte eines Profils abrufen und ihm Nachrichten über A2A JSON-RPC senden.",
+        "tenants": "Isolierte Mandanten auf diesem Server erstellen und verwalten. Nur Systemadministratoren sehen diese Seite.",
+        "users": "Die Personen verwalten, die sich bei diesem Mandanten anmelden, Passwörter zurücksetzen und effektive Berechtigungen einsehen.",
+        "credentials": "Zugangsschlüssel für Harnesses und SDKs erstellen, an ein Profil binden und rotieren.",
+        "sessions": "Jede aktive Sitzung und jedes Token im Mandanten sehen und beliebige davon widerrufen.",
+        "plugins": "Konnektor-Plugins aktivieren oder deaktivieren und Ladefehler einsehen. Nur Systemadministratoren sehen diese Seite.",
+        "promptTemplates": "Anweisungsvorlagen pro Ebene (integriert, global, Mandant) bearbeiten, mit Vorschau, Versionen und Zurücksetzen."
       }
     },
     "passwordChange": {
@@ -3584,7 +3612,9 @@
       "configure": "Konfigurieren",
       "observe": "Beobachten",
       "develop": "Entwickeln",
-      "administer": "Verwaltung"
+      "administer": "Verwaltung",
+      "workspace": "Arbeitsbereich",
+      "administration": "Verwaltung"
     },
     "hubs": {
       "home": {
@@ -3686,6 +3716,34 @@
       "plugins": {
         "label": "Plugins",
         "tip": "Aus dem Plugin-Verzeichnis geladene Konnektor-Plugins."
+      },
+      "agents": {
+        "label": "Agenten",
+        "tip": "Profile konfigurieren, Freigaben verwalten und Gespräche prüfen."
+      },
+      "connections": {
+        "label": "Verbindungen",
+        "tip": "Ressourcen, Geheimnisse, Konnektortypen und Modellendpunkte verwalten."
+      },
+      "instructions": {
+        "label": "Anweisungen",
+        "tip": "Prompt-Vorlagen und wiederverwendbares Wissen verwalten."
+      },
+      "activity": {
+        "label": "Aktivität",
+        "tip": "Toolaufrufe, API-Anfragen, Nutzung und Sicherheitsereignisse prüfen."
+      },
+      "developerTools": {
+        "label": "Entwicklerwerkzeuge",
+        "tip": "REST-, MCP- und A2A-Schnittstellen erkunden."
+      },
+      "access": {
+        "label": "Zugriff",
+        "tip": "Mandanten, Benutzer, Zugangsdaten, Rollen, Zuweisungen und Sitzungen verwalten."
+      },
+      "system": {
+        "label": "System",
+        "tip": "Den Server konfigurieren, seinen Status prüfen und Plugins verwalten."
       }
     },
     "items": {

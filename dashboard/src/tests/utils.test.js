@@ -117,42 +117,36 @@ describe('openApi helpers', () => {
 });
 
 describe('navigation (plan section 18.2)', () => {
-  it('groups the sidebar into the seven plan groups in order', () => {
-    expect(NAV_SECTIONS.map((s) => s.key)).toEqual(['start', 'agents', 'connect', 'configure', 'observe', 'develop', 'administer']);
-    const items = Object.fromEntries(NAV_SECTIONS.map((s) => [s.key, s.items.map((h) => h.key)]));
-    expect(items.start).toEqual(['home', 'chat']);
-    expect(items.agents).toEqual(['profiles', 'approvals', 'conversations']);
-    expect(items.connect).toEqual(['resources', 'secrets', 'connectors', 'models']);
-    expect(items.configure).toEqual(['prompts', 'knowledge']);
-    expect(items.observe).toEqual(['toolInvocations', 'requests', 'analytics', 'audit']);
-    expect(items.develop).toEqual(['explorer', 'mcpExplorer', 'a2aExplorer']);
-    expect(items.administer).toEqual(['tenants', 'users', 'credentials', 'rbac', 'sessions', 'settings', 'plugins']);
+  it('groups all nine hubs into workspace and administration', () => {
+    expect(NAV_SECTIONS.map((s) => s.key)).toEqual(['workspace', 'administration']);
+    expect(NAV_SECTIONS[0].items.map((h) => h.key)).toEqual(['home', 'chat', 'agents', 'connections', 'instructions', 'activity', 'developerTools']);
+    expect(NAV_SECTIONS[1].items.map((h) => h.key)).toEqual(['access', 'system']);
   });
   it('uses the FRONTEND_ARCHITECTURE paths and the plan route inventory', () => {
     expect(pathFor('home')).toBe('/dashboard/home');
-    expect(pathFor('requests')).toBe('/dashboard/requests');
-    expect(pathFor('explorer')).toBe('/dashboard/explorer');
+    expect(pathFor('requests')).toBe('/dashboard/activity?tab=requests');
+    expect(pathFor('explorer')).toBe('/dashboard/developer-tools');
     expect(pathFor('chat', 'cnv_1')).toBe('/dashboard/chat/cnv_1');
     expect(pathFor('profiles', 'prf_1')).toBe('/dashboard/profiles/prf_1');
-    expect(pathFor('promptTemplates')).toBe('/dashboard/prompts');
-    expect(pathFor('toolInvocations', null, { status: 'Failed' })).toBe('/dashboard/tool-invocations?status=Failed');
-    expect(pathFor('roles')).toBe('/dashboard/rbac');
-    expect(pathFor('assignments')).toBe('/dashboard/rbac?tab=assignments');
-    expect(pathFor('serverInfo')).toBe('/dashboard/settings?tab=server-info');
-    for (const p of PAGES) expect(pathFor(p.id)).toMatch(/^\/dashboard\/[a-z0-9-]+(\?tab=[a-z-]+)?$/);
+    expect(pathFor('promptTemplates')).toBe('/dashboard/instructions');
+    expect(pathFor('toolInvocations', null, { status: 'Failed' })).toBe('/dashboard/activity?status=Failed');
+    expect(pathFor('roles')).toBe('/dashboard/access?tab=roles');
+    expect(pathFor('assignments')).toBe('/dashboard/access?tab=assignments');
+    expect(pathFor('serverInfo')).toBe('/dashboard/system?tab=server-info');
+    for (const p of PAGES) expect(pathFor(p.id)).toMatch(/^\/dashboard\/[a-z0-9-]+(\?tab=[a-z0-9-]+)?$/);
   });
   it('resolves routes, detail routes, and tab redirects', () => {
     expect(resolveRoute('home').kind).toBe('page');
-    expect(resolveRoute('rbac').kind).toBe('hub');
+    expect(resolveRoute('access').kind).toBe('hub');
     expect(resolveRoute('chat', 'cnv_1').kind).toBe('detail');
     expect(resolveRoute('profiles', 'prf_1').kind).toBe('detail');
     expect(resolveRoute('connectors', 'ssh').kind).toBe('detail');
-    expect(resolveRoute('assignments')).toEqual({ kind: 'redirect', to: '/dashboard/rbac', tab: 'assignments' });
+    expect(resolveRoute('assignments')).toEqual({ kind: 'redirect', to: '/dashboard/access', tab: 'assignments' });
     expect(resolveRoute('nowhere').to).toBe('/dashboard/home');
     expect(detailPageBySlug('prompts').id).toBe('promptTemplates');
-    expect(hubForPath('/dashboard/profiles/prf_1').key).toBe('profiles');
+    expect(hubForPath('/dashboard/profiles/prf_1').key).toBe('agents');
     expect(hubForPath('/dashboard/nowhere')).toBeNull();
-    expect(HUBS.length).toBe(25);
+    expect(HUBS.length).toBe(9);
     for (const r of LEGACY_REDIRECTS)
       expect(
         HUBS.some((h) => h.slug === r.from),
