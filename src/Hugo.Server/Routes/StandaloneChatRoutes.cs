@@ -6,6 +6,7 @@ namespace Hugo.Server.Routes
     using Hugo.Core.Requests;
     using Hugo.Core.Responses;
     using Hugo.Core.Security;
+    using Hugo.Core.Serialization;
     using Hugo.Core.Services;
     using Hugo.Server.Services;
     using WatsonWebserver.Core;
@@ -69,7 +70,24 @@ namespace Hugo.Server.Routes
                 StandaloneChatAccess access = await AccessAsync(http).ConfigureAwait(false);
                 await RateAsync(http).ConfigureAwait(false);
                 StandaloneChatMessageRequest request = RouteHelpers.RequiredBody<StandaloneChatMessageRequest>(http);
-                return await _Chat.SendAsync(access, Id(http), Capability(http), request.Message, http.Token).ConfigureAwait(false);
+                string? accept = http.Request.Headers["Accept"];
+                if (String.IsNullOrEmpty(accept) || !accept.Contains("text/event-stream", StringComparison.OrdinalIgnoreCase))
+                    return await _Chat.SendAsync(access, Id(http), Capability(http), request.Message, http.Token).ConfigureAwait(false);
+                access.Principal.SuppressHistoryBodies = true;
+                using (SseWriter writer = new SseWriter(http, "standalone-chat"))
+                {
+                    try
+                    {
+                        StandaloneChatEventSink sink = new StandaloneChatEventSink(writer, _Chat, access, Id(http));
+                        StandaloneChatTurn result = await _Chat.SendAsync(access, Id(http), Capability(http), request.Message, http.Token, sink).ConfigureAwait(false);
+                        await writer.CloseAsync("turn.completed", Serializer.Serialize(result), http.Token).ConfigureAwait(false);
+                    }
+                    catch (Exception) when (writer.EventsWritten > 0)
+                    {
+                        await writer.CloseAsync("error", Serializer.Serialize(new { code = "chat_failed", message = "Chat could not complete. Try again or contact the link publisher." }), System.Threading.CancellationToken.None).ConfigureAwait(false);
+                    }
+                }
+                return new object();
             });
         }
 
@@ -116,7 +134,7 @@ namespace Hugo.Server.Routes
             try
             {
                 object response = await action().ConfigureAwait(false);
-                await RouteHelpers.JsonAsync(http, status, response).ConfigureAwait(false);
+                if (!http.Response.ServerSentEvents) await RouteHelpers.JsonAsync(http, status, response).ConfigureAwait(false);
             }
             catch (NotFoundException)
             {

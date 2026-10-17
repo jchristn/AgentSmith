@@ -32,7 +32,7 @@ Each new conversation receives a separate random session token. The browser keep
 
 Hugo persists only the token hash in the conversation's external key, bound to the link and publication revision. Every request checks the current publication. Public operations also recheck the active profile, selected credential, credential expiry, active owner, and active tenant before normal authorization. Disabling a link, rotating it, changing its mode or execution credential, or revoking its credential stops access to existing public sessions.
 
-The page provides a Markdown chat transcript, message composer, new-conversation action, cancellation, and per-answer feedback. The chat-link controls under Agents → profile → Connect also manage the heading, logo, and browser tab title. Responses use safe JSON rather than forwarding the dashboard's internal tool and reasoning event stream. POST session creation and message requests are rate limited.
+The page provides a Markdown chat transcript, message composer, new-conversation action, cancellation, and per-answer feedback. The chat-link controls under Agents → profile → Connect also manage the heading, logo, and browser tab title. The page receives incremental text through a dedicated safe SSE projection. It never receives the dashboard's internal tool or reasoning events. JSON responses remain available for API clients. POST session creation and message requests are rate limited.
 
 ## API
 
@@ -43,9 +43,11 @@ All paths start with `/v1.0/chat/{linkId}`. Requests use JSON. Conversation oper
 | GET | none | Read safe publication metadata and whether login is required |
 | POST | `/conversations` | Start an isolated conversation; returns its ID and visitor session token |
 | GET | `/conversations/{id}/messages` | Read that visitor's user/assistant transcript |
-| POST | `/conversations/{id}/messages` | Send `{ "message": "..." }` and return the final answer/status and usage |
+| POST | `/conversations/{id}/messages` | Send `{ "message": "..." }`; negotiate safe SSE with `Accept: text/event-stream`, otherwise return final JSON |
 | POST | `/conversations/{id}/messages/{messageId}/feedback` | Save `{ "rating": "Positive", "comment": "Helpful explanation" }`; rating may be `Positive`, `Negative`, or null, comment may contain at most 4000 characters |
 | POST | `/conversations/{id}/cancel` | Cancel that conversation's active turn |
+
+For streaming message responses, send `Accept: text/event-stream`. Events are limited to `turn.started` (`conversationId`), `assistant.delta` (`text`), `turn.completed` (the complete safe turn response, including `messageId`, `text`, `status`, `tokensIn`, and `tokensOut`), `error` (generic `code` and `message`), and idle heartbeats. Partial text arrives while inference is still running. Completion text is authoritative and can replace accumulated deltas. Credential-like assignments, key blocks, incomplete words, and partial registered secrets are conservatively held for whole-value redaction. Publication and execution authority are checked before each text emission and before completion. Internal tool calls, arguments, endpoint metadata, and reasoning are never serialized. Responses disable proxy buffering; the existing cancellation endpoint stops the active turn.
 
 Session-token headers and session-creation response bodies are redacted or suppressed in request history. No endpoint lists other visitors' conversations. Schema migration 10 adds the profile publication settings; it preserves existing profiles as unpublished.
 

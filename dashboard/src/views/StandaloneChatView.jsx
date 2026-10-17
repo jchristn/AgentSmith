@@ -101,6 +101,7 @@ export default function StandaloneChatView() {
     stop();
     generation.current++;
     setSession(null);
+    setStarting(false);
     setDraft('');
     setError(null);
     dispatch({ type: 'reset' });
@@ -130,23 +131,44 @@ export default function StandaloneChatView() {
       }
       dispatch({ type: 'begin', text });
       setDraft('');
-      const abort = new AbortController();
-      controller.current = abort;
-      try {
-        const result = await client.sendChatMessage(linkId, active.id, active.sessionToken, { message: text }, abort.signal);
-        if (current !== generation.current) return;
-        dispatch({ type: 'event', evt: { event: 'assistant.delta', data: { text: result.text || '' } } });
-        dispatch({
-          type: 'event',
-          evt: { event: 'turn.completed', data: { messageId: result.messageId, tokensIn: result.tokensIn, tokensOut: result.tokensOut } }
-        });
-        dispatch({ type: 'end' });
-      } catch (e) {
-        if (current === generation.current)
-          dispatch({ type: 'end', options: { stopped: e?.name === 'AbortError', error: e?.name !== 'AbortError' ? { message: errorMessage(t, e) } : null } });
-      } finally {
-        if (current === generation.current) controller.current = null;
-      }
+      await new Promise((resolve) => {
+        controller.current = client.streamChatMessage(
+          linkId,
+          active.id,
+          active.sessionToken,
+          { message: text },
+          {
+            onOpen: () => {
+              if (current === generation.current) setStarting(false);
+            },
+            onEvent: (evt) => {
+              if (current !== generation.current) return;
+              // The standalone surface accepts text and final usage only, never internal model/tool events.
+              if (evt.event === 'turn.completed' && typeof evt.data?.text === 'string') {
+                dispatch({ type: 'final', text: evt.data.text });
+              }
+              if (['turn.started', 'assistant.delta', 'turn.completed', 'error'].includes(evt.event)) {
+                dispatch({ type: 'event', evt });
+              } else if (evt.event === 'message') {
+                // Compatibility with servers that still return the safe final JSON response.
+                const result = evt.data || {};
+                dispatch({ type: 'event', evt: { event: 'assistant.delta', data: { text: result.text || '' } } });
+                dispatch({
+                  type: 'event',
+                  evt: { event: 'turn.completed', data: { messageId: result.messageId, tokensIn: result.tokensIn, tokensOut: result.tokensOut } }
+                });
+              }
+            },
+            onEnd: (error, options = {}) => {
+              if (current === generation.current) {
+                dispatch({ type: 'end', options: { stopped: !!options.aborted, error: error ? { message: errorMessage(t, error) } : null } });
+                controller.current = null;
+              }
+              resolve();
+            }
+          }
+        );
+      });
     } catch (e) {
       if (current === generation.current) setError(e);
     } finally {

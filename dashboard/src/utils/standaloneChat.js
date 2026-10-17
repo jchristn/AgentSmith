@@ -16,6 +16,13 @@ export function standaloneChatReducer(state, action) {
       return initialChatState(action.messages || []);
     case 'begin':
       return beginTurn(state, action.text);
+    case 'final':
+      return {
+        ...state,
+        messages: state.messages.map((message, index) =>
+          index === state.messages.length - 1 && message.role === 'assistant' ? { ...message, parts: [{ kind: 'text', text: action.text }] } : message
+        )
+      };
     case 'event':
       return applyChatEvent(state, action.evt);
     case 'end':

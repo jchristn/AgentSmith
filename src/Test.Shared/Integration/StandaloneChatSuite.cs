@@ -2,6 +2,9 @@ namespace Test.Shared.Integration
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Text;
+    using Hugo.Core.Security;
     using System.Linq;
     using System.IO;
     using System.Net.Http;
@@ -48,10 +51,99 @@ namespace Test.Shared.Integration
                     new TestCaseDescriptor(id, "public-approval-revocation", "Deferred public approvals revalidate publication authority before executing", ct => ApprovalRevocationAsync(provider, ct)),
                     new TestCaseDescriptor(id, "revocation", "Disable, rotation, mode changes and credential revocation invalidate existing visitor sessions", ct => RevocationAsync(provider, ct)),
                     new TestCaseDescriptor(id, "authenticated-access", "Authenticated links require the visitor's own login and profile Execute rights", ct => AuthenticatedAsync(provider, ct)),
+                    new TestCaseDescriptor(id, "safe-streaming", "Standalone SSE emits text before model completion and never internal traces or split secrets", ct => StreamingAsync(provider, ct)),
                     new TestCaseDescriptor(id, "inference-failure", "Failed inference returns a safe response and keeps public message history isolated", ct => FailureAsync(provider, ct))
                 }));
             }
             return suites;
+        }
+
+        private static async Task StreamingAsync(DatabaseTypeEnum provider, CancellationToken token)
+        {
+            const string secret = "stream-only secret value";
+            SecretScrubber.Shared.AddKnownValue(secret);
+            foreach (string source in new[] { "Ordinary safe words followed by " + secret + " done.", "Ordinary words apiKey=very-sensitive-value done.", "Ordinary words -----BEGIN PRIVATE KEY-----\nprivate-material\n-----END PRIVATE KEY----- done." })
+            {
+                string pending = String.Empty;
+                StringBuilder published = new StringBuilder();
+                foreach (char character in source)
+                {
+                    pending += character;
+                    int count = SecretScrubber.Shared.StreamingPrefixLength(pending);
+                    published.Append(SecretScrubber.Shared.Scrub(pending.Substring(0, count)));
+                    pending = pending.Substring(count);
+                }
+                published.Append(SecretScrubber.Shared.Scrub(pending));
+                Assert.Equal(SecretScrubber.Shared.Scrub(source), published.ToString(), "every character boundary preserves whole-text secret redaction");
+            }
+            using (StubLlmServer stub = new StubLlmServer())
+            await using (IntegrationRig rig = await IntegrationRig.StartAsync(provider, null, token).ConfigureAwait(false))
+            using (HttpClient visitor = Anonymous(rig))
+            {
+                AgentProfile profile = await PublishAsync(rig, stub, "Public", token).ConfigureAwait(false);
+                stub.Script.Responder = request => new StubLlmResponse
+                {
+                    Text = "Visible answer arrives gradually while the model continues producing several more words for this deliberately paced streaming response. " + secret + " finished.",
+                    Reasoning = "hidden-internal-reasoning", ChunkSize = 8, ChunkDelayMs = 150
+                };
+                JsonElement session = await JsonAsync(visitor, HttpMethod.Post, Chat(profile) + "/conversations", null, 201, token).ConfigureAwait(false);
+                string id = session.GetProperty("id").GetString()!;
+                visitor.DefaultRequestHeaders.Add("x-hugo-chat-session", session.GetProperty("sessionToken").GetString());
+                using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, Chat(profile) + "/conversations/" + id + "/messages"))
+                {
+                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/event-stream"));
+                    request.Content = new StringContent("{\"message\":\"Stream a visible answer.\"}", Encoding.UTF8, "application/json");
+                    Stopwatch elapsed = Stopwatch.StartNew();
+                    using (HttpResponseMessage response = await visitor.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token).ConfigureAwait(false))
+                    using (Stream stream = await response.Content.ReadAsStreamAsync(token).ConfigureAwait(false))
+                    using (StreamReader reader = new StreamReader(stream))
+                    {
+                        Assert.Equal("text/event-stream", response.Content.Headers.ContentType?.MediaType, "SSE negotiation works");
+                        bool early = false;
+                        string eventName = String.Empty;
+                        StringBuilder transcript = new StringBuilder();
+                        while (await reader.ReadLineAsync(token).ConfigureAwait(false) is string line)
+                        {
+                            transcript.AppendLine(line);
+                            if (line.StartsWith("event: ", StringComparison.Ordinal)) eventName = line.Substring(7);
+                            if (!line.StartsWith("data: ", StringComparison.Ordinal)) continue;
+                            if (eventName == "assistant.delta")
+                            {
+                                early = true;
+                                Assert.True(elapsed.ElapsedMilliseconds < 3500, "first delta arrives before the deliberately slow model finishes");
+                                break;
+                            }
+                        }
+                        Assert.True(early, "at least one actual incremental assistant delta is received");
+                        string rest = await reader.ReadToEndAsync(token).ConfigureAwait(false);
+                        transcript.Append(rest);
+                        string events = transcript.ToString();
+                        Assert.True(events.Contains("event: turn.completed", StringComparison.Ordinal), "safe completion event closes the stream");
+                        Assert.True(events.Contains("messageId", StringComparison.Ordinal), "completion includes a persisted message ID for feedback");
+                        Assert.True(!events.Contains(secret, StringComparison.Ordinal) && !events.Contains("hidden-internal-reasoning", StringComparison.Ordinal), "stream never exposes split secrets or reasoning");
+                        Assert.True(!events.Contains("tool.", StringComparison.Ordinal) && !events.Contains("principalId", StringComparison.Ordinal) && !events.Contains("endpointKey", StringComparison.Ordinal), "stream projects safe DTOs rather than internal events");
+                    }
+                }
+                using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, Chat(profile) + "/conversations/" + id + "/messages"))
+                {
+                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/event-stream"));
+                    request.Content = new StringContent("{\"message\":\"Stream until the publisher revokes this link.\"}", Encoding.UTF8, "application/json");
+                    using (HttpResponseMessage response = await visitor.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token).ConfigureAwait(false))
+                    using (Stream stream = await response.Content.ReadAsStreamAsync(token).ConfigureAwait(false))
+                    using (StreamReader reader = new StreamReader(stream))
+                    {
+                        while (await reader.ReadLineAsync(token).ConfigureAwait(false) is string line)
+                        {
+                            if (!line.StartsWith("data: ", StringComparison.Ordinal) || !line.Contains("conversationId", StringComparison.Ordinal)) continue;
+                            break;
+                        }
+                        await HttpTestHelpers.SendAsync<AgentProfile>(rig.Anderson, HttpMethod.Put, "/v1.0/api/agent-profiles/" + profile.Id, new { chatEnabled = false }, 200, token).ConfigureAwait(false);
+                        string afterRevocation = await reader.ReadToEndAsync(token).ConfigureAwait(false);
+                        Assert.True(!afterRevocation.Contains("assistant.delta", StringComparison.Ordinal) && !afterRevocation.Contains("turn.completed", StringComparison.Ordinal), "publication revocation prevents all subsequent text and final answer disclosure");
+                        Assert.True(afterRevocation.Contains("event: error", StringComparison.Ordinal), "revoked streaming sessions close with a safe error");
+                    }
+                }
+            }
         }
 
         private static HttpClient Anonymous(IntegrationRig rig)

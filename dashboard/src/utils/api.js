@@ -1020,6 +1020,19 @@ class ApiClient {
     });
   }
 
+  /** Stream visitor-safe answer events through the link-scoped conversation capability. */
+  streamChatMessage(linkId, id, sessionToken, body, handlers) {
+    return this._stream(
+      'POST',
+      `/v1.0/chat/${enc(linkId)}/conversations/${enc(id)}/messages`,
+      {
+        body,
+        headers: { 'x-hugo-chat-session': sessionToken }
+      },
+      handlers
+    );
+  }
+
   cancelChatMessage(linkId, id, sessionToken) {
     return this._request('POST', `/v1.0/chat/${enc(linkId)}/conversations/${enc(id)}/cancel`, {
       headers: sessionToken ? { 'x-hugo-chat-session': sessionToken } : {},
@@ -1034,9 +1047,9 @@ class ApiClient {
    * data, id }) for every frame, handlers.onOpen(response) once the response arrives, and handlers.onEnd(error|null)
    * when the stream ends. Returns an AbortController.
    */
-  _stream(method, path, { body, query } = {}, handlers = {}) {
+  _stream(method, path, { body, query, headers: extraHeaders = {} } = {}, handlers = {}) {
     const controller = new AbortController();
-    const headers = this._headers({ Accept: 'text/event-stream' });
+    const headers = this._headers({ Accept: 'text/event-stream', ...extraHeaders });
     if (body === undefined || body === null) delete headers['Content-Type'];
     fetch(this._url(path, query), { method, headers, body: body === undefined || body === null ? undefined : JSON.stringify(body), signal: controller.signal })
       .then(async (response) => {

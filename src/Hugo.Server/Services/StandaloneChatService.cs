@@ -115,20 +115,20 @@ namespace Hugo.Server.Services
         /// <param name="capability">Visitor capability.</param>
         /// <param name="message">User input, at most 16384 characters.</param>
         /// <param name="token">Cancellation.</param>
+        /// <param name="sink">Optional visitor-safe event sink.</param>
         /// <returns>Safe final response.</returns>
-        public async Task<StandaloneChatTurn> SendAsync(StandaloneChatAccess access, string id, string? capability, string message, CancellationToken token = default)
+        public async Task<StandaloneChatTurn> SendAsync(StandaloneChatAccess access, string id, string? capability, string message, CancellationToken token = default, IAgentEventSink? sink = null)
         {
             Conversation conversation = await ConversationAsync(access, id, capability, OperationTypeEnum.Update, token).ConfigureAwait(false);
             if (String.IsNullOrWhiteSpace(message) || message.Length > 16384) throw new ValidationException("A message of 1 through 16384 characters is required.", new Dictionary<string, string> { { "message", "A message of 1 through 16384 characters is required." } });
-            AgentTurnResult result = await _Host.RunAsync(new AgentTurnOptions
+            AgentTurnOptions options = new AgentTurnOptions
             {
                 Principal = access.Principal, TenantId = access.Profile.TenantId, Profile = access.Profile, Conversation = conversation,
                 UserMessage = message, Surface = InvocationSurfaceEnum.Chat, WaitMode = ApprovalWaitModeEnum.NoWait, GenerateTitle = false
-            }, token).ConfigureAwait(false);
-            AgentProfile current = await ProfileAsync(access.Profile.ChatLinkId ?? String.Empty, token).ConfigureAwait(false);
-            if (current.ChatRevision != access.Profile.ChatRevision || current.ChatAccessMode != access.Profile.ChatAccessMode || current.ChatCredentialId != access.Profile.ChatCredentialId)
-                throw Missing();
-            await DemandAsync(access.Principal, current, ResourceTypeEnum.AgentProfile, OperationTypeEnum.Execute, token).ConfigureAwait(false);
+            };
+            if (sink != null) options.Sinks.Add(sink);
+            AgentTurnResult result = await _Host.RunAsync(options, token).ConfigureAwait(false);
+            await RevalidateAsync(access, token).ConfigureAwait(false);
             // Do not surface internal error messages, tool records, arguments, or hidden reasoning.
             List<ConversationMessage> persisted = await _Server.Database.Messages.ListAsync(conversation.TenantId, id, false, token).ConfigureAwait(false);
             ConversationMessage? final = persisted.LastOrDefault(m => m.TurnId == result.TurnId && m.Role == AgentMessageRoleEnum.Assistant && m.ToolCalls.Count == 0 && !String.IsNullOrEmpty(m.Content));
@@ -165,6 +165,18 @@ namespace Hugo.Server.Services
             string comment = SecretScrubber.Shared.Scrub(request.Comment?.Trim() ?? String.Empty) ?? String.Empty;
             if (!await _Server.Database.Messages.UpdateFeedbackAsync(conversation.TenantId, id, messageId, request.Rating, comment, token).ConfigureAwait(false)) throw Missing();
             return new StandaloneChatFeedback { Rating = request.Rating, Comment = comment };
+        }
+
+        /// <summary>Recheck publication and execution authority before disclosing streamed text.</summary>
+        /// <param name="access">Original request access.</param>
+        /// <param name="token">Cancellation.</param>
+        /// <returns>The current published profile.</returns>
+        public async Task<AgentProfile> RevalidateAsync(StandaloneChatAccess access, CancellationToken token)
+        {
+            StandaloneChatAccess fresh = await ResolveAsync(access.Profile.ChatLinkId ?? String.Empty, access.Principal, token).ConfigureAwait(false);
+            AgentProfile current = fresh.Profile;
+            if (current.ChatRevision != access.Profile.ChatRevision || current.ChatAccessMode != access.Profile.ChatAccessMode || current.ChatCredentialId != access.Profile.ChatCredentialId) throw Missing();
+            return current;
         }
 
         private async Task<AgentProfile> ProfileAsync(string linkId, CancellationToken token)

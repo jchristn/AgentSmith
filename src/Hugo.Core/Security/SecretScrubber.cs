@@ -251,6 +251,48 @@ namespace Hugo.Core.Security
             return result.ToString();
         }
 
+        /// <summary>
+        /// Find a source prefix safe to scrub and publish before the rest of a stream arrives.
+        /// Retains the unfinished word, partial known secrets, and potential credential assignments or key blocks.
+        /// Credential-bearing prose is conservatively retained until the final whole-text scrub.
+        /// </summary>
+        /// <param name="text">Unpublished streaming text.</param>
+        /// <returns>Number of source characters that may be scrubbed and published now.</returns>
+        public int StreamingPrefixLength(string text)
+        {
+            if (String.IsNullOrEmpty(text)) return 0;
+            int boundary = text.Length;
+            while (boundary > 0 && !Char.IsWhiteSpace(text[boundary - 1])) boundary--;
+            // Assignment values and PEM blocks can span words and lines. Hold them until the turn finishes.
+            Match sensitive = Regex.Match(text, @"(?i)\b(?:password|passwd|pwd|passphrase|secret|client[_\-]?secret|api[_\-]?key|access[_\-]?token|refresh[_\-]?token|auth[_\-]?token|x-secret-key|x-api-key|aws_secret_access_key|secretAccessKey|aws_session_token|sessionToken|bearer)\b|-----BEGIN|[a-z][a-z0-9+.\-]*://", RegexOptions.None, _Timeout);
+            if (sensitive.Success) boundary = Math.Min(boundary, sensitive.Index);
+            lock (_Lock)
+            {
+                if (_Saturated) return 0;
+                foreach (string value in _Known)
+                {
+                    int first = Math.Max(0, text.Length - value.Length + 1);
+                    for (int start = first; start < boundary; start++)
+                    {
+                        int length = text.Length - start;
+                        if (length < value.Length && value.AsSpan(0, length).SequenceEqual(text.AsSpan(start)))
+                        {
+                            boundary = start;
+                            break;
+                        }
+                    }
+                    // Never cut a complete known value that contains whitespace.
+                    int offset = text.IndexOf(value, StringComparison.Ordinal);
+                    while (offset >= 0 && offset < boundary)
+                    {
+                        if (offset + value.Length > boundary) { boundary = offset; break; }
+                        offset = text.IndexOf(value, offset + value.Length, StringComparison.Ordinal);
+                    }
+                }
+            }
+            return boundary;
+        }
+
         #endregion
 
         #region Private-Methods
