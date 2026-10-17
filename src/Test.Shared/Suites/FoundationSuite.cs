@@ -148,10 +148,10 @@ namespace Test.Shared.Suites
             System.IO.DirectoryInfo? directory = new System.IO.DirectoryInfo(AppContext.BaseDirectory);
             while (directory != null)
             {
-                if (System.IO.File.Exists(System.IO.Path.Combine(directory.FullName, "HUGO_PLAN.md"))) return directory.FullName;
+                if (System.IO.File.Exists(System.IO.Path.Combine(directory.FullName, "src", "Hugo.sln"))) return directory.FullName;
                 directory = directory.Parent;
             }
-            throw new TestAssertionException("Could not find the repository root (HUGO_PLAN.md) above " + AppContext.BaseDirectory + ".");
+            throw new TestAssertionException("Could not find the repository root (src/Hugo.sln) above " + AppContext.BaseDirectory + ".");
         }
 
         private static async Task RouteContractAsync(DatabaseTypeEnum provider, CancellationToken token)

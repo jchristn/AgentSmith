@@ -14,7 +14,7 @@
 # custom resource definition with one instance, and the hugo-reader service account.
 # metrics-server is disabled on purpose so the suites cover the k8s_top error path.
 #
-# k3s runs privileged (risk R-6 in HUGO_PLAN.md). Runners that forbid privileged containers skip testbed.kubernetes.
+# k3s runs privileged (risk R-6 in archive/HUGO_PLAN.md). Runners that forbid privileged containers skip testbed.kubernetes.
 
 name: hugo-testbed-kubernetes
 

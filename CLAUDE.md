@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Guidance for agents working in this repository. Read `HUGO_PLAN.md` first: it is the build plan, the decision log, and the progress tracker. Annotate tasks there as you complete them (format in section 1 of the plan).
+Guidance for agents working in this repository. Read `archive/HUGO_PLAN.md` first: it is the build plan, the decision log, and the progress tracker. Annotate tasks there as you complete them (format in section 1 of the plan).
 
 ## What Hugo is
 

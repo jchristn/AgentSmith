@@ -5,7 +5,7 @@
 #   docker compose -f docker/testbed/docker/compose.yaml down -v
 #
 # Daemon: tcp://127.0.0.1:28375 (plain TCP without TLS, loopback only; override with HUGO_TESTBED_DOCKER_PORT).
-# The dind container is privileged (risk R-6 in HUGO_PLAN.md); CI runners that forbid privileged containers
+# The dind container is privileged (risk R-6 in archive/HUGO_PLAN.md); CI runners that forbid privileged containers
 # skip the testbed.docker suite.
 #
 # The init step pulls busybox inside the daemon and starts these fixtures (label hugo.testbed=fixture):

@@ -1,6 +1,6 @@
 # Connector testbed
 
-The testbed runs a real target for every connector that has one, so connector suites never need a cloud account (decision D-030 in `HUGO_PLAN.md`). Papertrail and SolarWinds Observability have no self-hostable equivalent; their suites run against in-process stubs in `src/Test.Shared/Connectors/Logging` instead.
+The testbed runs a real target for every connector that has one, so connector suites never need a cloud account (decision D-030 in `archive/HUGO_PLAN.md`). Papertrail and SolarWinds Observability have no self-hostable equivalent; their suites run against in-process stubs in `src/Test.Shared/Connectors/Logging` instead.
 
 ```bash
 docker compose -f docker/testbed/compose.yaml up -d --wait

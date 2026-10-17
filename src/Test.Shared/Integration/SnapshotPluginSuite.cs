@@ -238,10 +238,10 @@ namespace Test.Shared.Integration
             DirectoryInfo? directory = new DirectoryInfo(AppContext.BaseDirectory);
             while (directory != null)
             {
-                if (File.Exists(Path.Combine(directory.FullName, "HUGO_PLAN.md"))) return directory.FullName;
+                if (File.Exists(Path.Combine(directory.FullName, "src", "Hugo.sln"))) return directory.FullName;
                 directory = directory.Parent;
             }
-            throw new TestAssertionException("Could not find the repository root (HUGO_PLAN.md) above " + AppContext.BaseDirectory + ".");
+            throw new TestAssertionException("Could not find the repository root (src/Hugo.sln) above " + AppContext.BaseDirectory + ".");
         }
 
         #endregion

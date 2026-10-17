@@ -54,4 +54,4 @@ manifests, npm lockfiles, and Python runtime version. The helper never edits the
 Run `scripts/check-version-mirrors.sh` without flags for the read-only check used in CI. Both modes
 accept an optional repository root as the final argument.
 
-`CLAUDE.md` holds the code style and architecture rules, and `HUGO_PLAN.md` is the build plan and progress tracker. Never use em-dashes anywhere; `scripts/check-em-dash.sh` enforces it.
+`CLAUDE.md` holds the code style and architecture rules, and `archive/HUGO_PLAN.md` is the build plan and progress tracker. Never use em-dashes anywhere; `scripts/check-em-dash.sh` enforces it.

@@ -6,7 +6,7 @@ Hugo is a multi-tenant super agent server. You give it access to the systems tha
 
 The default profile is named Hugo. It calls itself Agent Smith, and it calls you Mr. Anderson.
 
-> Hugo is an alpha (`0.1.0-alpha`). It works end to end and is tested against real targets, and it will still change in ways that break things before 1.0. The build plan and progress tracker is [`HUGO_PLAN.md`](HUGO_PLAN.md); what shipped is in [`CHANGELOG.md`](CHANGELOG.md).
+> Hugo is an alpha (`0.1.0-alpha`). It works end to end and is tested against real targets, and it will still change in ways that break things before 1.0. The build plan and progress tracker is [`archive/HUGO_PLAN.md`](archive/HUGO_PLAN.md); what shipped is in [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Why it exists
 
