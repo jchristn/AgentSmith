@@ -112,9 +112,18 @@ describe('secret kinds', () => {
   it('requires an AES key and preserves its optional salt and IV as separate encrypted fields', () => {
     expect(validateSecretValues('AesKey', { salt: 'salt', iv: 'iv' })).toEqual({ key: 'required' });
     expect(validateSecretValues('AesKey', { key: 'key' })).toEqual({});
-    expect(secretValuesBody('AesKey', { key: ' key ', salt: 'salt', iv: 'iv', value: 'ignored' })).toEqual({ key: ' key ', salt: 'salt', iv: 'iv' });
+    expect(secretValuesBody('AesKey', { key: ' key ', salt: 'salt', iv: 'iv', value: 'ignored' })).toEqual({
+      key: ' key ',
+      keyEncoding: 'base64',
+      salt: 'salt',
+      saltEncoding: 'base64',
+      iv: 'iv',
+      ivEncoding: 'base64'
+    });
     expect(validateSecretValues('AesKey', { salt: 'new salt' }, { partial: true })).toEqual({});
-    expect(secretValuesBody('AesKey', { key: '', salt: 'new salt', iv: '' })).toEqual({ salt: 'new salt' });
+    expect(secretValuesBody('AesKey', { key: '', salt: 'new salt', iv: '' }, { partial: true })).toEqual({ salt: 'new salt' });
+    expect(secretValuesBody('AesKey', { key: 'hex-key', keyEncoding: 'hex', saltEncoding: 'hex' })).toEqual({ key: 'hex-key', keyEncoding: 'hex' });
+    expect(secretValuesBody('AesKey', { iv: 'hex-iv', ivEncoding: 'hex' }, { partial: true })).toEqual({ iv: 'hex-iv', ivEncoding: 'hex' });
   });
   it('describes imported files without exposing key material', () => {
     expect(describeSecretFile('privateKey', '-----BEGIN OPENSSH PRIVATE KEY-----\nabc')).toEqual({ kind: 'pem', type: 'OPENSSH PRIVATE KEY' });

@@ -431,6 +431,11 @@ namespace Hugo.Core.Secrets
                     errors[path] = "The value is empty.";
                     codes[path] = "Required";
                 }
+                else if (kind == SecretKindEnum.AesKey && (field.Key == "keyEncoding" || field.Key == "saltEncoding" || field.Key == "ivEncoding") && field.Value != "base64" && field.Value != "hex")
+                {
+                    errors[path] = "Select base64 or hex for AES material encoding.";
+                    codes[path] = "InvalidValue";
+                }
                 else if (create && field.Value == SecretFieldRules.MaskPlaceholder)
                 {
                     errors[path] = "The mask placeholder is not a value.";

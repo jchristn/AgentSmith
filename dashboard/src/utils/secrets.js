@@ -21,8 +21,11 @@ export const SECRET_FIELDS = {
   ],
   AesKey: [
     { name: 'key', secret: true, required: true },
+    { name: 'keyEncoding', encoding: true, required: false },
     { name: 'salt', secret: true, required: false },
-    { name: 'iv', secret: true, required: false }
+    { name: 'saltEncoding', encoding: true, required: false },
+    { name: 'iv', secret: true, required: false },
+    { name: 'ivEncoding', encoding: true, required: false }
   ],
   ServiceAccountJson: [{ name: 'json', secret: true, multiline: true, file: true, required: true }],
   Kubeconfig: [{ name: 'kubeconfig', secret: true, multiline: true, file: true, required: true }],
@@ -59,12 +62,18 @@ export function validateSecretValues(kind, values = {}, { partial = false } = {}
   return errors;
 }
 
-/** Only the fields with a value, trimmed of nothing (keys and certificates keep their exact whitespace). */
-export function secretValuesBody(kind, values = {}) {
+/** Filled fields keep exact whitespace. New AES bundles record explicit formats; partial updates preserve omitted formats. */
+export function secretValuesBody(kind, values = {}, { partial = false } = {}) {
   const out = {};
   for (const f of secretFieldsFor(kind)) {
     const v = values[f.name];
     if (v !== undefined && v !== null && String(v).length > 0) out[f.name] = String(v);
+  }
+  if (kind === 'AesKey' && !partial) {
+    for (const name of ['key', 'salt', 'iv']) {
+      if (out[name]) out[`${name}Encoding`] = out[`${name}Encoding`] || 'base64';
+      else delete out[`${name}Encoding`];
+    }
   }
   return out;
 }

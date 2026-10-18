@@ -751,7 +751,10 @@
         "value": "值",
         "key": "密钥",
         "salt": "盐值（可选）",
-        "iv": "初始化向量（可选）"
+        "iv": "初始化向量（可选）",
+        "keyEncoding": "密钥格式",
+        "saltEncoding": "盐值格式",
+        "ivEncoding": "IV 格式"
       },
       "file": {
         "pem": "文件包含类型为 {{type}} 的 PEM 块。",
@@ -759,6 +762,11 @@
         "kubeconfig": "Kubeconfig 上下文：{{contexts}}。",
         "kubeconfigNone": "此 kubeconfig 中未找到上下文。",
         "invalidJson": "此文件不是有效的 JSON。"
+      },
+      "encodingPreserve": "保留已存储的格式（旧数据回退至资源设置）",
+      "encodings": {
+        "base64": "Base64",
+        "hex": "十六进制"
       }
     },
     "toolActivity": {
@@ -3512,9 +3520,12 @@
         "connectionString": "包含凭据的完整连接字符串，例如用于 SQL Server 或 Redis。",
         "certificate": "PEM 格式的证书。它本身不是机密，但会与其密钥一起保存。",
         "value": "适用于只需单个不透明密钥的连接器的任意密钥值。",
-        "key": "编码后的密钥字节。使用资源的密钥编码；只有显式启用 PBKDF2 时，才会从这些字节派生 AES 密钥。",
-        "salt": "可选的编码盐值，仅用于 PBKDF2。使用资源的密钥编码。",
-        "iv": "用于现有 AES-CBC 密文的可选编码 IV，解码后须为 16 字节。加密时始终生成新的 IV。"
+        "key": "所选密钥格式的编码字节。只有显式启用 PBKDF2 时，才会从这些字节派生 AES 密钥。",
+        "salt": "所选盐值格式的可选盐值，仅用于 PBKDF2。",
+        "iv": "用于现有 AES-CBC 密文的可选编码 IV，解码后须为 16 字节。加密时始终生成新的 IV。",
+        "keyEncoding": "请显式选择 Base64 或十六进制。已存储的字段格式优先于资源的密钥编码；Hugo 不会猜测格式。",
+        "saltEncoding": "请显式选择 Base64 或十六进制。已存储的字段格式优先于资源的密钥编码；Hugo 不会猜测格式。",
+        "ivEncoding": "请显式选择 Base64 或十六进制。已存储的字段格式优先于资源的密钥编码；Hugo 不会猜测格式。"
       }
     },
     "toolActivity": {

@@ -55,7 +55,7 @@ namespace Hugo.Connectors.Cryptography
         {
             string? value = resource.Secrets.Get("encryptionKey", "value") ?? resource.Secrets.Get("encryptionKey", "key");
             if (String.IsNullOrEmpty(value)) throw Invalid("Bind an AES key secret with a key field, or a legacy Generic secret with value, to encryptionKey.");
-            string encoding = resource.Settings.GetString("keyEncoding", "base64") ?? "base64";
+            string encoding = MaterialEncoding(resource, "key");
             string derivation = resource.Settings.GetString("keyDerivation", "None") ?? "None";
             if (derivation != "None" && derivation != "PBKDF2-SHA256") throw Invalid("keyDerivation must be None or PBKDF2-SHA256.");
             byte[] key = Decode(value, encoding, derivation == "None" ? 32 : 4096, false);
@@ -68,7 +68,7 @@ namespace Hugo.Connectors.Cryptography
                     int length = ReadInteger(resource, "derivedKeyBytes", 32, 16, 32);
                     if (length != 16 && length != 24 && length != 32) throw Invalid("derivedKeyBytes must be 16, 24, or 32.");
                     string saltValue = resource.Secrets.Get("encryptionKey", "salt") ?? throw Invalid("PBKDF2 requires salt in the bound AES key secret.");
-                    byte[] salt = Decode(saltValue, encoding, 4096, false);
+                    byte[] salt = Decode(saltValue, MaterialEncoding(resource, "salt"), 4096, false);
                     try
                     {
                         if (salt.Length < 16) throw Invalid("PBKDF2 salt must decode to at least 16 bytes.");
@@ -84,6 +84,13 @@ namespace Hugo.Connectors.Cryptography
                 throw Invalid("The encryption key must decode to 16, 24, or 32 bytes when keyDerivation is None.");
             }
             return key;
+        }
+
+        internal static string MaterialEncoding(ConnectorResourceContext resource, string field)
+        {
+            string encoding = resource.Secrets.Get("encryptionKey", field + "Encoding") ?? resource.Settings.GetString("keyEncoding", "base64") ?? "base64";
+            if (encoding != "base64" && encoding != "hex") throw Invalid("AES material encoding must be base64 or hex.");
+            return encoding;
         }
 
         internal static int ReadInteger(ConnectorResourceContext resource, string name, int fallback, int minimum, int maximum)

@@ -6,16 +6,16 @@ A `cryptography` resource gives an agent access to a specific vault-managed AES 
 
 Create an **AES key material** secret in **Connections → Secrets**. Its API kind is `AesKey`, and its masked fields are `key`, optional `salt`, and optional `iv`. Bind that one secret to the resource's **AES key material** slot (`encryptionKey`). Use separate bundled secrets and resource aliases for separate encryption configurations. The agent supplies the resource alias, never the secret fields.
 
-Encode all populated fields as base64, or set the resource's `keyEncoding` to `hex`. With the default `keyDerivation: "None"`, `key` is a direct AES key of 16, 24, or 32 decoded bytes. A raw AES-256 key contains 32 bytes. CBC decryption of raw ciphertext can take its 16-byte IV from the bundle's `iv` field. Encryption generates fresh nonce/IV bytes; it does not reuse that saved IV.
+Choose **Base64** or **Hex** independently for key, salt, and IV when creating the secret. The secret stores these choices as `keyEncoding`, `saltEncoding`, and `ivEncoding` alongside the encrypted material. Hex-looking strings can also be valid base64, so the selected format is explicit rather than guessed. Each saved format overrides the resource's `keyEncoding`; existing secrets without saved formats keep using that resource setting. With the default `keyDerivation: "None"`, `key` is a direct AES key of 16, 24, or 32 decoded bytes. A raw AES-256 key contains 32 bytes. CBC decryption of raw ciphertext can take its 16-byte IV from the bundle's `iv` field. Encryption generates fresh nonce/IV bytes; it does not reuse that saved IV.
 
 A salt belongs to key derivation rather than the AES cipher itself. For formats that derive a key from password bytes and salt, explicitly select `PBKDF2-SHA256` and set the matching iteration count and derived key length. The bundle's decoded `key` bytes become the password input and its decoded `salt` must contain at least 16 bytes. With `None`, the saved salt is not applied. See the [.NET PBKDF2 contract](https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.rfc2898derivebytes.pbkdf2). An existing ciphertext must be decrypted with the same derivation parameters used to encrypt it.
 
-Existing Generic key secrets and separately bound legacy IV secrets continue to work. New configurations need only the one AES bundle.
+Existing Generic key secrets and separately bound legacy IV secrets continue to work. Create resource shows only the AES key material slot. An existing separate IV binding remains visible when editing that resource. New configurations need only the one AES bundle.
 
 | Setting | Default | Meaning |
 |---|---|---|
 | `algorithm` | `AES-GCM` | `AES-GCM`, or explicit `AES-CBC` interoperability with PKCS7 padding |
-| `keyEncoding` | `base64` | `base64` or `hex` encoding of the bundle's key, salt and IV |
+| `keyEncoding` | `base64` | Fallback encoding for fields without a format recorded in the secret |
 | `keyDerivation` | `None` | Direct AES key, or explicit `PBKDF2-SHA256` using the bundle salt |
 | `iterations` | `100000` | PBKDF2 iteration count from 10000 through 1000000 |
 | `derivedKeyBytes` | `32` | PBKDF2 output length: 16, 24 or 32 bytes |

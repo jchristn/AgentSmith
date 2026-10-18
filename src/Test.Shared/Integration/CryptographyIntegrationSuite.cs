@@ -42,6 +42,12 @@ namespace Test.Shared.Integration
             {
                 string key = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
                 Secret secret = await rig.SecretAsync("aes-bundle", SecretKindEnum.AesKey, new Dictionary<string, string> { { "key", key }, { "salt", Convert.ToBase64String(RandomNumberGenerator.GetBytes(16)) }, { "iv", Convert.ToBase64String(RandomNumberGenerator.GetBytes(16)) } }, token).ConfigureAwait(false);
+                TestResponse invalidCreate = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Post, "/v1.0/api/secrets", new { name = "invalid-aes-encoding", kind = "AesKey", values = new { key, keyEncoding = "utf8" } }, token).ConfigureAwait(false);
+                Assert.Equal(400, invalidCreate.StatusCode, "AES encoding must be base64 or hex on create");
+                TestResponse partial = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Put, "/v1.0/api/secrets/" + secret.Id + "/values", new { values = new { keyEncoding = "base64", saltEncoding = "base64", ivEncoding = "base64" } }, token).ConfigureAwait(false);
+                Assert.Equal(200, partial.StatusCode, "encoding-only partial update preserves existing AES values");
+                TestResponse invalidUpdate = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Put, "/v1.0/api/secrets/" + secret.Id + "/values", new { values = new { ivEncoding = "automatic" } }, token).ConfigureAwait(false);
+                Assert.Equal(400, invalidUpdate.StatusCode, "invalid encoding rejected on update");
                 Assert.True(secret.Kind == SecretKindEnum.AesKey && secret.Fingerprint == null, "AES bundle retains its kind without a key-content hint");
                 Assert.True(SecretFieldRules.PrimaryField(SecretKindEnum.AesKey) == null, "AES key contents never provide a last-four hint");
                 Assert.True(!SecretFieldRules.Accepts(SecretKindEnum.AesKey, "password") && SecretFieldRules.Required(SecretKindEnum.AesKey).SequenceEqual(new[] { "key" }), "only supported AES fields accepted and key is required");

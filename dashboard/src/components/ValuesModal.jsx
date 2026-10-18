@@ -25,7 +25,7 @@ export default function ValuesModal({ title, kind, onSubmit, onClose }) {
     setBusy(true);
     setError(null);
     try {
-      await onSubmit(secretValuesBody(kind, values));
+      await onSubmit(secretValuesBody(kind, values, { partial: true }));
       setValues({});
       onClose();
     } catch (e) {

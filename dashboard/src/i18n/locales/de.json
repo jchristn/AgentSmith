@@ -751,7 +751,10 @@
         "value": "Wert",
         "key": "Schlüssel",
         "salt": "Salz (optional)",
-        "iv": "Initialisierungsvektor (optional)"
+        "iv": "Initialisierungsvektor (optional)",
+        "keyEncoding": "Schlüsselformat",
+        "saltEncoding": "Salzformat",
+        "ivEncoding": "IV-Format"
       },
       "file": {
         "pem": "Die Datei enthält einen PEM-Block vom Typ {{type}}.",
@@ -759,6 +762,11 @@
         "kubeconfig": "Kubeconfig-Kontexte: {{contexts}}.",
         "kubeconfigNone": "In dieser kubeconfig wurden keine Kontexte gefunden.",
         "invalidJson": "Diese Datei ist kein gültiges JSON."
+      },
+      "encodingPreserve": "Gespeichertes Format beibehalten (bisheriger Standard: Ressourceneinstellung)",
+      "encodings": {
+        "base64": "Base64",
+        "hex": "Hexadezimal"
       }
     },
     "toolActivity": {
@@ -3512,9 +3520,12 @@
         "connectionString": "Eine vollständige Verbindungszeichenfolge einschließlich Zugangsdaten, zum Beispiel für SQL Server oder Redis.",
         "certificate": "Das Zertifikat im PEM-Format. Für sich nicht geheim, wird aber mit seinem Schlüssel aufbewahrt.",
         "value": "Ein beliebiger geheimer Wert für Konnektoren, die ein einzelnes undurchsichtiges Secret verwenden.",
-        "key": "Kodierte Schlüsselbytes. Verwenden Sie die Schlüsselkodierung der Ressource. PBKDF2 leitet daraus nur bei ausdrücklicher Aktivierung einen AES-Schlüssel ab.",
-        "salt": "Optionales kodiertes Salt, nur für PBKDF2. Verwenden Sie die Schlüsselkodierung der Ressource.",
-        "iv": "Optionaler kodierter 16-Byte-IV für vorhandene AES-CBC-Geheimtexte. Die Verschlüsselung erzeugt immer einen neuen IV."
+        "key": "Kodierte Schlüsselbytes im gewählten Schlüsselformat. PBKDF2 leitet daraus nur bei ausdrücklicher Aktivierung einen AES-Schlüssel ab.",
+        "salt": "Optionales Salz im gewählten Salzformat, nur für PBKDF2.",
+        "iv": "Optionaler kodierter 16-Byte-IV für vorhandene AES-CBC-Geheimtexte. Die Verschlüsselung erzeugt immer einen neuen IV.",
+        "keyEncoding": "Wählen Sie Base64 oder Hex ausdrücklich. Das gespeicherte Feldformat hat Vorrang vor der Schlüsselkodierung der Ressource; Hugo errät das Format nie.",
+        "saltEncoding": "Wählen Sie Base64 oder Hex ausdrücklich. Das gespeicherte Feldformat hat Vorrang vor der Schlüsselkodierung der Ressource; Hugo errät das Format nie.",
+        "ivEncoding": "Wählen Sie Base64 oder Hex ausdrücklich. Das gespeicherte Feldformat hat Vorrang vor der Schlüsselkodierung der Ressource; Hugo errät das Format nie."
       }
     },
     "toolActivity": {

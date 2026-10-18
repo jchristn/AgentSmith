@@ -10,6 +10,8 @@ Everything below is new in this release. The images are `jchristn77/hugo-server:
 
 ### Agent instructions
 
+- AES secrets record independent base64 or hex formats for key, salt and IV, so one resource can use mixed-format material without guessing.
+
 - Agents can read and update their current profile's persistent Extra instructions through hosted chat and MCP. The model handles version checks and concise consolidation, with profile permissions, atomic updates, secret guards, auditing, and fresh instructions before each hosted model call. No database migration is needed.
 
 ### Connectors

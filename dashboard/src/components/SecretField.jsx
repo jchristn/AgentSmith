@@ -56,8 +56,10 @@ export function SecretValuesForm({ kind, values = {}, onChange, errors = {}, dis
         const field = {
           name: f.name,
           label,
-          required: f.required && !replace,
-          type: f.multiline ? 'textarea' : f.secret ? 'password' : 'text',
+          required: f.encoding ? !replace : f.required && !replace,
+          type: f.encoding ? 'select' : f.multiline ? 'textarea' : f.secret ? 'password' : 'text',
+          options: f.encoding ? ['base64', 'hex'].map((value) => ({ value, label: t(`components.secretField.encodings.${value}`) })) : undefined,
+          noneLabel: f.encoding && replace ? t('components.secretField.encodingPreserve') : undefined,
           rows: f.multiline ? 6 : undefined,
           tip: t(`tips.secretField.fields.${f.name}`),
           hint: replace ? t('components.secretField.replaceHint') : undefined,
@@ -80,7 +82,7 @@ export function SecretValuesForm({ kind, values = {}, onChange, errors = {}, dis
             <FormField
               id={id}
               field={field}
-              value={values[f.name] ?? ''}
+              value={values[f.name] ?? (f.encoding && !replace ? 'base64' : '')}
               error={errors[f.name]}
               disabled={disabled}
               onChange={(v) => onChange({ ...values, [f.name]: v })}

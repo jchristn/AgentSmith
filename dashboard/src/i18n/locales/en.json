@@ -751,7 +751,10 @@
         "value": "Value",
         "key": "Key",
         "salt": "Salt (optional)",
-        "iv": "Initialization vector (optional)"
+        "iv": "Initialization vector (optional)",
+        "keyEncoding": "Key format",
+        "saltEncoding": "Salt format",
+        "ivEncoding": "IV format"
       },
       "file": {
         "pem": "File contains a PEM block of type {{type}}.",
@@ -759,6 +762,11 @@
         "kubeconfig": "Kubeconfig contexts: {{contexts}}.",
         "kubeconfigNone": "No contexts were found in this kubeconfig.",
         "invalidJson": "This file is not valid JSON."
+      },
+      "encodingPreserve": "Keep stored format (legacy fallback: resource setting)",
+      "encodings": {
+        "base64": "Base64",
+        "hex": "Hex"
       }
     },
     "toolActivity": {
@@ -3498,9 +3506,12 @@
         "connectionString": "A full connection string including credentials, for example for SQL Server or Redis.",
         "certificate": "The certificate in PEM format. Not secret by itself, but kept with its key.",
         "value": "Any secret value for connectors that take a single opaque secret.",
-        "key": "Encoded key bytes. Use the resource key encoding; PBKDF2 derives an AES key from these bytes only when explicitly enabled.",
-        "salt": "Optional encoded salt, used only with PBKDF2. Use the resource key encoding.",
-        "iv": "Optional encoded 16-byte IV for existing AES-CBC ciphertext. Encryption always generates a fresh IV."
+        "key": "Encoded key bytes in the selected key format. PBKDF2 derives an AES key from these bytes only when explicitly enabled.",
+        "salt": "Optional salt in the selected salt format, used only with PBKDF2.",
+        "iv": "Optional encoded 16-byte IV for existing AES-CBC ciphertext. Encryption always generates a fresh IV.",
+        "keyEncoding": "Choose Base64 or hex explicitly. The saved field format overrides the resource key encoding; Hugo never guesses.",
+        "saltEncoding": "Choose Base64 or hex explicitly. The saved field format overrides the resource key encoding; Hugo never guesses.",
+        "ivEncoding": "Choose Base64 or hex explicitly. The saved field format overrides the resource key encoding; Hugo never guesses."
       }
     },
     "toolActivity": {

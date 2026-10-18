@@ -59,7 +59,7 @@ namespace Hugo.Connectors.Abstractions
         BearerToken = 9,
 
         /// <summary>
-        /// Fields: <c>key</c>, optional <c>salt</c> and <c>iv</c>. Encoding and explicit derivation are configured on the cryptography resource.
+        /// Fields: <c>key</c>, optional <c>salt</c> and <c>iv</c>. Optional <c>keyEncoding</c>, <c>saltEncoding</c> and <c>ivEncoding</c> select base64 or hex per field, falling back to resource encoding.
         /// </summary>
         AesKey = 10
     }

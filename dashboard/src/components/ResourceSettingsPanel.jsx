@@ -92,6 +92,10 @@ export default function ResourceSettingsPanel({ data, onChange, errors = {}, dis
 
   const connector = useMemo(() => (connectors || []).find((c) => c.type === data.connectorType) || null, [connectors, data.connectorType]);
   const schema = connectorSchema(connector);
+  // New AES resources keep their IV inside the key bundle. Retain a legacy separate binding only when one exists.
+  const secretSlots = (connector?.secretSlots || []).filter(
+    (slot) => connector.type !== 'cryptography' || slot.name !== 'initializationVector' || !!data.secretBindings?.[slot.name]?.secretId
+  );
 
   // The form keeps the chosen connector's descriptor (as _connector, never sent) so validation and the request body
   // can use its schema.
@@ -171,11 +175,11 @@ export default function ResourceSettingsPanel({ data, onChange, errors = {}, dis
             idPrefix="resource-setting"
             onChange={(settings) => onChange({ ...data, settings })}
           />
-          {(connector.secretSlots || []).length > 0 && (
+          {secretSlots.length > 0 && (
             <>
               <h4 className="form-section-title">{t('views.resources.form.secrets')}</h4>
               <div className="form-grid">
-                {connector.secretSlots.map((slot) => (
+                {secretSlots.map((slot) => (
                   <SecretSlotPicker
                     key={slot.name}
                     slot={{ ...slot, label: connectorSlotLabel(t, connector.type, slot) }}

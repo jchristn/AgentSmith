@@ -756,7 +756,10 @@
         "value": "Valeur",
         "key": "Clé",
         "salt": "Sel (facultatif)",
-        "iv": "Vecteur d’initialisation (facultatif)"
+        "iv": "Vecteur d’initialisation (facultatif)",
+        "keyEncoding": "Format de la clé",
+        "saltEncoding": "Format du sel",
+        "ivEncoding": "Format de l’IV"
       },
       "file": {
         "pem": "Le fichier contient un bloc PEM de type {{type}}.",
@@ -764,6 +767,11 @@
         "kubeconfig": "Contextes kubeconfig : {{contexts}}.",
         "kubeconfigNone": "Aucun contexte n'a été trouvé dans ce kubeconfig.",
         "invalidJson": "Ce fichier n'est pas un JSON valide."
+      },
+      "encodingPreserve": "Conserver le format enregistré (repli historique : paramètre de la ressource)",
+      "encodings": {
+        "base64": "Base64",
+        "hex": "Hexadécimal"
       }
     },
     "toolActivity": {
@@ -3533,9 +3541,12 @@
         "connectionString": "Une chaîne de connexion complète incluant les identifiants, par exemple pour SQL Server ou Redis.",
         "certificate": "Le certificat au format PEM. Non secret en soi, mais conservé avec sa clé.",
         "value": "Toute valeur secrète pour les connecteurs qui acceptent un secret opaque unique.",
-        "key": "Octets de clé encodés. Utilisez l’encodage de clé de la ressource. PBKDF2 ne dérive une clé AES que si cette option est explicitement activée.",
-        "salt": "Sel encodé facultatif, utilisé uniquement avec PBKDF2. Utilisez l’encodage de clé de la ressource.",
-        "iv": "IV encodé facultatif de 16 octets pour les données AES-CBC existantes. Le chiffrement génère toujours un nouvel IV."
+        "key": "Octets de clé encodés dans le format choisi. PBKDF2 ne dérive une clé AES que si cette option est explicitement activée.",
+        "salt": "Sel facultatif au format choisi, utilisé uniquement avec PBKDF2.",
+        "iv": "IV encodé facultatif de 16 octets pour les données AES-CBC existantes. Le chiffrement génère toujours un nouvel IV.",
+        "keyEncoding": "Choisissez explicitement Base64 ou hexadécimal. Le format enregistré du champ prime sur l’encodage de clé de la ressource ; Hugo ne le devine jamais.",
+        "saltEncoding": "Choisissez explicitement Base64 ou hexadécimal. Le format enregistré du champ prime sur l’encodage de clé de la ressource ; Hugo ne le devine jamais.",
+        "ivEncoding": "Choisissez explicitement Base64 ou hexadécimal. Le format enregistré du champ prime sur l’encodage de clé de la ressource ; Hugo ne le devine jamais."
       }
     },
     "toolActivity": {

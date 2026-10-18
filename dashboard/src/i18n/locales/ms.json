@@ -751,7 +751,10 @@
         "value": "Nilai",
         "key": "Kunci",
         "salt": "Garam (pilihan)",
-        "iv": "Vektor pemulaan (pilihan)"
+        "iv": "Vektor pemulaan (pilihan)",
+        "keyEncoding": "Format kunci",
+        "saltEncoding": "Format garam",
+        "ivEncoding": "Format IV"
       },
       "file": {
         "pem": "Fail mengandungi blok PEM jenis {{type}}.",
@@ -759,6 +762,11 @@
         "kubeconfig": "Konteks kubeconfig: {{contexts}}.",
         "kubeconfigNone": "Tiada konteks ditemui dalam kubeconfig ini.",
         "invalidJson": "Fail ini bukan JSON yang sah."
+      },
+      "encodingPreserve": "Kekalkan format tersimpan (sandaran lama: tetapan sumber)",
+      "encodings": {
+        "base64": "Base64",
+        "hex": "Heksadesimal"
       }
     },
     "toolActivity": {
@@ -3512,9 +3520,12 @@
         "connectionString": "Rentetan sambungan penuh termasuk kelayakan, contohnya untuk SQL Server atau Redis.",
         "certificate": "Sijil dalam format PEM. Bukan rahsia dengan sendirinya, tetapi disimpan bersama kuncinya.",
         "value": "Sebarang nilai rahsia untuk penyambung yang menerima satu rahsia legap.",
-        "key": "Bait kunci berkod. Gunakan pengekodan kunci sumber; PBKDF2 menerbitkan kunci AES hanya apabila diaktifkan secara nyata.",
-        "salt": "Garam berkod pilihan, digunakan hanya dengan PBKDF2. Gunakan pengekodan kunci sumber.",
-        "iv": "IV berkod 16 bait pilihan untuk data AES-CBC sedia ada. Penyulitan sentiasa menjana IV baharu."
+        "key": "Bait kunci berkod dalam format kunci dipilih. PBKDF2 menerbitkan kunci AES hanya apabila diaktifkan secara nyata.",
+        "salt": "Garam pilihan dalam format garam dipilih, digunakan hanya dengan PBKDF2.",
+        "iv": "IV berkod 16 bait pilihan untuk data AES-CBC sedia ada. Penyulitan sentiasa menjana IV baharu.",
+        "keyEncoding": "Pilih Base64 atau heksadesimal secara nyata. Format medan tersimpan mengatasi pengekodan kunci sumber; Hugo tidak meneka format.",
+        "saltEncoding": "Pilih Base64 atau heksadesimal secara nyata. Format medan tersimpan mengatasi pengekodan kunci sumber; Hugo tidak meneka format.",
+        "ivEncoding": "Pilih Base64 atau heksadesimal secara nyata. Format medan tersimpan mengatasi pengekodan kunci sumber; Hugo tidak meneka format."
       }
     },
     "toolActivity": {

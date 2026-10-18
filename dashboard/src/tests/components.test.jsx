@@ -239,11 +239,13 @@ describe('secret fields', () => {
       expect(document.querySelector(`label[for="slot-new-${name}"] .required-mark`) !== null).toBe(name === 'key');
       fireEvent.change(input, { target: { value: `encoded-${name}` } });
     }
+    fireEvent.change(document.querySelector('#slot-new-keyEncoding'), { target: { value: 'hex' } });
+    fireEvent.change(document.querySelector('#slot-new-ivEncoding'), { target: { value: 'hex' } });
     await act(async () => fireEvent.click(screen.getByText(t('components.secretField.saveInline'))));
     expect(createSecret).toHaveBeenCalledWith({
       name: 'blob-encryption',
       kind: 'AesKey',
-      values: { key: 'encoded-key', salt: 'encoded-salt', iv: 'encoded-iv' }
+      values: { key: 'encoded-key', keyEncoding: 'hex', salt: 'encoded-salt', saltEncoding: 'base64', iv: 'encoded-iv', ivEncoding: 'hex' }
     });
     expect(onChange).toHaveBeenCalledWith({ secretId: 'sec_aes', secretFieldName: null });
   });
@@ -251,6 +253,7 @@ describe('secret fields', () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined);
     render(<ValuesModal title="Replace encryption material" kind="AesKey" onSubmit={onSubmit} onClose={() => {}} />);
     expect(document.querySelector('[data-testid="secret-values"] .required-mark')).toBeNull();
+    for (const name of ['keyEncoding', 'saltEncoding', 'ivEncoding']) expect(document.querySelector(`#secret-replace-${name}`).value).toBe('');
     fireEvent.change(document.querySelector('#secret-replace-key'), { target: { value: 'temporary' } });
     fireEvent.change(document.querySelector('#secret-replace-key'), { target: { value: '' } });
     fireEvent.change(document.querySelector('#secret-replace-salt'), { target: { value: 'replacement-salt' } });

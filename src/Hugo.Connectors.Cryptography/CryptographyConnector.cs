@@ -34,7 +34,7 @@ namespace Hugo.Connectors.Cryptography
             schema.Add(new SettingDescriptor("keyEncoding", SettingValueKindEnum.Enum, "Key material encoding")
             {
                 DefaultValue = "base64", AllowedValues = new List<string> { "base64", "hex" },
-                Help = "Encoding of AES secret key, salt and iv fields, or legacy Generic value fields. Direct AES keys decode to 16, 24, or 32 bytes. PBKDF2 treats decoded key bytes as the password. CBC IVs decode to 16 bytes."
+                Help = "Fallback encoding of AES secret key, salt and iv fields, or legacy Generic value fields. AES secret keyEncoding, saltEncoding and ivEncoding fields independently override this default. Direct AES keys decode to 16, 24, or 32 bytes. PBKDF2 treats decoded key bytes as the password. CBC IVs decode to 16 bytes."
             });
             schema.Add(new SettingDescriptor("keyDerivation", SettingValueKindEnum.Enum, "Key derivation")
             {
@@ -63,7 +63,7 @@ namespace Hugo.Connectors.Cryptography
                 SettingsSchema = schema,
                 SecretSlots = new List<SecretSlotDescriptor>
                 {
-                    new SecretSlotDescriptor("encryptionKey", "AES key bundle", SecretKindEnum.AesKey, SecretKindEnum.Generic) { Help = "AES key secret fields key, optional salt and iv, encoded using keyEncoding. Generic value/key remains supported. Salt is used only with explicit PBKDF2-SHA256. Separate CBC decryption IV precedence: tool nonce, bundle iv, legacy initializationVector. Encryption always generates a fresh IV. Optional for hashing; keys never supplied through tool arguments." },
+                    new SecretSlotDescriptor("encryptionKey", "AES key bundle", SecretKindEnum.AesKey, SecretKindEnum.Generic) { Help = "AES key secret fields key, optional salt and iv, with optional keyEncoding, saltEncoding and ivEncoding fields (base64 or hex). Per-field encoding overrides resource keyEncoding. Generic value/key remains supported. Salt is used only with explicit PBKDF2-SHA256. Separate CBC decryption IV precedence: tool nonce, bundle iv, legacy initializationVector. Encryption always generates a fresh IV. Optional for hashing; keys never supplied through tool arguments." },
                     new SecretSlotDescriptor("initializationVector", "Legacy CBC initialization vector", SecretKindEnum.Generic) { Help = "Optional Generic secret field value containing the 16-byte CBC IV, encoded using keyEncoding. Used only when decrypting separate CBC ciphertext without an IV argument or AES bundle iv. Encryption always generates a fresh IV." }
                 },
                 DefaultInstructionsKey = "connector.cryptography.instructions",
@@ -99,7 +99,7 @@ namespace Hugo.Connectors.Cryptography
             {
                 try
                 {
-                    byte[] iv = CryptoCodec.Decode(bundleIv, encoding, 16, false);
+                    byte[] iv = CryptoCodec.Decode(bundleIv, CryptoCodec.MaterialEncoding(resource, "iv"), 16, false);
                     if (iv.Length != 16) result.Add("encryptionKey", "invalid_value", "The AES secret iv must decode to 16 bytes.");
                     CryptographicOperations.ZeroMemory(iv);
                 }

@@ -72,7 +72,7 @@ namespace Hugo.Core.Secrets
         {
             switch (kind)
             {
-                case SecretKindEnum.AesKey: return new List<string> { "salt", "iv" };
+                case SecretKindEnum.AesKey: return new List<string> { "salt", "iv", "keyEncoding", "saltEncoding", "ivEncoding" };
                 case SecretKindEnum.Password: return new List<string> { "username" };
                 case SecretKindEnum.PrivateKey: return new List<string> { "passphrase" };
                 case SecretKindEnum.AccessKeyPair: return new List<string> { "sessionToken" };

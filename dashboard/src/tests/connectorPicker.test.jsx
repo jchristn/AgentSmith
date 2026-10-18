@@ -5,6 +5,7 @@ import i18n, { setActiveLocale } from '../i18n';
 import AuthContext from '../context/AuthContext';
 import FormFields from '../components/FormFields';
 import { resourcesConfig } from '../views/hugoConfigs';
+import { resourceConnectorBody } from '../components/ResourceSettingsPanel';
 
 beforeAll(async () => setActiveLocale('en'));
 afterEach(cleanup);
@@ -35,10 +36,10 @@ function Form({ initial = {}, mode = 'create', errors = {} }) {
     </>
   );
 }
-function openForm(props = {}) {
+function openForm(props = {}, connectorItems = connectors, secretItems = [{ id: 'sec_password', name: 'Saved password', kind: 'Password' }]) {
   const client = {
-    listConnectors: vi.fn().mockResolvedValue({ items: connectors }),
-    listSecrets: vi.fn().mockResolvedValue({ items: [{ id: 'sec_password', name: 'Saved password', kind: 'Password' }] }),
+    listConnectors: vi.fn().mockResolvedValue({ items: connectorItems }),
+    listSecrets: vi.fn().mockResolvedValue({ items: secretItems }),
     testResourceSettings: vi.fn().mockResolvedValue({ success: true, message: 'Connected' })
   };
   const result = render(
@@ -51,6 +52,41 @@ function openForm(props = {}) {
 const state = () => JSON.parse(screen.getByTestId('resource-state').textContent);
 
 describe('visible resource connector picker', () => {
+  const cryptography = {
+    type: 'cryptography',
+    displayName: 'Cryptography',
+    category: 'Other',
+    settings: [],
+    secretSlots: [
+      { name: 'encryptionKey', label: 'AES key bundle', acceptedKinds: ['AesKey', 'Generic'] },
+      { name: 'initializationVector', label: 'Initialization vector', acceptedKinds: ['Generic'] }
+    ]
+  };
+  it('shows only the AES bundle picker for a new cryptography resource', async () => {
+    openForm({ initial: { connectorType: 'cryptography' } }, [cryptography]);
+    await waitFor(() => expect(document.querySelector('#resource-slot-encryptionKey')).toBeTruthy());
+    expect(document.querySelector('#resource-slot-initializationVector')).toBeNull();
+    expect(screen.queryByTestId('create-secret-initializationVector')).toBeNull();
+  });
+  it('keeps an existing separate IV binding editable and includes it in saved settings', async () => {
+    const secretBindings = {
+      encryptionKey: { secretId: 'sec_bundle' },
+      initializationVector: { secretId: 'sec_iv' }
+    };
+    openForm(
+      { mode: 'edit', initial: { connectorType: 'cryptography', secretBindings } },
+      [cryptography],
+      [
+        { id: 'sec_bundle', name: 'AES bundle', kind: 'AesKey' },
+        { id: 'sec_iv', name: 'Legacy IV', kind: 'Generic' }
+      ]
+    );
+    await waitFor(() => expect(document.querySelector('#resource-slot-initializationVector')?.value).toBe('sec_iv'));
+    expect(resourceConnectorBody(state(), cryptography).secretBindings).toEqual([
+      { slotName: 'encryptionKey', secretId: 'sec_bundle', secretFieldName: null },
+      { slotName: 'initializationVector', secretId: 'sec_iv', secretFieldName: null }
+    ]);
+  });
   it('puts the searchable radio cards before general metadata and keeps the metadata IDs', async () => {
     const { container } = openForm();
     const ssh = await screen.findByRole('radio', { name: 'SSH host' });

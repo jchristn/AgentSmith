@@ -756,7 +756,10 @@
         "value": "Valore",
         "key": "Chiave",
         "salt": "Salt (facoltativo)",
-        "iv": "Vettore di inizializzazione (facoltativo)"
+        "iv": "Vettore di inizializzazione (facoltativo)",
+        "keyEncoding": "Formato della chiave",
+        "saltEncoding": "Formato del salt",
+        "ivEncoding": "Formato dell’IV"
       },
       "file": {
         "pem": "Il file contiene un blocco PEM di tipo {{type}}.",
@@ -764,6 +767,11 @@
         "kubeconfig": "Contesti del kubeconfig: {{contexts}}.",
         "kubeconfigNone": "Nessun contesto trovato in questo kubeconfig.",
         "invalidJson": "Questo file non è un JSON valido."
+      },
+      "encodingPreserve": "Mantieni il formato salvato (compatibilità: impostazione della risorsa)",
+      "encodings": {
+        "base64": "Base64",
+        "hex": "Esadecimale"
       }
     },
     "toolActivity": {
@@ -3533,9 +3541,12 @@
         "connectionString": "Una stringa di connessione completa che include le credenziali, ad esempio per SQL Server o Redis.",
         "certificate": "Il certificato in formato PEM. Di per sé non è segreto, ma viene conservato con la sua chiave.",
         "value": "Qualsiasi valore segreto per i connettori che accettano un unico segreto opaco.",
-        "key": "Byte della chiave codificati. Usa la codifica della chiave della risorsa; PBKDF2 deriva una chiave AES solo se abilitato esplicitamente.",
-        "salt": "Salt codificato facoltativo, usato solo con PBKDF2. Usa la codifica della chiave della risorsa.",
-        "iv": "IV codificato facoltativo di 16 byte per dati AES-CBC esistenti. La cifratura genera sempre un nuovo IV."
+        "key": "Byte della chiave codificati nel formato selezionato. PBKDF2 deriva una chiave AES solo se abilitato esplicitamente.",
+        "salt": "Salt facoltativo nel formato selezionato, usato solo con PBKDF2.",
+        "iv": "IV codificato facoltativo di 16 byte per dati AES-CBC esistenti. La cifratura genera sempre un nuovo IV.",
+        "keyEncoding": "Scegli esplicitamente Base64 o esadecimale. Il formato salvato del campo prevale sulla codifica della chiave della risorsa; Hugo non tenta mai di indovinarlo.",
+        "saltEncoding": "Scegli esplicitamente Base64 o esadecimale. Il formato salvato del campo prevale sulla codifica della chiave della risorsa; Hugo non tenta mai di indovinarlo.",
+        "ivEncoding": "Scegli esplicitamente Base64 o esadecimale. Il formato salvato del campo prevale sulla codifica della chiave della risorsa; Hugo non tenta mai di indovinarlo."
       }
     },
     "toolActivity": {
