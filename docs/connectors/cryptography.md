@@ -4,7 +4,7 @@ A `cryptography` resource gives an agent access to a specific vault-managed AES 
 
 ## Configure the resource
 
-Create an **AES key material** secret in **Connections → Secrets**. Its API kind is `AesKey`, and its masked fields are `key`, optional `salt`, and optional `iv`. Bind that one secret to the resource's **AES key material** slot (`encryptionKey`). Use separate bundled secrets and resource aliases for separate encryption configurations. The agent supplies the resource alias, never the secret fields.
+Create an **AES key material** secret in **Connections → Secrets**. Its API kind is `AesKey`, and its masked fields are `key`, optional `salt`, and optional `iv`. Bind that one secret to the resource's **AES key material** slot (`encryptionKey`). Use separate bundled secrets and resource aliases for separate encryption configurations. The agent supplies the resource alias, never the secret fields. The connector reads the encrypted vault material internally; the agent does not need permission to reveal it. Missing resource context notes do not imply missing secrets.
 
 Choose **Base64** or **Hex** independently for key, salt, and IV when creating the secret. The secret stores these choices as `keyEncoding`, `saltEncoding`, and `ivEncoding` alongside the encrypted material. Hex-looking strings can also be valid base64, so the selected format is explicit rather than guessed. Each saved format overrides the resource's `keyEncoding`; existing secrets without saved formats keep using that resource setting. With the default `keyDerivation: "None"`, `key` is a direct AES key of 16, 24, or 32 decoded bytes. A raw AES-256 key contains 32 bytes. CBC decryption of raw ciphertext can take its 16-byte IV from the bundle's `iv` field. Encryption generates fresh nonce/IV bytes; it does not reuse that saved IV.
 
@@ -40,6 +40,8 @@ For raw AES-CBC ciphertext with a separately configured key and IV, put the key 
   "format": "separate"
 }
 ```
+
+A short text value may produce only one 16-byte ciphertext block. That is valid separate CBC ciphertext; an IV prefix is not required when the IV is bound in the secret. The agent should attempt the tool and report its actual error before concluding that material is missing.
 
 When `nonce` is omitted in separate CBC mode, the connector uses the bundle's `iv`, then a separately bound legacy IV if no bundle IV exists. That matches a raw AES-CBC/PKCS7 payload encrypted with a direct AES key and separate IV. Leave `keyDerivation` at `None` for this direct-key format; select a derivation method only when the original format used it. An application using a different key derivation or envelope needs its actual format specified.
 

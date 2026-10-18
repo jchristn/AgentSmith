@@ -32,15 +32,15 @@ namespace Hugo.Connectors.Cryptography
             if (!new string[] { "encrypt", "decrypt", "hash", "verify_hash" }.Contains(operation)) throw new ArgumentException("Unsupported cryptographic operation.", nameof(operation));
             _Operation = operation;
             string fields = "\"data\":{\"type\":\"string\"},\"inputEncoding\":{\"type\":\"string\",\"enum\":[\"base64\",\"hex\",\"utf8\"]},\"outputEncoding\":{\"type\":\"string\",\"enum\":[\"base64\",\"hex\",\"utf8\"]}";
-            if (operation == "encrypt" || operation == "decrypt") fields += ",\"format\":{\"type\":\"string\",\"enum\":[\"separate\",\"combined\"]},\"associatedData\":{\"type\":\"string\"}";
-            if (operation == "decrypt") fields += ",\"nonce\":{\"type\":\"string\"},\"tag\":{\"type\":\"string\"}";
+            if (operation == "encrypt" || operation == "decrypt") fields += ",\"format\":{\"type\":\"string\",\"enum\":[\"separate\",\"combined\"],\"description\":\"Defaults to separate: raw ciphertext, with CBC IV read from the bound secret when nonce is omitted. Combined includes the IV/nonce in data.\"},\"associatedData\":{\"type\":\"string\"}";
+            if (operation == "decrypt") fields += ",\"nonce\":{\"type\":\"string\",\"description\":\"Optional for separate CBC when the bound AES secret contains iv; omit to use it. Required for separate GCM. Uses inputEncoding.\"},\"tag\":{\"type\":\"string\",\"description\":\"Required only for separate GCM. Omit for CBC.\"}";
             if (operation == "hash" || operation == "verify_hash") fields += ",\"hashAlgorithm\":{\"type\":\"string\",\"enum\":[\"SHA256\",\"SHA384\",\"SHA512\"]}";
             if (operation == "verify_hash") fields += ",\"expectedHash\":{\"type\":\"string\"}";
             Descriptor = new ToolDescriptor
             {
                 Name = "crypto_" + operation,
                 Title = "Cryptography " + operation.Replace('_', ' '),
-                Description = "Locally " + operation.Replace('_', ' ') + " bytes with this resource's administrator-managed key and cipher. Never supply keys in arguments. Input defaults to base64, output defaults to base64. Encryption generates a fresh random nonce/IV. Separate format returns nonce and GCM tag; combined format is nonce/IV || ciphertext || GCM tag (no tag for CBC). GCM nonce is 12 bytes and tag is 16 bytes. CBC uses a 16-byte IV and PKCS7 padding and is unauthenticated. Associated data uses inputEncoding. Hashes support SHA256/384/512. Plaintext can be utf8; decryption input cannot. Output and input limits apply; never truncate encrypted blobs or guess their format.",
+                Description = "Locally " + operation.Replace('_', ' ') + " bytes with this resource's administrator-managed key and cipher. The connector reads bound secrets internally; agent access to secret values is neither needed nor permitted. For AES-CBC raw ciphertext use format separate and omit nonce/tag to use the IV in the bound AES secret. Call the tool before declaring bound material unavailable; missing resource context does not mean missing secrets. Input defaults to base64, output defaults to base64. Encryption generates a fresh random nonce/IV. Separate format returns nonce and GCM tag; combined format is nonce/IV || ciphertext || GCM tag (no tag for CBC). GCM nonce is 12 bytes and tag is 16 bytes. CBC uses a 16-byte IV and PKCS7 padding and is unauthenticated. Associated data uses inputEncoding. Hashes support SHA256/384/512. Plaintext can be utf8; decryption input cannot. Output and input limits apply; never truncate encrypted blobs or guess their format.",
                 BaseEffect = EffectEnum.Read,
                 InputSchemaJson = "{\"type\":\"object\",\"additionalProperties\":false,\"required\":[\"data\"" + (operation == "verify_hash" ? ",\"expectedHash\"" : "") + "],\"properties\":{" + fields + "}}",
                 OutputDescription = "JSON {algorithm,data,encoding,nonce?,tag?,matches?,warning?}. Data is complete or the operation fails; never truncated."
@@ -130,7 +130,9 @@ namespace Hugo.Connectors.Cryptography
                 else if (request.Format == "combined")
                 {
                     if (request.Nonce != null || request.Tag != null) throw CryptoCodec.Invalid("Combined format cannot also supply separate nonce or tag.");
-                    if (data.Length < nonceLength + tag.Length) throw CryptoCodec.Invalid("The combined ciphertext envelope is too short.");
+                    if (data.Length < nonceLength + (algorithm == "AES-CBC" ? 16 : tag.Length)) throw CryptoCodec.Invalid(algorithm == "AES-CBC"
+                        ? "Combined AES-CBC data must include a 16-byte IV followed by at least one 16-byte ciphertext block. For raw ciphertext whose IV is in the bound AES secret, call with format separate and omit nonce/tag; the connector reads the IV internally."
+                        : "The combined AES-GCM envelope is too short to contain its 12-byte nonce and 16-byte tag.");
                     nonce = data.AsSpan(0, nonceLength).ToArray();
                     ciphertext = data.AsSpan(nonceLength, data.Length - nonceLength - tag.Length).ToArray();
                     if (tag.Length > 0) tag = data.AsSpan(data.Length - tag.Length).ToArray();

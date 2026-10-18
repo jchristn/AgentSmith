@@ -25,6 +25,7 @@ namespace Test.Shared.Connectors.Cryptography
                 new TestCaseDescriptor(id, "descriptor", "Four Read tools and optional Generic slots", Descriptor),
                 new TestCaseDescriptor(id, "gcm-vector", "NIST GCM zero-key vector and tampered authentication tag", GcmVector),
                 new TestCaseDescriptor(id, "cbc-vector", "NIST CBC first block and administrator-bound IV with PKCS7", CbcVector),
+                new TestCaseDescriptor(id, "short-cbc-bound-iv", "External single-block CBC ciphertext decrypts using only bound secret material", ShortCbcBoundIv),
                 new TestCaseDescriptor(id, "roundtrips", "Unicode and binary round trips in separate and combined formats", Roundtrips),
                 new TestCaseDescriptor(id, "hash-vectors", "SHA-256/384/512 published abc digests and verification", HashVectors),
                 new TestCaseDescriptor(id, "limits", "Input/output bounds fail atomically without partial data", Limits),
@@ -70,6 +71,27 @@ namespace Test.Shared.Connectors.Cryptography
             byte[] paddingError = new byte[16];
             ToolResult badPadding = await Call(context, "decrypt", new CryptoRequest { Data = Convert.ToBase64String(paddingError) }, token).ConfigureAwait(false);
             Assert(badPadding.IsError && badPadding.StructuredJson == null, "invalid PKCS7 padding fails safely");
+        }
+
+        private static async Task ShortCbcBoundIv(CancellationToken token)
+        {
+            byte[] key = Convert.FromHexString("000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f");
+            byte[] iv = Convert.FromHexString("101112131415161718191a1b1c1d1e1f");
+            byte[] ciphertext;
+            using (Aes aes = Aes.Create())
+            {
+                aes.Key = key;
+                ciphertext = aes.EncryptCbc(Encoding.UTF8.GetBytes("short-test"), iv, PaddingMode.PKCS7);
+            }
+            Assert(ciphertext.Length == 16, "external short value is one block without a prepended IV");
+            ConnectorInvocationContext context = Context("AES-CBC", null);
+            SetBundle(context, new Dictionary<string, string> { { "key", Convert.ToHexString(key) }, { "keyEncoding", "hex" }, { "iv", Convert.ToBase64String(iv) }, { "ivEncoding", "base64" } });
+            ToolResult result = await new CryptographyTool("decrypt").ExecuteAsync(context, new ToolArguments(JsonSerializer.Serialize(new { data = Convert.ToBase64String(ciphertext), format = "separate", inputEncoding = "base64", outputEncoding = "utf8" })), token).ConfigureAwait(false);
+            Assert(!result.IsError, "raw request requires no explicit nonce, tag, context notes or secret-reading tool");
+            CryptoResponse response = JsonSerializer.Deserialize<CryptoResponse>(result.StructuredJson!, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            Assert(response.Data == "short-test" && response.Algorithm == "AES-CBC", "short plaintext recovered using bound key and IV");
+            ToolResult wrongEnvelope = await Call(context, "decrypt", new CryptoRequest { Data = Convert.ToBase64String(ciphertext), Format = "combined" }, token).ConfigureAwait(false);
+            Assert(wrongEnvelope.IsError && wrongEnvelope.Text.Contains("format separate"), "wrong envelope reports the bound-IV invocation instead of requesting secret access");
         }
 
         private static async Task Roundtrips(CancellationToken token)
