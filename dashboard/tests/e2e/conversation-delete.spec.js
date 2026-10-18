@@ -2,11 +2,11 @@ import { test, expect } from '@playwright/test';
 import { installMocks, login } from './mocks.js';
 import { pathFor } from '../../src/config/navConfig.js';
 
-async function setup(page, { failId, gate } = {}) {
+async function setup(page, { failId, gate, firstTitle = 'First chat' } = {}) {
   const requests = [];
   const deleted = [];
   let items = [
-    { id: 'cnv_0001', title: 'First chat', agentProfileId: 'prf_0001', source: 'Dashboard', createdUtc: '2026-10-18T12:00:00Z' },
+    { id: 'cnv_0001', title: firstTitle, agentProfileId: 'prf_0001', source: 'Dashboard', createdUtc: '2026-10-18T12:00:00Z' },
     { id: 'cnv_0002', title: 'Second chat', agentProfileId: 'prf_0001', source: 'Dashboard', createdUtc: '2026-10-18T13:00:00Z' }
   ];
   page.on('dialog', (dialog) => {
@@ -133,4 +133,31 @@ test('Agents conversation table uses the same conversation-specific confirmation
   await dialog.getByRole('button', { name: 'Delete', exact: true }).click();
   await expect.poll(() => deleted.length).toBe(2);
   expect(deleted).toEqual(['cnv_0001', 'cnv_0002']);
+});
+
+test('conversation selection checkboxes stay compact and leave titles readable across widths and themes', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const title = 'Investigate checkout latency across database, application logs and web hosts';
+  await setup(page, { firstTitle: title });
+  await page.goto(pathFor('chat'));
+  const row = page.locator('.chat-conversation-row').first();
+  for (const theme of ['light', 'dark']) {
+    await page.evaluate((value) => document.documentElement.setAttribute('data-theme', value), theme);
+    for (const width of [1280, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      await expect(row.locator('.chat-list-title')).toHaveText(title);
+      await expect.poll(async () => (await row.locator('.chat-list-title').boundingBox())?.width || 0).toBeGreaterThan(120);
+      const checkbox = await row.locator('input[type="checkbox"]').boundingBox();
+      const link = await row.locator('.chat-list-item').boundingBox();
+      const label = await row.locator('.chat-list-title').boundingBox();
+      expect(checkbox.width).toBeLessThanOrEqual(20);
+      expect(checkbox.height).toBeLessThanOrEqual(20);
+      expect(link.width).toBeGreaterThan(120);
+      expect(label.width).toBeGreaterThan(120);
+      expect(link.x).toBeGreaterThanOrEqual(checkbox.x + checkbox.width);
+      await expect(row.locator('.chat-list-title')).toBeVisible();
+      await row.scrollIntoViewIfNeeded();
+      await page.locator('.chat-list').screenshot({ path: `/tmp/hugo-chat-selection-${theme}-${width}.png`, animations: 'disabled' });
+    }
+  }
 });
