@@ -2,8 +2,11 @@ namespace Test.Shared.Chat
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Net.Http;
+    using System.Net.Http.Headers;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Hugo.Connectors.Abstractions;
@@ -44,6 +47,7 @@ namespace Test.Shared.Chat
                 cases.Add(new TestCaseDescriptor(id, "crud-visibility", "Conversation CRUD; users see their own, tenant administrators see all (" + provider + ")", ct => CrudVisibilityAsync(provider, ct)));
                 cases.Add(new TestCaseDescriptor(id, "sse-approval", "SSE turn with D-022 event order and an approval decided over REST mid-turn (" + provider + ")", ct => SseApprovalAsync(provider, ct)));
                 cases.Add(new TestCaseDescriptor(id, "json-export-analytics", "JSON turn, token accounting, auto title, export, and analytics (" + provider + ")", ct => JsonExportAnalyticsAsync(provider, ct)));
+                cases.Add(new TestCaseDescriptor(id, "disconnect-background", "Closing a chat stream does not cancel its accepted turn; explicit Stop still works", ct => DisconnectBackgroundAsync(provider, ct)));
                 cases.Add(new TestCaseDescriptor(id, "cancel-conflict", "A second turn is refused with 409 and the cancel route stops the running turn (" + provider + ")", ct => CancelConflictAsync(provider, ct)));
                 cases.Add(new TestCaseDescriptor(id, "delegation", "Delegation service and REST ask: tool trace, approval pending, and the follow-up after the decision (" + provider + ")", ct => DelegationAsync(provider, ct)));
                 cases.Add(new TestCaseDescriptor(id, "errors", "No inference endpoint, empty message, and foreign conversations (" + provider + ")", ct => ErrorsAsync(provider, ct)));
@@ -283,6 +287,40 @@ namespace Test.Shared.Chat
                     TestResponse tooMany = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Get, "/v1.0/api/analytics/tokens?interval=minute&from=2020-01-01T00:00:00Z", null, token).ConfigureAwait(false);
                     Assert.Equal(400, tooMany.StatusCode, "too many buckets");
                 }
+            }
+        }
+
+        private static async Task DisconnectBackgroundAsync(DatabaseTypeEnum provider, CancellationToken token)
+        {
+            using (StubLlmServer stub = ChatTestSupport.NewStub())
+            await using (IntegrationRig rig = await IntegrationRig.StartAsync(provider, null, token).ConfigureAwait(false))
+            {
+                await ChatTestSupport.UseStubAsync(rig, stub, token).ConfigureAwait(false);
+                stub.Script.Then(StubLlmResponse.Message("The detached answer completed.").WithDelay(2000));
+                Conversation conversation = await ChatTestSupport.ConversationAsync(rig.Anderson, token).ConfigureAwait(false);
+                AgentTurnHost host = rig.Context.Get<AgentTurnHost>();
+                using (CancellationTokenSource viewer = CancellationTokenSource.CreateLinkedTokenSource(token))
+                using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "/v1.0/api/conversations/" + conversation.Id + "/messages"))
+                {
+                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/event-stream"));
+                    request.Content = new StringContent("{\"message\":\"Continue after I leave.\"}", Encoding.UTF8, "application/json");
+                    using (HttpResponseMessage response = await rig.Anderson.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, viewer.Token).ConfigureAwait(false))
+                    using (Stream stream = await response.Content.ReadAsStreamAsync(token).ConfigureAwait(false))
+                    using (StreamReader reader = new StreamReader(stream))
+                    {
+                        string? line;
+                        do { line = await reader.ReadLineAsync(token).ConfigureAwait(false); } while (line != null && !line.Contains("turn.started", StringComparison.Ordinal));
+                        Assert.True(line != null, "accepted turn reached the viewer before disconnect");
+                        viewer.Cancel();
+                    }
+                }
+                Conversation active = await HttpTestHelpers.SendAsync<Conversation>(rig.Anderson, HttpMethod.Get, "/v1.0/api/conversations/" + conversation.Id, null, 200, token).ConfigureAwait(false);
+                Assert.True(active.TurnInProgress, "returning viewer sees the turn still running");
+                await ChatTestSupport.UntilAsync(() => Task.FromResult(!host.Turns.IsActive(conversation.Id)), "detached turn to complete", token).ConfigureAwait(false);
+                List<ConversationMessage> messages = await rig.Context.Database.Messages.ListAsync(rig.TenantId, conversation.Id, false, token).ConfigureAwait(false);
+                Assert.True(messages.Any(m => m.Role == AgentMessageRoleEnum.Assistant && m.Content.Contains("detached answer", StringComparison.Ordinal) && m.FinishReason == "completed"), "completed answer persists after viewer disconnect");
+                Conversation idle = await HttpTestHelpers.SendAsync<Conversation>(rig.Anderson, HttpMethod.Get, "/v1.0/api/conversations/" + conversation.Id, null, 200, token).ConfigureAwait(false);
+                Assert.True(!idle.TurnInProgress, "finished conversation no longer reports running");
             }
         }
 

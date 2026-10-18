@@ -1014,6 +1014,7 @@ class ResourceKnowledgeVersion(Model):
 
 @dataclasses.dataclass
 class AgentProfile(Model):
+    document_set_version: int = 0
     id: Optional[str] = None
     tenant_id: Optional[str] = None
     owner_user_id: Optional[str] = None
@@ -1334,6 +1335,7 @@ class LockdownState(Model):
 
 @dataclasses.dataclass
 class Conversation(Model):
+    turn_in_progress: bool = False
     id: Optional[str] = None
     tenant_id: Optional[str] = None
     user_id: Optional[str] = None
@@ -1545,3 +1547,140 @@ class AuditSummary(Model):
 
     total_count: int = 0
     event_counts: Dict[str, int] = dataclasses.field(default_factory=dict)
+
+
+@dataclasses.dataclass
+class PromptDocument(Model):
+    """Versioned reusable document metadata; the body is read explicitly by revision."""
+    normalized_name: str = ""
+    id: str = ""
+    tenant_id: str = ""
+    owner_user_id: Optional[str] = None
+    visibility: str = "Private"
+    name: str = ""
+    description: str = ""
+    active: bool = True
+    current_revision: int = 1
+    version: int = 1
+    content_bytes: int = 0
+    content_hash: str = ""
+    can_read: bool = False
+    can_update: bool = False
+    can_delete: bool = False
+    can_admin: bool = False
+    has_referrers: bool = False
+    created_utc: Optional[datetime] = None
+    last_update_utc: Optional[datetime] = None
+
+
+@dataclasses.dataclass
+class PromptDocumentRevision(Model):
+    """An immutable document revision; list responses omit markdown."""
+    tenant_id: Optional[str] = None
+    id: str = ""
+    document_id: str = ""
+    revision: int = 1
+    name: str = ""
+    description: str = ""
+    markdown: Optional[str] = None
+    content_bytes: int = 0
+    content_hash: str = ""
+    created_by_user_id: Optional[str] = None
+    created_utc: Optional[datetime] = None
+
+
+@dataclasses.dataclass
+class AgentPromptDocument(Model):
+    """A versioned Inline or Reference attachment to one profile."""
+    tenant_id: str = ""
+    resolved_revision: int = 0
+    created_utc: Optional[datetime] = None
+    last_update_utc: Optional[datetime] = None
+    id: str = ""
+    agent_profile_id: str = ""
+    document_id: str = ""
+    delivery_mode: str = "Reference"
+    revision_policy: str = "Latest"
+    pinned_revision: Optional[int] = None
+    display_order: int = 0
+    enabled: bool = True
+    allow_public_access: bool = False
+    version: int = 1
+    document_set_version: int = 0
+    name: str = ""
+    description: str = ""
+    revision: int = 0
+    content_bytes: int = 0
+    content_hash: str = ""
+
+
+@dataclasses.dataclass
+class AgentPromptDocumentList(Model):
+    """Attachment set and its concurrency token."""
+    document_set_version: int = 0
+    items: List[AgentPromptDocument] = dataclasses.field(default_factory=list)
+
+
+@dataclasses.dataclass
+class PromptDocumentReferrer(Model):
+    """Only referrers visible to the authenticated caller are returned."""
+    profile_id: str = ""
+    profile_name: str = ""
+    attachment_id: str = ""
+    delivery_mode: str = "Reference"
+    revision_policy: str = "Latest"
+    pinned_revision: Optional[int] = None
+    enabled: bool = True
+    allow_public_access: bool = False
+
+
+@dataclasses.dataclass
+class PromptDocumentReferrers(Model):
+    items: List[PromptDocumentReferrer] = dataclasses.field(default_factory=list)
+    has_other_referrers: bool = False
+
+
+@dataclasses.dataclass
+class PromptDocumentPreviewIssue(Model):
+    code: str = ""
+    message: str = ""
+    attachment_id: Optional[str] = None
+
+
+@dataclasses.dataclass
+class PromptDocumentPreview(Model):
+    """Dry-run composition; no model call, public session, or grant mutation occurs."""
+    compiled_text: str = ""
+    segments: List[InstructionSegment] = dataclasses.field(default_factory=list)
+    manifest: List[AgentPromptDocument] = dataclasses.field(default_factory=list)
+    issues: List[PromptDocumentPreviewIssue] = dataclasses.field(default_factory=list)
+    document_set_version: int = 0
+    inline_bytes: int = 0
+    manifest_bytes: int = 0
+    estimated_tokens: int = 0
+    audience: str = "Authenticated"
+
+
+@dataclasses.dataclass
+class PromptDocumentRequest(Model):
+    """Create/update content; expected_version is required for updates."""
+    expected_version: Optional[int] = None
+    name: Optional[str] = None
+    description: Optional[str] = None
+    markdown: Optional[str] = None
+    visibility: Optional[str] = None
+    active: Optional[bool] = None
+
+
+@dataclasses.dataclass
+class AgentPromptDocumentRequest(Model):
+    """Attachment mutation; omitted fields preserve current values."""
+    expected_version: Optional[int] = None
+    expected_document_set_version: Optional[int] = None
+    document_id: Optional[str] = None
+    delivery_mode: Optional[str] = None
+    revision_policy: Optional[str] = None
+    pinned_revision: Optional[int] = None
+    display_order: Optional[int] = None
+    enabled: Optional[bool] = None
+    allow_public_access: Optional[bool] = None

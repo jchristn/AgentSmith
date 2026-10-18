@@ -802,7 +802,7 @@ class ApiClient {
   /**
    * Send a message and stream the turn (D-022 named events: turn.started, assistant.delta, assistant.thinking,
    * tool.proposed, tool.started, tool.completed, approval.required, approval.resolved, turn.completed, error).
-   * Returns an AbortController; abort() stops the stream (the server cancels the turn when the client goes away).
+   * Returns an AbortController; abort() detaches the stream. Use cancelConversation to stop the server turn.
    */
   streamMessage(id, body, handlers) {
     return this._stream('POST', `/v1.0/api/conversations/${enc(id)}/messages`, { body }, handlers);
@@ -1112,6 +1112,52 @@ class ApiClient {
         else handlers.onEnd?.(e instanceof ApiError ? e : new ApiError(0, { code: 'NetworkError', message: e?.message || 'Network error' }));
       });
     return controller;
+  }
+
+  // Managed Markdown documents and versioned profile attachments.
+  listPromptDocuments(params = {}) {
+    return this._list('/v1.0/api/prompt-documents', params);
+  }
+  getPromptDocument(id) {
+    return this._request('GET', `/v1.0/api/prompt-documents/${enc(id)}`);
+  }
+  createPromptDocument(body) {
+    return this._request('POST', '/v1.0/api/prompt-documents', { body });
+  }
+  updatePromptDocument(id, body) {
+    return this._request('PUT', `/v1.0/api/prompt-documents/${enc(id)}`, { body });
+  }
+  deletePromptDocument(id, expectedVersion) {
+    return this._request('DELETE', `/v1.0/api/prompt-documents/${enc(id)}`, { query: { expectedVersion } });
+  }
+  listPromptDocumentRevisions(id, params = {}) {
+    return this._list(`/v1.0/api/prompt-documents/${enc(id)}/revisions`, params);
+  }
+  getPromptDocumentRevision(id, revision) {
+    return this._request('GET', `/v1.0/api/prompt-documents/${enc(id)}/revisions/${enc(revision)}`);
+  }
+  getPromptDocumentReferrers(id) {
+    return this._request('GET', `/v1.0/api/prompt-documents/${enc(id)}/referrers`);
+  }
+  listProfileDocuments(id) {
+    return this._request('GET', `/v1.0/api/agent-profiles/${enc(id)}/documents`);
+  }
+  attachProfileDocument(id, body) {
+    return this._request('POST', `/v1.0/api/agent-profiles/${enc(id)}/documents`, { body });
+  }
+  updateProfileDocument(id, attachmentId, body) {
+    return this._request('PUT', `/v1.0/api/agent-profiles/${enc(id)}/documents/${enc(attachmentId)}`, { body });
+  }
+  detachProfileDocument(id, attachmentId, expectedVersion, expectedDocumentSetVersion) {
+    return this._request('DELETE', `/v1.0/api/agent-profiles/${enc(id)}/documents/${enc(attachmentId)}`, {
+      query: { expectedVersion, expectedDocumentSetVersion }
+    });
+  }
+  reorderProfileDocuments(id, body) {
+    return this._request('PUT', `/v1.0/api/agent-profiles/${enc(id)}/documents/order`, { body });
+  }
+  previewProfileDocuments(id, audience) {
+    return this._request('POST', `/v1.0/api/agent-profiles/${enc(id)}/documents/preview`, { body: { audience } });
   }
 }
 

@@ -290,3 +290,24 @@ A variable holding the wrong type (a word where a port belongs) stops startup wi
 | `GF_SECURITY_ADMIN_USER`, `GF_SECURITY_ADMIN_PASSWORD` | `admin`, `admin` | Grafana login. Change them anywhere but your own machine. |
 
 Every host port binds to `127.0.0.1`. Inside the stack the server always listens on 8800 and reaches its peers by service name (`hugo-postgres`, `hugo-alloy:4317`, `hugo-grafana:3000`, and so on). [DOCKER.md](DOCKER.md) covers networking, PostgreSQL, and upgrades; Kubernetes deployments are configured through the manifests described in [KUBERNETES.md](KUBERNETES.md).
+
+## Prompt document limits
+
+The `PromptDocuments` section bounds reusable Markdown documents and their delivery. Values follow the existing settings validation/clamping conventions; inconsistent relationships are rejected atomically. Defaults are additive and require no changes for agents without attachments.
+
+| Setting | Default | Range/purpose |
+|---|---|---|
+| `PromptDocuments.MaxPromptDocumentBytes` | `262144` | 1024..1048576 canonical UTF-8 bytes per revision |
+| `PromptDocuments.MaxPromptDocumentsPerTenant` | `256` | 1..10000 library documents |
+| `PromptDocuments.MaxPromptDocumentStorageBytesPerTenant` | `67108864` | 1048576..1073741824 retained revision body bytes, including history |
+| `PromptDocuments.MaxPromptDocumentAttachmentsPerProfile` | `32` | 1..128 stored attachments, including disabled ones |
+| `PromptDocuments.MaxInlinePromptDocumentBytes` | `65536` | 1024..262144 aggregate inline body bytes |
+| `PromptDocuments.MaxPromptDocumentManifestBytes` | `16384` | 1024..65536 reference/catalog bytes |
+| `PromptDocuments.PromptDocumentReadBytes` | `16384` | 1024..65536 default read chunk bytes |
+| `PromptDocuments.MaxPromptDocumentReadBytes` | `65536` | 1024..262144 maximum requested/output read bytes |
+| `PromptDocuments.MaxPromptDocumentBytesPerTurn` | `262144` | 1024..1048576 cumulative hosted-turn document output bytes |
+| `PromptDocuments.PromptDocumentCursorLifetimeSeconds` | `600` | 30..3600 seconds; every continuation still reauthorizes |
+
+The maximum read size must cover the default read size, and the per-turn budget must support the configured read output. Context-window and ordinary tool/transport limits still apply. Reference reads may return smaller chunks to fit JSON metadata and valid UTF-8 boundaries. Tenant storage accounting is transactional and includes historical bodies; deleting unused detached documents frees that storage. Raising a byte limit does not raise a model's token context window.
+
+See [Agent prompt documents](AGENT_DOCUMENTS.md) for import, Inline/Reference delivery, pins and public-sharing permissions.

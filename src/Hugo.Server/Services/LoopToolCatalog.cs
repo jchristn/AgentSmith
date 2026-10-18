@@ -41,7 +41,7 @@ namespace Hugo.Server.Services
         {
             if (turn == null) throw new ArgumentNullException(nameof(turn));
             List<AgentToolDefinition> tools = await _Inner.GetToolsAsync(turn, token).ConfigureAwait(false) ?? new List<AgentToolDefinition>();
-            return tools.Where(t => (!t.IsMetaTool || AgentInstructionTools.IsInstructionTool(t.Name)) && !String.Equals(t.Name, "ask_agent_smith", StringComparison.Ordinal)).ToList();
+            return tools.Where(t => (!t.IsMetaTool || (AgentInstructionTools.IsInstructionTool(t.Name) || AgentDocumentTools.IsDocumentTool(t.Name))) && !String.Equals(t.Name, "ask_agent_smith", StringComparison.Ordinal)).ToList();
         }
 
         #endregion

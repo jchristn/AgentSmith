@@ -85,6 +85,8 @@ The tenant-scoped `prompt_templates` client and the layered `prompt_layers` clie
 | `audit` | list (event type, principal, result, time range, paging), get, delete, `delete_many` |
 | `request_history` | list (method, status, path, time range, paging), `summary`, get, delete, `delete_many` |
 | `secrets` | CRUD (`list(kind=...)`; kinds in `models.SECRET_KINDS`, including `BearerToken`), `set_values`, `referrers`, `parse`, `reveal` |
+| `prompt_documents` | Versioned reusable Markdown: `list`, `get`, `create`, `update`, `delete(id, expected_version)`, `revisions`, `revision`, `referrers` |
+| `agent_prompt_documents` | Profile attachments: `list`, `create`, `update`, `delete(profile_id, attachment_id, expected_version, expected_document_set_version)`, `reorder`, `preview` |
 | `prompt_templates` | CRUD, `versions`, `version`, `restore`, `clone`, `reset`, `render`, `render_ad_hoc` |
 | `events` | `stream()` over `/v1.0/api/events` |
 | `settings` | get, update, `test_database` (system administrators) |
@@ -236,3 +238,23 @@ HUGO_SDK_SERVER=http://127.0.0.1:8800 .venv/bin/python -m pytest -rs
 The harness works with the server's default settings. Its clients use `rate_limit_retries`, so when the token routes hit the default limit of 10 attempts per minute the run pauses until the window resets instead of failing; a full run takes about two minutes.
 
 `run_harness.py` prints a PASS, SKIP, or FAIL line per test and exits with 1 when anything fails. `tests/test_unit.py` needs no server (SSE parsing, request signing, errors, models, rate limit retries).
+
+## Managed agent documents
+
+From `sdk/python`, run the local-file example after installing the SDK as described above:
+
+```bash
+python examples/documents.py
+# Optional custom local file:
+python examples/documents.py /path/to/schema.md
+```
+
+The synchronous and asynchronous clients expose `prompt_documents` and `agent_prompt_documents`. For an asynchronous client, await the same operations. Preview defaults to `audience="Authenticated"`; use `audience="Public"` only to inspect existing publication readiness.
+
+Set `HUGO_EMAIL` and `HUGO_PASSWORD` for an isolated test tenant before running. `HUGO_SDK_SERVER` defaults to `http://127.0.0.1:8800`; `HUGO_TENANT` defaults to `default`. The test user needs document CRUD/Read and profile Create/Read/Update/Delete permissions. Hosted Reference previews also require the agent’s configured model to support tools. No inference request is sent by these examples.
+
+The example reads `sdk/fixtures/LOG_MESSAGE_STRUCTURE.md` from the client machine, uploads its text as a managed copy with a unique filename, creates a temporary agent, attaches the document as Reference, lists attachments, previews delivery, switches to Inline, then detaches and removes its own records. Hugo never receives or opens the client’s filesystem path. Public delivery stays disabled.
+
+Reference includes metadata in the system prompt and delivers content through `agent_read_document` when requested; that tool result consumes context. Inline includes the whole selected revision in system instructions. A reference cannot guarantee that a particular model consults it. `Latest` follows shared edits; `Pinned` selects an immutable revision.
+
+Document edits/deletes use the document’s `version`, not `currentRevision`. Attachment mutations also require the current `documentSetVersion` from the attachment list. Refresh after changes, preserve omitted fields on partial updates, and handle 409 conflicts without blind retries. Delete attached documents only after detaching them; profile deletion removes its attachments while retaining reusable documents. Readiness issues in a preview must be addressed before relying on delivery. See [the operator guide](../../docs/AGENT_DOCUMENTS.md) for limits, permissions and public disclosure.

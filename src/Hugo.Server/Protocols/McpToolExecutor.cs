@@ -85,6 +85,10 @@ namespace Hugo.Server.Protocols
                         return await MetaAsync(caller, name, raw, token).ConfigureAwait(false);
                 }
             }
+            catch (PromptDocumentException e)
+            {
+                return Error(e.Code, e.Message);
+            }
             catch (McpToolErrorException e)
             {
                 return Error(e.Code, e.Message);
@@ -340,6 +344,10 @@ namespace Hugo.Server.Protocols
 
         private async Task<McpToolCallResult> MetaAsync(McpCaller caller, string name, string raw, CancellationToken token)
         {
+            if (name == AgentDocumentTools.ListDocuments)
+                return Structured(await _Context.Get<PromptDocumentDeliveryService>().ListAsync(caller.Principal, caller.TenantId, caller.Profile.Id, Arguments<AgentDocumentListRequest>(raw), token).ConfigureAwait(false));
+            if (name == AgentDocumentTools.ReadDocument)
+                return Structured(await _Context.Get<PromptDocumentDeliveryService>().ReadAsync(caller.Principal, caller.TenantId, caller.Profile.Id, Arguments<AgentDocumentReadRequest>(raw), null, token).ConfigureAwait(false));
             if (name == AgentInstructionTools.GetInstructions)
                 return Structured(await _Context.Get<AgentInstructionService>().ReadAsync(caller.Principal, caller.TenantId, caller.Profile.Id, token).ConfigureAwait(false));
             if (name == AgentInstructionTools.UpdateInstructions)

@@ -12,6 +12,9 @@ namespace Hugo.Core.Models
     {
         #region Public-Members
 
+        /// <summary>Atomic document attachment-set version, starting at zero. Read-only in management requests.</summary>
+        public long DocumentSetVersion { get; set; } = 0;
+
         /// <summary>
         /// Identifier (prefix agp_).
         /// </summary>

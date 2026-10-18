@@ -6,6 +6,13 @@ namespace Hugo.Core
     /// </summary>
     public static class Constants
     {
+        /// <summary>Prompt document identifier prefix.</summary>
+        public static readonly string PromptDocumentIdPrefix = "pdc_";
+        /// <summary>Prompt document revision identifier prefix.</summary>
+        public static readonly string PromptDocumentRevisionIdPrefix = "pdv_";
+        /// <summary>Agent document attachment identifier prefix.</summary>
+        public static readonly string AgentPromptDocumentIdPrefix = "pda_";
+
         #region Product
 
         /// <summary>

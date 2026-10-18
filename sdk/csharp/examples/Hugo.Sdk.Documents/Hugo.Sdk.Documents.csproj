@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/Hugo.Sdk/Hugo.Sdk.csproj" />
+    <Content Include="../../../fixtures/LOG_MESSAGE_STRUCTURE.md" Link="LOG_MESSAGE_STRUCTURE.md" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

@@ -229,6 +229,16 @@ namespace Hugo.Server.Services
                     codes[item.Path] = "UnknownSetting";
                 }
 
+                HugoSettings candidate = new HugoSettings();
+                candidate.PromptDocuments = Hugo.Core.Serialization.Serializer.Copy(_Settings.PromptDocuments)!;
+                for (int i = 0; i < fileChanges.Count; i++)
+                    if (fileChanges[i].Path.StartsWith("PromptDocuments.", StringComparison.Ordinal)) fileChanges[i].Set(candidate, fileValues[i].Value);
+                if (candidate.PromptDocuments.PromptDocumentReadBytes > candidate.PromptDocuments.MaxPromptDocumentReadBytes)
+                {
+                    errors["PromptDocuments.PromptDocumentReadBytes"] = "Default document read bytes must not exceed the maximum document read bytes.";
+                    codes["PromptDocuments.PromptDocumentReadBytes"] = "InvalidRange";
+                }
+
                 // Nothing is saved, and nothing is clamped, when any value is invalid.
                 if (errors.Count > 0) throw new ValidationException("One or more settings are invalid. Nothing was saved.", errors, codes);
 
@@ -456,6 +466,16 @@ namespace Hugo.Server.Services
             list.Add(Field("Connectors.MaxConcurrencyPerResource", "int", true, "Concurrent tool calls allowed per resource.", s => s.Connectors.MaxConcurrencyPerResource.ToString(CultureInfo.InvariantCulture), (s, v) => s.Connectors.MaxConcurrencyPerResource = ParseInt(v), 1L, 256L, null));
             list.Add(Field("Connectors.SessionIdleMinutes", "int", true, "Minutes an idle pooled connector session is kept.", s => s.Connectors.SessionIdleMinutes.ToString(CultureInfo.InvariantCulture), (s, v) => s.Connectors.SessionIdleMinutes = ParseInt(v), 1L, 1440L, null));
             list.Add(Field("Connectors.ModelCallBudgetPerInvocation", "int", true, "Model calls one tool invocation may make.", s => s.Connectors.ModelCallBudgetPerInvocation.ToString(CultureInfo.InvariantCulture), (s, v) => s.Connectors.ModelCallBudgetPerInvocation = ParseInt(v), 0L, 10000L, null));
+            list.Add(Field("PromptDocuments.MaxPromptDocumentBytes", "int", true, "Managed document MaxPromptDocumentBytes; default 262144.", s => s.PromptDocuments.MaxPromptDocumentBytes.ToString(CultureInfo.InvariantCulture), (s, v) => s.PromptDocuments.MaxPromptDocumentBytes = ParseInt(v), 1024L, 1048576L, null));
+            list.Add(Field("PromptDocuments.MaxPromptDocumentsPerTenant", "int", true, "Managed document MaxPromptDocumentsPerTenant; default 256.", s => s.PromptDocuments.MaxPromptDocumentsPerTenant.ToString(CultureInfo.InvariantCulture), (s, v) => s.PromptDocuments.MaxPromptDocumentsPerTenant = ParseInt(v), 1L, 10000L, null));
+            list.Add(Field("PromptDocuments.MaxPromptDocumentStorageBytesPerTenant", "int", true, "Managed document MaxPromptDocumentStorageBytesPerTenant; default 67108864.", s => s.PromptDocuments.MaxPromptDocumentStorageBytesPerTenant.ToString(CultureInfo.InvariantCulture), (s, v) => s.PromptDocuments.MaxPromptDocumentStorageBytesPerTenant = ParseInt(v), 1048576L, 1073741824L, null));
+            list.Add(Field("PromptDocuments.MaxPromptDocumentAttachmentsPerProfile", "int", true, "Managed document MaxPromptDocumentAttachmentsPerProfile; default 32.", s => s.PromptDocuments.MaxPromptDocumentAttachmentsPerProfile.ToString(CultureInfo.InvariantCulture), (s, v) => s.PromptDocuments.MaxPromptDocumentAttachmentsPerProfile = ParseInt(v), 1L, 128L, null));
+            list.Add(Field("PromptDocuments.MaxInlinePromptDocumentBytes", "int", true, "Managed document MaxInlinePromptDocumentBytes; default 65536.", s => s.PromptDocuments.MaxInlinePromptDocumentBytes.ToString(CultureInfo.InvariantCulture), (s, v) => s.PromptDocuments.MaxInlinePromptDocumentBytes = ParseInt(v), 1024L, 262144L, null));
+            list.Add(Field("PromptDocuments.MaxPromptDocumentManifestBytes", "int", true, "Managed document MaxPromptDocumentManifestBytes; default 16384.", s => s.PromptDocuments.MaxPromptDocumentManifestBytes.ToString(CultureInfo.InvariantCulture), (s, v) => s.PromptDocuments.MaxPromptDocumentManifestBytes = ParseInt(v), 1024L, 65536L, null));
+            list.Add(Field("PromptDocuments.PromptDocumentReadBytes", "int", true, "Managed document PromptDocumentReadBytes; default 16384.", s => s.PromptDocuments.PromptDocumentReadBytes.ToString(CultureInfo.InvariantCulture), (s, v) => s.PromptDocuments.PromptDocumentReadBytes = ParseInt(v), 1024L, 65536L, null));
+            list.Add(Field("PromptDocuments.MaxPromptDocumentReadBytes", "int", true, "Managed document MaxPromptDocumentReadBytes; default 65536.", s => s.PromptDocuments.MaxPromptDocumentReadBytes.ToString(CultureInfo.InvariantCulture), (s, v) => s.PromptDocuments.MaxPromptDocumentReadBytes = ParseInt(v), 1024L, 262144L, null));
+            list.Add(Field("PromptDocuments.MaxPromptDocumentBytesPerTurn", "int", true, "Managed document MaxPromptDocumentBytesPerTurn; default 262144.", s => s.PromptDocuments.MaxPromptDocumentBytesPerTurn.ToString(CultureInfo.InvariantCulture), (s, v) => s.PromptDocuments.MaxPromptDocumentBytesPerTurn = ParseInt(v), 1024L, 1048576L, null));
+            list.Add(Field("PromptDocuments.PromptDocumentCursorLifetimeSeconds", "int", true, "Managed document PromptDocumentCursorLifetimeSeconds; default 600.", s => s.PromptDocuments.PromptDocumentCursorLifetimeSeconds.ToString(CultureInfo.InvariantCulture), (s, v) => s.PromptDocuments.PromptDocumentCursorLifetimeSeconds = ParseInt(v), 30L, 3600L, null));
             list.Add(Field("Instructions.CompactBindingThreshold", "int", true, "Profiles with Auto instruction detail use compact connector instructions above this many bindings.", s => s.Instructions.CompactBindingThreshold.ToString(CultureInfo.InvariantCulture), (s, v) => s.Instructions.CompactBindingThreshold = ParseInt(v), 0L, 1000L, null));
             list.Add(Field("Instructions.MaxKnowledgeCharsPerResource", "int", true, "Characters of root resource knowledge included per resource in compiled instructions.", s => s.Instructions.MaxKnowledgeCharsPerResource.ToString(CultureInfo.InvariantCulture), (s, v) => s.Instructions.MaxKnowledgeCharsPerResource = ParseInt(v), 0L, 100000L, null));
             list.Add(Field("Instructions.CacheEntries", "int", true, "Compiled instruction cache entries.", s => s.Instructions.CacheEntries.ToString(CultureInfo.InvariantCulture), (s, v) => s.Instructions.CacheEntries = ParseInt(v), 0L, 100000L, null));

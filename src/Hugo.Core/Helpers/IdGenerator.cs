@@ -29,6 +29,18 @@ namespace Hugo.Core.Helpers
             return _Generator.GenerateKSortable(prefix, _RandomLength);
         }
 
+        /// <summary>Generate a reusable prompt document identifier.</summary>
+        /// <returns>Identifier.</returns>
+        public static string NewPromptDocumentId() { return New(Constants.PromptDocumentIdPrefix); }
+
+        /// <summary>Generate a prompt document revision identifier.</summary>
+        /// <returns>Identifier.</returns>
+        public static string NewPromptDocumentRevisionId() { return New(Constants.PromptDocumentRevisionIdPrefix); }
+
+        /// <summary>Generate an agent document attachment identifier.</summary>
+        /// <returns>Identifier.</returns>
+        public static string NewAgentPromptDocumentId() { return New(Constants.AgentPromptDocumentIdPrefix); }
+
         /// <summary>Generate a tenant identifier.</summary>
         /// <returns>Identifier.</returns>
         public static string NewTenantId() { return New(Constants.TenantIdPrefix); }

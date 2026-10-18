@@ -227,7 +227,8 @@
       "RequestHistory": "Request history",
       "Knowledge": "Knowledge",
       "Plugin": "Plugin",
-      "Analytics": "Analytics"
+      "Analytics": "Analytics",
+      "PromptDocument": "Document"
     },
     "auditEventType": {
       "AuthSuccess": "Sign-in succeeded",
@@ -3465,7 +3466,8 @@
         "sessions": "See every active session and token in the tenant, and revoke any of them.",
         "plugins": "Enable or disable connector plugins and see load errors. Only system administrators see this page.",
         "promptTemplates": "Edit instruction templates per layer (built-in, global, tenant), with preview, versions, and reset.",
-        "feedback": "Review feedback and the requests, responses, and telemetry behind it."
+        "feedback": "Review feedback and the requests, responses, and telemetry behind it.",
+        "documents": "Reusable Markdown guidance for your agents."
       }
     },
     "passwordChange": {
@@ -3947,6 +3949,10 @@
       "feedback": {
         "label": "Feedback",
         "tip": "Review feedback and the requests, responses, and telemetry behind it."
+      },
+      "documents": {
+        "label": "Documents",
+        "tip": "Reusable Markdown guidance for your agents."
       }
     }
   },
@@ -4654,5 +4660,76 @@
     "connectionFailed": "Unable to connect to this chat. Please try again.",
     "failed": "Unable to load this chat. Please try again or contact the link publisher.",
     "disclaimer": "AI can make mistakes. Check important information."
+  },
+  "documents": {
+    "title": "Documents",
+    "subtitle": "Reusable Markdown guidance for your agents.",
+    "create": "Add document",
+    "edit": "Edit document",
+    "name": "Filename",
+    "description": "Description",
+    "markdown": "Markdown content",
+    "visibility": "Visibility",
+    "active": "Active",
+    "owner": "Owner",
+    "revision": "Revision",
+    "size": "Content bytes",
+    "referrers": "Used by agents",
+    "search": "Search documents",
+    "empty": "No documents yet. Add a Markdown document to attach to an agent.",
+    "delete": "Delete document",
+    "deleteHelp": "Detach this document from every agent before deleting it. Deletion removes its revision history.",
+    "preview": "Preview",
+    "history": "Revision history",
+    "restore": "Use this revision",
+    "restoreHelp": "This restores a draft. Save to create a new immutable revision.",
+    "upload": "Import Markdown or text",
+    "uploadHelp": "Choose or drop a UTF-8 .md or .txt file. Review before saving.",
+    "invalidFile": "Choose a valid UTF-8 Markdown or text file without binary data.",
+    "oversizedFile": "The file exceeds the 1 MiB import ceiling. Server limits may be lower.",
+    "literal": "Markdown is literal. Template expressions are not evaluated. Embedded images are blocked in previews.",
+    "sharedWarning": "Shared document edits affect every attachment following Latest. Review the agents below.",
+    "hiddenReferrers": "Additional restricted agents use this document.",
+    "publicWarning": "Public content may be disclosed. Public delivery requires document Admin and the publishing credential’s Read permission. Revocation cannot erase previously delivered content.",
+    "public": "Public",
+    "conflict": "Another editor saved changes. Your draft is preserved. Compare the latest saved content before retrying.",
+    "compare": "Compare latest",
+    "discard": "Discard changes?",
+    "discardHelp": "Unsaved document edits will be lost.",
+    "attachments": "Attached documents",
+    "attach": "Attach document",
+    "noAttachments": "No documents attached. Attach a reusable document for additional guidance.",
+    "deliveryMode": "Delivery mode",
+    "inline": "Inline",
+    "reference": "Reference",
+    "revisionPolicy": "Revision selection",
+    "latest": "Latest",
+    "pinned": "Pinned",
+    "pinnedRevision": "Pinned revision",
+    "enabled": "Enabled",
+    "allowPublicAccess": "Allow public delivery",
+    "documentId": "Document",
+    "editAttachment": "Edit attachment",
+    "up": "Move up",
+    "down": "Move down",
+    "detach": "Detach",
+    "detachHelp": "Detach only removes this agent’s attachment. The reusable document remains in the library.",
+    "audience": "Preview audience",
+    "authenticated": "Current authenticated caller",
+    "previewHelp": "Preview uses current permissions. Public preview uses the saved publishing credential and your own document access.",
+    "estimatedTokens": "Estimated tokens",
+    "toolHelp": "Read a referenced document through this tool; use the advertised ID and revision.",
+    "deliveryHelp": "Inline includes the entire document in system instructions. Reference includes its description; the model reads content on demand, using additional context. Reference requires tool support.",
+    "nameHelp": "A unique .md or .txt filename, up to 128 characters, without directory paths.",
+    "descriptionHelp": "Required, up to 1024 characters. Tell the model when this document is useful.",
+    "markdownHelp": "Markdown is literal. Template expressions are not evaluated. Embedded images are blocked in previews.",
+    "visibilityHelp": "Private limits access to the owner; Tenant follows tenant permissions.",
+    "activeHelp": "Inactive documents are unavailable to agents in both delivery modes.",
+    "deliveryModeHelp": "Inline includes the entire document in system instructions. Reference includes its description; the model reads content on demand, using additional context. Reference requires tool support.",
+    "revisionPolicyHelp": "Latest follows shared edits. Pinned keeps an immutable revision.",
+    "pinnedRevisionHelp": "Select the saved revision this attachment must keep using.",
+    "enabledHelp": "Disabled attachments remain configured but contribute no context.",
+    "allowPublicAccessHelp": "Public content may be disclosed. Public delivery requires document Admin and the publishing credential’s Read permission. Revocation cannot erase previously delivered content.",
+    "documentIdHelp": "Choose a readable reusable document. Its content remains in the library."
   }
 }

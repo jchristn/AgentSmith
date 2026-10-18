@@ -51,8 +51,8 @@ namespace Hugo.Server.Services
                 await _Chat.RevalidateAsync(_Access, token).ConfigureAwait(false);
                 string text = SecretScrubber.Shared.Scrub(_Pending.Substring(0, length)) ?? String.Empty;
                 _Pending = _Pending.Substring(length);
-                if (!await _Writer.SendAsync("assistant.delta", Serializer.Serialize(new { text }), null, token).ConfigureAwait(false))
-                    throw new OperationCanceledException("The visitor disconnected.", token);
+                // A disconnected viewer does not cancel the accepted turn. Authority checks above remain active.
+                await _Writer.SendAsync("assistant.delta", Serializer.Serialize(new { text }), null, token).ConfigureAwait(false);
             }
             // Completion is projected by the route only after final authority checks and persistence.
         }

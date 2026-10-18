@@ -128,6 +128,9 @@ namespace Hugo.Core.Enums
         /// <summary>
         /// Analytics views.
         /// </summary>
-        Analytics
+        Analytics,
+
+        /// <summary>Reusable prompt documents.</summary>
+        PromptDocument
     }
 }

@@ -117,6 +117,8 @@ namespace Hugo.Core.Database.Ado
             MasterKeys = new AdoMasterKeyVersionMethods(this);
             Resources = new AdoResourceMethods(this);
             AgentProfiles = new AdoAgentProfileMethods(this);
+            PromptDocuments = new AdoPromptDocumentMethods(this);
+            AgentPromptDocuments = new AdoAgentPromptDocumentMethods(this);
             Bindings = new AdoBindingMethods(this);
             ToolInvocations = new AdoToolInvocationMethods(this);
             Approvals = new AdoApprovalMethods(this);

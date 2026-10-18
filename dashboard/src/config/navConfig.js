@@ -53,7 +53,8 @@ export const NAV_SECTIONS = [
         icon: 'BookIcon',
         tabs: [
           { id: 'promptTemplates', slug: 'prompts', detail: true },
-          { id: 'knowledge', slug: 'knowledge' }
+          { id: 'knowledge', slug: 'knowledge' },
+          { id: 'documents', slug: 'documents' }
         ]
       },
       {

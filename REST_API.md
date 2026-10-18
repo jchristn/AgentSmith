@@ -8960,7 +8960,7 @@ The request is the preceding user message in the rated response's turn, falling 
 
 Conversations are chat threads with a profile, and every surface that runs Hugo's own loop writes into them: the dashboard, A2A contexts, OpenAI-compatible sessions, and `ask`. Users see their own; tenant administrators see all of them in the tenant.
 
-Sending a message runs one agent turn. With `Accept: text/event-stream` the turn streams as Server-Sent Events, each with an `id`, a name, and a JSON payload; otherwise the request blocks and returns the turn result as JSON. The event names are `turn.started`, `assistant.delta`, `assistant.thinking`, `tool.proposed`, `tool.started`, `tool.completed`, `approval.required`, `approval.resolved`, `turn.completed`, and `error`. One turn runs at a time per conversation; `cancel` stops it at the next await.
+Sending a message runs one agent turn. With `Accept: text/event-stream` the turn streams as Server-Sent Events, each with an `id`, a name, and a JSON payload; otherwise the request blocks and returns the turn result as JSON. The event names are `turn.started`, `assistant.delta`, `assistant.thinking`, `tool.proposed`, `tool.started`, `tool.completed`, `approval.required`, `approval.resolved`, `turn.completed`, and `error`. One turn runs at a time per conversation; `cancel` stops it at the next await. An accepted SSE chat turn continues after its viewer disconnects. Use the explicit cancel endpoint to stop it. Conversation GET/list metadata exposes runtime `turnInProgress`, allowing clients to refresh persisted messages until completion. Server shutdown and normal runtime limits still apply; in-flight turns do not survive server restart.
 
 | Method | Path | Summary |
 |---|---|---|
@@ -11040,3 +11040,86 @@ Profiles can publish opt-in standalone chat links with Public or Authenticated a
 Standalone profile branding accepts `chatTitle`, `chatLogoUrl`, and `chatPageTitle`. Visitor feedback uses `POST /v1.0/chat/{linkId}/conversations/{id}/messages/{messageId}/feedback` with the same bearer and session capability requirements as the transcript. Management message enumeration returns structured feedback fields to authorized operators. See [Standalone agent chat](docs/STANDALONE_CHAT.md).
 
 Standalone message submission accepts `Accept: text/event-stream` for incremental visitor-safe `assistant.delta` text, a minimal `turn.started`, and a `turn.completed` containing final text, status, usage, and persisted message ID. Safe errors and idle heartbeats are also supported. No internal tool or reasoning events are exposed. Without that Accept header, the existing final JSON response is unchanged. See [Standalone agent chat](docs/STANDALONE_CHAT.md) for the complete event contract and revocation rules.
+
+## Agent prompt documents
+
+Reusable Markdown documents supplement profile instructions. The library is tenant-scoped from the authenticated request context; routes remain flat under `/v1.0/api`. System administrator tenant selection uses the existing override convention. No endpoint reads arbitrary server paths or URLs. Uploaded client-side files are submitted as UTF-8 `markdown` in the create/update body. See [Agent prompt documents](docs/AGENT_DOCUMENTS.md) for mode selection and public sharing.
+
+All routes require authentication. Library operations require PromptDocument permissions and owner/tenant visibility. Attachment management requires profile Update and document Read. Public eligibility and exposure changes require document Admin. Library lists and revision lists use `{success,maxResults,skip,totalRecords,recordsRemaining,endOfResults,timestampUtc,objects}`; list responses do not include document bodies.
+
+### Contracts
+
+| Type | Fields |
+|---|---|
+| Document metadata | `id`, `tenantId`, `ownerUserId`, `visibility` (`Private`/`Tenant`), `name`, `description`, `active`, `currentRevision`, `version`, `contentBytes`, `contentHash`, `createdUtc`, `lastUpdateUtc`, `canRead`, `canUpdate`, `canDelete`, `canAdmin`, `hasReferrers` |
+| Immutable revision | `id`, `tenantId` on full reads, `documentId`, `revision`, `name`, `description`, `contentBytes`, `contentHash`, `createdByUserId`, `createdUtc`; full revision reads additionally include `markdown` |
+| Attachment | `id`, `tenantId`, `agentProfileId`, `documentId`, `deliveryMode` (`Inline`/`Reference`), `revisionPolicy` (`Latest`/`Pinned`), `pinnedRevision`, `displayOrder`, `enabled`, `allowPublicAccess`, `version`, timestamps; response adds `name`, `description`, `revision`, `resolvedRevision`, `contentBytes`, `contentHash`, `documentSetVersion` |
+| Preview | `compiledText`, `segments`, `manifest`, `issues:[{code,message,attachmentId?}]`, `documentSetVersion`, `inlineBytes`, `manifestBytes`, `estimatedTokens`, `audience` |
+
+`version` and `documentSetVersion` are separate JSON-safe integer concurrency tokens, not content revisions. Send the returned values as `expectedVersion` and `expectedDocumentSetVersion` when mutating. Documents/entity versions start at 1; an empty profile's set version is 0. Omitted update properties preserve existing values. A no-op preserves its tokens. SHA-256 `contentHash` describes canonical UTF-8 Markdown after BOM removal and LF normalization. Filename comparison is normalized and case-insensitive.
+
+### Library routes
+
+| Method/path | Parameters/body | Success |
+|---|---|---|
+| `GET /v1.0/api/prompt-documents` | Query: existing `maxResults` (1..1000), `skip`, `ordering`, `search`; optional `active=true/false` | 200 document metadata page, filtered to readable records |
+| `POST /v1.0/api/prompt-documents` | JSON `{name,description,markdown,visibility?,active?}`; name 1..128 characters ending `.md`/`.txt`, description 1..1024 characters; defaults Private/active | 201 metadata with revision 1 |
+| `GET /v1.0/api/prompt-documents/{documentId}` | Document ID | 200 metadata/caller capabilities |
+| `PUT /v1.0/api/prompt-documents/{documentId}` | JSON `{expectedVersion,name?,description?,markdown?,visibility?,active?}` | 200 updated metadata; content/name/description changes create an immutable revision |
+| `DELETE /v1.0/api/prompt-documents/{documentId}` | Query `expectedVersion` | 204; attached documents return 409 and must be detached first |
+| `GET /v1.0/api/prompt-documents/{documentId}/revisions` | Document ID; standard enumeration query | 200 revision metadata page without Markdown |
+| `GET /v1.0/api/prompt-documents/{documentId}/revisions/{revision}` | Positive revision number | 200 full authorized revision with `markdown` |
+| `GET /v1.0/api/prompt-documents/{documentId}/referrers` | Document ID | 200 `{items:[{profileId,profileName,attachmentId,deliveryMode,revisionPolicy,pinnedRevision,enabled,allowPublicAccess}],hasOtherReferrers}`; hidden profile details/counts are not disclosed |
+
+To restore old content, read its revision, review it, then PUT its name, description and Markdown to the current document using the current metadata version. Historical rows are never overwritten. Delete removes revision history only after all attachments are detached. Deactivation blocks future delivery without removing history.
+
+### Attachment routes
+
+| Method/path | Parameters/body | Success |
+|---|---|---|
+| `GET /v1.0/api/agent-profiles/{profileId}/documents` | Profile ID | 200 `{documentSetVersion,items:[attachment...]}` |
+| `POST /v1.0/api/agent-profiles/{profileId}/documents` | JSON `{expectedDocumentSetVersion,documentId,deliveryMode?,revisionPolicy?,pinnedRevision?,displayOrder?,enabled?,allowPublicAccess?}` | 201 attachment; defaults Reference, Latest, enabled, no public access |
+| `PUT /v1.0/api/agent-profiles/{profileId}/documents/{attachmentId}` | JSON `{expectedVersion,expectedDocumentSetVersion,deliveryMode?,revisionPolicy?,pinnedRevision?,displayOrder?,enabled?,allowPublicAccess?}`; document identity cannot change | 200 attachment and current set version |
+| `DELETE /v1.0/api/agent-profiles/{profileId}/documents/{attachmentId}` | Query `expectedVersion` and `expectedDocumentSetVersion` | 204; library document remains |
+| `PUT /v1.0/api/agent-profiles/{profileId}/documents/order` | JSON `{expectedDocumentSetVersion,attachmentIds:[...]}` containing every current attachment exactly once | 200 `{documentSetVersion,items:[]}`; fetch the list for current row versions/order |
+| `POST /v1.0/api/agent-profiles/{profileId}/documents/preview` | JSON `{audience:"Authenticated"}` or `{audience:"Public"}` | 200 preview contract; dry run, no inference/public session/grant mutation |
+
+Pinned policy requires a valid `pinnedRevision`; Latest uses the document's current revision. Attachment order is deterministic. Rename/repin conflicts involving historical filenames return 409 rather than allowing ambiguous name-based reads. Profile duplication shares document IDs and selected revisions while creating new attachment IDs and resetting public eligibility. Profile deletion removes its attachments and preserves library documents.
+
+Authenticated preview uses the caller's own profile/document access. Public preview additionally requires profile Update, applies the saved publishing credential and owner ceiling, and intersects content with the manager's own document Read rights. It accepts no arbitrary identity/credential override. A missing grant is an actionable readiness issue, not permission to grant itself access.
+
+### Errors and content limits
+
+Errors use the existing structured `error`, `code`, `message`, `requestId`, `fields`, `errors` and `fieldCodes` conventions where applicable. Expect 400 for malformed/unknown fields, invalid enums or missing versions; 401/403 for authentication/operation denial; 404 for foreign, invisible or missing objects; 409 for stale row/set versions, duplicate names, invalidated selections or attached-document deletion; 413 for oversized HTTP bodies; and 422 for configured content/composition limits. General rate limits may return 429. Clients should display the returned code and field errors and must not automatically retry stale writes.
+
+The `PromptDocuments` settings bound revision bytes, tenant document count and storage, attachments, inline/manifest budgets, tool reads, per-turn output and cursors. Reference bodies are not present in the system prompt. Tool results necessarily enter the authorized model/conversation context once read. Inline overflow is rejected before inference; Hugo does not silently truncate a document or change modes. Body content is excluded from request-history body capture, audit messages and tool-event output previews.
+
+### Example: import and attach
+
+The following commands require `jq`, a valid bearer token in `TOKEN`, the API base in `HUGO`, and a readable/updateable agent ID in `PROFILE`. The local Markdown file is read on the client. Replace only the variables; do not place credentials in a document.
+
+```bash
+jq -n --rawfile markdown LOG_MESSAGE_STRUCTURE.md \
+  '{name:"LOG_MESSAGE_STRUCTURE.md",description:"Read before interpreting application logs.",markdown:$markdown,visibility:"Tenant"}' > /tmp/hugo-document-request.json
+curl -fsS -X POST "$HUGO/v1.0/api/prompt-documents" \
+  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  --data-binary @/tmp/hugo-document-request.json
+curl -fsS "$HUGO/v1.0/api/agent-profiles/$PROFILE/documents" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+Use the returned document ID and document-set version to attach:
+
+```json
+{
+  "expectedDocumentSetVersion": 0,
+  "documentId": "pdc_example",
+  "deliveryMode": "Reference",
+  "revisionPolicy": "Latest",
+  "displayOrder": 0,
+  "enabled": true,
+  "allowPublicAccess": false
+}
+```
+
+POST that body to the profile documents collection, then POST `{"audience":"Authenticated"}` to its `/preview` route. The reference preview includes the filename and description, not the Markdown body. Switching the attachment to Inline requires the returned row and set versions; the next preview includes its complete selected revision. For a stale mutation, reload the relevant metadata/list and reconcile before trying again.

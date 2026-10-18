@@ -201,6 +201,16 @@ namespace Hugo.Core.Agent
             {
                 result.FinishReason = AgentFinishReasonEnum.Cancelled;
             }
+            catch (Hugo.Core.Services.PromptDocumentException e)
+            {
+                await FailAsync(state, e.Code, e.Message).ConfigureAwait(false);
+                AgentTelemetry.SetError(span, e.Code);
+            }
+            catch (AgentContextBudgetException e)
+            {
+                await FailAsync(state, "context_budget_exceeded", e.Message).ConfigureAwait(false);
+                AgentTelemetry.SetError(span, "context_budget_exceeded");
+            }
             catch (ModelEndpointException e)
             {
                 await FailAsync(state, "model_unavailable", e.Message).ConfigureAwait(false);
@@ -295,6 +305,7 @@ namespace Hugo.Core.Agent
                     Stream = false,
                     Kind = "chat"
                 };
+                EnforceBudget(state, call);
                 ModelChatResult summary = await _Gateway.ChatAsync(call, token).ConfigureAwait(false);
                 state.AddUsage(summary);
                 string text = ThinkBlockParser.Strip(summary.Text).Trim();
@@ -320,6 +331,8 @@ namespace Hugo.Core.Agent
             {
                 throw;
             }
+            catch (AgentContextBudgetException) { throw; }
+            catch (Hugo.Core.Services.PromptDocumentException) { throw; }
             catch (Exception e)
             {
                 AgentTelemetry.SetError(span, "compaction_failed");
@@ -416,6 +429,7 @@ namespace Hugo.Core.Agent
                 ModelChatResult response;
                 try
                 {
+                    EnforceBudget(state, call);
                     response = await _Gateway.ChatAsync(call, token).ConfigureAwait(false);
                 }
                 finally
@@ -557,6 +571,16 @@ namespace Hugo.Core.Agent
             token.ThrowIfCancellationRequested();
             if (state.Request.ContextProvider == null) return String.Empty;
             return await state.Request.ContextProvider.GetContextAsync(state.Request, token).ConfigureAwait(false) ?? String.Empty;
+        }
+
+        private static void EnforceBudget(AgentTurnState state, ModelChatCall call)
+        {
+            if (!state.Request.EnforceContextBudget) return;
+            long estimate = TokenEstimator.Estimate(call.Messages);
+            foreach (ToolDefinition tool in call.Tools) estimate += 8 + TokenEstimator.Estimate(JsonSerializer.Serialize(tool));
+            long available = call.Endpoint.ContextWindowTokens - (call.MaxOutputTokens ?? call.Endpoint.MaxOutputTokens);
+            if (call.Fallback != null) available = Math.Min(available, call.Fallback.ContextWindowTokens - (call.MaxOutputTokens ?? call.Fallback.MaxOutputTokens));
+            if (estimate > available) throw new AgentContextBudgetException();
         }
 
         private static async Task<List<ChatMessage>> ModelMessagesAsync(AgentTurnState state, List<ChatMessage> messages, CancellationToken token)
@@ -716,7 +740,7 @@ namespace Hugo.Core.Agent
                 IsError = outcome.Result.IsError,
                 ErrorCode = outcome.Result.ErrorCode,
                 Truncated = outcome.Result.Truncated,
-                OutputPreview = Preview(outcome.Result.Text, state.Settings.OutputPreviewChars),
+                OutputPreview = outcome.SuppressOutputPreview ? "Document content omitted." : Preview(outcome.Result.Text, state.Settings.OutputPreviewChars),
                 ApprovalId = outcome.ApprovalId,
                 Iteration = call.Iteration
             }, token).ConfigureAwait(false);
@@ -738,7 +762,7 @@ namespace Hugo.Core.Agent
                 IsError = outcome.Result.IsError,
                 ErrorCode = outcome.Result.ErrorCode,
                 Truncated = outcome.Result.Truncated,
-                OutputPreview = Preview(outcome.Result.Text, state.Settings.OutputPreviewChars),
+                OutputPreview = outcome.SuppressOutputPreview ? "Document content omitted." : Preview(outcome.Result.Text, state.Settings.OutputPreviewChars),
                 Iteration = call.Iteration,
                 Parallel = parallel
             };

@@ -92,6 +92,7 @@ namespace Hugo.Server.Protocols
         {
             List<McpToolDefinition> list = new List<McpToolDefinition>();
             list.AddRange(Hugo.Server.Services.AgentInstructionTools.Definitions());
+            list.AddRange(Hugo.Server.Services.AgentDocumentTools.Definitions());
             list.Add(Meta(Whoami, "Who am I", "Return the tenant, principal, agent profile (persona and how it addresses the operator), and a summary of the bound resources and their access modes.", Empty()));
             list.Add(Meta(GetInstructions, "Get instructions", "Return the compiled instructions of this agent profile (the same text as the MCP initialize instructions). Call it when your client did not show them.", Empty()));
             list.Add(Meta(ListResources, "List resources", "List the resources bound to this agent profile: alias (the value of each tool's resource argument), connector, environment, access mode, and operator notes.", Empty()));

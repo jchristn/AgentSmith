@@ -81,10 +81,10 @@ namespace Hugo.Server.Services
             if (principal.IsPublicChat)
             {
                 catalog.Tools.RemoveAll(tool => tool.UpdatesKnowledge);
-                return catalog;
             }
             foreach (IMetaToolProvider provider in _MetaProviders)
             {
+                if (principal.IsPublicChat && provider is not AgentDocumentTools) continue;
                 List<CallerTool> meta = await provider.GetToolsAsync(principal, profile, surface, token).ConfigureAwait(false) ?? new List<CallerTool>();
                 foreach (CallerTool tool in meta)
                 {

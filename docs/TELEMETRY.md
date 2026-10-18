@@ -38,6 +38,9 @@ Bundled Alloy forwards native server logs with `app=hugo`, `component=server`, `
 | `hugo_http_requests_total` | counter | `method`, `route`, `status_code`, `status_class`, `tenant` | HTTP | REST requests handled, by route template (never the raw path), method, status, and tenant. Requests the client abandoned (for example a closed browser tab) have status_code 499 and status_class aborted, never 5xx |
 | `hugo_http_requests_in_flight` | gauge | none | HTTP | REST requests being handled right now, including long polls and streams |
 | `hugo_http_response_size_bytes` | histogram | `method`, `route` | HTTP | Response body size (0 for streamed responses) |
+| `hugo_prompt_document_duration_seconds` | histogram | `operation` | Instructions | Prompt document delivery duration |
+| `hugo_prompt_document_operations_total` | counter | `operation`, `outcome` | Instructions | Prompt document operations by fixed operation and outcome |
+| `hugo_prompt_document_read_bytes_total` | counter | none | Instructions | Authorized prompt document read response bytes |
 | `hugo_observability_reachable` | gauge | `service` | Integrations | 1 when the server's last probe reached the observability service (Grafana, Prometheus, Loki, Tempo), 0 when not; absent when not configured |
 | `hugo_outbound_duration_seconds` | histogram | `service`, `operation`, `result` | Integrations | Outbound call duration |
 | `hugo_outbound_requests_total` | counter | `service`, `operation`, `result` | Integrations | Outbound calls (observability probes, metrics relay, and later connectors) by result (ok, error, status class) |

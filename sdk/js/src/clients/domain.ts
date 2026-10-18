@@ -3,6 +3,9 @@
  * administrators can set client.tenantOverride).
  */
 import type {
+  PromptDocument, PromptDocumentRevision, PromptDocumentRequest, PromptDocumentReferrers,
+  AgentPromptDocument, AgentPromptDocumentRequest, AgentPromptDocumentList,
+  AgentPromptDocumentOrderRequest, PromptDocumentPreview, PromptDocumentPreviewRequest,
   AgentCardPreview,
   AgentDelegationResult,
   AgentProfile,
@@ -487,4 +490,31 @@ export class PromptLayersClient {
   render(content: string, context: Json = {}): Promise<PromptRenderResponse> {
     return this.t.request("POST", `${PromptLayersClient.base}/render`, { body: { content, context } });
   }
+}
+
+/** Reusable, versioned Markdown library. All paths identify managed documents. */
+export class PromptDocumentsClient {
+  constructor(private readonly t: Transport) {}
+  private item(id: string): string { return `/v1.0/api/prompt-documents/${seg(id)}`; }
+  list(query?: EnumerationQuery & { active?: boolean }, signal?: AbortSignal): Promise<EnumerationResult<PromptDocument>> {
+    return this.t.request("GET", "/v1.0/api/prompt-documents", { query: toQuery(query), signal });
+  }
+  get(id: string, signal?: AbortSignal): Promise<PromptDocument> { return this.t.request("GET", this.item(id), { signal }); }
+  create(body: PromptDocumentRequest, signal?: AbortSignal): Promise<PromptDocument> { return this.t.request("POST", "/v1.0/api/prompt-documents", { body, signal }); }
+  update(id: string, body: PromptDocumentRequest, signal?: AbortSignal): Promise<PromptDocument> { return this.t.request("PUT", this.item(id), { body, signal }); }
+  delete(id: string, expectedVersion: number, signal?: AbortSignal): Promise<void> { return this.t.request<void>("DELETE", this.item(id), { query: { expectedVersion }, signal }); }
+  revisions(id: string, query?: EnumerationQuery, signal?: AbortSignal): Promise<EnumerationResult<PromptDocumentRevision>> { return this.t.request("GET", `${this.item(id)}/revisions`, { query: toQuery(query), signal }); }
+  revision(id: string, revision: number, signal?: AbortSignal): Promise<PromptDocumentRevision> { return this.t.request("GET", `${this.item(id)}/revisions/${revision}`, { signal }); }
+  referrers(id: string, signal?: AbortSignal): Promise<PromptDocumentReferrers> { return this.t.request("GET", `${this.item(id)}/referrers`, { signal }); }
+}
+/** Profile-scoped document attachments and caller/public composition previews. */
+export class AgentPromptDocumentsClient {
+  constructor(private readonly t: Transport) {}
+  private base(profileId: string): string { return `/v1.0/api/agent-profiles/${seg(profileId)}/documents`; }
+  list(profileId: string, signal?: AbortSignal): Promise<AgentPromptDocumentList> { return this.t.request("GET", this.base(profileId), { signal }); }
+  create(profileId: string, body: AgentPromptDocumentRequest, signal?: AbortSignal): Promise<AgentPromptDocument> { return this.t.request("POST", this.base(profileId), { body, signal }); }
+  update(profileId: string, attachmentId: string, body: AgentPromptDocumentRequest, signal?: AbortSignal): Promise<AgentPromptDocument> { return this.t.request("PUT", `${this.base(profileId)}/${seg(attachmentId)}`, { body, signal }); }
+  delete(profileId: string, attachmentId: string, expectedVersion: number, expectedDocumentSetVersion: number, signal?: AbortSignal): Promise<void> { return this.t.request<void>("DELETE", `${this.base(profileId)}/${seg(attachmentId)}`, { query: { expectedVersion, expectedDocumentSetVersion }, signal }); }
+  reorder(profileId: string, body: AgentPromptDocumentOrderRequest, signal?: AbortSignal): Promise<AgentPromptDocumentList> { return this.t.request("PUT", `${this.base(profileId)}/order`, { body, signal }); }
+  preview(profileId: string, body: PromptDocumentPreviewRequest = { audience: "Authenticated" }, signal?: AbortSignal): Promise<PromptDocumentPreview> { return this.t.request("POST", `${this.base(profileId)}/preview`, { body, signal }); }
 }

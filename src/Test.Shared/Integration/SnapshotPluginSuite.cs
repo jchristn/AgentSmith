@@ -69,7 +69,7 @@ namespace Test.Shared.Integration
                 DatabaseDriverBase db = rig.Context.Database;
                 Tenant acme = await HttpTestHelpers.SendAsync<Tenant>(rig.Host.AdminClient, HttpMethod.Post, "/v1.0/api/tenants", new { name = "acme" }, 201, token).ConfigureAwait(false);
                 AgentProfile hugo = (await db.AgentProfiles.ListAllAsync(acme.Id, token).ConfigureAwait(false)).Single(p => p.Name == "Hugo");
-                User joel = new User { TenantId = acme.Id, Email = "joel@acme.example", FirstName = "Joel", LastName = "Christner", PasswordHash = "x" };
+                User joel = new User { TenantId = acme.Id, Email = "joel@acme.example", FirstName = "Joel", LastName = "Christner", PasswordHash = "x", IsTenantAdmin = true };
                 await db.Users.CreateAsync(joel, token).ConfigureAwait(false);
 
                 List<Scenario> scenarios = new List<Scenario>

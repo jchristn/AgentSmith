@@ -64,7 +64,7 @@ namespace Hugo.Server.Protocols
             List<string>? aliases = null;
             foreach (McpToolDefinition definition in McpToolCatalog.All())
             {
-                if (AgentInstructionTools.IsInstructionTool(definition.Name)) continue;
+                if ((AgentInstructionTools.IsInstructionTool(definition.Name) || AgentDocumentTools.IsDocumentTool(definition.Name))) continue;
                 if (definition.Kind == McpToolKindEnum.Management && !management) continue;
                 if (definition.Kind == McpToolKindEnum.Delegation && !delegation) continue;
                 string schema = definition.InputSchemaJson;

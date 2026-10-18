@@ -32,6 +32,9 @@ namespace Hugo.Server.Services
         /// </summary>
         public string DefaultProfileName { get; set; } = "Hugo";
 
+        /// <summary>Optional publication validation for opted-in document grants; never mutates credential scopes.</summary>
+        public Func<RequestContext, AgentProfile, CancellationToken, Task>? ValidatePromptDocumentsAsync { get; set; } = null;
+
         /// <summary>
         /// Raised with the tenant identifier after any profile change.
         /// </summary>
@@ -252,6 +255,15 @@ namespace Hugo.Server.Services
             AgentProfile source = await ReadAsync(ctx, tenantId, id, token).ConfigureAwait(false);
             if (!IsValidName(name)) throw Invalid("name", "A URL-safe name of 1 to 64 letters, digits, hyphens, or underscores is required.");
             if (await _Database.AgentProfiles.ReadByNameAsync(tenantId, name, token).ConfigureAwait(false) != null) throw new ConflictException("Duplicate", "A profile named '" + name + "' already exists.");
+            List<AgentPromptDocument> sourceDocuments = await _Database.AgentPromptDocuments.ListAsync(tenantId, source.Id, token).ConfigureAwait(false);
+            AuthorizationService documentAuthorization = new AuthorizationService(_Database, _Audit) { CacheSeconds = 0 };
+            foreach (AgentPromptDocument attachment in sourceDocuments)
+            {
+                PromptDocument? document = await _Database.PromptDocuments.ReadAsync(tenantId, attachment.DocumentId, token).ConfigureAwait(false);
+                if (document == null || !ResourceVisibility.CanSee(document.Visibility, document.OwnerUserId, ctx)
+                    || !(await documentAuthorization.EvaluateAsync(ctx, tenantId, ResourceTypeEnum.PromptDocument, OperationTypeEnum.Read, document.Id, token).ConfigureAwait(false)).Permitted)
+                    throw new ForbiddenException("DocumentReadRequired", "Read access to every source document is required to duplicate its attachments.");
+            }
             AgentProfile copy = Serialization(source);
             copy.Id = String.Empty;
             copy.Name = name;
@@ -264,24 +276,45 @@ namespace Hugo.Server.Services
             copy.ChatRevision = 1;
             copy.OwnerUserId = ctx.UserId ?? source.OwnerUserId;
             await _Database.AgentProfiles.CreateAsync(copy, token).ConfigureAwait(false);
-            foreach (Binding binding in await _Database.Bindings.ListByProfileAsync(tenantId, source.Id, token).ConfigureAwait(false))
+            try
             {
-                Binding clone = new Binding();
-                clone.TenantId = tenantId;
-                clone.AgentProfileId = copy.Id;
-                clone.ResourceId = binding.ResourceId;
-                clone.Alias = binding.Alias;
-                clone.AccessMode = binding.AccessMode;
-                clone.RequireApprovalForDestructive = binding.RequireApprovalForDestructive;
-                clone.InstructionMode = binding.InstructionMode;
-                clone.InstructionText = binding.InstructionText;
-                clone.MaxOutputBytes = binding.MaxOutputBytes;
-                clone.MaxRows = binding.MaxRows;
-                clone.Enabled = binding.Enabled;
-                clone.AllowKnowledgeUpdates = binding.AllowKnowledgeUpdates;
-                clone.ToolRules = binding.ToolRules.Select(r => new BindingToolRule { ToolName = r.ToolName, Rule = r.Rule }).ToList();
-                clone.DenyPatterns = new List<string>(binding.DenyPatterns);
-                await _Database.Bindings.CreateAsync(clone, token).ConfigureAwait(false);
+                foreach (Binding binding in await _Database.Bindings.ListByProfileAsync(tenantId, source.Id, token).ConfigureAwait(false))
+                {
+                    Binding clone = new Binding();
+                    clone.TenantId = tenantId;
+                    clone.AgentProfileId = copy.Id;
+                    clone.ResourceId = binding.ResourceId;
+                    clone.Alias = binding.Alias;
+                    clone.AccessMode = binding.AccessMode;
+                    clone.RequireApprovalForDestructive = binding.RequireApprovalForDestructive;
+                    clone.InstructionMode = binding.InstructionMode;
+                    clone.InstructionText = binding.InstructionText;
+                    clone.MaxOutputBytes = binding.MaxOutputBytes;
+                    clone.MaxRows = binding.MaxRows;
+                    clone.Enabled = binding.Enabled;
+                    clone.AllowKnowledgeUpdates = binding.AllowKnowledgeUpdates;
+                    clone.ToolRules = binding.ToolRules.Select(r => new BindingToolRule { ToolName = r.ToolName, Rule = r.Rule }).ToList();
+                    clone.DenyPatterns = new List<string>(binding.DenyPatterns);
+                    await _Database.Bindings.CreateAsync(clone, token).ConfigureAwait(false);
+                }
+                long setVersion = 0;
+                foreach (AgentPromptDocument attachment in sourceDocuments)
+                {
+                    AgentPromptDocument clone = new AgentPromptDocument
+                    {
+                        TenantId = tenantId, AgentProfileId = copy.Id, DocumentId = attachment.DocumentId,
+                        DeliveryMode = attachment.DeliveryMode, RevisionPolicy = attachment.RevisionPolicy,
+                        PinnedRevision = attachment.PinnedRevision, DisplayOrder = attachment.DisplayOrder,
+                        Enabled = attachment.Enabled, AllowPublicAccess = false
+                    };
+                    await _Database.AgentPromptDocuments.CreateAsync(clone, setVersion, token).ConfigureAwait(false);
+                    setVersion++;
+                }
+            }
+            catch
+            {
+                await _Database.AgentProfiles.DeleteCascadeAsync(tenantId, copy.Id, CancellationToken.None).ConfigureAwait(false);
+                throw;
             }
             await AfterChangeAsync(ctx, copy, "profile.created", "Duplicated agent profile " + source.Name + " as " + copy.Name + ".", token).ConfigureAwait(false);
             return await ReadAsync(ctx, tenantId, copy.Id, token).ConfigureAwait(false);
@@ -379,6 +412,8 @@ namespace Hugo.Server.Services
                     if (!conversation.Permitted) throw Invalid("chatCredentialId", "The publishing credential needs Create, Read, and Update permissions on Conversation, within its owner's permissions.");
                 }
             }
+            if (profile.ChatEnabled && profile.ChatAccessMode == ChatAccessModeEnum.Public && ValidatePromptDocumentsAsync != null)
+                await ValidatePromptDocumentsAsync(ctx, profile, token).ConfigureAwait(false);
             if (String.IsNullOrEmpty(profile.ChatLinkId) || request.RotateChatLink)
                 profile.ChatLinkId = Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(24)).ToLowerInvariant();
         }

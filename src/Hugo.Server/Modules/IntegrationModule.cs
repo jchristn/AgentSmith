@@ -150,6 +150,15 @@ namespace Hugo.Server.Modules
             AgentInstructionTools instructionTools = new AgentInstructionTools(agentInstructions, context.Authorization);
             context.Register(instructionTools);
             catalog.AddMetaToolProvider(instructionTools);
+            PromptDocumentService documents = new PromptDocumentService(context);
+            context.Register(documents);
+            PromptDocumentDeliveryService documentDelivery = new PromptDocumentDeliveryService(context, documents);
+            context.Register(documentDelivery);
+            AgentDocumentTools documentTools = new AgentDocumentTools(documentDelivery, context.Authorization);
+            context.Register(documentTools);
+            catalog.AddMetaToolProvider(documentTools);
+            compiler.DocumentComposer = (tenant, profile, principal, cancellation) => documentDelivery.ComposeAsync(principal, tenant, profile, false, cancellation, requireExecution: false);
+            profiles.ValidatePromptDocumentsAsync = documents.ValidatePublicationAsync;
 
             ApprovalService approvals = new ApprovalService(context.Database, context.Audit, events, context.Logging);
             approvals.ExpirySeconds = () => settings.Approvals.ExpirySeconds;
@@ -187,6 +196,7 @@ namespace Hugo.Server.Modules
             new ConnectorRoutes(context.Get<ConnectorRegistry>(), context.TryGet<PluginLoader>()).Register(routes);
             new ResourceRoutes(context, context.Get<ResourceService>()).Register(routes);
             new AgentProfileRoutes(context, context.Get<AgentProfileService>(), context.Get<BindingService>(), context.Get<InstructionCompiler>(), context.Get<ToolCatalogService>()).Register(routes);
+            new PromptDocumentRoutes(context, context.Get<PromptDocumentService>(), context.Get<PromptDocumentDeliveryService>()).Register(routes);
             new PromptLayerRoutes(context, context.Get<PromptTemplateService>()).Register(routes);
             new ModelEndpointRoutes(context, context.Get<ModelEndpointService>()).Register(routes);
             new ToolInvocationRoutes(context, context.Get<ToolInvocationService>(), context.Get<ProfileResolver>()).Register(routes);

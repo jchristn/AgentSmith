@@ -30,6 +30,10 @@ namespace Hugo.Core.Agent
         /// <summary>
         /// Classified effect. Default Read.
         /// </summary>
+        /// <summary>Omit sensitive document content from user-facing tool progress previews.</summary>
+        public bool SuppressOutputPreview { get; set; }
+
+        /// <summary>Classified connector effect.</summary>
         public EffectEnum Effect { get; set; } = EffectEnum.Read;
 
         /// <summary>

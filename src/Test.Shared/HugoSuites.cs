@@ -32,6 +32,9 @@ namespace Test.Shared
                 suites.AddRange(AuthorizationMatrixSuite.Build());
                 suites.AddRange(TenantScopingSuite.Build());
                 suites.AddRange(SecretsSuite.Build());
+                suites.AddRange(AgentDocumentsPersistenceSuite.Build());
+                suites.AddRange(Test.Shared.Integration.PromptDocumentRouteContractSuite.Build());
+                suites.AddRange(Test.Shared.Integration.StandaloneBackgroundSuite.Build());
                 suites.AddRange(Test.Shared.Agent.AgentSuites.Build());
                 suites.AddRange(Test.Shared.Suites.ConnectorFrameworkSuites.Build());
                 suites.AddRange(AbstractionsSuites.Build());
@@ -53,6 +56,7 @@ namespace Test.Shared
                 suites.AddRange(Test.Shared.Integration.ResourceHealthSuite.Build());
                 suites.AddRange(Test.Shared.Integration.ResourceContextSuite.Build());
                 suites.AddRange(Test.Shared.Integration.AgentInstructionsSuite.Build());
+                suites.AddRange(Test.Shared.Integration.PromptDocumentDeliverySuite.Build());
                 suites.AddRange(Test.Shared.Integration.StandaloneChatSuite.Build());
                 suites.AddRange(Test.Shared.Integration.FeedbackReviewSuite.Build());
                 suites.AddRange(Test.Shared.Integration.CryptographyIntegrationSuite.Build());

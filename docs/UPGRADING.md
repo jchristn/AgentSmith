@@ -102,3 +102,7 @@ Settings added by a release take their defaults until you change them, and [`CON
 Schema migration 10 adds per-profile standalone chat publication settings and a unique opaque-link index. Startup applies it automatically on SQLite and PostgreSQL. Existing profiles remain unpublished. To publish a link, open the profile's **Connect** tab, enable **Chat link**, select Public or Authenticated access, and save. Public access requires an explicitly selected owned credential; authenticated visitors use their own login. See [Standalone agent chat](STANDALONE_CHAT.md).
 
 Schema migration 11 adds nullable profile branding and message feedback columns on SQLite and PostgreSQL. Existing links retain their defaults and existing messages start without feedback. No manual migration or credential change is required.
+
+## Prompt document migration
+
+Migration 12 adds reusable document metadata, immutable revision rows, agent attachments and a profile document-set version. Existing agents have no attachments and retain their prior instructions. Existing database backups include document content; container filesystems need no document volume. Test upgrades against a restored backup before production. An old binary must not downgrade a newer schema; use a pre-upgrade database backup with the previous image when a binary rollback is unsupported. See [Agent prompt documents](AGENT_DOCUMENTS.md).

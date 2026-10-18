@@ -158,3 +158,8 @@ Nineteen connector types, each with its own settings schema, secret slots, tools
 - Approving a call while an MCP client is already waiting on it in `hugo_await_approval` leaves the call unexecuted; the waiter returns `approval_pending`. Approve first, then await (or let the original call wait).
 - A template that includes itself (for example `{{> system.tool-usage}}` saved as `system.tool-usage`) is accepted at save time; compilation then detects the cycle and falls back to the built-in templates for the whole profile, with only a warning.
 - List filters with an unrecognized enum value (`?status=Bogus`) are ignored instead of rejected.
+
+### Agent documents and background chat
+
+- Reusable versioned Markdown documents can be attached to agents with Inline or Reference delivery, scoped read tools, revision pins and caller/public previews.
+- Dashboard and standalone streaming chat turns continue after navigation or disconnect. Returning viewers refresh saved progress; Stop explicitly cancels a turn.

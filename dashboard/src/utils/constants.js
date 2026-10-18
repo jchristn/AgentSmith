@@ -97,7 +97,8 @@ export const ENUMS = {
     'RequestHistory',
     'Knowledge',
     'Plugin',
-    'Analytics'
+    'Analytics',
+    'PromptDocument'
   ],
   operationType: ['All', 'Create', 'Read', 'Update', 'Delete', 'Write', 'Execute', 'Admin', 'Reveal'],
   auditEventType: [

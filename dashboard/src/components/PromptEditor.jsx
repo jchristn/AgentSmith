@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import CodeBlock from './CodeBlock';
 import DiffViewer from './DiffViewer';
+import MarkdownView from './MarkdownView';
 import Tabs from './Tabs';
 import { tip } from './Tooltip';
 import useDebounce from '../hooks/useDebounce';
@@ -66,7 +67,7 @@ export const SAMPLE_TEMPLATE_CONTEXT = {
  * render(content, context) => Promise<{ rendered, missingVariables }> (server preview; local fallback when absent or
  * failing), baseline ({ label, text }) for the Diff tab.
  */
-export default function PromptEditor({
+function TemplatePromptEditor({
   value = '',
   onChange,
   readOnly = false,
@@ -238,6 +239,30 @@ export default function PromptEditor({
           <DiffViewer before={baseline.text} after={value} beforeLabel={baseline.label} afterLabel={t('components.promptEditor.current')} />
         )}
       </div>
+    </div>
+  );
+}
+
+/** Literal document mode never evaluates Hugo templates or suggests template variables. */
+export default function PromptEditor(props) {
+  if (!props.literal) return <TemplatePromptEditor {...props} />;
+  return (
+    <div className="field span-full">
+      <label htmlFor={props.id}>{props.label}</label>
+      <textarea
+        id={props.id}
+        className="monospace code-input"
+        rows={props.rows || 18}
+        value={props.value || ''}
+        disabled={props.readOnly}
+        onChange={(e) => props.onChange?.(e.target.value)}
+      />
+      {props.error && (
+        <p className="field-error" role="alert">
+          {props.error}
+        </p>
+      )}
+      {props.showPreview && <MarkdownView text={props.value} blockImages rawToggle />}
     </div>
   );
 }

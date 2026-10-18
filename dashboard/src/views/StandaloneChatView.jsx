@@ -27,6 +27,7 @@ export default function StandaloneChatView() {
   const [session, setSession] = useState(null);
   const [draft, setDraft] = useState('');
   const [starting, setStarting] = useState(false);
+  const [remoteStreaming, setRemoteStreaming] = useState(false);
   const [state, dispatch] = useReducer(standaloneChatReducer, undefined, () => initialChatState());
   const controller = useRef(null);
   const generation = useRef(0);
@@ -57,6 +58,7 @@ export default function StandaloneChatView() {
           const result = await client.getChatMessages(linkId, saved.id, saved.sessionToken);
           if (current !== generation.current) return;
           setSession(saved);
+          setRemoteStreaming(!!result?.turnInProgress);
           dispatch({ type: 'reset', messages: safeChatMessages(fromStoredMessages(Array.isArray(result) ? result : result.items || result.messages || [])) });
         } catch {
           try {
@@ -73,6 +75,25 @@ export default function StandaloneChatView() {
       controller.current?.abort();
     };
   }, [client, linkId, storageKey, isAuthenticated, isLoading]);
+
+  useEffect(() => {
+    if (!session || !remoteStreaming) return;
+    let active = true;
+    let timer;
+    const refresh = async () => {
+      try {
+        const result = await client.getChatMessages(linkId, session.id, session.sessionToken);
+        if (!active) return;
+        if (!controller.current) dispatch({ type: 'reset', messages: safeChatMessages(fromStoredMessages(result.messages || result.items || [])) });
+        setRemoteStreaming(!!result.turnInProgress);
+        if (result.turnInProgress) timer = setTimeout(refresh, 1000);
+      } catch (error) {
+        if (active) { setError(error); setRemoteStreaming(false); }
+      }
+    };
+    timer = setTimeout(refresh, 1000);
+    return () => { active = false; clearTimeout(timer); };
+  }, [client, linkId, session, remoteStreaming]);
 
   useEffect(() => {
     const original = document.title;
@@ -98,7 +119,9 @@ export default function StandaloneChatView() {
   };
 
   const newChat = () => {
-    stop();
+    controller.current?.abort();
+    controller.current = null;
+    setRemoteStreaming(false);
     generation.current++;
     setSession(null);
     setStarting(false);
@@ -113,7 +136,7 @@ export default function StandaloneChatView() {
   };
 
   const send = async (text) => {
-    if (state.streaming || starting) return;
+    if (state.streaming || remoteStreaming || starting) return;
     setStarting(true);
     setError(null);
     const current = generation.current;
@@ -239,7 +262,7 @@ export default function StandaloneChatView() {
           )}
           <ChatPanel
             messages={safeChatMessages(state.messages)}
-            streaming={state.streaming}
+            streaming={state.streaming || remoteStreaming}
             draft={draft}
             onDraftChange={setDraft}
             onSend={send}

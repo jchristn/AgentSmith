@@ -227,7 +227,8 @@
       "RequestHistory": "请求历史",
       "Knowledge": "知识",
       "Plugin": "插件",
-      "Analytics": "分析"
+      "Analytics": "分析",
+      "PromptDocument": "文档"
     },
     "auditEventType": {
       "AuthSuccess": "登录成功",
@@ -3479,7 +3480,8 @@
         "sessions": "查看租户中所有活动的会话和令牌，并可撤销其中任何一个。",
         "plugins": "启用或禁用连接器插件并查看加载错误。只有系统管理员可以看到此页面。",
         "promptTemplates": "按层级（内置、全局、租户）编辑指令模板，支持预览、版本和重置。",
-        "feedback": "查看反馈及其关联的请求、响应和遥测数据。"
+        "feedback": "查看反馈及其关联的请求、响应和遥测数据。",
+        "documents": "供智能体重复使用的 Markdown 指南。"
       }
     },
     "passwordChange": {
@@ -3961,6 +3963,10 @@
       "feedback": {
         "label": "反馈",
         "tip": "查看反馈及其关联的请求、响应和遥测数据。"
+      },
+      "documents": {
+        "label": "文档",
+        "tip": "供智能体重复使用的 Markdown 指南。"
       }
     }
   },
@@ -4668,5 +4674,76 @@
     "connectionFailed": "无法连接到此聊天。请重试。",
     "failed": "无法加载此聊天。请重试或联系链接发布者。",
     "disclaimer": "AI可能会出错。请核实重要信息。"
+  },
+  "documents": {
+    "title": "文档",
+    "subtitle": "供智能体重复使用的 Markdown 指南。",
+    "create": "添加文档",
+    "edit": "编辑文档",
+    "name": "文件名",
+    "description": "说明",
+    "markdown": "Markdown 内容",
+    "visibility": "可见性",
+    "active": "活动",
+    "owner": "所有者",
+    "revision": "修订版本",
+    "size": "字节数",
+    "referrers": "使用此文档的智能体",
+    "search": "搜索文档",
+    "empty": "暂无文档。添加 Markdown 文档后可将其附加到智能体。",
+    "delete": "删除文档",
+    "deleteHelp": "删除前请先解除所有智能体的关联。删除操作也会清除修订历史。",
+    "preview": "预览",
+    "history": "修订历史",
+    "restore": "使用此修订版本",
+    "restoreHelp": "恢复为草稿。保存后创建新的不可变修订版本。",
+    "upload": "导入 Markdown 或文本",
+    "uploadHelp": "选择或拖入 UTF-8 编码的 .md 或 .txt 文件，保存前请检查。",
+    "invalidFile": "请选择不含二进制数据的有效 UTF-8 Markdown 或文本文件。",
+    "oversizedFile": "文件超过 1 MiB 导入上限。服务器限制可能更低。",
+    "literal": "Markdown 按原文处理，不执行模板表达式。预览中禁止嵌入图片。",
+    "sharedWarning": "共享文档修改会影响所有跟随最新版本的附件。请检查以下智能体。",
+    "hiddenReferrers": "其他受限智能体也使用此文档。",
+    "publicWarning": "公开内容可能被披露。公开提供需要文档 Admin 和发布凭据的 Read 权限。撤销不能删除已提供的内容。",
+    "public": "公开",
+    "conflict": "其他编辑者已保存修改。草稿已保留，请比较最新内容后重试。",
+    "compare": "比较最新版本",
+    "discard": "放弃修改？",
+    "discardHelp": "未保存的文档修改将丢失。",
+    "attachments": "附加文档",
+    "attach": "附加文档",
+    "noAttachments": "尚未附加文档。附加可重复使用的文档以提供更多指导。",
+    "deliveryMode": "提供方式",
+    "inline": "内联",
+    "reference": "引用",
+    "revisionPolicy": "修订版本选择",
+    "latest": "最新",
+    "pinned": "固定",
+    "pinnedRevision": "固定修订版本",
+    "enabled": "已启用",
+    "allowPublicAccess": "允许公开提供",
+    "documentId": "文档",
+    "editAttachment": "编辑附件",
+    "up": "上移",
+    "down": "下移",
+    "detach": "解除关联",
+    "detachHelp": "仅移除此智能体的关联。文档仍保留在文档库中。",
+    "audience": "预览受众",
+    "authenticated": "当前已认证调用者",
+    "previewHelp": "预览使用当前权限。公开预览使用已保存的发布凭据以及您自身的文档访问权限。",
+    "estimatedTokens": "估计令牌数",
+    "toolHelp": "使用此工具及所公布的 ID 和修订版本读取引用文档。",
+    "deliveryHelp": "内联将完整文档放入系统指令。引用仅包含说明，模型按需读取内容并占用额外上下文。引用要求支持工具。",
+    "nameHelp": "唯一的 .md 或 .txt 文件名，最多 128 个字符，不含目录路径。",
+    "descriptionHelp": "必填，最多 1024 个字符。告诉模型何时使用此文档。",
+    "markdownHelp": "Markdown 按原文处理，不执行模板表达式。预览中禁止嵌入图片。",
+    "visibilityHelp": "私有仅供所有者访问；租户可见遵循租户权限。",
+    "activeHelp": "非活动文档在两种提供方式中均不可用。",
+    "deliveryModeHelp": "内联将完整文档放入系统指令。引用仅包含说明，模型按需读取内容并占用额外上下文。引用要求支持工具。",
+    "revisionPolicyHelp": "最新跟随共享修改，固定保留不可变修订版本。",
+    "pinnedRevisionHelp": "选择此附件必须继续使用的已保存修订版本。",
+    "enabledHelp": "禁用的附件保留配置，但不提供上下文。",
+    "allowPublicAccessHelp": "公开内容可能被披露。公开提供需要文档 Admin 和发布凭据的 Read 权限。撤销不能删除已提供的内容。",
+    "documentIdHelp": "选择可读取的可重复使用文档，内容仍存于文档库。"
   }
 }

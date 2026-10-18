@@ -287,6 +287,9 @@ namespace Hugo.Server.Settings
             }
         }
 
+        /// <summary>Managed prompt document storage and delivery limits.</summary>
+        public PromptDocumentsSettings PromptDocuments { get { return _PromptDocuments; } set { _PromptDocuments = value ?? new PromptDocumentsSettings(); } }
+
         #endregion
 
         #region Private-Members
@@ -303,6 +306,7 @@ namespace Hugo.Server.Settings
         private ConnectorsSettings _Connectors = new ConnectorsSettings();
         private ModelsSettings _Models = new ModelsSettings();
         private McpSettings _Mcp = new McpSettings();
+        private PromptDocumentsSettings _PromptDocuments = new PromptDocumentsSettings();
         private InstructionsSettings _Instructions = new InstructionsSettings();
         private A2ASettings _A2A = new A2ASettings();
         private OpenAISettings _OpenAI = new OpenAISettings();
@@ -411,6 +415,7 @@ namespace Hugo.Server.Settings
         public void Validate()
         {
             Database.Validate();
+            if (PromptDocuments.PromptDocumentReadBytes > PromptDocuments.MaxPromptDocumentReadBytes) throw new ArgumentException("PromptDocuments.PromptDocumentReadBytes must not exceed MaxPromptDocumentReadBytes.");
             if (Database.Type == DatabaseTypeEnum.Postgresql && String.IsNullOrWhiteSpace(Database.Host)) throw new InvalidOperationException("Database.Host is required when Database.Type is Postgresql.");
             if (String.IsNullOrWhiteSpace(Auth.SigningKey) || Auth.SigningKey.Length < 16) throw new InvalidOperationException("Auth.SigningKey must be at least 16 characters.");
             if (!String.IsNullOrEmpty(Auth.AdminApiKey) && Auth.AdminApiKey.Length < 16) throw new InvalidOperationException("Auth.AdminApiKey must be empty (disabled) or at least 16 characters.");

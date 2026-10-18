@@ -9,7 +9,7 @@ import { renderMarkdown } from '../utils/markdown';
  * Model output rendered as sanitized GitHub-flavored Markdown with inline HTML (P5.52). Links open in a new tab.
  * With `rawToggle`, a toolbar switches between the rendered view and the raw text, and copies the raw text.
  */
-export default function MarkdownView({ text, rawToggle = false, emptyText = '-', testId, className = '' }) {
+export default function MarkdownView({ text, rawToggle = false, emptyText = '-', testId, className = '', blockImages = false }) {
   const { t } = useTranslation();
   const [raw, setRaw] = useState(false);
   const html = useMemo(
@@ -39,7 +39,11 @@ export default function MarkdownView({ text, rawToggle = false, emptyText = '-',
           {!raw && <CopyButton value={text} tipText={t('tips.markdown.copy')} />}
         </div>
       )}
-      {raw ? <CodeBlock value={text} /> : <div className="markdown-body" dangerouslySetInnerHTML={{ __html: html }} />}
+      {raw ? (
+        <CodeBlock value={text} />
+      ) : (
+        <div className="markdown-body" dangerouslySetInnerHTML={{ __html: blockImages ? html.replace(/<img\b[^>]*>/gi, '') : html }} />
+      )}
     </div>
   );
 }

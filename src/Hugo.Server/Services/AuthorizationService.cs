@@ -335,6 +335,16 @@ namespace Hugo.Server.Services
                     ? operation == OperationTypeEnum.Read || operation == OperationTypeEnum.Execute
                     : resourceType == ResourceTypeEnum.Conversation
                         && (operation == OperationTypeEnum.Create || operation == OperationTypeEnum.Read || operation == OperationTypeEnum.Update);
+            if (resourceType == ResourceTypeEnum.PromptDocument && operation == OperationTypeEnum.Read && !String.IsNullOrEmpty(resourceId))
+            {
+                List<AgentPromptDocument> attachments = await _Database.AgentPromptDocuments.ListAsync(ctx.TenantId, profile.Id, token).ConfigureAwait(false);
+                PromptDocument? document = await _Database.PromptDocuments.ReadAsync(ctx.TenantId, resourceId, token).ConfigureAwait(false);
+                AuthorizationService fresh = new AuthorizationService(_Database, _Audit) { CacheSeconds = 0 };
+                List<PermissionGrant> grants = await fresh.GrantsForCredentialAsync(ctx.TenantId, ctx.CredentialId, token).ConfigureAwait(false);
+                bool explicitRead = grants.Any(g => g.PermissionType == PermissionTypeEnum.Permit && g.Scope == ResourceScopeEnum.Resource && g.ResourceId == resourceId
+                    && (g.ResourceTypes.Contains("PromptDocument") || g.ResourceTypes.Contains("All")) && (g.Operations.Contains("Read") || g.Operations.Contains("All")));
+                allowed = explicitRead && document != null && document.Active && attachments.Any(a => a.DocumentId == resourceId && a.Enabled && a.AllowPublicAccess);
+            }
             if (!allowed)
                 return AuthorizationDecision.Deny(AuthorizationResultEnum.DeniedImplicit, "Public chat cannot perform this management operation.");
             // Continue through normal credential grants and the freshly loaded owner's permission ceiling.

@@ -220,3 +220,7 @@ A few things are worth checking on any deployment that holds real credentials:
 - The REST port is not reachable from untrusted networks, or `Telemetry.ServeMetricsOnServicePort` is off, since `/metrics` is unauthenticated.
 - `Rest.CorsOrigins` names the dashboard origin instead of allowing any origin.
 - Upstream accounts are least privilege: a read-only database login, a scoped IAM policy, a namespace-scoped Kubernetes service account. [SAFETY_MODEL.md](SAFETY_MODEL.md) explains why Hugo's own classifiers are a second line of defense, not the first.
+
+## Prompt document access
+
+Prompt documents are permission-controlled, versioned operator content, not a secret vault. Retrieval is limited to current-profile attachments and reauthorizes on every chunk. Public delivery requires explicit attachment opt-in and existing narrowly scoped credential grants within the publishing owner ceiling; attaching/editing documents never changes grants. Document Admin is required for public revision/policy exposure. Body content is excluded from request history, audit descriptions and tool previews, while authorized conversation tool results and provider input necessarily contain it. See [Agent prompt documents](AGENT_DOCUMENTS.md). Revocation cannot retract previously delivered model or conversation content.

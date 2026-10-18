@@ -38,6 +38,43 @@ namespace Test.Automated.Suites
         {
             HugoClient c = ctx.Owner;
 
+            await runner.RunAsync("Prompt document revisions, CAS, Inline/Reference attachments and pins", async () =>
+            {
+                AgentProfile profile = await c.AgentProfiles.CreateAsync(new AgentProfileRequest { Name = "document-agent-" + Guid.NewGuid().ToString("N") }).ConfigureAwait(false);
+                PromptDocument document = await c.PromptDocuments.CreateAsync(new PromptDocumentRequest { Name = "LOG_" + Guid.NewGuid().ToString("N") + ".md", Description = "Read before interpreting logs.", Markdown = "# Fields\nSynthetic event_code field.\n", Visibility = "Tenant" }).ConfigureAwait(false);
+                try
+                {
+                    PromptDocumentRevision first = await c.PromptDocuments.GetRevisionAsync(document.Id, 1).ConfigureAwait(false);
+                    Check.True(first.Markdown!.Contains("event_code", StringComparison.Ordinal), "revision content");
+                    AgentPromptDocumentList state = await c.AgentPromptDocuments.ListAsync(profile.Id).ConfigureAwait(false);
+                    AgentPromptDocument attachment = await c.AgentPromptDocuments.CreateAsync(profile.Id, new AgentPromptDocumentRequest { DocumentId = document.Id, ExpectedDocumentSetVersion = state.DocumentSetVersion, DeliveryMode = "Reference", RevisionPolicy = "Latest", Enabled = true }).ConfigureAwait(false);
+                    PromptDocumentPreview reference = await c.AgentPromptDocuments.PreviewAsync(profile.Id, new PromptDocumentPreviewRequest()).ConfigureAwait(false);
+                    Check.True(reference.CompiledText.Contains(document.Name, StringComparison.Ordinal) && !reference.CompiledText.Contains("Synthetic event_code field.", StringComparison.Ordinal), "Reference is metadata only");
+                    AgentPromptDocument inline = await c.AgentPromptDocuments.UpdateAsync(profile.Id, attachment.Id, new AgentPromptDocumentRequest { ExpectedVersion = attachment.Version, ExpectedDocumentSetVersion = attachment.DocumentSetVersion, DeliveryMode = "Inline", RevisionPolicy = "Pinned", PinnedRevision = 1 }).ConfigureAwait(false);
+                    PromptDocumentPreview rendered = await c.AgentPromptDocuments.PreviewAsync(profile.Id, new PromptDocumentPreviewRequest()).ConfigureAwait(false);
+                    Check.True(rendered.CompiledText.Contains("Synthetic event_code field.", StringComparison.Ordinal), "Inline body present");
+                    try
+                    {
+                        await c.PromptDocuments.UpdateAsync(document.Id, new PromptDocumentRequest { ExpectedVersion = 999999, Markdown = "stale" }).ConfigureAwait(false);
+                        throw new InvalidOperationException("Stale document update unexpectedly succeeded.");
+                    }
+                    catch (HugoException conflict) when (conflict.StatusCode == 409) { }
+                    PromptDocument revised = await c.PromptDocuments.UpdateAsync(document.Id, new PromptDocumentRequest { ExpectedVersion = document.Version, Markdown = "# Revision two\nNew fields.\n" }).ConfigureAwait(false);
+                    Check.Equal(2, revised.CurrentRevision, "new revision");
+                    PromptDocumentPreview pinned = await c.AgentPromptDocuments.PreviewAsync(profile.Id, new PromptDocumentPreviewRequest()).ConfigureAwait(false);
+                    Check.True(!pinned.CompiledText.Contains("New fields.", StringComparison.Ordinal), "pin remains stable");
+                    AgentPromptDocumentList ordered = await c.AgentPromptDocuments.ReorderAsync(profile.Id, new AgentPromptDocumentOrderRequest { ExpectedDocumentSetVersion = inline.DocumentSetVersion, AttachmentIds = new List<string> { attachment.Id } }).ConfigureAwait(false);
+                    AgentPromptDocumentList refreshed = await c.AgentPromptDocuments.ListAsync(profile.Id).ConfigureAwait(false);
+                    await c.AgentPromptDocuments.DeleteAsync(profile.Id, attachment.Id, refreshed.Items[0].Version, refreshed.DocumentSetVersion).ConfigureAwait(false);
+                }
+                finally
+                {
+                    await c.AgentProfiles.DeleteAsync(profile.Id).ConfigureAwait(false);
+                    PromptDocument current = await c.PromptDocuments.GetAsync(document.Id).ConfigureAwait(false);
+                    await c.PromptDocuments.DeleteAsync(document.Id, current.Version).ConfigureAwait(false);
+                }
+            }).ConfigureAwait(false);
+
             await runner.RunAsync("Connectors list and read", async () =>
             {
                 List<Connector> connectors = await c.Connectors.ListAsync().ConfigureAwait(false);

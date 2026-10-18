@@ -227,7 +227,8 @@
       "RequestHistory": "Histórico de requisições",
       "Knowledge": "Conhecimento",
       "Plugin": "Plugin",
-      "Analytics": "Análises"
+      "Analytics": "Análises",
+      "PromptDocument": "Documento"
     },
     "auditEventType": {
       "AuthSuccess": "Entrada bem-sucedida",
@@ -3499,7 +3500,8 @@
         "sessions": "Ver todas as sessões e tokens ativos no locatário e revogar qualquer um deles.",
         "plugins": "Habilitar ou desabilitar plugins de conector e ver erros de carregamento. Somente administradores do sistema veem esta página.",
         "promptTemplates": "Editar modelos de instrução por camada (integrado, global, locatário), com pré-visualização, versões e redefinição.",
-        "feedback": "Consulte o feedback com as solicitações, respostas e telemetria associadas."
+        "feedback": "Consulte o feedback com as solicitações, respostas e telemetria associadas.",
+        "documents": "Orientações Markdown reutilizáveis para os agentes."
       },
       "approvalsBadge_many": "{{count}} chamadas de ferramenta aguardam que uma pessoa as aprove ou rejeite. Abra Aprovações para decidir."
     },
@@ -3982,6 +3984,10 @@
       "feedback": {
         "label": "Avaliações",
         "tip": "Consulte o feedback com as solicitações, respostas e telemetria associadas."
+      },
+      "documents": {
+        "label": "Documentos",
+        "tip": "Orientações Markdown reutilizáveis para os agentes."
       }
     },
     "approvalsPending_many": "{{count}} aprovações aguardando uma pessoa"
@@ -4690,5 +4696,76 @@
     "connectionFailed": "Não foi possível conectar a esta conversa. Tente novamente.",
     "failed": "Não foi possível carregar esta conversa. Tente novamente ou entre em contato com quem publicou o link.",
     "disclaimer": "A IA pode cometer erros. Confira as informações importantes."
+  },
+  "documents": {
+    "title": "Documentos",
+    "subtitle": "Orientações Markdown reutilizáveis para os agentes.",
+    "create": "Adicionar documento",
+    "edit": "Editar documento",
+    "name": "Nome do arquivo",
+    "description": "Descrição",
+    "markdown": "Conteúdo Markdown",
+    "visibility": "Visibilidade",
+    "active": "Ativo",
+    "owner": "Proprietário",
+    "revision": "Revisão",
+    "size": "Tamanho em bytes",
+    "referrers": "Agentes que utilizam",
+    "search": "Pesquisar documentos",
+    "empty": "Nenhum documento. Adicione um documento Markdown para anexar a um agente.",
+    "delete": "Excluir documento",
+    "deleteHelp": "Desvincule o documento de todos os agentes antes de excluir. O histórico será removido.",
+    "preview": "Prévia",
+    "history": "Histórico de revisões",
+    "restore": "Usar esta revisão",
+    "restoreHelp": "Um rascunho é restaurado. Salve para criar uma revisão imutável.",
+    "upload": "Importar Markdown ou texto",
+    "uploadHelp": "Escolha ou arraste um arquivo UTF-8 .md ou .txt e revise antes de salvar.",
+    "invalidFile": "Escolha um arquivo Markdown ou texto UTF-8 válido sem dados binários.",
+    "oversizedFile": "O arquivo excede o limite de importação de 1 MiB. O servidor pode limitar mais.",
+    "literal": "Markdown é literal. Expressões de modelo não são avaliadas. Imagens são bloqueadas nas prévias.",
+    "sharedWarning": "Alterações compartilhadas afetam todos os anexos que seguem a revisão mais recente. Revise os agentes abaixo.",
+    "hiddenReferrers": "Outros agentes restritos usam este documento.",
+    "publicWarning": "Conteúdo público pode ser divulgado. Exige Admin no documento e Read na credencial de publicação. Revogar não apaga conteúdo já entregue.",
+    "public": "Público",
+    "conflict": "Outro editor salvou alterações. Seu rascunho foi preservado. Compare antes de tentar novamente.",
+    "compare": "Comparar versão recente",
+    "discard": "Descartar alterações?",
+    "discardHelp": "Alterações não salvas serão perdidas.",
+    "attachments": "Documentos anexados",
+    "attach": "Anexar documento",
+    "noAttachments": "Nenhum documento anexado. Anexe orientações reutilizáveis.",
+    "deliveryMode": "Modo de entrega",
+    "inline": "Integral",
+    "reference": "Referência",
+    "revisionPolicy": "Seleção de revisão",
+    "latest": "Mais recente",
+    "pinned": "Fixada",
+    "pinnedRevision": "Revisão fixada",
+    "enabled": "Habilitado",
+    "allowPublicAccess": "Permitir entrega pública",
+    "documentId": "Documento",
+    "editAttachment": "Editar anexo",
+    "up": "Mover para cima",
+    "down": "Mover para baixo",
+    "detach": "Desvincular",
+    "detachHelp": "Remove apenas o vínculo deste agente. O documento permanece na biblioteca.",
+    "audience": "Público da prévia",
+    "authenticated": "Usuário autenticado atual",
+    "previewHelp": "A prévia usa as permissões atuais. A pública usa a credencial salva e seu acesso ao documento.",
+    "estimatedTokens": "Tokens estimados",
+    "toolHelp": "Leia o documento com esta ferramenta usando o ID e a revisão indicados.",
+    "deliveryHelp": "Integral inclui todo o documento nas instruções. Referência inclui a descrição; o modelo lê sob demanda e usa contexto adicional. Requer ferramentas.",
+    "nameHelp": "Nome exclusivo .md ou .txt, até 128 caracteres, sem caminhos.",
+    "descriptionHelp": "Obrigatório, até 1024 caracteres. Diga quando o documento é útil.",
+    "markdownHelp": "Markdown é literal. Expressões de modelo não são avaliadas. Imagens são bloqueadas nas prévias.",
+    "visibilityHelp": "Privado limita ao proprietário; Tenant segue as permissões do locatário.",
+    "activeHelp": "Documentos inativos ficam indisponíveis nos dois modos.",
+    "deliveryModeHelp": "Integral inclui todo o documento nas instruções. Referência inclui a descrição; o modelo lê sob demanda e usa contexto adicional. Requer ferramentas.",
+    "revisionPolicyHelp": "Mais recente segue edições compartilhadas. Fixada mantém uma revisão imutável.",
+    "pinnedRevisionHelp": "Selecione a revisão salva que este anexo deve manter.",
+    "enabledHelp": "Anexos desabilitados continuam configurados sem fornecer contexto.",
+    "allowPublicAccessHelp": "Conteúdo público pode ser divulgado. Exige Admin no documento e Read na credencial de publicação. Revogar não apaga conteúdo já entregue.",
+    "documentIdHelp": "Escolha um documento reutilizável legível. O conteúdo permanece na biblioteca."
   }
 }

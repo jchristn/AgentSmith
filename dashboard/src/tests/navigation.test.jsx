@@ -51,7 +51,7 @@ function renderNavigation(ui, path, principal = {}) {
 }
 
 describe('consolidated dashboard navigation', () => {
-  it('retains all 28 unique pages in nine hubs', () => {
+  it('retains all 29 unique pages in nine hubs', () => {
     const ids = [
       'home',
       'chat',
@@ -80,10 +80,11 @@ describe('consolidated dashboard navigation', () => {
       'sessions',
       'settings',
       'serverInfo',
-      'plugins'
+      'plugins',
+      'documents'
     ];
     expect(PAGES.map((page) => page.id).sort()).toEqual(ids.sort());
-    expect(new Set(PAGES.map((page) => page.slug)).size).toBe(28);
+    expect(new Set(PAGES.map((page) => page.slug)).size).toBe(29);
     expect(HUBS).toHaveLength(9);
   });
 
@@ -190,7 +191,7 @@ describe('consolidated dashboard navigation', () => {
 
   it('defines all required tab groups in their intended order', () => {
     expect(findHub('connections').tabs.map((page) => page.slug)).toEqual(['secrets', 'resources', 'connectors', 'models']);
-    expect(findHub('instructions').tabs.map((page) => page.slug)).toEqual(['prompts', 'knowledge']);
+    expect(findHub('instructions').tabs.map((page) => page.slug)).toEqual(['prompts', 'knowledge', 'documents']);
     expect(findHub('developerTools').tabs.map((page) => page.slug)).toEqual(['explorer', 'mcp-explorer', 'a2a-explorer']);
   });
 });

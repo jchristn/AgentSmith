@@ -138,3 +138,18 @@ A handful of jobs run inside the server process:
 ## One replica
 
 Hugo runs as a single replica on every runtime (D-045). Approvals, A2A tasks, conversations, and settings are persisted, so a restart loses nothing that matters (D-027), but some coordination is still in memory: MCP sessions (clients reinitialize after a restart, D-046), the event hub that feeds SSE, and the signals that wake a waiting approval. Some caches already invalidate across replicas through PostgreSQL notifications, which is groundwork for scaling out later; until the event hub and approval signals are shared too, run exactly one replica. The Compose stack does, and the Kubernetes manifests are written to.
+
+
+### Chat turns after navigation
+
+An accepted streaming dashboard or standalone chat turn belongs to the server, rather than to its viewing HTTP connection. Leaving the page or losing the stream detaches the viewer. The turn continues, persists its result, and remains subject to explicit Stop, normal runtime limits, authorization checks and server shutdown. This is not a durable job queue: server restart stops in-flight work.
+
+Conversation reads/list entries expose `turnInProgress`; safe standalone transcript reads expose the same runtime flag. Returning chat views poll persisted messages while that flag is true and show Stop rather than allowing a duplicate turn. Disconnecting the stream is not a substitute for the cancel endpoint. Non-streaming API and non-chat protocol cancellation contracts remain unchanged.
+
+### Versioned agent prompt documents
+
+Migration 12 adds tenant-owned prompt document metadata, immutable revision text rows and profile attachment rows. Revisions store canonical UTF-8 Markdown with SHA-256, size and author metadata. A profile's independent document-set version protects attachment mutations and ordering. Shared tenant transaction locks serialize quotas, name collisions and profile/document relationship changes on both SQLite and PostgreSQL.
+
+`PromptDocumentService` enforces library and attachment operations. `PromptDocumentDeliveryService` composes authorized Inline bodies or Reference manifests and serves immutable UTF-8 chunks through `AgentDocumentTools`. The compiler delegates document composition after its base-template cache; hosted fresh context reconciles it before model calls. Retrieval is scoped to the current profile and rechecks explicit public document grants, owner ceiling and attachment/publication state on every continuation.
+
+Document read tools are explicitly admitted by the hosted meta-tool allowlist and dispatched through the same shared authorization service from MCP, dashboard, standalone, A2A and OpenAI-compatible agent execution. Retrieved content enters authorized model/conversation context, while progress-event previews and request history omit bodies. No vector database, server file fetcher, URL synchronizer or new deployment service is required. See [Agent prompt documents](AGENT_DOCUMENTS.md).

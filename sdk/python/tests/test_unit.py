@@ -165,3 +165,15 @@ def test_new_models_parse():
 
 def test_chat_event_types_include_stream_closed():
     assert "stream.closed" in CHAT_EVENT_TYPES and "turn.completed" in CHAT_EVENT_TYPES
+
+
+def test_prompt_document_nested_types_and_request_omission():
+    attachments = models.AgentPromptDocumentList.from_dict({"documentSetVersion": 4, "items": [{"id": "pda_sample", "documentId": "pdc_sample", "revisionPolicy": "Pinned", "pinnedRevision": 2, "resolvedRevision": 2, "tenantId": "tenant", "createdUtc": "2026-10-18T00:00:00Z"}]})
+    assert attachments.document_set_version == 4
+    assert attachments.items[0].resolved_revision == 2
+    assert attachments.items[0].created_utc.tzinfo is not None
+    request = models.AgentPromptDocumentRequest(expected_version=2, expected_document_set_version=4, enabled=False)
+    assert request.to_dict() == {"expectedVersion": 2, "expectedDocumentSetVersion": 4, "enabled": False}
+    preview = models.PromptDocumentPreview.from_dict({"issues": [{"code": "document_tools_required", "message": "Enable tools."}], "manifest": [{"documentId": "pdc_sample"}]})
+    assert preview.issues[0].code == "document_tools_required"
+    assert preview.manifest[0].document_id == "pdc_sample"

@@ -440,3 +440,40 @@ claude mcp add --transport http hugo http://127.0.0.1:8800/mcp \
 ```
 
 Use a credential bound and locked to the profile you want Claude Code to have. It will then receive that profile's instructions and exactly that profile's tools, no matter what it asks for, and every call it makes will show up under Tool Invocations with the credential's name on it.
+
+## Attached prompt document tools
+
+`agent_list_documents` and `agent_read_document` expose only documents attached to the current executing profile. The server derives tenant/profile identity from the authenticated MCP context. Library management uses the REST/dashboard API, not these tools. Both are Read operations; neither accepts credentials, local paths, URLs, tenant IDs or a profile override.
+
+### `agent_list_documents`
+
+Input is an object with optional opaque `cursor` and no additional fields. `{}` lists the first page. Output is `{documentSetVersion,items,nextCursor?}`, where each item identifies an enabled/readable attachment by document ID, filename, description, delivery mode, selected revision, content size and hash. No Markdown body is included. Continue with `{"cursor":"<nextCursor>"}` when necessary.
+
+### `agent_read_document`
+
+For a first read supply exactly one of `documentId` or `name`, with optional positive `revision` from the manifest and bounded `maxBytes`. For example:
+
+```json
+{"name":"LOG_MESSAGE_STRUCTURE.md","maxBytes":16384}
+```
+
+The result is:
+
+```json
+{
+  "documentId": "pdc_example",
+  "name": "LOG_MESSAGE_STRUCTURE.md",
+  "revision": 3,
+  "contentHash": "<SHA-256 of canonical Markdown>",
+  "markdown": "# Log fields\n...",
+  "complete": true,
+  "returnedBytes": 16,
+  "nextCursor": null
+}
+```
+
+The example body/hash/byte count are illustrative; real results contain exact canonical text and server-computed values. If `complete` is false, use only `cursor` plus optional `maxBytes` for the next call. Do not combine a continuation with document selectors or a revision. Chunks preserve valid UTF-8 boundaries. Continue until the required content is read, then apply it; never claim an unread document was consulted.
+
+The selected revision must still be authorized by the current attachment. A stale selection/cursor returns `document_version_changed`; relist and reread. Invalid/tampered/expired cursors, unattached or invisible documents, revoked publications and exhausted budgets return structured tool errors. A cursor is not an access grant. Every read rechecks the profile, document visibility/Read permission, active state, attachment and public opt-in/explicit publishing credential grants.
+
+Inline attachments put their complete selected body in system instructions. Reference attachments advertise only metadata and these retrieval instructions until read. External MCP clients use their own model. Hosted dashboard, standalone, A2A and OpenAI-compatible agent loops use the same services and tool definitions; raw model proxies without an agent profile do not gain a document reader. Authorized read content enters model/conversation context, while progress/output previews omit it.

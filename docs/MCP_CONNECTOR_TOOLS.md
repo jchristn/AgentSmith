@@ -4467,3 +4467,7 @@ Task: 7f3c2e10-5b8a-4d0e-9c61-0a4f2b7d9e11
 ## Cryptography
 
 `crypto_encrypt`, `crypto_decrypt`, `crypto_hash`, and `crypto_verify_hash` transform bytes locally using a bound `cryptography` resource. Each has a Read effect. Keys stay in the resource secret binding. The tools support base64/hex bytes, AES-GCM or explicitly selected AES-CBC, and SHA-256/384/512 digest comparisons. See [the cryptography tool contracts and examples](connectors/cryptography.md#tools).
+
+## Agent document references
+
+The profile-level Read tools `agent_list_documents` and `agent_read_document` retrieve managed Markdown attachments independently of connector resource context. They resolve the current profile from the invocation, never accept arbitrary paths/URLs, and enforce document Read and publication limits. Reference-mode content is fetched through these tools; Inline-mode content is already in compiled instructions. See [Agent documents](AGENT_DOCUMENTS.md) and the [MCP API](../MCP_API.md#attached-prompt-document-tools) for full schemas, continuation and error behavior.

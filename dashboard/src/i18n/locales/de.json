@@ -227,7 +227,8 @@
       "RequestHistory": "Anfrageverlauf",
       "Knowledge": "Wissen",
       "Plugin": "Plugin",
-      "Analytics": "Analysen"
+      "Analytics": "Analysen",
+      "PromptDocument": "Dokument"
     },
     "auditEventType": {
       "AuthSuccess": "Anmeldung erfolgreich",
@@ -3479,7 +3480,8 @@
         "sessions": "Jede aktive Sitzung und jedes Token im Mandanten sehen und beliebige davon widerrufen.",
         "plugins": "Konnektor-Plugins aktivieren oder deaktivieren und Ladefehler einsehen. Nur Systemadministratoren sehen diese Seite.",
         "promptTemplates": "Anweisungsvorlagen pro Ebene (integriert, global, Mandant) bearbeiten, mit Vorschau, Versionen und Zurücksetzen.",
-        "feedback": "Feedback mit den zugehörigen Anfragen, Antworten und Telemetriedaten prüfen."
+        "feedback": "Feedback mit den zugehörigen Anfragen, Antworten und Telemetriedaten prüfen.",
+        "documents": "Wiederverwendbare Markdown-Anleitungen für Ihre Agenten."
       }
     },
     "passwordChange": {
@@ -3961,6 +3963,10 @@
       "feedback": {
         "label": "Rückmeldungen",
         "tip": "Feedback mit den zugehörigen Anfragen, Antworten und Telemetriedaten prüfen."
+      },
+      "documents": {
+        "label": "Dokumente",
+        "tip": "Wiederverwendbare Markdown-Anleitungen für Ihre Agenten."
       }
     }
   },
@@ -4668,5 +4674,76 @@
     "connectionFailed": "Die Verbindung zu diesem Chat konnte nicht hergestellt werden. Versuchen Sie es erneut.",
     "failed": "Dieser Chat konnte nicht geladen werden. Versuchen Sie es erneut oder wenden Sie sich an den Herausgeber des Links.",
     "disclaimer": "KI kann Fehler machen. Prüfen Sie wichtige Informationen."
+  },
+  "documents": {
+    "title": "Dokumente",
+    "subtitle": "Wiederverwendbare Markdown-Anleitungen für Ihre Agenten.",
+    "create": "Dokument hinzufügen",
+    "edit": "Dokument bearbeiten",
+    "name": "Dateiname",
+    "description": "Beschreibung",
+    "markdown": "Markdown-Inhalt",
+    "visibility": "Sichtbarkeit",
+    "active": "Aktiv",
+    "owner": "Eigentümer",
+    "revision": "Änderungsstand",
+    "size": "Größe in Bytes",
+    "referrers": "Verwendende Agenten",
+    "search": "Dokumente suchen",
+    "empty": "Noch keine Dokumente. Fügen Sie ein Markdown-Dokument für einen Agenten hinzu.",
+    "delete": "Dokument löschen",
+    "deleteHelp": "Lösen Sie zuerst alle Agentenverknüpfungen. Das Löschen entfernt auch den Revisionsverlauf.",
+    "preview": "Vorschau",
+    "history": "Revisionsverlauf",
+    "restore": "Diese Revision verwenden",
+    "restoreHelp": "Ein Entwurf wird wiederhergestellt. Speichern erstellt eine neue unveränderliche Revision.",
+    "upload": "Markdown oder Text importieren",
+    "uploadHelp": "UTF-8-Datei .md oder .txt auswählen oder ablegen und vor dem Speichern prüfen.",
+    "invalidFile": "Wählen Sie eine gültige UTF-8-Markdown- oder Textdatei ohne Binärdaten.",
+    "oversizedFile": "Die Datei überschreitet die Importgrenze von 1 MiB. Der Server kann weniger erlauben.",
+    "literal": "Markdown bleibt wörtlich. Vorlagenausdrücke werden nicht ausgewertet. Bilder sind in der Vorschau gesperrt.",
+    "sharedWarning": "Änderungen betreffen alle Verknüpfungen mit der neuesten Revision. Prüfen Sie die folgenden Agenten.",
+    "hiddenReferrers": "Weitere eingeschränkte Agenten verwenden dieses Dokument.",
+    "publicWarning": "Öffentliche Inhalte können offengelegt werden. Erforderlich sind Dokument-Admin und Read für den Veröffentlichungsschlüssel. Widerruf entfernt bereits gelieferte Inhalte nicht.",
+    "public": "Öffentlich",
+    "conflict": "Eine andere Person hat Änderungen gespeichert. Ihr Entwurf bleibt erhalten. Vergleichen Sie vor dem erneuten Speichern.",
+    "compare": "Neueste Fassung vergleichen",
+    "discard": "Änderungen verwerfen?",
+    "discardHelp": "Nicht gespeicherte Änderungen gehen verloren.",
+    "attachments": "Angehängte Dokumente",
+    "attach": "Dokument anhängen",
+    "noAttachments": "Keine Dokumente angehängt. Hängen Sie zusätzliche Anleitungen an.",
+    "deliveryMode": "Bereitstellungsmodus",
+    "inline": "Eingebettet",
+    "reference": "Referenz",
+    "revisionPolicy": "Revisionsauswahl",
+    "latest": "Neueste",
+    "pinned": "Fixiert",
+    "pinnedRevision": "Fixierte Revision",
+    "enabled": "Aktiviert",
+    "allowPublicAccess": "Öffentliche Bereitstellung erlauben",
+    "documentId": "Dokument",
+    "editAttachment": "Verknüpfung bearbeiten",
+    "up": "Nach oben",
+    "down": "Nach unten",
+    "detach": "Verknüpfung lösen",
+    "detachHelp": "Nur die Agentenverknüpfung wird entfernt. Das Dokument bleibt in der Bibliothek.",
+    "audience": "Vorschauzielgruppe",
+    "authenticated": "Aktuell authentifizierter Aufrufer",
+    "previewHelp": "Die Vorschau nutzt aktuelle Rechte. Öffentlich nutzt sie den gespeicherten Schlüssel und Ihre eigenen Dokumentrechte.",
+    "estimatedTokens": "Geschätzte Token",
+    "toolHelp": "Lesen Sie das referenzierte Dokument mit diesem Werkzeug sowie der angegebenen ID und Revision.",
+    "deliveryHelp": "Eingebettet fügt das gesamte Dokument in Systemanweisungen ein. Referenz fügt die Beschreibung ein; der Inhalt wird bei Bedarf gelesen und belegt Kontext. Werkzeugunterstützung ist erforderlich.",
+    "nameHelp": "Eindeutiger Dateiname mit .md oder .txt, höchstens 128 Zeichen und ohne Pfad.",
+    "descriptionHelp": "Erforderlich, höchstens 1024 Zeichen. Erklären Sie, wann das Dokument hilfreich ist.",
+    "markdownHelp": "Markdown bleibt wörtlich. Vorlagenausdrücke werden nicht ausgewertet. Bilder sind in der Vorschau gesperrt.",
+    "visibilityHelp": "Privat beschränkt auf den Eigentümer; Tenant folgt den Mandantenrechten.",
+    "activeHelp": "Inaktive Dokumente stehen Agenten in beiden Modi nicht zur Verfügung.",
+    "deliveryModeHelp": "Eingebettet fügt das gesamte Dokument in Systemanweisungen ein. Referenz fügt die Beschreibung ein; der Inhalt wird bei Bedarf gelesen und belegt Kontext. Werkzeugunterstützung ist erforderlich.",
+    "revisionPolicyHelp": "Neueste folgt gemeinsamen Änderungen. Fixiert behält eine unveränderliche Revision.",
+    "pinnedRevisionHelp": "Wählen Sie die gespeicherte Revision für diese Verknüpfung.",
+    "enabledHelp": "Deaktivierte Verknüpfungen bleiben gespeichert, liefern aber keinen Kontext.",
+    "allowPublicAccessHelp": "Öffentliche Inhalte können offengelegt werden. Erforderlich sind Dokument-Admin und Read für den Veröffentlichungsschlüssel. Widerruf entfernt bereits gelieferte Inhalte nicht.",
+    "documentIdHelp": "Wählen Sie ein lesbares Dokument. Der Inhalt bleibt in der Bibliothek."
   }
 }

@@ -215,7 +215,7 @@ namespace Test.Shared.Integration
                     Assert.True(String.IsNullOrEmpty(upgraded.ChatCredentialId) && String.IsNullOrEmpty(upgraded.ChatLinkId), "migration does not bind credentials or mint share links for existing profiles");
                     Assert.Equal("Preserved operator guidance.", upgraded.InstructionsAppend, "upgrade preserves operator instructions");
                     Assert.Equal(profile.Name, upgraded.Name, "upgrade preserves existing profile identity");
-                    Assert.Equal(11, await driver.ReadSchemaVersionAsync(token).ConfigureAwait(false), "migration is recorded durably");
+                    Assert.Equal(SchemaBuilder.LatestVersion, await driver.ReadSchemaVersionAsync(token).ConfigureAwait(false), "migration is recorded durably");
                 }
                 finally
                 {

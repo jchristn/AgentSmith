@@ -227,7 +227,8 @@
       "RequestHistory": "Sejarah permintaan",
       "Knowledge": "Pengetahuan",
       "Plugin": "Pemalam",
-      "Analytics": "Analitik"
+      "Analytics": "Analitik",
+      "PromptDocument": "Dokumen"
     },
     "auditEventType": {
       "AuthSuccess": "Log masuk berjaya",
@@ -3479,7 +3480,8 @@
         "sessions": "Lihat setiap sesi dan token aktif dalam penyewa, dan batalkan mana-mana daripadanya.",
         "plugins": "Dayakan atau nyahdayakan pemalam penyambung dan lihat ralat pemuatan. Hanya pentadbir sistem melihat halaman ini.",
         "promptTemplates": "Edit templat arahan mengikut lapisan (terbina dalam, global, penyewa), dengan pratonton, versi dan tetapan semula.",
-        "feedback": "Semak maklum balas serta permintaan, respons dan telemetri yang berkaitan."
+        "feedback": "Semak maklum balas serta permintaan, respons dan telemetri yang berkaitan.",
+        "documents": "Panduan Markdown boleh guna semula untuk ejen."
       }
     },
     "passwordChange": {
@@ -3961,6 +3963,10 @@
       "feedback": {
         "label": "Maklum balas",
         "tip": "Semak maklum balas serta permintaan, respons dan telemetri yang berkaitan."
+      },
+      "documents": {
+        "label": "Dokumen",
+        "tip": "Panduan Markdown boleh guna semula untuk ejen."
       }
     }
   },
@@ -4668,5 +4674,76 @@
     "connectionFailed": "Tidak dapat menyambung ke sembang ini. Sila cuba lagi.",
     "failed": "Tidak dapat memuatkan sembang ini. Sila cuba lagi atau hubungi penerbit pautan.",
     "disclaimer": "AI boleh membuat kesilapan. Semak maklumat penting."
+  },
+  "documents": {
+    "title": "Dokumen",
+    "subtitle": "Panduan Markdown boleh guna semula untuk ejen.",
+    "create": "Tambah dokumen",
+    "edit": "Sunting dokumen",
+    "name": "Nama fail",
+    "description": "Penerangan",
+    "markdown": "Kandungan Markdown",
+    "visibility": "Keterlihatan",
+    "active": "Aktif",
+    "owner": "Pemilik",
+    "revision": "Semakan",
+    "size": "Bait",
+    "referrers": "Ejen pengguna",
+    "search": "Cari dokumen",
+    "empty": "Tiada dokumen. Tambah dokumen Markdown untuk dilampirkan pada ejen.",
+    "delete": "Padam dokumen",
+    "deleteHelp": "Nyahlampirkan daripada semua ejen sebelum memadam. Sejarah semakan turut dipadam.",
+    "preview": "Pratonton",
+    "history": "Sejarah semakan",
+    "restore": "Guna semakan ini",
+    "restoreHelp": "Draf dipulihkan. Simpan untuk mencipta semakan baharu yang tidak boleh diubah.",
+    "upload": "Import Markdown atau teks",
+    "uploadHelp": "Pilih atau lepaskan fail UTF-8 .md atau .txt dan semak sebelum menyimpan.",
+    "invalidFile": "Pilih fail Markdown atau teks UTF-8 sah tanpa data binari.",
+    "oversizedFile": "Fail melebihi had import 1 MiB. Had pelayan mungkin lebih rendah.",
+    "literal": "Markdown dianggap literal. Ungkapan templat tidak dinilai. Imej disekat dalam pratonton.",
+    "sharedWarning": "Perubahan dokumen dikongsi menjejaskan semua lampiran yang mengikuti semakan terkini. Semak ejen di bawah.",
+    "hiddenReferrers": "Ejen terhad lain menggunakan dokumen ini.",
+    "publicWarning": "Kandungan awam boleh didedahkan. Perlu Admin dokumen dan Read kelayakan penerbitan. Pembatalan tidak memadam kandungan yang telah dihantar.",
+    "public": "Awam",
+    "conflict": "Penyunting lain menyimpan perubahan. Draf dikekalkan. Bandingkan versi terkini sebelum mencuba semula.",
+    "compare": "Bandingkan terkini",
+    "discard": "Buang perubahan?",
+    "discardHelp": "Perubahan belum disimpan akan hilang.",
+    "attachments": "Dokumen dilampirkan",
+    "attach": "Lampirkan dokumen",
+    "noAttachments": "Tiada dokumen dilampirkan. Lampirkan panduan boleh guna semula.",
+    "deliveryMode": "Mod penghantaran",
+    "inline": "Sebaris",
+    "reference": "Rujukan",
+    "revisionPolicy": "Pilihan semakan",
+    "latest": "Terkini",
+    "pinned": "Disemat",
+    "pinnedRevision": "Semakan disemat",
+    "enabled": "Didayakan",
+    "allowPublicAccess": "Benarkan penghantaran awam",
+    "documentId": "Dokumen",
+    "editAttachment": "Sunting lampiran",
+    "up": "Naik",
+    "down": "Turun",
+    "detach": "Nyahlampir",
+    "detachHelp": "Hanya pautan ejen ini dibuang. Dokumen kekal dalam pustaka.",
+    "audience": "Khalayak pratonton",
+    "authenticated": "Pemanggil disahkan semasa",
+    "previewHelp": "Pratonton menggunakan hak semasa. Pratonton awam menggunakan kelayakan disimpan dan hak dokumen anda.",
+    "estimatedTokens": "Anggaran token",
+    "toolHelp": "Baca dokumen rujukan melalui alat ini dengan ID dan semakan yang dinyatakan.",
+    "deliveryHelp": "Sebaris memasukkan seluruh dokumen dalam arahan sistem. Rujukan memasukkan penerangan; model membaca apabila perlu dan menggunakan konteks tambahan. Sokongan alat diperlukan.",
+    "nameHelp": "Nama unik .md atau .txt hingga 128 aksara tanpa laluan direktori.",
+    "descriptionHelp": "Wajib, hingga 1024 aksara. Nyatakan bila dokumen ini berguna kepada model.",
+    "markdownHelp": "Markdown dianggap literal. Ungkapan templat tidak dinilai. Imej disekat dalam pratonton.",
+    "visibilityHelp": "Peribadi mengehadkan kepada pemilik; Tenant mengikut hak penyewa.",
+    "activeHelp": "Dokumen tidak aktif tidak tersedia dalam kedua-dua mod.",
+    "deliveryModeHelp": "Sebaris memasukkan seluruh dokumen dalam arahan sistem. Rujukan memasukkan penerangan; model membaca apabila perlu dan menggunakan konteks tambahan. Sokongan alat diperlukan.",
+    "revisionPolicyHelp": "Terkini mengikuti suntingan dikongsi. Disemat mengekalkan semakan tetap.",
+    "pinnedRevisionHelp": "Pilih semakan disimpan yang mesti digunakan oleh lampiran ini.",
+    "enabledHelp": "Lampiran dinyahdayakan kekal dikonfigurasi tanpa menambah konteks.",
+    "allowPublicAccessHelp": "Kandungan awam boleh didedahkan. Perlu Admin dokumen dan Read kelayakan penerbitan. Pembatalan tidak memadam kandungan yang telah dihantar.",
+    "documentIdHelp": "Pilih dokumen boleh guna semula yang boleh dibaca. Kandungan kekal dalam pustaka."
   }
 }

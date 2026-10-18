@@ -106,5 +106,17 @@
   "OpenAI": {
     "Enable": true
   },
-  "SettingsFileReadOnly": false
+  "SettingsFileReadOnly": false,
+  "PromptDocuments": {
+    "MaxPromptDocumentBytes": 262144,
+    "MaxPromptDocumentsPerTenant": 256,
+    "MaxPromptDocumentStorageBytesPerTenant": 67108864,
+    "MaxPromptDocumentAttachmentsPerProfile": 32,
+    "MaxInlinePromptDocumentBytes": 65536,
+    "MaxPromptDocumentManifestBytes": 16384,
+    "PromptDocumentReadBytes": 16384,
+    "MaxPromptDocumentReadBytes": 65536,
+    "MaxPromptDocumentBytesPerTurn": 262144,
+    "PromptDocumentCursorLifetimeSeconds": 600
+  }
 }

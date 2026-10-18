@@ -15,6 +15,9 @@ namespace Hugo.Sdk.Models
         /// </summary>
         public string Id { get; set; } = String.Empty;
 
+        /// <summary>Whether the server has an active turn, even if its stream is disconnected.</summary>
+        public bool TurnInProgress { get; set; } = false;
+
         /// <summary>
         /// Tenant Identifier.
         /// </summary>

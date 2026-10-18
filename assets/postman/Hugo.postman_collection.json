@@ -588,6 +588,38 @@
     {
       "key": "bearerSecretId",
       "value": ""
+    },
+    {
+      "key": "apcRun",
+      "value": ""
+    },
+    {
+      "key": "apcProfileId",
+      "value": ""
+    },
+    {
+      "key": "apcDocumentId",
+      "value": ""
+    },
+    {
+      "key": "apcDocumentVersion",
+      "value": ""
+    },
+    {
+      "key": "apcDocumentRevision",
+      "value": ""
+    },
+    {
+      "key": "apcDocumentSetVersion",
+      "value": ""
+    },
+    {
+      "key": "apcAttachmentId",
+      "value": ""
+    },
+    {
+      "key": "apcAttachmentVersion",
+      "value": ""
     }
   ],
   "item": [
@@ -17569,6 +17601,955 @@
             }
           },
           "response": []
+        }
+      ]
+    },
+    {
+      "name": "Agent prompt documents",
+      "description": "Self-contained managed Markdown document workflow. Uses inherited authentication and synthetic apcResponseJson. Requires document CRUD, profile CRUD/Update, and document Read. Creates a temporary agent and document, exercises CAS, delivery modes, revision metadata and attachment ordering, then cleans up. The example does not publish content or call a model.",
+      "item": [
+        {
+          "name": "Create isolated document example agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/agent-profiles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "agent-profiles"
+              ]
+            },
+            "description": "Creates its own temporary agent. This folder can run independently and cleans up only its own records.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"apc-documents-{{apcRun}}\",\n  \"displayName\": \"Document example\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('apcRun', Date.now().toString(36));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "var apcResponseJson = pm.response.json();",
+                  "pm.collectionVariables.set('apcProfileId', apcResponseJson.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create managed Markdown document",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/prompt-documents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "prompt-documents"
+              ]
+            },
+            "description": "A managed copy, not a server filesystem path. Reference mode later advertises metadata and a read tool; it does not inline this body.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"LOG_MESSAGE_STRUCTURE-{{apcRun}}.md\",\n  \"description\": \"Read before interpreting synthetic application logs.\",\n  \"markdown\": \"# Synthetic application log schema\\n\\nseverity is info, warning, or error. requestId correlates events.\\n\\nLiteral braces: {{example.notATemplate}}\",\n  \"visibility\": \"Private\",\n  \"active\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "var apcResponseJson = pm.response.json();",
+                  "pm.collectionVariables.set('apcDocumentId', apcResponseJson.id);",
+                  "pm.collectionVariables.set('apcDocumentVersion', apcResponseJson.version);",
+                  "pm.collectionVariables.set('apcDocumentRevision', apcResponseJson.currentRevision);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Search document metadata",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/prompt-documents?search={{apcRun}}&maxResults=25&skip=0&ordering=NameAscending",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "prompt-documents"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "{{apcRun}}"
+                },
+                {
+                  "key": "maxResults",
+                  "value": "25"
+                },
+                {
+                  "key": "skip",
+                  "value": "0"
+                },
+                {
+                  "key": "ordering",
+                  "value": "NameAscending"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('metadata has no body', () => pm.response.json().objects.forEach(d => pm.expect(d).not.to.have.property('markdown')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Read document metadata and capabilities",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/prompt-documents/{{apcDocumentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "prompt-documents",
+                "{{apcDocumentId}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "var apcResponseJson = pm.response.json();",
+                  "pm.collectionVariables.set('apcDocumentVersion', apcResponseJson.version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List immutable revision metadata",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/prompt-documents/{{apcDocumentId}}/revisions?maxResults=25&skip=0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "prompt-documents",
+                "{{apcDocumentId}}",
+                "revisions"
+              ],
+              "query": [
+                {
+                  "key": "maxResults",
+                  "value": "25"
+                },
+                {
+                  "key": "skip",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Explicitly read selected revision content",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/prompt-documents/{{apcDocumentId}}/revisions/{{apcDocumentRevision}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "prompt-documents",
+                "{{apcDocumentId}}",
+                "revisions",
+                "{{apcDocumentRevision}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('content is literal Markdown', () => pm.expect(pm.response.json().markdown).to.include('Synthetic application log schema'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inspect authorized referrers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/prompt-documents/{{apcDocumentId}}/referrers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "prompt-documents",
+                "{{apcDocumentId}}",
+                "referrers"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('referrers use restricted projection', () => pm.expect(pm.response.json()).to.have.property('hasOtherReferrers'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Read initial attachment-set version",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/agent-profiles/{{apcProfileId}}/documents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "agent-profiles",
+                "{{apcProfileId}}",
+                "documents"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "var apcResponseJson = pm.response.json();",
+                  "pm.collectionVariables.set('apcDocumentSetVersion', apcResponseJson.documentSetVersion);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Attach Reference document",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/agent-profiles/{{apcProfileId}}/documents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "agent-profiles",
+                "{{apcProfileId}}",
+                "documents"
+              ]
+            },
+            "description": "Public delivery is opt-in and requires separate administrative document and publishing-credential permissions; this example remains private.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"expectedDocumentSetVersion\":{{apcDocumentSetVersion}},\"documentId\":\"{{apcDocumentId}}\",\"deliveryMode\":\"Reference\",\"revisionPolicy\":\"Latest\",\"displayOrder\":0,\"enabled\":true,\"allowPublicAccess\":false}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "var apcResponseJson = pm.response.json();",
+                  "pm.collectionVariables.set('apcAttachmentId', apcResponseJson.id);",
+                  "pm.collectionVariables.set('apcAttachmentVersion', apcResponseJson.version);",
+                  "pm.collectionVariables.set('apcDocumentSetVersion', apcResponseJson.documentSetVersion);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List resolved attachments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/agent-profiles/{{apcProfileId}}/documents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "agent-profiles",
+                "{{apcProfileId}}",
+                "documents"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "var apcResponseJson = pm.response.json();",
+                  "pm.collectionVariables.set('apcDocumentSetVersion', apcResponseJson.documentSetVersion);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Preview authenticated document delivery",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/agent-profiles/{{apcProfileId}}/documents/preview",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "agent-profiles",
+                "{{apcProfileId}}",
+                "documents",
+                "preview"
+              ]
+            },
+            "description": "Dry run: no inference call or grant/session creation. Reference readiness can report a missing tool-capable model. Public audience additionally requires a saved publication credential and appropriate grants.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"audience\": \"Authenticated\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('preview exposes readiness issues', () => pm.expect(pm.response.json().issues).to.be.an('array'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Switch attachment to Inline",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/agent-profiles/{{apcProfileId}}/documents/{{apcAttachmentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "agent-profiles",
+                "{{apcProfileId}}",
+                "documents",
+                "{{apcAttachmentId}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"expectedVersion\":{{apcAttachmentVersion}},\"expectedDocumentSetVersion\":{{apcDocumentSetVersion}},\"deliveryMode\":\"Inline\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "var apcResponseJson = pm.response.json();",
+                  "pm.collectionVariables.set('apcAttachmentVersion', apcResponseJson.version);",
+                  "pm.collectionVariables.set('apcDocumentSetVersion', apcResponseJson.documentSetVersion);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reorder complete attachment set",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/agent-profiles/{{apcProfileId}}/documents/order",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "agent-profiles",
+                "{{apcProfileId}}",
+                "documents",
+                "order"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"expectedDocumentSetVersion\":{{apcDocumentSetVersion}},\"attachmentIds\":[\"{{apcAttachmentId}}\"]}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "var apcResponseJson = pm.response.json();",
+                  "pm.collectionVariables.set('apcDocumentSetVersion', apcResponseJson.documentSetVersion);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reject deletion while attached",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/prompt-documents/{{apcDocumentId}}?expectedVersion={{apcDocumentVersion}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "prompt-documents",
+                "{{apcDocumentId}}"
+              ],
+              "query": [
+                {
+                  "key": "expectedVersion",
+                  "value": "{{apcDocumentVersion}}"
+                }
+              ]
+            },
+            "description": "Deletion must not silently detach agents or remove shared configuration."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Append a new document revision using CAS",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/prompt-documents/{{apcDocumentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "prompt-documents",
+                "{{apcDocumentId}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"expectedVersion\":{{apcDocumentVersion}},\"markdown\":\"# Synthetic application log schema\\n\\nseverity: info, warning, error. durationMs is elapsed milliseconds.\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "var apcResponseJson = pm.response.json();",
+                  "pm.collectionVariables.set('apcDocumentVersion', apcResponseJson.version);",
+                  "pm.collectionVariables.set('apcDocumentRevision', apcResponseJson.currentRevision);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reject stale metadata update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/prompt-documents/{{apcDocumentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "prompt-documents",
+                "{{apcDocumentId}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expectedVersion\": 1,\n  \"description\": \"Stale overwrite must not win\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Preview Inline content",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/agent-profiles/{{apcProfileId}}/documents/preview",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "agent-profiles",
+                "{{apcProfileId}}",
+                "documents",
+                "preview"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"audience\": \"Authenticated\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('inline content is included', () => pm.expect(pm.response.json().compiledText).to.include('durationMs'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh attachment version before cleanup",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/agent-profiles/{{apcProfileId}}/documents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "agent-profiles",
+                "{{apcProfileId}}",
+                "documents"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "var apcResponseJson = pm.response.json();",
+                  "pm.collectionVariables.set('apcDocumentSetVersion', apcResponseJson.documentSetVersion);",
+                  "pm.collectionVariables.set('apcAttachmentVersion', apcResponseJson.items[0].version);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detach without deleting shared content",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/agent-profiles/{{apcProfileId}}/documents/{{apcAttachmentId}}?expectedVersion={{apcAttachmentVersion}}&expectedDocumentSetVersion={{apcDocumentSetVersion}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "agent-profiles",
+                "{{apcProfileId}}",
+                "documents",
+                "{{apcAttachmentId}}"
+              ],
+              "query": [
+                {
+                  "key": "expectedVersion",
+                  "value": "{{apcAttachmentVersion}}"
+                },
+                {
+                  "key": "expectedDocumentSetVersion",
+                  "value": "{{apcDocumentSetVersion}}"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete detached document and history",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/prompt-documents/{{apcDocumentId}}?expectedVersion={{apcDocumentVersion}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "prompt-documents",
+                "{{apcDocumentId}}"
+              ],
+              "query": [
+                {
+                  "key": "expectedVersion",
+                  "value": "{{apcDocumentVersion}}"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete temporary example agent",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1.0/api/agent-profiles/{{apcProfileId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1.0",
+                "api",
+                "agent-profiles",
+                "{{apcProfileId}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
         }
       ]
     },

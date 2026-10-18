@@ -35,6 +35,8 @@ class _ClientCore:
         self.connectors = api.ConnectorsApi(transport)
         self.resources = api.ResourcesApi(transport)
         self.agent_profiles = api.AgentProfilesApi(transport)
+        self.prompt_documents = api.PromptDocumentsApi(transport)
+        self.agent_prompt_documents = api.AgentPromptDocumentsApi(transport)
         self.model_endpoints = api.ModelEndpointsApi(transport)
         self.tool_invocations = api.ToolInvocationsApi(transport)
         self.approvals = api.ApprovalsApi(transport)

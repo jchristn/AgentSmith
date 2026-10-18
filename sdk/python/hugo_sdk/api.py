@@ -795,3 +795,46 @@ class ConversationsApi(_Crud):
 async def _achat(source: Any) -> Any:
     async for event in source:
         yield ChatEvent.from_sse(event)
+
+
+class PromptDocumentsApi(_Crud):
+    """Reusable Markdown documents. Bodies use camelCase versioned REST fields."""
+    _segment = "prompt-documents"
+    _model = m.PromptDocument
+    _tenant = False
+
+    def delete(self, id: str, expected_version: int) -> Any:
+        return self._run(Call("DELETE", self._item(id), {"expectedVersion": expected_version}))
+
+    def revisions(self, id: str, max_results: Optional[int] = None, skip: Optional[int] = None) -> Any:
+        return self._run(Call("GET", self._item(id) + "/revisions", _enum(max_results, skip), parse=_page(m.PromptDocumentRevision)))
+
+    def revision(self, id: str, revision: int) -> Any:
+        return self._run(Call("GET", self._item(id) + "/revisions/" + str(revision), parse=m.PromptDocumentRevision.from_dict))
+
+    def referrers(self, id: str) -> Any:
+        return self._run(Call("GET", self._item(id) + "/referrers", parse=m.PromptDocumentReferrers.from_dict))
+
+
+class AgentPromptDocumentsApi(_Api):
+    """Read, attach, pin, reorder and detach a profile's documents using optimistic versions."""
+    def _base(self, profile_id: str) -> str:
+        return "/v1.0/api/agent-profiles/" + seg(profile_id) + "/documents"
+
+    def list(self, profile_id: str) -> Any:
+        return self._run(Call("GET", self._base(profile_id), parse=m.AgentPromptDocumentList.from_dict))
+
+    def create(self, profile_id: str, body: Body) -> Any:
+        return self._run(Call("POST", self._base(profile_id), body=body, parse=m.AgentPromptDocument.from_dict))
+
+    def update(self, profile_id: str, attachment_id: str, body: Body) -> Any:
+        return self._run(Call("PUT", self._base(profile_id) + "/" + seg(attachment_id), body=body, parse=m.AgentPromptDocument.from_dict))
+
+    def delete(self, profile_id: str, attachment_id: str, expected_version: int, expected_document_set_version: int) -> Any:
+        return self._run(Call("DELETE", self._base(profile_id) + "/" + seg(attachment_id), {"expectedVersion": expected_version, "expectedDocumentSetVersion": expected_document_set_version}))
+
+    def reorder(self, profile_id: str, attachment_ids: List[str], expected_document_set_version: int) -> Any:
+        return self._run(Call("PUT", self._base(profile_id) + "/order", body={"attachmentIds": attachment_ids, "expectedDocumentSetVersion": expected_document_set_version}, parse=m.AgentPromptDocumentList.from_dict))
+
+    def preview(self, profile_id: str, audience: str = "Authenticated") -> Any:
+        return self._run(Call("POST", self._base(profile_id) + "/preview", body={"audience": audience}, parse=m.PromptDocumentPreview.from_dict))

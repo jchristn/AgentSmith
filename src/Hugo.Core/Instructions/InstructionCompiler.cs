@@ -17,6 +17,7 @@ namespace Hugo.Core.Instructions
     using Hugo.Core.Knowledge;
     using Hugo.Core.Models;
     using Hugo.Core.Profiles;
+    using Hugo.Core.Responses;
     using Hugo.Core.Prompts;
     using Hugo.Core.Security;
     using Hugo.Core.Services;
@@ -86,6 +87,10 @@ namespace Hugo.Core.Instructions
         /// <summary>
         /// Optional warning sink (for example the server log).
         /// </summary>
+        /// <summary>Fresh authorized document composition, excluded from the template cache.</summary>
+        public Func<string, string, RequestContext, CancellationToken, Task<PromptDocumentPreview>>? DocumentComposer { get; set; }
+
+        /// <summary>Optional warning sink.</summary>
         public Action<string>? Warn { get; set; } = null;
 
         /// <summary>
@@ -175,11 +180,18 @@ namespace Hugo.Core.Instructions
         /// <param name="token">Cancellation token.</param>
         /// <param name="includeKnowledge">Include the saved knowledge snapshot; false for internal loops that inject fresh context before each model call.</param>
         /// <param name="includeProfileInstructions">Include profile workflow instructions; false when the hosted loop injects their fresh version before each model call.</param>
+        /// <param name="includeDocuments">Include a fresh authorized document snapshot.</param>
         /// <returns>Compiled instructions.</returns>
         /// <exception cref="ArgumentNullException">Thrown when tenantId or profileId is null or empty.</exception>
         /// <exception cref="NotFoundException">Thrown when the profile does not exist in the tenant.</exception>
-        public async Task<CompiledInstructions> CompileAsync(string tenantId, string profileId, RequestContext? principal, InvocationSurfaceEnum surface, CancellationToken token = default, bool includeKnowledge = true, bool includeProfileInstructions = true)
+        public async Task<CompiledInstructions> CompileAsync(string tenantId, string profileId, RequestContext? principal, InvocationSurfaceEnum surface, CancellationToken token = default, bool includeKnowledge = true, bool includeProfileInstructions = true, bool includeDocuments = true)
         {
+            if (includeDocuments && DocumentComposer != null && principal != null)
+            {
+                CompiledInstructions basis = await CompileAsync(tenantId, profileId, principal, surface, token, includeKnowledge, includeProfileInstructions, false).ConfigureAwait(false);
+                PromptDocumentPreview documents = await DocumentComposer(tenantId, profileId, principal, token).ConfigureAwait(false);
+                return MergeDocuments(basis, documents);
+            }
             if (String.IsNullOrEmpty(tenantId)) throw new ArgumentNullException(nameof(tenantId));
             if (String.IsNullOrEmpty(profileId)) throw new ArgumentNullException(nameof(profileId));
             if (surface == InvocationSurfaceEnum.Rest) surface = InvocationSurfaceEnum.Chat;
@@ -207,6 +219,29 @@ namespace Hugo.Core.Instructions
                 HugoMetrics.Observe(HugoMetricCatalog.InstructionsCompileDuration, HugoMetrics.SecondsSince(started), "cached", "false");
                 return compiled;
             }
+        }
+
+        /// <summary>Insert fresh documents before the resource sections without caching their bodies.</summary>
+        public static CompiledInstructions MergeDocuments(CompiledInstructions basis, PromptDocumentPreview documents)
+        {
+            CompiledInstructions result = Hugo.Core.Serialization.Serializer.Copy(basis)!;
+            if (String.IsNullOrEmpty(documents.CompiledText)) return result;
+            int offset = result.Segments.Where(s => s.BindingAlias != null).Select(s => s.Start).DefaultIfEmpty(result.Text.Length).Min();
+            string fragment = "\n" + documents.CompiledText + "\n";
+            result.Text = result.Text.Insert(offset, fragment);
+            foreach (InstructionSegment segment in result.Segments)
+            {
+                if (segment.Start >= offset) segment.Start += fragment.Length;
+                else if (segment.Start + segment.Length > offset) segment.Length += fragment.Length;
+            }
+            foreach (InstructionSegment segment in documents.Segments)
+            {
+                InstructionSegment copy = Hugo.Core.Serialization.Serializer.Copy(segment)!;
+                copy.Start += offset + 1;
+                result.Segments.Add(copy);
+            }
+            result.TokenEstimate = TokenEstimator.Estimate(result.Text);
+            return result;
         }
 
         /// <summary>

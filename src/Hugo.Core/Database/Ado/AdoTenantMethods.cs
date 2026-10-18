@@ -191,6 +191,7 @@ namespace Hugo.Core.Database.Ado
             await _Driver.ExecuteInTransactionAsync(async (connection, transaction, ct) =>
             {
                 total = 0;
+                await AdoDatabaseDriver.ExecuteAsync(connection, transaction, "UPDATE " + _Table + " SET last_update_utc=last_update_utc WHERE id=@tenant_id;", command => AdoDatabaseDriver.Add(command, "tenant_id", tenantId), ct).ConfigureAwait(false);
                 foreach (string table in Hugo.Core.Database.TableCatalog.AllTables)
                 {
                     if (withoutTenant.Contains(table)) continue;

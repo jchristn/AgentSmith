@@ -53,3 +53,7 @@ External MCP clients receive context in compiled resource instructions and guida
 Both tools run through the normal resource binding and tool authorization pipeline. Updating notes requires `AllowKnowledgeUpdates`; tenant lockdown also blocks updates. Hugo rechecks write permission after an approval wait. A target binding may remain `ReadOnly` while allowing Hugo knowledge updates, because these writes affect Hugo rather than the target. MCP correctly advertises the update tool as a writer.
 
 Output is bounded by resource limits and the tool's 12,000-character ceiling. Large inventories should be organized into scoped entries and fetched explicitly rather than relying on the automatic prompt budget. No embeddings, semantic search, or automatic saving of every tool result is implied: the agent explicitly records reusable discoveries. Embedded custom knowledge stores must implement `IVersionedResourceKnowledgeStore` to support the generic update tool safely.
+
+## Authored reference documents
+
+Keep learned paths and schema facts in resource context. Operator-authored runbooks, log-message definitions and other reusable details can be attached as [Agent prompt documents](AGENT_DOCUMENTS.md), either inline or read on demand. A missing resource-context entry does not mean an attached document or vault secret is missing. Agents must not duplicate entire documents into saved context.

@@ -139,7 +139,7 @@ namespace Hugo.Server.Services
                     ?? throw new ValidationException("The inference endpoint of agent profile " + options.Profile.Name + " no longer exists or is inactive.") { Code = "ModelEndpointRequired" };
                 if (!String.IsNullOrEmpty(options.Profile.FallbackInferenceEndpointId)) plan.Fallback = await ConfigAsync(options.TenantId, options.Profile.FallbackInferenceEndpointId, token).ConfigureAwait(false);
                 if (!String.IsNullOrEmpty(options.Profile.EmbeddingEndpointId)) plan.Embedding = await ConfigAsync(options.TenantId, options.Profile.EmbeddingEndpointId, token).ConfigureAwait(false);
-                CompiledInstructions compiled = await _Compiler.CompileAsync(options.TenantId, options.Profile.Id, options.Principal, options.Surface, token, includeKnowledge: false, includeProfileInstructions: false).ConfigureAwait(false);
+                CompiledInstructions compiled = await _Compiler.CompileAsync(options.TenantId, options.Profile.Id, options.Principal, options.Surface, token, includeKnowledge: false, includeProfileInstructions: false, includeDocuments: false).ConfigureAwait(false);
                 StringBuilder system = new StringBuilder(compiled.Text);
                 if (!String.IsNullOrWhiteSpace(options.CallerContext))
                 {
@@ -221,9 +221,9 @@ namespace Hugo.Server.Services
                 request.ToolCatalog = new LoopToolCatalog(new HugoAgentToolCatalog(_Catalog, options.Principal));
                 request.ToolExecutor = new HugoAgentToolExecutor(_Invocations, options.Principal, options.Surface, options.WaitMode)
                 {
-                    MetaToolHandler = (turnRequest, call, cancellation) => _Context.Get<AgentInstructionTools>().ExecuteAsync(options.Principal, turnRequest, call, cancellation)
+                    MetaToolHandler = async (turnRequest, call, cancellation) => await _Context.Get<AgentDocumentTools>().ExecuteAsync(options.Principal, turnRequest, call, cancellation).ConfigureAwait(false) ?? await _Context.Get<AgentInstructionTools>().ExecuteAsync(options.Principal, turnRequest, call, cancellation).ConfigureAwait(false)
                 };
-                request.ContextProvider = new ServerAgentContextProvider(_Context.Database, _Context.Get<ProfileBindingResolver>(), _Compiler, options.Principal, _Context.Authorization);
+                request.ContextProvider = new ServerAgentContextProvider(_Context.Database, _Context.Get<ProfileBindingResolver>(), _Compiler, options.Principal, _Context.Authorization, _Context.Get<PromptDocumentDeliveryService>());
                 request.EventSink = new CompositeAgentEventSink(sinks);
 
                 AgentTurnResult result = await runtime.RunTurnAsync(request, linked.Token).ConfigureAwait(false);

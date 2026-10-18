@@ -263,3 +263,23 @@ On a fresh server the administrator still has its seeded password and is flagged
 cd sdk/csharp/src
 dotnet build Hugo.Sdk.sln     # zero warnings; warnings are errors
 ```
+
+## Managed agent documents
+
+`client.PromptDocuments` provides `ListAsync`, `GetAsync`, `CreateAsync`, `UpdateAsync`, `DeleteAsync(id, expectedVersion)`, `ListRevisionsAsync`, `GetRevisionAsync` and `GetReferrersAsync`. `client.AgentPromptDocuments` provides `ListAsync`, `CreateAsync`, `UpdateAsync`, versioned `DeleteAsync`, `ReorderAsync` and `PreviewAsync`. Every method accepts a cancellation token.
+
+From `sdk/csharp`, run the local-file example with environment-provided test credentials:
+
+```bash
+dotnet run --project examples/Hugo.Sdk.Documents -f net10.0
+# Optional custom local file:
+dotnet run --project examples/Hugo.Sdk.Documents -f net10.0 -- /path/to/schema.md
+```
+
+Set `HUGO_EMAIL` and `HUGO_PASSWORD` for an isolated test tenant before running. `HUGO_SDK_SERVER` defaults to `http://127.0.0.1:8800`; `HUGO_TENANT` defaults to `default`. The test user needs document CRUD/Read and profile Create/Read/Update/Delete permissions. Hosted Reference previews also require the agent’s configured model to support tools. No inference request is sent by these examples.
+
+The example reads `sdk/fixtures/LOG_MESSAGE_STRUCTURE.md` from the client machine, uploads its text as a managed copy with a unique filename, creates a temporary agent, attaches the document as Reference, lists attachments, previews delivery, switches to Inline, then detaches and removes its own records. Hugo never receives or opens the client’s filesystem path. Public delivery stays disabled.
+
+Reference includes metadata in the system prompt and delivers content through `agent_read_document` when requested; that tool result consumes context. Inline includes the whole selected revision in system instructions. A reference cannot guarantee that a particular model consults it. `Latest` follows shared edits; `Pinned` selects an immutable revision.
+
+Document edits/deletes use the document’s `version`, not `currentRevision`. Attachment mutations also require the current `documentSetVersion` from the attachment list. Refresh after changes, preserve omitted fields on partial updates, and handle 409 conflicts without blind retries. Delete attached documents only after detaching them; profile deletion removes its attachments while retaining reusable documents. Readiness issues in a preview must be addressed before relying on delivery. See [the operator guide](../../docs/AGENT_DOCUMENTS.md) for limits, permissions and public disclosure.

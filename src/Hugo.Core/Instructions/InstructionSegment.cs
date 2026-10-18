@@ -58,6 +58,24 @@ namespace Hugo.Core.Instructions
         /// </summary>
         public int Depth { get; set; } = 0;
 
+        /// <summary>Attached document DocumentId metadata, when applicable.</summary>
+        public string? DocumentId { get; set; }
+
+        /// <summary>Attached document AttachmentId metadata, when applicable.</summary>
+        public string? AttachmentId { get; set; }
+
+        /// <summary>Attached document DocumentRevision metadata, when applicable.</summary>
+        public int? DocumentRevision { get; set; }
+
+        /// <summary>Attached document DeliveryMode metadata, when applicable.</summary>
+        public string? DeliveryMode { get; set; }
+
+        /// <summary>Attached document ContentBytes metadata, when applicable.</summary>
+        public int? ContentBytes { get; set; }
+
+        /// <summary>Attached document TokenEstimate metadata, when applicable.</summary>
+        public long? TokenEstimate { get; set; }
+
         #endregion
 
         #region Private-Members

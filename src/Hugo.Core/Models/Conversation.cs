@@ -128,6 +128,9 @@ namespace Hugo.Core.Models
         /// </summary>
         public DateTime LastUpdateUtc { get; set; } = DateTime.UtcNow;
 
+        /// <summary>Whether this server currently has a running turn. Runtime projection only, not persisted.</summary>
+        public bool TurnInProgress { get; set; } = false;
+
         #endregion
 
         #region Private-Members

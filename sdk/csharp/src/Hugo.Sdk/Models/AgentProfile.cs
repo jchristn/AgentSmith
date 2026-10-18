@@ -14,6 +14,9 @@ namespace Hugo.Sdk.Models
         /// </summary>
         public string Id { get; set; } = String.Empty;
 
+        /// <summary>Concurrency token for the attached document set.</summary>
+        public long DocumentSetVersion { get; set; } = 0;
+
         /// <summary>
         /// Tenant Identifier.
         /// </summary>

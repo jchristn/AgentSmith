@@ -227,7 +227,8 @@
       "RequestHistory": "Historial de solicitudes",
       "Knowledge": "Conocimiento",
       "Plugin": "Plugin",
-      "Analytics": "Analítica"
+      "Analytics": "Analítica",
+      "PromptDocument": "Documento"
     },
     "auditEventType": {
       "AuthSuccess": "Inicio de sesión correcto",
@@ -3499,7 +3500,8 @@
         "sessions": "Consulte todas las sesiones y tokens activos en el inquilino y revoque cualquiera de ellos.",
         "plugins": "Habilite o deshabilite plugins de conectores y consulte los errores de carga. Solo los administradores del sistema ven esta página.",
         "promptTemplates": "Edite las plantillas de instrucciones por capa (integrada, global, inquilino), con vista previa, versiones y restablecimiento.",
-        "feedback": "Revise los comentarios y sus solicitudes, respuestas y telemetría."
+        "feedback": "Revise los comentarios y sus solicitudes, respuestas y telemetría.",
+        "documents": "Guía Markdown reutilizable para sus agentes."
       },
       "approvalsBadge_many": "{{count}} llamadas a herramientas están esperando a que una persona las apruebe o las rechace. Abra Aprobaciones para decidir."
     },
@@ -3982,6 +3984,10 @@
       "feedback": {
         "label": "Comentarios",
         "tip": "Revise los comentarios y sus solicitudes, respuestas y telemetría."
+      },
+      "documents": {
+        "label": "Documentos",
+        "tip": "Guía Markdown reutilizable para sus agentes."
       }
     },
     "approvalsPending_many": "{{count}} aprobaciones esperando a una persona"
@@ -4690,5 +4696,76 @@
     "connectionFailed": "No se puede conectar con este chat. Inténtalo de nuevo.",
     "failed": "No se puede cargar este chat. Inténtalo de nuevo o contacta con quien publicó el enlace.",
     "disclaimer": "La IA puede cometer errores. Verifica la información importante."
+  },
+  "documents": {
+    "title": "Documentos",
+    "subtitle": "Guía Markdown reutilizable para sus agentes.",
+    "create": "Añadir documento",
+    "edit": "Editar documento",
+    "name": "Nombre de archivo",
+    "description": "Descripción",
+    "markdown": "Contenido Markdown",
+    "visibility": "Visibilidad",
+    "active": "Activo",
+    "owner": "Propietario",
+    "revision": "Revisión",
+    "size": "Tamaño en bytes",
+    "referrers": "Agentes que lo usan",
+    "search": "Buscar documentos",
+    "empty": "No hay documentos. Añada un documento Markdown para adjuntarlo a un agente.",
+    "delete": "Eliminar documento",
+    "deleteHelp": "Desvincule el documento de todos los agentes antes de eliminarlo. Se eliminará su historial.",
+    "preview": "Vista previa",
+    "history": "Historial de revisiones",
+    "restore": "Usar esta revisión",
+    "restoreHelp": "Se restaura un borrador. Guarde para crear una revisión inmutable.",
+    "upload": "Importar Markdown o texto",
+    "uploadHelp": "Seleccione o arrastre un archivo UTF-8 .md o .txt y revíselo antes de guardar.",
+    "invalidFile": "Seleccione un archivo Markdown o de texto UTF-8 válido sin datos binarios.",
+    "oversizedFile": "El archivo supera el límite de importación de 1 MiB. El servidor puede imponer un límite menor.",
+    "literal": "Markdown es literal. No se evalúan plantillas. Las imágenes están bloqueadas en la vista previa.",
+    "sharedWarning": "Los cambios compartidos afectan a todos los adjuntos que siguen la última revisión. Revise los agentes siguientes.",
+    "hiddenReferrers": "Otros agentes restringidos usan este documento.",
+    "publicWarning": "El contenido público puede divulgarse. Requiere Admin del documento y permiso Read de la credencial de publicación. Revocar no borra lo ya entregado.",
+    "public": "Público",
+    "conflict": "Otro editor guardó cambios. Se conserva su borrador. Compare la última versión antes de reintentar.",
+    "compare": "Comparar última versión",
+    "discard": "¿Descartar cambios?",
+    "discardHelp": "Se perderán los cambios sin guardar.",
+    "attachments": "Documentos adjuntos",
+    "attach": "Adjuntar documento",
+    "noAttachments": "No hay documentos adjuntos. Adjunte uno para aportar orientación adicional.",
+    "deliveryMode": "Modo de entrega",
+    "inline": "En línea",
+    "reference": "Referencia",
+    "revisionPolicy": "Selección de revisión",
+    "latest": "Última",
+    "pinned": "Fijada",
+    "pinnedRevision": "Revisión fijada",
+    "enabled": "Habilitado",
+    "allowPublicAccess": "Permitir entrega pública",
+    "documentId": "Documento",
+    "editAttachment": "Editar adjunto",
+    "up": "Subir",
+    "down": "Bajar",
+    "detach": "Desvincular",
+    "detachHelp": "Solo se elimina el vínculo de este agente. El documento permanece en la biblioteca.",
+    "audience": "Audiencia de vista previa",
+    "authenticated": "Usuario autenticado actual",
+    "previewHelp": "La vista usa los permisos actuales. La pública usa la credencial guardada y su propio acceso al documento.",
+    "estimatedTokens": "Tokens estimados",
+    "toolHelp": "Lea el documento referenciado con esta herramienta, usando el ID y la revisión indicados.",
+    "deliveryHelp": "En línea incluye todo el documento en las instrucciones. Referencia incluye su descripción; el modelo lo lee cuando hace falta y consume contexto adicional. Requiere herramientas.",
+    "nameHelp": "Nombre único .md o .txt de hasta 128 caracteres, sin rutas.",
+    "descriptionHelp": "Obligatorio, hasta 1024 caracteres. Indique al modelo cuándo usar este documento.",
+    "markdownHelp": "Markdown es literal. No se evalúan plantillas. Las imágenes están bloqueadas en la vista previa.",
+    "visibilityHelp": "Privado limita el acceso al propietario; Tenant sigue los permisos del inquilino.",
+    "activeHelp": "Los documentos inactivos no están disponibles en ningún modo.",
+    "deliveryModeHelp": "En línea incluye todo el documento en las instrucciones. Referencia incluye su descripción; el modelo lo lee cuando hace falta y consume contexto adicional. Requiere herramientas.",
+    "revisionPolicyHelp": "Última sigue los cambios compartidos. Fijada conserva una revisión inmutable.",
+    "pinnedRevisionHelp": "Seleccione la revisión guardada que debe usar este adjunto.",
+    "enabledHelp": "Los adjuntos deshabilitados conservan su configuración sin aportar contexto.",
+    "allowPublicAccessHelp": "El contenido público puede divulgarse. Requiere Admin del documento y permiso Read de la credencial de publicación. Revocar no borra lo ya entregado.",
+    "documentIdHelp": "Elija un documento reutilizable legible. Su contenido permanece en la biblioteca."
   }
 }

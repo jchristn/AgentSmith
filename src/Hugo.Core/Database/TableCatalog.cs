@@ -93,6 +93,9 @@ namespace Hugo.Core.Database
             "message_tool_calls",
             "a2a_tasks",
             "a2a_task_artifacts",
+            "prompt_documents",
+            "prompt_document_revisions",
+            "agent_prompt_documents",
         };
 
         private static readonly HashSet<string> _GlobalTables = new HashSet<string>(StringComparer.OrdinalIgnoreCase)

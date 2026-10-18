@@ -198,3 +198,5 @@ Building, testing, and the connector testbed are covered in [`docs/DEVELOPMENT.m
 ## License
 
 MIT. See [`LICENSE.md`](LICENSE.md).
+
+See [Agent prompt documents](docs/AGENT_DOCUMENTS.md) for reusable Markdown attachments with full Inline delivery or profile-scoped on-demand Reference retrieval.

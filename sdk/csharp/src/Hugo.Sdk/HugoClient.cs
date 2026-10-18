@@ -139,6 +139,12 @@ namespace Hugo.Sdk
         /// </summary>
         public PromptTemplatesClient PromptTemplates { get; }
 
+        /// <summary>Reusable versioned prompt document library.</summary>
+        public PromptDocumentsClient PromptDocuments { get; }
+
+        /// <summary>Per-agent Inline/Reference document attachments.</summary>
+        public AgentPromptDocumentsClient AgentPromptDocuments { get; }
+
         /// <summary>
         /// Layered prompt templates by key (persona, connector instructions, system templates).
         /// </summary>
@@ -235,6 +241,8 @@ namespace Hugo.Sdk
             Audit = new AuditClient(Transport);
             Secrets = new SecretsClient(Transport);
             PromptTemplates = new PromptTemplatesClient(Transport);
+            PromptDocuments = new PromptDocumentsClient(Transport);
+            AgentPromptDocuments = new AgentPromptDocumentsClient(Transport);
             PromptLayers = new PromptLayersClient(Transport);
             RequestHistory = new RequestHistoryClient(Transport);
             Events = new EventsClient(Transport);

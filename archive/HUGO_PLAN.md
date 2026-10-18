@@ -88,7 +88,7 @@ These rules keep the plan honest:
 | 3 | Connector framework and tool invocation pipeline | M1 | Complete | 26 / 26 |
 | 4 | Connectors wave 1: SSH, object storage, SQL databases, SolarWinds Observability | M1 | Complete | 41 / 41 |
 | 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | Complete | 23 / 23 |
-| 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | Complete | 24 / 24 |
+| 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | Complete | 25 / 25 |
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Complete | 23 / 23 |
 | 8 | Dashboard | M1 | Complete | 66 / 66 |
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | Complete | 14 / 14 |
@@ -96,7 +96,7 @@ These rules keep the plan honest:
 | 11 | Documentation and Postman | M1 | Complete | 18 / 18 |
 | 12 | MVP verification (milestone M1) | M1 | Complete | 12 / 12 |
 | 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A, cryptography | M2 | In progress | 42 / 43 |
-| 14 | Knowledge, runbooks, and operator conveniences | M2 | In progress | 1 / 13 |
+| 14 | Knowledge, runbooks, and operator conveniences | M2 | In progress | 1 / 14 |
 | 15 | Benchmarking | M3 | Not started | 0 / 16 |
 | 17 | Kubernetes and minikube | M2 | Complete | 16 / 16 |
 | 16 | Hardening, simulated user testing, and 1.0 release | M4 | Not started | 0 / 18 |
@@ -2002,6 +2002,7 @@ Database intelligence (D-038)
 - [x] P6.22 A live smoke script (`scripts/smoke-chat.sh`) against a real Ollama service, documented, not in CI.  | codex 2026-10-16 real qwen3.8:27b inference: dashboard SSE persona, A2A completed task, OpenAI-compatible nonempty completion and model listing pass in 41.03s; bounded script assertions and cleanup verified; user-testing/P6.22_REAL_OLLAMA_SMOKE_2026-10-16.md
 - [x] P6.23 `ask_agent_smith` service entry point shared by MCP and REST.  | claude 2026-10-14 IAgentDelegationService implementation, POST /v1.0/api/agent-profiles/{id}/ask, ask_agent_smith on MCP
 - [x] P6.24 Conversation visibility rules and suites (own vs tenant admin).  | claude 2026-10-14 users see their own conversations, tenant admins all; owners may delete their own
+- [x] P6.25 Keep accepted streaming chat turns running after dashboard/standalone viewer disconnect; explicit Stop, authority, limits and shutdown still apply. Returning views refresh persisted progress via runtime turnInProgress. | codex 2026-10-18 Real viewer disconnect regression and explicit cancel run on SQLite/PostgreSQL: 16 chat cases pass. No durable restart/resume promise.
 
 ### Phase 7: Protocol surfaces (M1)
 
@@ -2277,6 +2278,8 @@ Wrap-up
 - [ ] P14.11 Suites for knowledge, actions, and notifications.
 - [ ] P14.12 Documentation and Postman updates.
 - [x] P14.13 Generalized resource context across all connector interfaces. *Accept:* agents read/update scoped persistent learnings for SSH, SQL, and other connectors; version-safe updates, operator preservation, audit/history, tenant isolation, binding permissions, restart persistence, and secret/output bounds pass tests; fresh bounded context is consulted before each internal model call and available to MCP clients; SQL tools and dashboard knowledge editor stay compatible. | codex 2026-10-16 common tools for all connectors/plugins; fresh planning and nested-model snapshots; atomic versions/history, policy rechecks, operator protection, secret guards, pagination, and persistence verified in 18 provider integration cases plus in-memory ABA regression. Full backend 2030 passed/309 expected testbed skips/0 failed; real SSH/Qwen cross-conversation acceptance in user-testing/RESOURCE_CONTEXT_REAL_OLLAMA_2026-10-16.md; docs/RESOURCE_CONTEXT.md. Follow-up: system and tool guidance explicitly requires consolidation, deduplication, skipping unchanged facts, compact root summaries, and version-checked curation of agent-authored entries while preserving operator text.
+
+- [~] P14.14 Implement reusable agent Markdown document attachments with Inline/Reference delivery, retrieval tools, dashboard, SDKs and full verification. | codex 2026-10-18 Detailed actionable plan and progress: [ADDITIONAL_PROMPT_CONTEXT.md](../ADDITIONAL_PROMPT_CONTEXT.md).
 
 ### Phase 15: Benchmarking (M3)
 

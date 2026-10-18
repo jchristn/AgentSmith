@@ -793,6 +793,7 @@ export interface KnowledgeRequest extends Json {
 }
 
 export interface AgentProfile extends Entity {
+  documentSetVersion?: number;
   tenantId: string;
   ownerUserId?: string;
   visibility?: Visibility;
@@ -1159,6 +1160,8 @@ export type ConversationSource = "Dashboard" | "A2A" | "OpenAI" | "Mcp" | "Rest"
 export type MessageRole = "User" | "Assistant" | "Tool" | "Summary" | "System";
 
 export interface Conversation extends Entity {
+  /** Runtime status; disconnecting a stream does not cancel its turn. */
+  turnInProgress?: boolean;
   tenantId?: string;
   userId?: string;
   credentialId?: string;
@@ -1383,4 +1386,51 @@ export interface ChatEvent {
 export interface AuditSummary {
   totalCount: number;
   eventCounts: Record<string, number>;
+}
+
+/** Delivery of an attached operator-authored Markdown document. */
+export type PromptDocumentDeliveryMode = "Inline" | "Reference";
+export type PromptDocumentRevisionPolicy = "Latest" | "Pinned";
+export interface PromptDocument extends Entity {
+  normalizedName?: string;
+  tenantId: string; ownerUserId?: string | null; visibility: "Private" | "Tenant";
+  name: string; description: string; active: boolean; currentRevision: number; version: number;
+  contentBytes: number; contentHash: string;
+  canRead: boolean; canUpdate: boolean; canDelete: boolean; canAdmin: boolean; hasReferrers: boolean;
+}
+export interface PromptDocumentRevision extends Entity {
+  tenantId?: string;
+  documentId: string; revision: number; name: string; description: string;
+  markdown?: string; contentBytes: number; contentHash: string; createdByUserId?: string | null;
+}
+export interface PromptDocumentRequest {
+  expectedVersion?: number; name?: string; description?: string; markdown?: string;
+  visibility?: "Private" | "Tenant"; active?: boolean;
+}
+export interface AgentPromptDocument extends Entity {
+  tenantId: string; resolvedRevision: number;
+  agentProfileId: string; documentId: string; deliveryMode: PromptDocumentDeliveryMode;
+  revisionPolicy: PromptDocumentRevisionPolicy; pinnedRevision?: number | null;
+  displayOrder: number; enabled: boolean; allowPublicAccess: boolean; version: number;
+  documentSetVersion: number; name: string; description: string; revision: number;
+  contentBytes: number; contentHash: string;
+}
+export interface AgentPromptDocumentRequest {
+  expectedVersion?: number; expectedDocumentSetVersion?: number; documentId?: string;
+  deliveryMode?: PromptDocumentDeliveryMode; revisionPolicy?: PromptDocumentRevisionPolicy;
+  pinnedRevision?: number | null; displayOrder?: number; enabled?: boolean; allowPublicAccess?: boolean;
+}
+export interface AgentPromptDocumentList { documentSetVersion: number; items: AgentPromptDocument[]; }
+export interface AgentPromptDocumentOrderRequest { expectedDocumentSetVersion: number; attachmentIds: string[]; }
+export interface PromptDocumentReferrer {
+  profileId: string; profileName: string; attachmentId: string; deliveryMode: PromptDocumentDeliveryMode;
+  revisionPolicy: PromptDocumentRevisionPolicy; pinnedRevision?: number | null; enabled: boolean; allowPublicAccess: boolean;
+}
+export interface PromptDocumentReferrers { items: PromptDocumentReferrer[]; hasOtherReferrers: boolean; }
+export interface PromptDocumentPreviewRequest { audience: "Authenticated" | "Public"; }
+export interface PromptDocumentPreview {
+  compiledText: string; segments: CompiledInstructions["segments"]; manifest: AgentPromptDocument[];
+  issues: { code: string; message: string; attachmentId?: string | null }[];
+  documentSetVersion: number; inlineBytes: number; manifestBytes: number; estimatedTokens: number;
+  audience: "Authenticated" | "Public";
 }

@@ -79,7 +79,7 @@ namespace Hugo.Server.Routes
                     try
                     {
                         StandaloneChatEventSink sink = new StandaloneChatEventSink(writer, _Chat, access, Id(http));
-                        StandaloneChatTurn result = await _Chat.SendAsync(access, Id(http), Capability(http), request.Message, http.Token, sink).ConfigureAwait(false);
+                        StandaloneChatTurn result = await _Chat.SendAsync(access, Id(http), Capability(http), request.Message, System.Threading.CancellationToken.None, sink).ConfigureAwait(false);
                         await writer.CloseAsync("turn.completed", Serializer.Serialize(result), http.Token).ConfigureAwait(false);
                     }
                     catch (Exception) when (writer.EventsWritten > 0)

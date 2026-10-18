@@ -193,6 +193,8 @@ export const UNTRANSLATED_ALLOWLIST = {
     'Conversations',
     'Description',
     'Documentation',
+    'Document',
+    'Documents',
     'Embedding',
     'Embeddings',
     'Fragment',

@@ -15,6 +15,7 @@ import { LoadingState, ErrorPresenter, UnavailableState, EmptyState } from '../c
 import { Badge, EffectBadge, EnumBadge } from '../components/StatusBadge';
 import { tip } from '../components/Tooltip';
 import { PlusIcon } from '../components/Icons';
+import ProfileDocuments from '../components/ProfileDocuments';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
@@ -518,6 +519,11 @@ export default function ProfileDetailView({ recordId }) {
 
       {tab === 'instructions' && (
         <div className="panel" data-testid="profile-instructions">
+          <ProfileDocuments
+            apiClient={apiClient}
+            profileId={recordId}
+            onChanged={() => apiClient.getCompiledInstructions(recordId, { surface }).then(setInstructions).catch(setInstructionsError)}
+          />
           <div className="panel-header">
             <p className="text-muted">{t('views.profile.instructions.body')}</p>
             <FormField

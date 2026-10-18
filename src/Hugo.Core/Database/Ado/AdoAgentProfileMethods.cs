@@ -21,7 +21,7 @@ namespace Hugo.Core.Database.Ado
 
         private readonly AdoDatabaseDriver _Driver;
         private readonly string _Table;
-        private static readonly string _Columns = "id, tenant_id, owner_user_id, visibility, name, display_name, persona_name, user_address, description, persona_template_key, inference_endpoint_id, fallback_inference_endpoint_id, embedding_endpoint_id, max_iterations, max_tool_calls_per_turn, tool_timeout_seconds, temperature, expose_a2a, expose_mcp, expose_openai, expose_management_tools, instructions_append, instruction_detail, is_default, active, created_utc, last_update_utc, chat_enabled, chat_access_mode, chat_link_id, chat_credential_id, chat_revision, chat_title, chat_logo_url, chat_page_title";
+        private static readonly string _Columns = "id, tenant_id, owner_user_id, visibility, name, display_name, persona_name, user_address, description, persona_template_key, inference_endpoint_id, fallback_inference_endpoint_id, embedding_endpoint_id, max_iterations, max_tool_calls_per_turn, tool_timeout_seconds, temperature, expose_a2a, expose_mcp, expose_openai, expose_management_tools, instructions_append, instruction_detail, is_default, active, created_utc, last_update_utc, chat_enabled, chat_access_mode, chat_link_id, chat_credential_id, chat_revision, chat_title, chat_logo_url, chat_page_title, document_set_version";
 
         #endregion
 
@@ -46,6 +46,7 @@ namespace Hugo.Core.Database.Ado
         public async Task<AgentProfile> CreateAsync(AgentProfile obj, CancellationToken token = default)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
+            obj.DocumentSetVersion = 0;
             obj.ChatLinkId ??= Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(24)).ToLowerInvariant();
             obj.CreatedUtc = DateTime.UtcNow;
             obj.LastUpdateUtc = obj.CreatedUtc;
@@ -105,7 +106,7 @@ namespace Hugo.Core.Database.Ado
             List<string> sets = new List<string>();
             foreach (string column in _Columns.Split(", "))
             {
-                if (column == "id" || column == "tenant_id" || column == "created_utc" || (!includeInstructions && column == "instructions_append")) continue;
+                if (column == "document_set_version" || column == "id" || column == "tenant_id" || column == "created_utc" || (!includeInstructions && column == "instructions_append")) continue;
                 if (!includeChatSettings && column.StartsWith("chat_", StringComparison.Ordinal)) continue;
                 sets.Add(column == "chat_revision" ? "chat_revision = chat_revision + 1" : column + " = @" + column);
             }
@@ -149,9 +150,11 @@ namespace Hugo.Core.Database.Ado
                     AdoDatabaseDriver.Add(command, "tenant_id", tenantId);
                     AdoDatabaseDriver.Add(command, "profile_id", id);
                 };
+                await AdoDatabaseDriver.ExecuteAsync(connection, transaction, "UPDATE " + _Driver.Table("tenants") + " SET last_update_utc=last_update_utc WHERE id=@tenant_id;", bind, ct).ConfigureAwait(false);
                 string bindingIds = "(SELECT id FROM " + bindings + " WHERE tenant_id = @tenant_id AND agent_profile_id = @profile_id)";
                 await AdoDatabaseDriver.ExecuteAsync(connection, transaction, "DELETE FROM " + _Driver.Table("binding_tool_rules") + " WHERE tenant_id = @tenant_id AND binding_id IN " + bindingIds + ";", bind, ct).ConfigureAwait(false);
                 await AdoDatabaseDriver.ExecuteAsync(connection, transaction, "DELETE FROM " + _Driver.Table("binding_deny_patterns") + " WHERE tenant_id = @tenant_id AND binding_id IN " + bindingIds + ";", bind, ct).ConfigureAwait(false);
+                await AdoDatabaseDriver.ExecuteAsync(connection, transaction, "DELETE FROM " + _Driver.Table("agent_prompt_documents") + " WHERE tenant_id = @tenant_id AND agent_profile_id = @profile_id;", bind, ct).ConfigureAwait(false);
                 await AdoDatabaseDriver.ExecuteAsync(connection, transaction, "DELETE FROM " + bindings + " WHERE tenant_id = @tenant_id AND agent_profile_id = @profile_id;", bind, ct).ConfigureAwait(false);
                 await AdoDatabaseDriver.ExecuteAsync(connection, transaction, "UPDATE " + _Driver.Table("credentials") + " SET agent_profile_id = NULL, lock_to_profile = " + _Driver.Dialect.BooleanLiteral(false) + " WHERE tenant_id = @tenant_id AND agent_profile_id = @profile_id;", bind, ct).ConfigureAwait(false);
                 await AdoDatabaseDriver.ExecuteAsync(connection, transaction, "UPDATE " + _Driver.Table("users") + " SET default_agent_profile_id = NULL WHERE tenant_id = @tenant_id AND default_agent_profile_id = @profile_id;", bind, ct).ConfigureAwait(false);
@@ -232,6 +235,7 @@ namespace Hugo.Core.Database.Ado
         {
             AgentProfile obj = new AgentProfile();
             obj.Id = AdoConverters.Str(reader, "id");
+            obj.DocumentSetVersion = AdoConverters.Long(reader, "document_set_version");
             obj.TenantId = AdoConverters.Str(reader, "tenant_id");
             obj.OwnerUserId = AdoConverters.NullableStr(reader, "owner_user_id");
             obj.Visibility = AdoConverters.Enum(reader, "visibility", VisibilityEnum.Tenant);
@@ -276,6 +280,7 @@ namespace Hugo.Core.Database.Ado
         private static void Bind(DbCommand command, AgentProfile obj, bool insert)
         {
             AdoDatabaseDriver.Add(command, "id", obj.Id);
+            AdoDatabaseDriver.Add(command, "document_set_version", obj.DocumentSetVersion);
             AdoDatabaseDriver.Add(command, "tenant_id", obj.TenantId);
             AdoDatabaseDriver.Add(command, "owner_user_id", obj.OwnerUserId);
             AdoDatabaseDriver.Add(command, "visibility", obj.Visibility.ToString());

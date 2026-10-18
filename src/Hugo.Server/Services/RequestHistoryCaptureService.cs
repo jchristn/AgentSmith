@@ -248,6 +248,9 @@ namespace Hugo.Server.Services
         public static bool IsSecretRoute(string? path)
         {
             if (String.IsNullOrEmpty(path)) return false;
+            if (path.StartsWith("/v1.0/api/prompt-documents", StringComparison.OrdinalIgnoreCase)
+                || (path.StartsWith("/v1.0/api/agent-profiles/", StringComparison.OrdinalIgnoreCase)
+                    && path.IndexOf("/documents", StringComparison.OrdinalIgnoreCase) >= 0)) return true;
             foreach (string fragment in _SecretPathFragments)
             {
                 if (path.IndexOf(fragment, StringComparison.OrdinalIgnoreCase) >= 0) return true;

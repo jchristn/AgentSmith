@@ -101,7 +101,7 @@ namespace Hugo.Server.Services
         {
             Conversation conversation = await ConversationAsync(access, id, capability, OperationTypeEnum.Read, token).ConfigureAwait(false);
             List<ConversationMessage> messages = await _Server.Database.Messages.ListAsync(conversation.TenantId, conversation.Id, false, token).ConfigureAwait(false);
-            return new StandaloneChatMessages { Messages = messages.Where(m => (m.Role == AgentMessageRoleEnum.User || (m.Role == AgentMessageRoleEnum.Assistant && m.ToolCalls.Count == 0)) && !String.IsNullOrEmpty(m.Content)).Select(m => new StandaloneChatMessage
+            return new StandaloneChatMessages { TurnInProgress = _Host.Turns.IsActive(conversation.Id), Messages = messages.Where(m => (m.Role == AgentMessageRoleEnum.User || (m.Role == AgentMessageRoleEnum.Assistant && m.ToolCalls.Count == 0)) && !String.IsNullOrEmpty(m.Content)).Select(m => new StandaloneChatMessage
             {
                 Id = m.Id, Feedback = m.Role == AgentMessageRoleEnum.Assistant ? new StandaloneChatFeedback { Rating = m.FeedbackRating, Comment = m.FeedbackComment ?? String.Empty } : null,
                 Role = m.Role == AgentMessageRoleEnum.User ? "user" : "assistant", Content = SafeText(m.Content, m.FinishReason),

@@ -13,6 +13,12 @@ namespace Hugo.Core.Database
     {
         #region Public-Members
 
+        /// <summary>Versioned reusable prompt document persistence.</summary>
+        public IPromptDocumentMethods PromptDocuments { get; protected set; } = null!;
+
+        /// <summary>Profile document attachment persistence.</summary>
+        public IAgentPromptDocumentMethods AgentPromptDocuments { get; protected set; } = null!;
+
         /// <summary>
         /// Database provider.
         /// </summary>

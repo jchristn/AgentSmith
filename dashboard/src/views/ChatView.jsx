@@ -78,6 +78,7 @@ export default function ChatView({ recordId }) {
   const [context, setContext] = useState({ profile: null, bindings: [], model: null });
   const [approvalBusy, setApprovalBusy] = useState(null);
   const controllerRef = useRef(null);
+  const [remoteStreaming, setRemoteStreaming] = useState(false);
   const conversationIdRef = useRef(recordId || null);
 
   // Profiles for the picker. A server without agent profiles yet means chat is not available.
@@ -113,24 +114,35 @@ export default function ChatView({ recordId }) {
   // The open conversation and its messages.
   useEffect(() => {
     conversationIdRef.current = recordId || null;
+    setRemoteStreaming(false);
     if (!apiClient || !recordId) {
       setConversation(null);
       dispatch({ type: 'reset' });
       setLoadingConversation(false);
       return;
     }
+    let active = true;
     setLoadingConversation(true);
     Promise.all([apiClient.getConversation(recordId), apiClient.listMessages(recordId)])
       .then(([conv, messages]) => {
+        if (!active) return;
+        setRemoteStreaming(!!conv?.turnInProgress);
         setConversation(conv);
         if (conv?.agentProfileId) setProfileId(conv.agentProfileId);
         dispatch({ type: 'reset', messages: fromStoredMessages(messages.items || []) });
       })
       .catch((e) => {
+        if (!active) return;
         setConversation(null);
         addToast({ type: 'error', message: errorMessage(t, e) });
       })
-      .finally(() => setLoadingConversation(false));
+      .finally(() => active && setLoadingConversation(false));
+    return () => {
+      active = false;
+      conversationIdRef.current = null;
+      controllerRef.current?.abort();
+      controllerRef.current = null;
+    };
   }, [apiClient, recordId, addToast, t]);
 
   // Context drawer: the profile, its bindings, and its inference endpoint.
@@ -157,7 +169,7 @@ export default function ChatView({ recordId }) {
     };
   }, [apiClient, profileId, profiles]);
 
-  // Stop streaming when the page goes away.
+  // Detach the viewer on navigation; the accepted server turn keeps running.
   const mountedRef = useRef(true);
   useEffect(() => {
     mountedRef.current = true;
@@ -166,6 +178,28 @@ export default function ChatView({ recordId }) {
       controllerRef.current?.abort();
     };
   }, []);
+
+  // Returning to a detached turn reads persisted progress until it finishes. Never replay a user message.
+  useEffect(() => {
+    if (!apiClient || !recordId || !remoteStreaming) return;
+    let active = true;
+    let timer;
+    const refresh = async () => {
+      try {
+        const [conv, messages] = await Promise.all([apiClient.getConversation(recordId), apiClient.listMessages(recordId)]);
+        if (!active) return;
+        setConversation(conv);
+        if (!controllerRef.current) dispatch({ type: 'reset', messages: fromStoredMessages(messages.items || []) });
+        setRemoteStreaming(!!conv?.turnInProgress);
+        if (conv?.turnInProgress) timer = setTimeout(refresh, 1000);
+        else loadConversations();
+      } catch {
+        if (active) timer = setTimeout(refresh, 3000);
+      }
+    };
+    timer = setTimeout(refresh, 1000);
+    return () => { active = false; clearTimeout(timer); };
+  }, [apiClient, recordId, remoteStreaming, loadConversations]);
 
   const updateDraft = (text) => {
     setDraft(text);
@@ -176,6 +210,7 @@ export default function ChatView({ recordId }) {
   const noModel = selectedProfile && !selectedProfile.inferenceEndpointId;
 
   const send = async (text) => {
+    if (state.streaming || remoteStreaming) return;
     let id = conversationIdRef.current;
     try {
       if (!id) {
@@ -195,9 +230,13 @@ export default function ChatView({ recordId }) {
       id,
       { message: text },
       {
-        onEvent: (evt) => dispatch({ type: 'event', evt }),
+        onEvent: (evt) => {
+          if (mountedRef.current && conversationIdRef.current === id) dispatch({ type: 'event', evt });
+        },
         onEnd: (error, info) => {
+          if (!mountedRef.current || conversationIdRef.current !== id) return;
           controllerRef.current = null;
+          if (error || info?.aborted) setRemoteStreaming(true);
           dispatch({ type: 'end', options: { stopped: !!info?.aborted, error: error ? { code: error.code, message: errorMessage(t, error) } : null } });
           // A new conversation remounts on its own URL below, which clears the transcript; keep the error visible.
           if (error && !recordId) addToast({ type: 'error', message: errorMessage(t, error) });
@@ -212,6 +251,7 @@ export default function ChatView({ recordId }) {
 
   const stop = () => {
     const id = conversationIdRef.current;
+    setRemoteStreaming(true);
     controllerRef.current?.abort();
     if (id) apiClient.cancelConversation(id).catch(() => {});
   };
@@ -337,7 +377,7 @@ export default function ChatView({ recordId }) {
                   setProfileId(e.target.value);
                   localStorage.setItem(STORAGE_KEYS.chatProfile, e.target.value);
                 }}
-                disabled={!!recordId || state.streaming}
+                disabled={!!recordId || state.streaming || remoteStreaming}
                 aria-label={t('views.chat.profile')}
                 data-testid="chat-profile"
                 {...tip(t('tips.views.chat.profile'))}
@@ -371,7 +411,7 @@ export default function ChatView({ recordId }) {
             <>
               <ChatPanel
                 messages={state.messages}
-                streaming={state.streaming}
+                streaming={state.streaming || remoteStreaming}
                 draft={draft}
                 onDraftChange={updateDraft}
                 onSend={send}

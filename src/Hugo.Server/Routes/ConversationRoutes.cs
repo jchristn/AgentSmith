@@ -179,7 +179,8 @@ namespace Hugo.Server.Routes
                 {
                     writer.Start();
                     options.Sinks.Add(new SseAgentEventSink(writer));
-                    AgentTurnResult result = await _Host.RunAsync(plan, http.Token).ConfigureAwait(false);
+                    // Stream disconnects detach the viewer; explicit cancel, turn limits and shutdown still stop execution.
+                    AgentTurnResult result = await _Host.RunAsync(plan, System.Threading.CancellationToken.None).ConfigureAwait(false);
                     Conversation? latest = await _Server.Database.Conversations.ReadAsync(tenantId, conversation.Id, System.Threading.CancellationToken.None).ConfigureAwait(false);
                     ConversationStreamClosed closed = new ConversationStreamClosed();
                     closed.ConversationId = conversation.Id;

@@ -227,7 +227,8 @@
       "RequestHistory": "Historique des requêtes",
       "Knowledge": "Connaissances",
       "Plugin": "Plugin",
-      "Analytics": "Analyses"
+      "Analytics": "Analyses",
+      "PromptDocument": "Document"
     },
     "auditEventType": {
       "AuthSuccess": "Connexion réussie",
@@ -3499,7 +3500,8 @@
         "sessions": "Voir chaque session et jeton actifs dans le locataire, et révoquer n'importe lequel.",
         "plugins": "Activer ou désactiver les plugins de connecteur et voir les erreurs de chargement. Seuls les administrateurs système voient cette page.",
         "promptTemplates": "Modifier les modèles d'instructions par couche (intégrée, globale, locataire), avec aperçu, versions et réinitialisation.",
-        "feedback": "Consultez les avis avec les requêtes, réponses et données de télémétrie associées."
+        "feedback": "Consultez les avis avec les requêtes, réponses et données de télémétrie associées.",
+        "documents": "Consignes Markdown réutilisables pour vos agents."
       },
       "approvalsBadge_many": "{{count}} appels d'outil attendent qu'une personne les approuve ou les rejette. Ouvrez Approbations pour décider."
     },
@@ -3982,6 +3984,10 @@
       "feedback": {
         "label": "Retours",
         "tip": "Consultez les avis avec les requêtes, réponses et données de télémétrie associées."
+      },
+      "documents": {
+        "label": "Documents",
+        "tip": "Consignes Markdown réutilisables pour vos agents."
       }
     },
     "approvalsPending_many": "{{count}} approbations attendent une personne"
@@ -4690,5 +4696,76 @@
     "connectionFailed": "Impossible de se connecter à cette discussion. Réessayez.",
     "failed": "Impossible de charger cette discussion. Réessayez ou contactez la personne qui a publié le lien.",
     "disclaimer": "L’IA peut faire des erreurs. Vérifiez les informations importantes."
+  },
+  "documents": {
+    "title": "Documents",
+    "subtitle": "Consignes Markdown réutilisables pour vos agents.",
+    "create": "Ajouter un document",
+    "edit": "Modifier le document",
+    "name": "Nom de fichier",
+    "description": "Description",
+    "markdown": "Contenu Markdown",
+    "visibility": "Visibilité",
+    "active": "Actif",
+    "owner": "Propriétaire",
+    "revision": "Révision",
+    "size": "Octets",
+    "referrers": "Agents utilisateurs",
+    "search": "Rechercher des documents",
+    "empty": "Aucun document. Ajoutez un document Markdown à joindre à un agent.",
+    "delete": "Supprimer le document",
+    "deleteHelp": "Détachez le document de tous les agents avant de le supprimer. Son historique sera supprimé.",
+    "preview": "Aperçu",
+    "history": "Historique des révisions",
+    "restore": "Utiliser cette révision",
+    "restoreHelp": "Un brouillon est restauré. Enregistrez pour créer une nouvelle révision immuable.",
+    "upload": "Importer Markdown ou texte",
+    "uploadHelp": "Choisissez ou déposez un fichier UTF-8 .md ou .txt et vérifiez-le avant enregistrement.",
+    "invalidFile": "Choisissez un fichier Markdown ou texte UTF-8 valide sans données binaires.",
+    "oversizedFile": "Le fichier dépasse le plafond de 1 Mio. Le serveur peut imposer une limite inférieure.",
+    "literal": "Le Markdown est littéral. Les expressions de modèle ne sont pas évaluées. Les images sont bloquées dans les aperçus.",
+    "sharedWarning": "Les modifications partagées affectent toutes les pièces jointes suivant la dernière révision. Vérifiez les agents ci-dessous.",
+    "hiddenReferrers": "D’autres agents restreints utilisent ce document.",
+    "publicWarning": "Le contenu public peut être divulgué. La diffusion exige Admin sur le document et Read pour la clé de publication. La révocation ne retire pas le contenu déjà transmis.",
+    "public": "Public",
+    "conflict": "Un autre utilisateur a enregistré des modifications. Votre brouillon est conservé. Comparez avant de réessayer.",
+    "compare": "Comparer la dernière version",
+    "discard": "Abandonner les modifications ?",
+    "discardHelp": "Les modifications non enregistrées seront perdues.",
+    "attachments": "Documents joints",
+    "attach": "Joindre un document",
+    "noAttachments": "Aucun document joint. Joignez un document réutilisable pour fournir des consignes.",
+    "deliveryMode": "Mode de transmission",
+    "inline": "Intégral",
+    "reference": "Référence",
+    "revisionPolicy": "Choix de révision",
+    "latest": "Dernière",
+    "pinned": "Épinglée",
+    "pinnedRevision": "Révision épinglée",
+    "enabled": "Activé",
+    "allowPublicAccess": "Autoriser la diffusion publique",
+    "documentId": "Document",
+    "editAttachment": "Modifier la pièce jointe",
+    "up": "Monter",
+    "down": "Descendre",
+    "detach": "Détacher",
+    "detachHelp": "Seul le lien de cet agent est supprimé. Le document reste dans la bibliothèque.",
+    "audience": "Public de l’aperçu",
+    "authenticated": "Utilisateur authentifié actuel",
+    "previewHelp": "L’aperçu suit les droits actuels. L’aperçu public utilise la clé enregistrée et vos propres droits de lecture.",
+    "estimatedTokens": "Jetons estimés",
+    "toolHelp": "Lisez le document référencé avec cet outil, son identifiant et sa révision annoncés.",
+    "deliveryHelp": "Intégral inclut tout le document dans les instructions système. Référence inclut sa description ; le modèle lit le contenu à la demande et consomme du contexte. Les outils sont requis.",
+    "nameHelp": "Nom unique .md ou .txt de 128 caractères maximum, sans chemin.",
+    "descriptionHelp": "Obligatoire, 1024 caractères maximum. Indiquez quand ce document est utile.",
+    "markdownHelp": "Le Markdown est littéral. Les expressions de modèle ne sont pas évaluées. Les images sont bloquées dans les aperçus.",
+    "visibilityHelp": "Privé limite l’accès au propriétaire ; Tenant suit les droits du locataire.",
+    "activeHelp": "Les documents inactifs sont indisponibles dans les deux modes.",
+    "deliveryModeHelp": "Intégral inclut tout le document dans les instructions système. Référence inclut sa description ; le modèle lit le contenu à la demande et consomme du contexte. Les outils sont requis.",
+    "revisionPolicyHelp": "Dernière suit les modifications partagées. Épinglée conserve une révision immuable.",
+    "pinnedRevisionHelp": "Choisissez la révision enregistrée que cette pièce jointe doit conserver.",
+    "enabledHelp": "Les pièces désactivées restent configurées sans contribuer au contexte.",
+    "allowPublicAccessHelp": "Le contenu public peut être divulgué. La diffusion exige Admin sur le document et Read pour la clé de publication. La révocation ne retire pas le contenu déjà transmis.",
+    "documentIdHelp": "Choisissez un document réutilisable lisible. Le contenu reste dans la bibliothèque."
   }
 }

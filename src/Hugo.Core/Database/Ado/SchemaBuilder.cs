@@ -121,6 +121,10 @@ namespace Hugo.Core.Database.Ado
             v11.BuildVersion11();
             migrations.Add(new SchemaMigration(11, "Standalone chat branding and message feedback", v11._Statements, v11._Columns));
 
+            SchemaBuilder v12 = new SchemaBuilder(catalog, dialect);
+            v12.BuildVersion12();
+            migrations.Add(new SchemaMigration(12, "Reusable versioned prompt documents and profile attachments", v12._Statements, v12._Columns));
+
             return migrations;
         }
 
@@ -908,6 +912,19 @@ namespace Hugo.Core.Database.Ado
         private void BuildVersion8()
         {
             _Columns.Add(new SchemaColumnAddition("agent_profiles", "instruction_detail", "VARCHAR(16)"));
+        }
+
+        private void BuildVersion12()
+        {
+            _Columns.Add(new SchemaColumnAddition("agent_profiles", "document_set_version", _Dialect.TypeBigInt + " NOT NULL DEFAULT 0"));
+            Table("prompt_documents", Id(), Ref("tenant_id", true), Ref("owner_user_id", false), "visibility VARCHAR(32) NOT NULL", "name VARCHAR(128) NOT NULL", "normalized_name VARCHAR(256) NOT NULL", "description VARCHAR(1024) NOT NULL", Bool("active"), "current_revision INTEGER NOT NULL", "metadata_version " + _Dialect.TypeBigInt + " NOT NULL", Timestamp("created_utc", true), Timestamp("last_update_utc", true));
+            Index("prompt_documents", "tenant_name", true, "tenant_id", "normalized_name");
+            Table("prompt_document_revisions", Id(), Ref("tenant_id", true), Ref("document_id", true), "revision INTEGER NOT NULL", "name VARCHAR(128) NOT NULL", "description VARCHAR(1024) NOT NULL", Text("markdown", true), "content_bytes INTEGER NOT NULL", "content_hash VARCHAR(64) NOT NULL", Ref("created_by_user_id", false), Timestamp("created_utc", true));
+            Index("prompt_document_revisions", "document_revision", true, "tenant_id", "document_id", "revision");
+            Table("agent_prompt_documents", Id(), Ref("tenant_id", true), Ref("agent_profile_id", true), Ref("document_id", true), "delivery_mode VARCHAR(16) NOT NULL", "revision_policy VARCHAR(16) NOT NULL", "pinned_revision INTEGER", "display_order INTEGER NOT NULL", Bool("enabled"), Bool("allow_public_access"), "version " + _Dialect.TypeBigInt + " NOT NULL", Timestamp("created_utc", true), Timestamp("last_update_utc", true));
+            Index("agent_prompt_documents", "profile_document", true, "tenant_id", "agent_profile_id", "document_id");
+            Index("agent_prompt_documents", "profile_order", false, "tenant_id", "agent_profile_id", "display_order");
+            Index("agent_prompt_documents", "referrers", false, "tenant_id", "document_id");
         }
 
         private void BuildVersion11()

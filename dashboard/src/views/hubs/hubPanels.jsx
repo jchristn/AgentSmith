@@ -9,6 +9,7 @@ import PromptTemplateEditorView from '../PromptTemplateEditorView';
 import RequestHistoryView from '../RequestHistoryView';
 import AnalyticsView from '../AnalyticsView';
 import FeedbackView from '../FeedbackView';
+import PromptDocumentsView from '../PromptDocumentsView';
 import ApiExplorerView from '../ApiExplorerView';
 import McpExplorerView from '../McpExplorerView';
 import A2aExplorerView from '../A2aExplorerView';
@@ -58,6 +59,7 @@ export const PAGE_VIEWS = {
   toolInvocations: recordView(toolInvocationsConfig, 'ToolInvocationsView'),
   requests: RequestHistoryView,
   feedback: FeedbackView,
+  documents: PromptDocumentsView,
   analytics: AnalyticsView,
   audit: recordView(auditConfig, 'AuditView'),
   explorer: ApiExplorerView,

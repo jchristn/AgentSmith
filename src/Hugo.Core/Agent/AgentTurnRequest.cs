@@ -91,6 +91,10 @@ namespace Hugo.Core.Agent
         /// model call so same-turn and concurrent resource knowledge changes are visible. Null preserves the
         /// caller-supplied system prompt behavior. Snapshots are transient and never persisted as messages.
         /// </summary>
+        /// <summary>Enforce the assembled model context budget when document delivery is active.</summary>
+        public bool EnforceContextBudget { get; set; }
+
+        /// <summary>Fresh context loaded immediately before every model call.</summary>
         public IAgentContextProvider? ContextProvider { get; set; } = null;
 
         /// <summary>

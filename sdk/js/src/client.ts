@@ -9,6 +9,8 @@ import {
 } from "./clients/admin.js";
 import {
   AgentProfilesClient,
+  PromptDocumentsClient,
+  AgentPromptDocumentsClient,
   AnalyticsClient,
   ApprovalsClient,
   ConnectorsClient,
@@ -81,6 +83,8 @@ export class HugoClient {
   readonly connectors: ConnectorsClient;
   readonly resources: ResourcesClient;
   readonly agentProfiles: AgentProfilesClient;
+  readonly promptDocuments: PromptDocumentsClient;
+  readonly agentPromptDocuments: AgentPromptDocumentsClient;
   readonly modelEndpoints: ModelEndpointsClient;
   readonly toolInvocations: ToolInvocationsClient;
   readonly approvals: ApprovalsClient;
@@ -111,6 +115,8 @@ export class HugoClient {
     this.connectors = new ConnectorsClient(t);
     this.resources = new ResourcesClient(t);
     this.agentProfiles = new AgentProfilesClient(t);
+    this.promptDocuments = new PromptDocumentsClient(t);
+    this.agentPromptDocuments = new AgentPromptDocumentsClient(t);
     this.modelEndpoints = new ModelEndpointsClient(t);
     this.toolInvocations = new ToolInvocationsClient(t);
     this.approvals = new ApprovalsClient(t);

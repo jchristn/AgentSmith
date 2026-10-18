@@ -4,6 +4,8 @@
 
 Hugo is a multi-tenant super agent server. You give it access to the systems that run your production stack (SSH hosts, object storage, databases, log services, caches, cloud control planes, clusters, HTTP APIs), group that access into agent profiles, and reach those profiles from any agent or harness over MCP or A2A, from the REST API and SDKs, from any OpenAI-compatible client, or by chatting in the dashboard.
 
+Agents can share versioned Markdown guidance. Attach documents inline or expose a short reference that the agent reads through scoped tools. Dashboard and standalone chat turns continue when the viewer navigates away; Stop cancels explicitly. See [agent documents](https://github.com/jchristn/AgentSmith/blob/main/docs/AGENT_DOCUMENTS.md).
+
 The default profile is named Hugo. It calls itself Agent Smith, and it calls you Mr. Anderson.
 
 Source, documentation, and issues: [github.com/jchristn/AgentSmith](https://github.com/jchristn/AgentSmith). This is an alpha (`0.1.0-alpha`): it works end to end, and it will still change in ways that break things before 1.0.

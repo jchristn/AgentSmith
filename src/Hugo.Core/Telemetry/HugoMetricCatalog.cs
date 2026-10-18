@@ -178,12 +178,22 @@ namespace Hugo.Core.Telemetry
         /// <summary>A2A requests.</summary>
         public static readonly MetricDescriptor A2ARequests = new MetricDescriptor("hugo.a2a.requests", MetricKindEnum.Counter, "{request}", "method, outcome", "A2A JSON-RPC requests by canonical method (SendMessage, SendStreamingMessage, GetTask, ListTasks, CancelTask, SubscribeToTask, GetExtendedAgentCard, unknown) and outcome (ok, error)", "server", "Protocols", "hugo-protocols");
 
+        /// <summary>Prompt-document operations with fixed outcome labels; content and names are excluded.</summary>
+        public static readonly MetricDescriptor PromptDocumentOperations = new MetricDescriptor("hugo.prompt_document.operations", MetricKindEnum.Counter, "{operation}", "operation, outcome", "Prompt document operations by fixed operation and outcome", "server", "Instructions", "hugo-tools");
+        /// <summary>Prompt-document delivery duration.</summary>
+        public static readonly MetricDescriptor PromptDocumentDuration = new MetricDescriptor("hugo.prompt_document.duration", MetricKindEnum.Histogram, "s", "operation", "Prompt document delivery duration", "server", "Instructions", "hugo-tools", TelemetryBuckets.Request);
+        /// <summary>Authorized document read response bytes.</summary>
+        public static readonly MetricDescriptor PromptDocumentReadBytes = new MetricDescriptor("hugo.prompt_document.read_bytes", MetricKindEnum.Counter, "By", "", "Authorized prompt document read response bytes", "server", "Instructions", "hugo-tools");
+
         #endregion
 
         #region Private-Members
 
         private static readonly List<MetricDescriptor> _All = new List<MetricDescriptor>
         {
+            PromptDocumentOperations,
+            PromptDocumentDuration,
+            PromptDocumentReadBytes,
             HttpRequests,
             HttpRequestDuration,
             HttpRequestSize,

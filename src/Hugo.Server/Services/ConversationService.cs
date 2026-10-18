@@ -131,6 +131,7 @@ namespace Hugo.Server.Services
             if (String.IsNullOrEmpty(id)) throw new NotFoundException("Conversation not found.");
             Conversation? conversation = await _Database.Conversations.ReadAsync(tenantId, id, token).ConfigureAwait(false);
             if (conversation == null || !CanSee(ctx, conversation)) throw new NotFoundException("Conversation not found.");
+            conversation.TurnInProgress = _Turns.IsActive(conversation.Id);
             return conversation;
         }
 
@@ -160,7 +161,9 @@ namespace Hugo.Server.Services
                     filter.CredentialId = null;
                 }
             }
-            return await _Database.Conversations.EnumerateAsync(tenantId, query, filter, token).ConfigureAwait(false);
+            EnumerationResult<Conversation> page = await _Database.Conversations.EnumerateAsync(tenantId, query, filter, token).ConfigureAwait(false);
+            foreach (Conversation conversation in page.Objects) conversation.TurnInProgress = _Turns.IsActive(conversation.Id);
+            return page;
         }
 
         /// <summary>

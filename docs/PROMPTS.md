@@ -249,3 +249,7 @@ An authorized profile editor can say, "When finding a user GUID, search the user
 Reading requires Read on the current profile; saving requires Update. The tools cannot select another profile, edit global safety or persona templates, grant permissions, or bypass approvals. Total profile instructions are limited to 65,536 characters. Secret-shaped content and known bound credentials are refused. Resource facts remain in resource context rather than becoming agent policy.
 
 Hugo-hosted loops inject the current profile instructions freshly before each model call, including after same-turn updates. The static compiled prompt omits that field for these loops to avoid stale duplicate instructions. External MCP clients can read the current instructions using the tool; Hugo cannot control when an external model refreshes its prompt.
+
+## Additional prompt documents
+
+Agents can attach several named Markdown documents using Inline or Reference delivery. Inline includes the full selected revision; Reference advertises metadata and supplies `agent_list_documents` and `agent_read_document` for authorized retrieval. Working instructions, template layers and resource knowledge keep their existing roles. See [Agent prompt documents](AGENT_DOCUMENTS.md) for setup, permissions, revision pins and context limits.

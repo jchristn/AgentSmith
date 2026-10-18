@@ -191,3 +191,7 @@ In the Compose stack every host port binds to `127.0.0.1` and can be moved in `d
 ## When none of this matches
 
 Collect the server log from the last start, the `requestId` of the failing request, and the output of `GET /v1.0/api/info` (version, database type, features). Those three almost always contain the answer, and they are what anyone helping you will ask for first.
+
+## A referenced prompt document was not read
+
+Check that the document and attachment are enabled, its description explains when to read it, and the selected inference endpoint supports tools. Inspect the compiled Reference manifest and `agent_read_document` result. Document Read, profile Execute, revision selection and public eligibility apply independently; being an administrator can hide missing grants experienced by another caller. If a revision changed between chunks, relist and reread the current selected revision. If a byte/context budget is exhausted, reduce the task or document size rather than retrying unchanged calls. Reference mode requires a successful read before the agent can claim knowledge of the body. See [Agent prompt documents](AGENT_DOCUMENTS.md).
