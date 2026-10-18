@@ -635,6 +635,13 @@ code,
   gap: var(--spacing-sm);
   min-width: 0;
 }
+.dashboard-chat-disclaimer {
+  flex: none;
+  margin: 0;
+  text-align: center;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
 .chat-toolbar {
   display: flex;
   align-items: center;

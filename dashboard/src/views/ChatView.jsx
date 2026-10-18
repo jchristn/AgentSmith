@@ -368,20 +368,23 @@ export default function ChatView({ recordId }) {
           ) : loadingConversation ? (
             <LoadingState />
           ) : (
-            <ChatPanel
-              messages={state.messages}
-              streaming={state.streaming}
-              draft={draft}
-              onDraftChange={updateDraft}
-              onSend={send}
-              onStop={stop}
-              onApprove={(id, note) => decide(id, true, note)}
-              onReject={(id, note) => decide(id, false, note)}
-              approvalBusy={approvalBusy}
-              disabled={!!noModel}
-              disabledReason={noModel ? t('views.chat.noModel') : null}
-              emptyHint={t('views.chat.emptyHint', { persona: selectedProfile?.personaName || 'Agent Smith' })}
-            />
+            <>
+              <ChatPanel
+                messages={state.messages}
+                streaming={state.streaming}
+                draft={draft}
+                onDraftChange={updateDraft}
+                onSend={send}
+                onStop={stop}
+                onApprove={(id, note) => decide(id, true, note)}
+                onReject={(id, note) => decide(id, false, note)}
+                approvalBusy={approvalBusy}
+                disabled={!!noModel}
+                disabledReason={noModel ? t('views.chat.noModel') : null}
+                emptyHint={t('views.chat.emptyHint', { persona: selectedProfile?.personaName || 'Agent Smith' })}
+              />
+              <p className="dashboard-chat-disclaimer">{t('standaloneChat.disclaimer')}</p>
+            </>
           )}
           {noModel && (
             <div className="info-banner" data-testid="no-model">

@@ -90,7 +90,7 @@ These rules keep the plan honest:
 | 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | Complete | 23 / 23 |
 | 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | Complete | 24 / 24 |
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Complete | 23 / 23 |
-| 8 | Dashboard | M1 | Complete | 65 / 65 |
+| 8 | Dashboard | M1 | Complete | 66 / 66 |
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | Complete | 14 / 14 |
 | 10 | Docker, testbed, and observability stack | M1 | Complete | 24 / 24 |
 | 11 | Documentation and Postman | M1 | Complete | 18 / 18 |
@@ -2109,6 +2109,7 @@ Quality
 - [x] P8.63 Restore incremental standalone chat streaming. *Accept:* safe text renders before model completion, Stop cancels the link-scoped turn, final text/message ID supports feedback, and private events and split secrets remain hidden. | codex 2026-10-17 Standalone endpoint negotiates safe SSE while retaining JSON compatibility; the page consumes real deltas and reconciles final text. Verified 10 SQLite integration cases including delayed early text, split-secret redaction and midstream revocation; 336 dashboard unit tests including deferred-stream visibility/cancellation, 16 standalone browser tests, clean solution build, lint and localization checks
 - [x] P8.64 Add Activity > Feedback with agent selection and correlated request/response telemetry. *Accept:* select an agent, page through saved ratings/comments, inspect the associated request, response, identifiers, token counts and timing, while enforcing tenant and conversation visibility. | codex 2026-10-17 Implemented paged tenant/owner-scoped feedback list and detail API, agent selection with URL persistence, responsive Markdown request/response details and saved telemetry. Verified four backend cases across SQLite/PostgreSQL, solution build with zero warnings/errors, 341 dashboard unit tests, 88 browser tests, all 12 catalogs, lint, and phone/desktop visual review
 - [x] P8.65 Standardize modal identifiers and clipboard behavior, and widen Feedback details. *Accept:* modal ID fields use monospace with shared inline copy controls; copying works with secure Clipboard API or insecure HTTP fallback inside focus-trapped dialogs; Feedback details expands to 1440px while fitting phones. | codex 2026-10-17 Audited generic detail/edit/error/permission/tool/referrer and Feedback modals. Clipboard fallback checks success and restores focus and selection. Verified 349 dashboard unit tests, 88 browser tests including real modal fallback and ID controls, lint, localization and production build
+- [x] P8.66 Show the AI mistakes warning beneath the main dashboard chat prompt, using the same translated message as standalone chat and muted theme-aware styling. | codex 2026-10-17 Reuses all 12 existing translations. Dashboard lint, production build and two chat streaming/conversation browser checks pass.
 
 
 
