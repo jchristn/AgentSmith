@@ -1976,7 +1976,10 @@
       "noProfilesTitle": "Noch keine Agentenprofile",
       "noProfilesBody": "Der Chat spricht mit einem Agentenprofil. Erstellen Sie eines (oder lassen Sie den Server das Hugo-Standardprofil anlegen), um zu beginnen.",
       "goProfiles": "Agentenprofile öffnen",
-      "emptyHint": "Fragen Sie {{persona}} nach Ihrem Stack, zum Beispiel \"Warum ist der Checkout langsam?\""
+      "emptyHint": "Fragen Sie {{persona}} nach Ihrem Stack, zum Beispiel \"Warum ist der Checkout langsam?\"",
+      "selectShown": "Angezeigte Unterhaltungen auswählen",
+      "deleteSelectedMessage": "Die ausgewählten Unterhaltungen und alle zugehörigen Nachrichten löschen? Ausgewählt: {{count}}. Dies kann nicht rückgängig gemacht werden.",
+      "deleteRunningHint": "Laufende Unterhaltungen können nicht gelöscht werden. Stoppen Sie zuerst den aktiven Durchlauf."
     },
     "profile": {
       "title": "Agentenprofil",

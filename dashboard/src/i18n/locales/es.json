@@ -1986,7 +1986,10 @@
       "noProfilesTitle": "Todavía no hay perfiles de agente",
       "noProfilesBody": "El chat se comunica con un perfil de agente. Cree uno (o deje que el servidor genere el perfil predeterminado de Hugo) para empezar.",
       "goProfiles": "Abrir perfiles de agente",
-      "emptyHint": "Pregunte a {{persona}} sobre su infraestructura, por ejemplo \"¿Por qué va lento el proceso de pago?\""
+      "emptyHint": "Pregunte a {{persona}} sobre su infraestructura, por ejemplo \"¿Por qué va lento el proceso de pago?\"",
+      "selectShown": "Seleccionar conversaciones mostradas",
+      "deleteSelectedMessage": "¿Eliminar las conversaciones seleccionadas y todos sus mensajes? Seleccionadas: {{count}}. Esta acción no se puede deshacer.",
+      "deleteRunningHint": "No se pueden eliminar conversaciones en curso. Detenga primero el turno activo."
     },
     "profile": {
       "title": "Perfil de agente",

@@ -605,7 +605,11 @@ export default function ResourceView({ config }) {
         open={bulkOpen}
         danger
         title={t('components.table.bulkDelete')}
-        message={t('common.confirm.bulkDelete', { count: selected.length })}
+        message={config.bulkDeleteMessage ? config.bulkDeleteMessage(selected.length, ctx) : t('common.confirm.bulkDelete', { count: selected.length })}
+        details={config.bulkDeleteDetails?.(
+          items.filter((item) => selected.includes(item.id)),
+          ctx
+        )}
         confirmLabel={t('common.actions.delete')}
         confirmTip={t('tips.confirm.bulkDelete')}
         onConfirm={doBulkDelete}

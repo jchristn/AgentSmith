@@ -1976,7 +1976,10 @@
       "noProfilesTitle": "Belum ada profil ejen",
       "noProfilesBody": "Sembang bercakap dengan profil ejen. Cipta satu (atau biarkan pelayan menyemai profil Hugo lalai) untuk bermula.",
       "goProfiles": "Buka Profil Ejen",
-      "emptyHint": "Tanya {{persona}} tentang tindanan anda, contohnya \"Mengapa checkout perlahan?\""
+      "emptyHint": "Tanya {{persona}} tentang tindanan anda, contohnya \"Mengapa checkout perlahan?\"",
+      "selectShown": "Pilih perbualan yang dipaparkan",
+      "deleteSelectedMessage": "Padam perbualan yang dipilih dan semua mesejnya? Dipilih: {{count}}. Tindakan ini tidak boleh dibuat asal.",
+      "deleteRunningHint": "Perbualan yang sedang berjalan tidak boleh dipadam. Hentikan giliran aktif dahulu."
     },
     "profile": {
       "title": "Profil ejen",

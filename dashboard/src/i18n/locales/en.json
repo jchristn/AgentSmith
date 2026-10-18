@@ -1961,7 +1961,10 @@
       "noProfilesTitle": "No agent profiles yet",
       "noProfilesBody": "Chat talks to an agent profile. Create one (or let the server seed the default Hugo profile) to start.",
       "goProfiles": "Open Agent Profiles",
-      "emptyHint": "Ask {{persona}} about your stack, for example \"Why is checkout slow?\""
+      "emptyHint": "Ask {{persona}} about your stack, for example \"Why is checkout slow?\"",
+      "selectShown": "Select shown conversations",
+      "deleteSelectedMessage": "Delete the selected conversations and all their messages? Selected: {{count}}. This cannot be undone.",
+      "deleteRunningHint": "Running conversations cannot be deleted. Stop any active turn first."
     },
     "profile": {
       "title": "Agent profile",

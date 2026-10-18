@@ -37,6 +37,7 @@ export default function ConfirmModal({
   return (
     <Modal
       open={open}
+      blocking={busy}
       onClose={onCancel}
       size="small"
       title={title || t('components.confirm.title')}

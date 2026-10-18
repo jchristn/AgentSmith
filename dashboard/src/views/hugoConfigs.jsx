@@ -1,3 +1,4 @@
+import ConversationDeleteDetails from '../components/ConversationDeleteDetails';
 // Declarative record page configurations for Hugo's own domain (plan section 18.3), rendered by ResourceView.
 // Every list names its route in `endpoint`, so a server that does not expose it yet gets an explanatory empty state
 // (resources.<id>.purpose) instead of an error.
@@ -334,6 +335,8 @@ export const approvalsConfig = {
 // ---------------------------------------------------------------- conversations
 
 export const conversationsConfig = {
+  bulkDeleteMessage: (count, ctx) => ctx.t('views.chat.deleteSelectedMessage', { count }),
+  bulkDeleteDetails: (items) => <ConversationDeleteDetails items={items} />,
   id: 'conversations',
   explainer: 'conversations',
   endpoint: '/v1.0/api/conversations',

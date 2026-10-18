@@ -1976,7 +1976,10 @@
       "noProfilesTitle": "暂无智能体配置",
       "noProfilesBody": "聊天需要与智能体配置交互。创建一个配置文件（或让服务器生成默认 Hugo 配置文件）即可开始。",
       "goProfiles": "打开智能体配置",
-      "emptyHint": "向 {{persona}} 询问你的技术栈，例如“为什么结账很慢？”"
+      "emptyHint": "向 {{persona}} 询问你的技术栈，例如“为什么结账很慢？”",
+      "selectShown": "选择当前显示的会话",
+      "deleteSelectedMessage": "删除所选会话及其所有消息？已选数量：{{count}}。此操作无法撤销。",
+      "deleteRunningHint": "无法删除正在运行的会话。请先停止当前轮次。"
     },
     "profile": {
       "title": "智能体配置",

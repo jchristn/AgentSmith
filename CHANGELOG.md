@@ -26,6 +26,8 @@ Everything below is new in this release. The images are `jchristn77/hugo-server:
 
 ### Dashboard
 
+- Chat conversation lists support selection and bulk deletion with a confirmation modal listing titles and copyable IDs. Failed deletions remain selected, active turns are not cancelled automatically, and deleting the open chat returns to a new conversation.
+
 - MCP Explorer starts initialize instructions collapsed and displays structured tool results directly, with raw responses available separately. A2A Explorer lays out agent cards, skills, examples, interfaces and authentication, with a visual message flow and editable JSON parameters.
 
 - Modal identifiers use monospace text with the shared copy control. Clipboard fallback works inside dialogs on non-secure HTTP origins and restores focus. Feedback details uses a wider responsive modal.

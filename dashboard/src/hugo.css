@@ -1274,3 +1274,37 @@ code,
 #a2a-parameters {
   font-family: var(--font-mono);
 }
+
+.chat-conversation-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  min-width: 0;
+}
+.chat-conversation-row > input {
+  flex-shrink: 0;
+}
+.chat-conversation-row .chat-list-item {
+  flex: 1;
+  min-width: 0;
+}
+.chat-selection-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-xs);
+}
+.conversation-delete-list {
+  max-height: 40vh;
+  overflow: auto;
+  padding-inline-start: 1.25rem;
+}
+.conversation-delete-list li {
+  margin-block: var(--spacing-sm);
+}
+.conversation-delete-list strong {
+  display: block;
+  overflow-wrap: anywhere;
+}

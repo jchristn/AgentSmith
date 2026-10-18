@@ -1986,7 +1986,10 @@
       "noProfilesTitle": "Ancora nessun profilo agente",
       "noProfilesBody": "La chat comunica con un profilo agente. Creane uno (o lascia che il server crei il profilo Hugo predefinito) per iniziare.",
       "goProfiles": "Apri Profili agente",
-      "emptyHint": "Chiedi a {{persona}} del tuo stack, ad esempio \"Perché il checkout è lento?\""
+      "emptyHint": "Chiedi a {{persona}} del tuo stack, ad esempio \"Perché il checkout è lento?\"",
+      "selectShown": "Seleziona le conversazioni visualizzate",
+      "deleteSelectedMessage": "Eliminare le conversazioni selezionate e tutti i relativi messaggi? Selezionate: {{count}}. L’operazione non può essere annullata.",
+      "deleteRunningHint": "Non è possibile eliminare le conversazioni in corso. Interrompi prima il turno attivo."
     },
     "profile": {
       "title": "Profilo agente",

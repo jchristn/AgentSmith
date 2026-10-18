@@ -2,12 +2,14 @@ import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'r
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
+import ConfirmModal from '../components/ConfirmModal';
+import ConversationDeleteDetails from '../components/ConversationDeleteDetails';
 import ChatPanel from '../components/ChatPanel';
 import ApprovalCard from '../components/ApprovalCard';
 import { LoadingState, UnavailableState, ErrorPresenter, EmptyState } from '../components/States';
 import { EnumBadge } from '../components/StatusBadge';
 import { tip } from '../components/Tooltip';
-import { PlusIcon, DownloadIcon, InfoIcon } from '../components/Icons';
+import { PlusIcon, DownloadIcon, InfoIcon, TrashIcon } from '../components/Icons';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useServerEvent } from '../context/EventsContext';
@@ -61,13 +63,18 @@ function writeDraft(key, text) {
 export default function ChatView({ recordId }) {
   const { t, i18n } = useTranslation();
   const { apiClient } = useAuth();
-  const { addToast } = useToast();
+  const { addToast, startProgress, updateProgress, endProgress } = useToast();
   const navigate = useNavigate();
   const [state, dispatch] = useReducer(chatReducer, undefined, () => initialChatState());
   const [profiles, setProfiles] = useState(null);
   const [profilesError, setProfilesError] = useState(null);
   const [conversations, setConversations] = useState([]);
   const [listError, setListError] = useState(null);
+  const [selectedConversations, setSelectedConversations] = useState([]);
+  const [pendingDelete, setPendingDelete] = useState(null);
+  const [deletingConversations, setDeletingConversations] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
+  const conversationListRequest = useRef(0);
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 350);
   const [profileId, setProfileId] = useState(() => localStorage.getItem(STORAGE_KEYS.chatProfile) || '');
@@ -78,6 +85,7 @@ export default function ChatView({ recordId }) {
   const [context, setContext] = useState({ profile: null, bindings: [], model: null });
   const [approvalBusy, setApprovalBusy] = useState(null);
   const controllerRef = useRef(null);
+  const mountedRef = useRef(true);
   const [remoteStreaming, setRemoteStreaming] = useState(false);
   const conversationIdRef = useRef(recordId || null);
 
@@ -99,13 +107,18 @@ export default function ChatView({ recordId }) {
 
   const loadConversations = useCallback(() => {
     if (!apiClient) return;
+    const request = ++conversationListRequest.current;
     apiClient
       .listConversations({ pageNumber: 1, pageSize: 100, search: debouncedSearch || undefined, source: 'Dashboard' })
       .then((r) => {
+        if (request !== conversationListRequest.current || !mountedRef.current) return;
         setConversations(r.items || []);
+        setSelectedConversations((current) => current.filter((id) => (r.items || []).some((item) => item.id === id)));
         setListError(null);
       })
-      .catch(setListError);
+      .catch((error) => {
+        if (request === conversationListRequest.current && mountedRef.current) setListError(error);
+      });
   }, [apiClient, debouncedSearch]);
 
   useEffect(loadConversations, [loadConversations]);
@@ -170,7 +183,6 @@ export default function ChatView({ recordId }) {
   }, [apiClient, profileId, profiles]);
 
   // Detach the viewer on navigation; the accepted server turn keeps running.
-  const mountedRef = useRef(true);
   useEffect(() => {
     mountedRef.current = true;
     return () => {
@@ -198,7 +210,10 @@ export default function ChatView({ recordId }) {
       }
     };
     timer = setTimeout(refresh, 1000);
-    return () => { active = false; clearTimeout(timer); };
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
   }, [apiClient, recordId, remoteStreaming, loadConversations]);
 
   const updateDraft = (text) => {
@@ -254,6 +269,42 @@ export default function ChatView({ recordId }) {
     setRemoteStreaming(true);
     controllerRef.current?.abort();
     if (id) apiClient.cancelConversation(id).catch(() => {});
+  };
+
+  const deleteSelectedConversations = async () => {
+    if (deletingConversations || !pendingDelete?.length) return;
+    const targets = pendingDelete;
+    conversationListRequest.current += 1;
+    const failed = [];
+    const deleted = [];
+    let firstError = null;
+    setDeletingConversations(true);
+    setDeleteError(null);
+    const progress = startProgress(t('components.progress.deleting', { count: targets.length }), targets.length);
+    try {
+      for (const item of targets) {
+        try {
+          await apiClient.deleteConversation(item.id);
+          deleted.push(item.id);
+          writeDraft(item.id, '');
+        } catch (error) {
+          failed.push(item.id);
+          firstError ||= error;
+        }
+        updateProgress(progress, deleted.length + failed.length);
+      }
+      addToast({ type: failed.length ? 'warning' : 'success', message: t('common.toasts.bulkDeleted', { count: deleted.length, failed: failed.length }) });
+      if (!mountedRef.current) return;
+      setPendingDelete(null);
+      setSelectedConversations(failed);
+      setDeleteError(firstError);
+      setConversations((current) => current.filter((item) => !deleted.includes(item.id)));
+      if (deleted.includes(recordId)) navigate(pathFor('chat'));
+      else loadConversations();
+    } finally {
+      endProgress(progress);
+      if (mountedRef.current) setDeletingConversations(false);
+    }
   };
 
   const decide = async (approvalId, approve, note) => {
@@ -338,16 +389,64 @@ export default function ChatView({ recordId }) {
             value={search}
             placeholder={t('views.chat.search')}
             aria-label={t('views.chat.search')}
-            onChange={(e) => setSearch(e.target.value)}
+            disabled={deletingConversations}
+            onChange={(e) => {
+              conversationListRequest.current += 1;
+              setSearch(e.target.value);
+              setSelectedConversations([]);
+              setDeleteError(null);
+            }}
             {...tip(t('tips.views.chat.search'))}
           />
+          {conversations.length > 0 && (
+            <>
+              <label className="field-checkbox">
+                <input
+                  type="checkbox"
+                  ref={(input) => {
+                    if (input) input.indeterminate = selectedConversations.length > 0 && selectedConversations.length < conversations.length;
+                  }}
+                  aria-label={t('views.chat.selectShown')}
+                  disabled={deletingConversations}
+                  checked={conversations.every((item) => selectedConversations.includes(item.id))}
+                  onChange={(event) => setSelectedConversations(event.target.checked ? conversations.map((item) => item.id) : [])}
+                  {...tip(t('views.chat.selectShown'))}
+                />{' '}
+                {t('views.chat.selectShown')}
+              </label>
+              <div className="chat-selection-actions">
+                <span role="status">{t('components.table.selected', { count: selectedConversations.length })}</span>
+                <button
+                  type="button"
+                  className="button-danger button-sm"
+                  disabled={!selectedConversations.length || deletingConversations}
+                  onClick={() => setPendingDelete(conversations.filter((item) => selectedConversations.includes(item.id)))}
+                  data-testid="chat-delete-selected"
+                  {...tip(t('tips.table.bulkDelete'))}
+                >
+                  <TrashIcon size={14} /> {t('components.table.bulkDelete')}
+                </button>
+              </div>
+            </>
+          )}
           {listError && <ErrorPresenter error={listError} onRetry={loadConversations} />}
+          {deleteError && <ErrorPresenter error={deleteError} />}
           {conversations.length === 0 ? (
             <div className="text-muted chat-list-empty">{t('views.chat.noConversations')}</div>
           ) : (
             <ul className="chat-list-items">
               {conversations.map((c) => (
-                <li key={c.id}>
+                <li key={c.id} className="chat-conversation-row">
+                  <input
+                    type="checkbox"
+                    aria-label={`${t('components.table.selectRow')}: ${c.title || t('views.chat.untitled')}`}
+                    checked={selectedConversations.includes(c.id)}
+                    disabled={deletingConversations}
+                    onChange={(event) =>
+                      setSelectedConversations((current) => (event.target.checked ? [...current, c.id] : current.filter((id) => id !== c.id)))
+                    }
+                    {...tip(t('tips.table.selectRow'))}
+                  />
                   <a
                     href={pathFor('chat', c.id)}
                     className={`chat-list-item ${c.id === recordId ? 'active' : ''}`}
@@ -485,6 +584,18 @@ export default function ChatView({ recordId }) {
           </aside>
         )}
       </div>
+      <ConfirmModal
+        open={!!pendingDelete}
+        danger
+        busy={deletingConversations}
+        title={t('components.table.bulkDelete')}
+        message={t('views.chat.deleteSelectedMessage', { count: pendingDelete?.length || 0 })}
+        details={<ConversationDeleteDetails items={pendingDelete || []} />}
+        confirmLabel={t('common.actions.delete')}
+        confirmTip={t('tips.confirm.bulkDelete')}
+        onConfirm={deleteSelectedConversations}
+        onCancel={() => !deletingConversations && setPendingDelete(null)}
+      />
     </div>
   );
 }

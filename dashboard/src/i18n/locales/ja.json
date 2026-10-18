@@ -1976,7 +1976,10 @@
       "noProfilesTitle": "エージェントプロファイルはまだありません",
       "noProfilesBody": "チャットはエージェントプロファイルと通信します。始めるにはプロファイルを作成してください (またはサーバーに既定の Hugo プロファイルを作成させてください)。",
       "goProfiles": "エージェントプロファイルを開く",
-      "emptyHint": "スタックについて {{persona}} に質問してください (例: 「checkout が遅いのはなぜ?」)"
+      "emptyHint": "スタックについて {{persona}} に質問してください (例: 「checkout が遅いのはなぜ?」)",
+      "selectShown": "表示中の会話を選択",
+      "deleteSelectedMessage": "選択した会話とすべてのメッセージを削除しますか？選択数：{{count}}。この操作は取り消せません。",
+      "deleteRunningHint": "実行中の会話は削除できません。先に実行中のターンを停止してください。"
     },
     "profile": {
       "title": "エージェントプロファイル",

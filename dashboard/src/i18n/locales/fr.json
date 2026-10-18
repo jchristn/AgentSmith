@@ -1986,7 +1986,10 @@
       "noProfilesTitle": "Aucun profil d'agent pour le moment",
       "noProfilesBody": "Le chat communique avec un profil d'agent. Créez-en un (ou laissez le serveur créer le profil Hugo par défaut) pour commencer.",
       "goProfiles": "Ouvrir les profils d'agent",
-      "emptyHint": "Interrogez {{persona}} sur votre infrastructure, par exemple « Pourquoi le paiement est-il lent ? »"
+      "emptyHint": "Interrogez {{persona}} sur votre infrastructure, par exemple « Pourquoi le paiement est-il lent ? »",
+      "selectShown": "Sélectionner les conversations affichées",
+      "deleteSelectedMessage": "Supprimer les conversations sélectionnées et tous leurs messages ? Sélection : {{count}}. Cette action est irréversible.",
+      "deleteRunningHint": "Les conversations en cours ne peuvent pas être supprimées. Arrêtez d’abord le tour actif."
     },
     "profile": {
       "title": "Profil d'agent",

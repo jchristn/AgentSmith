@@ -90,7 +90,7 @@ These rules keep the plan honest:
 | 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | Complete | 23 / 23 |
 | 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | Complete | 25 / 25 |
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Complete | 23 / 23 |
-| 8 | Dashboard | M1 | Complete | 66 / 66 |
+| 8 | Dashboard | M1 | Complete | 67 / 67 |
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | Complete | 14 / 14 |
 | 10 | Docker, testbed, and observability stack | M1 | Complete | 24 / 24 |
 | 11 | Documentation and Postman | M1 | Complete | 18 / 18 |
@@ -2122,6 +2122,8 @@ Quality
 
 
 
+
+- [x] P8.67 Support multiple conversation deletion in dashboard Chat and confirm the exact chats/messages affected with the shared modal. | codex 2026-10-18 Chat sidebar selection, select-shown scope, copyable ID/title review, busy modal protection, partial-failure retry selection and current-chat navigation; Agents conversation table shares the same details. Existing per-record API authorization and running-turn conflict remain unchanged. All 12 catalogs, 362 unit tests, 22 browser cases (including five dedicated workflows), lint/build and desktop/phone modal review pass.
 
 ### Phase 9: SDKs (M1)
 
