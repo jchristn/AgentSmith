@@ -96,7 +96,7 @@ These rules keep the plan honest:
 | 11 | Documentation and Postman | M1 | Complete | 18 / 18 |
 | 12 | MVP verification (milestone M1) | M1 | Complete | 12 / 12 |
 | 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A, cryptography | M2 | In progress | 42 / 43 |
-| 14 | Knowledge, runbooks, and operator conveniences | M2 | In progress | 1 / 14 |
+| 14 | Knowledge, runbooks, and operator conveniences | M2 | In progress | 2 / 14 |
 | 15 | Benchmarking | M3 | Not started | 0 / 16 |
 | 17 | Kubernetes and minikube | M2 | Complete | 16 / 16 |
 | 16 | Hardening, simulated user testing, and 1.0 release | M4 | Not started | 0 / 18 |
@@ -110,7 +110,9 @@ Milestones:
 | **M3: Measured** | Benchmark suite, CI gate, round 0 results. | 15 |
 | **M4: 1.0** | Security review, simulated user testing, upgrade path, release process. | 16 |
 
-### Current state and where to pick up (updated 2026-10-16)
+### Current state and where to pick up (updated 2026-10-18)
+
+- Agent prompt documents and background chat completed 2026-10-18 (source `e61da60`, P14.14/P6.25). Migration 12, Inline/Reference attachments, scoped retrieval tools, dashboard/all 12 locales, three SDKs and documentation are complete. Full SQLite/PostgreSQL regression: 2116 passed, 309 expected testbed skips, zero failures; dashboard 362 unit and 101 browser tests pass. Live model retrieval and published-image startup are verified. Server `v0.1.0`/`latest`: `sha256:a9b80c1c2ff88f861229a34db29834f237172a0b6ac5ecd5e3a02b93e6a604d5`; dashboard: `sha256:86b956736eab278c01479b0484f6976821698a159ecc9eabd3b6e0aecd2d2663`, both AMD64/ARM64. See [the completed feature plan](../ADDITIONAL_PROMPT_CONTEXT.md).
 
 - Completed P14.13 (D-057): generalized agent-managed resource context, version-safe common tools, and fresh authorized model context. Full SQLite/PostgreSQL regression: 2030 passed, 309 expected testbed skips, zero failures; real SSH/Qwen learn-and-reuse acceptance passed. Embedding search and resource actions remain separate Phase 14 work.
 
@@ -2279,7 +2281,7 @@ Wrap-up
 - [ ] P14.12 Documentation and Postman updates.
 - [x] P14.13 Generalized resource context across all connector interfaces. *Accept:* agents read/update scoped persistent learnings for SSH, SQL, and other connectors; version-safe updates, operator preservation, audit/history, tenant isolation, binding permissions, restart persistence, and secret/output bounds pass tests; fresh bounded context is consulted before each internal model call and available to MCP clients; SQL tools and dashboard knowledge editor stay compatible. | codex 2026-10-16 common tools for all connectors/plugins; fresh planning and nested-model snapshots; atomic versions/history, policy rechecks, operator protection, secret guards, pagination, and persistence verified in 18 provider integration cases plus in-memory ABA regression. Full backend 2030 passed/309 expected testbed skips/0 failed; real SSH/Qwen cross-conversation acceptance in user-testing/RESOURCE_CONTEXT_REAL_OLLAMA_2026-10-16.md; docs/RESOURCE_CONTEXT.md. Follow-up: system and tool guidance explicitly requires consolidation, deduplication, skipping unchanged facts, compact root summaries, and version-checked curation of agent-authored entries while preserving operator text.
 
-- [~] P14.14 Implement reusable agent Markdown document attachments with Inline/Reference delivery, retrieval tools, dashboard, SDKs and full verification. | codex 2026-10-18 Detailed actionable plan and progress: [ADDITIONAL_PROMPT_CONTEXT.md](../ADDITIONAL_PROMPT_CONTEXT.md).
+- [x] P14.14 Implement reusable agent Markdown document attachments with Inline/Reference delivery, retrieval tools, dashboard, SDKs and full verification. | codex 2026-10-18 Detailed actionable plan and progress: [ADDITIONAL_PROMPT_CONTEXT.md](../ADDITIONAL_PROMPT_CONTEXT.md).
 
 ### Phase 15: Benchmarking (M3)
 

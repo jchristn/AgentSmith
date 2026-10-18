@@ -1,6 +1,6 @@
 # Additional agent prompt context: implementation plan
 
-Status: implementation in progress. Created 2026-10-18. Product version remains `0.1.0-alpha`.
+Status: complete. Created 2026-10-18. Product version remains `0.1.0-alpha`.
 
 An operator must be able to attach several named Markdown documents to an agent and choose how each reaches the model. Inline attachments contribute their complete content to the system instructions. Reference attachments contribute a short catalog entry; the model retrieves their content through profile-scoped tools when needed. A filename in a prompt is not retrieval infrastructure. This feature supplies both the catalog and the retrieval path.
 
@@ -10,7 +10,7 @@ An operator must be able to attach several named Markdown documents to an agent 
 
 Use stable `APC-` task IDs below in commits, tests and implementation notes. Mark work `[~]` while in progress, `[x]` only after its acceptance criteria pass, and `[!]` with a concrete blocker. Append `| implementer YYYY-MM-DD evidence` to completed items. Never mark a phase complete because its code was written without executing the required checks. Changes to decisions, contracts or limits must update this document before dependent work proceeds.
 
-Current progress is **34 of 36 implementation tasks complete**. Migration 12, persistence, runtime tools, protocols, dashboard, all 12 locales, three SDKs and documentation are implemented and verified. Final regression and publication gates are running. The chat-navigation fix is tracked separately as P6.25 in the archived roadmap. Record implementation progress here and link the feature from `archive/HUGO_PLAN.md`; do not move the archived plan back to the repository root.
+Current progress is **36 of 36 implementation tasks complete**. Migration 12, persistence, runtime tools, protocols, dashboard, all 12 locales, three SDKs and documentation are implemented and verified. Final regression and publication gates pass. The chat-navigation fix is tracked separately as P6.25 in the archived roadmap. Record implementation progress here and link the feature from `archive/HUGO_PLAN.md`; do not move the archived plan back to the repository root.
 
 | Phase | Tasks | State | Completion gate |
 |---|---|---|---|
@@ -19,7 +19,7 @@ Current progress is **34 of 36 implementation tasks complete**. Migration 12, pe
 | Compilation, retrieval and protocols | APC-13 through APC-18 | Complete | Both modes work through every supported agent entry point |
 | Dashboard and localization | APC-19 through APC-23 | Complete | Complete UI, all 12 languages, accessibility and responsive verification |
 | SDKs and documentation | APC-24 through APC-29 | Complete | Three SDKs, API references and executable examples agree |
-| Verification and release | APC-30 through APC-36 | Final gates running | Provider tests, live harnesses, simulated journeys and deployment evidence |
+| Verification and release | APC-30 through APC-36 | Complete | Provider tests, live harnesses, simulated journeys and deployment evidence |
 
 ## 2. Requirements and repository constraints
 
@@ -225,6 +225,8 @@ Add typed document and attachment clients to all supported SDKs. The public meth
 | JavaScript/TypeScript | `sdk/js/src/client.ts`, `clients/domain.ts`, `models.ts`, `index.ts` | Exported typed clients and models, abort support via existing transport, correct optional fields and pagination |
 | Python | `sdk/python/hugo_sdk/client.py`, `api.py`, `models.py`, `__init__.py` | Idiomatic client methods, typing and existing error/cancellation conventions, correct exported contracts |
 
+The C# and Python SDKs retain their established string wire-value conventions for delivery mode and revision policy; TypeScript uses literal unions. The server validates the exact documented enum values.
+
 Add a helper or documented example in each SDK that reads a local UTF-8 file and submits it as a document. That helper must not imply the server can access the client's path. Each example creates a synthetic log-schema document, attaches it as Reference, lists it, switches to Inline, inspects compiled instructions, then detaches/deletes its own data. Use environment-provided test credentials and `127.0.0.1` for local examples, never hard-coded secrets.
 
 SDK harnesses must test server behavior, not only DTO serialization: CAS conflict, mixed-case duplicate name, version pinning, public eligibility denial, deletion while attached, reorder, clone, content fidelity, cleanup and expected error types. Reuse the existing HTTP transport/authentication/signing/retry layers. Do not retry non-idempotent creates or stale mutations automatically. Retrying a read must preserve its selected revision.
@@ -319,7 +321,7 @@ The acceptance statements below are work boundaries, not suggestions. Finish pre
 
 ### SDKs and documentation
 
-- [x] APC-24 Implement C# clients/DTOs/enums and live harness scenario. **Accept:** all targets build without warnings; CRUD, CAS, attach/pin/reorder/referrers/cleanup run against the server. | codex 2026-10-18 Three SDK live harnesses and executable examples pass; REST/MCP/OpenAPI/Postman/operator contracts updated.
+- [x] APC-24 Implement C# clients/DTOs/wire mode values and live harness scenario. **Accept:** all targets build without warnings; CRUD, CAS, attach/pin/reorder/referrers/cleanup run against the server. | codex 2026-10-18 Three SDK live harnesses and executable examples pass; REST/MCP/OpenAPI/Postman/operator contracts updated.
 - [x] APC-25 Implement TypeScript exports/clients/types and harness scenario. **Accept:** type build and transport/contract/live scenarios pass with correct abort, omission and conflict behavior. | codex 2026-10-18 Three SDK live harnesses and executable examples pass; REST/MCP/OpenAPI/Postman/operator contracts updated.
 - [x] APC-26 Implement Python clients/types/exports and harness scenario. **Accept:** existing Python quality checks and server round trips pass with clean test data removal. | codex 2026-10-18 Three SDK live harnesses and executable examples pass; REST/MCP/OpenAPI/Postman/operator contracts updated.
 - [x] APC-27 Update OpenAPI, REST/MCP references and Postman. **Accept:** every new route/tool, error, permission, pagination and version contract is documented with valid executable examples. | codex 2026-10-18 Three SDK live harnesses and executable examples pass; REST/MCP/OpenAPI/Postman/operator contracts updated.
@@ -333,8 +335,8 @@ The acceptance statements below are work boundaries, not suggestions. Finish pre
 - [x] APC-32 Run dashboard component/browser/visual tests and SDK harnesses. **Accept:** meaningful workflows, existing streaming/feedback and new translations pass; attach sanitized evidence/results. | codex 2026-10-18 Provider integration and live SDK/UI/model evidence recorded; see final verification below.
 - [x] APC-33 Run isolated simulated user journeys and live model/harness smoke tests. **Accept:** record actual retrieval behavior and limitations; resolve critical findings; repeat affected cases after fixes. | codex 2026-10-18 Provider integration and live SDK/UI/model evidence recorded; see final verification below.
 - [x] APC-34 Measure compilation/retrieval/context costs with documented fixtures. **Accept:** cold/warm results and a reviewable regression threshold are recorded; no unbounded prompt/body accumulation. | codex 2026-10-18 Ten scenarios with 30 sample pairs each; benchmarks/RESULTS.md records costs and limitations.
-- [ ] APC-35 Complete zero-warning solution/SDK/frontend builds, docs/style/package/version checks and deployment upgrade verification. **Accept:** validated changes and remaining noncritical limitations are recorded without unsupported success claims.
-- [ ] APC-36 Commit/push implementation and publish only as authorized; update this plan and archived roadmap with final evidence. **Accept:** source commit, migration version, real test totals, deployment result and verified image digests recorded; operator can reproduce Inline and Reference acceptance examples.
+- [x] APC-35 Complete zero-warning solution/SDK/frontend builds, docs/style/package/version checks and deployment upgrade verification. **Accept:** validated changes and remaining noncritical limitations are recorded without unsupported success claims. | codex 2026-10-18 Zero-warning builds and checks pass; complete SQLite/PostgreSQL regression: 2116 passed, 309 expected testbed skips, zero failures. Published-image startup and live document workflow pass.
+- [x] APC-36 Commit/push implementation and publish only as authorized; update this plan and archived roadmap with final evidence. **Accept:** source commit, migration version, real test totals, deployment result and verified image digests recorded; operator can reproduce Inline and Reference acceptance examples. | codex 2026-10-18 Implementation e61da60 pushed to main; both images published and registry-verified for AMD64/ARM64 with unchanged v0.1.0/latest tags. Digests below.
 
 ## 16. Verification commands and handoff
 
@@ -383,5 +385,22 @@ standalone viewer detaches the stream; the accepted turn continues. Returning
 polls persisted messages while the server reports `turnInProgress`; explicit Stop
 still cancels. Process restart does not durably resume an interrupted model turn.
 
-Final aggregate regression totals and published image digests will be recorded
-when APC-35 and APC-36 complete.
+Final aggregate regression: **2425 total, 2116 passed, zero failures, 309 expected
+external-testbed skips**, on SQLite and PostgreSQL. Targeted version/migration
+checks pass 48/48; golden/plugin checks pass 6/6. JavaScript and Python live SDK
+checks also pass after restarting the final server build.
+
+Implementation source `e61da60` is pushed to `main`. Both published tags
+`v0.1.0` and `latest` resolve to the same per-image manifest and contain AMD64
+and ARM64 builds:
+
+| Image | Verified manifest digest |
+|---|---|
+| `jchristn77/hugo-server` | `sha256:a9b80c1c2ff88f861229a34db29834f237172a0b6ac5ecd5e3a02b93e6a604d5` |
+| `jchristn77/hugo-dashboard` | `sha256:86b956736eab278c01479b0484f6976821698a159ecc9eabd3b6e0aecd2d2663` |
+
+An isolated stack using these published images passed login, dashboard health
+and HTML, SDK file import, Reference preview without body, Inline preview with
+body, and record cleanup. No production deployment was modified. Pull and
+recreate the server and dashboard containers to apply the release. Migration 12
+runs automatically; back up the database and master key before upgrading.
