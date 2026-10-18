@@ -2,34 +2,26 @@
 
 # Hugo
 
-Hugo is a multi-tenant super agent server. You give it access to the systems that run your production stack (SSH hosts, object storage, databases, log services, caches, cloud control planes, clusters, HTTP APIs), group that access into agent profiles, and reach those profiles from any agent or harness over MCP or A2A, from the REST API and SDKs, from any OpenAI-compatible client, or by chatting in the dashboard.
+Hugo is a multi-tenant agent server for operating your systems through chat and tools. Connect SSH hosts, databases, object storage, logs, cloud services and other agents once, then give each agent profile its own instructions, resources and access limits. Use the dashboard, publish a standalone chat, or connect through MCP, A2A, REST, SDKs and an OpenAI-compatible API.
 
-The default profile is named Hugo. It calls itself Agent Smith, and it calls you Mr. Anderson.
+The default profile is named Hugo. Its persona calls itself Agent Smith and addresses you as Mr. Anderson.
 
-> Hugo is an alpha (`0.1.0-alpha`). It works end to end and is tested against real targets, and it will still change in ways that break things before 1.0. The build plan and progress tracker is [`archive/HUGO_PLAN.md`](archive/HUGO_PLAN.md); what shipped is in [`CHANGELOG.md`](CHANGELOG.md).
+**Status:** `0.1.0-alpha`. Breaking changes are still possible before 1.0. See the [changelog](CHANGELOG.md) for shipped features, the [archived roadmap](archive/HUGO_PLAN.md) for decisions and remaining work, and the [completed document-context plan](ADDITIONAL_PROMPT_CONTEXT.md) for that feature's implementation and verification.
 
-Standalone chat links can be published per agent as Public or Authenticated, following AssistantHub's separate chat-page pattern. See [Standalone agent chat](docs/STANDALONE_CHAT.md) for management, execution permissions, and visitor isolation.
+## Contents
 
-## Why it exists
+- [Quick start](#quick-start)
+- [Agents, instructions and memory](#agents-instructions-and-memory)
+- [Chat and the dashboard](#chat-and-the-dashboard)
+- [Connect clients and applications](#connect-clients-and-applications)
+- [Connectors](#connectors)
+- [Architecture and access controls](#architecture-and-access-controls)
+- [Deployment and operations](#deployment-and-operations)
+- [Documentation and development](#documentation-and-development)
 
-A production stack is a dozen systems with a dozen consoles. When something breaks at 2 AM, the operator becomes the integration layer, hopping between terminals and dashboards and pasting fragments into a chat window. Coding agents such as Claude Code can already reason about all of it. What they lack is safe, consistent, credentialed access: every harness would need its own SSH keys, database passwords, and cloud credentials, and its own idea of which actions are safe. Today that access is scattered across laptops, nobody audits it, and nothing stops the destructive actions.
+## Quick start
 
-Hugo holds the access and the judgment about using it. Credentials live encrypted in Hugo, never on the laptop and never in a prompt. Every tool call is classified as Read, Write, or Destructive before it runs, checked against the access mode you chose for that resource on that profile, and sent to a human when it needs one. Everything is recorded.
-
-## What a session looks like
-
-1. Mr. Anderson starts the Docker stack, opens the dashboard, signs in with the seeded account, and picks a new password when Hugo asks.
-2. The setup wizard asks for one model endpoint (a local Ollama, or Anthropic, OpenAI, and others with an API key).
-3. He stores an SSH key, a PostgreSQL password, and a SolarWinds Observability token in the vault, and adds the resources that use them: `web-01`, `prod-db`, `checkout-logs`. Each form comes from the connector's schema and has a Test Connection button.
-4. He binds them to the Hugo profile: `prod-db` ReadOnly, `web-01` ReadWriteWithApproval, `checkout-logs` ReadOnly. The instructions preview shows Agent Smith's persona followed by one section per resource.
-5. He asks, "Agent Smith, why is checkout slow?" Hugo searches SolarWinds Observability logs, looks at `pg_stat_activity` on `prod-db`, runs `uptime` and `df -h` on `web-01`, and answers with evidence, addressing him as Mr. Anderson. Every tool call shows inline with its effect and duration.
-6. He asks Hugo to restart nginx. The call is Destructive, an approval card appears, he approves, Hugo runs it and reports back.
-7. He creates a credential bound to the Hugo profile and adds Hugo to Claude Code. Claude Code receives the same instructions and a tool list limited to those three resources.
-8. Request history, tool invocations, the audit log, and Grafana show everything that happened.
-
-## Deploy with Docker
-
-Hugo ships as two container images, `jchristn77/hugo-server` and `jchristn77/hugo-dashboard` (tag `v0.1.0`), and containers are the only supported way to run it (decision D-045): with Docker Compose (below), on Kubernetes with `k8s/`, or on minikube with `minikube/`. The Kubernetes and minikube paths are described in [`docs/KUBERNETES.md`](docs/KUBERNETES.md); like the Compose stack, they run a single replica.
+Install Docker with Docker Compose, then start the published stack:
 
 ```bash
 git clone https://github.com/jchristn/AgentSmith.git
@@ -37,31 +29,92 @@ cd AgentSmith/docker
 ./start.sh            # Windows: start.bat
 ```
 
-`start.sh` creates `docker/.env` on first run, generates the master key and the legacy token validation key, and starts the stack. Back up `docker/.env`: losing `HUGO_MASTER_KEY` makes every stored secret unreadable. The stack is Hugo, its dashboard, and an observability stack (Prometheus, Tempo, Loki, Alloy, Grafana). It runs on SQLite by default; set `HUGO_DB_TYPE=Postgresql` in `docker/.env` and start with `docker compose --profile postgres up -d` to use PostgreSQL instead.
+The helper creates `docker/.env`, generates missing keys and starts the server, dashboard and observability services. Back up `.env` together with the database: losing `HUGO_MASTER_KEY` makes stored vault secrets unreadable. The default database is SQLite.
 
-| Service | URL |
+| Open | Default URL | First sign-in |
+|---|---|---|
+| Dashboard | http://127.0.0.1:8801 | Tenant `default`, `anderson@hugo.local`, password `password` |
+| Server API | http://127.0.0.1:8800 | Authenticate through a client or the dashboard |
+| Grafana | http://127.0.0.1:3000 | `admin` / `admin` |
+| Prometheus | http://127.0.0.1:9090 | No sign-in in the local stack |
+
+The tenant administrator is `anderson@hugo.local`; the system administrator is `admin@hugo.local`, also initially using `password`. Change both seeded passwords before exposing the stack to other users. Published host ports bind to `127.0.0.1` by default and can be changed in `.env`.
+
+### Set up your first agent
+
+The dashboard's setup wizard can guide the initial configuration. The same controls remain available afterward:
+
+1. **Connections > Models:** add an inference endpoint, such as Ollama or a supported hosted provider. Use a tool-capable model for agent tool calls and Reference documents.
+2. **Connections > Secrets:** create the credentials your systems require. Secrets can contain named fields, including an access-key pair or AES key material.
+3. **Connections > Resources:** choose a connector, configure its target, bind the appropriate secret and run **Test Connection**.
+4. **Agents > your agent:** select its model and attach resource bindings with aliases and access modes. Add working instructions or documents in its **Instructions** tab, then inspect the compiled preview.
+5. Talk to Agent Smith. Tool calls show inline with their effect, and risky ones wait for your approval.
+
+For example, bind `prod-db` as ReadOnly, `web-01` as ReadWriteWithApproval and `checkout-logs` as ReadOnly. Ask why checkout is slow: the agent can inspect the database, search logs and check the host using those bindings. A restart that needs approval pauses for your decision.
+
+For an isolated demonstration with ready-made targets, use the [factory stack](docs/FACTORY.md) in `docker/factory/`. It has separate data and ports, including dashboard `8811` and API `8810`.
+
+## Agents, instructions and memory
+
+An agent profile combines a persona, an inference endpoint and resource bindings. A resource can be shared by several profiles with different aliases or permissions. The agent's working rules, authored reference material and learned resource facts have separate homes:
+
+| Context | What belongs there | How it is managed |
+|---|---|---|
+| Agent instructions | Workflow rules and preferences, such as how to look up a user identifier | Edit the profile or ask the agent to remember a rule; `agent_get_instructions` and `agent_update_instructions` apply profile permissions and version checks |
+| Prompt documents | Reusable runbooks, log formats, schemas and detailed procedures | Create under **Instructions > Documents**, then attach in an agent's **Instructions** tab |
+| Resource context | Discovered paths, services, tables, relationships and operational facts about a connection | Agents use `resource_get_context` and `resource_update_context`; operators can review and curate the stored notes |
+| Prompt templates | Shared persona, connector guidance and instruction composition | Manage shipped/global/tenant template layers under **Instructions** |
+
+### Inline and Reference documents
+
+Upload a UTF-8 Markdown or text file, or enter its content directly. Hugo stores a versioned database copy that can be attached to several agents. Choose **Latest** to follow changes or **Pinned** to retain a specific revision.
+
+| Delivery mode | What the model receives |
 |---|---|
-| Dashboard | http://127.0.0.1:8801 |
-| REST, MCP (`/mcp`), A2A (`/v1.0/a2a`), OpenAI-compatible (`/v1.0/openai/v1`) | http://127.0.0.1:8800 |
-| Grafana (admin / admin, change it) | http://127.0.0.1:3000 |
-| Prometheus | http://127.0.0.1:9090 |
+| **Inline** | The full selected document in its system context |
+| **Reference** | A short catalog entry with the filename, description, ID and revision; the model requests the body through `agent_read_document` |
 
-Sign in to the dashboard as `anderson@hugo.local` with the password `password` (tenant `default`). Hugo prompts you to choose a new password; change it right away or skip the prompt for now, but do not leave a published default password on anything reachable from a network. A system administrator, `admin@hugo.local`, is seeded the same way.
+For example, attach `LOG_MESSAGE_STRUCTURE.md` with a description explaining when to consult it. The agent can list its attachments with `agent_list_documents`, retrieve the selected document and follow continuation cursors when it needs more than one chunk. Read access is scoped to the current profile's authorized attachments. Document content is delivered literally; credential-shaped examples do not make the document unreadable.
 
-Keeping it current and starting over:
+Reference mode reduces the initial prompt size, but retrieved content still uses model context and may remain in conversation history. Models decide when to request it. An uploaded file is a managed copy, not a live filesystem mount or a URL that Hugo automatically synchronizes. See [Agent prompt documents](docs/AGENT_DOCUMENTS.md) for sharing, permissions, public eligibility and limits.
 
-```bash
-./update.sh               # pull new images and recreate the stack; data is kept
-./reset.sh                # delete everything, including stored secrets, and start fresh
-```
+### Learning across conversations
 
-Every host port binds to `127.0.0.1` and can be changed in `docker/.env`. [`docs/DOCKER.md`](docs/DOCKER.md) covers networking to your own systems (`host.docker.internal`, the Docker socket for the Docker connector), PostgreSQL, and backups, and [`docs/UPGRADING.md`](docs/UPGRADING.md) covers upgrades.
+Hugo reloads authorized resource context before hosted model calls. External MCP clients receive compiled guidance and tools to fetch it themselves. Agents explicitly record reusable discoveries rather than automatically saving every tool result. Their instructions encourage concise facts, consolidation and deduplication; operators can correct the notes.
 
-Want to see it working before you wire up your own systems? `docker/factory/` is a separate demo stack (dashboard on port 8811, API on 8810) seeded with a demo profile and real targets to talk to: a PostgreSQL and a MySQL database, an SSH host, MinIO, Redis, Prometheus, and Loki. [`docs/FACTORY.md`](docs/FACTORY.md) explains it.
+Ask an agent to remember a workflow when it should affect that agent's future work. Save connection-specific discoveries in resource context, and keep longer authored guidance in documents. See [resource context](docs/RESOURCE_CONTEXT.md) and [prompt composition](docs/PROMPTS.md) for the storage, permissions and context budgets.
 
-## Connect Claude Code
+## Chat and the dashboard
 
-Create a credential bound to the profile Claude Code should use (Credentials, then New, in the dashboard; turn on Lock to profile), then:
+The dashboard groups its controls into nine areas: **Home**, **Chat**, **Agents**, **Connections**, **Instructions**, **Activity**, **Developer Tools**, **Access** and **System**. Related tools live on tabs, including Secrets before Resources in Connections. The interface is translated into 12 languages and supports light and dark themes.
+
+**Dashboard chat** streams Markdown responses, shows tool activity and approval requests, and accepts per-answer ratings and written feedback. Accepted turns continue if you navigate away or disconnect. Return to the conversation to see persisted progress and the answer; **Stop** explicitly cancels. A server restart interrupts active work, so background completion is not a durable job queue.
+
+**Standalone chat** gives an agent its own `/chat/{linkId}` page. Under **Agents > your agent > Connect**, enable the link, choose **Authenticated** or **Public**, and configure its heading, logo and browser title. Authenticated visitors use their own execution permissions. Public links run under an explicitly selected scoped credential with isolated visitor sessions. Links can be disabled or rotated; public document access is separately opt-in. See [Standalone agent chat](docs/STANDALONE_CHAT.md).
+
+**Activity > Feedback** lets an operator select an agent and review feedback with the original request, rated response and stored response telemetry. Other Activity tabs cover invocations, requests, analytics and audit events. Grafana adds metrics, logs and traces for operational diagnosis.
+
+**Developer Tools** contains the REST, MCP and A2A explorers. MCP Explorer exposes the initialize instructions in a collapsed section, builds tool argument forms and shows structured results with raw exchanges available. A2A Explorer lays out the agent card, advertised skills and examples; selecting one prepares a message for review. JSON message parameters remain editable.
+
+## Connect clients and applications
+
+Hugo serves its APIs on the same server port. An MCP client uses its own model to choose tools. Dashboard chat, standalone chat, A2A and the OpenAI-compatible agent endpoint use Hugo's hosted loop and the profile's inference endpoint.
+
+| Interface | Path or client | Reference |
+|---|---|---|
+| MCP over Streamable HTTP | `/mcp` or `/mcp/{profileName}` | [Client setup](docs/MCP_CLIENTS.md), [MCP API](MCP_API.md) |
+| A2A | `/v1.0/a2a/{tenantId}/{profileName}` | [A2A API](A2A_API.md) |
+| REST management and execution | `/v1.0/api/...` | [REST API](REST_API.md), live `GET /openapi.json` |
+| OpenAI-compatible agent API | `/v1.0/openai/v1` | [Agent endpoint and client examples](REST_API.md#openai-compatible-surface) |
+| C# SDK | `Hugo.Sdk` | [C# guide and examples](sdk/csharp/README.md) |
+| Python SDK | `hugo-sdk` | [Python guide and examples](sdk/python/README.md) |
+| JavaScript / TypeScript SDK | `@jchristn/hugo-sdk` | [JavaScript guide and examples](sdk/js/README.md) |
+| CLI and stdio MCP relay | `hugo login`, `hugo profiles list`, `hugo mcp stdio` | [CLI guide](src/Hugo.Cli/README.md) |
+| Postman | Collection and environment in `assets/postman/` | [Collection](assets/postman/Hugo.postman_collection.json), [environment](assets/postman/Hugo.postman_environment.json), [Newman runner](scripts/newman.sh) |
+
+### Connect an MCP client
+
+In **Access > Credentials**, create a credential for the profile the client should use, configure its grants and enable **Lock to profile**. A locked credential cannot switch to another profile. Set `HUGO_ACCESS_KEY` and `HUGO_SECRET_KEY` in your local environment using that credential's values, then add Hugo to Claude Code:
 
 ```bash
 claude mcp add --transport http hugo http://127.0.0.1:8800/mcp \
@@ -69,134 +122,96 @@ claude mcp add --transport http hugo http://127.0.0.1:8800/mcp \
   --header "x-secret-key: $HUGO_SECRET_KEY"
 ```
 
-Claude Code receives the profile's compiled instructions in the MCP handshake, so it knows from the first message which systems it can reach and what it may do there. Writes that need approval wait for you in the dashboard. [`docs/MCP_CLIENTS.md`](docs/MCP_CLIENTS.md) has the `.mcp.json` form, the stdio relay (`hugo mcp stdio`) for clients that only launch processes, and settings for other clients. [`MCP_API.md`](MCP_API.md) documents every tool, prompt, and resource.
-
-## How it works
-
-```
-  Claude Code, Cursor,     other agents      scripts, SDKs     Open WebUI,        browser
-  any MCP client           (A2A)             (REST)            OpenAI clients
-        |                     |                  |                  |                |
-        | /mcp                | /v1.0/a2a        | /v1.0/api        | /v1.0/openai    | dashboard (nginx, :8801)
-        v                     v                  v                  v                v
-  +-------------------------------------------------------------------------------------+
-  |  hugo-server (:8800)   authentication, tenancy, RBAC, request history, audit         |
-  |                                                                                      |
-  |  agent profiles --- bindings (alias, access mode, tool rules) --- resources          |
-  |        |                                                              |              |
-  |  instruction compiler (layered prompt templates)        secrets vault (AES-256-GCM)  |
-  |        |                                                              |              |
-  |  Hugo's own agent loop (chat, A2A, OpenAI) ---> tool invocation pipeline <--- MCP     |
-  |        |                                classify, authorize, approve, limit,         |
-  |  model endpoints (Ollama, OpenAI,       execute, scrub, record                       |
-  |  Anthropic, Gemini, ...)                          |                                  |
-  +---------------------------------------------------|----------------------------------+
-                                                      v
-                connectors: SSH, S3/Azure/GCS, SQLite/MySQL/PostgreSQL/SQL Server,
-                SolarWinds, Redis, AWS, Kubernetes, Docker, HTTP,
-                Prometheus, Loki, Elasticsearch, external MCP servers, remote A2A agents
-```
-
-Four ideas carry the design.
-
-**Resources and profiles are separate.** A resource is one configured system with its credentials attached by vault slot. A profile is a persona plus a set of bindings, and each binding gives one resource an alias and an access mode. The same `prod-db` can be ReadOnly for the Hugo profile and ReadWriteWithApproval for an on-call profile, and deleting a profile never touches a resource.
-
-**Resources remember.** Agents can read and update durable context for every connector, such as SSH paths and services or database schema relationships. Hugo reloads authorized context before each internal model call, and operators can curate it in the dashboard. See [`docs/RESOURCE_CONTEXT.md`](docs/RESOURCE_CONTEXT.md).
-
-**Instructions compose.** Every connector ships instructions that teach an agent how to use it well, and every bound resource contributes its section, its notes, and its durable knowledge to the profile's compiled instructions. An agent connected to a profile with eight resources is told about exactly those eight. All of the text is editable in layers (shipped, global, tenant), each with a reset to default. See [`docs/PROMPTS.md`](docs/PROMPTS.md).
-
-**Teach an agent through chat.** Ask it to remember a workflow or preference for future conversations. The agent reads its current profile instructions with `agent_get_instructions`, consolidates the requested change, and saves it with `agent_update_instructions` when you have Update permission on that profile. These instructions persist across conversations. Resource discoveries belong in [resource context](docs/RESOURCE_CONTEXT.md), which remains untrusted reference data.
-
-**Every surface is a client of the same profile.** Over MCP, the caller's model drives Hugo's tools. Over A2A, the dashboard, and the OpenAI-compatible endpoint, Hugo's own agent loop drives, on the profile's model endpoint. REST and the SDKs do either. Whatever the surface, every tool call goes through one pipeline.
-
-**The server enforces.** Instructions tell the model the rules; the pipeline enforces them. A model that ignores its instructions gets a tool error, not access.
-
-One server process serves REST, MCP, A2A, and the OpenAI-compatible surface on one port, backed by SQLite or PostgreSQL. [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) goes deeper.
+The client receives the selected profile's compiled instructions, resource-scoped tool definitions and document catalog. Approval-gated operations wait for an operator in Hugo. Clients that launch only stdio processes can use `hugo mcp stdio`; the [MCP client guide](docs/MCP_CLIENTS.md) covers that relay, `.mcp.json`, session tokens and profile selection.
 
 ## Connectors
 
-Twenty connector types in fifteen families ship in the image, with 118 connector-specific tools plus two shared resource context tools.
+Connector schemas drive resource forms, secret slots, connection tests and tool definitions. Resources supply the target settings; profile bindings decide which aliases and operations a caller can use.
 
-| Family | Connectors | A few of the tools |
+| Family | Systems and capabilities | Example tools |
 |---|---|---|
-| Hosts | SSH | `ssh_system_info`, `ssh_exec`, `ssh_service_control`, `ssh_tail_file` |
-| Cryptography | Vault-managed AES-GCM/AES-CBC and SHA digests | `crypto_encrypt`, `crypto_decrypt`, `crypto_hash`, `crypto_verify_hash` |
-| Object storage | Amazon S3 (and S3-compatible), Azure Blob, Google Cloud Storage | `storage_list`, `storage_read`, `storage_presign_url`, `storage_delete` |
+| Hosts | SSH, shell commands, SFTP and services | `ssh_system_info`, `ssh_exec`, `ssh_service_control` |
+| Cryptography | Vault-managed AES-GCM/AES-CBC, SHA digests and hash verification | `crypto_encrypt`, `crypto_decrypt`, `crypto_hash`, `crypto_verify_hash` |
+| Object storage | Amazon S3 and S3-compatible services, Azure Blob, Google Cloud Storage | `storage_list`, `storage_read`, `storage_presign_url` |
 | Databases | SQLite, MySQL, PostgreSQL, SQL Server | `sql_get_agent_pack`, `sql_query`, `sql_activity`, `sql_ask` |
 | Logs | SolarWinds Observability | `logs_search`, `logs_tail`, `swo_query_metric` |
-| Cache | Redis | `redis_info`, `redis_scan`, `redis_slowlog`, `redis_delete` |
-| Cloud | AWS | `aws_ec2_describe_instances`, `aws_logs_insights_query`, `aws_ecs_update_service` |
-| Orchestration | Kubernetes, Docker | `k8s_logs`, `k8s_rollout_restart`, `docker_ps`, `docker_container_action` |
-| Observability | Prometheus, Loki, Elasticsearch and OpenSearch | `prom_query_range`, `loki_query`, `es_search` |
-| APIs | Generic HTTP | `http_health_check`, `http_request` |
-| Agents | External MCP servers, remote A2A agents | `mcp_call_tool`, `a2a_delegate` |
+| Cache | Redis | `redis_info`, `redis_scan`, `redis_slowlog` |
+| Cloud | AWS | `aws_ec2_describe_instances`, `aws_logs_insights_query` |
+| Orchestration | Kubernetes and Docker | `k8s_logs`, `k8s_rollout_restart`, `docker_ps` |
+| Observability | Prometheus, Loki, Elasticsearch / OpenSearch | `prom_query_range`, `loki_query`, `es_search` |
+| APIs | HTTP APIs with configured request limits | `http_health_check`, `http_request` |
+| Agents | External MCP servers and remote A2A agents | `mcp_call_tool`, `a2a_delegate` |
 
-The SQL connectors do more than run queries: they crawl the schema, infer relationships, derive what the data likely means, and keep durable context that operators and agents can edit, so an agent understands a database instead of guessing at it. [`docs/CONNECTORS.md`](docs/CONNECTORS.md) explains each connector and its settings, [`docs/MCP_CONNECTOR_TOOLS.md`](docs/MCP_CONNECTOR_TOOLS.md) documents every tool, and [`docs/CONNECTOR_AUTHORING.md`](docs/CONNECTOR_AUTHORING.md) shows how to write a new one.
+SQL tools can inspect schemas, infer relationships and maintain durable database context. Cryptography tools use bound key material to transform data without requiring the model to retrieve the keys; an AES secret can hold key, salt and IV with explicit encodings. External MCP and A2A resources let an agent delegate to other tool servers or agents.
 
-## Safety model
+See the [connector catalog](docs/CONNECTORS.md), [tool reference](docs/MCP_CONNECTOR_TOOLS.md) and [cryptography guide](docs/connectors/cryptography.md). New connectors can be added through the [connector authoring interface](docs/CONNECTOR_AUTHORING.md).
 
-Every binding has an access mode, and every tool call is classified per call. A SELECT is Read; an UPDATE is Write; a DROP, a `kubectl delete`, or `systemctl restart` is Destructive. Anything Hugo cannot parse is treated as Destructive.
+## Architecture and access controls
+
+One server process serves REST, MCP, A2A and the OpenAI-compatible API, backed by SQLite or PostgreSQL. The dashboard is a separate nginx container that serves the web UI and proxies requests. The hosted agent loop calls configured model endpoints; external MCP clients run their own loop.
+
+| Component | Responsibility |
+|---|---|
+| Resource | A configured connection point and its vault secret bindings |
+| Agent profile | Persona, model selection, instructions, documents and enabled resource bindings |
+| Resource binding | Alias, access mode, tool rules, output limits and resource-context update policy |
+| Invocation pipeline | Classify, authorize, obtain required approval, execute, limit output and record the result |
+| Vault and persistence | Encrypted connector credentials, versioned context/documents, conversations and audit records |
+| Observability services | Collect and display operational metrics, logs and traces |
+
+Every resource tool call is classified as Read, Write or Destructive. A SELECT is Read; an UPDATE is Write; a DROP or service restart is Destructive. Unknown or unparseable operations are treated conservatively. The binding's access mode determines whether a classified call can proceed:
 
 | Effect | ReadOnly | ReadWriteWithApproval | ReadWrite |
 |---|---|---|---|
-| Read | allowed | allowed | allowed |
-| Write | denied | approval | allowed |
-| Destructive | denied | approval | approval (unless turned off for the binding) |
+| Read | Allowed | Allowed | Allowed |
+| Write | Denied | Approval required | Allowed |
+| Destructive | Denied | Approval required | Approval required unless disabled for the binding |
 
-Tool rules and deny patterns on a binding tighten that further, a resource can carry a ceiling no binding may exceed, and a tenant administrator can lock the whole tenant down to reads in one click. Approvals reach a human through the dashboard on every surface: chat pauses inline, MCP waits and then hands back an approval ID, A2A tasks move to input-required, and REST answers 202. Secrets never enter a prompt, and a scrubber removes known secret values and credential patterns from every tool output, log line, and history record.
+Resource ceilings, deny patterns, tool rules, tenant lockdown and identity/credential scopes can restrict access further. Some operations always require approval. Use least-privilege credentials on the target systems as well as Hugo's policy checks; model instructions are not the authorization boundary.
 
-Treat Hugo's classifiers as a second line of defense. Give it read-only database logins, scoped IAM policies, namespace-scoped Kubernetes service accounts, and restricted SSH users wherever the job allows. [`docs/SAFETY_MODEL.md`](docs/SAFETY_MODEL.md) has the full rules and [`docs/SECURITY.md`](docs/SECURITY.md) covers tenancy, authentication, RBAC, and the vault.
+Connector credentials resolve from the encrypted vault at execution time rather than being supplied in model tool arguments. Operational outputs and telemetry have secret-scrubbing protections. Authored documents are a separate, permission-controlled content channel and are delivered literally; use their visibility, attachment and public-access settings deliberately. See [Security](docs/SECURITY.md), [Safety model](docs/SAFETY_MODEL.md) and [Architecture](docs/ARCHITECTURE.md) for the full rules.
 
-## APIs and SDKs
+## Deployment and operations
 
-| Surface | Reference |
-|---|---|
-| REST management API, including the OpenAI-compatible surface | [`REST_API.md`](REST_API.md), and `GET /openapi.json` on a running server |
-| MCP | [`MCP_API.md`](MCP_API.md) |
-| A2A | [`A2A_API.md`](A2A_API.md) |
-| Postman | [`assets/postman/`](assets/postman/): a collection covering every route plus MCP and A2A, and an environment; run it with `scripts/newman.sh` |
-| C# | [`sdk/csharp`](sdk/csharp/README.md) (`Hugo.Sdk`) |
-| Python | [`sdk/python`](sdk/python/README.md) (`hugo-sdk`) |
-| JavaScript and TypeScript | [`sdk/js`](sdk/js/README.md) (`@jchristn/hugo-sdk`) |
-| Command line | [`src/Hugo.Cli`](src/Hugo.Cli/README.md) (`hugo login`, `hugo whoami`, `hugo mcp stdio`) |
+The published images are `jchristn77/hugo-server` and `jchristn77/hugo-dashboard`, available as `v0.1.0` and `latest` for `linux/amd64` and `linux/arm64`. Supported deployments use containers and a single server replica. Running from source is for development.
 
-## Documentation
+| Deployment | Start here | Notes |
+|---|---|---|
+| Docker Compose | [Docker guide](docs/DOCKER.md), `docker/start.sh` / `start.bat` | SQLite by default, optional PostgreSQL and bundled observability |
+| Kubernetes | [Kubernetes guide](docs/KUBERNETES.md), `k8s/` | Kustomize base, overlays, optional components and a Helm chart |
+| minikube | [minikube guide](minikube/README.md), `minikube/scripts/` | Local cluster setup, deployment and port-forward helpers |
+| Factory demo | [Factory guide](docs/FACTORY.md), `docker/factory/` | Separate seeded stack with databases, SSH, MinIO, Redis, Prometheus and Loki |
 
-| Topic | Document |
-|---|---|
-| Architecture | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
-| Every setting and environment variable | [`docs/CONFIGURATION.md`](docs/CONFIGURATION.md) |
-| Security: tenancy, authentication, RBAC, the vault, the master key | [`docs/SECURITY.md`](docs/SECURITY.md) |
-| Safety model: effects, access modes, approvals, lockdown | [`docs/SAFETY_MODEL.md`](docs/SAFETY_MODEL.md) |
-| Prompt templates and instruction composition | [`docs/PROMPTS.md`](docs/PROMPTS.md) |
-| Persistent resource learnings | [`docs/RESOURCE_CONTEXT.md`](docs/RESOURCE_CONTEXT.md) |
-| Connectors | [`docs/CONNECTORS.md`](docs/CONNECTORS.md), [`docs/connectors/`](docs/connectors/) |
-| Telemetry and Grafana | [`docs/TELEMETRY.md`](docs/TELEMETRY.md), [`docs/GRAFANA.md`](docs/GRAFANA.md) |
-| Deployment: Docker, Kubernetes and minikube, the factory demo, upgrades | [`docs/DOCKER.md`](docs/DOCKER.md), [`docs/KUBERNETES.md`](docs/KUBERNETES.md), [`docs/FACTORY.md`](docs/FACTORY.md), [`docs/UPGRADING.md`](docs/UPGRADING.md) |
-| When something goes wrong | [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md) |
-| Dashboard languages | [`docs/I18N.md`](docs/I18N.md) |
+The Compose stack runs `hugo-server`, `hugo-dashboard`, `hugo-prometheus`, `hugo-tempo`, `hugo-loki`, `hugo-alloy` and `hugo-grafana`. The optional `postgres` profile adds `hugo-postgres`. Alloy receives telemetry and ships container logs; it does not publish a host port. Service ports and configuration are listed in the [Docker guide](docs/DOCKER.md) and [configuration reference](docs/CONFIGURATION.md).
 
-## Community
+To use PostgreSQL, configure `HUGO_DB_TYPE=Postgresql` and `HUGO_DB_PASSWORD` in `docker/.env`, then run `docker compose --profile postgres up -d` from `docker/`. Switching database backends does not move existing data. The server connects from inside its container, so use addresses reachable there; the Docker guide explains host networking and the opt-in Docker socket override.
 
-Questions, ideas, and war stories are welcome on Discord: https://discord.gg/tRAN8HgvK5. Bugs and feature requests go to [GitHub issues](https://github.com/jchristn/AgentSmith/issues).
-
-## Kubernetes and minikube
-
-The same images deploy to Kubernetes with `k8s/` (Kustomize base, postgres, observability, and ingress components, k3s and production overlays, a Helm chart, and scripts) and to a laptop with `minikube/`:
+For updates, back up the database and master key, then run this from `docker/`:
 
 ```bash
-minikube/scripts/start.sh && minikube/scripts/deploy.sh --with observability && minikube/scripts/port-forward.sh
-k8s/scripts/deploy.sh k3s --with postgres,observability      # any cluster in your current kubectl context
+./update.sh          # Windows: update.bat; pull images and recreate containers, preserving data
 ```
 
-Hugo runs one server replica everywhere. See [`docs/KUBERNETES.md`](docs/KUBERNETES.md) for secrets, updates, factory reset, and backups.
+Schema migrations run at startup. Preserve the `.env` configuration and database volumes across updates; follow the [upgrade guide](docs/UPGRADING.md) for rollback. `./reset.sh` (`reset.bat`) is destructive and removes stored data. Deployments exposed beyond the local machine also need the external URL, authentication and TLS/proxy configuration described in the deployment guides.
 
-## Developing Hugo
+## Documentation and development
 
-Building, testing, and the connector testbed are covered in [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md). Those instructions are for working on Hugo's source; they are not a way to deploy it.
+Use the guides for setup and operation, and the protocol references for exact request shapes. Detailed feature verification and benchmark results are kept separately from this overview.
 
-## License
+| Topic | Documentation |
+|---|---|
+| Agent documents | [Inline/Reference delivery, revisions and retrieval](docs/AGENT_DOCUMENTS.md) |
+| Agent and resource context | [Prompt composition](docs/PROMPTS.md), [resource learnings](docs/RESOURCE_CONTEXT.md) |
+| Standalone chat and feedback | [Links, branding, visitor sessions and feedback review](docs/STANDALONE_CHAT.md) |
+| Connectors | [Catalog](docs/CONNECTORS.md), [tool contracts](docs/MCP_CONNECTOR_TOOLS.md), [per-connector guides](docs/connectors/) |
+| Security and authorization | [Security](docs/SECURITY.md), [safety model](docs/SAFETY_MODEL.md) |
+| Operations | [Configuration](docs/CONFIGURATION.md), [telemetry](docs/TELEMETRY.md), [Grafana](docs/GRAFANA.md), [troubleshooting](docs/TROUBLESHOOTING.md) |
+| Deployment | [Docker](docs/DOCKER.md), [Kubernetes](docs/KUBERNETES.md), [minikube](minikube/README.md), [upgrades](docs/UPGRADING.md) |
+| API clients | [REST](REST_API.md), [MCP](MCP_API.md), [A2A](A2A_API.md), [Postman assets](assets/postman/), [MCP client setup](docs/MCP_CLIENTS.md) |
+| Localization | [Dashboard languages and translation conventions](docs/I18N.md) |
+| Development | [Builds, tests and connector testbed](docs/DEVELOPMENT.md), [connector authoring](docs/CONNECTOR_AUTHORING.md) |
+| Evidence and measurements | [Simulated user testing](user-testing/), [document-context benchmarks](benchmarks/README.md) |
 
-MIT. See [`LICENSE.md`](LICENSE.md).
+Hugo's backend is C# targeting .NET 8 and .NET 10; the dashboard uses React. Development setup and test commands live in [DEVELOPMENT.md](docs/DEVELOPMENT.md), while each SDK has its own build instructions, examples and harness. Changes that affect the API should keep the REST/MCP/A2A references, Postman collection and SDKs in sync.
 
-See [Agent prompt documents](docs/AGENT_DOCUMENTS.md) for reusable Markdown attachments with full Inline delivery or profile-scoped on-demand Reference retrieval.
+Questions and discussion: [Discord](https://discord.gg/tRAN8HgvK5). Report bugs and feature requests through [GitHub issues](https://github.com/jchristn/AgentSmith/issues). Hugo is [MIT licensed](LICENSE.md).
