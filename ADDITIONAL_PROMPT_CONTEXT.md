@@ -431,3 +431,15 @@ revision checks, continuation integrity and byte/context budgets still apply.
 Read selectors now accept matching document ID and filename together, including
 the common first-call form with an empty cursor. Conflicting ID/name pairs still
 fail explicitly. Tool guidance recommends ID and revision from the current manifest.
+
+Reference retrieval verification: 50 targeted SQLite/PostgreSQL cases pass, including actual hosted model history, Inline context, MCP/A2A/OpenAI-compatible dispatch, authorization, redaction and budget regressions. The solution builds without warnings. Detailed evidence: [document retrieval regression](user-testing/DOCUMENT_REFERENCE_2026-10-18.md).
+
+Published server `v0.1.0` and `latest` are registry-verified for AMD64/ARM64 at
+`sha256:9044dc9f32d95cba37f7f2ebd279cb49767625a68fab352f64c3c198614a1a7c`.
+An isolated stack started from the published image authenticated successfully,
+created/attached a synthetic Reference document with scrubber-triggering field
+examples, and read its exact content over MCP with matching ID/name, revision 1,
+empty cursor and maxBytes 65536. A conflicting filename still failed. The stack
+also passed document import, Reference/Inline previews, dashboard health and
+cleanup. Implementation `92b6276` is pushed to main. Pull and recreate the server
+container to apply; no data migration or re-upload is needed.
