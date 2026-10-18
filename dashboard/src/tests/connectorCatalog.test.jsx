@@ -11,8 +11,13 @@ import { connectorSlotLabel } from '../utils/tips';
 
 const WAVE2 = {
   cryptography: {
-    settings: ['algorithm', 'keyEncoding', 'maxInputBytes'],
-    values: { algorithm: ['AES-GCM', 'AES-CBC'], keyEncoding: ['base64', 'hex'] },
+    settings: ['algorithm', 'keyEncoding', 'keyDerivation', 'iterations', 'derivedKeyBytes', 'maxInputBytes'],
+    values: {
+      algorithm: ['AES-GCM', 'AES-CBC'],
+      keyEncoding: ['base64', 'hex'],
+      keyDerivation: ['None', 'PBKDF2-SHA256'],
+      derivedKeyBytes: ['16', '24', '32']
+    },
     slots: ['encryptionKey', 'initializationVector']
   },
   redis: {

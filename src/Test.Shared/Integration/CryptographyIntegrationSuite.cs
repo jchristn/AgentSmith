@@ -14,6 +14,7 @@ namespace Test.Shared.Integration
     using Hugo.Core.Enums;
     using Hugo.Core.Models;
     using Hugo.Core.Responses;
+    using Hugo.Core.Secrets;
     using Test.Shared.Infrastructure;
     using Touchstone.Core;
 
@@ -29,9 +30,30 @@ namespace Test.Shared.Integration
                 string id = "cryptography-integration-" + provider.ToString().ToLowerInvariant();
                 return new TestSuiteDescriptor(id, "Vault-backed cryptography (" + provider + ")", new List<TestCaseDescriptor>
                 {
+                    new TestCaseDescriptor(id, "aes-bundle-vault", "AES bundle fields are encrypted, validated, and accepted by cryptography resources", ct => AesBundleAsync(provider, ct)),
                     new TestCaseDescriptor(id, "vault-roundtrip", "Encrypted binary BLOBs round-trip through a read-only bound resource without passing or returning the key", ct => RoundtripAsync(provider, ct))
                 });
             }).ToList();
+        }
+
+        private static async Task AesBundleAsync(DatabaseTypeEnum provider, CancellationToken token)
+        {
+            await using (IntegrationRig rig = await IntegrationRig.StartAsync(provider, null, token).ConfigureAwait(false))
+            {
+                string key = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+                Secret secret = await rig.SecretAsync("aes-bundle", SecretKindEnum.AesKey, new Dictionary<string, string> { { "key", key }, { "salt", Convert.ToBase64String(RandomNumberGenerator.GetBytes(16)) }, { "iv", Convert.ToBase64String(RandomNumberGenerator.GetBytes(16)) } }, token).ConfigureAwait(false);
+                Assert.True(secret.Kind == SecretKindEnum.AesKey && secret.Fingerprint == null, "AES bundle retains its kind without a key-content hint");
+                Assert.True(SecretFieldRules.PrimaryField(SecretKindEnum.AesKey) == null, "AES key contents never provide a last-four hint");
+                Assert.True(!SecretFieldRules.Accepts(SecretKindEnum.AesKey, "password") && SecretFieldRules.Required(SecretKindEnum.AesKey).SequenceEqual(new[] { "key" }), "only supported AES fields accepted and key is required");
+                Resource resource = await HttpTestHelpers.SendAsync<Resource>(rig.Anderson, HttpMethod.Post, "/v1.0/api/resources", new
+                {
+                    name = "aes-bundle-crypto", connectorType = "cryptography",
+                    settings = new Dictionary<string, object> { { "algorithm", "AES-CBC" } },
+                    secretBindings = new[] { new { slotName = "encryptionKey", secretId = secret.Id } }
+                }, 201, token).ConfigureAwait(false);
+                ResourceTestResponse health = await HttpTestHelpers.SendAsync<ResourceTestResponse>(rig.Anderson, HttpMethod.Post, "/v1.0/api/resources/" + resource.Id + "/test", new { }, 200, token).ConfigureAwait(false);
+                Assert.True(health.Success, "AES key bundle resolves and self-tests through resource pipeline");
+            }
         }
 
         private static async Task RoundtripAsync(DatabaseTypeEnum provider, CancellationToken token)

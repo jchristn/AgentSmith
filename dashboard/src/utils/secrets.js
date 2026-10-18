@@ -19,6 +19,11 @@ export const SECRET_FIELDS = {
     { name: 'secretAccessKey', secret: true, required: true },
     { name: 'sessionToken', secret: true, required: false }
   ],
+  AesKey: [
+    { name: 'key', secret: true, required: true },
+    { name: 'salt', secret: true, required: false },
+    { name: 'iv', secret: true, required: false }
+  ],
   ServiceAccountJson: [{ name: 'json', secret: true, multiline: true, file: true, required: true }],
   Kubeconfig: [{ name: 'kubeconfig', secret: true, multiline: true, file: true, required: true }],
   ConnectionString: [{ name: 'connectionString', secret: true, required: true }],

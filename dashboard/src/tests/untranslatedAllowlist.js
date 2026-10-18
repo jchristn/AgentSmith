@@ -73,6 +73,8 @@ const PRODUCT_WORDS = new Set([
   'Base64',
   'Hex',
   'SHA',
+  'PBKDF2',
+  'SHA256',
   'IP',
   'p50',
   'p90',

@@ -53,6 +53,9 @@ namespace Hugo.Sdk.Enums
         /// <summary>
         /// Bearer token: sent exactly as Authorization: Bearer (field token).
         /// </summary>
-        BearerToken
+        BearerToken,
+
+        /// <summary>Bundled AES key material: key, optional salt and iv.</summary>
+        AesKey
     }
 }

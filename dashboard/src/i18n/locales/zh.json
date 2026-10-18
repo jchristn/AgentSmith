@@ -277,7 +277,8 @@
       "ConnectionString": "连接字符串",
       "Certificate": "证书",
       "Generic": "通用密钥",
-      "BearerToken": "Bearer 令牌"
+      "BearerToken": "Bearer 令牌",
+      "AesKey": "AES 密钥材料"
     },
     "effect": {
       "Read": "读取",
@@ -747,7 +748,10 @@
         "kubeconfig": "Kubeconfig",
         "connectionString": "连接字符串",
         "certificate": "证书（PEM）",
-        "value": "值"
+        "value": "值",
+        "key": "密钥",
+        "salt": "盐值（可选）",
+        "iv": "初始化向量（可选）"
       },
       "file": {
         "pem": "文件包含类型为 {{type}} 的 PEM 块。",
@@ -2616,7 +2620,8 @@
         "ConnectionString": "包含凭据的完整连接字符串。",
         "Certificate": "带私钥的证书，用于双向 TLS。",
         "Generic": "任何其他单个密钥值。",
-        "BearerToken": "以 Authorization: Bearer 请求头原样发送的令牌。"
+        "BearerToken": "以 Authorization: Bearer 请求头原样发送的令牌。",
+        "AesKey": "AES 密钥或派生输入，可附带盐值和初始化向量。"
       },
       "connectorCategory": {
         "Compute": "通过 SSH 或类似方式访问的主机和机器。",
@@ -3506,7 +3511,10 @@
         "kubeconfig": "包含要使用的集群、用户和上下文的 kubeconfig 文件。",
         "connectionString": "包含凭据的完整连接字符串，例如用于 SQL Server 或 Redis。",
         "certificate": "PEM 格式的证书。它本身不是机密，但会与其密钥一起保存。",
-        "value": "适用于只需单个不透明密钥的连接器的任意密钥值。"
+        "value": "适用于只需单个不透明密钥的连接器的任意密钥值。",
+        "key": "编码后的密钥字节。使用资源的密钥编码；只有显式启用 PBKDF2 时，才会从这些字节派生 AES 密钥。",
+        "salt": "可选的编码盐值，仅用于 PBKDF2。使用资源的密钥编码。",
+        "iv": "用于现有 AES-CBC 密文的可选编码 IV，解码后须为 16 字节。加密时始终生成新的 IV。"
       }
     },
     "toolActivity": {
@@ -4565,7 +4573,7 @@
         },
         "keyEncoding": {
           "label": "密钥编码",
-          "help": "管理员提供的加密密钥和可选初始化向量的编码方式。 AES 密钥解码后必须为 16、24 或 32 字节；初始化向量解码后必须为 16 字节。",
+          "help": "密钥、盐值和 IV 的编码。直接使用的 AES 密钥解码后须为 16、24 或 32 字节；CBC IV 须为 16 字节。PBKDF2 输入可为其他长度。",
           "values": {
             "base64": "Base64",
             "hex": "Hex"
@@ -4574,11 +4582,33 @@
         "maxInputBytes": {
           "label": "最大输入字节数",
           "help": "每次操作解码后输入的最大大小。默认值：1048576 字节；范围：1 至 16777216。 同时遵循绑定的输出限制；结果过大时会报错，而不会截断密码数据。"
+        },
+        "keyDerivation": {
+          "label": "密钥派生",
+          "help": "不派生时直接使用密钥。PBKDF2-SHA256 使用已存储的盐值派生 AES 密钥。",
+          "values": {
+            "None": "无（直接使用密钥）",
+            "PBKDF2-SHA256": "PBKDF2-SHA256"
+          }
+        },
+        "derivedKeyBytes": {
+          "label": "派生密钥字节数",
+          "help": "PBKDF2 输出长度：16、24 或 32 字节。默认值：32。必须与源数据一致。",
+          "values": {
+            "16": "16",
+            "24": "24",
+            "32": "32"
+          }
+        },
+        "iterations": {
+          "label": "派生迭代次数",
+          "help": "PBKDF2 迭代次数。默认值：100000；范围：10000 至 1000000。必须与源数据一致。"
         }
       },
       "slots": {
         "encryptionKey": {
-          "label": "加密密钥"
+          "label": "AES 密钥材料",
+          "help": "选择包含密钥、可选盐值和可选 IV 的 AES 密钥材料机密。现有通用密钥机密仍可使用。仅在显式选择 PBKDF2-SHA256 时使用盐值；默认不进行派生。"
         },
         "initializationVector": {
           "label": "初始化向量（可选，AES-CBC）"

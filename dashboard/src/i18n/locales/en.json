@@ -277,7 +277,8 @@
       "ConnectionString": "Connection string",
       "Certificate": "Certificate",
       "Generic": "Generic secret",
-      "BearerToken": "Bearer token"
+      "BearerToken": "Bearer token",
+      "AesKey": "AES key material"
     },
     "effect": {
       "Read": "Read",
@@ -747,7 +748,10 @@
         "kubeconfig": "Kubeconfig",
         "connectionString": "Connection string",
         "certificate": "Certificate (PEM)",
-        "value": "Value"
+        "value": "Value",
+        "key": "Key",
+        "salt": "Salt (optional)",
+        "iv": "Initialization vector (optional)"
       },
       "file": {
         "pem": "File contains a PEM block of type {{type}}.",
@@ -2601,7 +2605,8 @@
         "ConnectionString": "A full connection string that includes credentials.",
         "Certificate": "A certificate with its private key, for mutual TLS.",
         "Generic": "Any other single secret value.",
-        "BearerToken": "A token sent exactly as the Authorization: Bearer header."
+        "BearerToken": "A token sent exactly as the Authorization: Bearer header.",
+        "AesKey": "An AES key or derivation input, with optional salt and initialization vector."
       },
       "connectorCategory": {
         "Compute": "Hosts and machines reached over SSH or similar.",
@@ -3492,7 +3497,10 @@
         "kubeconfig": "A kubeconfig file with the cluster, user, and context to use.",
         "connectionString": "A full connection string including credentials, for example for SQL Server or Redis.",
         "certificate": "The certificate in PEM format. Not secret by itself, but kept with its key.",
-        "value": "Any secret value for connectors that take a single opaque secret."
+        "value": "Any secret value for connectors that take a single opaque secret.",
+        "key": "Encoded key bytes. Use the resource key encoding; PBKDF2 derives an AES key from these bytes only when explicitly enabled.",
+        "salt": "Optional encoded salt, used only with PBKDF2. Use the resource key encoding.",
+        "iv": "Optional encoded 16-byte IV for existing AES-CBC ciphertext. Encryption always generates a fresh IV."
       }
     },
     "toolActivity": {
@@ -4551,7 +4559,7 @@
         },
         "keyEncoding": {
           "label": "Key encoding",
-          "help": "The encoding of the administrator-provided encryption key and optional initialization vector. AES keys must decode to 16, 24, or 32 bytes; initialization vectors must decode to 16 bytes.",
+          "help": "Encoding of key, salt, and IV values. Direct AES keys must decode to 16, 24, or 32 bytes; a CBC IV must decode to 16 bytes. PBKDF2 input may have another length.",
           "values": {
             "base64": "Base64",
             "hex": "Hex"
@@ -4560,11 +4568,33 @@
         "maxInputBytes": {
           "label": "Maximum input bytes",
           "help": "Maximum decoded input size per operation. Default: 1048576 bytes; range: 1 to 16777216. Binding output limits also apply; oversized results fail rather than truncate cryptographic data."
+        },
+        "keyDerivation": {
+          "label": "Key derivation",
+          "help": "None uses the key directly. PBKDF2-SHA256 derives an AES key using the stored salt.",
+          "values": {
+            "None": "None (direct key)",
+            "PBKDF2-SHA256": "PBKDF2-SHA256"
+          }
+        },
+        "derivedKeyBytes": {
+          "label": "Derived key bytes",
+          "help": "PBKDF2 output length: 16, 24, or 32 bytes. Default: 32. Must match the source data.",
+          "values": {
+            "16": "16",
+            "24": "24",
+            "32": "32"
+          }
+        },
+        "iterations": {
+          "label": "Derivation iterations",
+          "help": "PBKDF2 iterations. Default: 100000; range: 10000 to 1000000. Must match the source data."
         }
       },
       "slots": {
         "encryptionKey": {
-          "label": "Encryption key"
+          "label": "AES key material",
+          "help": "Select an AES key material secret containing key, optional salt, and optional IV. Existing Generic key secrets also work. Salt is used only when PBKDF2-SHA256 is explicitly selected; the default is no derivation."
         },
         "initializationVector": {
           "label": "Initialization vector (optional, AES-CBC)"

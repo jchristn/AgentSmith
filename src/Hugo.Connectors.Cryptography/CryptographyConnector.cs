@@ -34,7 +34,22 @@ namespace Hugo.Connectors.Cryptography
             schema.Add(new SettingDescriptor("keyEncoding", SettingValueKindEnum.Enum, "Key material encoding")
             {
                 DefaultValue = "base64", AllowedValues = new List<string> { "base64", "hex" },
-                Help = "Encoding of vault encryptionKey.value (or key) and optional initializationVector.value. AES keys must decode to 16, 24, or 32 bytes; CBC IVs must decode to 16 bytes."
+                Help = "Encoding of AES secret key, salt and iv fields, or legacy Generic value fields. Direct AES keys decode to 16, 24, or 32 bytes. PBKDF2 treats decoded key bytes as the password. CBC IVs decode to 16 bytes."
+            });
+            schema.Add(new SettingDescriptor("keyDerivation", SettingValueKindEnum.Enum, "Key derivation")
+            {
+                DefaultValue = "None", AllowedValues = new List<string> { "None", "PBKDF2-SHA256" },
+                Help = "None uses decoded AES key bytes directly and ignores stored salt. PBKDF2-SHA256 explicitly derives the AES key from decoded key/password and salt fields. Salt must decode to at least 16 bytes."
+            });
+            schema.Add(new SettingDescriptor("iterations", SettingValueKindEnum.Integer, "PBKDF2 iterations")
+            {
+                DefaultValue = "100000", Minimum = 10000, Maximum = 1000000,
+                Help = "PBKDF2-SHA256 iteration count, default 100000, range 10000 through 1000000. Must match the producer of existing encrypted data."
+            });
+            schema.Add(new SettingDescriptor("derivedKeyBytes", SettingValueKindEnum.Enum, "Derived AES key bytes")
+            {
+                DefaultValue = "32", AllowedValues = new List<string> { "16", "24", "32" },
+                Help = "PBKDF2 output length: 16, 24, or 32 bytes (default 32). Ignored when keyDerivation is None."
             });
             schema.Add(new SettingDescriptor("maxInputBytes", SettingValueKindEnum.Integer, "Maximum input bytes")
             {
@@ -48,8 +63,8 @@ namespace Hugo.Connectors.Cryptography
                 SettingsSchema = schema,
                 SecretSlots = new List<SecretSlotDescriptor>
                 {
-                    new SecretSlotDescriptor("encryptionKey", "Encryption key", SecretKindEnum.Generic) { Help = "Generic secret field value (or key), encoded using keyEncoding. Optional for hashing; required for encryption and decryption. Never supplied through tool arguments." },
-                    new SecretSlotDescriptor("initializationVector", "Legacy CBC initialization vector", SecretKindEnum.Generic) { Help = "Optional Generic secret field value containing the 16-byte CBC IV, encoded using keyEncoding. Used only when decrypting separate CBC ciphertext without an IV argument. Encryption always generates a fresh IV." }
+                    new SecretSlotDescriptor("encryptionKey", "AES key bundle", SecretKindEnum.AesKey, SecretKindEnum.Generic) { Help = "AES key secret fields key, optional salt and iv, encoded using keyEncoding. Generic value/key remains supported. Salt is used only with explicit PBKDF2-SHA256. Separate CBC decryption IV precedence: tool nonce, bundle iv, legacy initializationVector. Encryption always generates a fresh IV. Optional for hashing; keys never supplied through tool arguments." },
+                    new SecretSlotDescriptor("initializationVector", "Legacy CBC initialization vector", SecretKindEnum.Generic) { Help = "Optional Generic secret field value containing the 16-byte CBC IV, encoded using keyEncoding. Used only when decrypting separate CBC ciphertext without an IV argument or AES bundle iv. Encryption always generates a fresh IV." }
                 },
                 DefaultInstructionsKey = "connector.cryptography.instructions",
                 DefaultInstructions = EmbeddedText.Read(typeof(CryptographyConnector).Assembly, "connector.cryptography.instructions.md"),
@@ -69,6 +84,27 @@ namespace Hugo.Connectors.Cryptography
             if (encoding != "base64" && encoding != "hex") result.Add("keyEncoding", "invalid_value", "Select base64 or hex.");
             string? raw = resource.Settings.GetString("maxInputBytes");
             if (raw != null && (!Int32.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int maximum) || maximum < 1 || maximum > 16777216)) result.Add("maxInputBytes", "out_of_range", "maxInputBytes must be between 1 and 16777216.");
+            string derivation = resource.Settings.GetString("keyDerivation", "None") ?? "None";
+            if (derivation != "None" && derivation != "PBKDF2-SHA256") result.Add("keyDerivation", "invalid_value", "Select None or PBKDF2-SHA256.");
+            try { CryptoCodec.ReadInteger(resource, "iterations", 100000, 10000, 1000000); }
+            catch (ConnectorException) { result.Add("iterations", "out_of_range", "iterations must be between 10000 and 1000000."); }
+            try
+            {
+                int length = CryptoCodec.ReadInteger(resource, "derivedKeyBytes", 32, 16, 32);
+                if (length != 16 && length != 24 && length != 32) result.Add("derivedKeyBytes", "invalid_value", "derivedKeyBytes must be 16, 24, or 32.");
+            }
+            catch (ConnectorException) { result.Add("derivedKeyBytes", "invalid_value", "derivedKeyBytes must be 16, 24, or 32."); }
+            string? bundleIv = resource.Secrets.Get("encryptionKey", "iv");
+            if (!String.IsNullOrEmpty(bundleIv))
+            {
+                try
+                {
+                    byte[] iv = CryptoCodec.Decode(bundleIv, encoding, 16, false);
+                    if (iv.Length != 16) result.Add("encryptionKey", "invalid_value", "The AES secret iv must decode to 16 bytes.");
+                    CryptographicOperations.ZeroMemory(iv);
+                }
+                catch (ConnectorException) { result.Add("encryptionKey", "invalid_value", "The AES secret iv must decode to 16 bytes in keyEncoding."); }
+            }
             if (resource.Secrets.HasSlot("encryptionKey"))
             {
                 try
@@ -76,7 +112,7 @@ namespace Hugo.Connectors.Cryptography
                     byte[] key = CryptoCodec.ReadKey(resource);
                     CryptographicOperations.ZeroMemory(key);
                 }
-                catch (ConnectorException) { result.Add("encryptionKey", "invalid_value", "The key must be valid in keyEncoding and decode to 16, 24, or 32 bytes."); }
+                catch (ConnectorException) { result.Add("encryptionKey", "invalid_value", "The AES key bundle must match keyEncoding and the configured keyDerivation, salt, iterations and derivedKeyBytes settings."); }
             }
             if (resource.Secrets.HasSlot("initializationVector"))
             {

@@ -429,7 +429,7 @@ export interface RequestHistorySummary extends Json {
 // Secrets
 // ---------------------------------------------------------------------------------------------------------------
 
-export type SecretKind = "Password" | "PrivateKey" | "ApiToken" | "AccessKeyPair" | "ServiceAccountJson" | "Kubeconfig" | "ConnectionString" | "Certificate" | "Generic" | "BearerToken";
+export type SecretKind = "Password" | "PrivateKey" | "ApiToken" | "AccessKeyPair" | "ServiceAccountJson" | "Kubeconfig" | "ConnectionString" | "Certificate" | "Generic" | "BearerToken" | "AesKey";
 
 /** Filter for secrets.list. */
 export interface SecretFilter extends EnumerationQuery {

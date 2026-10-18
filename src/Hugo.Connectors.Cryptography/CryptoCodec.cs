@@ -54,14 +54,44 @@ namespace Hugo.Connectors.Cryptography
         internal static byte[] ReadKey(ConnectorResourceContext resource)
         {
             string? value = resource.Secrets.Get("encryptionKey", "value") ?? resource.Secrets.Get("encryptionKey", "key");
-            if (String.IsNullOrEmpty(value)) throw Invalid("Bind a Generic secret with a value field to encryptionKey before encrypting or decrypting.");
-            byte[] key = Decode(value, resource.Settings.GetString("keyEncoding", "base64") ?? "base64", 32, false);
+            if (String.IsNullOrEmpty(value)) throw Invalid("Bind an AES key secret with a key field, or a legacy Generic secret with value, to encryptionKey.");
+            string encoding = resource.Settings.GetString("keyEncoding", "base64") ?? "base64";
+            string derivation = resource.Settings.GetString("keyDerivation", "None") ?? "None";
+            if (derivation != "None" && derivation != "PBKDF2-SHA256") throw Invalid("keyDerivation must be None or PBKDF2-SHA256.");
+            byte[] key = Decode(value, encoding, derivation == "None" ? 32 : 4096, false);
+            if (derivation == "PBKDF2-SHA256")
+            {
+                try
+                {
+                    if (key.Length == 0) throw Invalid("PBKDF2 requires a nonempty decoded key/password.");
+                    int iterations = ReadInteger(resource, "iterations", 100000, 10000, 1000000);
+                    int length = ReadInteger(resource, "derivedKeyBytes", 32, 16, 32);
+                    if (length != 16 && length != 24 && length != 32) throw Invalid("derivedKeyBytes must be 16, 24, or 32.");
+                    string saltValue = resource.Secrets.Get("encryptionKey", "salt") ?? throw Invalid("PBKDF2 requires salt in the bound AES key secret.");
+                    byte[] salt = Decode(saltValue, encoding, 4096, false);
+                    try
+                    {
+                        if (salt.Length < 16) throw Invalid("PBKDF2 salt must decode to at least 16 bytes.");
+                        return Rfc2898DeriveBytes.Pbkdf2(key, salt, iterations, HashAlgorithmName.SHA256, length);
+                    }
+                    finally { CryptographicOperations.ZeroMemory(salt); }
+                }
+                finally { CryptographicOperations.ZeroMemory(key); }
+            }
             if (key.Length != 16 && key.Length != 24 && key.Length != 32)
             {
                 CryptographicOperations.ZeroMemory(key);
-                throw Invalid("The encryption key must decode to 16, 24, or 32 bytes.");
+                throw Invalid("The encryption key must decode to 16, 24, or 32 bytes when keyDerivation is None.");
             }
             return key;
+        }
+
+        internal static int ReadInteger(ConnectorResourceContext resource, string name, int fallback, int minimum, int maximum)
+        {
+            string? raw = resource.Settings.GetString(name);
+            if (raw == null) return fallback;
+            if (!Int32.TryParse(raw, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out int value) || value < minimum || value > maximum) throw Invalid(name + " is outside its configured range.");
+            return value;
         }
 
         internal static ConnectorException Invalid(string message)

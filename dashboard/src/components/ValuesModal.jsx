@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Modal from './Modal';
 import { SecretValuesForm } from './SecretField';
 import { tip } from './Tooltip';
-import { validateSecretValues } from '../utils/secrets';
+import { validateSecretValues, secretValuesBody } from '../utils/secrets';
 import { errorMessage } from '../utils/errors';
 
 /**
@@ -25,7 +25,7 @@ export default function ValuesModal({ title, kind, onSubmit, onClose }) {
     setBusy(true);
     setError(null);
     try {
-      await onSubmit(values);
+      await onSubmit(secretValuesBody(kind, values));
       setValues({});
       onClose();
     } catch (e) {

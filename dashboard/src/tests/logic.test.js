@@ -109,6 +109,13 @@ describe('secret kinds', () => {
   it('sends only filled fields, keeping whitespace in keys', () => {
     expect(secretValuesBody('PrivateKey', { privateKey: 'KEY\n', passphrase: '' })).toEqual({ privateKey: 'KEY\n' });
   });
+  it('requires an AES key and preserves its optional salt and IV as separate encrypted fields', () => {
+    expect(validateSecretValues('AesKey', { salt: 'salt', iv: 'iv' })).toEqual({ key: 'required' });
+    expect(validateSecretValues('AesKey', { key: 'key' })).toEqual({});
+    expect(secretValuesBody('AesKey', { key: ' key ', salt: 'salt', iv: 'iv', value: 'ignored' })).toEqual({ key: ' key ', salt: 'salt', iv: 'iv' });
+    expect(validateSecretValues('AesKey', { salt: 'new salt' }, { partial: true })).toEqual({});
+    expect(secretValuesBody('AesKey', { key: '', salt: 'new salt', iv: '' })).toEqual({ salt: 'new salt' });
+  });
   it('describes imported files without exposing key material', () => {
     expect(describeSecretFile('privateKey', '-----BEGIN OPENSSH PRIVATE KEY-----\nabc')).toEqual({ kind: 'pem', type: 'OPENSSH PRIVATE KEY' });
     expect(describeSecretFile('json', '{"project_id":"p","client_email":"a@b","private_key":"x"}')).toEqual({

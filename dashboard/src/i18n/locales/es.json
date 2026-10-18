@@ -277,7 +277,8 @@
       "ConnectionString": "Cadena de conexión",
       "Certificate": "Certificado",
       "Generic": "Secreto genérico",
-      "BearerToken": "Token de portador"
+      "BearerToken": "Token de portador",
+      "AesKey": "Material de clave AES"
     },
     "effect": {
       "Read": "Lectura",
@@ -752,7 +753,10 @@
         "kubeconfig": "Kubeconfig",
         "connectionString": "Cadena de conexión",
         "certificate": "Certificado (PEM)",
-        "value": "Valor"
+        "value": "Valor",
+        "key": "Clave",
+        "salt": "Sal (opcional)",
+        "iv": "Vector de inicialización (opcional)"
       },
       "file": {
         "pem": "El archivo contiene un bloque PEM de tipo {{type}}.",
@@ -2636,7 +2640,8 @@
         "ConnectionString": "Una cadena de conexión completa que incluye credenciales.",
         "Certificate": "Un certificado con su clave privada, para TLS mutuo.",
         "Generic": "Cualquier otro valor secreto único.",
-        "BearerToken": "Un token enviado exactamente en el encabezado Authorization: Bearer."
+        "BearerToken": "Un token enviado exactamente en el encabezado Authorization: Bearer.",
+        "AesKey": "Una clave AES o entrada de derivación, con sal y vector de inicialización opcionales."
       },
       "connectorCategory": {
         "Compute": "Hosts y máquinas a los que se accede por SSH o similar.",
@@ -3527,7 +3532,10 @@
         "kubeconfig": "Un archivo kubeconfig con el clúster, el usuario y el contexto que se van a usar.",
         "connectionString": "Una cadena de conexión completa con credenciales, por ejemplo para SQL Server o Redis.",
         "certificate": "El certificado en formato PEM. No es secreto por sí mismo, pero se guarda con su clave.",
-        "value": "Cualquier valor secreto para conectores que usan un único secreto opaco."
+        "value": "Cualquier valor secreto para conectores que usan un único secreto opaco.",
+        "key": "Bytes de clave codificados. Use la codificación de clave del recurso; PBKDF2 solo deriva una clave AES de estos bytes si se activa expresamente.",
+        "salt": "Sal codificada opcional, utilizada solo con PBKDF2. Use la codificación de clave del recurso.",
+        "iv": "IV codificado opcional de 16 bytes para datos AES-CBC existentes. El cifrado siempre genera un IV nuevo."
       }
     },
     "toolActivity": {
@@ -4587,7 +4595,7 @@
         },
         "keyEncoding": {
           "label": "Codificación de la clave",
-          "help": "Codificación de la clave de cifrado y del vector de inicialización opcional proporcionados por el administrador. Las claves AES deben decodificarse en 16, 24 o 32 bytes; los vectores de inicialización, en 16 bytes.",
+          "help": "Codificación de clave, sal e IV. Las claves AES directas deben tener 16, 24 o 32 bytes al decodificarse; el IV CBC debe tener 16 bytes. La entrada PBKDF2 puede tener otra longitud.",
           "values": {
             "base64": "Base64",
             "hex": "Hex"
@@ -4596,11 +4604,33 @@
         "maxInputBytes": {
           "label": "Máximo de bytes de entrada",
           "help": "Tamaño máximo de entrada decodificada por operación. Predeterminado: 1048576 bytes; intervalo: de 1 a 16777216. También se aplican los límites de salida de la vinculación; los resultados demasiado grandes fallan en lugar de truncar los datos criptográficos."
+        },
+        "keyDerivation": {
+          "label": "Derivación de clave",
+          "help": "Sin derivación se usa la clave directamente. PBKDF2-SHA256 deriva una clave AES con la sal almacenada.",
+          "values": {
+            "None": "Ninguna (clave directa)",
+            "PBKDF2-SHA256": "PBKDF2-SHA256"
+          }
+        },
+        "derivedKeyBytes": {
+          "label": "Bytes de clave derivada",
+          "help": "Longitud de salida PBKDF2: 16, 24 o 32 bytes. Predeterminado: 32. Debe coincidir con los datos de origen.",
+          "values": {
+            "16": "16",
+            "24": "24",
+            "32": "32"
+          }
+        },
+        "iterations": {
+          "label": "Iteraciones de derivación",
+          "help": "Iteraciones PBKDF2. Predeterminado: 100000; rango: 10000 a 1000000. Debe coincidir con los datos de origen."
         }
       },
       "slots": {
         "encryptionKey": {
-          "label": "Clave de cifrado"
+          "label": "Material de clave AES",
+          "help": "Seleccione material de clave AES con clave, sal e IV opcionales. También funcionan los secretos genéricos de clave existentes. La sal solo se utiliza al seleccionar expresamente PBKDF2-SHA256; de forma predeterminada no hay derivación."
         },
         "initializationVector": {
           "label": "Vector de inicialización (opcional, AES-CBC)"

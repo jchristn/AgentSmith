@@ -277,7 +277,8 @@
       "ConnectionString": "Verbindungszeichenfolge",
       "Certificate": "Zertifikat",
       "Generic": "Allgemeines Secret",
-      "BearerToken": "Bearer-Token"
+      "BearerToken": "Bearer-Token",
+      "AesKey": "AES-Schlüsselmaterial"
     },
     "effect": {
       "Read": "Lesen",
@@ -747,7 +748,10 @@
         "kubeconfig": "Kubeconfig",
         "connectionString": "Verbindungszeichenfolge",
         "certificate": "Zertifikat (PEM)",
-        "value": "Wert"
+        "value": "Wert",
+        "key": "Schlüssel",
+        "salt": "Salz (optional)",
+        "iv": "Initialisierungsvektor (optional)"
       },
       "file": {
         "pem": "Die Datei enthält einen PEM-Block vom Typ {{type}}.",
@@ -2616,7 +2620,8 @@
         "ConnectionString": "Eine vollständige Verbindungszeichenfolge einschließlich Zugangsdaten.",
         "Certificate": "Ein Zertifikat mit privatem Schlüssel, für Mutual TLS.",
         "Generic": "Jeder andere einzelne geheime Wert.",
-        "BearerToken": "Ein Token, das genau im Header Authorization: Bearer gesendet wird."
+        "BearerToken": "Ein Token, das genau im Header Authorization: Bearer gesendet wird.",
+        "AesKey": "Ein AES-Schlüssel oder Ableitungseingang mit optionalem Salt und Initialisierungsvektor."
       },
       "connectorCategory": {
         "Compute": "Hosts und Maschinen, die über SSH oder Ähnliches erreicht werden.",
@@ -3506,7 +3511,10 @@
         "kubeconfig": "Eine kubeconfig-Datei mit dem zu verwendenden Cluster, Benutzer und Kontext.",
         "connectionString": "Eine vollständige Verbindungszeichenfolge einschließlich Zugangsdaten, zum Beispiel für SQL Server oder Redis.",
         "certificate": "Das Zertifikat im PEM-Format. Für sich nicht geheim, wird aber mit seinem Schlüssel aufbewahrt.",
-        "value": "Ein beliebiger geheimer Wert für Konnektoren, die ein einzelnes undurchsichtiges Secret verwenden."
+        "value": "Ein beliebiger geheimer Wert für Konnektoren, die ein einzelnes undurchsichtiges Secret verwenden.",
+        "key": "Kodierte Schlüsselbytes. Verwenden Sie die Schlüsselkodierung der Ressource. PBKDF2 leitet daraus nur bei ausdrücklicher Aktivierung einen AES-Schlüssel ab.",
+        "salt": "Optionales kodiertes Salt, nur für PBKDF2. Verwenden Sie die Schlüsselkodierung der Ressource.",
+        "iv": "Optionaler kodierter 16-Byte-IV für vorhandene AES-CBC-Geheimtexte. Die Verschlüsselung erzeugt immer einen neuen IV."
       }
     },
     "toolActivity": {
@@ -4565,7 +4573,7 @@
         },
         "keyEncoding": {
           "label": "Schlüsselkodierung",
-          "help": "Kodierung des vom Administrator bereitgestellten Schlüssels und des optionalen Initialisierungsvektors. AES-Schlüssel müssen dekodiert 16, 24 oder 32 Byte lang sein; Initialisierungsvektoren 16 Byte.",
+          "help": "Kodierung von Schlüssel, Salt und IV. Direkte AES-Schlüssel müssen 16, 24 oder 32 Bytes ergeben, ein CBC-IV 16 Bytes. PBKDF2-Eingaben dürfen eine andere Länge haben.",
           "values": {
             "base64": "Base64",
             "hex": "Hex"
@@ -4574,11 +4582,33 @@
         "maxInputBytes": {
           "label": "Maximale Eingabegröße in Byte",
           "help": "Maximale dekodierte Eingabegröße pro Vorgang. Standard: 1048576 Byte; Bereich: 1 bis 16777216. Ausgabelimits der Bindung gelten ebenfalls; zu große Ergebnisse schlagen fehl, statt kryptografische Daten abzuschneiden."
+        },
+        "keyDerivation": {
+          "label": "Schlüsselableitung",
+          "help": "Ohne Ableitung wird der Schlüssel direkt verwendet. PBKDF2-SHA256 leitet mit dem gespeicherten Salt einen AES-Schlüssel ab.",
+          "values": {
+            "None": "Keine (direkter Schlüssel)",
+            "PBKDF2-SHA256": "PBKDF2-SHA256"
+          }
+        },
+        "derivedKeyBytes": {
+          "label": "Abgeleitete Schlüsselbytes",
+          "help": "PBKDF2-Ausgabelänge: 16, 24 oder 32 Bytes. Standard: 32. Muss den Quelldaten entsprechen.",
+          "values": {
+            "16": "16",
+            "24": "24",
+            "32": "32"
+          }
+        },
+        "iterations": {
+          "label": "Ableitungsdurchläufe",
+          "help": "PBKDF2-Durchläufe. Standard: 100000; Bereich: 10000 bis 1000000. Muss den Quelldaten entsprechen."
         }
       },
       "slots": {
         "encryptionKey": {
-          "label": "Verschlüsselungsschlüssel"
+          "label": "AES-Schlüsselmaterial",
+          "help": "Wählen Sie AES-Schlüsselmaterial mit Schlüssel, optionalem Salt und IV. Vorhandene generische Schlüsselgeheimnisse funktionieren weiterhin. Salt wird nur bei ausdrücklich gewähltem PBKDF2-SHA256 verwendet; standardmäßig erfolgt keine Ableitung."
         },
         "initializationVector": {
           "label": "Initialisierungsvektor (optional, AES-CBC)"

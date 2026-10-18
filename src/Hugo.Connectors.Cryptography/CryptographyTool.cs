@@ -139,7 +139,7 @@ namespace Hugo.Connectors.Cryptography
                 {
                     if (request.Nonce == null && algorithm == "AES-CBC")
                     {
-                        string boundIv = resource.Secrets.Get("initializationVector", "value") ?? throw CryptoCodec.Invalid("Separate CBC decryption needs nonce or a bound initializationVector.");
+                        string boundIv = resource.Secrets.Get("encryptionKey", "iv") ?? resource.Secrets.Get("initializationVector", "value") ?? throw CryptoCodec.Invalid("Separate CBC decryption needs nonce, AES secret iv, or a bound initializationVector.");
                         nonce = CryptoCodec.Decode(boundIv, resource.Settings.GetString("keyEncoding", "base64") ?? "base64", nonceLength, false);
                     }
                     else

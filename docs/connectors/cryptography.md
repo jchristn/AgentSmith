@@ -4,14 +4,21 @@ A `cryptography` resource gives an agent access to a specific vault-managed AES 
 
 ## Configure the resource
 
-Create a **Generic** secret in **Connections → Secrets**. Put the base64-encoded AES key in its `value` field. The decoded key must contain 16, 24, or 32 bytes. Choose 32 bytes for AES-256. Hexadecimal key material is also supported by setting `keyEncoding` to `hex`.
+Create an **AES key material** secret in **Connections → Secrets**. Its API kind is `AesKey`, and its masked fields are `key`, optional `salt`, and optional `iv`. Bind that one secret to the resource's **AES key material** slot (`encryptionKey`). Use separate bundled secrets and resource aliases for separate encryption configurations. The agent supplies the resource alias, never the secret fields.
 
-Create a **Cryptography** resource, bind the secret to `encryptionKey`, and select its cipher. Use separate resources and binding aliases for separate keys. The agent selects the resource alias; it never supplies the key in tool arguments. An optional second Generic secret bound to `initializationVector` holds a legacy CBC IV in its `value` field, using the same encoding as the key.
+Encode all populated fields as base64, or set the resource's `keyEncoding` to `hex`. With the default `keyDerivation: "None"`, `key` is a direct AES key of 16, 24, or 32 decoded bytes. A raw AES-256 key contains 32 bytes. CBC decryption of raw ciphertext can take its 16-byte IV from the bundle's `iv` field. Encryption generates fresh nonce/IV bytes; it does not reuse that saved IV.
+
+A salt belongs to key derivation rather than the AES cipher itself. For formats that derive a key from password bytes and salt, explicitly select `PBKDF2-SHA256` and set the matching iteration count and derived key length. The bundle's decoded `key` bytes become the password input and its decoded `salt` must contain at least 16 bytes. With `None`, the saved salt is not applied. See the [.NET PBKDF2 contract](https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.rfc2898derivebytes.pbkdf2). An existing ciphertext must be decrypted with the same derivation parameters used to encrypt it.
+
+Existing Generic key secrets and separately bound legacy IV secrets continue to work. New configurations need only the one AES bundle.
 
 | Setting | Default | Meaning |
 |---|---|---|
 | `algorithm` | `AES-GCM` | `AES-GCM`, or explicit `AES-CBC` interoperability with PKCS7 padding |
-| `keyEncoding` | `base64` | `base64` or `hex` encoding of the bound key and optional CBC IV |
+| `keyEncoding` | `base64` | `base64` or `hex` encoding of the bundle's key, salt and IV |
+| `keyDerivation` | `None` | Direct AES key, or explicit `PBKDF2-SHA256` using the bundle salt |
+| `iterations` | `100000` | PBKDF2 iteration count from 10000 through 1000000 |
+| `derivedKeyBytes` | `32` | PBKDF2 output length: 16, 24 or 32 bytes |
 | `maxInputBytes` | `1048576` | Maximum decoded input per call, from 1 byte through 16 MiB |
 
 Attach the resource to the agent. ReadOnly access permits all four tools because they transform bytes without changing external systems. Decryption returns plaintext to the authorized agent, so bind only the keys that agent should use. Normal output limits still apply. The default binding output budget is 64 KiB; increase it when necessary for the complete encoded output. Oversized crypto results fail instead of returning partial ciphertext or plaintext.
@@ -22,7 +29,7 @@ Attach the resource to the agent. ReadOnly access permits all four tools because
 
 Retrieve the complete object using `storage_read` with `encoding: "base64"`. Check that the result is not truncated. Pass its encoded content to the crypto tool without decoding it as text first. The storage read limit, binding output budget, and crypto input limit must accommodate the complete payload.
 
-For raw AES-CBC ciphertext with a separately configured key and IV, bind both secrets, select `AES-CBC`, and call:
+For raw AES-CBC ciphertext with a separately configured key and IV, put the key and IV in one AES secret, select `AES-CBC`, and call:
 
 ```json
 {
@@ -34,7 +41,7 @@ For raw AES-CBC ciphertext with a separately configured key and IV, bind both se
 }
 ```
 
-The connector uses the bound IV when `nonce` is omitted in separate CBC mode. That matches a raw AES-CBC/PKCS7 payload encrypted with a direct AES key and separate IV. No passphrase derivation or salt processing is implied. An application using a different key derivation or envelope needs its actual format specified.
+When `nonce` is omitted in separate CBC mode, the connector uses the bundle's `iv`, then a separately bound legacy IV if no bundle IV exists. That matches a raw AES-CBC/PKCS7 payload encrypted with a direct AES key and separate IV. Leave `keyDerivation` at `None` for this direct-key format; select a derivation method only when the original format used it. An application using a different key derivation or envelope needs its actual format specified.
 
 Use `outputEncoding: "base64"` for binary plaintext. UTF-8 output rejects invalid text rather than replacing bytes. Large encrypted objects cannot be decrypted correctly by independently decrypting arbitrary storage chunks.
 

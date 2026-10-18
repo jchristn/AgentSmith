@@ -56,6 +56,11 @@ namespace Hugo.Connectors.Abstractions
         /// <see cref="ApiToken"/> for tokens a service expects somewhere else (a custom header, a query parameter, or a
         /// different scheme).
         /// </summary>
-        BearerToken = 9
+        BearerToken = 9,
+
+        /// <summary>
+        /// Fields: <c>key</c>, optional <c>salt</c> and <c>iv</c>. Encoding and explicit derivation are configured on the cryptography resource.
+        /// </summary>
+        AesKey = 10
     }
 }

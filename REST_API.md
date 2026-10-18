@@ -3699,7 +3699,7 @@ Secret metadata and field names, never values.
 | `ordering` | query | enum | CreatedDescending (default), CreatedAscending, NameAscending, NameDescending. |
 | `search` | query | string | Text to match. |
 | `activeOnly` | query | boolean | Only active records. Default false. |
-| `kind` | query | enum | Only secrets of this kind: Password, PrivateKey, ApiToken, BearerToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, or Generic. |
+| `kind` | query | enum | Only secrets of this kind: Password, PrivateKey, ApiToken, BearerToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, AesKey, or Generic. |
 
 **Status codes:** 200 OK, 401 Not authenticated, 403 Forbidden.
 
@@ -3785,8 +3785,8 @@ Create a secret with its values; the response has metadata and field names only.
 |---|---|---|
 | `name` | string | **Required.** Unique within the tenant. |
 | `description` | string | Free text. |
-| `kind` | enum | **Required.** Password, PrivateKey, ApiToken, BearerToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, or Generic. Cannot change. Use BearerToken for a token sent exactly as `Authorization: Bearer <token>`, ApiToken for one a service expects anywhere else (D-049). Values: Password, PrivateKey, ApiToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, Generic, BearerToken. |
-| `values` | object | **Required.** Field values by name (on create). Password: `password`, optional `username`. PrivateKey: `privateKey`, optional `passphrase`. ApiToken and BearerToken: `token`. AccessKeyPair: `accessKeyId`, `secretAccessKey`, optional `sessionToken`. ServiceAccountJson: `json`. Kubeconfig: `kubeconfig`. ConnectionString: `connectionString`. Certificate: `certificate`, optional `privateKey`, `caCertificate`. Generic: any names. Ignored on the metadata update. |
+| `kind` | enum | **Required.** Password, PrivateKey, ApiToken, BearerToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, AesKey, or Generic. Cannot change. Use BearerToken for a token sent exactly as `Authorization: Bearer <token>`, ApiToken for one a service expects anywhere else (D-049). Values: Password, PrivateKey, ApiToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, Generic, BearerToken, AesKey. |
+| `values` | object | **Required.** Field values by name (on create). Password: `password`, optional `username`. PrivateKey: `privateKey`, optional `passphrase`. ApiToken and BearerToken: `token`. AccessKeyPair: `accessKeyId`, `secretAccessKey`, optional `sessionToken`. ServiceAccountJson: `json`. Kubeconfig: `kubeconfig`. ConnectionString: `connectionString`. Certificate: `certificate`, optional `privateKey`, `caCertificate`. AesKey: `key`, optional `salt` and `iv`. Generic: any names. Ignored on the metadata update. |
 | `expiresUtc` | date-time | Optional expiry, shown in the dashboard. |
 
 **Status codes:** 201 Created, 400 Validation failed, 401 Not authenticated, 403 Forbidden, 409 Conflict.
@@ -3893,7 +3893,7 @@ The tenant-scoped twin of List secrets.
 | `ordering` | query | enum | CreatedDescending (default), CreatedAscending, NameAscending, NameDescending. |
 | `search` | query | string | Text to match. |
 | `activeOnly` | query | boolean | Only active records. Default false. |
-| `kind` | query | enum | Only secrets of this kind: Password, PrivateKey, ApiToken, BearerToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, or Generic. |
+| `kind` | query | enum | Only secrets of this kind: Password, PrivateKey, ApiToken, BearerToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, AesKey, or Generic. |
 
 **Status codes:** 200 OK, 401 Not authenticated, 403 Forbidden, 404 Not found.
 
@@ -3983,8 +3983,8 @@ Create a Password secret through the tenant-scoped path.
 |---|---|---|
 | `name` | string | **Required.** Unique within the tenant. |
 | `description` | string | Free text. |
-| `kind` | enum | **Required.** Password, PrivateKey, ApiToken, BearerToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, or Generic. Cannot change. Use BearerToken for a token sent exactly as `Authorization: Bearer <token>`, ApiToken for one a service expects anywhere else (D-049). Values: Password, PrivateKey, ApiToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, Generic, BearerToken. |
-| `values` | object | **Required.** Field values by name (on create). Password: `password`, optional `username`. PrivateKey: `privateKey`, optional `passphrase`. ApiToken and BearerToken: `token`. AccessKeyPair: `accessKeyId`, `secretAccessKey`, optional `sessionToken`. ServiceAccountJson: `json`. Kubeconfig: `kubeconfig`. ConnectionString: `connectionString`. Certificate: `certificate`, optional `privateKey`, `caCertificate`. Generic: any names. Ignored on the metadata update. |
+| `kind` | enum | **Required.** Password, PrivateKey, ApiToken, BearerToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, AesKey, or Generic. Cannot change. Use BearerToken for a token sent exactly as `Authorization: Bearer <token>`, ApiToken for one a service expects anywhere else (D-049). Values: Password, PrivateKey, ApiToken, AccessKeyPair, ServiceAccountJson, Kubeconfig, ConnectionString, Certificate, Generic, BearerToken, AesKey. |
+| `values` | object | **Required.** Field values by name (on create). Password: `password`, optional `username`. PrivateKey: `privateKey`, optional `passphrase`. ApiToken and BearerToken: `token`. AccessKeyPair: `accessKeyId`, `secretAccessKey`, optional `sessionToken`. ServiceAccountJson: `json`. Kubeconfig: `kubeconfig`. ConnectionString: `connectionString`. Certificate: `certificate`, optional `privateKey`, `caCertificate`. AesKey: `key`, optional `salt` and `iv`. Generic: any names. Ignored on the metadata update. |
 | `expiresUtc` | date-time | Optional expiry, shown in the dashboard. |
 
 **Status codes:** 201 Created, 400 Validation failed, 401 Not authenticated, 403 Forbidden, 404 Not found, 409 Conflict.

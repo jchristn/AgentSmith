@@ -277,7 +277,8 @@
       "ConnectionString": "Stringa di connessione",
       "Certificate": "Certificato",
       "Generic": "Segreto generico",
-      "BearerToken": "Token bearer"
+      "BearerToken": "Token bearer",
+      "AesKey": "Materiale della chiave AES"
     },
     "effect": {
       "Read": "Lettura",
@@ -752,7 +753,10 @@
         "kubeconfig": "Kubeconfig",
         "connectionString": "Stringa di connessione",
         "certificate": "Certificato (PEM)",
-        "value": "Valore"
+        "value": "Valore",
+        "key": "Chiave",
+        "salt": "Salt (facoltativo)",
+        "iv": "Vettore di inizializzazione (facoltativo)"
       },
       "file": {
         "pem": "Il file contiene un blocco PEM di tipo {{type}}.",
@@ -2636,7 +2640,8 @@
         "ConnectionString": "Una stringa di connessione completa che include le credenziali.",
         "Certificate": "Un certificato con la relativa chiave privata, per TLS reciproco.",
         "Generic": "Qualsiasi altro valore segreto singolo.",
-        "BearerToken": "Un token inviato esattamente nell’intestazione Authorization: Bearer."
+        "BearerToken": "Un token inviato esattamente nell’intestazione Authorization: Bearer.",
+        "AesKey": "Una chiave AES o un input di derivazione, con salt e vettore di inizializzazione facoltativi."
       },
       "connectorCategory": {
         "Compute": "Host e macchine raggiunti tramite SSH o simili.",
@@ -3527,7 +3532,10 @@
         "kubeconfig": "Un file kubeconfig con il cluster, l'utente e il contesto da usare.",
         "connectionString": "Una stringa di connessione completa che include le credenziali, ad esempio per SQL Server o Redis.",
         "certificate": "Il certificato in formato PEM. Di per sé non è segreto, ma viene conservato con la sua chiave.",
-        "value": "Qualsiasi valore segreto per i connettori che accettano un unico segreto opaco."
+        "value": "Qualsiasi valore segreto per i connettori che accettano un unico segreto opaco.",
+        "key": "Byte della chiave codificati. Usa la codifica della chiave della risorsa; PBKDF2 deriva una chiave AES solo se abilitato esplicitamente.",
+        "salt": "Salt codificato facoltativo, usato solo con PBKDF2. Usa la codifica della chiave della risorsa.",
+        "iv": "IV codificato facoltativo di 16 byte per dati AES-CBC esistenti. La cifratura genera sempre un nuovo IV."
       }
     },
     "toolActivity": {
@@ -4587,7 +4595,7 @@
         },
         "keyEncoding": {
           "label": "Codifica della chiave",
-          "help": "Codifica della chiave di cifratura e del vettore di inizializzazione facoltativo forniti dall’amministratore. Le chiavi AES decodificate devono essere di 16, 24 o 32 byte; i vettori di inizializzazione di 16 byte.",
+          "help": "Codifica di chiave, salt e IV. Le chiavi AES dirette devono decodificarsi in 16, 24 o 32 byte; un IV CBC in 16 byte. L’input PBKDF2 può avere una lunghezza diversa.",
           "values": {
             "base64": "Base64",
             "hex": "Hex"
@@ -4596,11 +4604,33 @@
         "maxInputBytes": {
           "label": "Numero massimo di byte in ingresso",
           "help": "Dimensione massima dei dati decodificati per operazione. Valore predefinito: 1048576 byte; intervallo: da 1 a 16777216. Si applicano anche i limiti di uscita dell’associazione; i risultati troppo grandi falliscono anziché troncare i dati crittografici."
+        },
+        "keyDerivation": {
+          "label": "Derivazione della chiave",
+          "help": "Nessuna derivazione usa la chiave direttamente. PBKDF2-SHA256 deriva una chiave AES con il salt memorizzato.",
+          "values": {
+            "None": "Nessuna (chiave diretta)",
+            "PBKDF2-SHA256": "PBKDF2-SHA256"
+          }
+        },
+        "derivedKeyBytes": {
+          "label": "Byte della chiave derivata",
+          "help": "Lunghezza di output PBKDF2: 16, 24 o 32 byte. Predefinito: 32. Deve corrispondere ai dati originali.",
+          "values": {
+            "16": "16",
+            "24": "24",
+            "32": "32"
+          }
+        },
+        "iterations": {
+          "label": "Iterazioni di derivazione",
+          "help": "Iterazioni PBKDF2. Predefinito: 100000; intervallo: da 10000 a 1000000. Deve corrispondere ai dati originali."
         }
       },
       "slots": {
         "encryptionKey": {
-          "label": "Chiave di cifratura"
+          "label": "Materiale della chiave AES",
+          "help": "Seleziona un segreto con materiale AES: chiave, salt e IV facoltativi. Funzionano anche i segreti generici della chiave esistenti. Il salt è usato solo selezionando esplicitamente PBKDF2-SHA256; per impostazione predefinita non viene eseguita alcuna derivazione."
         },
         "initializationVector": {
           "label": "Vettore di inizializzazione (facoltativo, AES-CBC)"

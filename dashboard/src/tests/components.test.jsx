@@ -14,6 +14,7 @@ import { EffectBadge } from '../components/StatusBadge';
 import SchemaForm from '../components/SchemaForm';
 import PromptEditor from '../components/PromptEditor';
 import SecretSlotPicker, { SecretValuesForm } from '../components/SecretField';
+import ValuesModal from '../components/ValuesModal';
 import RevealSecretModal, { needsReauth } from '../components/RevealSecretModal';
 import { UnavailableState, ErrorPresenter } from '../components/States';
 import { validatePasswordChange } from '../components/PasswordChangeModal';
@@ -219,6 +220,43 @@ describe('PromptEditor', () => {
 });
 
 describe('secret fields', () => {
+  it('creates a typed AES secret inline with its key, salt, and IV', async () => {
+    const createSecret = vi.fn().mockResolvedValue({ id: 'sec_aes', kind: 'AesKey' });
+    const onChange = vi.fn();
+    render(
+      <SecretSlotPicker
+        slot={{ name: 'key', label: 'Encryption key', acceptedKinds: ['AesKey', 'Generic'], required: false }}
+        onChange={onChange}
+        createSecret={createSecret}
+      />
+    );
+    fireEvent.click(screen.getByTestId('create-secret-key'));
+    expect(document.querySelector('#slot-new-kind').value).toBe('AesKey');
+    fireEvent.change(document.querySelector('#slot-new-name'), { target: { value: 'blob-encryption' } });
+    for (const name of ['key', 'salt', 'iv']) {
+      const input = document.querySelector(`#slot-new-${name}`);
+      expect(input.type).toBe('password');
+      expect(document.querySelector(`label[for="slot-new-${name}"] .required-mark`) !== null).toBe(name === 'key');
+      fireEvent.change(input, { target: { value: `encoded-${name}` } });
+    }
+    await act(async () => fireEvent.click(screen.getByText(t('components.secretField.saveInline'))));
+    expect(createSecret).toHaveBeenCalledWith({
+      name: 'blob-encryption',
+      kind: 'AesKey',
+      values: { key: 'encoded-key', salt: 'encoded-salt', iv: 'encoded-iv' }
+    });
+    expect(onChange).toHaveBeenCalledWith({ secretId: 'sec_aes', secretFieldName: null });
+  });
+  it('keeps blank AES fields unchanged when replacing only the salt', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    render(<ValuesModal title="Replace encryption material" kind="AesKey" onSubmit={onSubmit} onClose={() => {}} />);
+    expect(document.querySelector('[data-testid="secret-values"] .required-mark')).toBeNull();
+    fireEvent.change(document.querySelector('#secret-replace-key'), { target: { value: 'temporary' } });
+    fireEvent.change(document.querySelector('#secret-replace-key'), { target: { value: '' } });
+    fireEvent.change(document.querySelector('#secret-replace-salt'), { target: { value: 'replacement-salt' } });
+    await act(async () => fireEvent.click(screen.getByTestId('values-save')));
+    expect(onSubmit).toHaveBeenCalledWith({ salt: 'replacement-salt' });
+  });
   it('renders the fields of a secret kind', () => {
     render(<SecretValuesForm kind="AccessKeyPair" values={{}} onChange={() => {}} />);
     expect(document.querySelector('#secret-accessKeyId')).toBeTruthy();
@@ -311,7 +349,9 @@ describe('states and forms', () => {
 describe('ModelValidationView', () => {
   it('lays out a successful validation without dumping JSON', () => {
     render(
-      <ModelValidationView result={{ success: true, kind: 'Inference', model: 'llama3:8b', latencyMs: 412, responsePreview: 'pong', statusCode: 200, problems: [] }} />
+      <ModelValidationView
+        result={{ success: true, kind: 'Inference', model: 'llama3:8b', latencyMs: 412, responsePreview: 'pong', statusCode: 200, problems: [] }}
+      />
     );
     expect(screen.getByTestId('model-validation-outcome').textContent).toContain('The model responded.');
     expect(screen.getByText('llama3:8b')).toBeTruthy();

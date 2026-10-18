@@ -49,6 +49,7 @@ namespace Hugo.Core.Secrets
         {
             switch (kind)
             {
+                case SecretKindEnum.AesKey: return new List<string> { "key" };
                 case SecretKindEnum.Password: return new List<string> { "password" };
                 case SecretKindEnum.PrivateKey: return new List<string> { "privateKey" };
                 case SecretKindEnum.ApiToken: return new List<string> { "token" };
@@ -71,6 +72,7 @@ namespace Hugo.Core.Secrets
         {
             switch (kind)
             {
+                case SecretKindEnum.AesKey: return new List<string> { "salt", "iv" };
                 case SecretKindEnum.Password: return new List<string> { "username" };
                 case SecretKindEnum.PrivateKey: return new List<string> { "passphrase" };
                 case SecretKindEnum.AccessKeyPair: return new List<string> { "sessionToken" };
@@ -83,9 +85,10 @@ namespace Hugo.Core.Secrets
         /// The field whose last four characters describe the secret when no better fingerprint exists.
         /// </summary>
         /// <param name="kind">Kind.</param>
-        /// <returns>Field name, or null for Generic.</returns>
+        /// <returns>Field name, or null for Generic and AES key material.</returns>
         public static string? PrimaryField(SecretKindEnum kind)
         {
+            if (kind == SecretKindEnum.AesKey) return null;
             List<string> required = Required(kind);
             if (kind == SecretKindEnum.AccessKeyPair) return "accessKeyId";
             return required.FirstOrDefault();

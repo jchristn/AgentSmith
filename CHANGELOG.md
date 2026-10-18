@@ -14,6 +14,8 @@ Everything below is new in this release. The images are `jchristn77/hugo-server:
 
 ### Connectors
 
+- AES key material is a multi-field secret containing key, salt, and IV. Cryptography resources bind the bundle once and support direct AES keys or explicit PBKDF2-SHA256 derivation; existing Generic key bindings remain compatible.
+
 - Cryptography resources provide vault-key AES-GCM/AES-CBC encryption and decryption, SHA-256/384/512 hashing, and hash verification. Binary storage reads can feed encrypted objects to the connector without exposing keys.
 
 ### Dashboard

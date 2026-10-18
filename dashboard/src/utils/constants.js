@@ -139,7 +139,19 @@ export const ENUMS = {
     'CredentialBypassChanged'
   ],
   // Connector contract (src/Hugo.Connectors.Abstractions).
-  secretKind: ['Password', 'PrivateKey', 'ApiToken', 'BearerToken', 'AccessKeyPair', 'ServiceAccountJson', 'Kubeconfig', 'ConnectionString', 'Certificate', 'Generic'],
+  secretKind: [
+    'Password',
+    'PrivateKey',
+    'ApiToken',
+    'BearerToken',
+    'AccessKeyPair',
+    'AesKey',
+    'ServiceAccountJson',
+    'Kubeconfig',
+    'ConnectionString',
+    'Certificate',
+    'Generic'
+  ],
   effect: ['Read', 'Write', 'Destructive'],
   accessMode: ['ReadOnly', 'ReadWriteWithApproval', 'ReadWrite'],
   connectorCategory: ['Compute', 'Storage', 'Database', 'Logging', 'Cache', 'Cloud', 'Orchestration', 'Observability', 'Http', 'Agent', 'Other'],

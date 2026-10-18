@@ -277,7 +277,8 @@
       "ConnectionString": "Rentetan sambungan",
       "Certificate": "Sijil",
       "Generic": "Rahsia generik",
-      "BearerToken": "Token pembawa"
+      "BearerToken": "Token pembawa",
+      "AesKey": "Bahan kunci AES"
     },
     "effect": {
       "Read": "Baca",
@@ -747,7 +748,10 @@
         "kubeconfig": "Kubeconfig",
         "connectionString": "Rentetan sambungan",
         "certificate": "Sijil (PEM)",
-        "value": "Nilai"
+        "value": "Nilai",
+        "key": "Kunci",
+        "salt": "Garam (pilihan)",
+        "iv": "Vektor pemulaan (pilihan)"
       },
       "file": {
         "pem": "Fail mengandungi blok PEM jenis {{type}}.",
@@ -2616,7 +2620,8 @@
         "ConnectionString": "Rentetan sambungan penuh yang mengandungi kelayakan.",
         "Certificate": "Sijil bersama kunci peribadinya, untuk TLS bersama.",
         "Generic": "Sebarang nilai rahsia tunggal yang lain.",
-        "BearerToken": "Token yang dihantar tepat sebagai pengepala Authorization: Bearer."
+        "BearerToken": "Token yang dihantar tepat sebagai pengepala Authorization: Bearer.",
+        "AesKey": "Kunci AES atau input terbitan, dengan garam dan vektor pemulaan pilihan."
       },
       "connectorCategory": {
         "Compute": "Hos dan mesin yang dicapai melalui SSH atau yang serupa.",
@@ -3506,7 +3511,10 @@
         "kubeconfig": "Fail kubeconfig dengan kluster, pengguna dan konteks untuk digunakan.",
         "connectionString": "Rentetan sambungan penuh termasuk kelayakan, contohnya untuk SQL Server atau Redis.",
         "certificate": "Sijil dalam format PEM. Bukan rahsia dengan sendirinya, tetapi disimpan bersama kuncinya.",
-        "value": "Sebarang nilai rahsia untuk penyambung yang menerima satu rahsia legap."
+        "value": "Sebarang nilai rahsia untuk penyambung yang menerima satu rahsia legap.",
+        "key": "Bait kunci berkod. Gunakan pengekodan kunci sumber; PBKDF2 menerbitkan kunci AES hanya apabila diaktifkan secara nyata.",
+        "salt": "Garam berkod pilihan, digunakan hanya dengan PBKDF2. Gunakan pengekodan kunci sumber.",
+        "iv": "IV berkod 16 bait pilihan untuk data AES-CBC sedia ada. Penyulitan sentiasa menjana IV baharu."
       }
     },
     "toolActivity": {
@@ -4565,7 +4573,7 @@
         },
         "keyEncoding": {
           "label": "Pengekodan kunci",
-          "help": "Pengekodan kunci penyulitan dan vektor pemulaan pilihan yang disediakan oleh pentadbir. Kunci AES mesti dinyahkod menjadi 16, 24 atau 32 bait; vektor pemulaan mesti dinyahkod menjadi 16 bait.",
+          "help": "Pengekodan nilai kunci, garam dan IV. Kunci AES terus mesti dinyahkod kepada 16, 24 atau 32 bait; IV CBC kepada 16 bait. Input PBKDF2 boleh mempunyai panjang lain.",
           "values": {
             "base64": "Base64",
             "hex": "Hex"
@@ -4574,11 +4582,33 @@
         "maxInputBytes": {
           "label": "Bait input maksimum",
           "help": "Saiz input yang dinyahkod maksimum bagi setiap operasi. Lalai: 1048576 bait; julat: 1 hingga 16777216. Had output pengikatan juga terpakai; hasil yang terlalu besar gagal dan bukannya memotong data kriptografi."
+        },
+        "keyDerivation": {
+          "label": "Penerbitan kunci",
+          "help": "Tiada penerbitan menggunakan kunci secara terus. PBKDF2-SHA256 menerbitkan kunci AES menggunakan garam tersimpan.",
+          "values": {
+            "None": "Tiada (kunci terus)",
+            "PBKDF2-SHA256": "PBKDF2-SHA256"
+          }
+        },
+        "derivedKeyBytes": {
+          "label": "Bait kunci terbitan",
+          "help": "Panjang output PBKDF2: 16, 24 atau 32 bait. Lalai: 32. Mesti sepadan dengan data asal.",
+          "values": {
+            "16": "16",
+            "24": "24",
+            "32": "32"
+          }
+        },
+        "iterations": {
+          "label": "Lelaran penerbitan",
+          "help": "Lelaran PBKDF2. Lalai: 100000; julat: 10000 hingga 1000000. Mesti sepadan dengan data asal."
         }
       },
       "slots": {
         "encryptionKey": {
-          "label": "Kunci penyulitan"
+          "label": "Bahan kunci AES",
+          "help": "Pilih rahsia bahan AES dengan kunci, garam dan IV pilihan. Rahsia kunci generik sedia ada juga boleh digunakan. Garam hanya digunakan apabila PBKDF2-SHA256 dipilih secara nyata; lalainya tanpa penerbitan."
         },
         "initializationVector": {
           "label": "Vektor pemulaan (pilihan, AES-CBC)"

@@ -29,6 +29,7 @@ namespace Test.Shared.Connectors.Cryptography
                 new TestCaseDescriptor(id, "hash-vectors", "SHA-256/384/512 published abc digests and verification", HashVectors),
                 new TestCaseDescriptor(id, "limits", "Input/output bounds fail atomically without partial data", Limits),
                 new TestCaseDescriptor(id, "invalid", "Reject keys, envelopes, encodings and malformed inputs without leaking secrets", Invalid),
+                new TestCaseDescriptor(id, "aes-bundle", "AES bundle CBC IV precedence and explicit PBKDF2 derivation", AesBundle),
                 new TestCaseDescriptor(id, "health", "Local self-test with key and hash-only configurations", Health),
                 new TestCaseDescriptor(id, "cancellation", "Cancelled calls stop before processing", Cancellation)
             }) };
@@ -153,6 +154,60 @@ namespace Test.Shared.Connectors.Cryptography
             hex.Resource.Settings = new ResourceSettings(new Dictionary<string, string> { { "keyEncoding", "hex" } });
             hex.Resource.Secrets = new SecretAccessor(new Dictionary<string, Dictionary<string, string>> { { "encryptionKey", new Dictionary<string, string> { { "value", new string('a', 64) } } } });
             Assert((await new CryptographyConnector().ValidateAsync(hex.Resource, token).ConfigureAwait(false)).IsValid, "hex vault key accepted");
+        }
+
+        private static async Task AesBundle(CancellationToken token)
+        {
+            byte[] password = Encoding.UTF8.GetBytes("encoded test password");
+            byte[] salt = Convert.FromHexString("000102030405060708090a0b0c0d0e0f");
+            byte[] iv = Convert.FromHexString("101112131415161718191a1b1c1d1e1f");
+            // Independently computed PBKDF2-HMAC-SHA256 fixture (10000 rounds, 32 bytes).
+            byte[] derived = Convert.FromHexString("1840f80e007bf8acf2a50508b0c20cae79fdd21f39a730f313895bea3df7ca89");
+            byte[] ciphertext;
+            using (Aes aes = Aes.Create()) { aes.Key = derived; ciphertext = aes.EncryptCbc(Encoding.UTF8.GetBytes("bundled CBC plaintext"), iv, PaddingMode.PKCS7); }
+            Dictionary<string, string> settings = new Dictionary<string, string> { { "algorithm", "AES-CBC" }, { "keyDerivation", "PBKDF2-SHA256" }, { "iterations", "10000" } };
+            Dictionary<string, string> bundle = new Dictionary<string, string> { { "key", Convert.ToBase64String(password) }, { "salt", Convert.ToBase64String(salt) }, { "iv", Convert.ToBase64String(iv) } };
+            ConnectorInvocationContext context = Context("AES-CBC", null);
+            context.Resource.Settings = new ResourceSettings(settings);
+            context.Resource.Secrets = new SecretAccessor(new Dictionary<string, Dictionary<string, string>> { { "encryptionKey", bundle }, { "initializationVector", new Dictionary<string, string> { { "value", Convert.ToBase64String(new byte[16]) } } } });
+            CryptoResponse response = await Success(context, "decrypt", new CryptoRequest { Data = Convert.ToBase64String(ciphertext), OutputEncoding = "utf8" }, token).ConfigureAwait(false);
+            Assert(response.Data == "bundled CBC plaintext", "PBKDF2 derived key and bundle IV override legacy slot");
+            Assert((await new CryptographyConnector().TestConnectionAsync(context.Resource, token).ConfigureAwait(false)).Success, "bundle health uses fresh IV in combined envelope");
+            bundle["key"] = Convert.ToBase64String(derived);
+            settings["keyDerivation"] = "None";
+            context.Resource.Settings = new ResourceSettings(settings);
+            SetBundle(context, bundle);
+            response = await Success(context, "decrypt", new CryptoRequest { Data = Convert.ToBase64String(ciphertext), OutputEncoding = "utf8" }, token).ConfigureAwait(false);
+            Assert(response.Data == "bundled CBC plaintext", "direct key ignores stored salt");
+            bundle["iv"] = Convert.ToBase64String(new byte[16]);
+            SetBundle(context, bundle);
+            response = await Success(context, "decrypt", new CryptoRequest { Data = Convert.ToBase64String(ciphertext), Nonce = Convert.ToBase64String(iv), OutputEncoding = "utf8" }, token).ConfigureAwait(false);
+            Assert(response.Data == "bundled CBC plaintext", "explicit nonce overrides bundle IV");
+            settings["keyDerivation"] = "PBKDF2-SHA256";
+            context.Resource.Settings = new ResourceSettings(settings);
+            bundle.Remove("salt");
+            SetBundle(context, bundle);
+            Assert(!(await new CryptographyConnector().ValidateAsync(context.Resource, token).ConfigureAwait(false)).IsValid, "PBKDF2 requires salt");
+            bundle["salt"] = "AQID";
+            SetBundle(context, bundle);
+            Assert(!(await new CryptographyConnector().ValidateAsync(context.Resource, token).ConfigureAwait(false)).IsValid, "short salt rejected");
+            bundle["salt"] = Convert.ToBase64String(salt);
+            SetBundle(context, bundle);
+            settings["iterations"] = "1000001";
+            context.Resource.Settings = new ResourceSettings(settings);
+            Assert(!(await new CryptographyConnector().ValidateAsync(context.Resource, token).ConfigureAwait(false)).IsValid, "expensive derivation bounded");
+            settings["iterations"] = "10000";
+            settings["derivedKeyBytes"] = "17";
+            context.Resource.Settings = new ResourceSettings(settings);
+            Assert(!(await new CryptographyConnector().ValidateAsync(context.Resource, token).ConfigureAwait(false)).IsValid, "invalid derived AES size rejected");
+            CryptographicOperations.ZeroMemory(derived);
+            CryptographicOperations.ZeroMemory(password);
+        }
+
+        private static void SetBundle(ConnectorInvocationContext context, Dictionary<string, string> bundle)
+        {
+            context.Resource.Secrets.Dispose();
+            context.Resource.Secrets = new SecretAccessor(new Dictionary<string, Dictionary<string, string>> { { "encryptionKey", bundle } });
         }
 
         private static async Task Health(CancellationToken token)

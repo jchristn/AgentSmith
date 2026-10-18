@@ -95,7 +95,7 @@ These rules keep the plan honest:
 | 10 | Docker, testbed, and observability stack | M1 | Complete | 24 / 24 |
 | 11 | Documentation and Postman | M1 | Complete | 18 / 18 |
 | 12 | MVP verification (milestone M1) | M1 | Complete | 12 / 12 |
-| 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A, cryptography | M2 | In progress | 38 / 39 |
+| 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A, cryptography | M2 | In progress | 39 / 40 |
 | 14 | Knowledge, runbooks, and operator conveniences | M2 | In progress | 1 / 13 |
 | 15 | Benchmarking | M3 | Not started | 0 / 16 |
 | 17 | Kubernetes and minikube | M2 | Complete | 16 / 16 |
@@ -2255,6 +2255,7 @@ Wrap-up
 - [x] P13.37 Grafana Tools and Connectors dashboard updated for wave 2 labels.  | claude 2026-10-15 Wave 2 row (5 panels) in hugo-tools.json and its 3 mirrors; PromQL checked against factory Prometheus
 - [ ] P13.38 M2 connector sign-off by the user.
 - [x] P13.39 Add vault-key cryptography connector for encrypted storage objects and digest verification. *Accept:* AES-GCM authenticated encryption/decryption, explicit AES-CBC/PKCS7 compatibility with separate predefined IV, SHA-256/384/512 hashing and constant-time digest comparison; keys never come from tool arguments; byte encodings and atomic size limits are explicit. | codex 2026-10-17 New dependency-free connector with four Read tools, local key/health validation, all 12 dashboard catalogs, known-vector/tamper/binary/limit tests, and real vault/resource/binding pipeline coverage on SQLite/PostgreSQL; 33 connector, integration, registry and pipeline cases pass, with a zero-warning solution build. Documented lossless S3 read/decrypt/verify workflow and raw AES-CBC/PKCS7 interoperability without storing key material
+- [x] P13.40 Support one multi-value AES key material secret containing required key and optional salt/IV. *Accept:* dashboard creation and partial rotation, connector binding and CBC IV selection, explicit optional PBKDF2-SHA256 derivation, SDK enums, translations and backward compatibility. | codex 2026-10-17 Uses existing encrypted secret fields without a schema migration; independent derivation vectors and vault/resource tests cover SQLite/PostgreSQL (34 passing cases); 352 dashboard unit tests pass. Existing Generic bindings remain supported.
 
 
 ### Phase 14: Knowledge, runbooks, and operator conveniences (M2)

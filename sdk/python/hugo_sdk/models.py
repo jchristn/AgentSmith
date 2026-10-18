@@ -595,9 +595,10 @@ class SecretReferrer(Model):
 
 
 SECRET_KINDS = ("Password", "PrivateKey", "ApiToken", "AccessKeyPair", "ServiceAccountJson", "Kubeconfig",
-                "ConnectionString", "Certificate", "Generic", "BearerToken")
+                "ConnectionString", "Certificate", "Generic", "BearerToken", "AesKey")
 """Secret kinds the server accepts. ``BearerToken`` (field ``token``) is for tokens sent exactly as
-``Authorization: Bearer``; ``ApiToken`` (field ``token``) is for tokens whose header or format depends on the service."""
+``Authorization: Bearer``; ``ApiToken`` (field ``token``) is for tokens whose header or format depends on the service.
+``AesKey`` contains ``key`` and optional ``salt`` and ``iv`` fields in one encrypted secret."""
 
 
 @dataclasses.dataclass
