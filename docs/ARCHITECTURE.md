@@ -25,7 +25,7 @@ Hugo is one .NET server process with one public port, a React dashboard served b
    |   /v1.0/openai/v1/...            OpenAI-compatible chat completions        |
    |   /metrics                       Prometheus, relayed from :9464            |
    |                                                                            |
-   |   auth -> route registrar -> services -> ToolInvocationService -> connector |
+   |  auth -> route registrar -> services -> ToolInvocationService -> connector |
    +------+----------------------------+---------------------------+------------+
           |                            |                           |
           v                            v                           v
