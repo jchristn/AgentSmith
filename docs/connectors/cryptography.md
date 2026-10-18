@@ -26,7 +26,7 @@ For raw AES-CBC ciphertext with a separately configured key and IV, bind both se
 
 ```json
 {
-  "resource": "jurat-crypto",
+  "resource": "blob-crypto",
   "data": "<base64 content from storage_read>",
   "inputEncoding": "base64",
   "outputEncoding": "utf8",
@@ -34,7 +34,7 @@ For raw AES-CBC ciphertext with a separately configured key and IV, bind both se
 }
 ```
 
-The connector uses the bound IV when `nonce` is omitted in separate CBC mode. That matches a raw AES-CBC/PKCS7 payload encrypted with a direct AES key and separate IV, including Jurat's V2 encryption convention. No passphrase derivation or salt processing is implied. An application using a different key derivation or envelope needs its actual format specified.
+The connector uses the bound IV when `nonce` is omitted in separate CBC mode. That matches a raw AES-CBC/PKCS7 payload encrypted with a direct AES key and separate IV. No passphrase derivation or salt processing is implied. An application using a different key derivation or envelope needs its actual format specified.
 
 Use `outputEncoding: "base64"` for binary plaintext. UTF-8 output rejects invalid text rather than replacing bytes. Large encrypted objects cannot be decrypted correctly by independently decrypting arbitrary storage chunks.
 
@@ -66,7 +66,7 @@ For example, verify a hex SHA-256 digest of decrypted base64 bytes with:
 
 ```json
 {
-  "resource": "jurat-crypto",
+  "resource": "blob-crypto",
   "data": "<base64 plaintext>",
   "inputEncoding": "base64",
   "outputEncoding": "hex",
