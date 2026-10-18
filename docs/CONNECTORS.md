@@ -56,6 +56,7 @@ Every call runs under limits the pipeline passes to the connector: output bytes 
 
 | Type | Display name | Family | Category | Tools |
 |---|---|---|---|---|
+| `cryptography` | Cryptography | `cryptography` | Other | 4 |
 | `ssh` | SSH | `ssh` | Compute | 8 |
 | `azure-blob` | Azure Blob Storage | `storage` | Storage | 8 |
 | `gcs` | Google Cloud Storage | `storage` | Storage | 8 |
@@ -79,6 +80,10 @@ Every call runs under limits the pipeline passes to the connector: output bytes 
 The `mcp` and `a2a-agent` connectors attach other agents' systems rather than infrastructure: another MCP server, or another agent reached over A2A. Both live in `Hugo.Connectors.Agents` and are described in [Agents: external MCP servers and remote A2A agents](#agents-external-mcp-servers-and-remote-a2a-agents).
 
 The testbed in `docker/testbed` runs a real target for every connector that has a self-hostable equivalent, all bound to `127.0.0.1` in the `28xxx` port range. SolarWinds Observability, the HTTP connector, and the `mcp` and `a2a-agent` connectors are tested against in-process stubs in `src/Test.Shared/Connectors`. See `docker/testbed/README.md` for the commands.
+
+## Cryptography
+
+The local `cryptography` connector encrypts and decrypts bytes with vault-managed AES keys and computes or verifies SHA-256/384/512 hashes. AES-GCM is the default; explicit AES-CBC/PKCS7 compatibility supports existing encrypted storage objects with a separate bound IV. No remote service or key in a tool argument is required. See [Cryptography configuration and encrypted S3 workflow](connectors/cryptography.md) for secret setup, byte encodings, envelopes, limits, and examples.
 
 ## SSH
 

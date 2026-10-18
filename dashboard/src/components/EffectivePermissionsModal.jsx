@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Modal from './Modal';
+import CopyableId from './CopyableId';
 import CodeBlock from './CodeBlock';
 import { LoadingState, ErrorBanner } from './States';
 import { Badge } from './StatusBadge';
@@ -64,9 +65,13 @@ export default function EffectivePermissionsModal({ load, title, onClose }) {
                       <td>{enumList(t, 'resourceType', g.resourceTypes)}</td>
                       <td>{enumList(t, 'operationType', g.operations || g.operationTypes)}</td>
                       <td>
-                        {g.scope === 'Resource'
-                          ? `${enumLabel(t, 'resourceScope', g.scope)}: ${g.resourceId}`
-                          : enumLabel(t, 'resourceScope', g.scope || 'Tenant')}
+                        {g.scope === 'Resource' ? (
+                          <>
+                            {enumLabel(t, 'resourceScope', g.scope)}: <CopyableId value={g.resourceId} max={80} />
+                          </>
+                        ) : (
+                          enumLabel(t, 'resourceScope', g.scope || 'Tenant')
+                        )}
                       </td>
                     </tr>
                   ))}

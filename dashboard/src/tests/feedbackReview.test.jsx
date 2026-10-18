@@ -67,7 +67,12 @@ describe('feedback review', () => {
     const dialog = await screen.findByRole('dialog');
     await within(dialog).findByRole('heading', { name: 'Result' });
     expect(dialog.querySelector('strong').textContent).toBe('user');
-    expect(within(dialog).getByText('conv_1')).toBeTruthy();
+    expect(dialog.classList.contains('modal-wide')).toBe(true);
+    for (const id of ['msg_1', 'agp_1', 'conv_1', 'turn_1']) {
+      const code = within(dialog).getByText(id);
+      expect(code.tagName).toBe('CODE');
+      expect(within(code.closest('.copyable-id')).getByRole('button', { name: 'Copy' })).toBeTruthy();
+    }
     expect(within(dialog).getAllByText('0').length).toBeGreaterThan(0);
   });
 

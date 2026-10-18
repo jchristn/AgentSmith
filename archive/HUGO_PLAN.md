@@ -90,12 +90,12 @@ These rules keep the plan honest:
 | 5 | Agent profiles, bindings, prompt templates, instruction composition | M1 | Complete | 23 / 23 |
 | 6 | Model endpoints and agent runtime (chat, streaming, approvals, conversations) | M1 | Complete | 24 / 24 |
 | 7 | Protocol surfaces: MCP, A2A, OpenAI-compatible, stdio CLI | M1 | Complete | 23 / 23 |
-| 8 | Dashboard | M1 | Complete | 64 / 64 |
+| 8 | Dashboard | M1 | Complete | 65 / 65 |
 | 9 | SDKs (C#, Python, JavaScript/TypeScript) | M1 | Complete | 14 / 14 |
 | 10 | Docker, testbed, and observability stack | M1 | Complete | 24 / 24 |
 | 11 | Documentation and Postman | M1 | Complete | 18 / 18 |
 | 12 | MVP verification (milestone M1) | M1 | Complete | 12 / 12 |
-| 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A | M2 | In progress | 37 / 38 |
+| 13 | Connectors wave 2: Redis, AWS, Kubernetes, Docker, HTTP, Prometheus, Loki, Elasticsearch/OpenSearch, external MCP, remote A2A, cryptography | M2 | In progress | 38 / 39 |
 | 14 | Knowledge, runbooks, and operator conveniences | M2 | In progress | 1 / 13 |
 | 15 | Benchmarking | M3 | Not started | 0 / 16 |
 | 17 | Kubernetes and minikube | M2 | Complete | 16 / 16 |
@@ -2108,6 +2108,8 @@ Quality
 - [x] P8.62 Complete standalone chat presentation, branding, and feedback. *Accept:* rounded panel without header rule, composer anchored below scrolling transcript with compact auto-growing input and aligned send control, AI accuracy disclaimer, icon-only theme control, sanitized Markdown for both roles, editable heading/logo/browser title, and persistent thumbs-up/down/free-text feedback scoped to the visitor. | codex 2026-10-17 Followed AssistantHub and Pneuma feedback patterns; Connect > Chat link exposes branding settings. Migration 11 stores presentation fields and message feedback on SQLite/PostgreSQL; capability checks isolate feedback and the authorized operator transcript shows saved feedback. Verified 18 standalone backend cases across both providers, solution build with zero warnings/errors, 334 dashboard unit tests, 86 browser tests, localization/lint checks, and phone/desktop visual review
 - [x] P8.63 Restore incremental standalone chat streaming. *Accept:* safe text renders before model completion, Stop cancels the link-scoped turn, final text/message ID supports feedback, and private events and split secrets remain hidden. | codex 2026-10-17 Standalone endpoint negotiates safe SSE while retaining JSON compatibility; the page consumes real deltas and reconciles final text. Verified 10 SQLite integration cases including delayed early text, split-secret redaction and midstream revocation; 336 dashboard unit tests including deferred-stream visibility/cancellation, 16 standalone browser tests, clean solution build, lint and localization checks
 - [x] P8.64 Add Activity > Feedback with agent selection and correlated request/response telemetry. *Accept:* select an agent, page through saved ratings/comments, inspect the associated request, response, identifiers, token counts and timing, while enforcing tenant and conversation visibility. | codex 2026-10-17 Implemented paged tenant/owner-scoped feedback list and detail API, agent selection with URL persistence, responsive Markdown request/response details and saved telemetry. Verified four backend cases across SQLite/PostgreSQL, solution build with zero warnings/errors, 341 dashboard unit tests, 88 browser tests, all 12 catalogs, lint, and phone/desktop visual review
+- [x] P8.65 Standardize modal identifiers and clipboard behavior, and widen Feedback details. *Accept:* modal ID fields use monospace with shared inline copy controls; copying works with secure Clipboard API or insecure HTTP fallback inside focus-trapped dialogs; Feedback details expands to 1440px while fitting phones. | codex 2026-10-17 Audited generic detail/edit/error/permission/tool/referrer and Feedback modals. Clipboard fallback checks success and restores focus and selection. Verified 349 dashboard unit tests, 88 browser tests including real modal fallback and ID controls, lint, localization and production build
+
 
 
 
@@ -2252,6 +2254,8 @@ Wrap-up
 - [x] P13.36 Least-privilege guides: IAM policy examples (read-only and operator), Kubernetes RBAC manifests, a Redis ACL example.  | claude 2026-10-14 AWS IAM, Kubernetes RBAC, and Redis ACL guides in docs/connectors
 - [x] P13.37 Grafana Tools and Connectors dashboard updated for wave 2 labels.  | claude 2026-10-15 Wave 2 row (5 panels) in hugo-tools.json and its 3 mirrors; PromQL checked against factory Prometheus
 - [ ] P13.38 M2 connector sign-off by the user.
+- [x] P13.39 Add vault-key cryptography connector for encrypted storage objects and digest verification. *Accept:* AES-GCM authenticated encryption/decryption, explicit AES-CBC/PKCS7 compatibility with separate predefined IV, SHA-256/384/512 hashing and constant-time digest comparison; keys never come from tool arguments; byte encodings and atomic size limits are explicit. | codex 2026-10-17 New dependency-free connector with four Read tools, local key/health validation, all 12 dashboard catalogs, known-vector/tamper/binary/limit tests, and real vault/resource/binding pipeline coverage on SQLite/PostgreSQL; 33 connector, integration, registry and pipeline cases pass, with a zero-warning solution build. Documented lossless S3 read/decrypt/verify workflow and Jurat V2 CBC convention without storing key material
+
 
 ### Phase 14: Knowledge, runbooks, and operator conveniences (M2)
 

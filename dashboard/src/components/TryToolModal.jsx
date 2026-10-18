@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import Modal from './Modal';
+import CopyableId from './CopyableId';
 import CodeBlock from './CodeBlock';
 import { FormField } from './FormFields';
 import { EffectBadge, EnumBadge } from './StatusBadge';
@@ -77,7 +78,9 @@ export function OutcomeView({ outcome, testId }) {
       {outcome.effectReason && <p className="field-hint">{t('views.resources.tryTool.effectReason', { reason: outcome.effectReason })}</p>}
       {pending && outcome.approvalId && (
         <div className="warning-banner" data-testid="pending-approval">
-          <span>{t('views.resources.tryTool.pendingApproval', { id: outcome.approvalId })}</span>{' '}
+          <span>
+            <Trans i18nKey="views.resources.tryTool.pendingApproval" components={{ id: <CopyableId value={outcome.approvalId} max={80} /> }} />
+          </span>{' '}
           <button
             type="button"
             className="button-primary button-sm"

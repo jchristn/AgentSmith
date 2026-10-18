@@ -2,7 +2,7 @@
 
 Every registered connector also exposes the shared `resource_get_context` and `resource_update_context` tools for persistent, versioned learnings. See [resource context](RESOURCE_CONTEXT.md) for permissions, examples, and consultation behavior.
 
-Every tool an agent can call through Hugo comes from a connector, and this page lists all of them: 114 connector-specific tools across fourteen families, generated from their descriptors, plus the two shared resource context tools described above. It is written to be included in `MCP_API.md`, but nothing here is specific to MCP. Dashboard chat, A2A, and the OpenAI-compatible surface hand the model the same names, descriptions, and schemas.
+Every tool an agent can call through Hugo comes from a connector, and this page lists all of them: 118 connector-specific tools across fifteen families, generated from their descriptors, plus the two shared resource context tools described above. It is written to be included in `MCP_API.md`, but nothing here is specific to MCP. Dashboard chat, A2A, and the OpenAI-compatible surface hand the model the same names, descriptions, and schemas.
 
 The tool names, descriptions, schemas, effects, and outputs below are generated from the connector code. The protocol-level details (the meta tools, how approvals surface over MCP, sessions) are in `MCP_API.md`.
 
@@ -4462,3 +4462,8 @@ Status: working
 Task: 7f3c2e10-5b8a-4d0e-9c61-0a4f2b7d9e11
 ...
 ```
+
+
+## Cryptography
+
+`crypto_encrypt`, `crypto_decrypt`, `crypto_hash`, and `crypto_verify_hash` transform bytes locally using a bound `cryptography` resource. Each has a Read effect. Keys stay in the resource secret binding. The tools support base64/hex bytes, AES-GCM or explicitly selected AES-CBC, and SHA-256/384/512 digest comparisons. See [the cryptography tool contracts and examples](connectors/cryptography.md#tools).

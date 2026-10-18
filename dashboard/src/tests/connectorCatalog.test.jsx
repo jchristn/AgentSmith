@@ -10,6 +10,11 @@ import { PlugIcon } from '../components/Icons';
 import { connectorSlotLabel } from '../utils/tips';
 
 const WAVE2 = {
+  cryptography: {
+    settings: ['algorithm', 'keyEncoding', 'maxInputBytes'],
+    values: { algorithm: ['AES-GCM', 'AES-CBC'], keyEncoding: ['base64', 'hex'] },
+    slots: ['encryptionKey', 'initializationVector']
+  },
   redis: {
     settings: [
       'endpoints',
@@ -176,7 +181,7 @@ const WAVE2 = {
 };
 
 const WAVE1 = ['ssh', 's3', 'azure-blob', 'gcs', 'sqlite', 'mysql', 'sqlserver', 'postgresql', 'solarwinds-observability'];
-const WAVE2_ICON_KEYS = ['cache', 'cloud', 'cluster', 'container', 'globe', 'chart', 'logs', 'search', 'plug', 'bot'];
+const WAVE2_ICON_KEYS = ['cache', 'cloud', 'cluster', 'container', 'globe', 'chart', 'logs', 'search', 'plug', 'bot', 'shield'];
 const WAVE2_GROUPS = ['Connection', 'Authentication', 'Limits', 'TLS', 'Safety', 'Scope', 'Search', 'Security', 'Execution', 'Credentials'];
 const CATALOGS = [['en', en], ...Object.entries(TRANSLATIONS)];
 

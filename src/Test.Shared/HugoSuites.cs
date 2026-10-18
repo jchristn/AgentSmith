@@ -42,6 +42,7 @@ namespace Test.Shared
                 suites.AddRange(AwsSuites.Build());
                 suites.AddRange(RedisSuites.Build());
                 suites.AddRange(HttpSuites.Build());
+                suites.AddRange(Test.Shared.Connectors.Cryptography.CryptographySuites.Build());
                 suites.AddRange(ObservabilitySuites.Build());
                 suites.AddRange(KubernetesSuites.Build());
                 suites.AddRange(DockerSuites.Build());
@@ -54,6 +55,7 @@ namespace Test.Shared
                 suites.AddRange(Test.Shared.Integration.AgentInstructionsSuite.Build());
                 suites.AddRange(Test.Shared.Integration.StandaloneChatSuite.Build());
                 suites.AddRange(Test.Shared.Integration.FeedbackReviewSuite.Build());
+                suites.AddRange(Test.Shared.Integration.CryptographyIntegrationSuite.Build());
                 suites.AddRange(Test.Shared.Integration.IntegrationDataSuite.Build());
                 suites.AddRange(Test.Shared.Integration.FollowUpSuite.Build());
                 suites.AddRange(Test.Shared.Integration.ThirdPartyInstructionsSuite.Build());

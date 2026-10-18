@@ -109,6 +109,9 @@ export function referrerRows(result) {
         type: 'bindings',
         id: x.bindingId || x.id,
         name: `${x.agentProfileName || x.agentProfileId} / ${x.alias}`,
+        agentProfileId: x.agentProfileId,
+        agentProfileName: x.agentProfileName,
+        alias: x.alias,
         accessMode: x.accessMode,
         enabled: x.enabled
       };

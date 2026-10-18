@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { RefreshIcon, InfoIcon, PlugIcon } from './Icons';
-import CopyButton from './CopyButton';
+import CopyableId from './CopyableId';
 import { tip } from './Tooltip';
 import { errorMessage } from '../utils/errors';
 
@@ -67,14 +67,13 @@ export function ErrorPresenter({ error, onRetry, title }) {
       {error.requestId && (
         <div className="error-presenter-meta" {...tip(t('tips.errors.requestId'))}>
           <span className="text-muted">{t('common.errors.requestIdLabel')}</span>
-          <code>{error.requestId}</code>
-          <CopyButton value={error.requestId} tipText={t('tips.errors.copyRequestId')} />
+          <CopyableId value={error.requestId} max={80} copyTip={t('tips.errors.copyRequestId')} />
         </div>
       )}
       {error.traceId && (
         <div className="error-presenter-meta" {...tip(t('tips.errors.traceId'))}>
           <span className="text-muted">{t('common.errors.traceIdLabel')}</span>
-          <code>{error.traceId}</code>
+          <CopyableId value={error.traceId} max={80} />
         </div>
       )}
       {onRetry && (

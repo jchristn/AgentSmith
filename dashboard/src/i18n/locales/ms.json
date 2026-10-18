@@ -2084,7 +2084,7 @@
         "classification": "Pengelasan",
         "result": "Hasil",
         "notBound": "Profil ini tidak mengikat sumber tersebut, jadi alatnya tidak dapat mencapainya.",
-        "pendingApproval": "Panggilan sedang menunggu kelulusan {{id}}. Putuskannya pada halaman Kelulusan.",
+        "pendingApproval": "Panggilan sedang menunggu kelulusan <id/>. Putuskannya pada halaman Kelulusan.",
         "effectReason": "Pengelas: {{reason}}",
         "openApprovals": "Buka Kelulusan",
         "noOutput": "Alat tidak memulangkan output.",
@@ -4550,6 +4550,38 @@
       "slots": {
         "bearerToken": {
           "label": "Token pembawa"
+        }
+      }
+    },
+    "cryptography": {
+      "settings": {
+        "algorithm": {
+          "label": "Algoritma penyulitan",
+          "help": "AES-GCM mengesahkan data yang disulitkan. Gunakan AES-CBC hanya untuk keserasian dengan data sedia ada. AES-CBC tidak mengesahkan data.",
+          "values": {
+            "AES-GCM": "AES-GCM",
+            "AES-CBC": "AES-CBC"
+          }
+        },
+        "keyEncoding": {
+          "label": "Pengekodan kunci",
+          "help": "Pengekodan kunci penyulitan dan vektor pemulaan pilihan yang disediakan oleh pentadbir. Kunci AES mesti dinyahkod menjadi 16, 24 atau 32 bait; vektor pemulaan mesti dinyahkod menjadi 16 bait.",
+          "values": {
+            "base64": "Base64",
+            "hex": "Hex"
+          }
+        },
+        "maxInputBytes": {
+          "label": "Bait input maksimum",
+          "help": "Saiz input yang dinyahkod maksimum bagi setiap operasi. Lalai: 1048576 bait; julat: 1 hingga 16777216. Had output pengikatan juga terpakai; hasil yang terlalu besar gagal dan bukannya memotong data kriptografi."
+        }
+      },
+      "slots": {
+        "encryptionKey": {
+          "label": "Kunci penyulitan"
+        },
+        "initializationVector": {
+          "label": "Vektor pemulaan (pilihan, AES-CBC)"
         }
       }
     }

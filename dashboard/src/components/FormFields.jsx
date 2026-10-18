@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { EyeIcon, EyeOffIcon, PlusIcon, TrashIcon } from './Icons';
 import { toLocalInput, toUtcIso } from '../utils/query';
 import { tip } from './Tooltip';
+import CopyButton from './CopyButton';
 
 /**
  * Declarative form renderer. field: { name, type, label, tip?, hint?, options?, required?, min?, max?, rows?,
@@ -89,6 +90,8 @@ export function FormField({ field, value, onChange, error, disabled, id, renderC
       </div>
     );
   }
+  const identifier = field.identifier || /(^id$|Id$)/.test(field.name || '');
+  const control = renderControl ? renderControl() : <FieldControl field={field} value={value} onChange={onChange} disabled={disabled} id={id} />;
   return (
     <div className={`field ${wide ? 'span-full' : ''} ${error ? 'has-error' : ''}`}>
       <label htmlFor={id} {...tip(field.tip)}>
@@ -100,7 +103,14 @@ export function FormField({ field, value, onChange, error, disabled, id, renderC
           </span>
         )}
       </label>
-      {renderControl ? renderControl() : <FieldControl field={field} value={value} onChange={onChange} disabled={disabled} id={id} />}
+      {identifier ? (
+        <div className="field-identifier">
+          {control}
+          {typeof value === 'string' && value && <CopyButton value={value} tipText={field.copyTip} />}
+        </div>
+      ) : (
+        control
+      )}
       {field.hint && <div className="field-hint">{field.hint}</div>}
       {error && (
         <div className="field-error" role="alert">

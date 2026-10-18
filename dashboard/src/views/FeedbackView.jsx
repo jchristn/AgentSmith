@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 import TableFrame from '../components/TableFrame';
 import Modal from '../components/Modal';
+import CopyableId from '../components/CopyableId';
 import MarkdownView from '../components/MarkdownView';
 import { EmptyState, ErrorBanner, LoadingState } from '../components/States';
 import { tip } from '../components/Tooltip';
@@ -122,15 +123,21 @@ export default function FeedbackView({ apiClient }) {
     value === null || value === undefined ? key('unavailable') : duration ? formatDuration(value, i18n.language) : formatNumber(value, {}, i18n.language);
   const telemetry = detail
     ? [
-        ['agent', detail.agentName || detail.agentProfileId],
-        ['conversation', detail.conversationId],
-        ['turn', detail.turnId],
+        [
+          'agent',
+          <span key="agent">
+            {detail.agentName && <span>{detail.agentName} </span>}
+            <CopyableId value={detail.agentProfileId} max={80} />
+          </span>
+        ],
+        ['conversation', <CopyableId key="conversation" value={detail.conversationId} max={80} />],
+        ['turn', <CopyableId key="turn" value={detail.turnId} max={80} />],
         ['inputTokens', metric(detail.inputTokens)],
         ['outputTokens', metric(detail.outputTokens)],
         ['firstToken', metric(detail.timeToFirstTokenMs, true)],
         ['duration', metric(detail.durationMs, true)],
         ['model', detail.modelName],
-        ['endpoint', detail.modelEndpointId],
+        ['endpoint', <CopyableId key="endpoint" value={detail.modelEndpointId} max={80} />],
         ['source', detail.source],
         ['toolCalls', metric(detail.toolCallCount)],
         ['finishReason', detail.finishReason]
@@ -189,7 +196,14 @@ export default function FeedbackView({ apiClient }) {
           onRefresh={() => setRefresh((n) => n + 1)}
         />
       )}
-      <Modal open={!!detailId} onClose={() => setDetailId(null)} title={key('details')} size="xlarge" testId="feedback-details">
+      <Modal
+        open={!!detailId}
+        onClose={() => setDetailId(null)}
+        title={key('details')}
+        headerMeta={<CopyableId value={detailId} max={80} />}
+        size="wide"
+        testId="feedback-details"
+      >
         {detailError ? (
           <ErrorBanner message={errorMessage(t, detailError)} onRetry={() => setDetailAttempt((n) => n + 1)} />
         ) : !detail ? (

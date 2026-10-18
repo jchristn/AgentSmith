@@ -2097,7 +2097,7 @@
         "classification": "Classificação",
         "result": "Resultado",
         "notBound": "Este perfil não vincula o recurso, então suas ferramentas não conseguem alcançá-lo.",
-        "pendingApproval": "A chamada está aguardando a aprovação {{id}}. Decida na página Aprovações.",
+        "pendingApproval": "A chamada está aguardando a aprovação <id/>. Decida na página Aprovações.",
         "effectReason": "Classificador: {{reason}}",
         "openApprovals": "Abrir Aprovações",
         "noOutput": "A ferramenta não retornou nada.",
@@ -4572,6 +4572,38 @@
       "slots": {
         "bearerToken": {
           "label": "Token de portador"
+        }
+      }
+    },
+    "cryptography": {
+      "settings": {
+        "algorithm": {
+          "label": "Algoritmo de criptografia",
+          "help": "AES-GCM autentica os dados criptografados. Use AES-CBC apenas para compatibilidade com dados existentes. AES-CBC não autentica os dados.",
+          "values": {
+            "AES-GCM": "AES-GCM",
+            "AES-CBC": "AES-CBC"
+          }
+        },
+        "keyEncoding": {
+          "label": "Codificação da chave",
+          "help": "Codificação da chave de criptografia e do vetor de inicialização opcional fornecidos pelo administrador. As chaves AES devem ser decodificadas em 16, 24 ou 32 bytes; os vetores de inicialização, em 16 bytes.",
+          "values": {
+            "base64": "Base64",
+            "hex": "Hex"
+          }
+        },
+        "maxInputBytes": {
+          "label": "Máximo de bytes de entrada",
+          "help": "Tamanho máximo da entrada decodificada por operação. Padrão: 1048576 bytes; intervalo: de 1 a 16777216. Os limites de saída da vinculação também se aplicam; resultados muito grandes falham em vez de truncar os dados criptográficos."
+        }
+      },
+      "slots": {
+        "encryptionKey": {
+          "label": "Chave de criptografia"
+        },
+        "initializationVector": {
+          "label": "Vetor de inicialização (opcional, AES-CBC)"
         }
       }
     }

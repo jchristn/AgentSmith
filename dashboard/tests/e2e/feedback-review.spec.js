@@ -55,6 +55,40 @@ for (const width of [390, 1280]) {
     await expect(detail).toContainText('test-model');
     await expect(detail).toContainText('conv_feedback');
     await expect(detail.locator('script')).toHaveCount(0);
+    const bounds = await detail.boundingBox();
+    if (width === 1280) expect(bounds.width).toBeGreaterThan(1100);
+    else expect(bounds.width).toBeLessThanOrEqual(width);
+    for (const id of ['msg_feedback', 'prf_0001', 'conv_feedback', 'turn_feedback', 'mdl_0001']) {
+      const identifier = detail.locator('.copyable-id').filter({ has: page.locator('code', { hasText: id }) });
+      await expect(identifier.getByRole('button', { name: 'Copy', exact: true })).toBeVisible();
+      expect(await identifier.locator('code').evaluate((code) => getComputedStyle(code).fontFamily)).toContain('monospace');
+    }
+    // Exercise both non-secure HTTP copying and denied secure clipboard fallback inside the modal.
+    await page.evaluate((secure) => {
+      Object.defineProperty(window, 'isSecureContext', { configurable: true, value: secure });
+      Object.defineProperty(navigator, 'clipboard', {
+        configurable: true,
+        value: {
+          writeText: async () => {
+            throw new Error('Denied');
+          }
+        }
+      });
+      document.execCommand = (command) => {
+        const selected = document.activeElement;
+        window.__copiedIdentifier = command === 'copy' && selected.closest('[role="dialog"]') ? selected.value : null;
+        return !!window.__copiedIdentifier;
+      };
+    }, width === 1280);
+    const copy = detail
+      .locator('.copyable-id')
+      .filter({ has: page.locator('code', { hasText: 'conv_feedback' }) })
+      .getByRole('button');
+    await copy.click();
+    await expect(copy).toHaveAccessibleName('Copied');
+    expect(await page.evaluate(() => window.__copiedIdentifier)).toBe('conv_feedback');
+    await expect(copy).toBeFocused();
+    await expect(detail.locator('textarea')).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     await page.screenshot({ path: testInfo.outputPath(`feedback-details-${width}.png`), fullPage: true });
     await detail.getByRole('button', { name: 'Close', exact: true }).click();

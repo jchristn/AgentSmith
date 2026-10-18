@@ -2084,7 +2084,7 @@
         "classification": "Einstufung",
         "result": "Ergebnis",
         "notBound": "Dieses Profil bindet die Ressource nicht, daher können seine Tools sie nicht erreichen.",
-        "pendingApproval": "Der Aufruf wartet auf Freigabe {{id}}. Entscheiden Sie auf der Seite Freigaben.",
+        "pendingApproval": "Der Aufruf wartet auf Freigabe <id/>. Entscheiden Sie auf der Seite Freigaben.",
         "effectReason": "Klassifizierer: {{reason}}",
         "openApprovals": "Genehmigungen öffnen",
         "noOutput": "Das Werkzeug hat keine Ausgabe geliefert.",
@@ -4550,6 +4550,38 @@
       "slots": {
         "bearerToken": {
           "label": "Bearer-Token"
+        }
+      }
+    },
+    "cryptography": {
+      "settings": {
+        "algorithm": {
+          "label": "Verschlüsselungsalgorithmus",
+          "help": "AES-GCM prüft die Echtheit verschlüsselter Daten. AES-CBC nur für die Kompatibilität mit vorhandenen Daten verwenden. AES-CBC prüft die Echtheit der Daten nicht.",
+          "values": {
+            "AES-GCM": "AES-GCM",
+            "AES-CBC": "AES-CBC"
+          }
+        },
+        "keyEncoding": {
+          "label": "Schlüsselkodierung",
+          "help": "Kodierung des vom Administrator bereitgestellten Schlüssels und des optionalen Initialisierungsvektors. AES-Schlüssel müssen dekodiert 16, 24 oder 32 Byte lang sein; Initialisierungsvektoren 16 Byte.",
+          "values": {
+            "base64": "Base64",
+            "hex": "Hex"
+          }
+        },
+        "maxInputBytes": {
+          "label": "Maximale Eingabegröße in Byte",
+          "help": "Maximale dekodierte Eingabegröße pro Vorgang. Standard: 1048576 Byte; Bereich: 1 bis 16777216. Ausgabelimits der Bindung gelten ebenfalls; zu große Ergebnisse schlagen fehl, statt kryptografische Daten abzuschneiden."
+        }
+      },
+      "slots": {
+        "encryptionKey": {
+          "label": "Verschlüsselungsschlüssel"
+        },
+        "initializationVector": {
+          "label": "Initialisierungsvektor (optional, AES-CBC)"
         }
       }
     }

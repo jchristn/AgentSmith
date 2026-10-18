@@ -2084,7 +2084,7 @@
         "classification": "分類",
         "result": "結果",
         "notBound": "このプロファイルはリソースをバインドしていないため、そのツールはリソースにアクセスできません。",
-        "pendingApproval": "呼び出しは承認 {{id}} を待っています。承認ページで判断してください。",
+        "pendingApproval": "呼び出しは承認 <id/> を待っています。承認ページで判断してください。",
         "effectReason": "分類器：{{reason}}",
         "openApprovals": "承認を開く",
         "noOutput": "ツールは何も返しませんでした。",
@@ -4550,6 +4550,38 @@
       "slots": {
         "bearerToken": {
           "label": "Bearer トークン"
+        }
+      }
+    },
+    "cryptography": {
+      "settings": {
+        "algorithm": {
+          "label": "暗号化アルゴリズム",
+          "help": "AES-GCM は暗号化データを認証します。AES-CBC は既存データとの互換性が必要な場合にのみ使用してください。 AES-CBC はデータを認証しません。",
+          "values": {
+            "AES-GCM": "AES-GCM",
+            "AES-CBC": "AES-CBC"
+          }
+        },
+        "keyEncoding": {
+          "label": "鍵のエンコード",
+          "help": "管理者が提供する暗号鍵と任意の初期化ベクトルのエンコード方式。 AES 鍵はデコード後に 16、24、32 バイトのいずれか、初期化ベクトルは 16 バイトである必要があります。",
+          "values": {
+            "base64": "Base64",
+            "hex": "Hex"
+          }
+        },
+        "maxInputBytes": {
+          "label": "入力の最大バイト数",
+          "help": "操作ごとのデコード後の入力サイズの上限。既定値: 1048576 バイト。範囲: 1 から 16777216。 バインドの出力制限も適用されます。結果が大きすぎる場合は、暗号データを切り捨てずにエラーになります。"
+        }
+      },
+      "slots": {
+        "encryptionKey": {
+          "label": "暗号鍵"
+        },
+        "initializationVector": {
+          "label": "初期化ベクトル（任意、AES-CBC）"
         }
       }
     }

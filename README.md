@@ -115,11 +115,12 @@ One server process serves REST, MCP, A2A, and the OpenAI-compatible surface on o
 
 ## Connectors
 
-Nineteen connector types in fourteen families ship in the image, with 114 connector-specific tools plus two shared resource context tools.
+Twenty connector types in fifteen families ship in the image, with 118 connector-specific tools plus two shared resource context tools.
 
 | Family | Connectors | A few of the tools |
 |---|---|---|
 | Hosts | SSH | `ssh_system_info`, `ssh_exec`, `ssh_service_control`, `ssh_tail_file` |
+| Cryptography | Vault-managed AES-GCM/AES-CBC and SHA digests | `crypto_encrypt`, `crypto_decrypt`, `crypto_hash`, `crypto_verify_hash` |
 | Object storage | Amazon S3 (and S3-compatible), Azure Blob, Google Cloud Storage | `storage_list`, `storage_read`, `storage_presign_url`, `storage_delete` |
 | Databases | SQLite, MySQL, PostgreSQL, SQL Server | `sql_get_agent_pack`, `sql_query`, `sql_activity`, `sql_ask` |
 | Logs | SolarWinds Observability | `logs_search`, `logs_tail`, `swo_query_metric` |

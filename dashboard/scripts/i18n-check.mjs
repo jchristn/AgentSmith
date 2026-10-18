@@ -95,6 +95,7 @@ const problems = [];
 const staticKeys = new Set();
 const patterns = [];
 const staticRe = /\bt\(\s*'([A-Za-z0-9_.]+)'\s*(,\s*\{\s*defaultValue)?/g;
+const transKeyRe = /\bi18nKey=["']([A-Za-z0-9_.]+)["']/g;
 const templateRe = /\bt\(\s*`([^`]+)`/g;
 const literalKeyRe = /'((?:common|components|views|tips|login|topbar|roles|wizard|tour)\.[A-Za-z0-9_.]+)'/g;
 for (const file of files) {
@@ -104,6 +105,10 @@ for (const file of files) {
     if (!m[1].includes('.')) continue;
     staticKeys.add(m[1]);
     if (!m[2] && !exists(en, m[1])) problems.push(`missing key: ${m[1]} (${path.relative(ROOT, file)})`);
+  }
+  while ((m = transKeyRe.exec(text))) {
+    staticKeys.add(m[1]);
+    if (!exists(en, m[1])) problems.push(`missing Trans key: ${m[1]} (${path.relative(ROOT, file)})`);
   }
   while ((m = templateRe.exec(text))) {
     const source = m[1].replace(/\$\{[^}]+\}/g, '@@VAR@@');

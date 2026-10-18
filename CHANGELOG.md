@@ -12,7 +12,13 @@ Everything below is new in this release. The images are `jchristn77/hugo-server:
 
 - Agents can read and update their current profile's persistent Extra instructions through hosted chat and MCP. The model handles version checks and concise consolidation, with profile permissions, atomic updates, secret guards, auditing, and fresh instructions before each hosted model call. No database migration is needed.
 
+### Connectors
+
+- Cryptography resources provide vault-key AES-GCM/AES-CBC encryption and decryption, SHA-256/384/512 hashing, and hash verification. Binary storage reads can feed encrypted objects to the connector without exposing keys.
+
 ### Dashboard
+
+- Modal identifiers use monospace text with the shared copy control. Clipboard fallback works inside dialogs on non-secure HTTP origins and restores focus. Feedback details uses a wider responsive modal.
 
 - Activity includes Feedback review: select an agent, page through ratings and comments, and inspect the associated request, response, token counts, timing, model endpoint, conversation, and turn. Access follows normal tenant and conversation visibility.
 

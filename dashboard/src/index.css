@@ -878,6 +878,7 @@ button:disabled {
   gap: 0.25rem;
 }
 .copyable-id code {
+  font-family: var(--font-mono);
   color: var(--color-text-secondary);
 }
 
@@ -912,6 +913,10 @@ button:disabled {
 }
 .modal-xlarge {
   max-width: 1000px;
+}
+.modal-wide {
+  width: min(1440px, 94vw);
+  max-width: min(1440px, 94vw);
 }
 /* Near-fullscreen modal: 90% of the viewport in both dimensions. */
 .modal-full {
@@ -3485,4 +3490,31 @@ input[readonly] {
 }
 .text-danger {
   color: var(--color-danger);
+}
+
+.field-identifier {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.field-identifier input,
+.field-identifier select {
+  min-width: 0;
+  flex: 1;
+  font-family: var(--font-mono);
+}
+.field-identifier .copy-btn {
+  flex: none;
+}
+.modal .copyable-id {
+  max-width: 100%;
+  min-width: 0;
+}
+.modal .copyable-id code {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.modal .copyable-id .copy-btn {
+  flex: none;
 }

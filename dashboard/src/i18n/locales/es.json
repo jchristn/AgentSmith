@@ -2097,7 +2097,7 @@
         "classification": "Clasificación",
         "result": "Resultado",
         "notBound": "Este perfil no vincula el recurso, por lo que sus herramientas no pueden acceder a él.",
-        "pendingApproval": "La llamada está esperando la aprobación {{id}}. Decídala en la página Aprobaciones.",
+        "pendingApproval": "La llamada está esperando la aprobación <id/>. Decídala en la página Aprobaciones.",
         "effectReason": "Clasificador: {{reason}}",
         "openApprovals": "Abrir Aprobaciones",
         "noOutput": "La herramienta no devolvió nada.",
@@ -4572,6 +4572,38 @@
       "slots": {
         "bearerToken": {
           "label": "Token de portador"
+        }
+      }
+    },
+    "cryptography": {
+      "settings": {
+        "algorithm": {
+          "label": "Algoritmo de cifrado",
+          "help": "AES-GCM autentica los datos cifrados. Utilice AES-CBC solo para compatibilidad con datos existentes. AES-CBC no autentica los datos.",
+          "values": {
+            "AES-GCM": "AES-GCM",
+            "AES-CBC": "AES-CBC"
+          }
+        },
+        "keyEncoding": {
+          "label": "Codificación de la clave",
+          "help": "Codificación de la clave de cifrado y del vector de inicialización opcional proporcionados por el administrador. Las claves AES deben decodificarse en 16, 24 o 32 bytes; los vectores de inicialización, en 16 bytes.",
+          "values": {
+            "base64": "Base64",
+            "hex": "Hex"
+          }
+        },
+        "maxInputBytes": {
+          "label": "Máximo de bytes de entrada",
+          "help": "Tamaño máximo de entrada decodificada por operación. Predeterminado: 1048576 bytes; intervalo: de 1 a 16777216. También se aplican los límites de salida de la vinculación; los resultados demasiado grandes fallan en lugar de truncar los datos criptográficos."
+        }
+      },
+      "slots": {
+        "encryptionKey": {
+          "label": "Clave de cifrado"
+        },
+        "initializationVector": {
+          "label": "Vector de inicialización (opcional, AES-CBC)"
         }
       }
     }

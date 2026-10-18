@@ -10,7 +10,7 @@ const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), selec
 /**
  * Base modal. Renders via portal. Closes on ESC and backdrop click (unless `blocking`), locks body scroll, traps
  * focus inside the dialog, returns focus to the opener on close, and pauses auto-refresh while open.
- * `size` is 'small' | 'medium' | 'large' | 'xlarge'.
+ * `size` is 'small' | 'medium' | 'large' | 'xlarge' | 'wide' | 'full'.
  */
 export default function Modal({ open, onClose, title, headerMeta, children, footer, size = 'medium', blocking = false, testId }) {
   const { t } = useTranslation();

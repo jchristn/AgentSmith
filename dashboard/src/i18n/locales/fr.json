@@ -2097,7 +2097,7 @@
         "classification": "Classification",
         "result": "Résultat",
         "notBound": "Ce profil ne lie pas la ressource ; ses outils ne peuvent donc pas l'atteindre.",
-        "pendingApproval": "L'appel attend l'approbation {{id}}. Traitez-la sur la page Approbations.",
+        "pendingApproval": "L'appel attend l'approbation <id/>. Traitez-la sur la page Approbations.",
         "effectReason": "Classificateur : {{reason}}",
         "openApprovals": "Ouvrir les approbations",
         "noOutput": "L'outil n'a rien renvoyé.",
@@ -4572,6 +4572,38 @@
       "slots": {
         "bearerToken": {
           "label": "Jeton du porteur"
+        }
+      }
+    },
+    "cryptography": {
+      "settings": {
+        "algorithm": {
+          "label": "Algorithme de chiffrement",
+          "help": "AES-GCM authentifie les données chiffrées. Utilisez AES-CBC uniquement pour la compatibilité avec des données existantes. AES-CBC n’authentifie pas les données.",
+          "values": {
+            "AES-GCM": "AES-GCM",
+            "AES-CBC": "AES-CBC"
+          }
+        },
+        "keyEncoding": {
+          "label": "Encodage de la clé",
+          "help": "Encodage de la clé de chiffrement et du vecteur d’initialisation facultatif fournis par l’administrateur. Les clés AES doivent être décodées en 16, 24 ou 32 octets ; les vecteurs d’initialisation, en 16 octets.",
+          "values": {
+            "base64": "Base64",
+            "hex": "Hex"
+          }
+        },
+        "maxInputBytes": {
+          "label": "Nombre maximal d’octets en entrée",
+          "help": "Taille maximale de l’entrée décodée par opération. Valeur par défaut : 1048576 octets ; plage : de 1 à 16777216. Les limites de sortie de la liaison s’appliquent également ; les résultats trop volumineux échouent au lieu de tronquer les données cryptographiques."
+        }
+      },
+      "slots": {
+        "encryptionKey": {
+          "label": "Clé de chiffrement"
+        },
+        "initializationVector": {
+          "label": "Vecteur d’initialisation (facultatif, AES-CBC)"
         }
       }
     }

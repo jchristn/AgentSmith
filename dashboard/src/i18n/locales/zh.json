@@ -2084,7 +2084,7 @@
         "classification": "分类",
         "result": "结果",
         "notBound": "此配置文件未绑定该资源，因此其工具无法访问它。",
-        "pendingApproval": "调用正在等待审批 {{id}}。请在审批页面处理。",
+        "pendingApproval": "调用正在等待审批 <id/>。请在审批页面处理。",
         "effectReason": "分类器：{{reason}}",
         "openApprovals": "打开审批",
         "noOutput": "工具没有返回输出。",
@@ -4550,6 +4550,38 @@
       "slots": {
         "bearerToken": {
           "label": "Bearer 令牌"
+        }
+      }
+    },
+    "cryptography": {
+      "settings": {
+        "algorithm": {
+          "label": "加密算法",
+          "help": "AES-GCM 可验证加密数据的真实性。仅在需要兼容现有数据时使用 AES-CBC。 AES-CBC 不验证数据的真实性。",
+          "values": {
+            "AES-GCM": "AES-GCM",
+            "AES-CBC": "AES-CBC"
+          }
+        },
+        "keyEncoding": {
+          "label": "密钥编码",
+          "help": "管理员提供的加密密钥和可选初始化向量的编码方式。 AES 密钥解码后必须为 16、24 或 32 字节；初始化向量解码后必须为 16 字节。",
+          "values": {
+            "base64": "Base64",
+            "hex": "Hex"
+          }
+        },
+        "maxInputBytes": {
+          "label": "最大输入字节数",
+          "help": "每次操作解码后输入的最大大小。默认值：1048576 字节；范围：1 至 16777216。 同时遵循绑定的输出限制；结果过大时会报错，而不会截断密码数据。"
+        }
+      },
+      "slots": {
+        "encryptionKey": {
+          "label": "加密密钥"
+        },
+        "initializationVector": {
+          "label": "初始化向量（可选，AES-CBC）"
         }
       }
     }

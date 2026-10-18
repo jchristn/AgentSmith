@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import PageHeader from './PageHeader';
 import TableFrame from './TableFrame';
 import Modal from './Modal';
+import CopyableId from './CopyableId';
 import ConfirmModal from './ConfirmModal';
 import JsonViewerModal from './JsonViewerModal';
 import ActionMenu from './ActionMenu';
@@ -501,7 +502,7 @@ export default function ResourceView({ config }) {
         onClose={() => !busy && setEditing(null)}
         size={config.formSize || 'large'}
         title={editing ? t(`${prefix}.${editing.mode === 'create' ? 'create' : editing.mode === 'edit' ? 'edit' : 'view'}`) : ''}
-        headerMeta={editing?.data?.id ? <code className="cell-id">{editing.data.id}</code> : null}
+        headerMeta={editing?.data?.id ? <CopyableId value={editing.data.id} max={80} /> : null}
         footer={
           editing?.mode === 'view' ? (
             <>

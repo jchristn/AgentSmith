@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><RootNamespace>Hugo.Connectors.Cryptography</RootNamespace><AssemblyName>Hugo.Connectors.Cryptography</AssemblyName><Description>Local cryptographic transforms using administrator-managed vault keys.</Description></PropertyGroup>
+  <ItemGroup><ProjectReference Include="..\Hugo.Connectors.Abstractions\Hugo.Connectors.Abstractions.csproj" /></ItemGroup>
+  <ItemGroup><EmbeddedResource Include="Instructions\**\*.md" /></ItemGroup>
+</Project>

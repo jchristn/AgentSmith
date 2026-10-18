@@ -6,6 +6,7 @@ namespace Hugo.Server.Services
     using Hugo.Connectors.Agents.A2A;
     using Hugo.Connectors.Agents.Mcp;
     using Hugo.Connectors.Aws;
+    using Hugo.Connectors.Cryptography;
     using Hugo.Connectors.Docker;
     using Hugo.Connectors.Http;
     using Hugo.Connectors.Kubernetes;
@@ -28,7 +29,7 @@ namespace Hugo.Server.Services
         /// <summary>
         /// New instances of every built-in connector. Wave 1: ssh, s3, azure-blob, gcs, sqlite, mysql, sqlserver,
         /// postgresql, solarwinds-observability. Wave 2: redis, http, prometheus, loki, elasticsearch, aws,
-        /// kubernetes, docker, mcp, a2a-agent.
+        /// kubernetes, docker, mcp, a2a-agent. Local transformations: cryptography.
         /// </summary>
         /// <param name="allowMcpStdio">Server gate for external MCP servers over stdio (Connectors.McpAllowStdio). Default false.</param>
         /// <returns>Connectors.</returns>
@@ -47,6 +48,7 @@ namespace Hugo.Server.Services
                 new SolarWindsObservabilityConnector(),
                 new RedisConnector(),
                 new HttpConnector(),
+                new CryptographyConnector(),
                 new PrometheusConnector(),
                 new LokiConnector(),
                 new ElasticsearchConnector(),

@@ -545,7 +545,16 @@ export function ReferrerList({ t, result }) {
     <ul className="plain-list confirm-list" data-testid="referrers">
       {items.map((x, i) => (
         <li key={x.id || i}>
-          <Badge>{t(`resources.resources.referrerTypes.${x.type}`, { defaultValue: x.type || '-' })}</Badge> <code>{x.name}</code>
+          <Badge>{t(`resources.resources.referrerTypes.${x.type}`, { defaultValue: x.type || '-' })}</Badge>{' '}
+          {x.agentProfileId ? (
+            <>
+              <NamedId id={x.agentProfileId} name={x.agentProfileName} /> / <code>{x.alias}</code>
+            </>
+          ) : x.name === x.id ? (
+            <CopyableId value={x.id} max={80} />
+          ) : (
+            <code>{x.name}</code>
+          )}
           {x.accessMode && (
             <>
               {' '}
@@ -1049,9 +1058,9 @@ export function ToolInvocationDetail({ t, r }) {
           <code>{r.toolName}</code>
         </dd>
         <dt>{t('resources.toolInvocations.columns.resourceId')}</dt>
-        <dd>{r.bindingAlias || r.resourceAlias || r.resourceId || '-'}</dd>
+        <dd>{r.bindingAlias || r.resourceAlias || (r.resourceId ? <CopyableId value={r.resourceId} max={80} /> : '-')}</dd>
         <dt>{t('resources.toolInvocations.columns.principalId')}</dt>
-        <dd>{r.principalName || r.principalId || '-'}</dd>
+        <dd>{r.principalName || (r.principalId ? <CopyableId value={r.principalId} max={80} /> : '-')}</dd>
         <dt>{t('resources.toolInvocations.columns.effect')}</dt>
         <dd>
           <EffectBadge effect={r.effect} /> {r.effectReason && <span className="text-muted">{r.effectReason}</span>}

@@ -2069,7 +2069,7 @@
         "classification": "Classification",
         "result": "Result",
         "notBound": "This profile does not bind the resource, so its tools cannot reach it.",
-        "pendingApproval": "The call is waiting for approval {{id}}. Decide it on the Approvals page.",
+        "pendingApproval": "The call is waiting for approval <id/>. Decide it on the Approvals page.",
         "effectReason": "Classifier: {{reason}}",
         "openApprovals": "Open Approvals",
         "noOutput": "The tool returned no output.",
@@ -4536,6 +4536,38 @@
       "slots": {
         "bearerToken": {
           "label": "Bearer token"
+        }
+      }
+    },
+    "cryptography": {
+      "settings": {
+        "algorithm": {
+          "label": "Encryption algorithm",
+          "help": "AES-GCM authenticates encrypted data. Use AES-CBC only for compatibility with existing data. AES-CBC does not authenticate data.",
+          "values": {
+            "AES-GCM": "AES-GCM",
+            "AES-CBC": "AES-CBC"
+          }
+        },
+        "keyEncoding": {
+          "label": "Key encoding",
+          "help": "The encoding of the administrator-provided encryption key and optional initialization vector. AES keys must decode to 16, 24, or 32 bytes; initialization vectors must decode to 16 bytes.",
+          "values": {
+            "base64": "Base64",
+            "hex": "Hex"
+          }
+        },
+        "maxInputBytes": {
+          "label": "Maximum input bytes",
+          "help": "Maximum decoded input size per operation. Default: 1048576 bytes; range: 1 to 16777216. Binding output limits also apply; oversized results fail rather than truncate cryptographic data."
+        }
+      },
+      "slots": {
+        "encryptionKey": {
+          "label": "Encryption key"
+        },
+        "initializationVector": {
+          "label": "Initialization vector (optional, AES-CBC)"
         }
       }
     }

@@ -2097,7 +2097,7 @@
         "classification": "Classificazione",
         "result": "Risultato",
         "notBound": "Questo profilo non associa la risorsa, quindi i suoi strumenti non possono raggiungerla.",
-        "pendingApproval": "La chiamata è in attesa dell'approvazione {{id}}. Decidila nella pagina Approvazioni.",
+        "pendingApproval": "La chiamata è in attesa dell'approvazione <id/>. Decidila nella pagina Approvazioni.",
         "effectReason": "Classificatore: {{reason}}",
         "openApprovals": "Apri Approvazioni",
         "noOutput": "Lo strumento non ha restituito nulla.",
@@ -4572,6 +4572,38 @@
       "slots": {
         "bearerToken": {
           "label": "Token bearer"
+        }
+      }
+    },
+    "cryptography": {
+      "settings": {
+        "algorithm": {
+          "label": "Algoritmo di cifratura",
+          "help": "AES-GCM autentica i dati cifrati. Utilizzare AES-CBC solo per la compatibilità con dati esistenti. AES-CBC non autentica i dati.",
+          "values": {
+            "AES-GCM": "AES-GCM",
+            "AES-CBC": "AES-CBC"
+          }
+        },
+        "keyEncoding": {
+          "label": "Codifica della chiave",
+          "help": "Codifica della chiave di cifratura e del vettore di inizializzazione facoltativo forniti dall’amministratore. Le chiavi AES decodificate devono essere di 16, 24 o 32 byte; i vettori di inizializzazione di 16 byte.",
+          "values": {
+            "base64": "Base64",
+            "hex": "Hex"
+          }
+        },
+        "maxInputBytes": {
+          "label": "Numero massimo di byte in ingresso",
+          "help": "Dimensione massima dei dati decodificati per operazione. Valore predefinito: 1048576 byte; intervallo: da 1 a 16777216. Si applicano anche i limiti di uscita dell’associazione; i risultati troppo grandi falliscono anziché troncare i dati crittografici."
+        }
+      },
+      "slots": {
+        "encryptionKey": {
+          "label": "Chiave di cifratura"
+        },
+        "initializationVector": {
+          "label": "Vettore di inizializzazione (facoltativo, AES-CBC)"
         }
       }
     }

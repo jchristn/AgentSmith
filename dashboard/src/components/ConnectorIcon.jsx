@@ -10,6 +10,7 @@ import {
   GlobeIcon,
   PlugIcon,
   SearchIcon,
+  ShieldIcon,
   TerminalIcon,
   ZapIcon
 } from './Icons';
@@ -30,6 +31,7 @@ export const CONNECTOR_ICON_KEYS = {
   chart: ChartIcon,
   search: SearchIcon,
   bot: BotIcon,
+  shield: ShieldIcon,
   plug: PlugIcon
 };
 
@@ -38,6 +40,7 @@ export const CONNECTOR_ICON_KEYS = {
  * keep a stable icon even when a server omits the key; plugin connectors use their iconKey.
  */
 export const CONNECTOR_TYPE_ICONS = {
+  cryptography: ShieldIcon,
   ssh: TerminalIcon,
   s3: BucketIcon,
   'azure-blob': BucketIcon,
