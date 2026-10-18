@@ -154,6 +154,7 @@ export const UNTRANSLATED_ALLOWLIST = {
     'Version {{version}}'
   ],
   es: [
+    'Interfaces',
     'Alias',
     'Chat',
     'Editor',
@@ -175,6 +176,7 @@ export const UNTRANSLATED_ALLOWLIST = {
     'Variables'
   ],
   fr: [
+    'Interfaces',
     'Action',
     'Actions',
     'Active',
@@ -275,6 +277,7 @@ export const UNTRANSLATED_ALLOWLIST = {
     'Token'
   ],
   pt: [
+    'Interfaces',
     'Alias',
     'Caches',
     'Chat',

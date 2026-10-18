@@ -200,7 +200,7 @@ export default function McpExplorerView() {
               <p>
                 <code>{init.serverInfo?.name || '-'}</code> {init.serverInfo?.version || ''} <span className="text-muted">{init.protocolVersion}</span>
               </p>
-              <details open>
+              <details data-testid="mcp-instructions">
                 <summary {...tip(t('tips.views.mcpExplorer.instructions'))}>{t('views.mcpExplorer.instructions')}</summary>
                 <MarkdownView text={init.instructions || ''} emptyText={t('views.mcpExplorer.noInstructions')} />
               </details>
@@ -229,8 +229,17 @@ export default function McpExplorerView() {
                     <div className={result.isError ? 'error-banner' : 'success-banner'}>
                       {result.isError ? t('views.mcpExplorer.toolError') : t('views.mcpExplorer.toolOk')}
                     </div>
-                    {resultText && <CodeBlock value={resultText} />}
-                    <CodeBlock value={result} prettyJson />
+                    <div data-testid="mcp-result">
+                      {Object.hasOwn(result, 'structuredContent') ? (
+                        <CodeBlock value={result.structuredContent} prettyJson />
+                      ) : (
+                        resultText && <CodeBlock value={resultText} prettyJson />
+                      )}
+                    </div>
+                    <details data-testid="mcp-result-raw">
+                      <summary>{t('views.a2aExplorer.rawResponse')}</summary>
+                      <CodeBlock value={result} prettyJson />
+                    </details>
                   </>
                 )}
               </div>

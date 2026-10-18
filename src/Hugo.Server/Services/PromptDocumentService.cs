@@ -4,7 +4,6 @@ namespace Hugo.Server.Services
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using System.Text.RegularExpressions;
     using System.Threading;
     using System.Threading.Tasks;
     using Hugo.Core.Enumeration;
@@ -334,8 +333,7 @@ namespace Hugo.Server.Services
             UTF8Encoding encoding = new UTF8Encoding(false, true);
             try { if (encoding.GetByteCount(Canonical(markdown)) > _Server.Settings.PromptDocuments.MaxPromptDocumentBytes) throw new PromptDocumentException("document_limit_exceeded", "Document content exceeds the configured UTF-8 byte limit."); }
             catch (EncoderFallbackException) { throw Invalid("markdown", "Markdown must be valid UTF-8 text."); }
-            foreach (string value in new[] { name, description, markdown })
-                if (!String.Equals(SecretScrubber.Shared.Scrub(value), value, StringComparison.Ordinal) || Regex.IsMatch(value, @"\b(?:eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|xox[abprs]-[A-Za-z0-9-]{10,}|sk-[A-Za-z0-9_-]{20,}|AIza[0-9A-Za-z_-]{30,})\b", RegexOptions.CultureInvariant, TimeSpan.FromMilliseconds(100))) throw Invalid("markdown", "Document fields contain known secrets or credential patterns. Remove secret material before saving.");
+
         }
 
         private async Task ChangedAsync(RequestContext ctx, string tenant, string id, string operation, CancellationToken token)

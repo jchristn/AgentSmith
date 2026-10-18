@@ -73,3 +73,5 @@ Read the document before answering and identify the revision you used.
 In Reference mode, inspect the tool activity: a successful document read should precede applying its details. In Inline mode, inspect compiled instructions to verify that the complete selected content is present; no read is required. A pinned attachment should keep its old content after the shared document is revised. Test restricted/public callers separately from an administrator.
 
 An unavailable document should produce a real tool or authorization error, not an invented description of its contents. Start a new conversation when testing changed guidance so earlier retrieved revisions do not influence the result.
+
+Document saves accept administrator-authored text literally, including credential-shaped examples. Save validation does not reject or rewrite content based on secret patterns. Existing access controls, content limits and request-history redaction still apply.

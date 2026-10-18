@@ -212,7 +212,9 @@ test('MCP Explorer initializes, lists tools by family, and calls one with a gene
   await login(page, { expect });
   await page.goto(pathFor('mcpExplorer'));
   await page.getByTestId('mcp-connect').click();
-  await expect(page.locator('body')).toContainText('You are Agent Smith');
+  await expect(page.getByTestId('mcp-instructions')).not.toHaveAttribute('open', '');
+  await page.getByTestId('mcp-instructions').locator('summary').click();
+  await expect(page.getByTestId('mcp-instructions')).toContainText('You are Agent Smith');
   await page.locator('[data-tool="sql_query"]').click();
   await page.locator('#mcp-arg-sql').fill('select 1');
   await page.getByTestId('mcp-call').click();

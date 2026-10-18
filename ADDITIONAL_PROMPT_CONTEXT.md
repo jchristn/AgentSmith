@@ -71,7 +71,7 @@ Document management is an explicit dashboard/API operation in this release. Agen
 
 ## 4. Domain model, persistence and migration
 
-Use three new structured tables with tenant-qualified relations. Store Markdown in a text column on immutable revision rows, not as JSON, a secret field, a conversation message, or a file on an ephemeral container filesystem. Document content uses the existing prompt-content storage protection model and database backup controls. It is not a vault and must not contain secret material.
+Use three new structured tables with tenant-qualified relations. Store Markdown in a text column on immutable revision rows, not as JSON, a secret field, a conversation message, or a file on an ephemeral container filesystem. Document content uses the existing prompt-content storage protection model and database backup controls. It is not a vault. Administrator-authored content is accepted as literal text without secret-pattern filtering on save.
 
 | Entity/table | Required fields and rules |
 |---|---|
@@ -235,7 +235,7 @@ SDK harnesses must test server behavior, not only DTO serialization: CAS conflic
 
 Document bodies are intentionally sent to authorized models and content readers. They must not also leak into audit descriptions, metric labels, exception text, request-history request bodies, exported traces or application logs. Add explicit content redaction for create/update/read routes and tool previews using the current policies; do not rely on a secret scrubber alone to hide arbitrary confidential Markdown. The authorized conversation tool result necessarily contains retrieved content under existing conversation access/retention rules.
 
-Use the existing secret/content guard on writes and before model delivery. Reject known secret-bearing writes with a redacted validation message rather than silently changing saved content and invalidating its hash. Filenames, descriptions and cursor input need validation too. A scrubber is defense in depth, not a reason to store credentials in a document. Escape delimiter-looking names/descriptions in manifest rendering and preserve Markdown as data rather than template directives.
+Document writes accept literal administrator content without secret-pattern rejection or rewriting. This includes credential-shaped examples in documentation. Existing model-delivery protection against known vault secrets and telemetry redaction remain in place. Filenames, descriptions and cursor input need validation too. A scrubber is defense in depth, not a reason to store credentials in a document. Escape delimiter-looking names/descriptions in manifest rendering and preserve Markdown as data rather than template directives.
 
 Audit create/update/restore/deactivate/delete, attach/detach/order/mode/pin/public changes and authorization denials using IDs, actor, tenant and request/trace correlation. Record a document-read event or existing tool audit entry containing revision, outcome and byte count, never body content. Do not duplicate existing request/tool audit records unnecessarily. Public traffic must remain rate-limited using the existing visitor controls.
 
@@ -404,3 +404,7 @@ and HTML, SDK file import, Reference preview without body, Inline preview with
 body, and record cleanup. No production deployment was modified. Pull and
 recreate the server and dashboard containers to apply the release. Migration 12
 runs automatically; back up the database and master key before upgrading.
+
+### Follow-up: document save validation
+
+On 2026-10-18, the operator requested removal of secret-pattern rejection when saving documents. Create and update now accept the supplied literal text without heuristic rejection. Both providers pass create/edit/revision round trips with synthetic credential-shaped examples. This changes save validation; it does not change authorization, size limits, content redaction in telemetry, or existing delivery checks against known vault material.

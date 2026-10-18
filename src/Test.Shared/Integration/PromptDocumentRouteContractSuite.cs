@@ -25,6 +25,7 @@ namespace Test.Shared.Integration
                 {
                     new TestCaseDescriptor(id, "strict-input", "Unknown fields, enum/version syntax and body limits emit safe documented errors", ct => InputAsync(provider, ct)),
                     new TestCaseDescriptor(id, "cas-lifecycle", "Metadata/revision/attachment routes enforce CAS and deletion lifecycle", ct => LifecycleAsync(provider, ct)),
+                    new TestCaseDescriptor(id, "literal-credentials", "Document create and edit preserve credential-shaped documentation as literal text", ct => LiteralCredentialsAsync(provider, ct)),
                     new TestCaseDescriptor(id, "history-redaction", "Markdown never enters HTTP request history bodies", ct => HistoryAsync(provider, ct))
                 });
             }).ToList();
@@ -81,6 +82,21 @@ namespace Test.Shared.Integration
                 Assert.Equal(204, (await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Delete, "/v1.0/api/prompt-documents/" + d.Id + "?expectedVersion=2", null, token).ConfigureAwait(false)).StatusCode, "Delete status");
                 TestResponse gone = await HttpTestHelpers.SendAsync(rig.Anderson, HttpMethod.Get, "/v1.0/api/prompt-documents/" + d.Id, null, token).ConfigureAwait(false);
                 Assert.Equal(404, gone.StatusCode, "Deleted document hidden");
+            }
+        }
+
+        private static async Task LiteralCredentialsAsync(DatabaseTypeEnum provider, CancellationToken token)
+        {
+            await using (IntegrationRig rig = await IntegrationRig.StartAsync(provider, null, token).ConfigureAwait(false))
+            {
+                string example = "# Synthetic token syntax\nExample: sk-" + new string('x', 32) + "\n";
+                PromptDocumentView document = await CreateAsync(rig, "TokenSyntax.md", example, token).ConfigureAwait(false);
+                PromptDocumentRevision initial = await HttpTestHelpers.SendAsync<PromptDocumentRevision>(rig.Anderson, HttpMethod.Get, "/v1.0/api/prompt-documents/" + document.Id + "/revisions/1", null, 200, token).ConfigureAwait(false);
+                Assert.Equal(example, initial.Markdown, "Credential-shaped examples are stored unchanged on create");
+                string edited = example + "Another example: ghp_" + new string('y', 36);
+                PromptDocumentView updated = await HttpTestHelpers.SendAsync<PromptDocumentView>(rig.Anderson, HttpMethod.Put, "/v1.0/api/prompt-documents/" + document.Id, new { expectedVersion = document.Version, markdown = edited }, 200, token).ConfigureAwait(false);
+                PromptDocumentRevision revision = await HttpTestHelpers.SendAsync<PromptDocumentRevision>(rig.Anderson, HttpMethod.Get, "/v1.0/api/prompt-documents/" + document.Id + "/revisions/" + updated.CurrentRevision, null, 200, token).ConfigureAwait(false);
+                Assert.Equal(edited, revision.Markdown, "Credential-shaped examples are stored unchanged on edit");
             }
         }
 

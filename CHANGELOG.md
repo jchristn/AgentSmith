@@ -10,6 +10,8 @@ Everything below is new in this release. The images are `jchristn77/hugo-server:
 
 ### Agent instructions
 
+- Document create/edit accepts literal administrator content without secret-pattern rejection. UTF-8, size, access and concurrency validation remain enforced.
+
 - AES secrets record independent base64 or hex formats for key, salt and IV, so one resource can use mixed-format material without guessing.
 
 - Agents can read and update their current profile's persistent Extra instructions through hosted chat and MCP. The model handles version checks and concise consolidation, with profile permissions, atomic updates, secret guards, auditing, and fresh instructions before each hosted model call. No database migration is needed.
@@ -21,6 +23,8 @@ Everything below is new in this release. The images are `jchristn77/hugo-server:
 - Cryptography resources provide vault-key AES-GCM/AES-CBC encryption and decryption, SHA-256/384/512 hashing, and hash verification. Binary storage reads can feed encrypted objects to the connector without exposing keys.
 
 ### Dashboard
+
+- MCP Explorer starts initialize instructions collapsed and displays structured tool results directly, with raw responses available separately. A2A Explorer lays out agent cards, skills, examples, interfaces and authentication, with a visual message flow and editable JSON parameters.
 
 - Modal identifiers use monospace text with the shared copy control. Clipboard fallback works inside dialogs on non-secure HTTP origins and restores focus. Feedback details uses a wider responsive modal.
 

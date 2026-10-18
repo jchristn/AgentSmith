@@ -1212,3 +1212,65 @@ code,
   margin: 0;
   padding-inline-start: 1.1em;
 }
+
+.agent-card-heading,
+.agent-card-tags,
+.agent-card-endpoint {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+.agent-card-grid,
+.agent-card-skills {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: var(--spacing-md);
+}
+.agent-card h4 {
+  margin-block: var(--spacing-md) var(--spacing-sm);
+}
+.agent-card-endpoint {
+  margin-block: var(--spacing-sm);
+}
+.agent-card code {
+  overflow-wrap: anywhere;
+}
+.agent-card-facts {
+  margin: 0;
+}
+.agent-card-facts > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-block: var(--spacing-sm);
+}
+.agent-card-facts dd {
+  margin: 0;
+}
+.agent-skill {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  min-width: 0;
+}
+.agent-skill h5 {
+  font-size: var(--font-size-base);
+  margin: 0 0 var(--spacing-sm);
+}
+.agent-skill .button-secondary {
+  margin-block: var(--spacing-sm);
+}
+.agent-skill-example {
+  display: block;
+  width: 100%;
+  text-align: start;
+  white-space: normal;
+  margin-block: var(--spacing-sm);
+}
+.agent-card > details {
+  margin-block-start: var(--spacing-md);
+}
+#a2a-parameters {
+  font-family: var(--font-mono);
+}

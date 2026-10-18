@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import PageHeader from '../components/PageHeader';
+import AgentCardView from '../components/AgentCardView';
 import CodeBlock from '../components/CodeBlock';
 import CopyButton from '../components/CopyButton';
 import { UnavailableState, ErrorPresenter } from '../components/States';
@@ -36,6 +37,9 @@ export default function A2aExplorerView() {
   const [profile, setProfile] = useState('');
   const [card, setCard] = useState(null);
   const [message, setMessage] = useState('');
+  const [jsonMode, setJsonMode] = useState(false);
+  const [jsonDraft, setJsonDraft] = useState('');
+  const composerRef = useRef(null);
   const [stream, setStream] = useState(true);
   const [contextId, setContextId] = useState('');
   const [events, setEvents] = useState([]);
@@ -61,7 +65,9 @@ export default function A2aExplorerView() {
     setError(null);
     setMissing(false);
     try {
-      setCard(await apiClient.getA2aCard(tenantId, profile));
+      const next = await apiClient.getA2aCard(tenantId, profile);
+      setCard(next);
+      if (next.capabilities?.streaming === false) setStream(false);
     } catch (e) {
       setCard(null);
       if (e?.status === 404) setMissing(true);
@@ -91,13 +97,13 @@ export default function A2aExplorerView() {
   };
 
   const sendMessage = async () => {
-    if (!message.trim()) return;
+    if (!(jsonMode ? jsonDraft : message).trim()) return;
     setBusy(true);
     setError(null);
     setEvents([]);
     setResult(null);
     try {
-      const params = {
+      let params = {
         message: {
           kind: 'message',
           role: 'user',
@@ -106,6 +112,14 @@ export default function A2aExplorerView() {
           ...(contextId ? { contextId } : {})
         }
       };
+      if (jsonMode) {
+        try {
+          params = JSON.parse(jsonDraft);
+          if (!params || typeof params !== 'object' || Array.isArray(params) || !params.message || !Array.isArray(params.message.parts)) throw new Error();
+        } catch {
+          throw new ApiError(400, { code: 'InvalidJson', message: t('views.a2aExplorer.invalidParameters') });
+        }
+      }
       const res = await rpc(stream ? 'SendStreamingMessage' : 'SendMessage', params, stream ? (m) => setEvents((list) => [...list, m]) : undefined);
       setResult(res);
       if (res?.contextId) setContextId(res.contextId);
@@ -155,6 +169,7 @@ export default function A2aExplorerView() {
           onChange={(v) => {
             setProfile(v);
             setCard(null);
+            setJsonMode(false);
             setContextId('');
           }}
         />
@@ -193,22 +208,73 @@ export default function A2aExplorerView() {
       )}
       {error && <ErrorPresenter error={error} />}
       {card && (
-        <div className="panel" data-testid="a2a-card-body">
-          <h3 className="section-title">{card.name || profile}</h3>
-          {card.description && <p className="field-hint">{card.description}</p>}
-          <CodeBlock value={card} prettyJson />
-        </div>
-      )}
-      <div className="panel">
-        <FormField
-          id="a2a-message"
-          field={{ name: 'message', type: 'textarea', rows: 4, label: t('views.a2aExplorer.message'), tip: t('tips.views.a2aExplorer.message') }}
-          value={message}
-          onChange={setMessage}
+        <AgentCardView
+          card={card}
+          disabled={busy}
+          onTrySkill={(skill) => {
+            setMessage(t('views.a2aExplorer.skillPrompt', { name: skill.name || skill.id }));
+            setJsonMode(false);
+            composerRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+            requestAnimationFrame(() => document.getElementById('a2a-message')?.focus());
+          }}
+          onExample={(example) => {
+            setMessage(example);
+            setJsonMode(false);
+            requestAnimationFrame(() => document.getElementById('a2a-message')?.focus());
+          }}
         />
+      )}
+      <div className="panel" ref={composerRef}>
+        <label className="field-checkbox">
+          <input
+            type="checkbox"
+            checked={jsonMode}
+            onChange={(e) => {
+              setJsonMode(e.target.checked);
+              if (e.target.checked)
+                setJsonDraft(
+                  JSON.stringify(
+                    {
+                      message: {
+                        kind: 'message',
+                        role: 'user',
+                        messageId: `msg-${Date.now()}`,
+                        parts: [{ kind: 'text', text: message }],
+                        ...(contextId ? { contextId } : {})
+                      }
+                    },
+                    null,
+                    2
+                  )
+                );
+            }}
+          />{' '}
+          {t('views.a2aExplorer.editJson')}
+        </label>
+        {jsonMode ? (
+          <FormField
+            id="a2a-parameters"
+            field={{ name: 'parameters', type: 'textarea', rows: 12, label: t('views.a2aExplorer.parameters') }}
+            value={jsonDraft}
+            onChange={setJsonDraft}
+          />
+        ) : (
+          <FormField
+            id="a2a-message"
+            field={{ name: 'message', type: 'textarea', rows: 4, label: t('views.a2aExplorer.message'), tip: t('tips.views.a2aExplorer.message') }}
+            value={message}
+            onChange={setMessage}
+          />
+        )}
         <div className="panel-actions">
           <label className="field-checkbox" {...tip(t('tips.views.a2aExplorer.stream'))}>
-            <input type="checkbox" checked={stream} onChange={(e) => setStream(e.target.checked)} {...tip(t('tips.views.a2aExplorer.stream'))} />{' '}
+            <input
+              type="checkbox"
+              disabled={card?.capabilities?.streaming === false}
+              checked={stream}
+              onChange={(e) => setStream(e.target.checked)}
+              {...tip(t('tips.views.a2aExplorer.stream'))}
+            />{' '}
             {t('views.a2aExplorer.stream')}
           </label>
           {contextId && (
@@ -220,7 +286,7 @@ export default function A2aExplorerView() {
             type="button"
             className="button-primary"
             onClick={sendMessage}
-            disabled={busy || !message.trim() || !profile}
+            disabled={busy || !(jsonMode ? jsonDraft : message).trim() || !profile}
             data-testid="a2a-send"
             {...tip(t('tips.views.a2aExplorer.send'))}
           >
