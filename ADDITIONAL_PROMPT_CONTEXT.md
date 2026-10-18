@@ -166,7 +166,7 @@ Add `AgentDocumentTools` and a shared document service patterned after `AgentIns
 | Tool | Inputs | Result |
 |---|---|---|
 | `agent_list_documents` | Optional bounded pagination cursor; no tenant/profile override | Enabled, readable attachments of the executing profile: ID, name, description, delivery mode, selected revision, size and hash. No document body. |
-| `agent_read_document` | `documentId` or `name` (exactly one), optional advertised `revision`, optional continuation `cursor`, optional bounded `maxBytes` | ID/name, immutable revision/hash, Markdown chunk, `complete`, returned byte count, next cursor if incomplete. First call starts at the beginning. |
+| `agent_read_document` | `documentId` or `name` (both accepted when they identify the same attachment), optional advertised `revision`, optional continuation `cursor`, optional bounded `maxBytes` | ID/name, immutable revision/hash, Markdown chunk, `complete`, returned byte count, next cursor if incomplete. First call starts at the beginning. |
 
 The default read returns the whole document if it fits; otherwise it returns a bounded chunk with an explicit continuation cursor. `complete: false` must never be described as the full document. Continuations are opaque, integrity-protected, bound to tenant/profile/document/revision and capability, and expire according to a configurable lifetime. They are not bearer grants; every continuation reauthorizes. Return only valid UTF-8 boundaries and preserve the reconstructed canonical content exactly. The SDK can aggregate management reads; model-facing tool calls must still respect turn and output limits.
 
@@ -235,7 +235,7 @@ SDK harnesses must test server behavior, not only DTO serialization: CAS conflic
 
 Document bodies are intentionally sent to authorized models and content readers. They must not also leak into audit descriptions, metric labels, exception text, request-history request bodies, exported traces or application logs. Add explicit content redaction for create/update/read routes and tool previews using the current policies; do not rely on a secret scrubber alone to hide arbitrary confidential Markdown. The authorized conversation tool result necessarily contains retrieved content under existing conversation access/retention rules.
 
-Document writes accept literal administrator content without secret-pattern rejection or rewriting. This includes credential-shaped examples in documentation. Existing model-delivery protection against known vault secrets and telemetry redaction remain in place. Filenames, descriptions and cursor input need validation too. A scrubber is defense in depth, not a reason to store credentials in a document. Escape delimiter-looking names/descriptions in manifest rendering and preserve Markdown as data rather than template directives.
+Document writes accept literal administrator content without secret-pattern rejection or rewriting. This includes credential-shaped examples in documentation. Authorized document delivery preserves literal document content rather than rejecting it through a general secret-pattern scrubber. Telemetry redaction remains in place. Filenames, descriptions and cursor input need validation too. A scrubber is defense in depth, not a reason to store credentials in a document. Escape delimiter-looking names/descriptions in manifest rendering and preserve Markdown as data rather than template directives.
 
 Audit create/update/restore/deactivate/delete, attach/detach/order/mode/pin/public changes and authorization denials using IDs, actor, tenant and request/trace correlation. Record a document-read event or existing tool audit entry containing revision, outcome and byte count, never body content. Do not duplicate existing request/tool audit records unnecessarily. Public traffic must remain rate-limited using the existing visitor controls.
 
@@ -407,7 +407,7 @@ runs automatically; back up the database and master key before upgrading.
 
 ### Follow-up: document save validation
 
-On 2026-10-18, the operator requested removal of secret-pattern rejection when saving documents. Create and update now accept the supplied literal text without heuristic rejection. Both providers pass create/edit/revision round trips with synthetic credential-shaped examples. This changes save validation; it does not change authorization, size limits, content redaction in telemetry, or existing delivery checks against known vault material.
+On 2026-10-18, the operator requested removal of secret-pattern rejection when saving documents. Create and update now accept the supplied literal text without heuristic rejection. Both providers pass create/edit/revision round trips with synthetic credential-shaped examples. This changes save validation; it does not change authorization, size limits, or content redaction in telemetry. The later retrieval follow-up below also removes the separate document-delivery rejection.
 
 Explorer and document-save follow-up published from source `3af1e56` on
 2026-10-18. Dashboard: 362 unit tests, 17 browser workflows and 2 repeated focused
@@ -417,3 +417,17 @@ health, credential-shaped document creation, Reference/Inline previews and clean
 Both tags `v0.1.0` and `latest` are registry-verified for AMD64/ARM64:
 server `sha256:f76988acc9b71024bd505047bc59770a52eb38089a86e16e48464fc2703c1242`;
 dashboard `sha256:1119d32231455213646f2406b0c7cda8e23978029a3ccb18c4bbbbb9116737ec`.
+
+### Follow-up: reference document retrieval
+
+The document-specific delivery guard reused the general log scrubber, which also
+matches field examples such as `password=...`. It could reject a valid attached
+document after saving succeeded. That guard is removed from Reference reads and
+Inline composition. Authorized document payloads remain literal in fresh hosted
+model context; ordinary saved context and telemetry retain their existing redaction.
+No database change or re-upload is required. Attachment permissions, public opt-in,
+revision checks, continuation integrity and byte/context budgets still apply.
+
+Read selectors now accept matching document ID and filename together, including
+the common first-call form with an empty cursor. Conflicting ID/name pairs still
+fail explicitly. Tool guidance recommends ID and revision from the current manifest.

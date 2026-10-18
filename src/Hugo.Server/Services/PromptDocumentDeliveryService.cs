@@ -80,7 +80,6 @@ namespace Hugo.Server.Services
                         {
                             if ((long)result.InlineBytes + entry.ContentBytes > _Server.Settings.PromptDocuments.MaxInlinePromptDocumentBytes) throw new PromptDocumentException("document_inline_limit", "Attached Inline documents exceed the aggregate UTF-8 byte limit. Reduce content or explicitly choose Reference.");
                             PromptDocumentRevision revision = await RevisionAsync(tenant, entry.DocumentId, entry.Revision, token).ConfigureAwait(false);
-                            GuardDelivery(revision.Markdown);
                             result.InlineBytes = checked(result.InlineBytes + revision.ContentBytes);
                             text.Append(metadata).Append("[[ATTACHED DOCUMENT ").Append(entry.ContentHash).AppendLine("]]");
                             text.Append(revision.Markdown).Append('\n').Append("[[END ATTACHED DOCUMENT ").Append(entry.ContentHash).AppendLine("]]\n");
@@ -133,13 +132,16 @@ namespace Hugo.Server.Services
                 {
                     AgentProfile profile = await ExecutionProfileAsync(ctx, tenant, profileId, token).ConfigureAwait(false);
                     PromptDocumentCursor? cursor = String.IsNullOrEmpty(request.Cursor) ? null : Decode(ctx, profile, request.Cursor, "read");
-                    if (cursor == null && (String.IsNullOrEmpty(request.DocumentId) == String.IsNullOrEmpty(request.Name))) throw Invalid("Select exactly one documentId or name.");
+                    if (cursor == null && String.IsNullOrEmpty(request.DocumentId) && String.IsNullOrEmpty(request.Name)) throw Invalid("Supply documentId or name from the current attachment manifest.");
                     if (cursor != null && (!String.IsNullOrEmpty(request.DocumentId) || !String.IsNullOrEmpty(request.Name) || request.Revision.HasValue)) throw Invalid("A continuation cursor cannot be combined with document selectors or a revision.");
                     List<AgentPromptDocumentView> entries = await EntriesAsync(ctx, profile, false, token).ConfigureAwait(false);
                     AgentPromptDocumentView? entry = entries.FirstOrDefault(e => cursor != null ? e.DocumentId == cursor.DocumentId : !String.IsNullOrEmpty(request.DocumentId) ? e.DocumentId == request.DocumentId : String.Equals(e.Name.Normalize(NormalizationForm.FormC), request.Name!.Normalize(NormalizationForm.FormC), StringComparison.OrdinalIgnoreCase));
                     if (entry == null) throw new NotFoundException("Attached document not found or not readable.");
+                    if (cursor == null && !String.IsNullOrEmpty(request.DocumentId) && !String.IsNullOrEmpty(request.Name)
+                        && !String.Equals(entry.Name.Normalize(NormalizationForm.FormC), request.Name.Normalize(NormalizationForm.FormC), StringComparison.OrdinalIgnoreCase))
+                        throw Invalid("documentId and name must identify the same attached document. Use the ID or name from the current manifest.");
                     if ((cursor != null && (cursor.Revision != entry.Revision || cursor.Hash != entry.ContentHash)) || (request.Revision.HasValue && request.Revision != entry.Revision)) throw new PromptDocumentException("document_version_changed", "The selected document revision changed. List documents and read its current selected revision.", 409);
-                    PromptDocumentRevision revision = await RevisionAsync(tenant, entry.DocumentId, entry.Revision, token).ConfigureAwait(false); GuardDelivery(revision.Markdown);
+                    PromptDocumentRevision revision = await RevisionAsync(tenant, entry.DocumentId, entry.Revision, token).ConfigureAwait(false);
                     byte[] bytes = Encoding.UTF8.GetBytes(revision.Markdown); int offset = cursor?.Offset ?? 0;
                     if (offset < 0 || offset > bytes.Length || (offset < bytes.Length && (bytes[offset] & 0xC0) == 0x80)) throw Invalid("The continuation position is invalid.");
                     int requested = request.MaxBytes ?? _Server.Settings.PromptDocuments.PromptDocumentReadBytes;
@@ -312,7 +314,6 @@ namespace Hugo.Server.Services
         }
 
         private static string Hash(string text) { return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text))); }
-        private static void GuardDelivery(string text) { if (!String.Equals(SecretScrubber.Shared.Scrub(text), text, StringComparison.Ordinal)) throw new PromptDocumentException("document_secret_material", "This document cannot be delivered because it contains known secret material. Ask a manager to review it."); }
         private static ValidationException Invalid(string message) { return new ValidationException(message, new Dictionary<string, string> { { "cursor", message } }); }
     }
 }

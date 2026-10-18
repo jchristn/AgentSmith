@@ -38,6 +38,7 @@ namespace Test.Shared.Integration
                     new TestCaseDescriptor(id, "bounded-list-pages", "Metadata pages shrink to their serialized JSON byte budget with progress or a structured single-entry error", ct => ListBudgetAsync(provider, ct)),
                     new TestCaseDescriptor(id, "assembled-context-budget", "Inline context and Reference results cannot invoke a provider beyond its input plus reserved output budget", ct => ContextBudgetAsync(provider, ct)),
                     new TestCaseDescriptor(id, "public-grants-and-clone", "Public attachment delivery requires live explicit grants and cloned pins get fresh private attachment IDs", ct => PublicAsync(provider, ct)),
+                    new TestCaseDescriptor(id, "literal-document-delivery", "Literal document content remains readable in Reference and Inline modes; redundant selectors must agree", ct => LiteralDeliveryAsync(provider, ct)),
                     new TestCaseDescriptor(id, "hosted-read", "A hosted model receives the Reference manifest and reads its body through the normal tool loop", ct => HostedAsync(provider, ct)),
                     new TestCaseDescriptor(id, "mcp-read", "MCP discovers current-profile document tools and reads only its attached documents", ct => McpAsync(provider, ct)),
                     new TestCaseDescriptor(id, "fresh-compiler-source-map", "Inline literal text is fresh after edits and removal, while Reference bodies remain absent", ct => CompositionAsync(provider, ct)),
@@ -186,9 +187,10 @@ namespace Test.Shared.Integration
             using (StubLlmServer stub = new StubLlmServer())
             await using (IntegrationRig rig = await IntegrationRig.StartAsync(provider, settings => settings.Agent.ToolRetrievalThreshold = 1000, token).ConfigureAwait(false))
             {
-                const string body = "Reference workflow: inspect the maintenance ledger before changing configuration.";
+                const string body = "Reference workflow: inspect the maintenance ledger before changing configuration. Example assignment: password=synthetic-document-example";
+                Assert.True(SecretScrubber.Shared.Scrub(body) != body, "The synthetic example exercises a formerly rejected scrubber pattern");
                 PromptDocumentView document = await DocumentAsync(rig, "hosted.md", body, token).ConfigureAwait(false);
-                await AttachAsync(rig, document.Id, "Reference", token).ConfigureAwait(false);
+                AgentPromptDocumentView attachment = await AttachAsync(rig, document.Id, "Reference", token).ConfigureAwait(false);
                 ModelEndpoint endpoint = await HttpTestHelpers.SendAsync<ModelEndpoint>(rig.Anderson, HttpMethod.Post, "/v1.0/api/model-endpoints", new { name = "document-model", provider = "OpenAICompatible", baseUrl = stub.BaseUrl, model = stub.ModelName, maxRetries = 0 }, 201, token).ConfigureAwait(false);
                 await HttpTestHelpers.SendAsync<AgentProfile>(rig.Anderson, HttpMethod.Put, "/v1.0/api/agent-profiles/" + rig.Hugo.Id, new { inferenceEndpointId = endpoint.Id, maxIterations = 4 }, 200, token).ConfigureAwait(false);
                 int calls = 0;
@@ -201,7 +203,7 @@ namespace Test.Shared.Integration
                     {
                         Assert.True(request.Messages.Any(m => m.Role == "system" && m.Content != null && m.Content.Contains(document.Id, StringComparison.Ordinal)), "fresh manifest is available before the first planning call");
                         Assert.True(!request.Messages.Any(m => m.Content != null && m.Content.Contains(body, StringComparison.Ordinal)), "Reference body is absent before tool retrieval");
-                        return StubLlmResponse.ToolCall(AgentDocumentTools.ReadDocument, "{\"documentId\":\"" + document.Id + "\"}");
+                        return StubLlmResponse.ToolCall(AgentDocumentTools.ReadDocument, Serializer.Serialize(new { documentId = document.Id, name = document.Name, revision = 1, cursor = "", maxBytes = 65536 }));
                     }
                     Assert.True(request.Messages.Any(m => m.Role == "tool" && m.Content != null && m.Content.Contains(body, StringComparison.Ordinal)), "authorized result enters actual model history");
                     return StubLlmResponse.Message("The maintenance ledger comes first.");
@@ -222,6 +224,18 @@ namespace Test.Shared.Integration
                     Voltaic.A2A.SendMessageResponse response = await client.SendMessageAsync(message, token).ConfigureAwait(false);
                     Assert.True(response.Task?.Status.State == Voltaic.A2A.TaskState.Completed && calls == 2, "A2A executes the shared scoped document tool loop");
                 }
+                await HttpTestHelpers.SendAsync<AgentPromptDocumentView>(rig.Anderson, HttpMethod.Put, "/v1.0/api/agent-profiles/" + rig.Hugo.Id + "/documents/" + attachment.Id, new { expectedVersion = attachment.Version, expectedDocumentSetVersion = attachment.DocumentSetVersion, deliveryMode = "Inline" }, 200, token).ConfigureAwait(false);
+                calls = 0;
+                stub.Script.Responder = request =>
+                {
+                    if (request.Messages.Any(m => m.Content != null && m.Content.Contains("Write a short title", StringComparison.Ordinal))) return StubLlmResponse.Message("Inline document fixture");
+                    Interlocked.Increment(ref calls);
+                    Assert.True(request.Messages.Any(m => m.Role == "system" && m.Content != null && m.Content.Contains(body, StringComparison.Ordinal)), "Actual inline model context preserves the authorized document's literal examples");
+                    return StubLlmResponse.Message("The maintenance ledger comes first.");
+                };
+                Conversation inlineConversation = await HttpTestHelpers.SendAsync<Conversation>(rig.Anderson, HttpMethod.Post, "/v1.0/api/conversations", new { agentProfileId = rig.Hugo.Id, title = "Inline document fixture" }, 201, token).ConfigureAwait(false);
+                AgentTurnResult inlineResult = await HttpTestHelpers.SendAsync<AgentTurnResult>(rig.Anderson, HttpMethod.Post, "/v1.0/api/conversations/" + inlineConversation.Id + "/messages", new { message = "Use the inline workflow." }, 200, token).ConfigureAwait(false);
+                Assert.True(calls == 1 && inlineResult.FinalText.Contains("ledger", StringComparison.Ordinal), "Inline executes without a document read or content rewriting");
             }
         }
 
@@ -329,6 +343,33 @@ namespace Test.Shared.Integration
                 try { await delivery.ReadAsync(principal, rig.TenantId, rig.Hugo.Id, new AgentDocumentReadRequest { DocumentId = document.Id, MaxBytes = 1000 }, new AgentTurnRequest(), token).ConfigureAwait(false); }
                 catch (PromptDocumentException error) { rejected = error.Code == "document_read_budget_exceeded"; }
                 Assert.True(rejected, "serialized metadata and content count against turn budget");
+            }
+        }
+
+        private static async Task LiteralDeliveryAsync(DatabaseTypeEnum provider, CancellationToken token)
+        {
+            await using (IntegrationRig rig = await IntegrationRig.StartAsync(provider, null, token).ConfigureAwait(false))
+            {
+                RequestContext principal = await PrincipalAsync(rig, token).ConfigureAwait(false);
+                const string body = "# Synthetic log schema\npassword=example-field-value\napi_key=example-field-value\nThese are documentation examples.";
+                Assert.True(SecretScrubber.Shared.Scrub(body) != body, "Fixture triggers the former document delivery block");
+                PromptDocumentView document = await DocumentAsync(rig, "LOG_STRUCTURE.md", body, token).ConfigureAwait(false);
+                AgentPromptDocumentView attachment = await AttachAsync(rig, document.Id, "Reference", token).ConfigureAwait(false);
+                AgentDocumentTools tools = rig.Context.Get<AgentDocumentTools>();
+                AgentTurnRequest turn = new AgentTurnRequest { TenantId = rig.TenantId, ProfileId = rig.Hugo.Id };
+                AgentToolExecution result = (await tools.ExecuteAsync(principal, turn, new AgentToolCall { ToolName = AgentDocumentTools.ReadDocument, ArgumentsJson = Serializer.Serialize(new { documentId = document.Id, name = "log_structure.md", revision = 1, cursor = "", maxBytes = 65536 }) }, token).ConfigureAwait(false))!;
+                Assert.True(!result.Result.IsError, "Matching ID/name and empty cursor are accepted in the real document tool");
+                AgentDocumentReadResponse read = Serializer.Deserialize<AgentDocumentReadResponse>(result.Result.StructuredJson!)!;
+                Assert.Equal(body, read.Markdown, "Reference retrieval returns the exact authorized document content");
+                result = (await tools.ExecuteAsync(principal, turn, new AgentToolCall { ToolName = AgentDocumentTools.ReadDocument, ArgumentsJson = Serializer.Serialize(new { name = document.Name }) }, token).ConfigureAwait(false))!;
+                Assert.True(!result.Result.IsError, "Name-only reads remain supported");
+                result = (await tools.ExecuteAsync(principal, turn, new AgentToolCall { ToolName = AgentDocumentTools.ReadDocument, ArgumentsJson = Serializer.Serialize(new { documentId = document.Id, name = "DIFFERENT.md" }) }, token).ConfigureAwait(false))!;
+                Assert.True(result.Result.IsError && result.DecisionCode == "invalid_argument", "Conflicting ID/name is rejected without silently reading the wrong attachment");
+                result = (await tools.ExecuteAsync(principal, turn, new AgentToolCall { ToolName = AgentDocumentTools.ReadDocument, ArgumentsJson = "{}" }, token).ConfigureAwait(false))!;
+                Assert.True(result.Result.IsError && result.DecisionCode == "invalid_argument", "An initial read still requires a selector");
+                await HttpTestHelpers.SendAsync<AgentPromptDocumentView>(rig.Anderson, HttpMethod.Put, "/v1.0/api/agent-profiles/" + rig.Hugo.Id + "/documents/" + attachment.Id, new { expectedVersion = attachment.Version, expectedDocumentSetVersion = attachment.DocumentSetVersion, deliveryMode = "Inline" }, 200, token).ConfigureAwait(false);
+                PromptDocumentPreview inline = await rig.Context.Get<PromptDocumentDeliveryService>().PreviewAsync(principal, rig.TenantId, rig.Hugo.Id, "Authenticated", token).ConfigureAwait(false);
+                Assert.True(inline.Issues.Count == 0 && inline.CompiledText.Contains(body, StringComparison.Ordinal), "Inline composition accepts the same exact administrator-authored content");
             }
         }
 

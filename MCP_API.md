@@ -451,7 +451,7 @@ Input is an object with optional opaque `cursor` and no additional fields. `{}` 
 
 ### `agent_read_document`
 
-For a first read supply exactly one of `documentId` or `name`, with optional positive `revision` from the manifest and bounded `maxBytes`. For example:
+For a first read prefer `documentId`, or supply `name` alone. Supplying both is accepted when they resolve to the same currently attached document (filename comparison is NFC-normalized and case-insensitive); conflicting selectors return `invalid_argument`. Empty cursor strings are treated as no continuation. Use an optional positive `revision` from the manifest and bounded `maxBytes`. For example:
 
 ```json
 {"name":"LOG_MESSAGE_STRUCTURE.md","maxBytes":16384}

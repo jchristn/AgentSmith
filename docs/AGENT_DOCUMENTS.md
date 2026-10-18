@@ -75,3 +75,10 @@ In Reference mode, inspect the tool activity: a successful document read should 
 An unavailable document should produce a real tool or authorization error, not an invented description of its contents. Start a new conversation when testing changed guidance so earlier retrieved revisions do not influence the result.
 
 Document saves accept administrator-authored text literally, including credential-shaped examples. Save validation does not reject or rewrite content based on secret patterns. Existing access controls, content limits and request-history redaction still apply.
+
+Authorized Reference reads and Inline delivery also preserve document content
+literally. A token-shaped example or credential field assignment does not mark
+a document unavailable. `agent_read_document` accepts an ID, a filename, or both
+when they match the same attachment; an empty cursor starts the first chunk.
+Conflicting ID/name selectors return an argument error. After upgrading, existing
+documents work without re-uploading or recreating attachments.

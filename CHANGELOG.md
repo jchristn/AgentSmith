@@ -10,6 +10,8 @@ Everything below is new in this release. The images are `jchristn77/hugo-server:
 
 ### Agent instructions
 
+- Attached document retrieval accepts matching ID/filename arguments and no longer blocks literal document examples through the log scrubber. Reference reads and Inline model context preserve authorized content; telemetry redaction and access controls remain in place.
+
 - Document create/edit accepts literal administrator content without secret-pattern rejection. UTF-8, size, access and concurrency validation remain enforced.
 
 - AES secrets record independent base64 or hex formats for key, salt and IV, so one resource can use mixed-format material without guessing.
