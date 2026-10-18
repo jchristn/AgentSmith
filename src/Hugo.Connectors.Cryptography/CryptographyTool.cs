@@ -32,7 +32,7 @@ namespace Hugo.Connectors.Cryptography
             if (!new string[] { "encrypt", "decrypt", "hash", "verify_hash" }.Contains(operation)) throw new ArgumentException("Unsupported cryptographic operation.", nameof(operation));
             _Operation = operation;
             string fields = "\"data\":{\"type\":\"string\"},\"inputEncoding\":{\"type\":\"string\",\"enum\":[\"base64\",\"hex\",\"utf8\"]},\"outputEncoding\":{\"type\":\"string\",\"enum\":[\"base64\",\"hex\",\"utf8\"]}";
-            if (operation == "encrypt" || operation == "decrypt") fields += ",\"format\":{\"type\":\"string\",\"enum\":[\"separate\",\"combined\"],\"description\":\"Defaults to separate: raw ciphertext, with CBC IV read from the bound secret when nonce is omitted. Combined includes the IV/nonce in data.\"},\"associatedData\":{\"type\":\"string\"}";
+            if (operation == "encrypt" || operation == "decrypt") fields += ",\"format\":{\"type\":\"string\",\"enum\":[\"separate\",\"combined\"],\"description\":\"Defaults to separate: raw ciphertext, with CBC IV read from the bound secret when nonce is omitted. Combined includes the IV/nonce in data.\"},\"associatedData\":{\"type\":\"string\",\"description\":\"GCM only. Omit for CBC; an empty string is treated as absent. Uses inputEncoding.\"}";
             if (operation == "decrypt") fields += ",\"nonce\":{\"type\":\"string\",\"description\":\"Optional for separate CBC when the bound AES secret contains iv; omit to use it. Required for separate GCM. Uses inputEncoding.\"},\"tag\":{\"type\":\"string\",\"description\":\"Required only for separate GCM. Omit for CBC.\"}";
             if (operation == "hash" || operation == "verify_hash") fields += ",\"hashAlgorithm\":{\"type\":\"string\",\"enum\":[\"SHA256\",\"SHA384\",\"SHA512\"]}";
             if (operation == "verify_hash") fields += ",\"expectedHash\":{\"type\":\"string\"}";
@@ -116,7 +116,7 @@ namespace Hugo.Connectors.Cryptography
             if (algorithm != "AES-GCM" && algorithm != "AES-CBC") throw CryptoCodec.Invalid("algorithm must be AES-GCM or AES-CBC.");
             if (request.Format != "separate" && request.Format != "combined") throw CryptoCodec.Invalid("format must be separate or combined.");
             if (_Operation == "encrypt" && (request.Nonce != null || request.Tag != null)) throw CryptoCodec.Invalid("Encryption generates fresh nonce/IV values; supplied nonce or tag is prohibited.");
-            if (algorithm == "AES-CBC" && (request.AssociatedData != null || request.Tag != null)) throw CryptoCodec.Invalid("AES-CBC does not support associatedData or authentication tags.");
+            if (algorithm == "AES-CBC" && (!String.IsNullOrEmpty(request.AssociatedData) || request.Tag != null)) throw CryptoCodec.Invalid("AES-CBC does not support associatedData or authentication tags.");
             byte[] key = CryptoCodec.ReadKey(resource);
             byte[]? output = null;
             try

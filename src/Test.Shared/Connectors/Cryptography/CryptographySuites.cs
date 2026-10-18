@@ -90,6 +90,18 @@ namespace Test.Shared.Connectors.Cryptography
             Assert(!result.IsError, "raw request requires no explicit nonce, tag, context notes or secret-reading tool");
             CryptoResponse response = JsonSerializer.Deserialize<CryptoResponse>(result.StructuredJson!, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
             Assert(response.Data == "short-test" && response.Algorithm == "AES-CBC", "short plaintext recovered using bound key and IV");
+            CryptoResponse emptyAad = await Success(context, "decrypt", new CryptoRequest { Data = Convert.ToBase64String(ciphertext), OutputEncoding = "utf8", AssociatedData = String.Empty }, token).ConfigureAwait(false);
+            Assert(emptyAad.Data == "short-test", "empty optional associatedData is equivalent to omitted CBC associatedData");
+            CryptoResponse encryptedEmptyAad = await Success(context, "encrypt", new CryptoRequest { Data = "short-test", InputEncoding = "utf8", AssociatedData = String.Empty }, token).ConfigureAwait(false);
+            CryptoResponse roundtripEmptyAad = await Success(context, "decrypt", new CryptoRequest { Data = encryptedEmptyAad.Data, Nonce = encryptedEmptyAad.Nonce, OutputEncoding = "utf8", AssociatedData = String.Empty }, token).ConfigureAwait(false);
+            Assert(roundtripEmptyAad.Data == "short-test", "CBC encryption also accepts empty associatedData");
+            foreach (string associatedData in new string[] { "AQID", " " })
+            {
+                ToolResult rejected = await Call(context, "decrypt", new CryptoRequest { Data = Convert.ToBase64String(ciphertext), AssociatedData = associatedData }, token).ConfigureAwait(false);
+                Assert(rejected.IsError && rejected.Text.Contains("does not support associatedData"), "nonempty CBC associatedData remains rejected");
+            }
+            ToolResult rejectedTag = await Call(context, "decrypt", new CryptoRequest { Data = Convert.ToBase64String(ciphertext), Tag = "AQID" }, token).ConfigureAwait(false);
+            Assert(rejectedTag.IsError, "CBC authentication tags remain rejected");
             ToolResult wrongEnvelope = await Call(context, "decrypt", new CryptoRequest { Data = Convert.ToBase64String(ciphertext), Format = "combined" }, token).ConfigureAwait(false);
             Assert(wrongEnvelope.IsError && wrongEnvelope.Text.Contains("format separate"), "wrong envelope reports the bound-IV invocation instead of requesting secret access");
         }

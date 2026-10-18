@@ -56,7 +56,7 @@ Encryption always generates a fresh random nonce or IV. GCM uses a 12-byte nonce
 | `separate` | Ciphertext in `data`; `nonce` and `tag` are separate fields | Ciphertext in `data`; IV in `nonce` or the bound IV secret |
 | `combined` | `nonce || ciphertext || tag` in `data` | `IV || ciphertext` in `data` |
 
-`inputEncoding` defaults to `base64`; `hex` is also available. Encryption and hashing additionally accept `utf8` input. `outputEncoding` defaults to `base64`; decryption additionally accepts `utf8`. Separate input nonce, tag, and optional GCM `associatedData` use `inputEncoding`. Returned nonce and tag use `outputEncoding`. GCM associated data must match the value used during encryption.
+`inputEncoding` defaults to `base64`; `hex` is also available. Encryption and hashing additionally accept `utf8` input. `outputEncoding` defaults to `base64`; decryption additionally accepts `utf8`. Separate input nonce, tag, and optional GCM `associatedData` use `inputEncoding`. Returned nonce and tag use `outputEncoding`. GCM associated data must match the value used during encryption. For CBC, omit `associatedData`; an empty string is accepted as absent, while any non-empty value and authentication tags are rejected.
 
 Prefer GCM for new ciphertext because it authenticates the data. CBC compatibility does not establish authenticity. A digest comparison verifies the expected bytes only when the expected digest comes from a trusted source.
 
