@@ -112,6 +112,8 @@ Milestones:
 
 ### Current state and where to pick up (updated 2026-10-18)
 
+- Explorer/document-save follow-up published 2026-10-18 (source `3af1e56`): collapsed MCP initialize instructions, direct structured results, visual A2A cards/skills/examples with editable JSON messages, and literal document saves without secret-pattern rejection. Both image tags `v0.1.0`/`latest` verified for AMD64/ARM64. Server `sha256:f76988acc9b71024bd505047bc59770a52eb38089a86e16e48464fc2703c1242`; dashboard `sha256:1119d32231455213646f2406b0c7cda8e23978029a3ccb18c4bbbbb9116737ec`. Published-stack smoke and targeted tests pass; [verification](../user-testing/EXPLORERS_2026-10-18.md).
+
 - Agent prompt documents and background chat completed 2026-10-18 (source `e61da60`, P14.14/P6.25). Migration 12, Inline/Reference attachments, scoped retrieval tools, dashboard/all 12 locales, three SDKs and documentation are complete. Full SQLite/PostgreSQL regression: 2116 passed, 309 expected testbed skips, zero failures; dashboard 362 unit and 101 browser tests pass. Live model retrieval and published-image startup are verified. Server `v0.1.0`/`latest`: `sha256:a9b80c1c2ff88f861229a34db29834f237172a0b6ac5ecd5e3a02b93e6a604d5`; dashboard: `sha256:86b956736eab278c01479b0484f6976821698a159ecc9eabd3b6e0aecd2d2663`, both AMD64/ARM64. See [the completed feature plan](../ADDITIONAL_PROMPT_CONTEXT.md).
 
 - Completed P14.13 (D-057): generalized agent-managed resource context, version-safe common tools, and fresh authorized model context. Full SQLite/PostgreSQL regression: 2030 passed, 309 expected testbed skips, zero failures; real SSH/Qwen learn-and-reuse acceptance passed. Embedding search and resource actions remain separate Phase 14 work.

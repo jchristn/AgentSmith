@@ -408,3 +408,12 @@ runs automatically; back up the database and master key before upgrading.
 ### Follow-up: document save validation
 
 On 2026-10-18, the operator requested removal of secret-pattern rejection when saving documents. Create and update now accept the supplied literal text without heuristic rejection. Both providers pass create/edit/revision round trips with synthetic credential-shaped examples. This changes save validation; it does not change authorization, size limits, content redaction in telemetry, or existing delivery checks against known vault material.
+
+Explorer and document-save follow-up published from source `3af1e56` on
+2026-10-18. Dashboard: 362 unit tests, 17 browser workflows and 2 repeated focused
+explorer checks pass. Document routes: 8/8 on SQLite/PostgreSQL. Solution builds
+with zero warnings/errors. The published stack passed startup/login, dashboard
+health, credential-shaped document creation, Reference/Inline previews and cleanup.
+Both tags `v0.1.0` and `latest` are registry-verified for AMD64/ARM64:
+server `sha256:f76988acc9b71024bd505047bc59770a52eb38089a86e16e48464fc2703c1242`;
+dashboard `sha256:1119d32231455213646f2406b0c7cda8e23978029a3ccb18c4bbbbb9116737ec`.

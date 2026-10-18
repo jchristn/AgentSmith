@@ -61,7 +61,16 @@ test('A2A card exposes skills, examples and interfaces without executing until s
   await card.screenshot({ path: '/tmp/hugo-a2a-explorer-desktop.png' });
   await page.getByRole('button', { name: 'Toggle navigation', exact: true }).click();
   await page.setViewportSize({ width: 390, height: 844 });
+  await expect
+    .poll(async () => {
+      const box = await page.locator('.dashboard-sidebar').boundingBox();
+      return box.x + box.width;
+    })
+    .toBeLessThanOrEqual(1);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  const mobileCard = await card.boundingBox();
+  expect(mobileCard.x).toBeGreaterThanOrEqual(0);
+  expect(mobileCard.x + mobileCard.width).toBeLessThanOrEqual(390);
   await card.screenshot({ path: '/tmp/hugo-a2a-explorer-mobile.png' });
   await page.setViewportSize({ width: 1280, height: 900 });
   await expect(page.getByTestId('a2a-card-json')).not.toHaveAttribute('open', '');
