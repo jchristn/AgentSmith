@@ -42,3 +42,25 @@ The image started in an isolated nginx container, passed its healthcheck, and al
 five conversation-delete Playwright workflows passed again against that served
 build using synthetic API fixtures. The test container was removed afterward.
 Pull and recreate the dashboard container to use the new controls.
+
+## Checkbox layout correction
+
+The earlier workflow checks inspected confirmation dialogs but did not measure
+conversation-row layout. A new geometry regression reproduced the reported bug:
+the global `input { width: 100% }` rule made a non-shrinking selection checkbox
+206 pixels wide and squeezed the title out of its row. The fix scopes checkbox
+width/height and flex basis to 1rem inside the chat list and aligns its select-shown
+label without changing text input sizing.
+
+The regression now checks actual checkbox and title bounding boxes with a long
+conversation name at 1280 and 390 pixels in light and dark themes. The checkbox
+is 16 pixels wide and titles have more than 120 pixels available. Lint, production
+build and eight browser cases (six deletion/layout plus two background-chat cases)
+pass. All six deletion/layout cases also pass against the published dashboard
+container. Screenshot evidence is retained locally under the ignored evidence
+folder, including `selection-light-1280.png` and `selection-dark-390.png`.
+
+Source `f5fc84d` is pushed to main. Dashboard `v0.1.0` and `latest` both resolve to
+`sha256:0bab6bf906e1176241f7376a22bbee082a929cf47d4190532ed553afcd43f977`,
+verified for AMD64 and ARM64. The isolated container was healthy and removed after
+verification. Pull and recreate the dashboard container to apply the CSS fix.
