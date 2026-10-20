@@ -1392,12 +1392,12 @@ Search log events in a bounded time window and return them as compact lines (tim
 |---|---|---|---|
 | `resource` | string | yes | Alias of the bound resource. Added by Hugo; the allowed values are the caller's bindings for this family. |
 | `query` | string | no | Search expression in the provider's syntax. Quote exact phrases. Omit to match every event in the window. |
-| `startTime` | string | no | Window start: ISO-8601 timestamp (UTC when no offset) or a duration before now such as 15m, 2h, 1d. Default 1h. |
+| `startTime` | string | no | Window start: ISO-8601 timestamp (UTC when no offset) or a duration before now such as 15m, 2h, 1d; -1h also means one hour ago. Default 1h. |
 | `endTime` | string | no | Window end: ISO-8601 timestamp, 'now', or a duration before now. Default now. |
 | `limit` | integer | no | Maximum events to return. Capped by the resource's maxEvents. Default 100. Range: min 1, max 10000. |
 | `cursor` | string | no | nextCursor from a previous logs_search call on the same resource. Fetches the next page with the original window, query, and filters: the next page in the search direction. Only limit may be sent with it; query, startTime, endTime, or providerOptions alongside a cursor return invalid_argument. |
 | `providerOptions` | object | no | Log filters: group, entityId, and direction. Unsupported keys return invalid_argument. |
-| `providerOptions.group` | string | no | Log group name. Defaults to the resource's defaultGroup. |
+| `providerOptions.group` | string | no | Optional existing log group name; omit unless known. `default` is not a special keyword. Omitted or empty uses the resource's defaultGroup; an empty configured default searches all groups. |
 | `providerOptions.entityId` | string | no | SolarWinds Observability only: ID of the entity whose logs to search. |
 | `providerOptions.direction` | string | no | SolarWinds Observability only: search direction. Default backward. One of `backward`, `forward`, `tail`. |
 
@@ -1439,7 +1439,7 @@ Return the newest log events for an optional query, newest last, plus a nextCurs
 | `limit` | integer | no | Maximum events to return. Capped by the resource's maxEvents. Default 50. Range: min 1, max 10000. |
 | `cursor` | string | no | nextCursor from a previous logs_tail call. Returns only events newer than that call, with the original query and filters. Only limit may be sent with it; query or providerOptions alongside a cursor return invalid_argument. |
 | `providerOptions` | object | no | Log filters: group, entityId, and direction. Unsupported keys return invalid_argument. |
-| `providerOptions.group` | string | no | Log group name. Defaults to the resource's defaultGroup. |
+| `providerOptions.group` | string | no | Optional existing log group name; omit unless known. `default` is not a special keyword. Omitted or empty uses the resource's defaultGroup; an empty configured default searches all groups. |
 | `providerOptions.entityId` | string | no | SolarWinds Observability only: ID of the entity whose logs to search. |
 | `providerOptions.direction` | string | no | SolarWinds Observability only: search direction. Default backward. One of `backward`, `forward`, `tail`. |
 

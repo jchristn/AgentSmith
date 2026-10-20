@@ -10,15 +10,19 @@ This resource is a SolarWinds Observability SaaS organization: logs, monitored e
 - `swo_get_entity`: one entity's details, tags, and attributes.
 - `swo_query_metric`: a metric over a window for an entity (`entityId`) or a filter, with min, max, average, and last per grouping.
 
+Use the exact bound resource alias on every call; never abbreviate it. Omit optional filters unless their values are known. The group name `default` is not a special keyword: only send it if that group is confirmed to exist. Omitted or empty group uses the resource's `defaultGroup`; an empty configured default searches every group.
+
 Scope log searches with `providerOptions.group` (log group name), `providerOptions.entityId` (from `swo_list_entities`), and `providerOptions.direction` (`backward` by default). `system` is not supported here; use `entityId`. There is no alert tool, because the public API does not list alerts.
 
 ### How to investigate
 
-1. Always bound searches by time. Start with a short window around the reported time (15m to 1h); relative values such as `15m`, `2h`, and `1d` work.
+1. Always bound searches by time. Start with a short window around the reported time (15m to 1h); relative values such as `15m`, `2h`, and `1d` work; `-1h` and `1h` both mean one hour ago.
 2. Start narrow: find the entity first with `swo_list_entities`, then search its logs with `entityId` and a specific term. Widen the window or drop filters only when nothing matches.
 3. To see when a problem began, query a relevant metric (for example CPU, memory, latency, error rate) with `swo_query_metric` over a wider window, find where it changes, then search logs in that narrower window. `logs_volume` is not available for this provider.
 4. Check entity health and `lastSeen` before blaming an application: a host that stopped reporting explains missing logs.
 5. Page with `cursor` only when the first page cannot answer the question. Send the cursor alone (you may change `limit`); a new query, window, or filter next to a cursor is refused.
+
+After an argument error, retain the corrected arguments in subsequent searches. If SolarWinds reports that a group does not exist, remove the explicit group or use a verified existing group; do not retry the rejected name. If the configured defaultGroup is invalid, report that configuration problem.
 
 ### Limits
 

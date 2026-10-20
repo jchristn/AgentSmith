@@ -28,7 +28,7 @@ namespace Hugo.Connectors.Logging
             "{\"type\":\"object\",\"additionalProperties\":false,"
             + "\"description\":\"SolarWinds Observability filters: group, entityId, and direction. Unknown keys return invalid_argument.\","
             + "\"properties\":{"
-            + "\"group\":{\"type\":\"string\",\"description\":\"SolarWinds Observability log group name. Defaults to the resource's defaultGroup.\"},"
+            + "\"group\":{\"type\":\"string\",\"description\":\"Optional existing SolarWinds Observability log group name. Omit unless known; never invent a group such as 'default'. Omitted or empty uses the resource's defaultGroup; an empty defaultGroup searches all groups.\"},"
             + "\"entityId\":{\"type\":\"string\",\"description\":\"SolarWinds Observability only: ID of the entity whose logs to search.\"},"
             + "\"direction\":{\"type\":\"string\",\"enum\":[\"backward\",\"forward\",\"tail\"],\"description\":\"SolarWinds Observability only: search direction. Default backward.\"}"
             + "}}";
@@ -39,8 +39,8 @@ namespace Hugo.Connectors.Logging
         public static readonly string SearchInputSchema =
             "{\"type\":\"object\",\"additionalProperties\":false,\"properties\":{"
             + "\"query\":{\"type\":\"string\",\"description\":\"Search expression in the provider's syntax. Quote exact phrases. Omit to match every event in the window.\"},"
-            + "\"startTime\":{\"type\":\"string\",\"description\":\"Window start: ISO-8601 timestamp (UTC when no offset) or a duration before now such as 15m, 2h, 1d. Default 1h.\"},"
-            + "\"endTime\":{\"type\":\"string\",\"description\":\"Window end: ISO-8601 timestamp, 'now', or a duration before now. Default now.\"},"
+            + "\"startTime\":{\"type\":\"string\",\"description\":\"Window start: ISO-8601 timestamp (UTC when no offset) or a duration before now such as 15m, 2h, 1d; -1h also means one hour ago. Default 1h.\"},"
+            + "\"endTime\":{\"type\":\"string\",\"description\":\"Window end: ISO-8601 timestamp, 'now', or a duration before now (1h and -1h are equivalent). Default now.\"},"
             + "\"limit\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":10000,\"description\":\"Maximum events to return. Capped by the resource's maxEvents. Default 100.\"},"
             + "\"cursor\":{\"type\":\"string\",\"description\":\"nextCursor from a previous logs_search call on the same resource. Fetches the next page with the original window, query, and filters: the next page in the search direction on SolarWinds Observability. Only limit may be sent with it; query, startTime, endTime, or providerOptions alongside a cursor return invalid_argument.\"},"
             + "\"providerOptions\":" + ProviderOptionsSchema

@@ -8,14 +8,14 @@ namespace Hugo.Connectors.Logging
     /// <summary>
     /// Parses tool time arguments and enforces the resource's maximum window. A time is either an ISO-8601 timestamp
     /// (UTC assumed when no offset is given), the word <c>now</c>, or a relative duration before now: a whole number
-    /// followed by <c>s</c>, <c>m</c>, <c>h</c>, <c>d</c>, or <c>w</c> (for example <c>15m</c>, <c>2h</c>, <c>1d</c>).
+    /// optionally prefixed with a minus sign, followed by <c>s</c>, <c>m</c>, <c>h</c>, <c>d</c>, or <c>w</c> (for example <c>15m</c>, <c>2h</c>, <c>1d</c>).
     /// Thread-safe.
     /// </summary>
     public static class TimeRangeResolver
     {
         #region Private-Members
 
-        private static readonly Regex _Relative = new Regex(@"^\s*(\d{1,7})\s*([smhdw])\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        private static readonly Regex _Relative = new Regex(@"^\s*-?(\d{1,7})\s*([smhdw])\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
         #endregion
 
@@ -57,7 +57,7 @@ namespace Hugo.Connectors.Logging
 
             throw new ConnectorException(
                 "invalid_argument",
-                "Argument '" + argumentName + "' value '" + v + "' is not an ISO-8601 timestamp or a relative duration such as 15m, 2h, or 1d.");
+                "Argument '" + argumentName + "' value '" + v + "' is not an ISO-8601 timestamp or a relative duration such as 15m, 2h, -1h, or 1d.");
         }
 
         /// <summary>

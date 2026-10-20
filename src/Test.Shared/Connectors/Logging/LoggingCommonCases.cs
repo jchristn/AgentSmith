@@ -112,6 +112,10 @@ namespace Test.Shared.Connectors.Logging
             {
                 DateTime now = new DateTime(2026, 10, 14, 12, 0, 0, DateTimeKind.Utc);
                 LoggingTestHelper.Assert(TimeRangeResolver.ParsePoint("15m", now, "x") == now.AddMinutes(-15), "15m");
+                foreach (string duration in new[] { "30s", "15m", "1h", "1d", "1w", " 2H " })
+                    LoggingTestHelper.Assert(TimeRangeResolver.ParsePoint("-" + duration.Trim(), now, "startTime") == TimeRangeResolver.ParsePoint(duration, now, "startTime"), "negative relative alias " + duration);
+                TimeRange signed = TimeRangeResolver.Resolve("-2h", "-1h", "1h", 168, now);
+                LoggingTestHelper.Assert(signed.Start == now.AddHours(-2) && signed.End == now.AddHours(-1), "signed window endpoints");
                 LoggingTestHelper.Assert(TimeRangeResolver.ParsePoint("2h", now, "x") == now.AddHours(-2), "2h");
                 LoggingTestHelper.Assert(TimeRangeResolver.ParsePoint("1d", now, "x") == now.AddDays(-1), "1d");
                 LoggingTestHelper.Assert(TimeRangeResolver.ParsePoint("30s", now, "x") == now.AddSeconds(-30), "30s");
