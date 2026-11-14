@@ -1,17 +1,15 @@
-name: Nightly wave 2 connectors
+name: Wave 2 connectors
 
-# Runs the wave 2 connector suites (plan P13.1) against real targets every night: Redis, LocalStack (aws),
+# Runs the wave 2 connector suites (plan P13.1) against real targets on every push: Redis, LocalStack (aws),
 # Prometheus, Loki, and OpenSearch (observability), k3s (kubernetes), and Docker-in-Docker (docker), all from
 # docker/testbed. The mcp, a2a-agent, and http suites need no container: they run against in-process Voltaic and
 # Watson servers started by the suites themselves. docker/testbed/README.md describes the targets.
 
 on:
-  schedule:
-    - cron: '30 6 * * *'
-  workflow_dispatch:
+  push:
 
 concurrency:
-  group: nightly-wave2
+  group: wave2-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -66,7 +64,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: nightly-wave2-results
+          name: wave2-results
           path: |
             results-wave2.json
             testbed-logs/

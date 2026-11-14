@@ -39,9 +39,9 @@ Storage host ports can be changed with `HUGO_TESTBED_S3_PORT`, `HUGO_TESTBED_S3_
 
 The `mcp` and `a2a-agent` connectors have no container here. Their suites (`connectors.agents.mcp` and `connectors.agents.a2a`) start an in-process Voltaic MCP server and an in-process Voltaic A2A agent and run against those, so they need neither `HUGO_TESTBED` nor Docker. The `http` connector suite (`connectors.http`) works the same way with an in-process Watson stub server.
 
-## Nightly wave 2 run
+## Wave 2 push checks
 
-`.github/workflows/nightly-wave2.yaml` runs every night at 06:30 UTC and on demand (workflow_dispatch). It starts the `redis`, `aws`, `observability`, `kubernetes`, and `docker` families one compose file at a time, runs
+`.github/workflows/nightly-wave2.yaml` runs on every push. It starts the `redis`, `aws`, `observability`, `kubernetes`, and `docker` families one compose file at a time, runs
 
 ```bash
 HUGO_TESTBED=1 dotnet run --project src/Test.Automated -f net10.0 -- --providers sqlite \
