@@ -6,6 +6,11 @@
     <PackageId>Hugo.Connectors.Abstractions</PackageId>
     <IsPackable>true</IsPackable>
     <Description>Contract for Hugo connectors: IConnector, IConnectorTool, descriptors, settings schemas, secret slots, and effect classification. Reference this package alone to build a Hugo connector plugin.</Description>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+    <PackageTags>hugo connector connectors plugin abstractions contracts</PackageTags>
   </PropertyGroup>
 
 </Project>
